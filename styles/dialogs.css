@@ -1,0 +1,106 @@
+/* ═══════════════════════════════════════════════════
+   DIALOGS
+═══════════════════════════════════════════════════ */
+.trespasser.dialog .window-content {
+  background: var(--trp-bg-dark);
+  color: var(--trp-text);
+  font-family: var(--trp-font-body);
+}
+
+.trespasser.dialog .dialog-content {
+  padding: 12px;
+}
+
+.trespasser.dialog .dialog-buttons {
+  padding: 10px;
+  gap: 10px;
+  background: var(--trp-bg-header);
+  border-top: 1px solid var(--trp-border);
+}
+
+.trespasser.dialog .dialog-button {
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-gold-dim);
+  color: var(--trp-gold);
+  font-family: var(--trp-font-header);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+  height: 32px;
+  line-height: normal;
+}
+
+.trespasser.dialog .dialog-button:hover {
+  background: var(--trp-gold-dim);
+  color: #fff;
+  border-color: #fff;
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
+}
+
+.trespasser.dialog .dialog-button.default {
+  border-width: 2px;
+  border-color: var(--trp-gold);
+}
+
+.trespasser.dialog .form-group {
+  margin-bottom: 12px;
+}
+
+.trespasser.dialog label {
+  font-family: var(--trp-font-header);
+  color: var(--trp-gold);
+  text-transform: uppercase;
+  font-size: 11px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.trespasser.dialog .trespasser-dialog-content {
+  padding: 5px 0;
+}
+
+.trespasser.dialog input[type="text"],
+.trespasser.dialog input[type="number"],
+.trespasser.dialog select {
+  box-sizing: border-box;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-bright);
+  padding: 0 8px;
+  border-radius: var(--trp-radius-sm);
+  width: 100%;
+  height: 30px;
+  line-height: 30px;
+}
+
+.trespasser.dialog .notes {
+  font-size: 11px;
+  color: var(--trp-text-dim);
+  margin-top: 4px;
+}
+
+/* Skill selection dialog specifically */
+.trp-attr-pick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.trp-attr-btn {
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text);
+  font-family: var(--trp-font-header);
+  font-size: 12px;
+  padding: 8px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.trp-attr-btn:hover {
+  background: var(--trp-gold-dim);
+  color: #fff;
+  border-color: var(--trp-gold-bright);
+}

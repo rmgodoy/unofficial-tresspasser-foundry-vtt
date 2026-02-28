@@ -1,0 +1,161 @@
+/* ═══════════════════════════════════════════════════
+   CHAT MESSAGES - DEED EFFECTS & ROLLS
+═══════════════════════════════════════════════════ */
+.trespasser-chat-card {
+  font-family: var(--trp-font-body);
+  font-size: 14px;
+  color: var(--trp-text);
+  background: var(--trp-bg-dark);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 8px 10px;
+  margin: -2px; /* Pull to edge of Foundry standard chat box */
+}
+
+.trespasser-chat-card h3 {
+  font-family: var(--trp-font-header);
+  color: var(--trp-gold-bright);
+  text-transform: uppercase;
+  font-size: 14px;
+  border-bottom: 1px solid var(--trp-border);
+  margin-bottom: 6px;
+  padding-bottom: 2px;
+}
+
+.trespasser-chat-card p {
+  margin: 0 0 5px 0;
+}
+
+.trespasser-chat-card p.hit-text {
+  font-weight: bold;
+  font-size: 14px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  color: var(--trp-green-bright);
+}
+
+.trespasser-chat-card p.miss-text {
+  font-weight: bold;
+  font-size: 14px;
+  margin-top: 4px;
+  margin-bottom: 4px;
+  color: var(--trp-red);
+}
+
+.trespasser-chat-card .cost-note {
+  font-style: italic;
+  font-size: 11px;
+  color: var(--trp-text-dim);
+}
+
+/* Chat Apply Effects styling */
+.trespasser-chat-card .applied-effects {
+  margin-top: 8px;
+}
+
+.trespasser-chat-card .applied-effects strong {
+  font-family: var(--trp-font-header);
+  font-size: 11px;
+  text-transform: uppercase;
+  color: var(--trp-text-dim);
+}
+
+.trespasser-chat-card .apply-effect-btn {
+  display: flex;
+  align-items: center;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  padding: 4px 6px;
+  margin-top: 4px;
+  border-radius: var(--trp-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-decoration: none;
+}
+
+.trespasser-chat-card .apply-effect-btn:hover {
+  background: var(--trp-bg-panel);
+  border-color: var(--trp-gold-bright);
+  box-shadow: 0 0 4px rgba(232, 201, 107, 0.3);
+}
+
+.trespasser-chat-card .apply-effect-btn img {
+  border: 1px solid var(--trp-border-light);
+  margin-right: 8px;
+  border-radius: 2px;
+}
+
+.trespasser-chat-card .apply-effect-btn span {
+  font-family: var(--trp-font-body);
+  font-weight: bold;
+  font-size: 14px;
+  color: var(--trp-text-bright);
+}
+
+.trespasser-chat-card .apply-effect-btn i {
+  margin-left: auto;
+  color: var(--trp-gold-dim);
+}
+
+.chat-message .message-header {
+  color: var(--trp-text);
+}
+
+.chat-message {
+  background: var(--trp-bg-dark);
+  color: var(--trp-text);
+}
+
+.editor {
+  min-height: 150px;
+  color: var(--trp-text);
+}
+
+.editor * {
+  color: var(--trp-text);
+}
+
+.prosemirror menu button.active {
+  background-color: #5d5d5d;
+}
+
+/* ─── Talents & Incantations Rollables ─── */
+.talent-rollable {
+  transition: color 0.2s ease, text-shadow 0.2s ease;
+}
+
+.talent-rollable:hover {
+  color: var(--trp-gold-bright) !important;
+  text-shadow: 0 0 5px var(--trp-gold-dim);
+}
+
+.talent-card h3 {
+  border-bottom: 2px solid var(--trp-gold);
+  color: var(--trp-gold-bright);
+}
+
+.incantation-rollable:hover {
+  color: var(--trp-gold-bright) !important;
+  text-shadow: 0 0 5px var(--trp-gold-dim);
+}
+
+.incantation-card h3 {
+  border-bottom: 2px solid var(--trp-gold);
+  color: #9575cd;
+}
+
+.incantation-metrics {
+  border-top: 1px solid var(--trp-border);
+  border-bottom: 1px solid var(--trp-border);
+  padding: 5px 0;
+  margin: 10px 0;
+}
+
+.collapsible-content {
+  color: var(--trp-text);
+  line-height: 1.4;
+}
+
+.collapsible-content p:last-child {
+  margin-bottom: 0;
+}

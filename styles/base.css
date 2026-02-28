@@ -1,0 +1,210 @@
+/* ─── CSS Variables ─── */
+:root {
+  --trp-bg-dark:      #1a1714;
+  --trp-bg-panel:     #23201c;
+  --trp-bg-input:     #2e2a24;
+  --trp-bg-header:    #1e1b17;
+  --trp-border:       #4a3f2f;
+  --trp-border-light: #5c4f3a;
+  --trp-gold:         #c9a84c;
+  --trp-gold-dim:     #a88840;   /* lifted for better contrast */
+  --trp-gold-bright:  #e8c96b;
+  --trp-red:          #ff5252;
+  --trp-red-dim:      #922c2c;
+  --trp-text:         #ddd0aa;   /* slightly brighter base text */
+  --trp-text-dim:     #a09070;   /* lifted: was too dark on dark bg */
+  --trp-text-bright:  #f5eccc;
+  --trp-green:        #2d5a2d;
+  --trp-green-bright: #4a8a4a;
+
+  --trp-font-header:  'Cinzel', 'Palatino Linotype', serif;
+  --trp-font-body:    'Crimson Text', 'Palatino Linotype', serif;
+
+  --trp-radius:       4px;
+  --trp-radius-sm:    2px;
+}
+
+/* ─── Sheet Root ─── */
+.trespasser-sheet {
+  font-family: var(--trp-font-body);
+  font-size: 14px;
+  color: var(--trp-text);
+  background: var(--trp-bg-dark);
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Utilities */
+.scrollable {
+  overflow-y: auto !important;
+  height: 100%;
+}
+
+/* ─── All Inputs / Selects / Textareas ─── */
+.trespasser-sheet input[type="text"],
+.trespasser-sheet input[type="number"],
+.trespasser-sheet select,
+.trespasser-sheet textarea {
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-bright);
+  font-family: var(--trp-font-body);
+  font-size: 13px;
+  border-radius: var(--trp-radius-sm);
+  padding: 2px 4px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.trespasser-sheet input[type="text"]:focus,
+.trespasser-sheet input[type="number"]:focus,
+.trespasser-sheet select:focus,
+.trespasser-sheet textarea:focus {
+  border-color: var(--trp-gold-dim);
+  outline: none;
+  box-shadow: 0 0 4px rgba(201, 168, 76, 0.3);
+}
+
+.trespasser-sheet input[readonly] {
+  opacity: 1;
+  color: var(--trp-gold-bright);
+  background: transparent;
+  border: none;
+  border-bottom: 1px dotted var(--trp-gold-dim);
+  cursor: default;
+  font-weight: 600;
+}
+
+/* Force Skill Die select to always be readable regardless of browser/Foundry overrides */
+.trespasser-sheet .skill-die-select,
+.trespasser-sheet select,
+.trespasser select {
+  background-color: #3a3228 !important;
+  color: #f5eccc !important;
+  border: 1px solid var(--trp-border-light) !important;
+  font-family: var(--trp-font-body) !important;
+  font-size: 13px !important;
+  border-radius: var(--trp-radius-sm);
+  padding: 2px 4px;
+  width: 100%;
+  box-sizing: border-box;
+  cursor: pointer;
+  height: 24px;
+  line-height: normal;
+}
+
+.trespasser-sheet .weapon-mode-select {
+  font-size: 11px;
+  height: 20px;
+  margin-top: 2px;
+  border-color: var(--trp-border-light);
+  background-color: rgba(0,0,0,0.3) !important;
+}
+
+.trespasser-sheet select option,
+.trespasser select option {
+  background-color: #1a1714 !important;
+  color: #f5eccc !important;
+  padding: 4px;
+}
+
+.trespasser-sheet input[type="checkbox"] {
+  height: 18px;
+  width: 18px;
+  aspect-ratio: 1 / 1;
+  accent-color: var(--trp-gold);
+  cursor: pointer;
+  flex: 0 0 auto;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+.trespasser-sheet input[type="checkbox"]:not(:checked) {
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #2d2a24;
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+}
+
+/* ─── Labels ─── */
+.trespasser-sheet label {
+  font-family: var(--trp-font-header);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--trp-gold);
+  display: block;
+  margin-bottom: 1px;
+}
+
+.trespasser-sheet h4 {
+  font-family: var(--trp-font-header);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--trp-gold);
+  border-bottom: 1px solid var(--trp-border);
+  padding-bottom: 3px;
+  margin: 0 0 6px 0;
+}
+
+.trespasser-sheet h3.section-title {
+  font-family: var(--trp-font-header);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--trp-gold-bright);
+  text-align: center;
+  border-bottom: 1px solid var(--trp-border-light);
+  padding-bottom: 4px;
+  margin: 8px 0 6px;
+}
+
+/* ─── Shared Utilities ─── */
+.button {
+  font-family: var(--trp-font-header);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--trp-gold-dim);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  padding: 2px 8px;
+  cursor: pointer;
+  background: transparent;
+  transition: color 0.15s, border-color 0.15s;
+  text-decoration: none;
+}
+
+.button:hover {
+  color: var(--trp-gold-bright);
+  border-color: var(--trp-gold-dim);
+}
+
+.item-controls a {
+  color: var(--trp-text-dim);
+  cursor: pointer;
+  font-size: 11px;
+  transition: color 0.15s;
+  text-decoration: none;
+}
+
+.item-controls a:hover {
+  color: var(--trp-gold);
+}
+
+.item-controls a.item-delete:hover {
+  color: #e05050;
+}
+
+body.game .app.window-app .window-content {
+  background: var(--trp-bg-dark);
+}
+
+body.game .app input[type="checkbox"] {
+  height: 18px;
+  width: 18px;
+}
