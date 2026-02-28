@@ -1,0 +1,27 @@
+      <!-- Combat Effects (States & active triggered effects) -->
+      <div class="states-section">
+        <h3 class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+          {{localize "TRESPASSER.Sheet.Combat.States"}} / {{localize "TRESPASSER.Sheet.Combat.CombatEffects"}}
+          <a class="item-create button" data-type="state">+ {{localize "TRESPASSER.Sheet.Character.AddItem"}}</a>
+        </h3>
+        <div class="combat-effects-list">
+          {{#each activeEffects.combat}}
+          <div class="effect-row combat-effect" data-item-id="{{this.id}}">
+            <div class="effect-name">{{this.name}}{{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}</div>
+            <div class="effect-mod">{{this.target}}: {{this.modifier}}</div>
+            <div class="effect-intensity-control">
+              <label>{{localize "TRESPASSER.Item.Int"}}</label>
+              <input type="number" class="effect-intensity-input" value="{{this.intensity}}" />
+            </div>
+            {{#unless this.fromInjury}}
+            <button type="button" class="effect-prevail prevail-btn">
+              <i class="fas fa-dice"></i> {{localize "TRESPASSER.Sheet.Combat.Prevail"}}
+            </button>
+            {{/unless}}
+            <a class="effect-remove" title="{{localize 'TRESPASSER.Item.RemoveEffect'}}"><i class="fas fa-trash"></i></a>
+          </div>
+          {{else}}
+          <div class="empty-list">{{localize "TRESPASSER.Sheet.Equipments.Empty"}}</div>
+          {{/each}}
+        </div>
+      </div>

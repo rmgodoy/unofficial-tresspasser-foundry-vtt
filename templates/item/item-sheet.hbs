@@ -1,0 +1,170 @@
+<form class="{{cssClass}} trespasser-sheet item-sheet" autocomplete="off">
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    </div>
+
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Item.Name'}}"/>
+      </h1>
+
+      <div class="detail-row">
+        <label>{{localize "TRESPASSER.Item.Type"}}</label>
+        <select name="system.subType">
+          {{selectOptions subTypeOptions selected=system.subType localize=true}}
+        </select>
+      </div>
+
+      <div class="detail-row">
+        <label>{{localize "TRESPASSER.Item.Price"}}</label>
+        <input type="number" name="system.price" value="{{system.price}}" data-dtype="Number" />
+      </div>
+
+      <div class="detail-row">
+        <label>{{localize "TRESPASSER.Sheet.Items.Slot"}}</label>
+        <input type="number" name="system.slotOccupancy" value="{{system.slotOccupancy}}" data-dtype="Number" />
+      </div>
+
+      <div class="detail-row flex-row" style="gap: 10px; margin-top: 5px;">
+        <div class="field-item checkbox-item" style="flex: 1;">
+          <label for="item-is-fuel-{{item.id}}">{{localize "TRESPASSER.Item.IsLightFuel"}}</label>
+          <input type="checkbox" name="system.isLightFuel" {{checked system.isLightFuel}} id="item-is-fuel-{{item.id}}"/>
+        </div>
+        <div class="field-item checkbox-item" style="flex: 1;">
+          <label for="item-is-ammo-{{item.id}}">{{localize "TRESPASSER.Item.IsAmmo"}}</label>
+          <input type="checkbox" name="system.isAmmo" {{checked system.isAmmo}} id="item-is-ammo-{{item.id}}"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="header-column description-column">
+      <div class="editor-container">
+        {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror"}}
+      </div>
+    </div>
+  </header>
+
+  <section class="sheet-body scrollable">
+    <div class="custom-attributes-area">
+      <h3 class="section-title">{{localize "TRESPASSER.Sheet.Items.CustomAttributes"}}</h3>
+
+      <!-- Contextual sections based on SubType -->
+      <div class="attribute-fields">
+        {{#if isResource}}
+        <div class="attribute-group flex-row">
+          <div class="field-item">
+            <label>{{localize "TRESPASSER.Item.ResourceType"}}</label>
+            <select name="system.resourceType">
+              {{selectOptions resourceTypeOptions selected=system.resourceType localize=true}}
+            </select>
+          </div>
+        </div>
+        {{/if}}
+
+        {{#if isLightSource}}
+        <div class="attribute-group flex-row">
+          <div class="field-item">
+            <label>{{localize "TRESPASSER.Item.Radius"}}</label>
+            <input type="number" name="system.radius" value="{{system.radius}}"/>
+          </div>
+          
+          <div class="field-item">
+            <label>{{localize "TRESPASSER.Item.DepletionDie"}}</label>
+            <select name="system.depletionDie">
+              {{selectOptions config.depletionDieOptions selected=system.depletionDie localize=true}}
+            </select>
+          </div>
+
+          <div class="field-item">
+            <label>{{localize "TRESPASSER.Item.Placement"}}</label>
+            <select name="system.placement">
+              {{selectOptions placementOptions selected=system.placement localize=true}}
+            </select>
+          </div>
+
+          <div class="field-item checkbox-item">
+            <input type="checkbox" name="system.active" {{checked system.active}} id="item-active-{{item.id}}"/>
+            <label for="item-active-{{item.id}}">{{localize "TRESPASSER.Item.ActiveLit"}}</label>
+          </div>
+
+          <div class="field-item checkbox-item">
+            <input type="checkbox" name="system.usesFuel" {{checked system.usesFuel}} id="item-fuel-{{item.id}}"/>
+            <label for="item-fuel-{{item.id}}">{{localize "TRESPASSER.Item.UsesFuel"}}</label>
+          </div>
+        </div>
+        {{/if}}
+
+
+
+        {{#if isConsumable}}
+        <div class="attribute-group flex-row">
+          <div class="field-item">
+            <label>{{localize "TRESPASSER.Item.Tier"}}</label>
+            <select name="system.tier">
+              {{selectOptions tierOptions selected=system.tier localize=true}}
+            </select>
+          </div>
+          
+          {{#if hasDamage}}
+          <div class="field-item" style="flex: 2;">
+            <label>{{localize "TRESPASSER.Item.Damage"}}</label>
+            <input type="text" name="system.damage" value="{{system.damage}}"/>
+          </div>
+          {{/if}}
+        </div>
+        {{/if}}
+      </div>
+
+      <!-- Drag & Drop sections -->
+      <div class="nested-items-container">
+        {{#if (or isConsumable isArtifact)}}
+          <div class="nested-item-wrapper">
+            {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
+                title=(localize "TRESPASSER.Item.EnhancementEffects") 
+                items=system.effects 
+                property="effects" 
+                deleteClass="remove-effect"}}
+          </div>
+        {{/if}}
+
+        {{#if (or isScroll isArtifact)}}
+          <div class="nested-item-wrapper">
+            {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
+                title=(localize "TRESPASSER.Sheet.Combat.Deeds") 
+                items=system.deeds 
+                property="deeds" 
+                deleteClass="remove-deed"}}
+          </div>
+        {{/if}}
+
+        {{#if isEsoteric}}
+          <div class="nested-item-wrapper">
+            {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
+                title=(localize "TRESPASSER.Item.Incantations") 
+                items=system.incantations 
+                property="incantations" 
+                deleteClass="remove-incantation"}}
+          </div>
+        {{/if}}
+
+        {{#if isArtifact}}
+          <div class="nested-item-wrapper">
+            {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
+                title=(localize "TRESPASSER.Item.Talents") 
+                items=system.talents 
+                property="talents" 
+                deleteClass="remove-talent"}}
+          </div>
+          <div class="nested-item-wrapper">
+            {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
+                title=(localize "TRESPASSER.Item.MagicTraits") 
+                items=system.features 
+                property="features" 
+                deleteClass="remove-feature"}}
+          </div>
+        {{/if}}
+      </div>
+    </div>
+  </section>
+</form>

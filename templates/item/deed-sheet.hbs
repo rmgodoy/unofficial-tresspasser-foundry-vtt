@@ -1,0 +1,262 @@
+<form class="{{cssClass}} trespasser-sheet item deed" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    <div class="header-info">
+      <div class="name-group">
+        <h1 class="item-title">{{item.name}}</h1>
+      </div>
+    </div>
+  </header>
+
+  <section class="sheet-body scrollable">
+    <div class="details-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Equipments.Name"}}</label>
+        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.deed'}}" />
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.Tier"}}</label>
+        <select name="system.tier">
+          {{#each config.tiers as |label key|}}
+            <option value="{{key}}" {{#if (eq ../system.tier key)}}selected{{/if}}>{{localize (concat "TRESPASSER.Item.DeedTierChoices." (capitalize key))}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.ActionType"}}</label>
+        <select name="system.actionType">
+          {{#each config.actionTypes as |label key|}}
+            <option value="{{key}}" {{#if (eq ../system.actionType key)}}selected{{/if}}>{{localize (concat "TRESPASSER.Item.DeedActionTypeChoices." (capitalize key))}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.DeedType"}}</label>
+        <select name="system.type">
+          {{#each config.types as |label key|}}
+            <option value="{{key}}" {{#if (eq ../system.type key)}}selected{{/if}}>{{localize (concat "TRESPASSER.Item.DeedTypeChoices." (capitalize key))}}</option>
+          {{/each}}
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.Target"}}</label>
+        <input type="text" name="system.target" value="{{system.target}}" placeholder="{{localize 'TRESPASSER.Item.DeedTargetPlaceholder'}}" />
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.AccuracyVs"}}</label>
+        {{#if (eq system.actionType "support")}}
+          <input type="text" name="system.accuracyTest" value="10" readonly />
+        {{else}}
+          <select name="system.accuracyTest">
+            <option value="Guard" {{#if (eq system.accuracyTest "Guard")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Guard"}}</option>
+            <option value="Resist" {{#if (eq system.accuracyTest "Resist")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Resist"}}</option>
+          </select>
+        {{/if}}
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.FocusCost"}}</label>
+        <input type="number" name="system.focusCost" value="{{system.focusCost}}" min="0" placeholder="{{localize 'TRESPASSER.Item.Auto'}}" />
+      </div>
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.FocusIncrease"}}</label>
+        <input type="number" name="system.focusIncrease" value="{{system.focusIncrease}}" min="0" placeholder="{{localize 'TRESPASSER.Item.Auto'}}" />
+      </div>
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.BonusCost"}}</label>
+        <input type="number" name="system.bonusCost" value="{{system.bonusCost}}" min="0" placeholder="0" />
+      </div>
+
+      <div class="effects-section" style="grid-column: span 2; border-top: 1px solid #444; margin-top: 10px; padding-top: 10px;">
+        <h3 style="border-bottom: none; margin-bottom: 10px; font-family: var(--trp-font-header); font-size: 13px; color: var(--trp-gold-bright); text-transform: uppercase;">{{localize "TRESPASSER.Item.DeedEffects"}}</h3>
+        
+        <!-- Start Effect -->
+        <div class="effect-block" style="margin-bottom: 12px; border-bottom: 1px dotted #444; padding-bottom: 8px;">
+          <h4 style="margin: 0 0 5px 0; font-size: 11px; color: var(--trp-text-dim);">{{localize "TRESPASSER.Item.Start"}}</h4>
+          <div class="field-row full-width">
+            <input type="text" name="system.effects.start.description" value="{{system.effects.start.description}}" placeholder="{{localize 'TRESPASSER.Item.DeedDescriptionStart'}}" />
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 4px;">
+            <div class="field-row" style="flex: 1;">
+              <input type="text" name="system.effects.start.damage" value="{{system.effects.start.damage}}" placeholder="{{localize 'TRESPASSER.Item.DeedDamagePlaceholder'}}" />
+            </div>
+            <div style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center;">
+              <label style="font-size: 10px; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" name="system.effects.start.appliesWeaponEffects" {{checked system.effects.start.appliesWeaponEffects}} />
+                {{localize "TRESPASSER.Item.WeaponEffects"}}
+              </label>
+            </div>
+            <div class="applied-effects-list" data-phase="start" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
+                {{#each system.effects.start.appliedEffects as |effect index|}}
+                  {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+                {{else}}
+                  <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+                {{/each}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Before Effect -->
+        <div class="effect-block" style="margin-bottom: 12px; border-bottom: 1px dotted #444; padding-bottom: 8px;">
+          <h4 style="margin: 0 0 5px 0; font-size: 11px; color: var(--trp-text-dim);">{{localize "TRESPASSER.Item.Before"}}</h4>
+          <div class="field-row full-width">
+            <input type="text" name="system.effects.before.description" value="{{system.effects.before.description}}" placeholder="{{localize 'TRESPASSER.Item.DeedDescriptionBefore'}}" />
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 4px;">
+            <div class="field-row" style="flex: 1;">
+              <input type="text" name="system.effects.before.damage" value="{{system.effects.before.damage}}" placeholder="{{localize 'TRESPASSER.Item.Damage'}}" />
+            </div>
+            <div style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center;">
+              <label style="font-size: 10px; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" name="system.effects.before.appliesWeaponEffects" {{checked system.effects.before.appliesWeaponEffects}} />
+                {{localize "TRESPASSER.Item.WeaponEffects"}}
+              </label>
+            </div>
+            <div class="applied-effects-list" data-phase="before" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
+              {{#each system.effects.before.appliedEffects as |effect index|}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+              {{else}}
+                <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Base Effect -->
+        <div class="effect-block" style="margin-bottom: 12px; border-bottom: 1px dotted #444; padding-bottom: 8px;">
+          <h4 style="margin: 0 0 5px 0; font-size: 11px; color: var(--trp-text-dim);">{{localize "TRESPASSER.Item.Base"}}</h4>
+          <div class="field-row full-width">
+            <input type="text" name="system.effects.base.description" value="{{system.effects.base.description}}" placeholder="{{localize 'TRESPASSER.Item.DeedDescriptionBase'}}" />
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 4px;">
+            <div class="field-row" style="flex: 1;">
+              <input type="text" name="system.effects.base.damage" value="{{system.effects.base.damage}}" placeholder="{{localize 'TRESPASSER.Item.Damage'}}" />
+            </div>
+            <div style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center;">
+              <label style="font-size: 10px; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" name="system.effects.base.appliesWeaponEffects" {{checked system.effects.base.appliesWeaponEffects}} />
+                {{localize "TRESPASSER.Item.WeaponEffects"}}
+              </label>
+            </div>
+            <div class="applied-effects-list" data-phase="base" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
+              {{#each system.effects.base.appliedEffects as |effect index|}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+              {{else}}
+                <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Hit Effect -->
+        <div class="effect-block" style="margin-bottom: 12px; border-bottom: 1px dotted #444; padding-bottom: 8px;">
+          <h4 style="margin: 0 0 5px 0; font-size: 11px; color: var(--trp-text-dim);">{{localize "TRESPASSER.Item.Hit"}}</h4>
+          <div class="field-row full-width">
+            <input type="text" name="system.effects.hit.description" value="{{system.effects.hit.description}}" placeholder="{{localize 'TRESPASSER.Item.DeedDescriptionHit'}}" />
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 4px;">
+            <div class="field-row" style="flex: 1;">
+              <input type="text" name="system.effects.hit.damage" value="{{system.effects.hit.damage}}" placeholder="{{localize 'TRESPASSER.Item.Damage'}}" />
+            </div>
+            <div style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center;">
+              <label style="font-size: 10px; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" name="system.effects.hit.appliesWeaponEffects" {{checked system.effects.hit.appliesWeaponEffects}} />
+                {{localize "TRESPASSER.Item.WeaponEffects"}}
+              </label>
+            </div>
+            <div class="applied-effects-list" data-phase="hit" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
+              {{#each system.effects.hit.appliedEffects as |effect index|}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+              {{else}}
+                <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+
+        <!-- Spark Effect -->
+        <div class="effect-block" style="margin-bottom: 12px; border-bottom: 1px dotted #444; padding-bottom: 8px;">
+          <h4 style="margin: 0 0 5px 0; font-size: 11px; color: var(--trp-text-dim);">{{localize "TRESPASSER.Item.Spark"}}</h4>
+          <div class="field-row full-width">
+            <input type="text" name="system.effects.spark.description" value="{{system.effects.spark.description}}" placeholder="{{localize 'TRESPASSER.Item.DeedDescriptionSpark'}}" />
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 4px;">
+            <div class="field-row" style="flex: 1;">
+              <input type="text" name="system.effects.spark.damage" value="{{system.effects.spark.damage}}" placeholder="{{localize 'TRESPASSER.Item.Damage'}}" />
+            </div>
+            <div style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center;">
+              <label style="font-size: 10px; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" name="system.effects.spark.appliesWeaponEffects" {{checked system.effects.spark.appliesWeaponEffects}} />
+                {{localize "TRESPASSER.Item.WeaponEffects"}}
+              </label>
+            </div>
+            <div class="applied-effects-list" data-phase="spark" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
+              {{#each system.effects.spark.appliedEffects as |effect index|}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+              {{else}}
+                <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+
+        <!-- After Effect -->
+        <div class="effect-block" style="margin-bottom: 12px; border-bottom: 1px dotted #444; padding-bottom: 8px;">
+          <h4 style="margin: 0 0 5px 0; font-size: 11px; color: var(--trp-text-dim);">{{localize "TRESPASSER.Item.After"}}</h4>
+          <div class="field-row full-width">
+            <input type="text" name="system.effects.after.description" value="{{system.effects.after.description}}" placeholder="{{localize 'TRESPASSER.Item.DeedDescriptionAfter'}}" />
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 4px;">
+            <div class="field-row" style="flex: 1;">
+              <input type="text" name="system.effects.after.damage" value="{{system.effects.after.damage}}" placeholder="{{localize 'TRESPASSER.Item.Damage'}}" />
+            </div>
+            <div style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center;">
+              <label style="font-size: 10px; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" name="system.effects.after.appliesWeaponEffects" {{checked system.effects.after.appliesWeaponEffects}} />
+                {{localize "TRESPASSER.Item.WeaponEffects"}}
+              </label>
+            </div>
+            <div class="applied-effects-list" data-phase="after" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
+              {{#each system.effects.after.appliedEffects as |effect index|}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+              {{else}}
+                <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+
+        <!-- End Effect -->
+        <div class="effect-block" style="margin-bottom: 12px; padding-bottom: 8px;">
+          <h4 style="margin: 0 0 5px 0; font-size: 11px; color: var(--trp-text-dim);">{{localize "TRESPASSER.Item.End"}}</h4>
+          <div class="field-row full-width">
+            <input type="text" name="system.effects.end.description" value="{{system.effects.end.description}}" placeholder="{{localize 'TRESPASSER.Item.DeedDescriptionEnd'}}" />
+          </div>
+          <div style="display: flex; gap: 10px; margin-top: 4px;">
+            <div class="field-row" style="flex: 1;">
+              <input type="text" name="system.effects.end.damage" value="{{system.effects.end.damage}}" placeholder="{{localize 'TRESPASSER.Item.Damage'}}" />
+            </div>
+            <div style="flex: 0 0 auto; display: flex; align-items: center; justify-content: center;">
+              <label style="font-size: 10px; display: flex; align-items: center; gap: 4px; cursor: pointer;">
+                <input type="checkbox" name="system.effects.end.appliesWeaponEffects" {{checked system.effects.end.appliesWeaponEffects}} />
+                {{localize "TRESPASSER.Item.WeaponEffects"}}
+              </label>
+            </div>
+            <div class="applied-effects-list" data-phase="end" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
+              {{#each system.effects.end.appliedEffects as |effect index|}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+              {{else}}
+                <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+              {{/each}}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</form>

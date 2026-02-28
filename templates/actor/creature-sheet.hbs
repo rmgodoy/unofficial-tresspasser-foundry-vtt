@@ -1,0 +1,119 @@
+<form class="{{cssClass}} trespasser-sheet actor creature" autocomplete="off">
+  
+  <header class="sheet-header">
+    <div class="header-portrait">
+      <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+    </div>
+
+    <div class="header-info">
+      <!-- Row 1: Name -->
+      <div class="header-row header-identity" style="margin-bottom: 8px;">
+        <div class="name-group" style="flex: 1;">
+          <input type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.CreatureNamePlaceholder'}}" />
+        </div>
+      </div>
+
+      <!-- Row 2: Level, Role, Template -->
+      <div class="header-row header-identity" style="margin-bottom: 8px; justify-content: flex-start; gap: 15px;">
+        <div class="level-group" style="flex: 0 0 100px;">
+          <label>{{localize "TRESPASSER.Sheet.Header.Level"}}</label>
+          <input type="number" name="system.level" value="{{system.level}}" min="0" max="20" />
+        </div>
+        <div class="level-group" style="flex: 0 0 150px;">
+          <label>{{localize "TRESPASSER.Sheet.Header.Role"}}</label>
+          <select name="system.role" style="flex: 1; background: transparent; color: var(--trp-text-light); border: none; font-family: var(--trp-font-primary); font-size: 14px; text-transform: uppercase;">
+            <option value="archer" {{#if (eq system.role "archer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Archer"}}</option>
+            <option value="enchanter" {{#if (eq system.role "enchanter")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Enchanter"}}</option>
+            <option value="enforcer" {{#if (eq system.role "enforcer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Enforcer"}}</option>
+            <option value="guardian" {{#if (eq system.role "guardian")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Guardian"}}</option>
+            <option value="harrier" {{#if (eq system.role "harrier")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Harrier"}}</option>
+            <option value="hellion" {{#if (eq system.role "hellion")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Hellion"}}</option>
+            <option value="stalker" {{#if (eq system.role "stalker")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Stalker"}}</option>
+            <option value="sorcerer" {{#if (eq system.role "sorcerer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Sorcerer"}}</option>
+          </select>
+        </div>
+        <div class="level-group" style="flex: 0 0 150px;">
+          <label>{{localize "TRESPASSER.Sheet.Header.Template"}}</label>
+          <select name="system.template" style="flex: 1; background: transparent; color: var(--trp-text-light); border: none; font-family: var(--trp-font-primary); font-size: 14px; text-transform: uppercase;">
+            <option value="underling" {{#if (eq system.template "underling")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Underling"}}</option>
+            <option value="normal" {{#if (eq system.template "normal")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Normal"}}</option>
+            <option value="paragon" {{#if (eq system.template "paragon")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Paragon"}}</option>
+            <option value="tyrant" {{#if (eq system.template "tyrant")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Tyrant"}}</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Row 3: Resources Part 1 (Health, Guard, Resist) -->
+      <div class="header-row header-resources" style="justify-content: space-between; margin-bottom: 8px;">
+        <div class="resource-box">
+          <label>{{localize "TRESPASSER.Sheet.Header.Health"}}</label>
+          <div class="resource-values">
+            <input type="number" name="system.health" value="{{system.health}}" min="0" />
+            <span>/</span>
+            <input type="number" name="system.max_health" value="{{system.max_health}}" />
+          </div>
+        </div>
+        <div class="resource-box">
+          <label title="{{localize "TRESPASSER.Item.Base"}}: {{system.guard}}">{{localize "TRESPASSER.Sheet.Combat.Guard"}} {{#if (ne system.guard system.combat.guard)}}({{system.combat.guard}}){{/if}}</label>
+          <input type="number" name="system.guard" value="{{system.guard}}" />
+        </div>
+        <div class="resource-box">
+          <label title="{{localize "TRESPASSER.Item.Base"}}: {{system.resist}}">{{localize "TRESPASSER.Sheet.Combat.Resist"}} {{#if (ne system.resist system.combat.resist)}}({{system.combat.resist}}){{/if}}</label>
+          <input type="number" name="system.resist" value="{{system.resist}}" />
+        </div>
+      </div>
+
+      <!-- Row 4: Resources Part 2 (Initiative, Speed, Roll Bonus) -->
+      <div class="header-row header-resources" style="justify-content: space-between;">
+        <div class="resource-box">
+          <label title="{{localize "TRESPASSER.Item.Base"}}: {{system.accuracy}}">{{localize "TRESPASSER.Sheet.Combat.Accuracy"}} {{#if (ne system.accuracy system.combat.accuracy)}}({{system.combat.accuracy}}){{/if}}</label>
+          <input type="number" name="system.accuracy" value="{{system.accuracy}}" />
+        </div>
+        <div class="resource-box">
+          <label title="{{localize "TRESPASSER.Item.Base"}}: {{system.initiative}}">{{localize "TRESPASSER.Sheet.Combat.Initiative"}} {{#if (ne system.initiative system.combat.initiative)}}({{system.combat.initiative}}){{/if}}</label>
+          <input type="number" name="system.initiative" value="{{system.initiative}}" />
+        </div>
+        <div class="resource-box">
+          <label title="{{localize "TRESPASSER.Item.Base"}}: {{system.speed}}">{{localize "TRESPASSER.Sheet.Combat.Speed"}} {{#if (ne system.speed system.combat.speed)}}({{system.combat.speed}}){{/if}}</label>
+          <input type="number" name="system.speed" value="{{system.speed}}" />
+        </div>
+        <div class="resource-box">
+          <label title="{{localize "TRESPASSER.Item.Base"}}: {{system.roll_bonus}}">{{localize "TRESPASSER.Sheet.Combat.Roll"}} {{#if (ne system.roll_bonus system.combat.roll_bonus)}}({{system.combat.roll_bonus}}){{/if}}</label>
+          <input type="number" name="system.roll_bonus" value="{{system.roll_bonus}}" />
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <section class="sheet-body scrollable">
+    
+    <!-- Features -->
+    <div class="features-section" style="margin-top: 10px;">
+      <h3 class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
+        {{localize "TRESPASSER.Item.Features"}}
+        <a class="item-create button" data-type="feature">+ {{localize "TRESPASSER.Sheet.Character.AddItem"}}</a>
+      </h3>
+      <div class="items-list">
+        {{#each features}}
+        <div class="item" data-item-id="{{this.id}}" style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); margin-bottom: 5px; padding: 5px; border-radius: 4px;">
+           <span class="item-name feature-name rollable" style="flex: 1; cursor: pointer; color: var(--trp-gold-bright);">{{this.name}}</span>
+           <div class="item-controls" style="display: flex; gap: 8px;">
+             <a class="item-edit" title="{{localize 'TRESPASSER.Sheet.Equipments.Edit'}}"><i class="fas fa-edit"></i></a>
+             <a class="item-delete" title="{{localize 'TRESPASSER.Sheet.Equipments.Delete'}}"><i class="fas fa-trash"></i></a>
+           </div>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- Combat Effects -->
+    {{> "systems/trespasser/templates/actor/parts/combat-effects.hbs"}}
+
+    <!-- Deeds List -->
+    <div class="deeds-section" style="margin-top: 15px;">
+      <h3 class="section-title" style="margin-bottom: 0;">{{localize "TRESPASSER.Sheet.Combat.Deeds"}}</h3>
+      {{> "systems/trespasser/templates/actor/parts/deed-list.hbs"}}
+    </div>
+
+  </section>
+</form>

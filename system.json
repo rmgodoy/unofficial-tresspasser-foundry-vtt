@@ -1,0 +1,54 @@
+{
+  "id": "trespasser",
+  "title": "Trespasser",
+  "description": "A Foundry VTT system for the Trespasser TTRPG by Tundalus.",
+  "version": "0.1.0",
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "authors": [
+    {
+      "name": "Tundalus"
+    }
+  ],
+  "esmodules": ["trespasser.mjs"],
+  "styles": ["styles/trespasser.css"],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "pt-BR",
+      "name": "Português (Brasil)",
+      "path": "lang/pt-BR.json"
+    }
+  ],
+  "documentTypes": {
+    "Actor": {
+      "character": {},
+      "creature": {}
+    },
+    "Item": {
+      "item": {},
+      "rations": {},
+      "weapon": {},
+      "armor": {},
+      "deed": {},
+      "feature": {},
+      "talent": {},
+      "incantation": {},
+      "effect": {},
+      "accessory": {},
+      "state": {},
+      "injury": {},
+      "calling": {},
+      "craft": {}
+    }
+  },
+  "initiative": "1d6 + @system.combat.initiative",
+  "primaryTokenAttribute": "system.health",
+  "secondaryTokenAttribute": "system.endurance"
+}

@@ -1,0 +1,56 @@
+<form class="{{cssClass}} trespasser-sheet item effect" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    <div class="header-info">
+      <div class="name-group">
+        <h1 class="item-title">{{item.name}}</h1>
+      </div>
+    </div>
+  </header>
+
+  <section class="sheet-body scrollable">
+    <div class="details-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Equipments.Name"}}</label>
+        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.effect'}}" />
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.Type"}}</label>
+        <select name="system.type">
+          {{{selectOptions config.effectTypes selected=system.type localize=true}}}
+        </select>
+      </div>
+
+      <div class="field-row checkbox-row">
+        <input type="checkbox" name="system.isCombat" {{checked system.isCombat}} id="effect-combat-{{item.id}}"/>
+        <label for="effect-combat-{{item.id}}">{{localize "TRESPASSER.Item.IsCombat"}}</label>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.Intensity"}}</label>
+        <input type="number" name="system.intensity" value="{{system.intensity}}" />
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.TargetAttribute"}}</label>
+        <select name="system.targetAttribute">
+          {{{selectOptions config.targetAttributes selected=system.targetAttribute localize=true}}}
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.Modifier"}}</label>
+        <input type="text" name="system.modifier" value="{{system.modifier}}" placeholder="{{localize 'TRESPASSER.Dialog.EffectEditor.ModifierPlaceholder'}}" />
+      </div>
+      <p class="notes" style="font-size: 11px; color: var(--trp-text-dim); margin-top: -5px;">{{localize "TRESPASSER.Dialog.EffectEditor.IntensityNote"}}</p>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.TriggerWhen"}}</label>
+        <select name="system.when">
+          {{{selectOptions config.triggerWhen selected=system.when localize=true}}}
+        </select>
+      </div>
+    </div>
+  </section>
+</form>

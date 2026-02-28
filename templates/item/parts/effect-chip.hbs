@@ -1,0 +1,10 @@
+<div class="effect-chip" data-index="{{index}}" style="display: inline-flex; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid #555; border-radius: 4px; padding: 2px 4px; margin: 2px; font-size: 11px;">
+  <img src="{{effect.img}}" width="16" height="16" style="border: none; margin-right: 4px; border-radius: 2px;" />
+  <span style="margin-right: 4px;">{{effect.name}}</span>
+  <div class="intensity-control" style="display: flex; align-items: center; gap: 2px; background: rgba(0,0,0,0.3); padding: 1px 3px; border-radius: 2px; border: 1px solid #444;">
+    <label style="font-size: 9px; color: var(--trp-text-dim);">{{localize "TRESPASSER.Item.IntShort"}}</label>
+    <input type="number" class="effect-intensity-input" value="{{#if effect.intensity}}{{effect.intensity}}{{else}}1{{/if}}" 
+           style="width: 28px; height: 16px; font-size: 10px; padding: 0 2px; text-align: center; border: none; background: transparent; color: var(--trp-gold-bright);" />
+  </div>
+  <a class="{{deleteClass}}" style="margin-left: 6px; color: var(--trp-red); cursor: pointer;" title="{{localize 'TRESPASSER.Item.RemoveEffect'}}"><i class="fas fa-times"></i></a>
+</div>

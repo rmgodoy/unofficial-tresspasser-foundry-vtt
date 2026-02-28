@@ -1,0 +1,86 @@
+<form class="{{cssClass}} trespasser-sheet item-sheet injury-sheet" autocomplete="off">
+
+  <!-- ─── HEADER ─── -->
+  <header class="sheet-header item-header-layout">
+
+    <!-- Item image -->
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    </div>
+
+    <!-- Name + clock numbers -->
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input name="name" type="text" value="{{item.name}}"
+               placeholder="{{localize 'TRESPASSER.Item.Injury.Name'}}"/>
+      </h1>
+
+      <div class="detail-row">
+        <label>{{localize "TRESPASSER.Item.Injury.InjuryClock"}}</label>
+        <input type="number" name="system.injuryClock"
+               value="{{system.injuryClock}}" min="2" max="12" />
+      </div>
+
+      <div class="detail-row">
+        <label>{{localize "TRESPASSER.Item.Injury.CurrentClock"}}</label>
+        <input type="number" name="system.currentClock"
+               value="{{system.currentClock}}" min="0"
+               max="{{system.injuryClock}}" />
+      </div>
+    </div>
+
+    <!-- Description -->
+    <div class="header-column description-column">
+      <div class="editor-container">
+        {{editor descriptionHTML target="system.description" button=true
+                 editable=editable engine="prosemirror"}}
+      </div>
+    </div>
+  </header>
+
+  <!-- ─── BODY ─── -->
+  <section class="sheet-body scrollable">
+    <div class="custom-attributes-area">
+
+      <!-- SVG Clock display -->
+      <h3 class="section-title">{{localize "TRESPASSER.Item.Injury.Clock"}}</h3>
+      <div class="injury-clock-area">
+        <svg class="injury-clock-svg" viewBox="0 0 100 100"
+             xmlns="http://www.w3.org/2000/svg">
+          <!-- Background circle -->
+          <circle cx="50" cy="50" r="44"
+                  fill="var(--trp-bg-panel)"
+                  stroke="var(--trp-border-light)"
+                  stroke-width="1.5"/>
+
+          <!-- Segments — clickable -->
+          {{#each clockSegments as |seg i|}}
+          <path class="clock-segment {{#if seg.filled}}filled{{/if}}"
+                data-index="{{i}}"
+                d="{{seg.path}}" />
+          {{/each}}
+
+          <!-- Centre label: current / total -->
+          <text x="50" y="45" class="clock-label-num">{{clockFilled}}</text>
+          <line x1="35" y1="50" x2="65" y2="50"
+                stroke="var(--trp-border-light)" stroke-width="1"/>
+          <text x="50" y="62" class="clock-label-total">{{clockTotal}}</text>
+        </svg>
+
+        <p class="clock-hint">
+          {{localize "TRESPASSER.Item.Injury.ClockHint"}}
+        </p>
+      </div>
+
+      <!-- Effects drop zone -->
+      <div style="margin-top: 15px; border-top: 1px solid var(--trp-border-light); padding-top: 10px;">
+        {{> "systems/trespasser/templates/item/parts/effects-list.hbs"
+            title=(localize "TRESPASSER.Item.Injury.Effects")
+            items=system.effects
+            property="effects"
+            deleteClass="effect-remove"}}
+      </div>
+
+    </div>
+  </section>
+</form>

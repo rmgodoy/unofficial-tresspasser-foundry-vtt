@@ -1,0 +1,673 @@
+/**
+ * Trespasser TTRPG — Foundry VTT System
+ * Main entry point
+ */
+
+import { TrespasserCharacterData } from "./module/data/actor-character.mjs";
+import { TrespasserCreatureData }  from "./module/data/actor-creature.mjs";
+import { TrespasserArmorData }     from "./module/data/item-armor.mjs";
+import { TrespasserWeaponData }    from "./module/data/item-weapon.mjs";
+import { TrespasserRationsData }   from "./module/data/item-rations.mjs";
+import { TrespasserEffectData }    from "./module/data/item-effect.mjs";
+import { TrespasserStateData }     from "./module/data/item-state.mjs";
+import { TrespasserDeedData }      from "./module/data/item-deed.mjs";
+import { TrespasserFeatureData }   from "./module/data/item-feature.mjs";
+import { TrespasserTalentData }    from "./module/data/item-talent.mjs";
+import { TrespasserIncantationData } from "./module/data/item-incantation.mjs";
+import { TrespasserItemData }        from "./module/data/item-item.mjs";
+import { TrespasserAccessoryData }   from "./module/data/item-accessory.mjs";
+import { TrespasserInjuryData }      from "./module/data/item-injury.mjs";
+import { TrespasserCallingData }    from "./module/data/item-calling.mjs";
+import { TrespasserActor }         from "./module/documents/actor.mjs";
+import { TrespasserCombat }        from "./module/documents/combat.mjs";
+import { TrespasserEffectsHelper } from "./module/helpers/effects-helper.mjs";
+import { TrespasserCharacterSheet } from "./module/sheets/actor-character-sheet.mjs";
+import { TrespasserCreatureSheet }  from "./module/sheets/actor-creature-sheet.mjs";
+import { TrespasserArmorSheet }     from "./module/sheets/item-armor-sheet.mjs";
+import { TrespasserWeaponSheet }    from "./module/sheets/item-weapon-sheet.mjs";
+import { TrespasserRationsSheet }   from "./module/sheets/item-rations-sheet.mjs";
+import { TrespasserEffectSheet }    from "./module/sheets/item-effect-sheet.mjs";
+import { TrespasserStateSheet }     from "./module/sheets/item-state-sheet.mjs";
+import { TrespasserDeedSheet }      from "./module/sheets/item-deed-sheet.mjs";
+import { TrespasserFeatureSheet }   from "./module/sheets/item-feature-sheet.mjs";
+import { TrespasserTalentSheet }    from "./module/sheets/item-talent-sheet.mjs";
+import { TrespasserIncantationSheet } from "./module/sheets/item-incantation-sheet.mjs";
+import { TrespasserItemSheet }        from "./module/sheets/item-item-sheet.mjs";
+import { TrespasserAccessorySheet }   from "./module/sheets/item-accessory-sheet.mjs";
+import { TrespasserInjurySheet }      from "./module/sheets/item-injury-sheet.mjs";
+import { TrespasserCallingSheet }     from "./module/sheets/item-calling-sheet.mjs";
+import { TrespasserCraftData }      from "./module/data/item-craft.mjs";
+import { TrespasserCraftSheet }     from "./module/sheets/item-craft-sheet.mjs";
+
+Hooks.once("init", async () => {
+  console.log("Trespasser | Initialising system");
+
+  // Load partial templates
+  await foundry.applications.handlebars.loadTemplates([
+    "systems/trespasser/templates/actor/parts/deed-list.hbs",
+    "systems/trespasser/templates/actor/parts/combat-effects.hbs",
+    "systems/trespasser/templates/item/parts/effect-chip.hbs",
+    "systems/trespasser/templates/item/parts/effects-list.hbs",
+    "systems/trespasser/templates/item/parts/deeds-list.hbs"
+  ]);
+
+  // Register custom document classes
+  CONFIG.Actor.documentClass = TrespasserActor;
+  CONFIG.Combat.documentClass = TrespasserCombat;
+
+  CONFIG.TRESPASSER = {
+    targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
+    depletionDieOptions: {
+      "": "TRESPASSER.Item.DepletionChoices.None",
+      "d4": "TRESPASSER.Item.DepletionChoices.Crude",
+      "d6": "TRESPASSER.Item.DepletionChoices.Normal",
+      "d8": "TRESPASSER.Item.DepletionChoices.Fine",
+      "d10": "TRESPASSER.Item.DepletionChoices.Excellent",
+      "d12": "TRESPASSER.Item.DepletionChoices.Enchanted",
+      "d20": "TRESPASSER.Item.DepletionChoices.Legendary"
+    }
+  };
+
+  // Register data models
+  CONFIG.Actor.dataModels.character = TrespasserCharacterData;
+  CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
+
+  CONFIG.Item.dataModels.armor = TrespasserArmorData;
+  CONFIG.Item.dataModels.weapon = TrespasserWeaponData;
+  CONFIG.Item.dataModels.rations = TrespasserRationsData;
+  CONFIG.Item.dataModels.effect = TrespasserEffectData;
+  CONFIG.Item.dataModels.state = TrespasserStateData;
+  CONFIG.Item.dataModels.deed = TrespasserDeedData;
+  CONFIG.Item.dataModels.feature = TrespasserFeatureData;
+  CONFIG.Item.dataModels.talent = TrespasserTalentData;
+  CONFIG.Item.dataModels.incantation = TrespasserIncantationData;
+  CONFIG.Item.dataModels.accessory = TrespasserAccessoryData;
+  CONFIG.Item.dataModels.item = TrespasserItemData;
+  CONFIG.Item.dataModels.injury = TrespasserInjuryData;
+  CONFIG.Item.dataModels.calling = TrespasserCallingData;
+  CONFIG.Item.dataModels.craft   = TrespasserCraftData;
+
+  // Sheets
+  foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserCharacterSheet, {
+    types: ["character"],
+    makeDefault: true,
+    label: "Trespasser Character Sheet",
+  });
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserCreatureSheet, {
+    types: ["creature"],
+    makeDefault: true,
+    label: "Trespasser Creature Sheet",
+  });
+
+  foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserArmorSheet, {
+    types: ["armor"],
+    makeDefault: true,
+    label: "Trespasser Armor Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserWeaponSheet, {
+    types: ["weapon"],
+    makeDefault: true,
+    label: "Trespasser Weapon Sheet",
+  });
+
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserRationsSheet, {
+    types: ["rations"],
+    makeDefault: true,
+    label: "Trespasser Rations Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserEffectSheet, {
+    types: ["effect"],
+    makeDefault: true,
+    label: "Trespasser Effect Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserStateSheet, {
+    types: ["state"],
+    makeDefault: true,
+    label: "Trespasser State Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserDeedSheet, {
+    types: ["deed"],
+    makeDefault: true,
+    label: "Trespasser Deed Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserFeatureSheet, {
+    types: ["feature"],
+    makeDefault: true,
+    label: "Trespasser Feature Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserTalentSheet, {
+    types: ["talent"],
+    makeDefault: true,
+    label: "Trespasser Talent Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserIncantationSheet, {
+    types: ["incantation"],
+    makeDefault: true,
+    label: "Trespasser Incantation Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserAccessorySheet, {
+    types: ["accessory"],
+    makeDefault: true,
+    label: "Trespasser Accessory Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserItemSheet, {
+    types: ["item"],
+    makeDefault: true,
+    label: "Trespasser Item Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserInjurySheet, {
+    types: ["injury"],
+    makeDefault: true,
+    label: "Trespasser Injury Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserCallingSheet, {
+    types: ["calling"],
+    makeDefault: true,
+    label: "Trespasser Calling Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserCraftSheet, {
+    types: ["craft"],
+    makeDefault: true,
+    label: "Trespasser Craft Sheet",
+  });
+
+  // Handlebars helpers
+  Handlebars.registerHelper("trespasserChecked", (value) => (value ? "checked" : ""));
+  Handlebars.registerHelper("trespasserGt", (a, b) => a > b);
+  Handlebars.registerHelper("eq", (a, b) => a === b);
+  Handlebars.registerHelper("or", (...args) => args.slice(0, -1).some(Boolean));
+  Handlebars.registerHelper("ne", (a, b) => a !== b);
+  Handlebars.registerHelper("array", (...args) => args.slice(0, -1));
+  Handlebars.registerHelper("capitalize", (str) => {
+    if (!str) return "";
+    return str.charAt(0).toUpperCase() + str.slice(1);
+  });
+  Handlebars.registerHelper("concat", (...args) => args.slice(0, -1).join(""));
+  Handlebars.registerHelper("lookup", (obj, key) => obj?.[key]);
+  Handlebars.registerHelper("unless", Handlebars.helpers.unless);
+  Handlebars.registerHelper("times", (n, block) => {
+    let result = "";
+    for (let i = 0; i < n; i++) result += block.fn(i);
+    return result;
+  });
+  Handlebars.registerHelper("math", (lvalue, operator, rvalue) => {
+    lvalue = parseFloat(lvalue);
+    rvalue = parseFloat(rvalue);
+    return {
+      "+": lvalue + rvalue,
+      "-": lvalue - rvalue,
+      "*": lvalue * rvalue,
+      "/": lvalue / rvalue,
+      "%": lvalue % rvalue
+    }[operator];
+  });
+
+  console.log("Trespasser | System ready");
+});
+
+Hooks.on("preUpdateActor", (actor, updateData, options, userId) => {
+  // Sync prototype token name for base actors if name changes
+  if (updateData.name && !actor.isToken) {
+    updateData.prototypeToken = updateData.prototypeToken || {};
+    updateData.prototypeToken.name = updateData.name;
+  }
+});
+
+// Hooks.on("updateActor", (actor, changed, options, userId) => {
+//   if (game.user.id !== userId) return;
+
+//   if (changed.name) {
+//     if (actor.isToken) {
+//       // Sync actual token document for unlinked tokens
+//       if (actor.token && actor.token.name !== changed.name) {
+//         actor.token.update({ name: changed.name });
+//       }
+//     } else {
+//       // Sync all existing linked tokens on the active canvas
+//       if (typeof canvas !== "undefined" && canvas.scene) {
+//         const tokens = actor.getActiveTokens();
+//         const updates = tokens.filter(t => t.name !== changed.name).map(t => ({ _id: t.id, name: changed.name }));
+//         if (updates.length > 0) {
+//           canvas.scene.updateEmbeddedDocuments("Token", updates);
+//         }
+//       }
+//     }
+//   }
+// });
+
+Hooks.on("renderChatMessageHTML", (message, html, data) => {
+  // Determine color based on speaker instead of just author
+  let borderColor = "#000000";
+  const speaker = message.speaker;
+
+  if (speaker.actor || speaker.token) {
+    const actor = ChatMessage.getSpeakerActor(speaker);
+    if (actor) {
+      if (actor.type === "character") {
+        // Use the owner's color for characters if possible
+        const owners = game.users.filter(u => !u.isGM && actor.testUserPermission(u, "OWNER"));
+        if (owners.length > 0) borderColor = owners[0].color;
+      }
+    }
+  }
+
+  if (borderColor) {
+    html.style.border = `2px solid ${borderColor}`;
+    html.style.backgroundColor = "var(--trp-bg-dark)";
+  }
+
+  html.querySelectorAll(".apply-effect-btn").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const uuid = btn.dataset.uuid;
+      const itemIntensity = parseInt(btn.dataset.intensity);
+      if (!uuid) return;
+
+      const sourceItem = await fromUuid(uuid);
+      if (!sourceItem) {
+        ui.notifications.error("Original effect could not be found.");
+        return;
+      }
+      
+      const baseIntensity = !isNaN(itemIntensity) ? itemIntensity : (sourceItem.system.intensity || 1);
+
+      const tokens = canvas.tokens.controlled;
+      if (tokens.length === 0) {
+        ui.notifications.warn("Please select at least one token to apply the effect to.");
+        return;
+      }
+
+      for (const token of tokens) {
+        const actor = token.actor;
+        if (!actor) continue;
+
+        const existingEffect = actor.items.find(i => i.type === sourceItem.type && i.name === sourceItem.name);
+
+        if (existingEffect) {
+          const currentIntensity = existingEffect.system.intensity || 0;
+          const addedIntensity = baseIntensity > 0 ? baseIntensity : 1;
+          await existingEffect.update({ "system.intensity": currentIntensity + addedIntensity });
+          ui.notifications.info(`Increased intensity of ${sourceItem.name} on ${actor.name}.`);
+        } else {
+          const itemData = sourceItem.toObject();
+          itemData.system.intensity = baseIntensity;
+          delete itemData._id;
+          await foundry.documents.BaseItem.create(itemData, { parent: actor });
+          ui.notifications.info(`Applied ${sourceItem.name} to ${actor.name}.`);
+        }
+      }
+    });
+  });
+
+  // ── Apply Damage button ───────────────────────────────────────────────────
+  html.querySelectorAll(".apply-damage-btn").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const rawDamage = parseInt(btn.dataset.damage);
+      if (isNaN(rawDamage)) return;
+
+      // Prefer controlled tokens; fall back to targeted tokens
+      let tokens = canvas.tokens.controlled;
+      if (tokens.length === 0) tokens = Array.from(game.user.targets);
+      if (tokens.length === 0) {
+        ui.notifications.warn("Select or target at least one token to apply damage to.");
+        return;
+      }
+
+      for (const token of tokens) {
+        const actor = token.actor;
+        if (!actor) continue;
+
+        // Reduction from Damage Received effects on the target — rolled async for dice/token support
+        const reduction = await TrespasserEffectsHelper.evaluateDamageBonus(actor, "damage_received");
+        // reduction is stored as a negative modifier (e.g. -2 means take 2 less damage)
+        // getAttributeBonus returns the sum, so subtract it from incoming damage
+        const finalDamage = Math.max(0, rawDamage + reduction); // reduction is expected to be negative
+
+        const newHP = Math.max(0, (actor.system.health ?? 0) - finalDamage);
+        await actor.update({ "system.health": newHP });
+
+        const msg = reduction !== 0
+          ? `${actor.name} took <strong>${finalDamage}</strong> damage (${rawDamage} − ${Math.abs(reduction)} reduction).`
+          : `${actor.name} took <strong>${finalDamage}</strong> damage.`;
+        await ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({ actor }),
+          content: `<div class="trespasser-chat-card"><p>${msg}</p></div>`
+        });
+      }
+    });
+  });
+
+  // ── Heal Damage button ────────────────────────────────────────────────────
+  html.querySelectorAll(".heal-damage-btn").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const healAmount = parseInt(btn.dataset.damage);
+      if (isNaN(healAmount)) return;
+
+      let tokens = canvas.tokens.controlled;
+      if (tokens.length === 0) tokens = Array.from(game.user.targets);
+      if (tokens.length === 0) {
+        ui.notifications.warn("Select or target at least one token to heal.");
+        return;
+      }
+
+      for (const token of tokens) {
+        const actor = token.actor;
+        if (!actor) continue;
+
+        const newHP = Math.min(actor.system.max_health ?? actor.system.health, (actor.system.health ?? 0) + healAmount);
+        await actor.update({ "system.health": newHP });
+
+        await ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({ actor }),
+          content: `<div class="trespasser-chat-card"><p>${actor.name} was healed for <strong>${healAmount}</strong> HP.</p></div>`
+        });
+      }
+    });
+  });
+});
+
+Hooks.on("updateCombat", async (combat, changed, options, userId) => {
+  if (game.user.id !== userId) return; // Only process effects if this user made the change
+  
+  const isRoundChange = changed.round !== undefined;
+  const isTurnChange = changed.turn !== undefined;
+  
+  if (!isRoundChange && !isTurnChange) return;
+
+  const prevCombatantId = combat.previous?.combatantId;
+  const currCombatantId = combat.combatant?.id;
+
+  // End of Turn logic
+  if (prevCombatantId && (isTurnChange || isRoundChange)) {
+    const prevCombatant = combat.combatants.get(prevCombatantId);
+    if (prevCombatant?.actor) {
+      await TrespasserEffectsHelper.triggerEffects(prevCombatant.actor, "end-of-turn");
+      
+      // Players gain focus if they didn't use heavy/mighty/special deeds
+      if (prevCombatant.actor.type === "character") {
+        const usedExpensive = prevCombatant.getFlag("trespasser", "usedExpensiveDeed");
+        if (!usedExpensive) {
+          const skillBonus = prevCombatant.actor.system.skill || 0;
+          if (skillBonus > 0) {
+            const currentFocus = prevCombatant.actor.system.combat.focus || 0;
+            const maxFocus = prevCombatant.actor.system.max_endurance || 10;
+            const newFocus = Math.min(currentFocus + skillBonus, maxFocus);
+            
+            if (newFocus > currentFocus) {
+              await prevCombatant.actor.update({ "system.combat.focus": newFocus });
+              
+              ChatMessage.create({
+                speaker: ChatMessage.getSpeaker({ actor: prevCombatant.actor }),
+                content: `<div class="trespasser-chat-card">
+                  <p><strong>${prevCombatant.actor.name}</strong> recovered <strong>${newFocus - currentFocus} Focus</strong> for maintaining concentration (no heavy/mighty/special deeds used).</p>
+                </div>`
+              });
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // Round changes
+  if (isRoundChange) {
+    if (combat.previous?.round !== undefined && changed.round > combat.previous.round) {
+      // Focus restoration and end-of-round
+      for (const c of combat.combatants) {
+        if (c.actor) {
+          await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-round");
+        }
+      }
+      
+      // Start-of-round
+      for (const c of combat.combatants) {
+        if (c.actor) {
+          await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-round");
+        }
+      }
+    }
+  }
+
+  // Start of Turn for current combatant
+  if (currCombatantId && (isTurnChange || isRoundChange)) {
+    const currCombatant = combat.combatants.get(currCombatantId);
+    if (currCombatant) {
+      // Reset turn tracking flags
+      await currCombatant.setFlag("trespasser", "hasMovedThisTurn", false);
+      await currCombatant.setFlag("trespasser", "usedExpensiveDeed", false);
+      
+      if (currCombatant.actor) {
+        await TrespasserEffectsHelper.triggerEffects(currCombatant.actor, "start-of-turn");
+      }
+    }
+  }
+});
+
+Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
+  if (game.user.id !== userId) return; // Only trigger for the user who moved the token
+  
+  // Sync token name back to actor name if it's unlinked
+  if (changed.name && !tokenDoc.isLinked && tokenDoc.actor) {
+    if (tokenDoc.actor.name !== changed.name) {
+      await tokenDoc.actor.update({ name: changed.name });
+    }
+  }
+
+  // Check if position actually changed
+  if (changed.x === undefined && changed.y === undefined && changed.elevation === undefined) return;
+  
+  if (!game.combat || !game.combat.active || !game.combat.started) return;
+  
+  const combatant = game.combat.combatants.find(c => c.tokenId === tokenDoc.id);
+  if (!combatant) return;
+  
+  // Only trigger on the combatant's own turn
+  if (game.combat.combatant?.id !== combatant.id) return;
+  
+  // Only trigger once per turn
+  if (combatant.getFlag("trespasser", "hasMovedThisTurn")) return;
+  
+  if (combatant.actor) {
+    await combatant.setFlag("trespasser", "hasMovedThisTurn", true);
+    await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+  }
+});
+
+/**
+ * Feature linked item application when an item is created.
+ */
+Hooks.on("createItem", async (item, options, userId) => {
+  if (game.user.id !== userId) return;
+  const actor = item.parent;
+  if (!actor || actor.constructor.name !== "TrespasserActor") return;
+
+  if (item.type === "feature") {
+    const effects = item.system.effects || [];
+    const deeds = item.system.deeds || [];
+    if (effects.length > 0) await actor._applyLinkedItems(effects);
+    if (deeds.length > 0) await actor._applyLinkedItems(deeds);
+  } else if (item.type === "accessory" && item.system.equipped) {
+    const sys = item.system;
+    if (sys.talents?.length > 0)  await actor._applyLinkedItems(sys.talents);
+    if (sys.features?.length > 0) await actor._applyLinkedItems(sys.features);
+    if (sys.deeds?.length > 0)    await actor._applyLinkedItems(sys.deeds);
+    if (sys.effects?.length > 0)  await actor._applyLinkedItems(sys.effects, { passiveOnly: true });
+  } else if (item.type === "injury") {
+    // Apply all passive effects listed on the injury — these cannot be prevailed against
+    const effects = item.system.effects || [];
+    if (effects.length > 0) {
+      await actor._applyLinkedItems(effects, { passiveOnly: false, fromInjury: true, injuryId: item.id });
+    }
+  }
+});
+
+/**
+ * Feature linked item removal when an item is deleted.
+ */
+Hooks.on("deleteItem", async (item, options, userId) => {
+  if (game.user.id !== userId) return;
+  const actor = item.parent;
+  if (!actor || actor.constructor.name !== "TrespasserActor") return;
+
+  if (item.type === "feature") {
+    const effects = item.system.effects || [];
+    const deeds = item.system.deeds || [];
+    if (effects.length > 0) await actor._removeLinkedItems(effects, item.id);
+    if (deeds.length > 0) await actor._removeLinkedItems(deeds, item.id);
+  } else if (item.type === "accessory") {
+    const sys = item.system;
+    if (sys.talents?.length > 0)  await actor._removeLinkedItems(sys.talents, item.id);
+    if (sys.features?.length > 0) await actor._removeLinkedItems(sys.features, item.id);
+    if (sys.deeds?.length > 0)    await actor._removeLinkedItems(sys.deeds, item.id);
+    if (sys.effects?.length > 0)  await actor._removeLinkedItems(sys.effects, item.id);
+  } else if (item.type === "injury") {
+    // Remove all effect/state items on this actor that were stamped with this injury's ID
+    const toRemove = actor.items.filter(
+      i => (i.type === "effect" || i.type === "state") &&
+           i.flags?.trespasser?.injuryId === item.id
+    );
+    for (const eff of toRemove) {
+      await eff.delete();
+    }
+  }
+});
+
+/**
+ * Update linked items if the Feature's link arrays change.
+ */
+Hooks.on("updateItem", async (item, changed, options, userId) => {
+  if (game.user.id !== userId) return;
+  const actor = item.parent;
+  if (!actor || actor.constructor.name !== "TrespasserActor") return;
+
+  if (item.type === "feature" && ("system" in changed)) {
+    if ("effects" in changed.system || "deeds" in changed.system) {
+       const effects = item.system.effects || [];
+       const deeds = item.system.deeds || [];
+       if (effects.length > 0) await actor._applyLinkedItems(effects);
+       if (deeds.length > 0) await actor._applyLinkedItems(deeds);
+    }
+  } else if (item.type === "accessory" && item.system.equipped && ("system" in changed)) {
+    const sys = item.system;
+    if ("talents" in changed.system)  await actor._applyLinkedItems(sys.talents || []);
+    if ("features" in changed.system) await actor._applyLinkedItems(sys.features || []);
+    if ("deeds" in changed.system)    await actor._applyLinkedItems(sys.deeds || []);
+    if ("effects" in changed.system)  await actor._applyLinkedItems(sys.effects || [], { passiveOnly: true });
+  } else if (item.type === "injury" && ("system" in changed) && "effects" in changed.system) {
+    // Re-apply whenever the injury's effects list changes
+    const effects = item.system.effects || [];
+    if (effects.length > 0) {
+      await actor._applyLinkedItems(effects, { passiveOnly: false, fromInjury: true, injuryId: item.id });
+    }
+  }
+});
+
+/**
+ * Assign default icons to items based on type if they use the default foundry icon.
+ */
+Hooks.on("preCreateItem", (item, createData, options, userId) => {
+  if (item.type === "injury") {
+    item.updateSource({ img: "systems/trespasser/assets/icons/effects.png" });
+  }
+  if (item.img === "icons/svg/item-bag.svg") {
+    let iconPath = "icons/svg/item-bag.svg";
+    switch (item.type) {
+      case "armor":
+        iconPath = "systems/trespasser/assets/icons/armor_and_shields.png";
+        break;
+      case "weapon":
+        iconPath = "systems/trespasser/assets/icons/weapons.png";
+        break;
+      case "accessory":
+        iconPath = "systems/trespasser/assets/icons/accessories.png";
+        break;
+      case "rations":
+        iconPath = "systems/trespasser/assets/icons/food.png";
+        break;
+      case "effect":
+      case "state":
+        iconPath = "systems/trespasser/assets/icons/effects.png";
+        break;
+      case "deed":
+        iconPath = "systems/trespasser/assets/icons/deeds.png";
+        break;
+      case "incantation":
+        iconPath = "systems/trespasser/assets/icons/incantations.png";
+        break;
+      case "feature":
+        iconPath = "systems/trespasser/assets/icons/feature.png";
+        break;
+      case "talent":
+        iconPath = "systems/trespasser/assets/icons/talents.png";
+        break;
+      case "calling":
+        iconPath = "systems/trespasser/assets/icons/feature.png";
+        break;
+      case "craft":
+        iconPath = "systems/trespasser/assets/icons/deeds.png";
+        break;
+      case "item":
+        const subType = item.system.subType;
+        if (subType === "tool") iconPath = "systems/trespasser/assets/icons/tool.png";
+        else if (subType === "resource") iconPath = "systems/trespasser/assets/icons/resources.png";
+        else if (subType === "light_source") iconPath = "systems/trespasser/assets/icons/ligth_sources.png";
+        else if (subType === "bombs") iconPath = "systems/trespasser/assets/icons/bombs.png";
+        else if (subType === "oils") iconPath = "systems/trespasser/assets/icons/oils.png";
+        else if (subType === "powders") iconPath = "systems/trespasser/assets/icons/powders.png";
+        else if (subType === "potions") iconPath = "systems/trespasser/assets/icons/potions.png";
+        else if (subType === "scrolls") iconPath = "systems/trespasser/assets/icons/scrolls.png";
+        else if (subType === "esoteric") iconPath = "systems/trespasser/assets/icons/esoteric.png";
+        else if (subType === "artifacts") iconPath = "systems/trespasser/assets/icons/artifacts.png";
+        else if (subType === "miscellaneous") iconPath = "systems/trespasser/assets/icons/misellaneous.png";
+        else iconPath = "systems/trespasser/assets/icons/item.png";
+        break;
+    }
+    item.updateSource({ img: iconPath });
+  }
+});
+
+/**
+ * Update placeholder icon when subType changes.
+ */
+Hooks.on("preUpdateItem", (item, changed, options, userId) => {
+  if (changed.system?.subType && item.type === "item") {
+    const isDefault = [
+        "systems/trespasser/assets/icons/item.png",
+        "systems/trespasser/assets/icons/tool.png",
+        "systems/trespasser/assets/icons/resources.png",
+        "systems/trespasser/assets/icons/ligth_sources.png",
+        "systems/trespasser/assets/icons/bombs.png",
+        "systems/trespasser/assets/icons/oils.png",
+        "systems/trespasser/assets/icons/powders.png",
+        "systems/trespasser/assets/icons/potions.png",
+        "systems/trespasser/assets/icons/scrolls.png",
+        "systems/trespasser/assets/icons/esoteric.png",
+        "systems/trespasser/assets/icons/artifacts.png",
+        "systems/trespasser/assets/icons/misellaneous.png",
+        "icons/svg/item-bag.svg"
+    ].includes(item.img);
+
+    if (isDefault) {
+        const subType = changed.system.subType;
+        let iconPath = "systems/trespasser/assets/icons/item.png";
+        if (subType === "tool") iconPath = "systems/trespasser/assets/icons/tool.png";
+        else if (subType === "resource") iconPath = "systems/trespasser/assets/icons/resources.png";
+        else if (subType === "light_source") iconPath = "systems/trespasser/assets/icons/ligth_sources.png";
+        else if (subType === "bombs") iconPath = "systems/trespasser/assets/icons/bombs.png";
+        else if (subType === "oils") iconPath = "systems/trespasser/assets/icons/oils.png";
+        else if (subType === "powders") iconPath = "systems/trespasser/assets/icons/powders.png";
+        else if (subType === "potions") iconPath = "systems/trespasser/assets/icons/potions.png";
+        else if (subType === "scrolls") iconPath = "systems/trespasser/assets/icons/scrolls.png";
+        else if (subType === "esoteric") iconPath = "systems/trespasser/assets/icons/esoteric.png";
+        else if (subType === "artifacts") iconPath = "systems/trespasser/assets/icons/artifacts.png";
+        else if (subType === "miscellaneous") iconPath = "systems/trespasser/assets/icons/misellaneous.png";
+        
+        changed.img = iconPath;
+    }
+  }
+});
+
