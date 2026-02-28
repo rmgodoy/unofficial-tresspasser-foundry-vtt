@@ -208,3 +208,31 @@ body.game .app input[type="checkbox"] {
   height: 18px;
   width: 18px;
 }
+
+/* ─── Sidebar Header Actions ─── */
+.directory .header-actions button.export-all-items,
+.directory .header-actions button.import-all-items {
+  flex: 1;
+  font-family: var(--trp-font-header);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--trp-gold-dim);
+  border: 1px solid var(--trp-border);
+  background: var(--trp-bg-panel);
+  transition: all 0.2s ease;
+  padding: 4px 6px;
+  margin: 1px;
+}
+
+.directory .header-actions button.export-all-items:hover,
+.directory .header-actions button.import-all-items:hover {
+  color: var(--trp-gold-bright);
+  border-color: var(--trp-gold-dim);
+  background: var(--trp-bg-input);
+  box-shadow: 0 0 5px rgba(201, 168, 76, 0.2);
+}
+
+.directory .header-actions button i {
+  margin-right: 4px;
+}

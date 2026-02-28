@@ -38,6 +38,7 @@ import { TrespasserInjurySheet }      from "./module/sheets/item-injury-sheet.mj
 import { TrespasserCallingSheet }     from "./module/sheets/item-calling-sheet.mjs";
 import { TrespasserCraftData }      from "./module/data/item-craft.mjs";
 import { TrespasserCraftSheet }     from "./module/sheets/item-craft-sheet.mjs";
+import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -205,6 +206,10 @@ Hooks.once("init", async () => {
   });
 
   console.log("Trespasser | System ready");
+  
+  // Expose ItemExporter globally for convenience and debugging
+  game.trespasser = game.trespasser || {};
+  game.trespasser.ItemExporter = ItemExporter;
 });
 
 Hooks.on("preUpdateActor", (actor, updateData, options, userId) => {
@@ -670,4 +675,52 @@ Hooks.on("preUpdateItem", (item, changed, options, userId) => {
     }
   }
 });
+
+/**
+ * Add export/import buttons to the items directory.
+ */
+Hooks.on("renderItemDirectory", (app, html, data) => {
+  if (!game.user.isGM) return;
+
+  // Handle both legacy jQuery and new V13 HTMLElement
+  const $html = $(html);
+  let header = $html.find(".header-actions");
+  
+  // Fallback for different structures or AppV2
+  if (!header.length && app.element) {
+    header = $(app.element).find(".header-actions");
+  }
+
+  if (!header.length) {
+    // Some V13 themes or versions might use different classes
+    header = $html.find(".directory-header .actions, header .actions, nav.header-actions");
+  }
+
+  if (!header.length) {
+    console.warn("Trespasser | Could not find header actions container in ItemDirectory", $html);
+    return;
+  }
+
+  // Create buttons only if they don't exist
+  if ($html.find(".export-all-items").length) return;
+
+  const exportBtn = $(`<button class="export-all-items"><i class="fas fa-file-export"></i> Export All</button>`);
+  const importBtn = $(`<button class="import-all-items"><i class="fas fa-file-import"></i> Import All</button>`);
+
+  exportBtn.on("click", (ev) => {
+    ev.preventDefault();
+    ItemExporter.exportAll();
+  });
+
+  importBtn.on("click", (ev) => {
+    ev.preventDefault();
+    ItemExporter.importData();
+  });
+
+  header.append(exportBtn);
+  header.append(importBtn);
+});
+
+
+
 
