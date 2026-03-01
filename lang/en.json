@@ -362,6 +362,7 @@
       "OnMove": "On Move",
       "Use": "Use",
       "Immediate": "Immediate",
+      "DamageDealt": "Damage Dealt",
       "DamageReceived": "Damage Received",
       "StartOfCombat": "Start of Combat",
       "EndOfCombat": "End of Combat"
@@ -369,7 +370,8 @@
     "DurationLabels": {
       "Indefinite": "Indefinite",
       "Combat": "Whole Combat",
-      "Rounds": "Rounds"
+      "Rounds": "Rounds",
+      "Triggers": "Triggers"
     },
     "Item": {
       "Damage": "Damage",
@@ -396,7 +398,6 @@
       "triggerWhen": "Trigger (When)",
       "Trigger": "Trigger",
       "duration": "Duration",
-      "durationValue": "Rounds",
       "intensityIncrement": "Intensity Increment",
       "tier": "Tier",
       "actionType": "Action Type",

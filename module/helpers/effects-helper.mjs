@@ -13,6 +13,7 @@ export class TrespasserEffectsHelper {
     ON_MOVE: "on-move",
     USE: "use",
     IMMEDIATE: "immediate",
+    DAMAGE_DEALT: "damage-dealt",
     DAMAGE_RECEIVED: "damage-received",
     START_COMBAT: "start-of-combat",
     END_COMBAT: "end-of-combat"
@@ -29,6 +30,7 @@ export class TrespasserEffectsHelper {
     "on-move": "TRESPASSER.TriggerLabels.OnMove",
     "use": "TRESPASSER.TriggerLabels.Use",
     "immediate": "TRESPASSER.TriggerLabels.Immediate",
+    "damage-dealt": "TRESPASSER.TriggerLabels.DamageDealt",
     "damage-received": "TRESPASSER.TriggerLabels.DamageReceived",
     "start-of-combat": "TRESPASSER.TriggerLabels.StartOfCombat",
     "end-of-combat": "TRESPASSER.TriggerLabels.EndOfCombat"
@@ -40,7 +42,8 @@ export class TrespasserEffectsHelper {
   static DURATION_MODES = {
     INDEFINITE: "indefinite",
     COMBAT: "combat",
-    ROUNDS: "rounds"
+    ROUNDS: "rounds",
+    TRIGGERS: "triggers"
   };
 
   /**
@@ -49,7 +52,8 @@ export class TrespasserEffectsHelper {
   static DURATION_LABELS = {
     "indefinite": "TRESPASSER.DurationLabels.Indefinite",
     "combat": "TRESPASSER.DurationLabels.Combat",
-    "rounds": "TRESPASSER.DurationLabels.Rounds"
+    "rounds": "TRESPASSER.DurationLabels.Rounds",
+    "triggers": "TRESPASSER.DurationLabels.Triggers"
   };
 
   /**
@@ -215,6 +219,7 @@ export class TrespasserEffectsHelper {
             description: eff.description || "",
             source: item.name,
             itemId: item.id,
+            item: item,
             when: eff.when,
             duration: eff.duration || "indefinite",
             durationValue: eff.durationValue || 0,
@@ -260,6 +265,7 @@ export class TrespasserEffectsHelper {
           duration: item.system.duration || "indefinite",
           durationValue: item.system.durationValue || 0,
           intensityIncrement: item.system.intensityIncrement || 0,
+          item: item,
           fromInjury
         };
 
@@ -328,6 +334,16 @@ export class TrespasserEffectsHelper {
         { actor, weaponDie, toMessage }
       );
       total += value;
+
+      // Decrement triggers for bonuses used here
+      if (eff.duration === "triggers") {
+        const remaining = (eff.durationValue || 0) - 1;
+        if (remaining <= 0) {
+          await eff.item.delete();
+        } else {
+          await eff.item.update({ "system.durationValue": remaining });
+        }
+      }
     }
     return total;
   }
@@ -465,13 +481,21 @@ export class TrespasserEffectsHelper {
               ${Object.entries(this.DURATION_LABELS).map(([k, v]) => `<option value="${k}" ${(effectData.duration || "indefinite") === k ? "selected" : ""}>${game.i18n.localize(v)}</option>`).join("")}
             </select>
           </div>
-          <div class="field-row" id="duration-value-row" style="${effectData.duration === 'rounds' ? '' : 'display:none;'}">
-            <label>${game.i18n.localize("TRESPASSER.Item.durationValue")}</label>
+          <div class="field-row" id="duration-value-row" style="${(effectData.duration === 'rounds' || effectData.duration === 'triggers') ? '' : 'display:none;'}">
+            <label id="eff-duration-label">${effectData.duration === 'triggers' ? game.i18n.localize("TRESPASSER.DurationLabels.Triggers") : game.i18n.localize("TRESPASSER.DurationLabels.Rounds")}</label>
             <input type="number" id="eff-durationValue" value="${effectData.durationValue || 0}" />
           </div>
           <script>
             document.getElementById('eff-duration').addEventListener('change', (e) => {
-              document.getElementById('duration-value-row').style.display = e.target.value === 'rounds' ? '' : 'none';
+              const row = document.getElementById('duration-value-row');
+              const label = document.getElementById('eff-duration-label');
+              const show = (e.target.value === 'rounds' || e.target.value === 'triggers');
+              row.style.display = show ? "" : "none";
+              if (show) {
+                label.innerText = (e.target.value === 'triggers') 
+                  ? "${game.i18n.localize("TRESPASSER.DurationLabels.Triggers")}"
+                  : "${game.i18n.localize("TRESPASSER.DurationLabels.Rounds")}";
+              }
             });
           </script>
         </div>
@@ -581,11 +605,19 @@ export class TrespasserEffectsHelper {
       await ChatMessage.create(chatData);
 
       // Apply intensity increment after triggering
-      if (eff.intensityIncrement && eff.intensityIncrement !== 0) {
-        const item = actor.items.get(eff.id || eff.itemId);
-        if (item) {
-          const newIntensity = (item.system.intensity || 0) + eff.intensityIncrement;
-          await item.update({ "system.intensity": newIntensity });
+      const currentIntensity = eff.intensity || 0;
+      const increment = eff.intensityIncrement || 0;
+      if (increment !== 0) {
+        await eff.item.update({ "system.intensity": currentIntensity + increment });
+      }
+
+      // Handle triggers-based duration
+      if (eff.duration === "triggers") {
+        const remaining = (eff.durationValue || 0) - 1;
+        if (remaining <= 0) {
+          await eff.item.delete();
+        } else {
+          await eff.item.update({ "system.durationValue": remaining });
         }
       }
     }

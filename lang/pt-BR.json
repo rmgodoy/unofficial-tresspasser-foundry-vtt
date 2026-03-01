@@ -356,6 +356,7 @@
       "OnMove": "Ao Mover",
       "Use": "Uso",
       "Immediate": "Imediato",
+      "DamageDealt": "Dano Causado",
       "DamageReceived": "Dano Recebido",
       "StartOfCombat": "Início de Combate",
       "EndOfCombat": "Fim de Combate"
@@ -363,7 +364,8 @@
     "DurationLabels": {
       "Indefinite": "Indefinido",
       "Combat": "Combate Inteiro",
-      "Rounds": "Rodadas"
+      "Rounds": "Rodadas",
+      "Triggers": "Gatilhos"
     },
     "Item": {
       "Damage": "Dano",
@@ -390,7 +392,6 @@
       "triggerWhen": "Quando",
       "Trigger": "Gatilho",
       "duration": "Duração",
-      "durationValue": "Rodadas",
       "intensityIncrement": "Incremento de Intensidade",
       "tier": "Grau",
       "actionType": "Tipo de Ação",
@@ -445,6 +446,8 @@
       "WeaponEffects": "Efeitos da Arma",
       "EnhancementEffects": "Efeitos de Encantamento",
       "LinkedEffects": "Efeitos Vinculados / Estados",
+      "DamageDealt": "Dano Causado",
+      "DamageReceived": "Dano Recebido",
       "BrokenUsed": "Quebrado/Usado",
       "ExtraDeeds": "Habilidades Extras",
       "Accessory": {

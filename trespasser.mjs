@@ -321,6 +321,12 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         return;
       }
 
+      // Identify attacker from message speaker
+      const messageId = btn.closest(".message")?.dataset.messageId;
+      const message = game.messages.get(messageId);
+      const attackerSpeaker = message?.speaker;
+      const attacker = attackerSpeaker?.actor ? game.actors.get(attackerSpeaker.actor) : null;
+
       for (const token of tokens) {
         const actor = token.actor;
         if (!actor) continue;
@@ -336,6 +342,11 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
         // Trigger damage-received effects
         await TrespasserEffectsHelper.triggerEffects(actor, "damage-received");
+
+        // Trigger damage-dealt effects on the attacker
+        if (attacker) {
+          await TrespasserEffectsHelper.triggerEffects(attacker, "damage-dealt");
+        }
 
         const msg = reduction !== 0
           ? `${actor.name} took <strong>${finalDamage}</strong> damage (${rawDamage} − ${Math.abs(reduction)} reduction).`

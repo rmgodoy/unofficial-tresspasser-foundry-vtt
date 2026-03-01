@@ -78,9 +78,11 @@
         </select>
       </div>
 
-      {{#if (eq system.duration "rounds")}}
+      {{#if (or (eq system.duration "rounds") (eq system.duration "triggers"))}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.durationValue"}}</label>
+        <label>
+          {{#if (eq system.duration "rounds")}}{{localize "TRESPASSER.DurationLabels.Rounds"}}{{else}}{{localize "TRESPASSER.DurationLabels.Triggers"}}{{/if}}
+        </label>
         <input type="number" name="system.durationValue" value="{{system.durationValue}}" />
       </div>
       {{/if}}
