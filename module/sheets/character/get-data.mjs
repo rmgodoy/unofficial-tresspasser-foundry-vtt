@@ -13,6 +13,7 @@ export async function getCharacterData(sheet, options = {}) {
 
   // Categorize effects using helper
   context.activeEffects = TrespasserEffectsHelper.getActorEffects(actor);
+  context.durationModes = TrespasserEffectsHelper.DURATION_LABELS;
 
   // Skill labels for the sheet
   const skills = context.system.skills || {};

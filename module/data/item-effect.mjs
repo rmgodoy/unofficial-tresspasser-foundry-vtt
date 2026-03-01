@@ -13,7 +13,9 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
         choices: ["active", "passive"]
       }),
       isCombat: new fields.BooleanField({ initial: false }),
-      intensity: new fields.NumberField({ initial: 1 }),
+      isOnlyReminder: new fields.BooleanField({ initial: false }),
+      gmOnly: new fields.BooleanField({ initial: false }),
+      intensity: new fields.NumberField({ initial: 0 }),
       targetAttribute: new fields.StringField({
         initial: "health",
         choices: TrespasserEffectsHelper.TARGET_ATTRIBUTES
@@ -24,7 +26,13 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
         initial: "immediate",
         choices: Object.values(TrespasserEffectsHelper.TRIGGER_WHEN),
         blank: true
-      })
+      }),
+      duration: new fields.StringField({
+        initial: "indefinite",
+        choices: Object.values(TrespasserEffectsHelper.DURATION_MODES)
+      }),
+      durationValue: new fields.NumberField({ initial: 0 }),
+      intensityIncrement: new fields.NumberField({ initial: 0 })
     };
   }
 }

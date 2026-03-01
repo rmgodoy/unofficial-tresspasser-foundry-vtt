@@ -12,7 +12,10 @@ export class TrespasserEffectsHelper {
     END_ROUND: "end-of-round",
     ON_MOVE: "on-move",
     USE: "use",
-    IMMEDIATE: "immediate"
+    IMMEDIATE: "immediate",
+    DAMAGE_RECEIVED: "damage-received",
+    START_COMBAT: "start-of-combat",
+    END_COMBAT: "end-of-combat"
   };
 
   /**
@@ -25,7 +28,28 @@ export class TrespasserEffectsHelper {
     "end-of-round": "TRESPASSER.TriggerLabels.EndOfRound",
     "on-move": "TRESPASSER.TriggerLabels.OnMove",
     "use": "TRESPASSER.TriggerLabels.Use",
-    "immediate": "TRESPASSER.TriggerLabels.Immediate"
+    "immediate": "TRESPASSER.TriggerLabels.Immediate",
+    "damage-received": "TRESPASSER.TriggerLabels.DamageReceived",
+    "start-of-combat": "TRESPASSER.TriggerLabels.StartOfCombat",
+    "end-of-combat": "TRESPASSER.TriggerLabels.EndOfCombat"
+  };
+
+  /**
+   * Constant for effect duration modes.
+   */
+  static DURATION_MODES = {
+    INDEFINITE: "indefinite",
+    COMBAT: "combat",
+    ROUNDS: "rounds"
+  };
+
+  /**
+   * Labels for effect duration modes.
+   */
+  static DURATION_LABELS = {
+    "indefinite": "TRESPASSER.DurationLabels.Indefinite",
+    "combat": "TRESPASSER.DurationLabels.Combat",
+    "rounds": "TRESPASSER.DurationLabels.Rounds"
   };
 
   /**
@@ -68,9 +92,9 @@ export class TrespasserEffectsHelper {
    * @param {Object} [options] 
    * @param {Actor} [options.actor] Optional actor for roll data
    * @param {boolean} [options.toMessage] Whether to post the roll to chat
-   * @returns {Promise<number>}
+   * @returns {Promise<number|Roll>}
    */
-  static async evaluateModifier(modifierString, intensity, { actor = null, toMessage = false, weaponDie = null } = {}) {
+  static async evaluateModifier(modifierString, intensity, { actor = null, toMessage = false, weaponDie = null, returnRoll = false } = {}) {
     let parsed = this.parseModifier(modifierString, intensity);
 
     // Resolve <sd> (skill die) and <wd> (weapon die) tokens dynamically
@@ -83,8 +107,27 @@ export class TrespasserEffectsHelper {
     const wd = weaponDie || "d4";
     parsed = parsed.replace(/<wd>/gi, wd);
     
-    // Check if it looks like a dice formula (has 'd' and numbers)
-    const isFormula = /[0-9]*d[0-9]+/.test(parsed);
+    // 2. Handle max(...) and min(...) functions recursively
+    // Regex matches max(args) or min(args) where args don't contain other parentheses
+    const mathRegex = /(max|min)\(([^()]+)\)/gi;
+    while (mathRegex.test(parsed)) {
+      parsed = await this._asyncStringReplace(parsed, mathRegex, async (match, func, args) => {
+        const values = args.split(',').map(arg => arg.trim());
+        const resolvedValues = await Promise.all(values.map(val => 
+          this.evaluateModifier(val, intensity, { actor, toMessage: false, weaponDie })
+        ));
+        
+        if (func.toLowerCase() === 'max') {
+          return Math.max(...resolvedValues).toString();
+        } else {
+          return Math.min(...resolvedValues).toString();
+        }
+      });
+    }
+
+    // 3. Evaluate the remaining formula
+    // Check if it looks like a dice formula (has 'd' and numbers) or basic math
+    const isFormula = /[0-9]*d[0-9]+|[\+\-\*\/\(\)]/.test(parsed);
     
     if (!isFormula) {
       return parseFloat(parsed) || 0;
@@ -101,7 +144,31 @@ export class TrespasserEffectsHelper {
       });
     }
     
+    if (returnRoll) return roll;
     return roll.total;
+  }
+
+  /**
+   * Helper for asynchronous string replacement with regex.
+   * @private
+   */
+  static async _asyncStringReplace(str, regex, replacer) {
+    const matches = [];
+    str.replace(regex, (...args) => {
+      matches.push(args);
+      return args[0];
+    });
+
+    let offset = 0;
+    for (const match of matches) {
+      const replacement = await replacer(...match);
+      const matchIndex = match[match.length - 2];
+      const matchString = match[0];
+      
+      str = str.slice(0, matchIndex + offset) + replacement + str.slice(matchIndex + matchString.length + offset);
+      offset += replacement.length - matchString.length;
+    }
+    return str;
   }
 
   /**
@@ -142,10 +209,16 @@ export class TrespasserEffectsHelper {
             modifier: this.parseModifier(eff.modifier, eff.intensity || 0),
             target: eff.target,
             isCombat: eff.isCombat,
+            isOnlyReminder: !!eff.isOnlyReminder,
+            gmOnly: !!eff.gmOnly,
             type: eff.type,
+            description: eff.description || "",
             source: item.name,
             itemId: item.id,
-            when: eff.when
+            when: eff.when,
+            duration: eff.duration || "indefinite",
+            durationValue: eff.durationValue || 0,
+            intensityIncrement: eff.intensityIncrement || 0
           };
 
           if (eff.isCombat) {
@@ -178,10 +251,15 @@ export class TrespasserEffectsHelper {
           modifier: this.parseModifier(item.system.modifier, item.system.intensity || 0),
           target: item.system.targetAttribute,
           isCombat: item.system.isCombat,
+          isOnlyReminder: item.system.isOnlyReminder,
           type: item.system.type,
+          description: item.system.description,
           source: item.name,
           sourceName,
           when: item.system.when,
+          duration: item.system.duration || "indefinite",
+          durationValue: item.system.durationValue || 0,
+          intensityIncrement: item.system.intensityIncrement || 0,
           fromInjury
         };
 
@@ -298,10 +376,11 @@ export class TrespasserEffectsHelper {
              s.type            === typeKey;
     });
 
-    // Sum numeric modifiers, replacing <Int> with the item's intensity first
+    // Sum numeric intensity
     let netSum = 0;
     for (const item of group) {
-      const parsed = this.parseModifier(item.system.modifier, item.system.intensity || 0);
+      let parsed = 0;
+      parsed = item.system.intensity || 0;
       const n = parseFloat(parsed.toString().replace("+", "").trim());
       if (!isNaN(n)) netSum += n;
     }
@@ -320,10 +399,11 @@ export class TrespasserEffectsHelper {
    * @returns {Promise<Object|null>} The updated effect data or null if cancelled
    */
   static async showEffectDialog(effectData = {}) {
-    const isCombat = effectData.isCombat ?? true;
+    const isCombat   = effectData.isCombat ?? false;
     const type = effectData.type ?? "active";
-    const intensity = effectData.intensity ?? 1;
-    const target = effectData.target ?? "health";
+    const intensity  = effectData.intensity ?? 0;
+    const increment  = effectData.intensityIncrement ?? 0;
+    const target     = effectData.targetAttribute || effectData.target || "health";
     const modifier = effectData.modifier ?? "0";
     const when = effectData.when ?? "immediate";
 
@@ -342,8 +422,25 @@ export class TrespasserEffectsHelper {
             <input type="checkbox" id="eff-isCombat" ${isCombat ? "checked" : ""} />
           </div>
           <div class="field-row">
+            <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.isOnlyReminder")}</label>
+            <input type="checkbox" id="eff-isOnlyReminder" ${effectData.isOnlyReminder ? "checked" : ""} />
+          </div>
+          <div class="field-row" id="gm-only-row" style="${effectData.isOnlyReminder ? "" : "display:none;"}">
+            <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.gmOnly")}</label>
+            <input type="checkbox" id="eff-gmOnly" ${effectData.gmOnly ? "checked" : ""} />
+          </div>
+          <script>
+            document.getElementById('eff-isOnlyReminder').addEventListener('change', (e) => {
+              document.getElementById('gm-only-row').style.display = e.target.checked ? '' : 'none';
+            });
+          </script>
+          <div class="field-row">
             <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.Intensity")}</label>
             <input type="number" id="eff-intensity" value="${intensity}" />
+          </div>
+          <div class="field-row">
+            <label>${game.i18n.localize("TRESPASSER.Item.intensityIncrement")}</label>
+            <input type="number" id="eff-intensityIncrement" value="${increment}" />
           </div>
           <div class="field-row">
             <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.TargetAttr")}</label>
@@ -362,6 +459,21 @@ export class TrespasserEffectsHelper {
               ${Object.entries(this.TRIGGER_LABELS).map(([v, label]) => `<option value="${v}" ${when === v ? "selected" : ""}>${game.i18n.localize(label)}</option>`).join("")}
             </select>
           </div>
+          <div class="field-row">
+            <label>${game.i18n.localize("TRESPASSER.Item.duration")}</label>
+            <select id="eff-duration">
+              ${Object.entries(this.DURATION_LABELS).map(([k, v]) => `<option value="${k}" ${(effectData.duration || "indefinite") === k ? "selected" : ""}>${game.i18n.localize(v)}</option>`).join("")}
+            </select>
+          </div>
+          <div class="field-row" id="duration-value-row" style="${effectData.duration === 'rounds' ? '' : 'display:none;'}">
+            <label>${game.i18n.localize("TRESPASSER.Item.durationValue")}</label>
+            <input type="number" id="eff-durationValue" value="${effectData.durationValue || 0}" />
+          </div>
+          <script>
+            document.getElementById('eff-duration').addEventListener('change', (e) => {
+              document.getElementById('duration-value-row').style.display = e.target.value === 'rounds' ? '' : 'none';
+            });
+          </script>
         </div>
       </div>
     `;
@@ -377,10 +489,15 @@ export class TrespasserEffectsHelper {
               resolve({
                 type: html.find("#eff-type").val(),
                 isCombat: html.find("#eff-isCombat").is(":checked"),
-                intensity: parseInt(html.find("#eff-intensity").val()) || 1,
+                isOnlyReminder: html.find("#eff-isOnlyReminder").is(":checked"),
+                gmOnly: html.find("#eff-gmOnly").is(":checked"),
+                intensity: parseInt(html.find("#eff-intensity").val()) || 0,
+                intensityIncrement: parseInt(html.find("#eff-intensityIncrement").val()) || 0,
                 target: html.find("#eff-target").val(),
                 modifier: html.find("#eff-modifier").val(),
-                when: html.find("#eff-when").val()
+                when: html.find("#eff-when").val(),
+                duration: html.find("#eff-duration").val(),
+                durationValue: parseInt(html.find("#eff-durationValue").val()) || 0
               });
             }
           },
@@ -410,35 +527,67 @@ export class TrespasserEffectsHelper {
     if (triggered.length === 0) return;
 
     for (const eff of triggered) {
-      const modValue = await this.evaluateModifier(eff.modifier, eff.intensity || 0, { actor, toMessage: false });
       const label = this.TRIGGER_LABELS[timing] || timing;
       
+      // Title format: [Effect] [Int.]
+      const title = `${eff.name} [${eff.intensity}]`;
+      
       let flavor = `<div class="trespasser-chat-card">
-        <h3>${actor.name} — ${eff.name}</h3>
+        <h3>${title}</h3>
         <p style="font-style: italic;">${game.i18n.format("TRESPASSER.Trigger.TriggeredAt", { label: game.i18n.localize(label) })}</p>`;
 
-      if (eff.target === "health") {
-        const newHP = Math.clamp(actor.system.health + modValue, 0, actor.system.max_health);
-        await actor.update({ "system.health": newHP });
-        
-        if (modValue > 0) {
-          flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Trigger.HealthRecovered", { value: modValue })}</p>`;
-        } else if (modValue < 0) {
-          flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
-        } else {
-          flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.HealthUnaffected")}</p>`;
+      if (eff.isOnlyReminder) {
+        // Only show text if it exists
+        if (eff.description) {
+          flavor += `<div class="reminder-text">${eff.description}</div>`;
         }
       } else {
-        const targetLabel = game.i18n.localize(this.TARGET_ATTRIBUTES[eff.target]) || eff.target;
-        flavor += `<p>${game.i18n.format("TRESPASSER.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
+        const roll = await this.evaluateModifier(eff.modifier, eff.intensity || 0, { actor, toMessage: false, returnRoll: true });
+        const modValue = typeof roll === "number" ? roll : roll.total;
+        
+        if (eff.target === "health") {
+          const newHP = Math.clamp(actor.system.health + modValue, 0, actor.system.max_health);
+          await actor.update({ "system.health": newHP });
+          
+          if (modValue > 0) {
+            flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Trigger.HealthRecovered", { value: modValue })}</p>`;
+          } else if (modValue < 0) {
+            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
+          } else {
+            flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.HealthUnaffected")}</p>`;
+          }
+        } else {
+          const targetLabel = game.i18n.localize(this.TARGET_ATTRIBUTES[eff.target]) || eff.target;
+          flavor += `<p>${game.i18n.format("TRESPASSER.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
+        }
+
+        // Add the rendered roll if it was a dice roll
+        if (roll instanceof foundry.dice.Roll) {
+          flavor += await roll.render();
+        }
       }
       
       flavor += `</div>`;
 
-      await ChatMessage.create({
+      const chatData = {
         speaker: ChatMessage.getSpeaker({ actor }),
         content: flavor
-      });
+      };
+
+      if (eff.gmOnly) {
+        chatData.whisper = ChatMessage.getWhisperRecipients("GM");
+      }
+
+      await ChatMessage.create(chatData);
+
+      // Apply intensity increment after triggering
+      if (eff.intensityIncrement && eff.intensityIncrement !== 0) {
+        const item = actor.items.get(eff.id || eff.itemId);
+        if (item) {
+          const newIntensity = (item.system.intensity || 0) + eff.intensityIncrement;
+          await item.update({ "system.intensity": newIntensity });
+        }
+      }
     }
   }
 }

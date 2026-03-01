@@ -7,12 +7,32 @@
         <div class="combat-effects-list">
           {{#each activeEffects.combat}}
           <div class="effect-row combat-effect" data-item-id="{{this.id}}">
-            <div class="effect-name">{{this.name}}{{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}</div>
+            <div class="effect-name">
+              {{this.name}}
+              <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
+              {{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
+            </div>
+            
+            {{#if (eq this.duration "rounds")}}
+              <div class="effect-duration-control" style="display: flex; align-items: center; gap: 4px;">
+                <span style="font-size: 10px; color: var(--trp-text-dim);">{{localize "TRESPASSER.DurationLabels.Rounds"}}</span>
+                <input type="number" class="effect-duration-input" value="{{this.durationValue}}" style="width: 40px; text-align: center;" />
+              </div>
+            {{else if (ne this.duration "indefinite")}}
+              <div class="effect-duration-type" style="font-size: 10px; color: var(--trp-text-dim);">
+                {{localize (lookup ../durationModes this.duration)}}
+              </div>
+            {{/if}}
+
+            {{#unless this.isOnlyReminder}}
             <div class="effect-mod">{{this.target}}: {{this.modifier}}</div>
+            {{/unless}}
+            
             <div class="effect-intensity-control">
-              <label>{{localize "TRESPASSER.Item.Int"}}</label>
+              <label>{{localize "TRESPASSER.Item.int"}}</label>
               <input type="number" class="effect-intensity-input" value="{{this.intensity}}" />
             </div>
+
             {{#unless this.fromInjury}}
             <button type="button" class="effect-prevail prevail-btn">
               <i class="fas fa-dice"></i> {{localize "TRESPASSER.Sheet.Combat.Prevail"}}

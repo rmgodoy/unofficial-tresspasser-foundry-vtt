@@ -27,29 +27,67 @@
         <label for="effect-combat-{{item.id}}">{{localize "TRESPASSER.Item.IsCombat"}}</label>
       </div>
 
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.Intensity"}}</label>
+      <div class="field-row checkbox-row">
+        <input type="checkbox" name="system.isOnlyReminder" {{checked system.isOnlyReminder}} id="effect-reminder-{{item.id}}"/>
+        <label for="effect-reminder-{{item.id}}">{{localize "TRESPASSER.Item.isOnlyReminder"}}</label>
+      </div>
+
+      {{#if system.isOnlyReminder}}
+      <div class="field-row checkbox-row">
+        <input type="checkbox" name="system.gmOnly" {{checked system.gmOnly}} id="effect-gmonly-{{item.id}}"/>
+        <label for="effect-gmonly-{{item.id}}">{{localize "TRESPASSER.Item.gmOnly"}}</label>
+      </div>
+      {{/if}}
+
+      <div class="field-group">
+        <label>{{localize "TRESPASSER.Item.intensity"}}</label>
         <input type="number" name="system.intensity" value="{{system.intensity}}" />
       </div>
 
+      <div class="field-group">
+        <label>{{localize "TRESPASSER.Item.intensityIncrement"}}</label>
+        <input type="number" name="system.intensityIncrement" value="{{system.intensityIncrement}}" />
+      </div>
+
+      {{#unless system.isOnlyReminder}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.TargetAttribute"}}</label>
+        <label>{{localize "TRESPASSER.Item.targetAttribute"}}</label>
         <select name="system.targetAttribute">
           {{{selectOptions config.targetAttributes selected=system.targetAttribute localize=true}}}
         </select>
       </div>
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.Modifier"}}</label>
+        <label>{{localize "TRESPASSER.Item.modifier"}}</label>
         <input type="text" name="system.modifier" value="{{system.modifier}}" placeholder="{{localize 'TRESPASSER.Dialog.EffectEditor.ModifierPlaceholder'}}" />
         <p class="notes" style="font-size: 11px; color: var(--trp-text-dim); margin-top: -5px;">{{localize "TRESPASSER.Dialog.EffectEditor.IntensityNote"}}</p>
       </div>
+      {{/unless}}
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.TriggerWhen"}}</label>
+        <label>{{localize "TRESPASSER.Item.triggerWhen"}}</label>
         <select name="system.when">
           {{{selectOptions config.triggerWhen selected=system.when localize=true}}}
         </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.duration"}}</label>
+        <select name="system.duration">
+          {{{selectOptions config.durationModes selected=system.duration localize=true}}}
+        </select>
+      </div>
+
+      {{#if (eq system.duration "rounds")}}
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Item.durationValue"}}</label>
+        <input type="number" name="system.durationValue" value="{{system.durationValue}}" />
+      </div>
+      {{/if}}
+
+      <div class="field-row editor-row" style="margin-top: 10px;">
+        <label>{{localize "TRESPASSER.Item.Description"}}</label>
+        {{editor system.description target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
       </div>
     </div>
   </section>

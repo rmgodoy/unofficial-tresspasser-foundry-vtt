@@ -334,6 +334,9 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         const newHP = Math.max(0, (actor.system.health ?? 0) - finalDamage);
         await actor.update({ "system.health": newHP });
 
+        // Trigger damage-received effects
+        await TrespasserEffectsHelper.triggerEffects(actor, "damage-received");
+
         const msg = reduction !== 0
           ? `${actor.name} took <strong>${finalDamage}</strong> damage (${rawDamage} − ${Math.abs(reduction)} reduction).`
           : `${actor.name} took <strong>${finalDamage}</strong> damage.`;
@@ -432,6 +435,20 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       for (const c of combat.combatants) {
         if (c.actor) {
           await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-round");
+          
+          // Decrement durations for round-based effects
+          const roundEffects = c.actor.items.filter(i => 
+            (i.type === "effect" || i.type === "state") && 
+            i.system.duration === "rounds"
+          );
+          for (const eff of roundEffects) {
+            const newVal = Math.max(0, (eff.system.durationValue || 0) - 1);
+            if (newVal <= 0) {
+              await eff.delete();
+            } else {
+              await eff.update({ "system.durationValue": newVal });
+            }
+          }
         }
       }
     }
@@ -447,6 +464,44 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
       
       if (currCombatant.actor) {
         await TrespasserEffectsHelper.triggerEffects(currCombatant.actor, "start-of-turn");
+      }
+    }
+  }
+});
+
+Hooks.on("combatStart", async (combat, updateData) => {
+  for (const c of combat.combatants) {
+    if (c.actor) {
+      await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-combat");
+    }
+  }
+});
+
+Hooks.on("updateCombat", async (combat, changed, options, userId) => {
+  if (game.user.id !== userId) return;
+  
+  // Secondary check for combat starting
+  if (changed.started === true) {
+    for (const c of combat.combatants) {
+      if (c.actor) {
+        await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-combat");
+      }
+    }
+  }
+});
+
+Hooks.on("deleteCombat", async (combat) => {
+  for (const c of combat.combatants) {
+    if (c.actor) {
+      await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");
+      
+      // Remove combat-length effects
+      const toRemove = c.actor.items.filter(i => 
+        (i.type === "effect" || i.type === "state") && 
+        i.system.duration === "combat"
+      );
+      for (const eff of toRemove) {
+        await eff.delete();
       }
     }
   }

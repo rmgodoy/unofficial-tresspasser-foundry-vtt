@@ -45,3 +45,20 @@ export async function onEffectRemove(event, sheet) {
   const item = sheet.actor.items.get(li.dataset.itemId);
   if (item) await item.delete();
 }
+
+export async function onDurationChange(event, sheet) {
+  const li     = event.currentTarget.closest(".effect-row");
+  const val    = parseInt(event.currentTarget.value);
+  if (isNaN(val)) return;
+  const item = sheet.actor.items.get(li.dataset.itemId);
+  if (item) await item.update({ "system.durationValue": val });
+}
+
+import { showItemInfoDialog } from "../../dialogs/item-info-dialog.mjs";
+
+export async function onEffectInfo(event, sheet) {
+  const li = event.currentTarget.closest("[data-item-id]");
+  if (!li) return;
+  const item = sheet.actor.items.get(li.dataset.itemId);
+  if (item) showItemInfoDialog(item.uuid);
+}

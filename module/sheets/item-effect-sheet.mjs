@@ -26,7 +26,8 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
         "passive": "TRESPASSER.Sheet.Effects.EffectTypes.Passive"
       },
       targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
-      triggerWhen: TrespasserEffectsHelper.TRIGGER_LABELS
+      triggerWhen: TrespasserEffectsHelper.TRIGGER_LABELS,
+      durationModes: TrespasserEffectsHelper.DURATION_LABELS
     };
     
     return context;

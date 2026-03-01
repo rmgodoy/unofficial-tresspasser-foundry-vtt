@@ -26,12 +26,6 @@
                         <div style="margin-bottom: 2px;">
                           <em style="color: var(--trp-gold-dim); font-size: 15px; text-transform: uppercase;">{{localize (concat "TRESPASSER.Item." (capitalize phase))}}</em>: 
                           {{#if pData.description}}{{pData.description}}{{/if}}
-                          {{#each pData.appliedEffects}}
-                            <span class="effect-tag" title="{{this.name}}">
-                              <img src="{{this.img}}" width="12" height="12" style="border:none; vertical-align: middle; border-radius: 2px;"/>
-                              {{#if (gt this.intensity 1)}}<span style="font-size: 8px;">{{this.intensity}}</span>{{/if}}
-                            </span>
-                          {{/each}}
                         </div>
                       {{/if}}
                     {{/with}}

@@ -238,7 +238,9 @@
           {{#each activeEffects.nonCombat}}
           <div class="effect-row" data-item-id="{{this.id}}" style="display: flex; align-items: center; background: rgba(0,0,0,0.2); margin-bottom: 5px; padding: 5px; border-radius: 4px; {{#if this.fromInjury}}border-left: 2px solid var(--trp-red-dim);{{/if}}">
             <div style="flex: 1;">
-              <b>{{this.name}}</b>{{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
+              <b>{{this.name}}</b>
+              <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
+              {{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
               {{#if this.fromInjury}}<span style="font-size: 10px; color: var(--trp-red); margin-left: 4px;" title="{{localize 'TRESPASSER.Item.Injury.FromInjury'}}">⚕</span>{{/if}}
               (I: {{this.intensity}}) - {{this.target}}: {{this.modifier}}
             </div>
@@ -510,6 +512,7 @@
             <li class="item" data-item-id="{{this.id}}">
               <span class="item-name feature-name rollable" title="{{localize 'TRESPASSER.Sheet.Combat.ClickView' name=this.name}}">{{this.name}}{{#if this.callingSource}} <span style="font-size:10px; color:var(--trp-text-dim); font-weight:normal;">({{this.callingSource}})</span>{{/if}}</span>
               <div class="item-controls">
+                <a class="feature-info" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
                 <a class="item-edit"><i class="fas fa-edit"></i></a>
                 <a class="item-delete"><i class="fas fa-trash"></i></a>
               </div>
@@ -531,6 +534,7 @@
                 {{#if this.displayCost}}{{this.displayCost}} | {{/if}}{{this.name}}{{#if this.callingSource}} <span style="font-size:10px; color:var(--trp-text-dim); font-weight:normal;">({{this.callingSource}})</span>{{/if}}
               </span>
               <div class="item-controls">
+                <a class="talent-info" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
                 <a class="item-edit"><i class="fas fa-edit"></i></a>
                 <a class="item-delete"><i class="fas fa-trash"></i></a>
               </div>
@@ -554,6 +558,7 @@
               {{this.name}}
             </span>
             <div class="item-controls">
+              <a class="incantation-info" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
               <a class="item-edit"><i class="fas fa-edit"></i></a>
               <a class="item-delete"><i class="fas fa-trash"></i></a>
             </div>

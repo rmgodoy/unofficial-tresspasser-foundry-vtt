@@ -1,4 +1,5 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { showItemInfoDialog }  from "../dialogs/item-info-dialog.mjs";
 
 /**
  * Extend the basic ActorSheet with some very simple logic.
@@ -30,6 +31,7 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
 
     // Categorize effects using helper for the partial
     context.activeEffects = TrespasserEffectsHelper.getActorEffects(this.actor);
+    context.durationModes = TrespasserEffectsHelper.DURATION_LABELS;
     
     // Prepare items for the sheet
     context.feats = this.actor.items.filter(i => i.type === "feature");
@@ -122,6 +124,8 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
     // Effects Prevail/Remove/Intensity
     html.find(".effect-intensity-input").on("change", this._onIntensityChange.bind(this));
     html.find(".effect-prevail").on("click", this._onPrevailRoll.bind(this));
+    html.find(".effect-info, .feature-info, .talent-info").on("click", this._onEffectInfo.bind(this));
+    html.find(".effect-duration-input").on("change", this._onDurationChange.bind(this));
     html.find(".effect-remove").on("click", async (ev) => {
       const effectId = ev.currentTarget.closest(".combat-effect, .effect-row")?.dataset.itemId;
       if (effectId) {
@@ -181,6 +185,16 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
     if (isNaN(val)) return;
     const item = this.actor.items.get(itemId);
     if (item) await item.update({ "system.intensity": val });
+  }
+
+  async _onDurationChange(event) {
+    const li = event.currentTarget.closest(".effect-row");
+    if (!li) return;
+    const itemId = li.dataset.itemId;
+    const val = parseInt(event.currentTarget.value);
+    if (isNaN(val)) return;
+    const item = this.actor.items.get(itemId);
+    if (item) await item.update({ "system.durationValue": val });
   }
 
   /**
@@ -458,5 +472,16 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
       speaker: ChatMessage.getSpeaker({ actor: actor }),
       flavor: html
     });
+  }
+
+  /**
+   * Show info dialog for an effect.
+   */
+  async _onEffectInfo(event) {
+    const li = event.currentTarget.closest("[data-item-id]");
+    const itemId = li?.dataset.itemId;
+    if (!itemId) return;
+    const item = this.actor.items.get(itemId);
+    if (item) showItemInfoDialog(item.uuid);
   }
 }
