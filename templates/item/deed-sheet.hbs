@@ -16,7 +16,7 @@
       </div>
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.Tier"}}</label>
+        <label>{{localize "TRESPASSER.Item.tier"}}</label>
         <select name="system.tier">
           {{#each config.tiers as |label key|}}
             <option value="{{key}}" {{#if (eq ../system.tier key)}}selected{{/if}}>{{localize (concat "TRESPASSER.Item.DeedTierChoices." (capitalize key))}}</option>
@@ -25,7 +25,7 @@
       </div>
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.ActionType"}}</label>
+        <label>{{localize "TRESPASSER.Item.actionType"}}</label>
         <select name="system.actionType">
           {{#each config.actionTypes as |label key|}}
             <option value="{{key}}" {{#if (eq ../system.actionType key)}}selected{{/if}}>{{localize (concat "TRESPASSER.Item.DeedActionTypeChoices." (capitalize key))}}</option>
@@ -34,7 +34,7 @@
       </div>
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.DeedType"}}</label>
+        <label>{{localize "TRESPASSER.Item.deedType"}}</label>
         <select name="system.type">
           {{#each config.types as |label key|}}
             <option value="{{key}}" {{#if (eq ../system.type key)}}selected{{/if}}>{{localize (concat "TRESPASSER.Item.DeedTypeChoices." (capitalize key))}}</option>
