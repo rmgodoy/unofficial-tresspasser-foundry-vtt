@@ -96,7 +96,7 @@ export async function onDeedRoll(event, sheet) {
 
   for (const targetToken of targetList) {
     const targetActor = targetToken?.actor;
-    let targetValue = 10;
+    let targetValue = targetToken.actor.system.combat.guard;
     if (targetActor) {
       const statKey = item.system.accuracyTest?.toLowerCase() || "guard";
       targetValue = targetActor.system.combat[statKey] ?? 10;
