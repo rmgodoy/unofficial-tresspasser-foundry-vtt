@@ -1,0 +1,34 @@
+<form class="{{cssClass}} trespasser-sheet item-sheet" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    <div class="header-info">
+      <div class="name-group">
+        <h1 class="item-title"><input name="name" type="text" value="{{item.name}}" placeholder="Hireling Name"/></h1>
+      </div>
+    </div>
+  </header>
+
+  <section class="sheet-body scrollable">
+    <div class="details-grid">
+      <div class="field-row">
+        <label>Cost (CP/Week)</label>
+        <input type="number" name="system.cost" value="{{system.cost}}" min="0"/>
+      </div>
+
+      <div class="field-row">
+        <label>Quantity</label>
+        <input type="number" name="system.quantity" value="{{system.quantity}}" min="1"/>
+      </div>
+
+      <div class="field-row">
+        <label>Required Building</label>
+        <input type="text" name="system.required_building" value="{{system.required_building}}" placeholder="e.g. Laboratory"/>
+      </div>
+    </div>
+
+    <div class="effects-section" style="border-top: 1px solid var(--trp-border); margin-top: 15px; padding-top: 15px;">
+      <h3 style="margin-bottom: 10px; font-family: var(--trp-font-header); font-size: 13px; color: var(--trp-gold-bright); text-transform: uppercase;">Description</h3>
+      {{editor system.description target="system.description" engine="prosemirror" button=true owner=owner editable=editable}}
+    </div>
+  </section>
+</form>

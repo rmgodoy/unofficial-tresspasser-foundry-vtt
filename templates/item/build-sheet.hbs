@@ -1,0 +1,55 @@
+<form class="{{cssClass}} trespasser-sheet item-sheet" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    <div class="header-info">
+      <div class="name-group">
+        <h1 class="item-title"><input name="name" type="text" value="{{item.name}}" placeholder="Build Name"/></h1>
+      </div>
+    </div>
+  </header>
+
+  <section class="sheet-body scrollable">
+    <div class="details-grid">
+      <div class="field-row checkbox-row">
+        <label>Completed</label>
+        <input type="checkbox" name="system.completed" {{checked system.completed}}/>
+      </div>
+
+      <div class="field-row">
+        <label>Progress</label>
+        <div style="display: flex; gap: 5px; align-items: center;">
+          <input type="number" name="system.clock.value" value="{{system.clock.value}}" min="0" style="text-align: center;"/>
+          <span style="color: var(--trp-text-dim);">/</span>
+          <input type="number" name="system.clock.max" value="{{system.clock.max}}" min="1" style="text-align: center;"/>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <label>Attribute Granted</label>
+        <select name="system.attribute_granted">
+          {{selectOptions config.attributes selected=system.attribute_granted}}
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>Skill Granted</label>
+        <input type="text" name="system.skill_granted" value="{{system.skill_granted}}" placeholder="e.g. Warfare"/>
+      </div>
+
+      <div class="field-row checkbox-row">
+        <label>Is Upgrade?</label>
+        <input type="checkbox" name="system.is_upgrade" {{checked system.is_upgrade}}/>
+      </div>
+
+      <div class="field-row">
+        <label>Upgrades From</label>
+        <input type="text" name="system.upgrades_from" value="{{system.upgrades_from}}" placeholder="Base Building Name"/>
+      </div>
+    </div>
+
+    <div class="effects-section" style="border-top: 1px solid var(--trp-border); margin-top: 15px; padding-top: 15px;">
+      <h3 style="margin-bottom: 10px; font-family: var(--trp-font-header); font-size: 13px; color: var(--trp-gold-bright); text-transform: uppercase;">Description</h3>
+      {{editor system.description target="system.description" engine="prosemirror" button=true owner=owner editable=editable}}
+    </div>
+  </section>
+</form>

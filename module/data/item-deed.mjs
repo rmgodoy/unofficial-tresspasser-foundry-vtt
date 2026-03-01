@@ -15,7 +15,7 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
       }),
       type: new fields.StringField({ 
         initial: "innate", 
-        choices: ["innate", "melee", "missile", "spell", "tool", "unharmed", "versatile"] 
+        choices: ["innate", "melee", "missile", "spell", "tool", "unarmed", "versatile"] 
       }),
       target: new fields.StringField({ 
         initial: "1 Creature" 
