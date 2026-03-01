@@ -5,6 +5,7 @@
 
 import { TrespasserCharacterData } from "./module/data/actor-character.mjs";
 import { TrespasserCreatureData }  from "./module/data/actor-creature.mjs";
+import { TrespasserHavenData }     from "./module/data/actor-haven.mjs";
 import { TrespasserArmorData }     from "./module/data/item-armor.mjs";
 import { TrespasserWeaponData }    from "./module/data/item-weapon.mjs";
 import { TrespasserRationsData }   from "./module/data/item-rations.mjs";
@@ -18,11 +19,15 @@ import { TrespasserItemData }        from "./module/data/item-item.mjs";
 import { TrespasserAccessoryData }   from "./module/data/item-accessory.mjs";
 import { TrespasserInjuryData }      from "./module/data/item-injury.mjs";
 import { TrespasserCallingData }    from "./module/data/item-calling.mjs";
+import { TrespasserBuildData }      from "./module/data/item-build.mjs";
+import { TrespasserHirelingData }   from "./module/data/item-hireling.mjs";
+import { TrespasserStrongholdData } from "./module/data/item-stronghold.mjs";
 import { TrespasserActor }         from "./module/documents/actor.mjs";
 import { TrespasserCombat }        from "./module/documents/combat.mjs";
 import { TrespasserEffectsHelper } from "./module/helpers/effects-helper.mjs";
 import { TrespasserCharacterSheet } from "./module/sheets/actor-character-sheet.mjs";
 import { TrespasserCreatureSheet }  from "./module/sheets/actor-creature-sheet.mjs";
+import { TrespasserHavenSheet }     from "./module/sheets/actor-haven-sheet.mjs";
 import { TrespasserArmorSheet }     from "./module/sheets/item-armor-sheet.mjs";
 import { TrespasserWeaponSheet }    from "./module/sheets/item-weapon-sheet.mjs";
 import { TrespasserRationsSheet }   from "./module/sheets/item-rations-sheet.mjs";
@@ -40,6 +45,9 @@ import { TrespasserCraftData }      from "./module/data/item-craft.mjs";
 import { TrespasserCraftSheet }     from "./module/sheets/item-craft-sheet.mjs";
 import { TrespasserPastLifeData }  from "./module/data/item-past-life.mjs";
 import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mjs";
+import { TrespasserBuildSheet }     from "./module/sheets/item-build-sheet.mjs";
+import { TrespasserHirelingSheet }  from "./module/sheets/item-hireling-sheet.mjs";
+import { TrespasserStrongholdSheet }from "./module/sheets/item-stronghold-sheet.mjs";
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 
@@ -82,6 +90,7 @@ Hooks.once("init", async () => {
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
+  CONFIG.Actor.dataModels.haven = TrespasserHavenData;
 
   CONFIG.Item.dataModels.armor = TrespasserArmorData;
   CONFIG.Item.dataModels.weapon = TrespasserWeaponData;
@@ -98,6 +107,9 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.calling = TrespasserCallingData;
   CONFIG.Item.dataModels.craft   = TrespasserCraftData;
   CONFIG.Item.dataModels.past_life = TrespasserPastLifeData;
+  CONFIG.Item.dataModels.build = TrespasserBuildData;
+  CONFIG.Item.dataModels.hireling = TrespasserHirelingData;
+  CONFIG.Item.dataModels.stronghold = TrespasserStrongholdData;
 
   // Sheets
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
@@ -110,6 +122,11 @@ Hooks.once("init", async () => {
     types: ["creature"],
     makeDefault: true,
     label: "Trespasser Creature Sheet",
+  });
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserHavenSheet, {
+    types: ["haven"],
+    makeDefault: true,
+    label: "Trespasser Haven Sheet",
   });
 
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
@@ -188,6 +205,21 @@ Hooks.once("init", async () => {
     types: ["past_life"],
     makeDefault: true,
     label: "Trespasser Past Life Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserBuildSheet, {
+    types: ["build"],
+    makeDefault: true,
+    label: "Trespasser Build Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserHirelingSheet, {
+    types: ["hireling"],
+    makeDefault: true,
+    label: "Trespasser Hireling Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserStrongholdSheet, {
+    types: ["stronghold"],
+    makeDefault: true,
+    label: "Trespasser Stronghold Sheet",
   });
 
   // Handlebars helpers

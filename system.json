@@ -29,7 +29,8 @@
   "documentTypes": {
     "Actor": {
       "character": {},
-      "creature": {}
+      "creature": {},
+      "haven": {}
     },
     "Item": {
       "item": {},
@@ -46,7 +47,10 @@
       "injury": {},
       "calling": {},
       "craft": {},
-      "past_life": {}
+      "past_life": {},
+      "build": {},
+      "hireling": {},
+      "stronghold": {}
     }
   },
   "initiative": "1d6 + @system.combat.initiative",
