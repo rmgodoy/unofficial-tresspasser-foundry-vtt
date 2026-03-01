@@ -317,6 +317,8 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
       const targetActor = targetToken.actor;
       if (!targetActor) continue;
 
+      await TrespasserEffectsHelper.triggerEffects(targetActor, "targeted");
+
       const statKey = item.system.accuracyTest?.toLowerCase() || "guard";
       const targetStat = targetActor.system.combat[statKey] ?? 10;
       const isTargetCreature = targetActor.type === "creature";

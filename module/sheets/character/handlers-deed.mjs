@@ -96,10 +96,12 @@ export async function onDeedRoll(event, sheet) {
 
   for (const targetToken of targetList) {
     const targetActor = targetToken?.actor;
-    let targetValue = targetToken.actor.system.combat.guard;
+    let targetValue = targetActor?.system?.combat?.guard ?? 10;
+
     if (targetActor) {
       const statKey = item.system.accuracyTest?.toLowerCase() || "guard";
       targetValue = targetActor.system.combat[statKey] ?? 10;
+      await TrespasserEffectsHelper.triggerEffects(targetActor, "targeted");
     }
 
     const isHit = rollTotal >= targetValue;
