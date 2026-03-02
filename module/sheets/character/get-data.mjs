@@ -58,6 +58,24 @@ export async function getCharacterData(sheet, options = {}) {
   });
   context.incantations = actor.items.filter(i => i.type === "incantation");
 
+  // Actions and Reactions for Combat Tab
+  const combatActions = [];
+  const combatReactions = [];
+
+  context.features.forEach(f => {
+    if (f.system.type === "action") combatActions.push(f);
+    else if (f.system.type === "reaction") combatReactions.push(f);
+  });
+
+  context.talents.forEach(t => {
+    if (t.system.type === "action") combatActions.push(t);
+    else if (t.system.type === "reaction") combatReactions.push(t);
+  });
+
+  context.combatActions = combatActions;
+  context.combatReactions = combatReactions;
+  context.hasCombatActionsOrReactions = combatActions.length > 0 || combatReactions.length > 0;
+
   const sourceMapByUuid = {};
   for (const item of actor.items) {
     if (item.type === "feature") {

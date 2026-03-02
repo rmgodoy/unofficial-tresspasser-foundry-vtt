@@ -29,6 +29,8 @@ export class TrespasserFeatureSheet extends foundry.appv1.sheets.ItemSheet {
       secrets: this.document.isOwner,
       relativeTo: this.document
     });
+    
+    context.config = CONFIG.TRESPASSER;
 
     return context;
   }

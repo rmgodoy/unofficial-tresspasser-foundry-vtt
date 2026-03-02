@@ -673,6 +673,51 @@
 
       {{> "systems/trespasser/templates/actor/parts/combat-effects.hbs"}}
 
+      {{#if hasCombatActionsOrReactions}}
+      <div class="actions-reactions-section" style="margin-top: 15px; border-top: 1px solid var(--trp-border-light); padding-top: 10px;">
+        <h4 style="margin-bottom: 8px; color: var(--trp-gold-bright); border-bottom: 1px solid #444;">{{localize "TRESPASSER.Sheet.Combat.ActionsReactions"}}</h4>
+        <div class="combat-actions-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+          
+          <div class="action-column">
+            <h5 style="font-size: 11px; text-transform: uppercase; color: var(--trp-text-dim); margin-bottom: 4px; padding-left: 5px; border-left: 2px solid var(--trp-gold);">{{localize "TRESPASSER.Item.ActionTypeChoices.action"}}</h5>
+            <ul class="items-list" style="list-style: none; padding: 0; margin: 0;">
+              {{#each combatActions}}
+              <li class="item" data-item-id="{{this.id}}" style="display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; background: rgba(0,0,0,0.2); margin-bottom: 2px; border-radius: 3px;">
+                <span class="item-name {{#if (eq this.type 'talent')}}talent-rollable{{else}}feature-name{{/if}} rollable" title="{{localize 'TRESPASSER.Sheet.Combat.ClickView' name=this.name}}" style="cursor: pointer;">
+                  {{#if this.displayCost}}<span style="color: var(--trp-gold-bright); font-weight: bold;">{{this.displayCost}}</span> | {{/if}}{{this.name}}
+                </span>
+                <div class="item-controls" style="display: flex; gap: 6px; font-size: 11px;">
+                  <a class="{{#if (eq this.type 'talent')}}talent-info{{else}}feature-info{{/if}}" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
+                </div>
+              </li>
+              {{else}}
+              <li style="font-size: 11px; color: #666; font-style: italic; padding: 3px 6px;">—</li>
+              {{/each}}
+            </ul>
+          </div>
+
+          <div class="reaction-column">
+            <h5 style="font-size: 11px; text-transform: uppercase; color: var(--trp-text-dim); margin-bottom: 4px; padding-left: 5px; border-left: 2px solid var(--trp-gold);">{{localize "TRESPASSER.Item.ActionTypeChoices.reaction"}}</h5>
+            <ul class="items-list" style="list-style: none; padding: 0; margin: 0;">
+              {{#each combatReactions}}
+              <li class="item" data-item-id="{{this.id}}" style="display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; background: rgba(0,0,0,0.2); margin-bottom: 2px; border-radius: 3px;">
+                <span class="item-name {{#if (eq this.type 'talent')}}talent-rollable{{else}}feature-name{{/if}} rollable" title="{{localize 'TRESPASSER.Sheet.Combat.ClickView' name=this.name}}" style="cursor: pointer;">
+                  {{#if this.displayCost}}<span style="color: var(--trp-gold-bright); font-weight: bold;">{{this.displayCost}}</span> | {{/if}}{{this.name}}
+                </span>
+                <div class="item-controls" style="display: flex; gap: 6px; font-size: 11px;">
+                  <a class="{{#if (eq this.type 'talent')}}talent-info{{else}}feature-info{{/if}}" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
+                </div>
+              </li>
+              {{else}}
+              <li style="font-size: 11px; color: #666; font-style: italic; padding: 3px 6px;">—</li>
+              {{/each}}
+            </ul>
+          </div>
+
+        </div>
+      </div>
+      {{/if}}
+
       <!-- Deeds Section -->
       <div class="deeds-section" style="margin-top: 15px;">
         <h3 class="section-title" style="margin-bottom: 0;">{{localize "TRESPASSER.Sheet.Combat.Deeds"}}</h3>

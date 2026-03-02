@@ -18,6 +18,13 @@
           <input type="checkbox" name="system.usable" {{checked system.usable}} />
         </div>
 
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Item.actionType"}}</label>
+          <select name="system.type">
+            {{selectOptions config.actionTypeChoices selected=system.type localize=true}}
+          </select>
+        </div>
+
         {{#if system.usable}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Item.RollExpression"}}</label>

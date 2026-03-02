@@ -68,6 +68,11 @@ Hooks.once("init", async () => {
       "d10": "TRESPASSER.Item.DepletionChoices.Excellent",
       "d12": "TRESPASSER.Item.DepletionChoices.Enchanted",
       "d20": "TRESPASSER.Item.DepletionChoices.Legendary"
+    },
+    actionTypeChoices: {
+      "none": "TRESPASSER.Item.ActionTypeChoices.none",
+      "action": "TRESPASSER.Item.ActionTypeChoices.action",
+      "reaction": "TRESPASSER.Item.ActionTypeChoices.reaction"
     }
   };
 

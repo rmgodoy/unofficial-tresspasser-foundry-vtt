@@ -199,6 +199,7 @@
         "Deeds": "Deeds",
         "Roll": "Roll",
         "CombatEffects": "Combat Effects",
+        "ActionsReactions": "Actions & Reactions",
         "BrokenUsedShort": "U",
         "UseDeed": "Use Deed",
         "AddTierDeed": "Add {tier} Deed",
@@ -509,6 +510,11 @@
         "Melee": "Melee",
         "Missile": "Missile",
         "Spell": "Spell"
+      },
+      "ActionTypeChoices": {
+        "none": "None",
+        "action": "Action",
+        "reaction": "Reaction"
       },
       "WeaponProp": {
         "TwoHanded": "2 Handed",

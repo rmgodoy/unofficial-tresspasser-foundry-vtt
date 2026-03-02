@@ -5,6 +5,12 @@
       <h1 class="item-title" style="margin: 0;">
         <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.feature'}}" style="font-family: 'Cinzel', serif; font-size: 24px; color: var(--trp-gold-bright); border: none; border-bottom: 1px solid #555; background: transparent; width: 100%;" />
       </h1>
+      <div class="field-row" style="margin-top: 5px; display: flex; align-items: center; gap: 8px;">
+        <label style="font-size: 11px; color: var(--trp-text-dim); text-transform: uppercase;">{{localize "TRESPASSER.Item.actionType"}}</label>
+        <select name="system.type" style="font-size: 11px; height: 18px; line-height: 1; padding: 0 4px; background: rgba(0,0,0,0.3); color: var(--trp-text-bright); border: 1px solid #444;">
+          {{selectOptions config.actionTypeChoices selected=system.type localize=true}}
+        </select>
+      </div>
     </div>
   </header>
 

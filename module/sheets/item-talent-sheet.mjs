@@ -26,6 +26,8 @@ export class TrespasserTalentSheet extends foundry.appv1.sheets.ItemSheet {
       relativeTo: this.document
     });
 
+    context.config = CONFIG.TRESPASSER;
+
     return context;
   }
 

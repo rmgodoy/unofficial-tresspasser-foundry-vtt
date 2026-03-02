@@ -193,6 +193,7 @@
         "Deeds": "Habilidades",
         "Roll": "Rolar",
         "CombatEffects": "Efeitos de Combate",
+        "ActionsReactions": "Ações & Reações",
         "BrokenUsedShort": "U",
         "UseDeed": "Usar Habilidade",
         "AddTierDeed": "Adicionar Habilidade {tier}",
@@ -503,6 +504,11 @@
         "Melee": "Corpo a Corpo",
         "Missile": "Projétil",
         "Spell": "Magia"
+      },
+      "ActionTypeChoices": {
+        "none": "Nenhum",
+        "action": "Ação",
+        "reaction": "Reação"
       },
       "WeaponProp": {
         "TwoHanded": "2 Mãos",

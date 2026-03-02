@@ -6,6 +6,7 @@ export class TrespasserTalentData extends foundry.abstract.TypeDataModel {
     const fields = foundry.data.fields;
     return {
       description: new fields.HTMLField(),
+      type: new fields.StringField({ initial: "none", choices: ["none", "action", "reaction"] }),
       usable: new fields.BooleanField({ initial: false }),
       rollDice: new fields.StringField({ initial: "" }),
       focusCost: new fields.NumberField({ initial: null, nullable: true }),
