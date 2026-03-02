@@ -32,7 +32,8 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
         choices: Object.values(TrespasserEffectsHelper.DURATION_MODES)
       }),
       durationValue: new fields.NumberField({ initial: 0 }),
-      intensityIncrement: new fields.NumberField({ initial: 0 })
+      intensityIncrement: new fields.NumberField({ initial: 0 }),
+      counterStates: new fields.ArrayField(new fields.ObjectField(), { initial: [] })
     };
   }
 }

@@ -301,20 +301,12 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         const actor = token.actor;
         if (!actor) continue;
 
-        const existingEffect = actor.items.find(i => i.type === sourceItem.type && i.name === sourceItem.name);
-
-        if (existingEffect) {
-          const currentIntensity = existingEffect.system.intensity || 0;
-          const addedIntensity = baseIntensity > 0 ? baseIntensity : 1;
-          await existingEffect.update({ "system.intensity": currentIntensity + addedIntensity });
-          ui.notifications.info(`Increased intensity of ${sourceItem.name} on ${actor.name}.`);
-        } else {
-          const itemData = sourceItem.toObject();
-          itemData.system.intensity = baseIntensity;
-          delete itemData._id;
-          await foundry.documents.BaseItem.create(itemData, { parent: actor });
-          ui.notifications.info(`Applied ${sourceItem.name} to ${actor.name}.`);
-        }
+        const itemData = sourceItem.toObject();
+        itemData.system.intensity = baseIntensity;
+        delete itemData._id;
+        
+        await foundry.documents.BaseItem.create(itemData, { parent: actor });
+        ui.notifications.info(`Applied ${sourceItem.name} to ${actor.name}.`);
       }
     });
   });
@@ -654,6 +646,53 @@ Hooks.on("updateItem", async (item, changed, options, userId) => {
  * Assign default icons to items based on type if they use the default foundry icon.
  */
 Hooks.on("preCreateItem", (item, createData, options, userId) => {
+  const actor = item.parent;
+  if (actor && (item.type === "effect" || item.type === "state")) {
+    const system = item.system;
+    let intensityToApply = system.intensity || 0;
+
+    // 1. Handle Counter States
+    const counterStates = system.counterStates || [];
+    let wasCountered = false;
+    if (counterStates.length > 0) {
+      const counterNames = new Set(counterStates.map(cs => cs.name));
+      const existingCounters = actor.items.filter(i => 
+        (i.type === "effect" || i.type === "state") && 
+        counterNames.has(i.name)
+      );
+
+      for (const counter of existingCounters) {
+        wasCountered = true;
+        if (intensityToApply <= 0) break;
+        const counterIntensity = counter.system.intensity || 0;
+        
+        if (counterIntensity > intensityToApply) {
+          counter.update({ "system.intensity": counterIntensity - intensityToApply });
+          intensityToApply = 0;
+        } else {
+          intensityToApply -= counterIntensity;
+          counter.delete();
+        }
+      }
+    }
+
+    // 2. If intensity reduced to 0 by counters, cancel creation
+    if (wasCountered && intensityToApply <= 0) return false;
+
+    // 3. Handle Summing with existing effect of same name
+    const existing = actor.items.find(i => i.type === item.type && i.name === item.name);
+    if (existing) {
+      const currentIntensity = existing.system.intensity || 0;
+      existing.update({ "system.intensity": currentIntensity + intensityToApply });
+      return false; // Cancel creation of the new item
+    }
+
+    // 4. Update the item being created with the final intensity (if modified by counters)
+    if (intensityToApply !== system.intensity) {
+      item.updateSource({ "system.intensity": intensityToApply });
+    }
+  }
+
   if (item.type === "injury") {
     item.updateSource({ img: "systems/trespasser/assets/icons/effects.png" });
   }

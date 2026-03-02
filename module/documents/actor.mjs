@@ -354,52 +354,28 @@ export class TrespasserActor extends Actor {
         if (!isPassive || !isCombat || !isImmediate) continue;
       }
       
-      // Check if this specific item (by name and type) already exists on the actor
-      // For injury-sourced items, also check by injuryId to allow same effect from two injuries
-      let existing;
-      if (fromInjury && injuryId) {
-        // Only de-duplicate within the same injury
-        existing = this.items.find(i =>
-          i.type === sourceItem.type &&
-          i.name === sourceItem.name &&
-          i.flags?.trespasser?.injuryId === injuryId
-        );
-      } else {
-        existing = this.items.find(i => i.type === sourceItem.type && i.name === sourceItem.name);
-      }
-      
       const desiredIntensity = parseInt(eff.intensity) || sourceItem.system.intensity || 0;
 
-      if (!existing) {
-        const itemData = sourceItem.toObject();
-        delete itemData._id;
+      // Create the item - the preCreateItem hook will handle summing and counter states
+      const itemData = sourceItem.toObject();
+      delete itemData._id;
 
-        // Apply desired intensity
-        if (["effect", "state"].includes(sourceItem.type)) {
-          itemData.system.intensity = desiredIntensity;
-        }
-
-        // Mark it so we know it came from a link
-        itemData.flags = itemData.flags || {};
-        itemData.flags.trespasser = itemData.flags.trespasser || {};
-        itemData.flags.trespasser.linkedSource = eff.uuid;
-
-        // Stamp injury metadata if provided
-        if (fromInjury) {
-          itemData.flags.trespasser.fromInjury = true;
-          if (injuryId) itemData.flags.trespasser.injuryId = injuryId;
-        }
-        
-        await foundry.documents.BaseItem.create(itemData, { parent: this });
-      } else {
-        // Only update intensity if it's an effect/state and it's not already at the desired intensity
-        if (["effect", "state"].includes(existing.type)) {
-          const currentIntensity = existing.system.intensity || 0;
-          if (currentIntensity < desiredIntensity) {
-             await existing.update({ "system.intensity": desiredIntensity });
-          }
-        }
+      if (["effect", "state"].includes(sourceItem.type)) {
+        itemData.system.intensity = desiredIntensity;
       }
+
+      // Mark it so we know it came from a link
+      itemData.flags = itemData.flags || {};
+      itemData.flags.trespasser = itemData.flags.trespasser || {};
+      itemData.flags.trespasser.linkedSource = eff.uuid;
+
+      // Stamp injury metadata if provided
+      if (fromInjury) {
+        itemData.flags.trespasser.fromInjury = true;
+        if (injuryId) itemData.flags.trespasser.injuryId = injuryId;
+      }
+      
+      await foundry.documents.BaseItem.create(itemData, { parent: this });
     }
   }
 

@@ -265,3 +265,117 @@
   margin-top: 0 !important;
   border-top: none !important;
 }
+
+/* ── Applied Effects & Chips ───────────────────────────── */
+.applied-effects-section {
+  margin-top: 15px;
+}
+
+.applied-effects-section .section-title {
+  text-align: left;
+  font-size: 14px;
+  margin-bottom: 4px;
+}
+
+.applied-effects-section .section-note {
+  font-size: 11px;
+  font-style: italic;
+  color: var(--trp-text-dim);
+  margin-bottom: 10px;
+  display: block;
+}
+
+.applied-effects-list {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px dashed var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 10px;
+  min-height: 40px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.effect-chip {
+  display: flex;
+  align-items: center;
+  background: rgba(26, 23, 20, 0.85);
+  border: 1px solid var(--trp-border);
+  border-radius: 4px;
+  padding: 4px 6px;
+  gap: 8px;
+  font-size: 12px;
+  transition: border-color 0.1s;
+}
+
+.effect-chip:hover {
+  border-color: var(--trp-gold-dim);
+}
+
+.effect-chip img {
+  width: 20px;
+  height: 20px;
+  border: none;
+  object-fit: cover;
+}
+
+.effect-chip .name {
+  font-family: var(--trp-font-body);
+  font-weight: bold;
+  color: var(--trp-text-bright);
+}
+
+.effect-chip .intensity-box {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--trp-border);
+  border-radius: 2px;
+  padding: 1px 4px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.effect-chip .intensity-box .label {
+  font-size: 9px;
+  color: var(--trp-text-dim);
+  text-transform: uppercase;
+}
+
+.effect-chip .intensity-box .value,
+.effect-chip .intensity-box input {
+  font-weight: bold;
+  color: var(--trp-gold-bright);
+  font-size: 11px;
+  background: transparent;
+  border: none;
+  width: 25px;
+  text-align: center;
+  padding: 0;
+  height: auto;
+  line-height: 1;
+}
+
+.effect-chip .intensity-box input:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+.effect-chip .controls {
+  display: flex;
+  gap: 6px;
+  margin-left: 4px;
+}
+
+.effect-chip .controls a {
+  cursor: pointer;
+  font-size: 12px;
+  transition: color 0.1s;
+}
+
+.effect-chip .controls .edit { color: var(--trp-gold); }
+.effect-chip .controls .remove { color: var(--trp-red-dim); }
+
+.effect-chip .controls a:hover {
+  color: #fff;
+}

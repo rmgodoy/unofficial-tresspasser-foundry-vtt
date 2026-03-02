@@ -91,6 +91,29 @@
         <label>{{localize "TRESPASSER.Item.Description"}}</label>
         {{editor system.description target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
       </div>
+
+      <hr />
+
+      <div class="applied-effects-section">
+        <h3 class="section-title">{{localize "TRESPASSER.Item.CounterEffects"}}</h3>
+        <span class="section-note">{{localize "TRESPASSER.Item.CounterEffectsNote"}}</span>
+        
+        <div class="drop-zone applied-effects-list" data-type="counterStates">
+          {{#if system.counterStates.length}}
+            {{#each system.counterStates as |cs index|}}
+              {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" 
+                  effect=cs 
+                  index=index 
+                  editable=../editable 
+                  deleteClass="counter-state-remove"
+                  editableIntensity=false
+              }}
+            {{/each}}
+          {{else}}
+            <p class="notes">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</p>
+          {{/if}}
+        </div>
+      </div>
     </div>
   </section>
 </form>

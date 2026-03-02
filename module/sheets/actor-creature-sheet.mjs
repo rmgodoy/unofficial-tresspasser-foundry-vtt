@@ -250,8 +250,8 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
     const effectItem = this.actor.items.get(itemId);
     if (!effectItem) return;
 
-    const { dc, groupIds, groupNames } =
-      TrespasserEffectsHelper.getPrevailGroup(this.actor, effectItem);
+    const intensity = effectItem.system.intensity || 0;
+    const dc = Math.min(20, 10 + intensity);
 
     const rollBonus = this.actor.system.combat?.roll_bonus ?? this.actor.system.roll_bonus ?? 0;
 
@@ -265,13 +265,9 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
 
     const success = roll.total >= dc;
 
-    const groupLabel = groupIds.length > 1
-      ? `<b>${groupNames}</b>`
-      : `<b>${effectItem.name}</b>`;
-
     const flavor = success
-      ? game.i18n.format("TRESPASSER.Chat.PrevailSuccess", { name: groupNames || effectItem.name, roll: roll.total, target: dc })
-      : game.i18n.format("TRESPASSER.Chat.PrevailFailed",  { name: groupNames || effectItem.name, roll: roll.total, target: dc });
+      ? game.i18n.format("TRESPASSER.Chat.PrevailSuccess", { name: effectItem.name, roll: roll.total, target: dc })
+      : game.i18n.format("TRESPASSER.Chat.PrevailFailed",  { name: effectItem.name, roll: roll.total, target: dc });
 
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this.actor }),
@@ -279,10 +275,7 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
     });
 
     if (success) {
-      for (const id of groupIds) {
-        const item = this.actor.items.get(id);
-        if (item) await item.delete();
-      }
+      await effectItem.delete();
     }
   }
 

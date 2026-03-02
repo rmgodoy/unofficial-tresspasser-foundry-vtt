@@ -90,6 +90,7 @@ export class TrespasserEffectsHelper {
     "armor": "TRESPASSER.Sheet.Equipments.Armor",
     "health": "TRESPASSER.Sheet.Effects.CurrentHealth",
     "max_health": "TRESPASSER.Sheet.Effects.MaxHealth",
+    "focus": "TRESPASSER.Sheet.Combat.Focus",
     "damage_dealt": "TRESPASSER.Item.DamageDealt",
     "damage_received": "TRESPASSER.Item.DamageReceived"
   };
@@ -381,47 +382,6 @@ export class TrespasserEffectsHelper {
     return false;
   }
 
-  /**
-   * For a given clicked effect item, collect every standalone effect/state item on the actor
-   * that belongs to the same "prevail group" — same targetAttribute, same `when` timing,
-   * same effect type (active/passive) — and is NOT from an injury.
-   *
-   * DC = min(20, 10 + netSum)  where netSum = sum of all numeric modifiers in the group.
-   *
-   * @param {Actor} actor
-   * @param {Item}  clickedItem  The effect/state the Prevail button was clicked on
-   * @returns {{ dc: number, groupIds: string[], groupNames: string, netSum: number }}
-   */
-  static getPrevailGroup(actor, clickedItem) {
-    const sys        = clickedItem.system;
-    const targetAttr = sys.targetAttribute;
-    const whenCond   = sys.when;
-    const typeKey    = sys.type;
-
-    const group = actor.items.filter(i => {
-      if (i.type !== "effect" && i.type !== "state") return false;
-      if (i.flags?.trespasser?.fromInjury)            return false;
-      const s = i.system;
-      return s.targetAttribute === targetAttr &&
-             s.when            === whenCond   &&
-             s.type            === typeKey;
-    });
-
-    // Sum numeric intensity
-    let netSum = 0;
-    for (const item of group) {
-      let parsed = 0;
-      parsed = item.system.intensity || 0;
-      const n = parseFloat(parsed.toString().replace("+", "").trim());
-      if (!isNaN(n)) netSum += n;
-    }
-
-    const dc         = Math.min(20, Math.round(10 + netSum));
-    const groupIds   = group.map(i => i.id);
-    const groupNames = group.map(i => i.name).join(", ");
-
-    return { dc, groupIds, groupNames, netSum };
-  }
 
   /**
    * Shows a dialog to create or edit an effect object.
@@ -594,6 +554,23 @@ export class TrespasserEffectsHelper {
             flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
           } else {
             flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.HealthUnaffected")}</p>`;
+          }
+        } else if (eff.target === "focus") {
+          const currentFocus = actor.system.combat?.focus ?? null;
+          if (currentFocus !== null) {
+            const newFocus = Math.max(0, currentFocus + modValue);
+            await actor.update({ "system.combat.focus": newFocus });
+
+            if (modValue > 0) {
+              flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Trigger.FocusRecovered", { value: modValue })}</p>`;
+            } else if (modValue < 0) {
+              flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.FocusLost", { value: Math.abs(modValue) })}</p>`;
+            } else {
+              flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.FocusUnaffected")}</p>`;
+            }
+          } else {
+            const targetLabel = game.i18n.localize(this.TARGET_ATTRIBUTES[eff.target]) || eff.target;
+            flavor += `<p>${game.i18n.format("TRESPASSER.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
           }
         } else {
           const targetLabel = game.i18n.localize(this.TARGET_ATTRIBUTES[eff.target]) || eff.target;

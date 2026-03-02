@@ -24,30 +24,40 @@
     {{!-- Effects & Deeds Section --}}
     <div class="links-section">
       
-      <div class="effects-section" style="margin-top: 10px;">
-        <h3 style="margin-bottom: 5px; color: var(--trp-gold-bright);">{{localize "TRESPASSER.Item.LinkedEffects"}}</h3>
-        <p style="font-size: 11px; font-style: italic; color: var(--trp-text-dim); margin-bottom: 5px;">{{localize "TRESPASSER.Item.LinkedEffectsNote"}}</p>
-        <div class="applied-effects-list drop-zone" data-type="effects" style="min-height: 48px; padding: 4px; border: 1px dashed #555; border-radius: 4px; background: rgba(0,0,0,0.2);">
+      <div class="applied-effects-section">
+        <h3 class="section-title">{{localize "TRESPASSER.Item.LinkedEffects"}}</h3>
+        <p class="section-note">{{localize "TRESPASSER.Item.LinkedEffectsNote"}}</p>
+        <div class="applied-effects-list drop-zone" data-type="effects">
           {{#each linkedEffects as |effect index|}}
-            {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-remove"}}
+            {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" 
+                effect=effect 
+                index=index 
+                editable=../editable 
+                deleteClass="effect-remove" 
+                editableIntensity=true
+            }}
           {{else}}
-          <span style="color: #666; font-style: italic; line-height: 30px; margin-left: 8px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+            <p class="notes">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</p>
           {{/each}}
         </div>
       </div>
 
-      <div class="effects-section" style="margin-top: 20px;">
-        <h3 style="margin-bottom: 5px; color: var(--trp-gold-bright);">{{localize "TRESPASSER.Item.LinkedDeeds"}}</h3>
-         <p style="font-size: 11px; font-style: italic; color: var(--trp-text-dim); margin-bottom: 5px;">{{localize "TRESPASSER.Item.LinkedDeedsNote"}}</p>
-        <div class="applied-effects-list drop-zone" data-type="deeds" style="min-height: 48px; padding: 4px; border: 1px dashed #555; border-radius: 4px; background: rgba(0,0,0,0.2);">
+      <div class="applied-effects-section">
+        <h3 class="section-title">{{localize "TRESPASSER.Item.LinkedDeeds"}}</h3>
+        <p class="section-note">{{localize "TRESPASSER.Item.LinkedDeedsNote"}}</p>
+        <div class="applied-effects-list drop-zone" data-type="deeds">
           {{#each linkedDeeds as |deed index|}}
-            <div class="effect-chip" data-index="{{index}}" style="display: inline-flex; align-items: center; background: rgba(0,0,0,0.4); border: 1px solid #444; border-radius: 12px; padding: 2px 8px 2px 2px; margin: 2px; font-size: 11px;">
-              <img src="{{deed.img}}" width="20" height="20" style="border: none; border-radius: 10px; margin-right: 6px;" />
-              <span style="font-weight: bold; color: var(--trp-text-bright);">{{deed.name}}</span>
-              <a class="deed-remove" title="{{localize 'TRESPASSER.Item.RemoveDeed'}}" style="margin-left: 6px; color: #a00; cursor: pointer;"><i class="fas fa-times"></i></a>
+            <div class="effect-chip deed-chip" data-index="{{index}}" style="border-radius: 20px;">
+              <img src="{{deed.img}}" style="border-radius: 50%;" />
+              <span class="name">{{deed.name}}</span>
+              <div class="controls">
+                {{#if ../editable}}
+                  <a class="deed-remove remove" title="{{localize 'TRESPASSER.Item.RemoveDeed'}}"><i class="fas fa-times"></i></a>
+                {{/if}}
+              </div>
             </div>
           {{else}}
-          <span style="color: #666; font-style: italic; line-height: 30px; margin-left: 8px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Deeds"}}</span>
+            <p class="notes">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Deeds"}}</p>
           {{/each}}
         </div>
       </div>

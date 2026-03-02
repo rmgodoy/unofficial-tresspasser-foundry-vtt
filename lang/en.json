@@ -356,6 +356,9 @@
       "HealthRecovered": "Recovered {value} Health.",
       "HealthLost": "Lost {value} Health.",
       "HealthUnaffected": "Health was unaffected.",
+      "FocusRecovered": "Recovered {value} Focus.",
+      "FocusLost": "Lost {value} Focus.",
+      "FocusUnaffected": "Focus was unaffected.",
       "ModifierGenerated": "Generated {value} modifier to {target}."
     },
     "TriggerLabels": {
@@ -405,6 +408,7 @@
       "IsCombat": "Is Combat?",
       "intensity": "Intensity",
       "targetAttribute": "Target Attribute",
+      "counterStates": "Counter States",
       "modifier": "Modifier",
       "isOnlyReminder": "Is Reminder Only?",
       "gmOnly": "GM Only?",
@@ -465,6 +469,8 @@
       "WeaponEffects": "Weapon Effects",
       "EnhancementEffects": "Enhancement Effects",
       "LinkedEffects": "Linked Effects / States",
+      "CounterEffects": "Counter Effects / States",
+      "CounterEffectsNote": "Dragging an effect here will make it a counter to this one, subtracting intensities when applied.",
       "DamageDealt": "Damage Dealt",
       "DamageReceived": "Damage Received",
       "BrokenUsed": "Broken/Used",
@@ -515,7 +521,7 @@
         "none": "None",
         "action": "Action",
         "reaction": "Reaction"
-      },
+      },  
       "WeaponProp": {
         "TwoHanded": "2 Handed",
         "Thrown": "Thrown",

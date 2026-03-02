@@ -11,7 +11,8 @@ export async function onPrevailRoll(event, sheet) {
   const effectItem = sheet.actor.items.get(li.dataset.itemId);
   if (!effectItem) return;
 
-  const { dc, groupIds, groupNames } = TrespasserEffectsHelper.getPrevailGroup(sheet.actor, effectItem);
+  const intensity    = effectItem.system.intensity || 0;
+  const dc           = Math.min(20, 10 + intensity);
   const prevailBonus = sheet.actor.system.combat.prevail || 0;
   const roll         = new foundry.dice.Roll(`1d20 + ${prevailBonus}`);
   await roll.evaluate();
@@ -20,18 +21,14 @@ export async function onPrevailRoll(event, sheet) {
   await TrespasserEffectsHelper.triggerEffects(sheet.actor, "on-prevail");
 
   const success    = roll.total >= dc;
-  const groupLabel = groupIds.length > 1 ? `<b>${groupNames}</b>` : `<b>${effectItem.name}</b>`;
   const flavor     = success
-    ? `Prevails against ${groupLabel} (Roll: ${roll.total} vs DC ${dc}) — <b>Success!</b>`
-    : `Failed to prevail against ${groupLabel} (Roll: ${roll.total} vs DC ${dc}) — <b>Failed</b>`;
+    ? `Prevails against <b>${effectItem.name}</b> (Roll: ${roll.total} vs DC ${dc}) — <b>Success!</b>`
+    : `Failed to prevail against <b>${effectItem.name}</b> (Roll: ${roll.total} vs DC ${dc}) — <b>Failed</b>`;
 
   await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor });
 
   if (success) {
-    for (const id of groupIds) {
-      const item = sheet.actor.items.get(id);
-      if (item) await item.delete();
-    }
+    await effectItem.delete();
   }
 }
 
