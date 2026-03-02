@@ -581,7 +581,8 @@
       "NoItems": "No items available.",
       "AttrReadonlyTooltip": "Key attribute is set by the first Craft applied; this Craft cannot override it.",
       "AttrFirstTooltip": "Your first Craft determines your key attribute (required).",
-      "Applied": "Craft '{name}' applied to {actor}."
+      "Applied": "Craft '{name}' applied to {actor}.",
+      "AllTiers": "All Tiers"
     },
     "PastLife": {
       "Tabs": {

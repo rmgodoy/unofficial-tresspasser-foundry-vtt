@@ -93,7 +93,12 @@ export class TrespasserCraftSheet extends foundry.appv1.sheets.ItemSheet {
       );
     }
 
-    currentArr.push({ uuid: sourceItem.uuid, name: sourceItem.name, img: sourceItem.img });
+    currentArr.push({ 
+      uuid: sourceItem.uuid, 
+      name: sourceItem.name, 
+      img: sourceItem.img,
+      tier: sourceItem.system.tier
+    });
     await this.item.update({
       "system.description": this.item.system.description,
       [`system.${listKey}`]: currentArr

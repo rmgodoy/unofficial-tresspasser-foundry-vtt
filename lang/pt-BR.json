@@ -575,7 +575,8 @@
       "NoItems": "Nenhum item disponível.",
       "AttrReadonlyTooltip": "O atributo chave é definido pelo primeiro Ofício aplicado; este Ofício não pode substituí-lo.",
       "AttrFirstTooltip": "Seu primeiro Ofício determina o atributo chave (obrigatório).",
-      "Applied": "Ofício '{name}' aplicado a {actor}."
+      "Applied": "Ofício '{name}' aplicado a {actor}.",
+      "AllTiers": "Todos os Graus"
     },
     "PastLife": {
       "Tabs": {

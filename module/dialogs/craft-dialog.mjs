@@ -16,6 +16,16 @@ export async function showCraftDialog(craftItem, actor) {
   const sys       = craftItem.system;
   const craftName = craftItem.name;
 
+  // ── Fetch missing tiers for deeds (backward compatibility) ────
+  if (sys.deeds) {
+    for (const d of sys.deeds) {
+      if (!d.tier && d.uuid) {
+        const item = await fromUuid(d.uuid);
+        if (item) d.tier = item.system.tier;
+      }
+    }
+  }
+
   // ── Is this the first craft? ──────────────────────────────────
   const craftsSlots   = actor.system.crafts ?? [];
   const alreadyListed = craftsSlots.some(s => s && s.trim() === craftName.trim());
@@ -69,9 +79,35 @@ export async function showCraftDialog(craftItem, actor) {
   const descHTML = sys.description
     ? `<div class="craft-dlg-desc">${sys.description}</div>` : "";
 
-  const searchBar = tabId =>
-    `<input type="text" class="craft-dlg-search" data-tab="${tabId}"
-            placeholder="${game.i18n.localize("TRESPASSER.CraftDialog.SearchPlaceholder")}" />`;
+  const searchBar = tabId => {
+    if (tabId !== "deeds") {
+      return `<input type="text" class="craft-dlg-search" data-tab="${tabId}"
+              placeholder="${game.i18n.localize("TRESPASSER.CraftDialog.SearchPlaceholder")}" />`;
+    }
+    
+    // For DEEDS, add a tier filter
+    const tiers = {
+      all:    "TRESPASSER.CraftDialog.AllTiers",
+      light:  "TRESPASSER.Item.DeedTierChoices.Light",
+      heavy:  "TRESPASSER.Item.DeedTierChoices.Heavy",
+      mighty: "TRESPASSER.Item.DeedTierChoices.Mighty",
+      special:"TRESPASSER.Item.DeedTierChoices.Special"
+    };
+
+    const tierOptions = Object.entries(tiers).map(([k, v]) => 
+      `<option value="${k}">${game.i18n.localize(v)}</option>`
+    ).join("");
+
+    return `
+      <div class="craft-dlg-filter-row">
+        <input type="text" class="craft-dlg-search" data-tab="deeds"
+               style="flex:1;margin-bottom:0;"
+               placeholder="${game.i18n.localize("TRESPASSER.CraftDialog.SearchPlaceholder")}" />
+        <select class="craft-dlg-tier-filter" style="width:120px;height:28px;">
+          ${tierOptions}
+        </select>
+      </div>`;
+  };
 
   const tabBtn = (id, label, first = false) =>
     `<a class="craft-dlg-tab-btn item${first ? " active" : ""}" data-tab="${id}"
@@ -111,6 +147,8 @@ export async function showCraftDialog(craftItem, actor) {
     <style>
       .craft-dialog .craft-dlg-desc{font-size:13px;color:var(--trp-text-dim);font-style:italic;margin-top:4px;}
       .craft-dialog .craft-dlg-search{width:100%;box-sizing:border-box;margin-bottom:8px;padding:4px 8px;background:var(--trp-bg-input);border:1px solid var(--trp-border);color:var(--trp-text-bright);font-family:var(--trp-font-body);font-size:13px;border-radius:3px;}
+      .craft-dialog .craft-dlg-filter-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
+      .craft-dialog .craft-dlg-tier-filter{background:var(--trp-bg-input);border:1px solid var(--trp-border);color:var(--trp-text-bright);font-family:var(--trp-font-body);font-size:12px;border-radius:3px;cursor:pointer;}
       .craft-dialog .craft-dlg-list{display:flex;flex-direction:column;gap:3px;overflow-y:auto;max-height:270px;padding-right:2px;}
       .craft-dialog .craft-dlg-chip-row{display:flex;align-items:center;gap:4px;}
       .craft-dialog .craft-dlg-chip{display:flex;align-items:center;gap:8px;padding:4px 8px;background:rgba(0,0,0,0.2);border:1px solid var(--trp-border);border-radius:4px;cursor:pointer;transition:background 0.1s;}
@@ -194,15 +232,37 @@ export async function showCraftDialog(craftItem, actor) {
           });
         });
 
-        // Search — filter chip-rows (wrapper includes both label and info icon)
-        html.find(".craft-dlg-search").on("input", ev => {
-          const query = ev.currentTarget.value.toLowerCase().trim();
-          const tabId = ev.currentTarget.dataset.tab;
-          html.find(`.craft-dlg-pane[data-pane="${tabId}"] .craft-dlg-chip-row`).each((_, row) => {
-            const name = row.querySelector(".craft-dlg-name")?.textContent?.toLowerCase() ?? "";
-            row.style.display = name.includes(query) ? "" : "none";
+        // Unified filtering for deeds
+        const filterDeeds = () => {
+          const query = html.find(".craft-dlg-search[data-tab='deeds']").val().toLowerCase().trim();
+          const tier  = html.find(".craft-dlg-tier-filter").val();
+
+          html.find(`.craft-dlg-pane[data-pane="deeds"] .craft-dlg-chip-row`).each((idx, row) => {
+            const entry = sys.deeds[idx];
+            if (!entry) return;
+
+            const matchesSearch = entry.name.toLowerCase().includes(query);
+            const matchesTier   = (tier === "all") || (entry.tier === tier);
+            
+            row.style.display = (matchesSearch && matchesTier) ? "" : "none";
           });
+        };
+
+        // Search & Tier events
+        html.find(".craft-dlg-search").on("input", ev => {
+          const tabId = ev.currentTarget.dataset.tab;
+          if (tabId === "deeds") {
+            filterDeeds();
+          } else {
+            const query = ev.currentTarget.value.toLowerCase().trim();
+            html.find(`.craft-dlg-pane[data-pane="${tabId}"] .craft-dlg-chip-row`).each((_, row) => {
+              const name = row.querySelector(".craft-dlg-name")?.textContent?.toLowerCase() ?? "";
+              row.style.display = name.includes(query) ? "" : "none";
+            });
+          }
         });
+
+        html.find(".craft-dlg-tier-filter").on("change", () => filterDeeds());
 
         // Info icons
         html.find(".dlg-info-btn").on("click", async ev => {
