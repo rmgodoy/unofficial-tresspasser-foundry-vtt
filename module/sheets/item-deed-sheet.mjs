@@ -36,7 +36,7 @@ export class TrespasserDeedSheet extends foundry.appv1.sheets.ItemSheet {
          "missile": "Missile",
          "spell": "Spell",
          "tool": "Tool",
-         "unharmed": "Unharmed",
+         "unarmed": "Unarmed",
          "versatile": "Versatile"
       },
       targets: {

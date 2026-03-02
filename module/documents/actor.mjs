@@ -43,174 +43,128 @@ export class TrespasserActor extends Actor {
   }
 
   /**
+   * Helper to get total occupancy of unequipped inventory items.
+   */
+  _getUsedInventorySlots() {
+    const unequippedItems = this.items.filter(i => {
+      const isSpecial = ["deed", "feature", "talent", "incantation", "effect", "state", "injury"].includes(i.type);
+      return !isSpecial && !i.system.equipped;
+    });
+    return unequippedItems.reduce((acc, i) => {
+      const val = i.system.slotOccupancy !== undefined ? parseFloat(i.system.slotOccupancy) : 1;
+      return acc + (isNaN(val) ? 0 : val);
+    }, 0);
+  }
+
+  /**
    * Equip an item from the actor's inventory.
    * @param {string} itemId
    */
   async equipItem(itemId) {
     const item = this.items.get(itemId);
-    if (!item) return;
+    if (!item || item.system.equipped) return;
 
-    if (item.type === "armor") {
-      const placement = item.system.placement;
-      const weight = item.system.weight;
+    // Determine target slots
+    let placement = item.system.placement;
+    if (!placement && item.type === "weapon") placement = "hand";
+    if (!placement && item.type === "item" && item.system.equippable) placement = "hand";
 
-      // 1. Check if slot is occupied (by an item actually marked as equipped)
-      const currentOccupant = this.items.find(i => i.type === "armor" && i.system.equipped && i.system.placement === placement);
-      if (currentOccupant) {
-        ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.SlotOccupied", { placement: placement, name: currentOccupant.name }));
-        return;
-      }
+    const equipment = this.system.equipment || {};
+    let handKeys = [];
 
-      // 2. Check heavy armor limit
-      if (weight === "H") {
-        const heavyEquipped = this.items.some(i => i.type === "armor" && i.system.equipped && i.system.weight === "H");
-        if (heavyEquipped) {
-          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.HeavyArmorLimit"));
-          return;
-        }
-      }
-
-      // 3. Update Item
-      await item.update({ "system.equipped": true });
-
-      // Apply linked effects via fromUuid
-      if (item.system.effects && item.system.effects.length > 0) {
-        await this._applyLinkedItems(item.system.effects);
-      }
-
-      // 4. Update Actor Equipment Slot and Combat Snapshot
-      const updates = {
-        [`system.equipment.${placement}`]: itemId,
-        [`system.combat.equipment_snapshot.${placement}`]: {
-          die: item.system.armorDie,
-          effect: item.system.effects && item.system.effects.length > 0 ? item.system.effects.map(e => e.name).join(", ") : "",
-          used: item.system.broken
-        }
-      };
-      await this.update(updates);
-    } else if (item.type === "weapon") {
-      const is2H = !!item.system.properties?.twoHanded;
-      const equipment = this.system.equipment || {};
-      const mainHandId = equipment.main_hand || "";
-      const offHandId = equipment.off_hand || "";
-      const shieldId = equipment.shield || "";
-
-      let targetMain = false;
-      let targetOff = false;
-
+    // 1. Placement Check (Hands vs discrete slots)
+    if (placement === "hand") {
+      const is2H = item.type === "weapon" ? !!item.system.properties?.twoHanded : (item.system.slotOccupancy >= 2);
+      
       if (is2H) {
-        if (mainHandId !== "" || offHandId !== "") {
+        // Must have both hands free
+        if (equipment.main_hand || equipment.off_hand || equipment.shield) {
           ui.notifications.error(game.i18n.localize("TRESPASSER.Notifications.TwoHandedEquip") || "Both hands must be free to equip a two-handed weapon.");
           return;
         }
-        targetMain = true;
-        targetOff = true;
+        handKeys = ["main_hand", "off_hand"];
       } else {
-        // One-handed weapon: Prefer Main Hand
-        if (mainHandId === "") {
-          targetMain = true;
-        } else if (offHandId === "") {
-          targetOff = true;
+        // One-handed: Prefer Main Hand
+        if (!equipment.main_hand) {
+          handKeys = ["main_hand"];
+        } else if (!equipment.off_hand && !equipment.shield) {
+          handKeys = ["off_hand"];
         } else {
           ui.notifications.error(game.i18n.localize("TRESPASSER.Notifications.HandsFull") || "Both hands are full!");
           return;
         }
       }
-
-      await item.update({ "system.equipped": true });
-
-      if (item.system.effects && item.system.effects.length > 0) {
-        await this._applyLinkedItems(item.system.effects, { passiveOnly: true });
-      }
-      if (item.system.enhancementEffects && item.system.enhancementEffects.length > 0) {
-        await this._applyLinkedItems(item.system.enhancementEffects, { passiveOnly: true });
-      }
-      if (item.system.extraDeeds && item.system.extraDeeds.length > 0) {
-        await this._applyLinkedItems(item.system.extraDeeds);
-      }
-
-      const effectsStr = [
-        ...(item.system.effects || []).map(e => e.name),
-        ...(item.system.enhancementEffects || []).map(e => e.name)
-      ].join(", ");
-
-      const updates = {};
-      
-      if (targetMain) {
-        updates[`system.equipment.main_hand`] = itemId;
-        updates[`system.combat.equipment_snapshot.weapon`] = {
-          die: item.system.weaponDie,
-          effect: effectsStr,
-          used: false
-        };
-      }
-      if (targetOff) {
-        updates[`system.equipment.off_hand`] = itemId;
-        updates[`system.combat.equipment_snapshot.off_hand`] = {
-          die: item.system.weaponDie,
-          effect: effectsStr,
-          used: false
-        };
-      }
-
-      await this.update(updates);
-    } else if (item.type === "item" && item.system.subType === "light_source") {
-      const placement = item.system.placement || "hand";
-      const equipment = this.system.equipment || {};
-      const mainHandId = equipment.main_hand || "";
-      const offHandId = equipment.off_hand || "";
-      const shieldId = equipment.shield || "";
-
-      if (placement === "hand") {
-        // Preferred hand order: Main Hand, then Off Hand
-        let handKey = "";
-        if (mainHandId === "") handKey = "main_hand";
-        else if (offHandId === "") handKey = "off_hand";
-
-        if (handKey === "") {
-          ui.notifications.error("Both hands are full! You cannot equip this light source.");
-          return;
-        }
-        
-        await item.update({ "system.equipped": true });
-        await this.update({ [`system.equipment.${handKey}`]: item.id });
-      } else {
-        // Shared logic with armor placement slots (head, arms, body, legs, outer)
-        const currentId = equipment[placement] || "";
-        if (currentId !== "") {
-          const occupant = this.items.get(currentId);
-          ui.notifications.warn(`Slot already occupied by ${occupant ? occupant.name : "another item"}.`);
-          return;
-        }
-        await item.update({ "system.equipped": true });
-        await this.update({ [`system.equipment.${placement}`]: item.id });
-      }
-
-      await this._syncTokenLight();
-    } else if (item.type === "accessory") {
-      const placement = item.system.placement;
-
-      // 1. Check if slot is occupied
-      const currentId = this.system.equipment?.[placement];
-      if (currentId) {
-        const occupant = this.items.get(currentId);
-        ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.SlotOccupied", { placement: placement, name: occupant ? occupant.name : "another item" }));
+    } else {
+      // Discrete slot Check
+      const occupantId = equipment[placement];
+      if (occupantId) {
+        const occupant = this.items.get(occupantId);
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.SlotOccupied", { 
+          placement: placement, 
+          name: occupant ? occupant.name : "another item" 
+        }));
         return;
       }
+    }
 
-      // 2. Update Item
-      await item.update({ "system.equipped": true });
+    // 2. Heavy Armor Limit check
+    if (item.type === "armor" && item.system.weight === "H") {
+       const otherHeavy = this.items.some(i => i.id !== item.id && i.type === "armor" && i.system.equipped && i.system.weight === "H");
+       if (otherHeavy) {
+         ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.HeavyArmorLimit"));
+         return;
+       }
+    }
 
-      // 3. Apply Linked Items
+    // 3. Update Item state
+    await item.update({ "system.equipped": true });
+
+    // 4. Update Actor and Snapshots
+    const actorUpdates = {};
+    if (placement === "hand") {
+      for (const key of handKeys) {
+        actorUpdates[`system.equipment.${key}`] = (key === handKeys[0]) ? item.id : "";
+      }
+    } else {
+      actorUpdates[`system.equipment.${placement}`] = item.id;
+    }
+
+    // Snapshots
+    if (item.type === "armor") {
+      actorUpdates[`system.combat.equipment_snapshot.${placement}`] = {
+        die: item.system.armorDie,
+        effect: item.system.effects?.length > 0 ? item.system.effects.map(e => e.name).join(", ") : "",
+        used: item.system.broken
+      };
+    } else if (item.type === "weapon") {
+      const effectsStr = [...(item.system.effects || []), ...(item.system.enhancementEffects || [])].map(e => e.name).join(", ");
+      if (handKeys.includes("main_hand")) {
+        actorUpdates[`system.combat.equipment_snapshot.weapon`] = { die: item.system.weaponDie, effect: effectsStr, used: false };
+      }
+      if (handKeys.includes("off_hand")) {
+        actorUpdates[`system.combat.equipment_snapshot.off_hand`] = { die: item.system.weaponDie, effect: effectsStr, used: false };
+      }
+    }
+
+    await this.update(actorUpdates);
+
+    // 5. Apply Linked Items
+    if (item.system.effects?.length > 0) await this._applyLinkedItems(item.system.effects, { passiveOnly: (item.type === "weapon" || item.type === "item") });
+    if (item.type === "weapon") {
+      if (item.system.enhancementEffects?.length > 0) await this._applyLinkedItems(item.system.enhancementEffects, { passiveOnly: true });
+      if (item.system.extraDeeds?.length > 0) await this._applyLinkedItems(item.system.extraDeeds);
+    }
+    if (item.type === "accessory" || item.type === "item") {
       if (item.system.talents?.length > 0) await this._applyLinkedItems(item.system.talents);
       if (item.system.features?.length > 0) await this._applyLinkedItems(item.system.features);
       if (item.system.deeds?.length > 0) await this._applyLinkedItems(item.system.deeds);
-      if (item.system.effects?.length > 0) await this._applyLinkedItems(item.system.effects, { passiveOnly: true });
-
-      // 4. Update Actor Equipment Slot
-      await this.update({ [`system.equipment.${placement}`]: itemId });
+      if (item.system.incantations?.length > 0) await this._applyLinkedItems(item.system.incantations);
     }
+
+    if (item.system.subType === "light_source" || (item.type === "weapon" && item.system.isLightSource)) await this._syncTokenLight();
   }
+
+  /** @override */
 
   /** @override */
   _onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId) {
@@ -243,6 +197,7 @@ export class TrespasserActor extends Actor {
       if (sys.talents?.length > 0)  this._removeLinkedItems(sys.talents, itemId);
       if (sys.features?.length > 0) this._removeLinkedItems(sys.features, itemId);
       if (sys.deeds?.length > 0)    this._removeLinkedItems(sys.deeds, itemId);
+      if (sys.incantations?.length > 0) this._removeLinkedItems(sys.incantations, itemId);
       if (sys.effects?.length > 0)  this._removeLinkedItems(sys.effects, itemId);
       if (doc.type === "weapon") {
         if (doc.system.enhancementEffects?.length > 0) this._removeLinkedItems(doc.system.enhancementEffects, itemId);
@@ -334,7 +289,7 @@ export class TrespasserActor extends Actor {
       }
 
       await this.update(updates);
-    } else if (item.type === "item" && item.system.subType === "light_source") {
+    } else if (item.type === "item" && item.system.equippable) {
       const updates = {};
       const equipment = this.system.equipment || {};
       for (const [slot, id] of Object.entries(equipment)) {
@@ -343,9 +298,18 @@ export class TrespasserActor extends Actor {
           break;
         }
       }
+
       await item.update({ "system.equipped": false });
       if (Object.keys(updates).length > 0) await this.update(updates);
-      await this._syncTokenLight();
+
+      // Remove Linked Items
+      if (item.system.talents?.length > 0) await this._removeLinkedItems(item.system.talents, item.id);
+      if (item.system.features?.length > 0) await this._removeLinkedItems(item.system.features, item.id);
+      if (item.system.deeds?.length > 0) await this._removeLinkedItems(item.system.deeds, item.id);
+      if (item.system.incantations?.length > 0) await this._removeLinkedItems(item.system.incantations, item.id);
+      if (item.system.effects?.length > 0) await this._removeLinkedItems(item.system.effects, item.id);
+
+      if (item.system.subType === "light_source") await this._syncTokenLight();
     } else if (item.type === "accessory") {
       const placement = item.system.placement;
 

@@ -7,6 +7,7 @@ export class TrespasserArmorData extends foundry.abstract.TypeDataModel {
     return {
       armorRating: new fields.NumberField({ required: true, integer: true, initial: 0, min: 0 }),
       armorDie: new fields.StringField({ initial: "d6" }),
+      slotOccupancy: new fields.NumberField({ initial: 1, min: 0 }),
       price: new fields.NumberField({ initial: 0, min: 0 }),
       placement: new fields.StringField({ 
         initial: "body", 

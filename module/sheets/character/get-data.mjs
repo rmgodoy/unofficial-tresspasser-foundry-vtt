@@ -137,8 +137,21 @@ export async function getCharacterData(sheet, options = {}) {
   context.equippedArmor = {};
   const armorSlots = ["head", "body", "arms", "legs", "outer", "shield"];
   for (const slot of armorSlots) {
-    const item = actor.items.find(i => i.type === "armor" && i.system.equipped && i.system.placement === slot);
-    if (item) item.effectSummary = (item.system.effects || []).map(e => e.name).join(", ") || "—";
+    const item = actor.items.find(i => (i.type === "armor" || (i.type === "item" && i.system.equippable)) && i.system.equipped && i.system.placement === slot);
+    if (item) {
+        if (item.type === "armor") {
+            item.effectSummary = (item.system.effects || []).map(e => e.name).join(", ") || "—";
+        } else {
+            // Generic item effect summary
+            item.effectSummary = [
+                ...(item.system.talents  || []).map(e => e.name),
+                ...(item.system.features || []).map(e => e.name),
+                ...(item.system.deeds    || []).map(e => e.name),
+                ...(item.system.effects  || []).map(e => e.name),
+                ...(item.system.incantations || []).map(e => e.name)
+            ].join(", ") || "—";
+        }
+    }
     context.equippedArmor[slot] = item || null;
   }
 
@@ -146,13 +159,14 @@ export async function getCharacterData(sheet, options = {}) {
   context.equippedAccessories = {};
   const accessorySlots = ["amulet", "ring", "talisman"];
   for (const slot of accessorySlots) {
-    const item = actor.items.find(i => i.type === "accessory" && i.system.equipped && i.system.placement === slot);
+    const item = actor.items.find(i => (i.type === "accessory" || (i.type === "item" && i.system.equippable)) && i.system.equipped && i.system.placement === slot);
     if (item) {
       item.effectSummary = [
         ...(item.system.talents  || []).map(e => e.name),
         ...(item.system.features || []).map(e => e.name),
         ...(item.system.deeds    || []).map(e => e.name),
-        ...(item.system.effects  || []).map(e => e.name)
+        ...(item.system.effects  || []).map(e => e.name),
+        ...(item.system.incantations || []).map(e => e.name)
       ].join(", ") || "—";
     }
     context.equippedAccessories[slot] = item || null;
@@ -167,15 +181,25 @@ export async function getCharacterData(sheet, options = {}) {
   };
 
   if (context.equippedWeapon.main_hand) {
-    context.equippedWeapon.main_hand.effectSummary = [
-      ...(context.equippedWeapon.main_hand.system.effects || []).map(e => e.name),
-      ...(context.equippedWeapon.main_hand.system.enhancementEffects || []).map(e => e.name)
+    const item = context.equippedWeapon.main_hand;
+    item.effectSummary = [
+      ...(item.system.effects || []).map(e => e.name),
+      ...(item.system.enhancementEffects || []).map(e => e.name),
+      ...(item.system.talents || []).map(e => e.name),
+      ...(item.system.features || []).map(e => e.name),
+      ...(item.system.deeds    || []).map(e => e.name),
+      ...(item.system.incantations || []).map(e => e.name)
     ].join(", ") || "—";
   }
   if (context.equippedWeapon.off_hand) {
-    context.equippedWeapon.off_hand.effectSummary = [
-      ...(context.equippedWeapon.off_hand.system.effects || []).map(e => e.name),
-      ...(context.equippedWeapon.off_hand.system.enhancementEffects || []).map(e => e.name)
+    const item = context.equippedWeapon.off_hand;
+    item.effectSummary = [
+      ...(item.system.effects || []).map(e => e.name),
+      ...(item.system.enhancementEffects || []).map(e => e.name),
+      ...(item.system.talents || []).map(e => e.name),
+      ...(item.system.features || []).map(e => e.name),
+      ...(item.system.deeds    || []).map(e => e.name),
+      ...(item.system.incantations || []).map(e => e.name)
     ].join(", ") || "—";
   }
 

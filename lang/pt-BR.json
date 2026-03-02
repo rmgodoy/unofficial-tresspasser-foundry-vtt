@@ -295,6 +295,7 @@
       "TwoHandedEquip": "Você deve desequipar ambas as mãos para usar uma arma de Duas Mãos.",
       "HandsFull": "Ambas as mãos estão ocupadas. Desequipe uma arma primeiro.",
       "InventoryFull": "Inventário cheio! Você deve jogar fora um item antes de desequipar {name}.",
+      "InventoryFullSwap": "Inventário cheio! Não é possível trocar {name} por {occupant}.",
       "NoTargetsAbort": "Nenhum alvo selecionado! Rolagem cancelada, informando a Acurácia base como referência.",
       "SpendRDLimited": "Você tentou gastar {spent} DR mas só possui {current}. Gastando {current} no lugar.",
       "NoRD": "Nenhum Dado de Recuperação disponível.",
@@ -371,6 +372,7 @@
     },
     "Item": {
       "Damage": "Dano",
+      "Equippable": "Equipável",
       "WeaponDie": "Dado de Arma",
       "Type": "Tipo",
       "Range": "Alcance",
@@ -515,7 +517,7 @@
         "Missile": "Projétil",
         "Spell": "Magia",
         "Tool": "Ferramenta",
-        "Unharmed": "Desarmado",
+        "Unarmed": "Desarmado",
         "Versatile": "Versátil"
       },
       "Injury": {

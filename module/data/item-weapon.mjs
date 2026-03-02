@@ -22,6 +22,7 @@ export class TrespasserWeaponData extends foundry.abstract.TypeDataModel {
       active: new fields.BooleanField({ initial: false }),
       usesFuel: new fields.BooleanField({ initial: false }),
       depletionDie: new fields.StringField({ initial: "d4" }),
+      slotOccupancy: new fields.NumberField({ initial: 1, min: 0 }),
       price: new fields.NumberField({ initial: 0, min: 0 }),
       equipped: new fields.BooleanField({ initial: false }),
       effects: new fields.ArrayField(new fields.SchemaField({

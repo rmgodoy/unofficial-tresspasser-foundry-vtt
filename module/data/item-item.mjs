@@ -14,6 +14,11 @@ export class TrespasserItemData extends foundry.abstract.TypeDataModel {
       quantity: new fields.NumberField({ initial: 1, integer: true, min: 0 }),
       slotOccupancy: new fields.NumberField({ initial: 1, min: 0 }),
       equipped: new fields.BooleanField({ initial: false }),
+      equippable: new fields.BooleanField({ initial: false }),
+      placement: new fields.StringField({ 
+        initial: "hand", 
+        choices: ["hand", "head", "body", "arms", "legs", "outer", "shield"]
+      }),
       active: new fields.BooleanField({ initial: false }),
       isLightFuel: new fields.BooleanField({ initial: false }),
       isAmmo: new fields.BooleanField({ initial: false }),
@@ -25,10 +30,6 @@ export class TrespasserItemData extends foundry.abstract.TypeDataModel {
       // Light Source
       radius: new fields.NumberField({ initial: 0, min: 0 }),
       depletionDie: new fields.StringField({ initial: "d4" }),
-      placement: new fields.StringField({ 
-        initial: "hand", 
-        choices: ["hand", "head", "body", "arms", "legs", "outer", "shield"]
-      }),
 
       // Consumables (Bombs, Oils, Powders, Potions)
       tier: new fields.StringField({ initial: "lesser", choices: ["lesser", "greater"] }),

@@ -77,6 +77,19 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
     context.isArtifact = st === "artifacts";
     context.hasDamage = st === "bombs";
 
+    // "Custom Attributes" exists if it's a special subtype or has any linked data
+    const hasLinkedItems = 
+      (context.system.effects?.length > 0) || 
+      (context.system.deeds?.length > 0) || 
+      (context.system.incantations?.length > 0) || 
+      (context.system.talents?.length > 0) || 
+      (context.system.features?.length > 0);
+    
+    context.hasCustomAttributes = context.isResource || context.isLightSource || 
+                                  context.isConsumable || context.isScroll || 
+                                  context.isEsoteric || context.isArtifact || 
+                                  hasLinkedItems;
+
     return context;
   }
 
@@ -190,6 +203,9 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
     if (st && st !== currentSt) {
       const cleanData = {};
       
+      // If it's a light source, force equippable to true
+      if (st === "light_source") formData["system.equippable"] = true;
+
       // If it's no longer esoteric, clear incantations
       if (st !== "esoteric") cleanData["system.incantations"] = [];
       
@@ -210,6 +226,10 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
       foundry.utils.mergeObject(formData, cleanData);
     }
     
+    if (this.item.system.subType === "light_source") {
+      formData["system.equippable"] = true;
+    }
+
     return super._updateObject(event, formData);
   }
 }

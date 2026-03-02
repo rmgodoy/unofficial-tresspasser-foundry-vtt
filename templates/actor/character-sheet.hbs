@@ -274,20 +274,26 @@
           <tbody>
             <tr>
               <td class="slot-label">{{localize "TRESPASSER.Sheet.Equipments.MainHand"}}</td>
-              <td>
-                {{#if equippedWeapon.main_hand}}
+              {{#if (eq equippedWeapon.main_hand.type "item")}}
+                <td colspan="3">
                   <span class="item-name">{{equippedWeapon.main_hand.name}}</span>
-                {{else}}
-                  <span style="color: #666; font-style: italic;">—</span>
-                {{/if}}
-              </td>
-              <td style="text-align: center;">{{#if equippedWeapon.main_hand}}{{equippedWeapon.main_hand.system.weaponDie}}{{/if}}</td>
-              <td style="text-align: center;">
-                {{#if equippedWeapon.main_hand}}
-                  {{capitalize equippedWeapon.main_hand.system.type}}
-                  {{#if equippedWeapon.main_hand.system.range}}/ {{equippedWeapon.main_hand.system.range}}{{/if}}
-                {{/if}}
-              </td>
+                </td>
+              {{else}}
+                <td>
+                  {{#if equippedWeapon.main_hand}}
+                    <span class="item-name">{{equippedWeapon.main_hand.name}}</span>
+                  {{else}}
+                    <span style="color: #666; font-style: italic;">—</span>
+                  {{/if}}
+                </td>
+                <td style="text-align: center;">{{#if equippedWeapon.main_hand}}{{equippedWeapon.main_hand.system.weaponDie}}{{/if}}</td>
+                <td style="text-align: center;">
+                  {{#if equippedWeapon.main_hand}}
+                    {{capitalize equippedWeapon.main_hand.system.type}}
+                    {{#if equippedWeapon.main_hand.system.range}}/ {{equippedWeapon.main_hand.system.range}}{{/if}}
+                  {{/if}}
+                </td>
+              {{/if}}
               <td>
                 <div class="equip-effect-row" style="display: flex; align-items: center; justify-content: space-between;">
                   {{#if equippedWeapon.main_hand}}
@@ -301,20 +307,26 @@
             </tr>
             <tr>
               <td class="slot-label">{{localize "TRESPASSER.Sheet.Equipments.OffHand"}}</td>
-              <td>
-                {{#if equippedWeapon.off_hand}}
+              {{#if (eq equippedWeapon.off_hand.type "item")}}
+                <td colspan="3">
                   <span class="item-name">{{equippedWeapon.off_hand.name}}</span>
-                {{else}}
-                  <span style="color: #666; font-style: italic;">—</span>
-                {{/if}}
-              </td>
-              <td style="text-align: center;">{{#if equippedWeapon.off_hand}}{{equippedWeapon.off_hand.system.weaponDie}}{{/if}}</td>
-              <td style="text-align: center;">
-                {{#if equippedWeapon.off_hand}}
-                  {{capitalize equippedWeapon.off_hand.system.type}}
-                  {{#if equippedWeapon.off_hand.system.range}}/ {{equippedWeapon.off_hand.system.range}}{{/if}}
-                {{/if}}
-              </td>
+                </td>
+              {{else}}
+                <td>
+                  {{#if equippedWeapon.off_hand}}
+                    <span class="item-name">{{equippedWeapon.off_hand.name}}</span>
+                  {{else}}
+                    <span style="color: #666; font-style: italic;">—</span>
+                  {{/if}}
+                </td>
+                <td style="text-align: center;">{{#if equippedWeapon.off_hand}}{{equippedWeapon.off_hand.system.weaponDie}}{{/if}}</td>
+                <td style="text-align: center;">
+                  {{#if equippedWeapon.off_hand}}
+                    {{capitalize equippedWeapon.off_hand.system.type}}
+                    {{#if equippedWeapon.off_hand.system.range}}/ {{equippedWeapon.off_hand.system.range}}{{/if}}
+                  {{/if}}
+                </td>
+              {{/if}}
               <td>
                 <div class="equip-effect-row" style="display: flex; align-items: center; justify-content: space-between;">
                   {{#if equippedWeapon.off_hand}}
@@ -347,28 +359,34 @@
             {{#each equippedArmor as |item slot|}}
             <tr>
               <td><label class="slot-label">{{localize (concat "TRESPASSER.Sheet.Equipments." (capitalize slot))}}</label></td>
-              <td>
-                {{#if item}}
-                  <span class="item-name">{{item.name}}</span>
-                {{else}}
-                  <span style="color: #666; font-style: italic;">—</span>
-                {{/if}}
-              </td>
-              <td>
-                <div class="col-sm" style="text-align: center;">
-                  {{#if item}}{{localize (concat "TRESPASSER.Item.WeightChoices.Short." item.system.weight)}}{{else}}—{{/if}}
-                </div>
-              </td>
-              <td>
-                <div class="col-sm" style="text-align: center;">
-                  {{#if item}}{{item.system.armorRating}}{{else}}0{{/if}}
-                </div>
-              </td>
-              <td>
-                <div class="col-sm" style="text-align: center;">
-                  {{#if item}}{{item.system.armorDie}}{{else}}—{{/if}}
-                </div>
-              </td>
+              {{#if (eq item.type "item")}}
+                <td colspan="4">
+                    <span class="item-name">{{item.name}}</span>
+                </td>
+              {{else}}
+                <td>
+                    {{#if item}}
+                    <span class="item-name">{{item.name}}</span>
+                    {{else}}
+                    <span style="color: #666; font-style: italic;">—</span>
+                    {{/if}}
+                </td>
+                <td>
+                    <div class="col-sm" style="text-align: center;">
+                    {{#if item}}{{localize (concat "TRESPASSER.Item.WeightChoices.Short." item.system.weight)}}{{else}}—{{/if}}
+                    </div>
+                </td>
+                <td>
+                    <div class="col-sm" style="text-align: center;">
+                    {{#if item}}{{item.system.armorRating}}{{else}}0{{/if}}
+                    </div>
+                </td>
+                <td>
+                    <div class="col-sm" style="text-align: center;">
+                    {{#if item}}{{item.system.armorDie}}{{else}}—{{/if}}
+                    </div>
+                </td>
+              {{/if}}
               <td>
                 <div class="equip-effect-row" style="display: flex; align-items: center; justify-content: space-between;">
                   {{#if item}}
@@ -400,14 +418,20 @@
             {{#each equippedAccessories as |item slot|}}
             <tr>
               <td class="slot-label">{{localize (concat "TRESPASSER.Sheet.Equipments." (capitalize slot))}}</td>
-              <td>
-                {{#if item}}
+              {{#if (eq item.type "item")}}
+                <td colspan="2">
                   <span class="item-name">{{item.name}}</span>
-                {{else}}
-                  <span style="color: #666; font-style: italic;">—</span>
-                {{/if}}
-              </td>
-              <td style="text-align: center;">—</td>
+                </td>
+              {{else}}
+                <td>
+                    {{#if item}}
+                    <span class="item-name">{{item.name}}</span>
+                    {{else}}
+                    <span style="color: #666; font-style: italic;">—</span>
+                    {{/if}}
+                </td>
+                <td style="text-align: center;">—</td>
+              {{/if}}
               <td>
                 <div class="equip-effect-row" style="display: flex; align-items: center; justify-content: space-between;">
                   {{#if item}}
@@ -439,7 +463,7 @@
           <img src="{{this.img}}" class="item-icon" title="{{this.name}}" />
           <span class="item-name">{{this.name}}</span>
           <div class="item-controls">
-            {{#if (or (eq this.type "armor") (eq this.type "weapon") (eq this.type "accessory") (and (eq this.type "item") (eq this.system.subType "light_source")))}}
+            {{#if (or (eq this.type "armor") (eq this.type "weapon") (eq this.type "accessory") this.system.equippable)}}
             <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-dice-d6"></i></a>
             <a class="item-equip" title="{{localize 'TRESPASSER.Sheet.Equipments.Equip'}}"><i class="fas fa-hand-paper"></i></a>
             {{else if (eq this.type "rations")}}
@@ -476,7 +500,7 @@
           <img src="{{this.img}}" class="item-icon" title="{{this.name}}" />
           <span class="item-name">{{this.name}}{{#if (eq this.system.subType "resource")}} <span style="font-size:11px; color:#888;">(x{{this.system.quantity}})</span>{{/if}}</span>
           <div class="item-controls">
-            {{#if (or (eq this.type "armor") (eq this.type "weapon") (eq this.type "accessory") (and (eq this.type "item") (eq this.system.subType "light_source")))}}
+            {{#if (or (eq this.type "armor") (eq this.type "weapon") (eq this.type "accessory") this.system.equippable)}}
             <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-dice-d6"></i></a>
             <a class="item-unequip" title="{{localize 'TRESPASSER.Sheet.Equipments.Unequip'}}"><i class="fas fa-hand-paper" style="color: var(--trp-gold-bright);"></i></a>
             {{else if (eq this.type "rations")}}
@@ -607,8 +631,9 @@
             <tbody>
               {{#each (array "head" "arms" "body" "legs" "outer" "shield") as |slot|}}
               {{#with (lookup ../equippedArmor slot) as |item|}}
+              {{#unless (eq item.type "item")}}
               <tr data-item-id="{{item.id}}">
-                <td class="slot-label equip-rollable" data-slot="{{slot}}">{{capitalize slot}}</td>
+                <td class="slot-label {{#if item}}equip-rollable{{/if}}" data-slot="{{slot}}">{{capitalize slot}}</td>
                 <td>
                   {{#if item}}{{item.system.armorDie}}{{else}}—{{/if}}
                 </td>
@@ -621,6 +646,7 @@
                   {{/if}}
                 </td>
               </tr>
+              {{/unless}}
               {{/with}}
               {{/each}}
               {{!-- Weapon row still uses snapshot for now as weapons aren't items yet --}}

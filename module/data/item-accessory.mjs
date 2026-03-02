@@ -10,6 +10,7 @@ export class TrespasserAccessoryData extends foundry.abstract.TypeDataModel {
         initial: "ring", 
         choices: ["ring", "talisman", "amulet"] 
       }),
+      slotOccupancy: new fields.NumberField({ initial: 1, min: 0 }),
       equipped: new fields.BooleanField({ initial: false }),
       talents: new fields.ArrayField(new fields.SchemaField({
         uuid: new fields.StringField({ required: true }),

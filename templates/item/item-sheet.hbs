@@ -9,6 +9,8 @@
         <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Item.Name'}}"/>
       </h1>
 
+
+
       <div class="detail-row">
         <label>{{localize "TRESPASSER.Item.Type"}}</label>
         <select name="system.subType">
@@ -26,15 +28,30 @@
         <input type="number" name="system.slotOccupancy" value="{{system.slotOccupancy}}" data-dtype="Number" />
       </div>
 
-      <div class="detail-row flex-row" style="gap: 10px; margin-top: 5px;">
-        <div class="field-item checkbox-item" style="flex: 1;">
+      <div class="detail-row flex-row" style="gap: 10px; margin-top: 5px; flex-wrap: wrap;">
+        <div class="field-item checkbox-item">
           <label for="item-is-fuel-{{item.id}}">{{localize "TRESPASSER.Item.IsLightFuel"}}</label>
           <input type="checkbox" name="system.isLightFuel" {{checked system.isLightFuel}} id="item-is-fuel-{{item.id}}"/>
         </div>
-        <div class="field-item checkbox-item" style="flex: 1;">
+        <div class="field-item checkbox-item">
           <label for="item-is-ammo-{{item.id}}">{{localize "TRESPASSER.Item.IsAmmo"}}</label>
           <input type="checkbox" name="system.isAmmo" {{checked system.isAmmo}} id="item-is-ammo-{{item.id}}"/>
         </div>
+
+        {{#unless isLightSource}}
+        <div class="field-item checkbox-item">
+          <input type="checkbox" name="system.equippable" {{checked system.equippable}} id="item-equippable-{{item.id}}"/>
+          <label for="item-equippable-{{item.id}}">{{localize "TRESPASSER.Item.Equippable"}}</label>
+        </div>
+        {{/unless}}
+
+        {{#if (or system.equippable isLightSource)}}
+        <div class="field-item" style="flex: 1; min-width: 80px;">
+          <select name="system.placement">
+            {{selectOptions placementOptions selected=system.placement localize=true}}
+          </select>
+        </div>
+        {{/if}}
       </div>
     </div>
 
@@ -46,6 +63,7 @@
   </header>
 
   <section class="sheet-body scrollable">
+    {{#if hasCustomAttributes}}
     <div class="custom-attributes-area">
       <h3 class="section-title">{{localize "TRESPASSER.Sheet.Items.CustomAttributes"}}</h3>
 
@@ -73,13 +91,6 @@
             <label>{{localize "TRESPASSER.Item.DepletionDie"}}</label>
             <select name="system.depletionDie">
               {{selectOptions config.depletionDieOptions selected=system.depletionDie localize=true}}
-            </select>
-          </div>
-
-          <div class="field-item">
-            <label>{{localize "TRESPASSER.Item.Placement"}}</label>
-            <select name="system.placement">
-              {{selectOptions placementOptions selected=system.placement localize=true}}
             </select>
           </div>
 
@@ -166,5 +177,6 @@
         {{/if}}
       </div>
     </div>
+    {{/if}}
   </section>
 </form>

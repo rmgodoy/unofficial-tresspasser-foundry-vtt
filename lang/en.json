@@ -301,6 +301,7 @@
       "TwoHandedEquip": "You must unequip both hands to equip a Two-Handed weapon.",
       "HandsFull": "Both hands are full. Unequip a weapon first.",
       "InventoryFull": "Inventory full! You need to drop an item before you can unequip {name}.",
+      "InventoryFullSwap": "Inventory full! Cannot swap {name} for {occupant}.",
       "NoTargetsAbort": "No targets selected! Roll aborted, printing basic Accuracy for reference.",
       "SpendRDLimited": "You tried to spend {spent} RD but only have {current}. Spending {current} instead.",
       "NoRD": "No Recovery Dice available.",
@@ -377,6 +378,7 @@
     },
     "Item": {
       "Damage": "Damage",
+      "Equippable": "Equippable",
       "WeaponDie": "Weapon Die",
       "Type": "Type",
       "Range": "Range",
@@ -521,7 +523,7 @@
         "Missile": "Missile",
         "Spell": "Spell",
         "Tool": "Tool",
-        "Unharmed": "Unharmed",
+        "Unarmed": "Unarmed",
         "Versatile": "Versatile"
       },
       "Injury": {
