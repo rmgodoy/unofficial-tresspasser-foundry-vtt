@@ -24,7 +24,8 @@
       "item": "Item",
       "injury": "Ferimento",
       "calling": "Vocação",
-      "craft": "Ofício"
+      "craft": "Ofício",
+      "past_life": "Vida Passada"
     },
     "Sheet": {
       "Items": {
@@ -574,6 +575,16 @@
       "AttrFirstTooltip": "Seu primeiro Ofício determina o atributo chave (obrigatório).",
       "Applied": "Ofício '{name}' aplicado a {actor}."
     },
+    "PastLife": {
+      "Tabs": {
+        "Attributes": "Atributos",
+        "Skills": "Perícias",
+        "Inventory": "Inventário"
+      },
+      "DropHint": "Solte Itens, Armas ou Armaduras aqui para adicioná-los ao modelo de inventário desta Vida Passada.",
+      "InvalidItemType": "Apenas itens do tipo Item, Arma ou Armadura podem ser adicionados ao inventário de uma Vida Passada.",
+      "Applied": "Vida Passada '{name}' aplicada a {actor}."
+    },
     "Dialog": {
       "Cancel": "Cancelar",
       "ViewItem": "Ver detalhes do item",
@@ -634,7 +645,8 @@
       "item": "Item",
       "injury": "Ferimento",
       "calling": "Vocação",
-      "craft": "Ofício"
+      "craft": "Ofício",
+      "past_life": "Vida Passada"
     }
   }
 }

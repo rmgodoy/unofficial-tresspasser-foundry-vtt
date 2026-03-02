@@ -1,0 +1,75 @@
+<form class="{{cssClass}} trespasser-sheet item-sheet past-life" autocomplete="off">
+  
+  {{!-- Header --}}
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    </div>
+
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Name'}}" />
+      </h1>
+    </div>
+
+    <div class="header-column description-column">
+      <div class="editor-container">
+        {{editor descriptionHTML target="system.description" button=true owner=owner editable=editable engine="prosemirror"}}
+      </div>
+    </div>
+  </header>
+
+  {{!-- Navigation --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="attributes">{{localize "TRESPASSER.PastLife.Tabs.Attributes"}}</a>
+    <a class="item" data-tab="skills">{{localize "TRESPASSER.PastLife.Tabs.Skills"}}</a>
+    <a class="item" data-tab="inventory">{{localize "TRESPASSER.PastLife.Tabs.Inventory"}}</a>
+  </nav>
+
+  {{!-- Body --}}
+  <section class="sheet-body">
+
+    {{!-- Attributes Tab --}}
+    <div class="tab attributes flexcol" data-group="primary" data-tab="attributes">
+      <div class="attributes-grid">
+        {{#each system.attributes as |bonus key|}}
+        <div class="attribute-row flexrow">
+          <label>{{localize (concat "TRESPASSER.Sheet.Attributes." (capitalize key))}}</label>
+          <input type="number" name="system.attributes.{{key}}" value="{{bonus}}" data-dtype="Number" />
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Skills Tab --}}
+    <div class="tab skills flexcol" data-group="primary" data-tab="skills">
+      <div class="skills-list flexrow flex-wrap">
+        {{#each skillRows}}
+        <div class="skill-entry flexrow">
+          <input type="checkbox" class="past-life-skill-check" data-skill="{{this.key}}" {{trespasserChecked this.selected}} />
+          <label>{{this.label}}</label>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Inventory Tab --}}
+    <div class="tab inventory flexcol" data-group="primary" data-tab="inventory">
+      <div class="past-life-drop-zone" data-list="items">
+        <p class="hint">{{localize "TRESPASSER.PastLife.DropHint"}}</p>
+        
+        <div class="linked-items-list">
+          {{#each pastLifeItems as |item idx|}}
+          <div class="past-life-chip flexrow" data-index="{{idx}}">
+            <img src="{{item.img}}" title="{{item.name}}" />
+            <span class="chip-name">{{item.name}}</span>
+            {{#if (ne item.quantity 1)}}<span class="chip-qty">x{{item.quantity}}</span>{{/if}}
+            <a class="past-life-item-remove"><i class="fas fa-times"></i></a>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+
+  </section>
+</form>

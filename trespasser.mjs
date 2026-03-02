@@ -38,6 +38,8 @@ import { TrespasserInjurySheet }      from "./module/sheets/item-injury-sheet.mj
 import { TrespasserCallingSheet }     from "./module/sheets/item-calling-sheet.mjs";
 import { TrespasserCraftData }      from "./module/data/item-craft.mjs";
 import { TrespasserCraftSheet }     from "./module/sheets/item-craft-sheet.mjs";
+import { TrespasserPastLifeData }  from "./module/data/item-past-life.mjs";
+import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mjs";
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 
 Hooks.once("init", async () => {
@@ -87,6 +89,7 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.injury = TrespasserInjuryData;
   CONFIG.Item.dataModels.calling = TrespasserCallingData;
   CONFIG.Item.dataModels.craft   = TrespasserCraftData;
+  CONFIG.Item.dataModels.past_life = TrespasserPastLifeData;
 
   // Sheets
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
@@ -172,6 +175,11 @@ Hooks.once("init", async () => {
     types: ["craft"],
     makeDefault: true,
     label: "Trespasser Craft Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserPastLifeSheet, {
+    types: ["past_life"],
+    makeDefault: true,
+    label: "Trespasser Past Life Sheet",
   });
 
   // Handlebars helpers
@@ -680,6 +688,9 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
         break;
       case "craft":
         iconPath = "systems/trespasser/assets/icons/deeds.png";
+        break;
+      case "past_life":
+        iconPath = "systems/trespasser/assets/icons/pesant.png";
         break;
       case "item":
         const subType = item.system.subType;

@@ -24,7 +24,8 @@
       "item": "Item",
       "injury": "Injury",
       "calling": "Calling",
-      "craft": "Craft"
+      "craft": "Craft",
+      "past_life": "Past Life"
     },
     "Sheet": {
       "Items": {
@@ -580,6 +581,16 @@
       "AttrFirstTooltip": "Your first Craft determines your key attribute (required).",
       "Applied": "Craft '{name}' applied to {actor}."
     },
+    "PastLife": {
+      "Tabs": {
+        "Attributes": "Attributes",
+        "Skills": "Skills",
+        "Inventory": "Inventory"
+      },
+      "DropHint": "Drop Items, Weapons, or Armor here to add them to this Past Life's inventory template.",
+      "InvalidItemType": "Only Item, Weapon, or Armor types can be added to a Past Life inventory.",
+      "Applied": "Past Life '{name}' applied to {actor}."
+    },
     "Dialog": {
       "Cancel": "Cancel",
       "ViewItem": "View item details",
@@ -640,7 +651,8 @@
       "item": "Item",
       "injury": "Injury",
       "calling": "Calling",
-      "craft": "Craft"
+      "craft": "Craft",
+      "past_life": "Past Life"
     }
   }
 }

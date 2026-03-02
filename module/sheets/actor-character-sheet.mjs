@@ -58,6 +58,7 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     if (!item) return super._onDropItem(event, data);
     if (item.type === "calling") return showCallingDialog(item, this.actor);
     if (item.type === "craft")   return showCraftDialog(item, this.actor);
+    if (item.type === "past_life") return this._applyPastLife(item);
     return super._onDropItem(event, data);
   }
 
@@ -116,4 +117,58 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
 
   // ── Light ──────────────────────────────────────────────────────────────────
   async _onToggleLight(event)               { return onToggleLight(event, this); }
+
+  /**
+   * Apply a Past Life template to the character.
+   * @param {Item} pastLifeItem 
+   */
+  async _applyPastLife(pastLifeItem) {
+    const actor = this.actor;
+    const system = pastLifeItem.system;
+    
+    // 1. Prepare updates for actor
+    const updates = {
+      "system.past_life": pastLifeItem.name,
+    };
+
+    // 2. Sum attribute bonuses
+    for (const [key, bonus] of Object.entries(system.attributes)) {
+      const currentVal = actor.system.attributes[key] || 0;
+      updates[`system.attributes.${key}`] = currentVal + (bonus || 0);
+    }
+
+    // 3. Mark skills as trained (true)
+    for (const [key, trained] of Object.entries(system.skills)) {
+      if (trained) {
+        updates[`system.skills.${key}`] = true;
+      }
+    }
+
+    // Apply actor updates
+    await actor.update(updates);
+
+    // 4. Create items from the Past Life template
+    const itemsToCreate = [];
+    for (const entry of system.items) {
+      const sourceItem = await fromUuid(entry.uuid);
+      if (sourceItem) {
+        const itemData = sourceItem.toObject();
+        delete itemData._id;
+        // Optionally override quantity if specified in the template
+        if (entry.quantity !== undefined) {
+          itemData.system.quantity = entry.quantity;
+        }
+        itemsToCreate.push(itemData);
+      }
+    }
+
+    if (itemsToCreate.length > 0) {
+      await actor.createEmbeddedDocuments("Item", itemsToCreate);
+    }
+
+    ui.notifications.info(game.i18n.format("TRESPASSER.PastLife.Applied", {
+      name: pastLifeItem.name,
+      actor: actor.name
+    }));
+  }
 }

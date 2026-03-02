@@ -45,7 +45,8 @@
       "state": {},
       "injury": {},
       "calling": {},
-      "craft": {}
+      "craft": {},
+      "past_life": {}
     }
   },
   "initiative": "1d6 + @system.combat.initiative",
