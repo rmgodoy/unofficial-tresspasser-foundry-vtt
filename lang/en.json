@@ -368,6 +368,13 @@
       "Immediate": "Immediate",
       "DamageDealt": "Damage Dealt",
       "DamageReceived": "Damage Received",
+      "OnPrevail": "On Prevail",
+      "OnUseDeed": "On Use Deed",
+      "OnTargetedDeed": "On Targeted Deed",
+      "OnDeedHitReceived": "On Deed Hit Received",
+      "OnDeedMissReceived": "On Deed Miss Received",
+      "OnDeedHit": "On Deed Hit",
+      "OnDeedMiss": "On Deed Miss",
       "StartOfCombat": "Start of Combat",
       "EndOfCombat": "End of Combat"
     },

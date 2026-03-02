@@ -76,6 +76,9 @@ export async function onDeedRoll(event, sheet) {
   await sheet._postDeedPhase("Start",  effects.start,  sheet.actor, item, phaseOptions);
   await sheet._postDeedPhase("Before", effects.before, sheet.actor, item, phaseOptions);
 
+  // Trigger on-use-deed
+  await TrespasserEffectsHelper.triggerEffects(sheet.actor, "on-use-deed");
+
   // Accuracy roll
   const isAdv    = TrespasserEffectsHelper.hasAdvantage(sheet.actor, "accuracy");
   const accuracy = sheet.actor.system.combat.accuracy ?? 0;
@@ -102,10 +105,22 @@ export async function onDeedRoll(event, sheet) {
       const statKey = item.system.accuracyTest?.toLowerCase() || "guard";
       targetValue = targetActor.system.combat[statKey] ?? 10;
       await TrespasserEffectsHelper.triggerEffects(targetActor, "targeted");
+      await TrespasserEffectsHelper.triggerEffects(targetActor, "on-targeted-deed");
     }
 
     const isHit = rollTotal >= targetValue;
-    if (isHit) anyHit = true;
+    if (isHit) {
+      anyHit = true;
+      if (targetActor) {
+        await TrespasserEffectsHelper.triggerEffects(targetActor, "on-deed-hit-received");
+        await TrespasserEffectsHelper.triggerEffects(sheet.actor, "on-deed-hit");
+      }
+    } else {
+      if (targetActor) {
+        await TrespasserEffectsHelper.triggerEffects(targetActor, "on-deed-miss-received");
+        await TrespasserEffectsHelper.triggerEffects(sheet.actor, "on-deed-miss");
+      }
+    }
 
     const diff    = rollTotal - targetValue;
     let sparks = 0, shadows = 0;

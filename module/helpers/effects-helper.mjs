@@ -16,6 +16,13 @@ export class TrespasserEffectsHelper {
     IMMEDIATE: "immediate",
     DAMAGE_DEALT: "damage-dealt",
     DAMAGE_RECEIVED: "damage-received",
+    ON_PREVAIL: "on-prevail",
+    USE_DEED: "on-use-deed",
+    TARGETED_DEED: "on-targeted-deed",
+    DEED_HIT_RECEIVED: "on-deed-hit-received",
+    DEED_MISS_RECEIVED: "on-deed-miss-received",
+    DEED_HIT: "on-deed-hit",
+    DEED_MISS: "on-deed-miss",
     START_COMBAT: "start-of-combat",
     END_COMBAT: "end-of-combat"
   };
@@ -34,6 +41,13 @@ export class TrespasserEffectsHelper {
     "immediate": "TRESPASSER.TriggerLabels.Immediate",
     "damage-dealt": "TRESPASSER.TriggerLabels.DamageDealt",
     "damage-received": "TRESPASSER.TriggerLabels.DamageReceived",
+    "on-prevail": "TRESPASSER.TriggerLabels.OnPrevail",
+    "on-use-deed": "TRESPASSER.TriggerLabels.OnUseDeed",
+    "on-targeted-deed": "TRESPASSER.TriggerLabels.OnTargetedDeed",
+    "on-deed-hit-received": "TRESPASSER.TriggerLabels.OnDeedHitReceived",
+    "on-deed-miss-received": "TRESPASSER.TriggerLabels.OnDeedMissReceived",
+    "on-deed-hit": "TRESPASSER.TriggerLabels.OnDeedHit",
+    "on-deed-miss": "TRESPASSER.TriggerLabels.OnDeedMiss",
     "start-of-combat": "TRESPASSER.TriggerLabels.StartOfCombat",
     "end-of-combat": "TRESPASSER.TriggerLabels.EndOfCombat"
   };

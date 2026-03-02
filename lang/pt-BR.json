@@ -362,6 +362,13 @@
       "Immediate": "Imediato",
       "DamageDealt": "Dano Causado",
       "DamageReceived": "Dano Recebido",
+      "OnPrevail": "Ao Prevalecer",
+      "OnUseDeed": "Ao Usar Habilidade",
+      "OnTargetedDeed": "Ao ser Alvo de Habilidade",
+      "OnDeedHitReceived": "Ao receber Acerto de Habilidade",
+      "OnDeedMissReceived": "Ao receber Erro de Habilidade",
+      "OnDeedHit": "Ao Acertar Habilidade",
+      "OnDeedMiss": "Ao Errar Habilidade",
       "StartOfCombat": "Início de Combate",
       "EndOfCombat": "Fim de Combate"
     },

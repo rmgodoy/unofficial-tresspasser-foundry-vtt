@@ -15,6 +15,9 @@ export async function onPrevailRoll(event, sheet) {
   const prevailBonus = sheet.actor.system.combat.prevail || 0;
   const roll         = new foundry.dice.Roll(`1d20 + ${prevailBonus}`);
   await roll.evaluate();
+  
+  // Trigger on-prevail effects
+  await TrespasserEffectsHelper.triggerEffects(sheet.actor, "on-prevail");
 
   const success    = roll.total >= dc;
   const groupLabel = groupIds.length > 1 ? `<b>${groupNames}</b>` : `<b>${effectItem.name}</b>`;
