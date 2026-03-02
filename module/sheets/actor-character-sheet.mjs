@@ -18,7 +18,7 @@ import { onDeedRoll, postDeedPhase, requestCDAndRoll, evaluateAndShowRoll } from
 import { onTalentRoll, onFeatureRoll, onIncantationRoll }                   from "./character/handlers-talent.mjs";
 import { handleRestAction, recoverItemCost, spendRDAndRoll }                from "./character/handlers-rest.mjs";
 import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck }  from "./character/handlers-items.mjs";
-import { onPrevailRoll, onIntensityChange, onEffectRemove, onEffectInfo }   from "./character/handlers-effects.mjs";
+import { onPrevailRoll, onIntensityChange, onEffectRemove, onEffectInfo, onEffectEdit }   from "./character/handlers-effects.mjs";
 import { onEquipRoll, getActiveWeapons, getAccuracyFromTarget }             from "./character/handlers-combat.mjs";
 import { onInjuryClockClick, onToggleLight, onSpendRDHeader }               from "./character/handlers-misc.mjs";
 
@@ -107,6 +107,7 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   async _onIntensityChange(event)           { return onIntensityChange(event, this); }
   async _onEffectRemove(event)              { return onEffectRemove(event, this); }
   async _onEffectInfo(event)                { return onEffectInfo(event, this); }
+  async _onEffectEdit(event)                { return onEffectEdit(event, this); }
   async _onDurationChange(event)            { return onDurationChange(event, this); }
 
   // ── Combat / Equipment ─────────────────────────────────────────────────────

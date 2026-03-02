@@ -66,6 +66,9 @@ export class TrespasserDeedSheet extends foundry.appv1.sheets.ItemSheet {
 
     // Intensity change
     html.find('.effect-intensity-input').change(this._onIntensityChange.bind(this));
+
+    // Edit button
+    html.find('.effect-edit').click(this._onEffectEdit.bind(this));
   }
 
   async _onDropEffect(event) {
@@ -98,7 +101,7 @@ export class TrespasserDeedSheet extends foundry.appv1.sheets.ItemSheet {
       type: item.type,
       name: item.name,
       img: item.img,
-      intensity: item.system.intensity || 1
+      intensity: item.system.intensity || 0
     });
 
     await this.item.update({
@@ -134,7 +137,7 @@ export class TrespasserDeedSheet extends foundry.appv1.sheets.ItemSheet {
 
     const index = Number(el.dataset.index);
     const phase = phaseEl.dataset.phase;
-    const value = parseInt(input.value) || 1;
+    const value = parseInt(input.value) || 0;
 
     const currentEffects = foundry.utils.deepClone(this.item.system.effects[phase].appliedEffects) || [];
     if (currentEffects[index]) {
@@ -143,5 +146,46 @@ export class TrespasserDeedSheet extends foundry.appv1.sheets.ItemSheet {
         [`system.effects.${phase}.appliedEffects`]: currentEffects
       });
     }
+  }
+
+  async _onEffectEdit(event) {
+    event.preventDefault();
+    const el = event.currentTarget.closest('.effect-chip');
+    const phaseEl = event.currentTarget.closest('.applied-effects-list');
+    if (!el || !phaseEl) return;
+
+    const index = Number(el.dataset.index);
+    const phase = phaseEl.dataset.phase;
+    if (isNaN(index) || !phase) return;
+
+    const currentEffects = foundry.utils.deepClone(this.item.system.effects[phase].appliedEffects) || [];
+    const effectData = currentEffects[index];
+    if (!effectData) return;
+
+    // Rename/Remove conflicting fields before passing to Item.implementation
+    const docType = effectData.type || "effect";
+    const clonedData = foundry.utils.deepClone(effectData);
+    delete clonedData.type;
+    delete clonedData.uuid;
+    delete clonedData.name;
+    delete clonedData.img;
+
+    const tempItem = new Item.implementation({
+      name: effectData.name || "Effect",
+      type: docType,
+      img: effectData.img,
+      system: clonedData
+    }, { parent: this.item.parent });
+
+    tempItem.update = async (updateData) => {
+      const arr = foundry.utils.deepClone(this.item.system.effects[phase].appliedEffects) || [];
+      arr[index] = foundry.utils.mergeObject(arr[index], updateData.system || updateData);
+      await this.item.update({
+        [`system.effects.${phase}.appliedEffects`]: arr
+      });
+      return tempItem;
+    };
+
+    tempItem.sheet.render(true);
   }
 }

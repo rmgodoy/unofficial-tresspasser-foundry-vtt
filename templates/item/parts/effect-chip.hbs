@@ -3,8 +3,9 @@
   <span style="margin-right: 4px;">{{effect.name}}</span>
   <div class="intensity-control" style="display: flex; align-items: center; gap: 2px; background: rgba(0,0,0,0.3); padding: 1px 3px; border-radius: 2px; border: 1px solid #444;">
     <label style="font-size: 9px; color: var(--trp-text-dim);">{{localize "TRESPASSER.Item.IntShort"}}</label>
-    <input type="number" class="effect-intensity-input" value="{{#if effect.intensity}}{{effect.intensity}}{{else}}1{{/if}}" 
+    <input type="number" class="effect-intensity-input" value="{{#if effect.intensity}}{{effect.intensity}}{{else}}0{{/if}}" 
            style="width: 28px; height: 16px; font-size: 10px; padding: 0 2px; text-align: center; border: none; background: transparent; color: var(--trp-gold-bright);" />
   </div>
+  <a class="effect-edit" style="margin-left: 6px; color: var(--trp-gold); cursor: pointer;" title="{{localize 'TRESPASSER.General.Edit'}}"><i class="fas fa-edit"></i></a>
   <a class="{{deleteClass}}" style="margin-left: 6px; color: var(--trp-red); cursor: pointer;" title="{{localize 'TRESPASSER.Item.RemoveEffect'}}"><i class="fas fa-times"></i></a>
 </div>

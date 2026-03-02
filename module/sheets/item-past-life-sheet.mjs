@@ -119,7 +119,7 @@ export class TrespasserPastLifeSheet extends foundry.appv1.sheets.ItemSheet {
       name: sourceItem.name,
       img: sourceItem.img,
       type: sourceItem.type,
-      quantity: sourceItem.system.quantity || 1
+      quantity: sourceItem.system.quantity || 0
     });
 
     await this.item.update({ "system.items": currentItems });

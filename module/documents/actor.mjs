@@ -368,7 +368,7 @@ export class TrespasserActor extends Actor {
         existing = this.items.find(i => i.type === sourceItem.type && i.name === sourceItem.name);
       }
       
-      const desiredIntensity = parseInt(eff.intensity) || sourceItem.system.intensity || 1;
+      const desiredIntensity = parseInt(eff.intensity) || sourceItem.system.intensity || 0;
 
       if (!existing) {
         const itemData = sourceItem.toObject();
@@ -450,7 +450,7 @@ export class TrespasserActor extends Actor {
       }
 
       // Handle Effects/States (with intensity)
-      const sourceIntensity = parseInt(eff.intensity) || 1;
+      const sourceIntensity = parseInt(eff.intensity) || 0;
       
       const newIntensity = (existingEffect.system.intensity || 0) - sourceIntensity;
       if (newIntensity <= 0) {

@@ -53,7 +53,7 @@ export async function onTalentRoll(event, sheet) {
   if (item.system.effects?.length > 0) {
     cardHtml += `<div class="applied-effects"><strong>${game.i18n.localize("TRESPASSER.Chat.EffectsStates")}</strong>`;
     for (const eff of item.system.effects) {
-      cardHtml += `<a class="apply-effect-btn" data-uuid="${eff.uuid}" data-intensity="${eff.intensity || 1}">
+      cardHtml += `<a class="apply-effect-btn" data-uuid="${eff.uuid}" data-intensity="${eff.intensity || 0}">
         <img src="${eff.img}" width="20" height="20" /><span>${eff.name}</span><i class="fas fa-hand-sparkles"></i>
       </a>`;
     }

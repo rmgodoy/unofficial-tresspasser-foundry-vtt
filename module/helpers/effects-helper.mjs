@@ -207,9 +207,10 @@ export class TrespasserEffectsHelper {
     for (const item of actor.items) {
       // Passive/Built-in effects from equipped items
       if (item.system.equipped && Array.isArray(item.system.effects)) {
-        for (const eff of item.system.effects) {
+        item.system.effects.forEach((eff, index) => {
+          const property = "effects";
           const effData = {
-            id: `${item.id}-${effects.combat.length + effects.nonCombat.length}`, // Synthetic ID
+            id: `${item.id}-${property}-${index}`, // Stable Synthetic ID
             name: `${item.name} (${eff.type || "effect"})`,
             intensity: eff.intensity || 0,
             modifier: this.parseModifier(eff.modifier, eff.intensity || 0),
@@ -225,15 +226,13 @@ export class TrespasserEffectsHelper {
             when: eff.when,
             duration: eff.duration || "indefinite",
             durationValue: eff.durationValue || 0,
-            intensityIncrement: eff.intensityIncrement || 0
+            intensityIncrement: eff.intensityIncrement || 0,
+            property,
+            index
           };
-
-          if (eff.isCombat) {
-            effects.combat.push(effData);
-          } else {
-            effects.nonCombat.push(effData);
-          }
-        }
+          if (eff.isCombat) effects.combat.push(effData);
+          else effects.nonCombat.push(effData);
+        });
       }
 
       // Standalone Effect/State items currently on the actor

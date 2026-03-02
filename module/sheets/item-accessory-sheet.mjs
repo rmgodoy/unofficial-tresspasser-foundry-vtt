@@ -56,6 +56,9 @@ export class TrespasserAccessorySheet extends foundry.appv1.sheets.ItemSheet {
 
     // Intensity change (for effects)
     html.find('.effect-intensity-input').change(this._onIntensityChange.bind(this));
+
+    // Edit button (for effects)
+    html.find('.effect-edit').click(this._onEffectEdit.bind(this));
   }
 
   async _onDropItem(event) {
@@ -114,7 +117,7 @@ export class TrespasserAccessorySheet extends foundry.appv1.sheets.ItemSheet {
     };
 
     if (targetType === "effects") {
-      entry.intensity = sourceItem.system.intensity || 1;
+      entry.intensity = sourceItem.system.intensity || 0;
     }
 
     currentArray.push(entry);
@@ -155,7 +158,7 @@ export class TrespasserAccessorySheet extends foundry.appv1.sheets.ItemSheet {
     if (!el) return;
 
     const index = Number(el.dataset.index);
-    const value = parseInt(input.value) || 1;
+    const value = parseInt(input.value) || 0;
 
     const currentArray = [...(this.item.system.effects || [])];
     if (currentArray[index]) {
@@ -170,5 +173,49 @@ export class TrespasserAccessorySheet extends foundry.appv1.sheets.ItemSheet {
          await this.item.actor._applyLinkedItems([currentArray[index]], { passiveOnly: true });
       }
     }
+  }
+
+  async _onEffectEdit(event) {
+    event.preventDefault();
+    const el = event.currentTarget.closest('.effect-chip');
+    if (!el) return;
+
+    const index = Number(el.dataset.index);
+    const targetType = "effects"; // Accessory only supports editing effects in-place
+    const currentArray = [...(this.item.system[targetType] || [])];
+    const effectData = foundry.utils.deepClone(currentArray[index]);
+    
+    // Rename/Remove conflicting fields before passing to Item.implementation
+    const docType = effectData.type || "effect";
+    delete effectData.type;
+    delete effectData.uuid;
+    delete effectData.name;
+    delete effectData.img;
+
+    // Create a virtual Item document for the sheet to work on
+    const tempItem = new Item.implementation({
+      name: effectData.name || "Effect",
+      type: docType,
+      img: effectData.img,
+      system: effectData
+    }, { parent: this.item.parent });
+
+    // Override update to sync back to the current item
+    tempItem.update = async (updateData) => {
+      const arr = [...(this.item.system[targetType] || [])];
+      arr[index] = foundry.utils.mergeObject(arr[index], updateData.system || updateData);
+      await this.item.update({
+        "system.description": this.item.system.description,
+        [`system.${targetType}`]: arr
+      });
+
+      if (this.item.actor && this.item.system.equipped) {
+         // Refresh the effect on the actor
+         await this.item.actor._applyLinkedItems([arr[index]], { passiveOnly: true });
+      }
+      return tempItem;
+    };
+
+    tempItem.sheet.render(true);
   }
 }

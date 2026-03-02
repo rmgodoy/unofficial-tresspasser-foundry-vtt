@@ -18,6 +18,7 @@ export function activateCharacterListeners(html, sheet) {
   html.find(".effect-intensity-input").on("change",  sheet._onIntensityChange.bind(sheet));
   html.find(".effect-remove").on("click",            sheet._onEffectRemove.bind(sheet));
   html.find(".effect-info").on("click",              sheet._onEffectInfo.bind(sheet));
+  html.find(".effect-edit").on("click",              sheet._onEffectEdit.bind(sheet));
   html.find(".feature-info, .talent-info, .incantation-info").on("click", sheet._onEffectInfo.bind(sheet));
   html.find(".effect-duration-input").on("change",  sheet._onDurationChange.bind(sheet));
 

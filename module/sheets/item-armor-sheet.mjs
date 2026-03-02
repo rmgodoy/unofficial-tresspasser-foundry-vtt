@@ -1,3 +1,4 @@
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
  * Item Sheet for Armor in the Trespasser TTRPG system.
@@ -51,6 +52,9 @@ export class TrespasserArmorSheet extends foundry.appv1.sheets.ItemSheet {
     // Standardized removals
     html.find('.remove-effect').click(this._onRemoveLink.bind(this, 'effects'));
 
+    // Standardized edit
+    html.find('.effect-edit').click(this._onEffectEdit.bind(this));
+
     // Standardized drag-and-drop
     const dropZones = html.find('.drop-zone');
     dropZones.on("dragover", (ev) => { ev.preventDefault(); return false; });
@@ -101,7 +105,7 @@ export class TrespasserArmorSheet extends foundry.appv1.sheets.ItemSheet {
       type: sourceItem.type,
       name: sourceItem.name,
       img: sourceItem.img,
-      intensity: sourceItem.system.intensity || 1
+      intensity: sourceItem.system.intensity || 0
     });
 
     await this.item.update({
@@ -133,7 +137,7 @@ export class TrespasserArmorSheet extends foundry.appv1.sheets.ItemSheet {
 
     const index = Number(el.dataset.index);
     const targetType = targetEl.dataset.type;
-    const value = parseInt(input.value) || 1;
+    const value = parseInt(input.value) || 0;
 
     const currentArray = [...(this.item.system[targetType] || [])];
     if (currentArray[index]) {
@@ -143,5 +147,45 @@ export class TrespasserArmorSheet extends foundry.appv1.sheets.ItemSheet {
         [`system.${targetType}`]: currentArray
       });
     }
+  }
+
+  async _onEffectEdit(event) {
+    event.preventDefault();
+    const el = event.currentTarget.closest('.effect-chip');
+    const targetEl = event.currentTarget.closest('.drop-zone');
+    if (!el || !targetEl) return;
+
+    const index = Number(el.dataset.index);
+    const targetType = targetEl.dataset.type;
+    const currentArray = [...(this.item.system[targetType] || [])];
+    const effectData = foundry.utils.deepClone(currentArray[index]);
+    
+    // Rename/Remove conflicting fields before passing to Item.implementation
+    const docType = effectData.type || "effect";
+    delete effectData.type;
+    delete effectData.uuid;
+    delete effectData.name;
+    delete effectData.img;
+
+    // Create a virtual Item document for the sheet to work on
+    const tempItem = new Item.implementation({
+      name: effectData.name || "Effect",
+      type: docType,
+      img: effectData.img,
+      system: effectData
+    }, { parent: this.item.parent }); // Parent can be actor or null
+
+    // Override update to sync back to the current item
+    tempItem.update = async (updateData) => {
+      const arr = [...(this.item.system[targetType] || [])];
+      arr[index] = foundry.utils.mergeObject(arr[index], updateData.system || updateData);
+      await this.item.update({
+        "system.description": this.item.system.description,
+        [`system.${targetType}`]: arr
+      });
+      return tempItem;
+    };
+
+    tempItem.sheet.render(true);
   }
 }

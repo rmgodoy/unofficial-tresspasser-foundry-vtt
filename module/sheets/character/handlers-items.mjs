@@ -50,7 +50,7 @@ export async function onItemConsume(event, sheet) {
         <div style="display:flex;align-items:center;background:rgba(0,0,0,0.5);border:1px solid var(--trp-gold-dim);border-radius:3px;padding:2px 4px;margin-bottom:2px;">
           <img src="${eff.img}" style="width:20px;height:20px;border:none;margin-right:6px;" />
           <span style="font-size:13px;font-family:var(--trp-font-primary);color:var(--trp-gold-light);flex:1;">${eff.name}</span>
-          <a class="apply-effect-btn" data-uuid="${eff.uuid}" data-name="${eff.name}" data-intensity="${eff.intensity || 1}" title="Apply to Targets" style="color:var(--trp-gold-bright);cursor:pointer;padding:0 4px;">
+          <a class="apply-effect-btn" data-uuid="${eff.uuid}" data-name="${eff.name}" data-intensity="${eff.intensity || 0}" title="Apply to Targets" style="color:var(--trp-gold-bright);cursor:pointer;padding:0 4px;">
             <i class="fas fa-play"></i> ${game.i18n.localize("TRESPASSER.Chat.Apply")}
           </a>
         </div>`;

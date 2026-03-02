@@ -48,6 +48,9 @@ export class TrespasserRationsSheet extends foundry.appv1.sheets.ItemSheet {
 
     // Intensity change
     html.find('.effect-intensity-input').change(this._onIntensityChange.bind(this));
+
+    // Edit button
+    html.find('.effect-edit').on("click", this._onEffectEdit.bind(this));
   }
 
   async _onDropEffect(event) {
@@ -78,7 +81,7 @@ export class TrespasserRationsSheet extends foundry.appv1.sheets.ItemSheet {
       type: item.type,
       name: item.name,
       img: item.img,
-      intensity: item.system.intensity || 1
+      intensity: item.system.intensity || 0
     });
 
     await this.item.update({
@@ -109,7 +112,7 @@ export class TrespasserRationsSheet extends foundry.appv1.sheets.ItemSheet {
     if (!el) return;
 
     const index = Number(el.dataset.index);
-    const value = parseInt(input.value) || 1;
+    const value = parseInt(input.value) || 0;
 
     const currentEffects = foundry.utils.deepClone(this.item.system.effects) || [];
     if (currentEffects[index]) {
@@ -118,5 +121,41 @@ export class TrespasserRationsSheet extends foundry.appv1.sheets.ItemSheet {
         "system.effects": currentEffects
       });
     }
+  }
+
+  async _onEffectEdit(event) {
+    event.preventDefault();
+    const el = event.currentTarget.closest('.effect-chip');
+    if (!el) return;
+
+    const index = Number(el.dataset.index);
+    const targetType = "effects";
+    const currentArray = [...(this.item.system[targetType] || [])];
+    const effectData = foundry.utils.deepClone(currentArray[index]);
+    
+    // Rename/Remove conflicting fields before passing to Item.implementation
+    const docType = effectData.type || "effect";
+    delete effectData.type;
+    delete effectData.uuid;
+    delete effectData.name;
+    delete effectData.img;
+
+    const tempItem = new Item.implementation({
+      name: effectData.name || "Effect",
+      type: docType,
+      img: effectData.img,
+      system: effectData
+    }, { parent: this.item.parent });
+
+    tempItem.update = async (updateData) => {
+      const arr = [...(this.item.system[targetType] || [])];
+      arr[index] = foundry.utils.mergeObject(arr[index], updateData.system || updateData);
+      await this.item.update({
+        [`system.${targetType}`]: arr
+      });
+      return tempItem;
+    };
+
+    tempItem.sheet.render(true);
   }
 }

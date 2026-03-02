@@ -284,7 +284,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         return;
       }
       
-      const baseIntensity = !isNaN(itemIntensity) ? itemIntensity : (sourceItem.system.intensity || 1);
+      const baseIntensity = !isNaN(itemIntensity) ? itemIntensity : (sourceItem.system.intensity || 0);
 
       const tokens = canvas.tokens.controlled;
       if (tokens.length === 0) {
