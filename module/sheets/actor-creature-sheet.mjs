@@ -406,16 +406,22 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
 
     if (!hasDamage && !hasEffects && !hasDescription && !options.introText) return;
 
-    let html = `<div class="trespasser-chat-card phase-${phaseName.toLowerCase()}" style="padding: 4px;">`;
-    html += `<h4 style="margin: 0; padding-bottom: 4px; border-bottom: 1px solid var(--trp-gold-dim); font-family: var(--trp-font-header); color: var(--trp-gold-bright); text-transform: uppercase;">${title}</h4>`;
+    let flavorHtml = `<div class="trespasser-chat-card"><h3>${item.name} — ${title}</h3>`;
+    if (options.introText)  flavorHtml += `<p>${options.introText}</p>`;
+    if (hasDescription)     flavorHtml += `<p><em>${phaseData.description}</em></p>`;
 
-    if (options.introText) {
-      html += `<div style="font-size: 13px; font-style: italic; margin-top: 4px;">${options.introText}</div>`;
+    if (hasEffects) {
+      flavorHtml += `<div class="applied-effects"><strong>${game.i18n.localize("TRESPASSER.Chat.EffectsStates")}</strong>`;
+      for (const eff of finalEffects) {
+        const intensity = parseInt(eff.intensity) || 0;
+        const nameLabel = intensity !== 0 ? `${eff.name} ${intensity}` : eff.name;
+        flavorHtml += `<a class="apply-effect-btn" data-uuid="${eff.uuid}" data-intensity="${intensity}">
+          <img src="${eff.img}" width="20" height="20" /><span>${nameLabel}</span><i class="fas fa-hand-sparkles"></i>
+        </a>`;
+      }
+      flavorHtml += `</div>`;
     }
-
-    if (hasDescription) {
-      html += `<div style="font-size: 12px; margin-top: 6px;">${phaseData.description}</div>`;
-    }
+    flavorHtml += `</div>`;
 
     if (hasDamage) {
       try {
@@ -438,41 +444,30 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
 
         const dmgRoll = new foundry.dice.Roll(dmgExpr);
         await dmgRoll.evaluate();
-        
-        html += `<div style="margin-top: 8px; background: rgba(0,0,0,0.4); border: 1px solid var(--trp-gold-dim); padding: 4px; border-radius: 4px;">`;
-        html += `<div style="font-size: 11px; color: var(--trp-text-dim); text-transform: uppercase;">${game.i18n.localize("TRESPASSER.Item.Damage")}</div>`;
-        html += `<div style="font-size: 18px; font-weight: bold; text-align: center;">${dmgRoll.total}</div>`;
-        html += `<div style="font-size: 10px; color: var(--trp-text-dim); text-align: right;" title="${dmgRoll.formula}">${dmgRoll.formula}</div>`;
-        html += `</div>`;
+
+        // Add apply/heal buttons to the flavor HTML
+        const applyHealBtns = `<div class="trp-damage-actions" data-damage="${dmgRoll.total}" style="display:flex;gap:6px;margin-top:8px;">
+          <button class="apply-damage-btn" data-damage="${dmgRoll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+            <i class="fas fa-heart-broken"></i> Apply Damage
+          </button>
+          <button class="heal-damage-btn" data-damage="${dmgRoll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+            <i class="fas fa-heart"></i> Heal
+          </button>
+        </div>`;
+
+        await dmgRoll.toMessage({
+          speaker: ChatMessage.getSpeaker({ actor }),
+          flavor: flavorHtml + applyHealBtns
+        });
+        return;
       } catch (err) {
         console.error("Trespasser | Error rolling damage:", err);
-        html += `<div style="color: red; margin-top: 5px;">Invalid damage expression: ${phaseData.damage}</div>`;
       }
     }
 
-    if (hasEffects) {
-      html += `<div style="margin-top: 8px;">`;
-      html += `<div style="font-size: 11px; color: var(--trp-text-dim); text-transform: uppercase; margin-bottom: 4px;">${game.i18n.localize("TRESPASSER.Combat.States")}</div>`;
-      for (const eff of finalEffects) {
-        const intensity = parseInt(eff.intensity) || 0;
-        const nameLabel = intensity !== 0 ? `${eff.name} ${intensity}` : eff.name;
-        html += `
-          <div style="display: flex; align-items: center; background: rgba(0,0,0,0.5); border: 1px solid var(--trp-gold-dim); border-radius: 3px; padding: 2px 4px; margin-bottom: 2px;">
-            <img src="${eff.img}" style="width: 20px; height: 20px; border: none; margin-right: 6px;" />
-            <span style="font-size: 13px; flex: 1; font-family: var(--trp-font-primary); color: var(--trp-gold-light);">${nameLabel}</span>
-            <a class="apply-effect-btn" data-uuid="${eff.uuid}" data-name="${eff.name}" data-intensity="${intensity || 0}" title="Apply to Targets" style="color: var(--trp-gold-bright); cursor: pointer; padding: 0 4px;">
-              <i class="fas fa-play"></i> ${game.i18n.localize("TRESPASSER.Chat.Apply")}
-            </a>
-          </div>
-        `;
-      }
-      html += `</div>`;
-    }
-
-    html += `</div>`;
-    await foundry.documents.BaseChatMessage.create({
+    await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor: actor }),
-      flavor: html
+      content: flavorHtml
     });
   }
 
