@@ -1,0 +1,207 @@
+{{!-- Dungeon Tracker - Runtime exploration interface --}}
+<div class="dungeon-tracker-content">
+
+  {{!-- ============================================ --}}
+  {{!-- IDLE STATE: Dungeon picker + Start button    --}}
+  {{!-- ============================================ --}}
+  {{#if isIdle}}
+  <div class="tracker-idle">
+
+    {{#if isGM}}
+      {{#if hasAvailableDungeons}}
+      <div class="tracker-dungeon-picker">
+        <h3>Select a Dungeon</h3>
+        <div class="tracker-dungeon-list">
+          {{#each availableDungeons}}
+          <a class="tracker-dungeon-option {{#if selected}}selected{{/if}}" data-action="chooseDungeon" data-dungeon-id="{{_id}}">
+            <img class="tracker-dungeon-thumb" src="{{img}}" alt="" />
+            <span class="tracker-dungeon-option-name">{{name}}</span>
+            {{#if selected}}<i class="fas fa-check"></i>{{/if}}
+          </a>
+          {{/each}}
+        </div>
+      </div>
+
+      {{#if hasDungeon}}
+      <div class="tracker-selected-info">
+        <span class="tracker-hostility">{{hostilityLabel}} (DC {{hostilityDC}})</span>
+      </div>
+      <div class="tracker-session-controls">
+        <button type="button" class="tracker-start-btn" data-action="startSession">
+          <i class="fas fa-play"></i> Begin Exploration
+        </button>
+      </div>
+      {{/if}}
+
+      {{else}}
+      <div class="tracker-no-dungeon">
+        <p>No dungeon actors found.</p>
+        <p class="tracker-hint">Create a Dungeon actor to get started.</p>
+      </div>
+      {{/if}}
+
+    {{else}}
+    <div class="tracker-no-dungeon">
+      <p>No exploration in progress.</p>
+      <p class="tracker-hint">Waiting for the GM to start a session.</p>
+    </div>
+    {{/if}}
+
+  </div>
+  {{/if}}
+
+  {{!-- ============================================ --}}
+  {{!-- ACTIVE / PAUSED STATE: Exploration UI        --}}
+  {{!-- ============================================ --}}
+  {{#unless isIdle}}
+
+  {{!-- Header --}}
+  <div class="tracker-header">
+    <div class="tracker-header-info">
+      <h2 class="tracker-dungeon-name">{{dungeonName}}</h2>
+      <span class="tracker-hostility">{{hostilityLabel}} (DC {{hostilityDC}})</span>
+    </div>
+    {{#if isGM}}
+    <div class="tracker-header-controls">
+      <a data-action="openDungeonSheet" data-tooltip="Open Dungeon Sheet"><i class="fas fa-pen"></i></a>
+    </div>
+    {{/if}}
+  </div>
+
+  {{!-- Paused Banner --}}
+  {{#if isPaused}}
+  <div class="tracker-paused-banner">
+    <i class="fas fa-pause"></i> Exploration Paused
+  </div>
+  {{/if}}
+
+  {{!-- Status Bar --}}
+  <div class="tracker-status-bar">
+    <div class="tracker-stat">
+      <span class="tracker-stat-label">Round</span>
+      <span class="tracker-stat-value">{{currentRound}}</span>
+    </div>
+    <div class="tracker-stat">
+      <span class="tracker-stat-label">Actions</span>
+      <div class="tracker-action-pips">
+        {{#each actionPips}}
+        <span class="tracker-action-pip {{#if filled}}filled{{/if}}"></span>
+        {{/each}}
+      </div>
+    </div>
+    <div class="tracker-stat">
+      <span class="tracker-stat-label">Alarm</span>
+      <span class="tracker-stat-value alarm">{{alarm}}</span>
+    </div>
+  </div>
+
+  {{!-- Current Room --}}
+  <div class="tracker-current-room">
+    <span class="tracker-room-label">Current Room:</span>
+    <span class="tracker-room-name">{{currentRoomName}}</span>
+    {{#if isGM}}
+      {{#if currentRoomId}}
+      <a class="tracker-room-link" data-action="openRoomSheet" data-room-id="{{currentRoomId}}" data-tooltip="Open Room"><i class="fas fa-eye"></i></a>
+      {{/if}}
+    {{/if}}
+  </div>
+
+  {{!-- GM Controls (only when active) --}}
+  {{#if isGM}}
+
+  {{#if isActive}}
+  {{!-- Action Buttons --}}
+  <div class="tracker-actions-section">
+    <h3>Dungeon Actions</h3>
+    <div class="tracker-action-grid">
+      {{#each actions}}
+      <button type="button" class="tracker-action-btn" data-action="performAction" data-action-key="{{key}}" {{#if disabled}}disabled{{/if}} data-tooltip="{{description}}">
+        <i class="{{icon}}"></i>
+        <span>{{label}}</span>
+      </button>
+      {{/each}}
+    </div>
+  </div>
+
+  {{!-- Room Navigation --}}
+  <div class="tracker-rooms-section">
+    <h3>Connected Rooms</h3>
+    {{#if connectedRooms.length}}
+    <div class="tracker-room-list">
+      {{#each connectedRooms}}
+      <div class="tracker-room-entry {{#unless discovered}}undiscovered{{/unless}}">
+        <a class="tracker-room-go" data-action="setCurrentRoom" data-room-id="{{_id}}" data-tooltip="Move here">
+          {{#if discovered}}<i class="fas fa-door-open"></i>{{else}}<i class="fas fa-question"></i>{{/if}}
+          <span>{{name}}</span>
+        </a>
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <div class="tracker-empty">No connected rooms.</div>
+    {{/if}}
+  </div>
+
+  {{!-- Round Control --}}
+  <div class="tracker-round-control">
+    <button type="button" class="tracker-next-round-btn" data-action="nextRound">
+      <i class="fas fa-forward-step"></i> Next Round
+    </button>
+  </div>
+  {{/if}} {{!-- end isActive --}}
+
+  {{!-- Session Controls (visible when active or paused) --}}
+  <div class="tracker-session-controls">
+    {{#if isActive}}
+    <button type="button" class="tracker-session-btn pause" data-action="pauseSession">
+      <i class="fas fa-pause"></i> Pause
+    </button>
+    {{/if}}
+    {{#if isPaused}}
+    <button type="button" class="tracker-session-btn resume" data-action="resumeSession">
+      <i class="fas fa-play"></i> Resume
+    </button>
+    {{/if}}
+    <button type="button" class="tracker-session-btn end" data-action="endSession">
+      <i class="fas fa-stop"></i> End Exploration
+    </button>
+  </div>
+
+  {{/if}} {{!-- end isGM --}}
+
+  {{!-- Light Sources (visible to all, only when active/paused) --}}
+  {{#if lightSources.length}}
+  <div class="tracker-light-section">
+    <h3><i class="fas fa-fire"></i> Light Sources</h3>
+    <div class="tracker-light-list">
+      {{#each lightSources}}
+      <div class="tracker-light-entry">
+        <span class="light-item">{{itemName}}</span>
+        <span class="light-owner">{{actorName}}</span>
+        {{#if depletionDie}}
+        <span class="light-depletion">{{depletionDie}}</span>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
+  {{!-- Recent Log --}}
+  {{#if recentLog.length}}
+  <div class="tracker-log-section">
+    <h3>Recent Activity</h3>
+    <div class="tracker-log-entries">
+      {{#each recentLog}}
+      <div class="tracker-log-entry">
+        <span class="tracker-log-round">R{{round}}</span>
+        <span class="tracker-log-action">{{action}}</span>
+        {{#if detail}}<span class="tracker-log-detail">{{detail}}</span>{{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
+  {{/unless}} {{!-- end not idle --}}
+</div>

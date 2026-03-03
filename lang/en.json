@@ -9,7 +9,8 @@
     },
     "ActorTypes": {
       "character": "Character",
-      "creature": "Creature"
+      "creature": "Creature",
+      "dungeon": "Dungeon"
     },
     "ItemTypes": {
       "weapon": "Weapon",
@@ -532,7 +533,7 @@
         "none": "None",
         "action": "Action",
         "reaction": "Reaction"
-      },  
+      },
       "WeaponProp": {
         "TwoHanded": "2 Handed",
         "Thrown": "Thrown",
@@ -682,12 +683,215 @@
     },
     "Peril": "Peril",
     "Panic": "Panic",
-    "InitDC": "Init DC"
+    "InitDC": "Init DC",
+    "Cancel": "Cancel",
+    "ItemName": "Item Name",
+    "NewItem": "New {type}",
+    "DeleteItemTitle": "Delete Item",
+    "DeleteItemContent": "Are you sure you want to delete {name}?",
+    "Tabs": {
+      "Description": "Description",
+      "Details": "Details"
+    },
+    "Dungeon": {
+      "Tracker": "Dungeon Tracker",
+      "Name": "Dungeon Name",
+      "NamePlaceholder": "The Forsaken Depths",
+      "Location": "Location",
+      "LocationPlaceholder": "e.g., Beneath the Ruins of Thornwall",
+      "FormLabel": "Form",
+      "Traits": "Dungeon Traits",
+      "TraitsPlaceholder": "e.g., Flooded, Haunted, Trapped",
+      "HostilityTier": "Hostility Tier",
+      "SizeCategory": "Size",
+      "Alarm": "Alarm",
+      "AlarmValue": "Alarm Value",
+      "Round": "Round",
+      "ActionsRemaining": "Actions Remaining",
+      "EncounterTable": "Encounter Table",
+      "EncounterTableHint": "Link a RollTable for random encounters",
+      "MapImage": "Map Image",
+      "Description": "Description",
+      "Notes": "Notes",
+      "NotesPlaceholder": "GM notes about this dungeon...",
+      "Rooms": "Rooms",
+      "AddRoom": "Add Room",
+      "NoRooms": "No rooms defined yet.",
+      "CurrentRoom": "Current Room",
+      "RoundLog": "Round Log",
+      "NoLogEntries": "No activity yet.",
+      "DC": "DC",
+      "Hostility": {
+        "Bleak": "I - Bleak",
+        "Sinister": "II - Sinister",
+        "Frightening": "III - Frightening",
+        "Harrowing": "IV - Harrowing",
+        "Nightmarish": "V - Nightmarish"
+      },
+      "Size": {
+        "Small": "Small (2-5 rooms)",
+        "Medium": "Medium (6-12 rooms)",
+        "Large": "Large (13-20 rooms)",
+        "Massive": "Massive (21+ rooms)"
+      },
+      "Form": {
+        "Cave": "Cave",
+        "Ruin": "Ruin",
+        "Tower": "Tower",
+        "Crypt": "Crypt",
+        "Fortress": "Fortress",
+        "Temple": "Temple",
+        "Mine": "Mine",
+        "Lair": "Lair",
+        "Sewer": "Sewer",
+        "Other": "Other"
+      },
+      "Actions": {
+        "Explore": "Explore",
+        "ExploreDesc": "Move cautiously into a new adjoining room and search for traps, hidden doors, and secrets. Each character makes an INTELLECT | PERCEPTION check.",
+        "Traverse": "Traverse",
+        "TraverseDesc": "Move quietly to a previously explored room. No checks required. Fleeing the dungeon always triggers one final encounter check.",
+        "Interact": "Interact",
+        "InteractDesc": "Engage with a feature of the current room in a complex or time-consuming way. The Judge will call for a skill check as needed.",
+        "Loot": "Loot",
+        "LootDesc": "Linger to explore the room further. Investigate each remaining room feature and learn any undiscovered secrets. No check required.",
+        "Hide": "Hide",
+        "HideDesc": "Wait in silent darkness. Make a group AGILITY | STEALTH check. On success, alarm falls by 3, plus 1 per spark.",
+        "Smash": "Smash",
+        "SmashDesc": "Break open a locked door, chest, or other barrier. Group MIGHT | ATHLETICS check. Alarm rises by +1.",
+        "Disarm": "Disarm",
+        "DisarmDesc": "Attempt to disarm a trap. INTELLECT | TINKERING check (or INTELLECT | MAGIC for magical traps).",
+        "Converse": "Converse",
+        "ConverseDesc": "Spend a few minutes trading words with a nearby creature. Automatically consumes an action if more than a minute or two is spent talking.",
+        "MomentsRest": "Moment's Rest",
+        "MomentsRestDesc": "Pause for ten minutes. Eat or lose 1 endurance. Spend recovery dice (max value), erase 2 checkmarks, repair armor.",
+        "Combat": "Combat",
+        "CombatDesc": "Do battle with a creature encountered in the dungeon. Even a short fight uses a full dungeon action.",
+        "Incant": "Incant",
+        "IncantDesc": "Cast an incantation. The party keeps watch while one or more characters perform their magic."
+      },
+      "Sparks": {
+        "Canny": "Canny",
+        "CannyDesc": "You perform the task with care. You retain something expected to be lost or avoid paying a necessary cost. Banishes costly.",
+        "Quick": "Quick",
+        "QuickDesc": "You accomplish the task in short order, saving precious time. Banishes slow.",
+        "Quiet": "Quiet",
+        "QuietDesc": "You slip beneath notice. No unwanted attention is drawn. Banishes loud.",
+        "Safe": "Safe",
+        "SafeDesc": "You suffer no harm doing it, even though injury seemed certain. Banishes harmful.",
+        "Striking": "Striking",
+        "StrikingDesc": "Your impressive skill influences those around you, inspiring allies or earning favor. Banishes daunting."
+      },
+      "Shadows": {
+        "Costly": "Costly",
+        "CostlyDesc": "You lose something of material value — treasure, a tool pushed too far, supplies dropped in haste.",
+        "Slow": "Slow",
+        "SlowDesc": "The task took much longer than expected. Precious time is lost. Torches flicker. Stomachs rumble.",
+        "Loud": "Loud",
+        "LoudDesc": "You draw attention with a loud noise or major disruption. Those nearby now know what you're up to.",
+        "Harmful": "Harmful",
+        "HarmfulDesc": "You hurt yourself — anything from scratches to a lingering injury depending on the task.",
+        "Daunting": "Daunting",
+        "DauntingDesc": "Your effort was humiliating. Observers question whether you belong here. Morale falters."
+      },
+      "Reaction": {
+        "Hostile": "Hostile",
+        "Wary": "Wary",
+        "Curious": "Curious",
+        "Friendly": "Friendly"
+      },
+      "Approach": {
+        "Ambush": "Ambush",
+        "AmbushDesc": "Initiate combat from hiding. The opposing side skips their turns on the first round.",
+        "Fight": "Fight",
+        "FightDesc": "Boldly advance with no effort to disguise intentions. Combat begins normally.",
+        "Greet": "Greet",
+        "GreetDesc": "Emerge peacefully with lowered weapons. The other side may choose any approach, including ambush.",
+        "Warn": "Warn",
+        "WarnDesc": "Make your presence known and issue threats or demands, but hold action. The other side cannot ambush.",
+        "Withdraw": "Withdraw",
+        "WithdrawDesc": "Retreat to your last place of safety. May lose time or supplies."
+      },
+      "Encounter": {
+        "Title": "Encounter",
+        "Triggered": "Encounter Triggered!",
+        "NoEncounter": "No encounter this round.",
+        "AlarmRise": "Alarm rises to {value}.",
+        "AlarmReset": "Alarm resets to 0.",
+        "Reaction": "Reaction",
+        "Surprise": "Surprise Check",
+        "Approach": "Choose Approach",
+        "Distance": "Distance"
+      },
+      "LightSources": "Light Sources",
+      "LightDepletion": "Light Depletion",
+      "DepletionPrompt": "Make depletion checks for active light sources.",
+      "RoundEnd": "End of Round {round}",
+      "NewRound": "New Round",
+      "ActionSpent": "Action Spent",
+      "NoActionsRemaining": "No actions remaining this round.",
+      "Session": {
+        "Started": "Exploration of {name} has begun!",
+        "Round1": "Round 1 — 3 actions available.",
+        "Ended": "Exploration of {name} has ended.",
+        "Summary": "{rounds} rounds, {actions} actions taken.",
+        "EndTitle": "End Exploration",
+        "EndConfirm": "Are you sure you want to end this exploration session?",
+        "EndYes": "End Session"
+      },
+      "Room": {
+        "Name": "Room Name",
+        "NamePlaceholder": "The Sunken Hall",
+        "Description": "Description",
+        "DescriptionPlaceholder": "Describe the room's appearance, contents, and atmosphere...",
+        "Features": "Features",
+        "FeaturesPlaceholder": "Notable features to investigate...",
+        "AddFeature": "Add Feature",
+        "Connections": "Connections",
+        "ConnectionsHint": "Drag a Room item here to create a connection",
+        "Discovered": "Discovered",
+        "Hazards": "Hazards",
+        "HazardsPlaceholder": "Traps, environmental dangers, etc.",
+        "Loot": "Loot",
+        "LootPlaceholder": "Treasure and items found here...",
+        "SortOrder": "Sort Order"
+      },
+      "Connection": {
+        "Doorway": "Doorway",
+        "Hallway": "Hallway",
+        "Passage": "Passage",
+        "Stairway": "Stairway",
+        "Ladder": "Ladder",
+        "Secret": "Secret",
+        "Chasm": "Chasm",
+        "Portal": "Portal",
+        "Other": "Other",
+        "Locked": "Locked",
+        "Hidden": "Hidden",
+        "Remove": "Remove Connection",
+        "OpenRoom": "Open Room",
+        "DescPlaceholder": "e.g., Narrow corridor, iron-barred gate...",
+        "DropHint": "Drop a Room item here to connect",
+        "DropRoomsOnly": "Only Room items can be dropped here.",
+        "NeedsDungeon": "This room must belong to a dungeon to create connections.",
+        "SameDungeon": "The dropped room must belong to the same dungeon.",
+        "AlreadyConnected": "Already connected to {name}.",
+        "RoomAdded": "Added {room} to {dungeon}.",
+        "Created": "Connected {from} to {to}."
+      },
+      "Tabs": {
+        "Overview": "Overview",
+        "Rooms": "Rooms",
+        "Log": "Log",
+        "Notes": "Notes"
+      }
+    }
   },
   "TYPES": {
     "Actor": {
       "character": "Character",
-      "creature": "Creature"
+      "creature": "Creature",
+      "dungeon": "Dungeon"
     },
     "Item": {
       "armor": "Armor",
@@ -704,7 +908,8 @@
       "injury": "Injury",
       "calling": "Calling",
       "craft": "Craft",
-      "past_life": "Past Life"
+      "past_life": "Past Life",
+      "room": "Room"
     }
   }
 }

@@ -13,7 +13,10 @@
     }
   ],
   "esmodules": ["trespasser.mjs"],
-  "styles": ["styles/trespasser.css"],
+  "styles": [
+    "styles/trespasser.css",
+    "styles/dungeon.css"
+  ],
   "languages": [
     {
       "lang": "en",
@@ -29,7 +32,8 @@
   "documentTypes": {
     "Actor": {
       "character": {},
-      "creature": {}
+      "creature": {},
+      "dungeon": {}
     },
     "Item": {
       "item": {},
@@ -46,7 +50,8 @@
       "injury": {},
       "calling": {},
       "craft": {},
-      "past_life": {}
+      "past_life": {},
+      "room": {}
     }
   },
   "initiative": "1d6 + @system.combat.initiative",

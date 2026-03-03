@@ -43,6 +43,14 @@ import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mj
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 
+// ── Dungeon Exploration imports ──────────────────────────────────────────────
+import { TrespasserDungeonData }   from "./module/data/actor-dungeon.mjs";
+import { TrespasserRoomData }      from "./module/data/item-room.mjs";
+import { DUNGEON_CONFIG, ensureDungeonHelpers } from "./module/config/dungeon-config.mjs";
+import { TrespasserDungeonSheet }  from "./module/sheets/actor-dungeon-sheet.mjs";
+import { TrespasserRoomSheet }     from "./module/sheets/item-room-sheet.mjs";
+import { registerDungeonTrackerHooks } from "./module/exploration/dungeon-tracker.mjs";
+
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
 
@@ -53,7 +61,15 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/item/parts/effect-chip.hbs",
     "systems/trespasser/templates/item/parts/effects-list.hbs",
     "systems/trespasser/templates/item/parts/deeds-list.hbs",
-    "systems/trespasser/templates/combat/combat-tracker.hbs"
+    "systems/trespasser/templates/combat/combat-tracker.hbs",
+    // Dungeon exploration templates
+    "systems/trespasser/templates/dungeon/dungeon-tabs.hbs",
+    "systems/trespasser/templates/dungeon/dungeon-overview.hbs",
+    "systems/trespasser/templates/dungeon/dungeon-rooms.hbs",
+    "systems/trespasser/templates/dungeon/dungeon-log.hbs",
+    "systems/trespasser/templates/dungeon/dungeon-notes.hbs",
+    "systems/trespasser/templates/exploration/dungeon-tracker.hbs",
+    "systems/trespasser/templates/item/room-sheet.hbs"
   ]);
 
   // Register custom document classes
@@ -76,12 +92,15 @@ Hooks.once("init", async () => {
       "none": "TRESPASSER.Item.ActionTypeChoices.none",
       "action": "TRESPASSER.Item.ActionTypeChoices.action",
       "reaction": "TRESPASSER.Item.ActionTypeChoices.reaction"
-    }
+    },
+    // Dungeon exploration config
+    dungeon: DUNGEON_CONFIG
   };
 
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
+  CONFIG.Actor.dataModels.dungeon  = TrespasserDungeonData;
 
   CONFIG.Item.dataModels.armor = TrespasserArmorData;
   CONFIG.Item.dataModels.weapon = TrespasserWeaponData;
@@ -98,6 +117,7 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.calling = TrespasserCallingData;
   CONFIG.Item.dataModels.craft   = TrespasserCraftData;
   CONFIG.Item.dataModels.past_life = TrespasserPastLifeData;
+  CONFIG.Item.dataModels.room    = TrespasserRoomData;
 
   // Sheets
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
@@ -110,6 +130,12 @@ Hooks.once("init", async () => {
     types: ["creature"],
     makeDefault: true,
     label: "Trespasser Creature Sheet",
+  });
+  // Dungeon sheet (AppV2 — coexists with AppV1 sheets)
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserDungeonSheet, {
+    types: ["dungeon"],
+    makeDefault: true,
+    label: "Trespasser Dungeon Sheet",
   });
 
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
@@ -189,6 +215,12 @@ Hooks.once("init", async () => {
     makeDefault: true,
     label: "Trespasser Past Life Sheet",
   });
+  // Room sheet (AppV2 — coexists with AppV1 sheets)
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserRoomSheet, {
+    types: ["room"],
+    makeDefault: true,
+    label: "Trespasser Room Sheet",
+  });
 
   // Handlebars helpers
   Handlebars.registerHelper("trespasserChecked", (value) => (value ? "checked" : ""));
@@ -221,8 +253,14 @@ Hooks.once("init", async () => {
     }[operator];
   });
 
+  // Dungeon Handlebars helpers (registers "eq" only if not already present)
+  ensureDungeonHelpers();
+
+  // Dungeon tracker scene control button
+  registerDungeonTrackerHooks();
+
   console.log("Trespasser | System ready");
-  
+
   // Expose ItemExporter globally for convenience and debugging
   game.trespasser = game.trespasser || {};
   game.trespasser.ItemExporter = ItemExporter;
@@ -291,7 +329,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         ui.notifications.error("Original effect could not be found.");
         return;
       }
-      
+
       const baseIntensity = !isNaN(itemIntensity) ? itemIntensity : (sourceItem.system.intensity || 0);
 
       const tokens = canvas.tokens.controlled;
@@ -307,7 +345,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         const itemData = sourceItem.toObject();
         itemData.system.intensity = baseIntensity;
         delete itemData._id;
-        
+
         await foundry.documents.BaseItem.create(itemData, { parent: actor });
         ui.notifications.info(`Applied ${sourceItem.name} to ${actor.name}.`);
       }
@@ -403,10 +441,10 @@ Hooks.on("deleteCombat", async (combat) => {
   for (const c of combat.combatants) {
     if (c.actor) {
       await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");
-      
+
       // Remove combat-length effects
-      const toRemove = c.actor.items.filter(i => 
-        (i.type === "effect" || i.type === "state") && 
+      const toRemove = c.actor.items.filter(i =>
+        (i.type === "effect" || i.type === "state") &&
         i.system.duration === "combat"
       );
       for (const eff of toRemove) {
@@ -418,7 +456,7 @@ Hooks.on("deleteCombat", async (combat) => {
 
 Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
   if (game.user.id !== userId) return; // Only trigger for the user who moved the token
-  
+
   // Sync token name back to actor name if it's unlinked
   if (changed.name && !tokenDoc.isLinked && tokenDoc.actor) {
     if (tokenDoc.actor.name !== changed.name) {
@@ -428,18 +466,18 @@ Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
 
   // Check if position actually changed
   if (changed.x === undefined && changed.y === undefined && changed.elevation === undefined) return;
-  
+
   if (!game.combat || !game.combat.active || !game.combat.started) return;
-  
+
   const combatant = game.combat.combatants.find(c => c.tokenId === tokenDoc.id);
   if (!combatant) return;
-  
+
   // Only trigger on the combatant's own turn
   if (game.combat.combatant?.id !== combatant.id) return;
-  
+
   // Only trigger once per turn
   if (combatant.getFlag("trespasser", "hasMovedThisTurn")) return;
-  
+
   if (combatant.actor) {
     await combatant.setFlag("trespasser", "hasMovedThisTurn", true);
     await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
@@ -549,8 +587,8 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
     let wasCountered = false;
     if (counterStates.length > 0) {
       const counterNames = new Set(counterStates.map(cs => cs.name));
-      const existingCounters = actor.items.filter(i => 
-        (i.type === "effect" || i.type === "state") && 
+      const existingCounters = actor.items.filter(i =>
+        (i.type === "effect" || i.type === "state") &&
         counterNames.has(i.name)
       );
 
@@ -558,7 +596,7 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
         wasCountered = true;
         if (intensityToApply <= 0) break;
         const counterIntensity = counter.system.intensity || 0;
-        
+
         if (counterIntensity > intensityToApply) {
           counter.update({ "system.intensity": counterIntensity - intensityToApply });
           intensityToApply = 0;
@@ -629,6 +667,9 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
       case "past_life":
         iconPath = "systems/trespasser/assets/icons/pesant.png";
         break;
+      case "room":
+        iconPath = "icons/svg/door-closed-outline.svg";
+        break;
       case "item":
         const subType = item.system.subType;
         if (subType === "tool") iconPath = "systems/trespasser/assets/icons/tool.png";
@@ -684,7 +725,7 @@ Hooks.on("preUpdateItem", (item, changed, options, userId) => {
         else if (subType === "esoteric") iconPath = "systems/trespasser/assets/icons/esoteric.png";
         else if (subType === "artifacts") iconPath = "systems/trespasser/assets/icons/artifacts.png";
         else if (subType === "miscellaneous") iconPath = "systems/trespasser/assets/icons/misellaneous.png";
-        
+
         changed.img = iconPath;
     }
   }
@@ -699,7 +740,7 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
   // Handle both legacy jQuery and new V13 HTMLElement
   const $html = $(html);
   let header = $html.find(".header-actions");
-  
+
   // Fallback for different structures or AppV2
   if (!header.length && app.element) {
     header = $(app.element).find(".header-actions");
@@ -738,7 +779,7 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
 
 /**
  * Hook into the Combat Tracker render to inject the phased initiative UI.
- * This is needed because Foundry V13 CombatTracker (ApplicationV2) doesn't 
+ * This is needed because Foundry V13 CombatTracker (ApplicationV2) doesn't
  * allow template override via defaultOptions.
  */
 Hooks.on("renderCombatTracker", async (app, html, data) => {
@@ -849,7 +890,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
 
   // Get the root element - in V13 html may be the element itself
   const root = (html instanceof HTMLElement) ? html : (html[0] ?? html);
-  
+
   // Try multiple selectors to find the combat log ol element
   const log = root.querySelector("#combat-log")
     ?? root.querySelector("ol.directory-list")
@@ -862,7 +903,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
   }
 
   // Replace default navigation controls (|< < X > >|) with a single "Next Phase" button
-  if (game.user.isGM) {   
+  if (game.user.isGM) {
     // Remove existing footer if present, then append new one
     root.querySelector(".combat-info-footer")?.remove();
     const section = root.closest("section") ?? root.querySelector("section") ?? root;

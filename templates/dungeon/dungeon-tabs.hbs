@@ -1,0 +1,7 @@
+<nav class="floating-tabs" data-application-part="tabs">
+  {{#each tabs}}
+  <a class="tab-btn {{cssClass}}" data-action="switchTab" data-tab="{{id}}" data-tooltip="{{localize label}}" data-tooltip-direction="RIGHT">
+    <i class="fas fa-{{icon}}"></i>
+  </a>
+  {{/each}}
+</nav>

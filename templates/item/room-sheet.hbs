@@ -1,0 +1,126 @@
+<form class="{{cssClass}} trespasser-sheet item room" autocomplete="off">
+  <header class="sheet-header">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    <div class="header-info">
+      <div class="name-group">
+        <h1 class="item-title">
+          <input name="name" type="text" value="{{item.name}}" placeholder="Room Name" />
+        </h1>
+      </div>
+    </div>
+  </header>
+
+  <section class="sheet-body scrollable">
+    <div class="details-grid">
+      <div class="field-row checkbox-row">
+        <input type="checkbox" name="system.discovered" {{checked system.discovered}} id="room-discovered-{{item.id}}" />
+        <label for="room-discovered-{{item.id}}">{{localize "TRESPASSER.Dungeon.Room.Discovered"}}</label>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Dungeon.Room.SortOrder"}}</label>
+        <input type="number" name="system.sortOrder" value="{{system.sortOrder}}" min="0" data-dtype="Number" />
+      </div>
+    </div>
+
+    {{!-- Description --}}
+    <div class="room-section">
+      <h3 class="room-section-title">{{localize "TRESPASSER.Item.Description"}}</h3>
+      {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror"}}
+    </div>
+
+    {{!-- Features --}}
+    <div class="room-section">
+      <h3 class="room-section-title">{{localize "TRESPASSER.Dungeon.Room.Features"}}</h3>
+      <div class="room-features-list">
+        {{#each features}}
+        <div class="room-feature-row">
+          <span>{{this}}</span>
+          {{#if ../editable}}
+          <a class="room-remove-feature" data-index="{{@index}}"><i class="fas fa-times"></i></a>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{#if editable}}
+      <div class="room-feature-add">
+        <input type="text" name="newFeature" placeholder="{{localize 'TRESPASSER.Dungeon.Room.FeaturesPlaceholder'}}" />
+        <a class="room-add-feature"><i class="fas fa-plus"></i></a>
+      </div>
+      {{/if}}
+    </div>
+
+    {{!-- Connections --}}
+    <div class="room-section">
+      <h3 class="room-section-title">{{localize "TRESPASSER.Dungeon.Room.Connections"}}</h3>
+
+      {{!-- Existing connections --}}
+      {{#if connections.length}}
+      <div class="room-connections-list">
+        {{#each connections}}
+        <div class="room-connection-entry">
+          <div class="room-connection-header">
+            <a class="room-open-connection" data-room-id="{{roomId}}" title="{{localize 'TRESPASSER.Dungeon.Connection.OpenRoom'}}">
+              <i class="fas fa-door-open"></i>
+              <span class="room-connection-name">{{name}}</span>
+            </a>
+            <div class="room-connection-flags">
+              {{#if locked}}
+              <i class="fas fa-lock" title="{{localize 'TRESPASSER.Dungeon.Connection.Locked'}}"></i>
+              {{/if}}
+              {{#if hidden}}
+              <i class="fas fa-eye-slash" title="{{localize 'TRESPASSER.Dungeon.Connection.Hidden'}}"></i>
+              {{/if}}
+            </div>
+            {{#if ../editable}}
+            <a class="room-remove-connection" data-room-id="{{roomId}}" title="{{localize 'TRESPASSER.Dungeon.Connection.Remove'}}"><i class="fas fa-times"></i></a>
+            {{/if}}
+          </div>
+
+          {{#if ../editable}}
+          <div class="room-connection-details">
+            <select class="room-connection-type" data-room-id="{{roomId}}">
+              {{#each ../connectionTypes}}
+              <option value="{{@key}}" {{#if (eq @key ../type)}}selected{{/if}}>{{localize this}}</option>
+              {{/each}}
+            </select>
+            <input type="text" class="room-connection-desc" data-room-id="{{roomId}}"
+                   value="{{description}}" placeholder="{{localize 'TRESPASSER.Dungeon.Connection.DescPlaceholder'}}" />
+            <label class="room-connection-flag-toggle" title="{{localize 'TRESPASSER.Dungeon.Connection.Locked'}}">
+              <input type="checkbox" class="room-connection-locked" data-room-id="{{roomId}}" {{#if locked}}checked{{/if}} />
+              <i class="fas fa-lock"></i>
+            </label>
+            <label class="room-connection-flag-toggle" title="{{localize 'TRESPASSER.Dungeon.Connection.Hidden'}}">
+              <input type="checkbox" class="room-connection-hidden" data-room-id="{{roomId}}" {{#if hidden}}checked{{/if}} />
+              <i class="fas fa-eye-slash"></i>
+            </label>
+          </div>
+          {{/if}}
+        </div>
+        {{/each}}
+      </div>
+      {{/if}}
+
+      {{!-- Drop zone for adding connections --}}
+      {{#if editable}}
+      <div class="room-connections-drop">
+        <i class="fas fa-compress-arrows-alt"></i>
+        <span>{{localize "TRESPASSER.Dungeon.Connection.DropHint"}}</span>
+      </div>
+      {{/if}}
+    </div>
+
+    {{!-- Hazards --}}
+    <div class="room-section">
+      <h3 class="room-section-title">{{localize "TRESPASSER.Dungeon.Room.Hazards"}}</h3>
+      {{editor hazardsHTML target="system.hazards" button=true editable=editable engine="prosemirror"}}
+    </div>
+
+    {{!-- Loot --}}
+    <div class="room-section">
+      <h3 class="room-section-title">{{localize "TRESPASSER.Dungeon.Room.Loot"}}</h3>
+      {{editor lootHTML target="system.loot" button=true editable=editable engine="prosemirror"}}
+    </div>
+
+  </section>
+</form>
