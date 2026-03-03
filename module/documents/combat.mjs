@@ -413,23 +413,36 @@ export class TrespasserCombat extends Combat {
     }
   }
 
-  /** @override */
-  async _onDelete(options, userId) {
-    if ( game.user.id === userId ) {
-      const uniqueActors = new Set();
-      for ( const c of this.combatants ) {
-        if ( c.actor ) uniqueActors.add(c.actor);
+  /**
+   * Trigger end-of-combat effects for all combatants and clean up.
+   */
+  async _onEndOfCombat() {
+    const uniqueActors = new Set();
+    for (const c of this.combatants) {
+      if (c.actor) uniqueActors.add(c.actor);
+    }
+
+    for (const actor of uniqueActors) {
+      // 1. Trigger end-of-combat effects
+      await TrespasserEffectsHelper.triggerEffects(actor, "end-of-combat");
+
+      // 2. Clean up "isCombat" effects
+      const combatEffects = actor.items.filter(i => i.type === "effect" && i.system.isCombat === true);
+      if (combatEffects.length > 0) {
+        await actor.deleteEmbeddedDocuments("Item", combatEffects.map(i => i.id));
       }
 
-      for ( const actor of uniqueActors ) {
-        const combatEffects = actor.items.filter(i => i.type === "effect" && i.system.isCombat === true);
-        if ( combatEffects.length > 0 ) {
-          await actor.deleteEmbeddedDocuments("Item", combatEffects.map(i => i.id));
-        }
-        await actor.update({ "system.combat.focus": 0 });
-      }
+      // 3. Reset focus
+      await actor.update({ "system.combat.focus": 0 });
     }
-    return super._onDelete(options, userId);
+  }
+
+  /** @override */
+  async _preDelete(options, user) {
+    if ( game.user.id === user.id ) {
+      await this._onEndOfCombat();
+    }
+    return super._preDelete(options, user);
   }
 }
 
