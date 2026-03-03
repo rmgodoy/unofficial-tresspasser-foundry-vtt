@@ -389,6 +389,31 @@ export class TrespasserCombat extends Combat {
   }
 
   /** @override */
+  _onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId) {
+    super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
+    if (collection !== "Combatant") return;
+    if (!this.started || !game.user.isGM || game.user.id !== userId) return;
+
+    // Check if any initiative or defeated state was changed
+    const needsCheck = changes.some(c => c.initiative !== undefined || c.defeated !== undefined);
+    if (needsCheck) this.verifyPhaseAdvancement();
+  }
+
+  /**
+   * Checks if the current phase is empty and advances if necessary.
+   */
+  async verifyPhaseAdvancement() {
+    if (!this.started || !game.user.isGM) return;
+    const currentPhase = this.getFlag("trespasser", "activePhase");
+    const activeCombatants = this.combatants.filter(c => c.initiative === currentPhase && !c.defeated);
+    
+    if (activeCombatants.length === 0) {
+      console.log(`Trespasser | Phase ${currentPhase} is now empty. Advancing...`);
+      return this.nextPhase();
+    }
+  }
+
+  /** @override */
   async _onDelete(options, userId) {
     if ( game.user.id === userId ) {
       const uniqueActors = new Set();

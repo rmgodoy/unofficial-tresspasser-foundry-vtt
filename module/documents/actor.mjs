@@ -167,6 +167,17 @@ export class TrespasserActor extends Actor {
   }
 
   /** @override */
+  async _onCreateDescendantDocuments(parent, collection, documents, data, options, userId) {
+    super._onCreateDescendantDocuments(parent, collection, documents, data, options, userId);
+    if (collection !== "items") return;
+    if (game.user.id !== userId) return;
+
+    for (const doc of documents) {
+      if (doc.type === "effect" || doc.type === "state") {
+        await TrespasserEffectsHelper.triggerImmediate(this, doc);
+      }
+    }
+  }
 
   /** @override */
   _onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId) {
