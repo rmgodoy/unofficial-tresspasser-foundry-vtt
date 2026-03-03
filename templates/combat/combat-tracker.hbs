@@ -1,0 +1,81 @@
+<section class="combat-sidebar flexcol {{cssClass}}" id="combat-tracker" data-tab="combat">
+  <header class="combat-tracker-header flexrow">
+    <h3>{{localize "COMBAT.Encounter"}} ({{localize "COMBAT.Round"}} {{round}})</h3>
+  </header>
+
+  <ol id="combat-log" class="directory-list">
+    {{#each phases as |phase|}}
+    <li class="phase-group {{phase.css}} {{#if (eq phase.id ../activePhase)}}active{{/if}}">
+      <div class="phase-header flexrow">
+        <div class="header-left flexrow">
+          <h4>{{localize phase.label}}</h4>
+        </div>
+        {{#if (eq phase.id ../activePhase)}}
+          {{#if ../isGM}}
+          <button class="next-phase-btn" data-action="nextPhase" title="{{localize "TRESPASSER.Phase.Next"}}">
+            {{localize "TRESPASSER.Phase.NextPhase"}}
+          </button>
+          {{/if}}
+        {{/if}}
+      </div>
+      
+      <ol class="combatants-list">
+        {{#each phase.combatants as |turn|}}
+        <li class="combatant {{#if turn.isActive}}active{{/if}} {{#if turn.isFinished}}finished{{/if}}" data-combatant-id="{{turn.id}}">
+          <div class="avatar-container">
+            <img class="token-image" src="{{turn.img}}" title="{{turn.name}}"/>
+          </div>
+          
+          <div class="combatant-info flexcol">
+            <div class="token-name">
+              <h4>{{turn.name}}</h4>
+            </div>
+            <div class="combatant-status flexrow">
+              <i class="fas fa-eye-slash" title="Hidden"></i>
+              <i class="fas fa-skull" title="Dying"></i>
+              <i class="fas fa-bullseye" title="Targeting"></i>
+              {{#each turn.effects}}
+              <img class="effect-icon" src="{{this}}"/>
+              {{/each}}
+            </div>
+          </div>
+
+          <div class="stats-area flexcol">
+             <div class="focus-display flexrow">
+                <div class="focus-squares flexrow">
+                  {{#times turn.focus}}
+                    <div class="focus-square filled"></div>
+                  {{/times}}
+                </div>
+             </div>
+             <div class="ap-display flexrow">
+                <div class="ap-squares flexrow">
+                  {{#times 3}}
+                    <div class="ap-square {{#trespasserGt turn.ap this}}filled{{/trespasserGt}}" data-action="clickAP"></div>
+                  {{/times}}
+                </div>
+             </div>
+          </div>
+        </li>
+        {{/each}}
+      </ol>
+    </li>
+    {{/each}}
+  </ol>
+
+  <footer class="combat-info-footer">
+    <div class="info-row">
+      <div class="left-info">
+        <span class="peril-text">
+            {{localize "TRESPASSER.Peril"}}: {{combatInfo.perilTotal}} 
+            <span class="peril-label">({{combatInfo.perilLabel}})</span>
+        </span>
+        <span class="deeds-usage">{{combatInfo.heavy}}H / {{combatInfo.mighty}}M</span>
+      </div>
+      <div class="right-info">
+        <span class="panic-label">Panic: {{combatInfo.panicLevel}}</span>
+        <span class="init-dc-label">Init DC: {{combatInfo.enemyMaxInit}}</span>
+      </div>
+    </div>
+  </footer>
+</section>

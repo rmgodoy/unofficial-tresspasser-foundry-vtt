@@ -665,7 +665,19 @@
         "ChooseRef": "Choose an ammo to use with <b>{name}</b>:",
         "Use": "Use Ammo"
       }
-    }
+    },
+    "Phase": {
+      "Early": "Early Phase",
+      "Enemy": "Enemy Phase",
+      "Late": "Late Phase",
+      "Critical": "Critical Phase",
+      "End": "End of Turn Phase",
+      "Next": "Next Phase",
+      "NextPhase": "Next Phase"
+    },
+    "Peril": "Peril",
+    "Panic": "Panic",
+    "InitDC": "Init DC"
   },
   "TYPES": {
     "Actor": {
