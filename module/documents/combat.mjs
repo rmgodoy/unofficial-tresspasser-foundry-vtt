@@ -253,7 +253,7 @@ export class TrespasserCombat extends Combat {
         // Player rolls 1d20 + Initiative
         const initBonus = actor.system.combat?.initiative || 0;
         const roll = new foundry.dice.Roll(`1d20 + ${initBonus}`);
-        await roll.evaluate({ async: true });
+        await roll.evaluate();
         
         // Broadcast the roll so everyone sees it
         await roll.toMessage({
@@ -330,7 +330,7 @@ export class TrespasserCombat extends Combat {
 
     // 5. Roll Peril (2d6) and store in flags
     const perilRoll = new foundry.dice.Roll("2d6");
-    await perilRoll.evaluate({ async: true });
+    await perilRoll.evaluate();
     
     const perilTotal = perilRoll.total;
     let perilLabel = "";
@@ -360,32 +360,6 @@ export class TrespasserCombat extends Combat {
       panicLevel,
       enemyMaxInit
     });
-
-    const formsPanic = perilTotal <= panicLevel;
-    const moraleStatus = formsPanic 
-      ? `<p class="miss-text">${game.i18n.format("TRESPASSER.Sheet.Combat.Panic.PanicStatus", { peril: perilTotal, panic: panicLevel })}</p>` 
-      : `<p class="hit-text">${game.i18n.format("TRESPASSER.Sheet.Combat.Panic.MoraleHolds", { peril: perilTotal, panic: panicLevel })}</p>`;
-
-    const gmUsers = game.users.filter(u => u.isGM).map(u => u.id);
-    if ( gmUsers.length > 0 ) {
-      const content = `
-        <div class="trespasser-chat-card">
-          <h3>${game.i18n.format("TRESPASSER.Sheet.Combat.Panic.PerilRound", { round: this.round + 1, label: perilLabel, total: perilTotal })}</h3>
-          <p>${game.i18n.format("TRESPASSER.Sheet.Combat.Panic.DeedUsage", { heavy, mighty })}</p>
-          <hr />
-          <p><strong>${game.i18n.format("TRESPASSER.Sheet.Combat.Panic.Title", { panic: panicLevel })}</strong></p>
-          <ul style="font-size: 11px; margin: 0; padding-left: 15px;">
-            ${reasons.map(r => `<li>${r}</li>`).join("") || `<li>${game.i18n.localize("TRESPASSER.Sheet.Combat.Panic.NoAdjustments")}</li>`}
-          </ul>
-          ${moraleStatus}
-        </div>
-      `;
-      foundry.documents.BaseChatMessage.create({
-        content: content,
-        whisper: gmUsers,
-        speaker: { alias: game.i18n.localize("TRESPASSER.Chat.System") || "System" }
-      });
-    }
   }
 
   /** @override */
