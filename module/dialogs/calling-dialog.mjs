@@ -16,12 +16,19 @@ export async function showCallingDialog(callingItem, actor) {
   ];
   const callingSkills = new Set(sys.skills || []);
   const currentSkills = actor.system.skills || {};
+  
+  // Identify which skills are from THIS calling (stored in flags or just logically part of it)
+  // For skills, there's no flag on the skill itself easily, so we'll just check if they are in the Calling's list
+  // and the actor has the calling.
+  const isCorrectCalling = actor.system.calling === callingItem.name;
+
   const skillRows = ALL_SKILL_KEYS
     .filter(k => callingSkills.has(k))
     .map(k => ({
       key: k,
       label: game.i18n.localize(`TRESPASSER.Sheet.Skills.${k.charAt(0).toUpperCase() + k.slice(1)}`),
-      alreadyTrained: !!currentSkills[k]
+      alreadyTrained: !!currentSkills[k],
+      isFromThisCalling: isCorrectCalling && !!currentSkills[k]
     }));
 
   // ── Shared helpers ────────────────────────────────────────────
@@ -36,22 +43,29 @@ export async function showCallingDialog(callingItem, actor) {
 
   const chipHTML = (list, listId) => {
     if (!list || list.length === 0) return noItems();
-    return list.map((entry, i) => `
+    return list.map((entry, i) => {
+      const isPicked = actor.items.some(it => 
+        (it.name === entry.name || it.flags.trespasser?.linkedSourceUuid === entry.uuid) && 
+        it.flags.trespasser?.linkedSource === callingItem.name
+      );
+
+      return `
       <div class="calling-dlg-chip-row">
         <label class="calling-dlg-chip" data-list="${listId}" data-index="${i}" style="flex:1;margin:0;">
-          <input type="checkbox" class="calling-dlg-check" data-list="${listId}" data-index="${i}" />
+          <input type="checkbox" class="calling-dlg-check" data-list="${listId}" data-index="${i}" ${isPicked ? "checked" : ""} />
           <img src="${entry.img}" width="20" height="20" />
           <span class="calling-dlg-name">${entry.name}</span>
         </label>
         ${entry.uuid ? infoBtn(entry.uuid) : ""}
-      </div>`).join("");
+      </div>`;
+    }).join("");
   };
 
   const skillChipHTML = skillRows.length === 0 ? noItems()
     : skillRows.map((row, i) => `
-        <label class="calling-dlg-chip ${row.alreadyTrained ? "already-trained" : ""}" data-list="skills" data-index="${i}">
-          <input type="checkbox" class="calling-dlg-check" data-list="skills" data-index="${i}" />
-          <span class="calling-dlg-name">${row.label}${row.alreadyTrained ? " <em>" + game.i18n.localize("TRESPASSER.CallingDialog.AlreadyTrained") + "</em>" : ""}</span>
+        <label class="calling-dlg-chip ${row.alreadyTrained && !row.isFromThisCalling ? "already-trained" : ""}" data-list="skills" data-index="${i}">
+          <input type="checkbox" class="calling-dlg-check" data-list="skills" data-index="${i}" ${row.isFromThisCalling ? "checked" : ""} />
+          <span class="calling-dlg-name">${row.label}${row.alreadyTrained && !row.isFromThisCalling ? " <em>" + game.i18n.localize("TRESPASSER.CallingDialog.AlreadyTrained") + "</em>" : ""}</span>
         </label>`).join("");
 
   const descHTML = sys.description
@@ -63,9 +77,42 @@ export async function showCallingDialog(callingItem, actor) {
   const tabBtn = (id, label, first = false) =>
     `<a class="calling-dlg-tab-btn item${first ? " active" : ""}" data-tab="${id}"
         style="font-family:var(--trp-font-header);font-size:11px;text-transform:uppercase;
-               letter-spacing:.08em;padding:5px 12px;cursor:pointer;
+               letter-spacing:.08em;padding:5px 4px;cursor:pointer;
+               flex: 1; text-align: center;
                color:${first ? "var(--trp-gold-bright)" : "var(--trp-text-dim)"};
                border-bottom:2px solid ${first ? "var(--trp-gold)" : "transparent"};">${label}</a>`;
+
+  const progTableHTML = `
+          <div class="progression-list">
+            ${(sys.progression || []).map((row, i) => `
+              <div class="progression-level ${i > 0 ? 'collapsed' : ''}" data-level="${i}">
+                <div class="level-header">
+                  <span class="level-title">${game.i18n.localize("TRESPASSER.Sheet.Header.Level")} ${row.level}</span>
+                  <i class="fas fa-chevron-down level-toggle"></i>
+                </div>
+                <div class="level-content">
+                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Header.XP")}:</label> <span>${row.xp}</span></div>
+                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Header.HP")} Base:</label> <span>${row.hp}</span></div>
+                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Header.Skill")} Bonus:</label> <span>${row.skillBonus}</span></div>
+                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Header.SkillDie")}:</label> <span>${row.skillDie}</span></div>
+                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Header.AttributeBonus")}:</label> <span>${row.attributePoints}</span></div>
+                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Combat.DEEDSLIGHT")}:</label> <span>${row.deedsLight}</span></div>
+                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Combat.DEEDSHEAVY")}:</label> <span>${row.deedsHeavy}</span></div>
+                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Combat.DEEDSMIGHTY")}:</label> <span>${row.deedsMighty}</span></div>
+                  <div class="prog-field full-width">
+                    <label>${game.i18n.localize("TRESPASSER.Calling.GrantDescription")}:</label>
+                    <div style="font-size:11px; color:var(--trp-text-bright); margin-top:4px;">${row.callingAbilities || "—"}</div>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>`;
+
+  const tabSkills       = tabBtn("skills", game.i18n.localize("TRESPASSER.Calling.Skills"), true);
+  const tabTalents      = tabBtn("talents", game.i18n.localize("TRESPASSER.Calling.Talents"));
+  const tabFeatures     = tabBtn("features", game.i18n.localize("TRESPASSER.Calling.Features"));
+  const tabEnhancements = tabBtn("enhancements", game.i18n.localize("TRESPASSER.Calling.Enhancements"));
+  const tabProgression  = tabBtn("progression", game.i18n.localize("TRESPASSER.Calling.Progression"));
 
   const content = `
     <div class="trespasser calling-dialog" style="font-family:var(--trp-font-body);color:var(--trp-text);background:var(--trp-bg-dark);">
@@ -74,10 +121,11 @@ export async function showCallingDialog(callingItem, actor) {
         ${descHTML}
       </div>
       <nav class="calling-dlg-tabs sheet-tabs" style="display:flex;border-bottom:2px solid var(--trp-border);margin-bottom:8px;">
-        ${tabBtn("skills",       game.i18n.localize("TRESPASSER.CallingDialog.TabSkills"),       true)}
-        ${tabBtn("talents",      game.i18n.localize("TRESPASSER.CallingDialog.TabTalents"))}
-        ${tabBtn("features",     game.i18n.localize("TRESPASSER.CallingDialog.TabFeatures"))}
-        ${tabBtn("enhancements", game.i18n.localize("TRESPASSER.CallingDialog.TabEnhancements"))}
+        ${tabSkills}
+        ${tabTalents}
+        ${tabFeatures}
+        ${tabEnhancements}
+        ${tabProgression}
       </nav>
       <div class="calling-dlg-tab-content" style="min-height:200px;max-height:320px;">
         <div class="calling-dlg-pane" data-pane="skills">
@@ -96,6 +144,9 @@ export async function showCallingDialog(callingItem, actor) {
           ${searchBar("enhancements")}
           <div class="calling-dlg-list">${chipHTML(sys.enhancements, "enhancements")}</div>
         </div>
+        <div class="calling-dlg-pane" data-pane="progression" style="display:none; overflow-y:auto; max-height:270px;">
+          ${progTableHTML}
+        </div>
       </div>
     </div>
     <style>
@@ -112,6 +163,20 @@ export async function showCallingDialog(callingItem, actor) {
       .calling-dialog input[type="checkbox"]{flex-shrink:0;accent-color:var(--trp-gold);}
       .calling-dialog .dlg-info-btn{flex-shrink:0;color:var(--trp-text-dim);font-size:12px;cursor:pointer;padding:2px 4px;}
       .calling-dialog .dlg-info-btn:hover{color:var(--trp-gold-bright);}
+      
+      /* Progression Collapsible */
+      .calling-dialog .progression-level { border: 1px solid var(--trp-border); border-radius: 4px; margin-bottom: 8px; background: rgba(0, 0, 0, 0.2); overflow: hidden; }
+      .calling-dialog .level-header { background: rgba(0, 0, 0, 0.3); padding: 8px 12px; display: flex; align-items: center; cursor: pointer; user-select: none; transition: background 0.2s; }
+      .calling-dialog .level-header:hover { background: rgba(0, 0, 0, 0.5); }
+      .calling-dialog .level-title { font-family: var(--trp-font-header); font-size: 14px; color: var(--trp-gold-bright); flex: 1; }
+      .calling-dialog .level-toggle { font-size: 12px; color: var(--trp-text-dim); transition: transform 0.2s; }
+      .calling-dialog .progression-level.collapsed .level-toggle { transform: rotate(-90deg); }
+      .calling-dialog .progression-level.collapsed .level-content { display: none !important; }
+      .calling-dialog .level-content { padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
+      .calling-dialog .prog-field { display: flex; align-items: center; justify-content: flex-end; gap: 12px; font-size: 12px; }
+      .calling-dialog .prog-field label { color: var(--trp-text-dim); flex: 1; text-transform: uppercase; letter-spacing: 0.05em; font-size: 10px; }
+      .calling-dialog .prog-field span { font-weight: bold; color: var(--trp-gold-bright); width: 40px; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid var(--trp-border); border-radius: 3px; padding: 2px 0; }
+      .calling-dialog .prog-field.full-width { grid-column: span 2; flex-direction: column; align-items: flex-start; }
     </style>`;
 
   const callingName = callingItem.name;
@@ -124,29 +189,80 @@ export async function showCallingDialog(callingItem, actor) {
         apply: {
           label: `<i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.CallingDialog.Apply")}`,
           callback: async html => {
-            // Skills
-            const skillUpdates = {};
+            const callingName = callingItem.name;
+            
+            // 1. Manage Calling Item on Actor
+            let actorCalling = actor.items.find(i => i.type === "calling");
+            if (!actorCalling) {
+              const callingData = callingItem.toObject();
+              delete callingData._id;
+              const created = await actor.createEmbeddedDocuments("Item", [callingData]);
+              actorCalling = created[0];
+            } else if (actorCalling.name !== callingName) {
+              // Replace calling item if name differs (swapping callings)
+              await actorCalling.delete();
+              const callingData = callingItem.toObject();
+              delete callingData._id;
+              const created = await actor.createEmbeddedDocuments("Item", [callingData]);
+              actorCalling = created[0];
+            }
+
+            // 2. Identify selected Skill keys
+            const selectedSkillKeys = new Set();
             html.find(".calling-dlg-check[data-list='skills']:checked").each((_, el) => {
               const row = skillRows[parseInt(el.dataset.index)];
-              if (row) skillUpdates[`system.skills.${row.key}`] = true;
+              if (row) selectedSkillKeys.add(row.key);
             });
-            await actor.update({ ...skillUpdates, "system.calling": callingName });
 
-            // Talents / Features / Enhancements
-            const toCreate = [];
+            // Identify which skills were from THIS calling to potentially un-train them if unchecked
+            const oldSkillUpdates = {};
+            skillRows.forEach(row => {
+              if (row.isFromThisCalling && !selectedSkillKeys.has(row.key)) {
+                oldSkillUpdates[`system.skills.${row.key}`] = false;
+              }
+            });
+
+            const newSkillUpdates = {};
+            selectedSkillKeys.forEach(key => {
+              newSkillUpdates[`system.skills.${key}`] = true;
+            });
+
+            await actor.update({ ...oldSkillUpdates, ...newSkillUpdates, "system.calling": callingName });
+
+            // 3. Talents / Features / Enhancements Picks
+            const picks = [];
             for (const listKey of ["talents", "features", "enhancements"]) {
               html.find(`.calling-dlg-check[data-list='${listKey}']:checked`).each((_, el) => {
                 const entry = sys[listKey]?.[parseInt(el.dataset.index)];
-                if (entry) toCreate.push(entry);
+                if (entry) picks.push(entry);
               });
             }
-            for (const entry of toCreate) {
+
+            // Find current actor items linked to this calling
+            const linkedItems = actor.items.filter(it => it.flags.trespasser?.linkedSource === callingName);
+            
+            // Items to delete (unchecked)
+            const toDelete = linkedItems.filter(li => !picks.some(p => p.name === li.name || p.uuid === li.flags.trespasser?.linkedSourceUuid)).map(li => li.id);
+            if (toDelete.length > 0) await actor.deleteEmbeddedDocuments("Item", toDelete);
+
+            // Items to create (newly checked)
+            const toCreateData = [];
+            for (const entry of picks) {
+              const alreadyHas = linkedItems.some(li => li.name === entry.name || li.flags.trespasser?.linkedSourceUuid === entry.uuid);
+              if (alreadyHas) continue;
+
               const sourceItem = await fromUuid(entry.uuid);
               if (!sourceItem) continue;
+              
               const itemData = sourceItem.toObject();
               delete itemData._id;
               foundry.utils.setProperty(itemData, "flags.trespasser.linkedSource", callingName);
-              await foundry.documents.BaseItem.create(itemData, { parent: actor });
+              foundry.utils.setProperty(itemData, "flags.trespasser.linkedSourceUuid", entry.uuid);
+              toCreateData.push(itemData);
+            }
+
+            if (toCreateData.length > 0) {
+              await actor.createEmbeddedDocuments("Item", toCreateData);
             }
 
             ui.notifications.info(
@@ -198,6 +314,13 @@ export async function showCallingDialog(callingItem, actor) {
           ev.preventDefault();
           ev.stopPropagation();
           await showItemInfoDialog(ev.currentTarget.dataset.uuid);
+        });
+
+        // Progression Level Toggle
+        html.find(".level-header").on("click", ev => {
+          ev.preventDefault();
+          const levelRow = ev.currentTarget.closest(".progression-level");
+          levelRow.classList.toggle("collapsed");
         });
       }
     }, {

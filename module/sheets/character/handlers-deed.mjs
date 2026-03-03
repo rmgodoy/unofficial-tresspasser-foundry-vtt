@@ -243,7 +243,7 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
       }
     }
 
-    parsedDamage = parsedDamage.replace(/<sd>/gi, skillDie).replace(/<wd>/gi, weaponDie);
+    parsedDamage = TrespasserEffectsHelper.replacePlaceholders(parsedDamage, actor, weaponDie);
 
     // Damage Dealt bonus from active effects — rolled async so dice expressions and <sd>/<wd> are resolved
     const damageBonus = await TrespasserEffectsHelper.evaluateDamageBonus(actor, "damage_dealt", weaponDie);

@@ -2,6 +2,8 @@
  * Character Sheet — Talent, Feature, Incantation roll handlers
  */
 
+import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
+
 export async function onTalentRoll(event, sheet) {
   event.preventDefault();
   event.stopImmediatePropagation();
@@ -63,16 +65,14 @@ export async function onTalentRoll(event, sheet) {
 
   let formula = isUsable ? (item.system.rollDice || "") : "";
   if (formula.trim() !== "") {
-    const skillDie = sheet.actor.system.skill_die || "d6";
-    formula = formula.replace(/<sd>/gi, skillDie);
-
     let weaponDie = "d4";
     const mainHandId = sheet.actor.system.equipment?.main_hand;
     if (mainHandId) {
       const weapon = sheet.actor.items.get(mainHandId);
       if (weapon?.system.weaponDie) weaponDie = weapon.system.weaponDie;
     }
-    formula = formula.replace(/<wd>/gi, weaponDie);
+
+    formula = TrespasserEffectsHelper.replacePlaceholders(formula, sheet.actor, weaponDie);
 
     const roll = new foundry.dice.Roll(formula);
     await roll.evaluate();

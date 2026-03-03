@@ -420,14 +420,11 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
       try {
         let dmgExpr = phaseData.damage;
         const skillDie = actor.system.skill_die || "d4";
-        dmgExpr = dmgExpr.replace(/<sd>/gi, skillDie);
-
         let weaponDie = "d4";
         const eqWeapon = actor.items.find(i => i.type === "weapon" && i.system.equipped);
-        if (eqWeapon && eqWeapon.system.weaponDie) {
-          weaponDie = eqWeapon.system.weaponDie;
-        }
-        dmgExpr = dmgExpr.replace(/<wd>/gi, weaponDie);
+        if (eqWeapon && eqWeapon.system.weaponDie) weaponDie = eqWeapon.system.weaponDie;
+        
+        dmgExpr = TrespasserEffectsHelper.replacePlaceholders(dmgExpr, actor, weaponDie);
 
         // Add Damage Bonus from effects
         const damageBonus = actor.system.bonuses?.damage || 0;

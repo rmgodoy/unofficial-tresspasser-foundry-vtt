@@ -1,3 +1,5 @@
+import { DEFAULT_PROGRESSION_TABLE } from "./progression-default.mjs";
+
 /**
  * Data model for the Trespasser TTRPG Calling item type.
  *
@@ -21,6 +23,9 @@ export class TrespasserCallingData extends foundry.abstract.TypeDataModel {
 
       // Each entry: { uuid, name, img } pointing to an existing Feature item, displayed as Enhancements
       enhancements: new fields.ArrayField(new fields.ObjectField(), { initial: [] }),
+
+      // Progression Table (Array of Objects)
+      progression: new fields.ArrayField(new fields.ObjectField(), { initial: DEFAULT_PROGRESSION_TABLE }),
     };
   }
 }

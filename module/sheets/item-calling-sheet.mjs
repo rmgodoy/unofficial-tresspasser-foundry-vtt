@@ -17,9 +17,10 @@ export class TrespasserCallingSheet extends foundry.appv1.sheets.ItemSheet {
   static get defaultOptions() {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes: ["trespasser", "sheet", "item", "calling"],
-      width: 520,
+      width: 580,
       height: 620,
       scrollY: [".sheet-body"],
+      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description", group: "primary" }],
     });
   }
 
@@ -42,6 +43,7 @@ export class TrespasserCallingSheet extends foundry.appv1.sheets.ItemSheet {
     context.callingTalents      = this.item.system.talents     || [];
     context.callingFeatures     = this.item.system.features    || [];
     context.callingEnhancements = this.item.system.enhancements || [];
+    context.progression         = this.item.system.progression  || [];
 
     context.descriptionHTML = await TextEditor.enrichHTML(this.item.system.description, {
       async: true,
@@ -64,6 +66,10 @@ export class TrespasserCallingSheet extends foundry.appv1.sheets.ItemSheet {
     html.find(".calling-item-remove[data-list='talents']").on("click", ev => this._onRemoveEntry(ev, "talents"));
     html.find(".calling-item-remove[data-list='features']").on("click", ev => this._onRemoveEntry(ev, "features"));
     html.find(".calling-item-remove[data-list='enhancements']").on("click", ev => this._onRemoveEntry(ev, "enhancements"));
+
+    // Progression Table Editing
+    html.find(".prog-input").on("change", this._onProgressionChange.bind(this));
+    html.find(".level-header").on("click", this._onToggleLevel.bind(this));
 
     // Drag-and-drop zones
     html.find(".calling-drop-zone").on("dragover", ev => { ev.preventDefault(); return false; });
@@ -127,5 +133,28 @@ export class TrespasserCallingSheet extends foundry.appv1.sheets.ItemSheet {
       "system.description": this.item.system.description,
       [`system.${listKey}`]: currentArr
     });
+  }
+
+  async _onProgressionChange(event) {
+    const input = event.currentTarget;
+    const level = parseInt(input.dataset.level);
+    const field = input.dataset.field;
+    let value = input.value;
+
+    // Convert to number if applicable
+    if (input.type === "number") value = parseInt(value);
+
+    const progression = foundry.utils.deepClone(this.item.system.progression);
+    if (progression[level]) {
+      progression[level][field] = value;
+      await this.item.update({ "system.progression": progression });
+    }
+  }
+
+  _onToggleLevel(event) {
+    event.preventDefault();
+    const header = event.currentTarget;
+    const levelRow = header.closest(".progression-level");
+    levelRow.classList.toggle("collapsed");
   }
 }

@@ -44,9 +44,38 @@
   letter-spacing: 0.05em;
 }
 
-.item-sheet .sheet-tabs {
+.trespasser.sheet.item .sheet-tabs,
+.item-sheet .sheet-tabs,
+.trespasser-sheet .sheet-tabs {
   margin: 0;
   border-bottom: 1px solid var(--trp-border);
+  display: flex !important;
+  background: var(--trp-bg-panel);
+}
+
+.trespasser.sheet.item .sheet-tabs .item,
+.item-sheet .sheet-tabs .item,
+.trespasser-sheet .sheet-tabs .item {
+  flex: 1 !important;
+  text-align: center;
+  border-right: 1px solid var(--trp-border);
+  padding: 8px 12px;
+}
+
+.calling-display .calling-controls {
+  opacity: 0;
+  transition: opacity 0.2s;
+  display: flex !important;
+  gap: 8px;
+}
+
+.calling-display:hover .calling-controls {
+  opacity: 1;
+}
+
+.trespasser.sheet.item .sheet-tabs .item:last-child,
+.item-sheet .sheet-tabs .item:last-child {
+  border-right: none;
 }
 
 .item-sheet .sheet-body {
@@ -378,4 +407,99 @@
 
 .effect-chip .controls a:hover {
   color: #fff;
+}
+
+/* ── Calling Progression Collapsible ───────────────────── */
+.progression-level {
+  border: 1px solid var(--trp-border);
+  border-radius: 4px;
+  margin-bottom: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  overflow: hidden;
+}
+
+.level-header {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 8px 12px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid transparent;
+  transition: background 0.2s;
+}
+
+.level-header:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.level-header .level-title {
+  font-family: var(--trp-font-header);
+  font-size: 14px;
+  color: var(--trp-gold-bright);
+  flex: 1;
+}
+
+.level-header .level-toggle {
+  font-size: 12px;
+  color: var(--trp-text-dim);
+  transition: transform 0.2s;
+}
+
+.progression-level.collapsed .level-toggle {
+  transform: rotate(-90deg);
+}
+
+.progression-level.collapsed .level-content {
+  display: none !important;
+}
+
+.level-content {
+  padding: 12px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px 20px;
+}
+
+.prog-field {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.prog-field label {
+  font-size: 11px;
+  color: var(--trp-text-dim);
+  white-space: nowrap;
+  flex: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.trespasser.sheet.item .prog-field input,
+.trespasser.sheet.item .prog-field select,
+.item-sheet .prog-field input,
+.item-sheet .prog-field select {
+  width: 70px !important;
+  text-align: center;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-bright);
+  font-size: 12px;
+  padding: 2px 4px;
+  flex: 0 0 auto;
+}
+
+.prog-field.full-width {
+  grid-column: span 2;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.trespasser.sheet.item .prog-field.full-width input,
+.item-sheet .prog-field.full-width input,
+.trespasser-sheet .prog-field.full-width input {
+  width: 100% !important;
+  text-align: left;
 }

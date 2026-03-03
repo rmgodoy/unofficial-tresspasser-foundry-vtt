@@ -12,6 +12,8 @@ export function activateCharacterListeners(html, sheet) {
   html.find(".equip-rollable").on("click",   sheet._onEquipRoll.bind(sheet));
   html.find(".rest-btn").on("click",         sheet._onRestDialog.bind(sheet));
   html.find('[data-action="spend-rd"] label.rollable').on("click", sheet._onSpendRDHeader.bind(sheet));
+  html.find(".calling-edit").on("click",      sheet._onCallingEdit.bind(sheet));
+  html.find(".calling-delete").on("click",    sheet._onCallingDelete.bind(sheet));
 
   // Effect listeners
   html.find(".effect-prevail").on("click",           sheet._onPrevailRoll.bind(sheet));

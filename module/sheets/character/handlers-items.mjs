@@ -3,6 +3,8 @@
  * onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck
  */
 
+import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
+
 export async function onItemCreate(event, sheet) {
   event.preventDefault();
   const type = event.currentTarget.dataset.type ?? "deed";
@@ -70,7 +72,7 @@ export async function onItemConsume(event, sheet) {
   const dmg = item.system.damage;
   if (dmg && dmg.trim() !== "") {
     try {
-      let expr = dmg.replace(/<sd>/gi, sheet.actor.system.skill_die || "d4");
+      let expr = TrespasserEffectsHelper.replacePlaceholders(dmg, sheet.actor);
       const roll = new foundry.dice.Roll(expr);
       await roll.evaluate();
       await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor: flavorHtml });

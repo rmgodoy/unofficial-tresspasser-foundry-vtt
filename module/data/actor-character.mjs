@@ -1,4 +1,5 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { DEFAULT_PROGRESSION_TABLE } from "./progression-default.mjs";
 /**
  * Data model for the Trespasser TTRPG Character actor type.
  */
@@ -157,6 +158,8 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
         mighty:  new fields.NumberField({ integer: true, initial: 4 }),
         special: new fields.NumberField({ integer: true, initial: 2 }),
       }),
+      attribute_points_spent: new fields.NumberField({ integer: true, initial: 0 }),
+      attribute_points_max:   new fields.NumberField({ integer: true, initial: 0 }),
     };
   }
 
@@ -178,11 +181,15 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
       this.bonuses[key] = TrespasserEffectsHelper.getAttributeBonus(actor, key);
     }
 
+    // --- Progression Table Access ---
+    const callingItem = actor.items.find(i => i.type === "calling");
+    const progression = callingItem?.system?.progression || DEFAULT_PROGRESSION_TABLE;
+    const currentTableData = progression[Math.min(level, progression.length - 1)];
+
     // 1. Progression Advancement
-    this.xp_to_next_level = level * 10;
-    this.skill = 2 + Math.floor(level / 3);
-    const dice = ["d6", "d8", "d10", "d12"];
-    this.skill_die = dice[Math.min(3, Math.floor(level / 3))];
+    this.xp_to_next_level = currentTableData.xp || (level * 10);
+    this.skill = currentTableData.skillBonus || (2 + Math.floor(level / 3));
+    this.skill_die = currentTableData.skillDie || "d6";
 
     // 2. Effective Core Attributes (for calculation purposes)
     const eff = {
@@ -193,7 +200,8 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     };
 
     // 3. Resources
-    this.max_health = (level + 1) * (5 + eff.mighty) + this.bonuses.max_health;
+    const baseHP = currentTableData.hp || ((level + 1) * 5);
+    this.max_health = baseHP + (level + 1) * eff.mighty + this.bonuses.max_health;
     this.max_endurance = 10 + eff.spirit;
     this.max_recovery_dice = this.max_endurance;
 
@@ -234,5 +242,11 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     }
 
     this.inventory_max = 5 + eff.mighty;
+
+    // 7. Deed Max and Attribute Points
+    this.deed_max.light  = currentTableData.deedsLight  ?? 6;
+    this.deed_max.heavy  = currentTableData.deedsHeavy  ?? 4;
+    this.deed_max.mighty = currentTableData.deedsMighty ?? 4;
+    this.attribute_points_max = currentTableData.attributePoints ?? 0;
   }
 }

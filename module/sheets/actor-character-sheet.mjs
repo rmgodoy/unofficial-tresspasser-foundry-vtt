@@ -119,6 +119,53 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   // ── Light ──────────────────────────────────────────────────────────────────
   async _onToggleLight(event)               { return onToggleLight(event, this); }
 
+  async _onCallingEdit(event) {
+    event.preventDefault();
+    const callingItem = this.actor.items.find(i => i.type === "calling");
+    if (!callingItem) return ui.notifications.warn("No calling item found on this actor.");
+    return showCallingDialog(callingItem, this.actor);
+  }
+
+  async _onCallingDelete(event) {
+    event.preventDefault();
+    const callingItem = this.actor.items.find(i => i.type === "calling");
+    if (!callingItem) return;
+
+    const callingName = callingItem.name;
+
+    const confirm = await Dialog.confirm({
+      title: game.i18n.format("TRESPASSER.CallingDialog.DeleteTitle", { name: callingName }),
+      content: `<p>${game.i18n.format("TRESPASSER.CallingDialog.DeleteConfirm", { name: callingName })}</p>`,
+      yes: () => true,
+      no: () => false,
+      defaultYes: false
+    });
+
+    if (!confirm) return;
+
+    // 1. Collect linked items
+    const toDelete = this.actor.items
+      .filter(it => it.flags.trespasser?.linkedSource === callingName || it.id === callingItem.id)
+      .map(it => it.id);
+
+    // 2. Identify skills to un-train
+    const skillUpdates = {};
+    if (callingItem.system.skills) {
+      for (const skillKey of callingItem.system.skills) {
+        skillUpdates[`system.skills.${skillKey}`] = false;
+      }
+    }
+
+    // 3. Perform updates
+    await this.actor.deleteEmbeddedDocuments("Item", toDelete);
+    await this.actor.update({
+      ...skillUpdates,
+      "system.calling": ""
+    });
+
+    ui.notifications.info(game.i18n.format("TRESPASSER.CallingDialog.Removed", { name: callingName, actor: this.actor.name }));
+  }
+
   /**
    * Apply a Past Life template to the character.
    * @param {Item} pastLifeItem 

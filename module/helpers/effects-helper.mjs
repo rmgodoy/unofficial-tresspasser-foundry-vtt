@@ -107,6 +107,40 @@ export class TrespasserEffectsHelper {
   }
 
   /**
+   * Replaces <sd> and <wd> placeholders in a formula, handling multipliers correctly.
+   * If <sd> is "2d6", "2<sd>" becomes "4d6".
+   * 
+   * @param {string} formula The dice formula (e.g., "2<sd> + 5")
+   * @param {Actor} actor The actor providing the skill die
+   * @param {string} [weaponDie] Optional weapon die override
+   * @returns {string} The resolved formula
+   */
+  static replacePlaceholders(formula, actor, weaponDie = "d4") {
+    if (!formula) return "";
+    let resolved = formula;
+    
+    const sd = actor?.system?.skill_die || "d6";
+    const wd = weaponDie || "d4";
+
+    const multiplyDice = (expression, factor) => {
+        let fullExpr = /^\d/.test(expression) ? expression : `1${expression}`;
+        const match = fullExpr.match(/^(\d+)(d\d+.*)$/i);
+        if (!match) return expression;
+        const count = parseInt(match[1]) * factor;
+        return `${count}${match[2]}`;
+    };
+
+    const placeholderRegex = /(\d*)<(sd|wd)>/gi;
+    resolved = resolved.replace(placeholderRegex, (match, factorStr, type) => {
+        const factor = factorStr === "" ? 1 : parseInt(factorStr);
+        const diceExpr = (type.toLowerCase() === "sd") ? sd : wd;
+        return multiplyDice(diceExpr, factor);
+    });
+
+    return resolved;
+  }
+
+  /**
    * Evaluates a modifier string, replacing <Int> and rolling any dice formulas.
    * @param {string} modifierString 
    * @param {number} intensity 
@@ -119,14 +153,7 @@ export class TrespasserEffectsHelper {
     let parsed = this.parseModifier(modifierString, intensity);
 
     // Resolve <sd> (skill die) and <wd> (weapon die) tokens dynamically
-    if (actor) {
-      const skillDie = actor.system?.skill_die || "d6";
-      parsed = parsed.replace(/<sd>/gi, skillDie);
-    } else {
-      parsed = parsed.replace(/<sd>/gi, "d6"); // safe fallback
-    }
-    const wd = weaponDie || "d4";
-    parsed = parsed.replace(/<wd>/gi, wd);
+    parsed = this.replacePlaceholders(parsed, actor, weaponDie);
     
     // 2. Handle max(...) and min(...) functions recursively
     // Regex matches max(args) or min(args) where args don't contain other parentheses

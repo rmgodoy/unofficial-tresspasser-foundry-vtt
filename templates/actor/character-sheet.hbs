@@ -110,9 +110,16 @@
 
         <!-- Column 1: Identity -->
         <div class="char-col char-identity">
-          <div class="field-block">
+          <div class="field-block calling-block">
             <label>{{localize "TRESPASSER.Sheet.Character.Calling"}}</label>
-            <input type="text" name="system.calling" value="{{system.calling}}" />
+            <div class="calling-display" style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 4px 8px; border: 1px solid var(--trp-border); border-radius: 4px;">
+              <span class="calling-name" style="font-weight: bold; color: var(--trp-gold-bright);">{{#if system.calling}}{{system.calling}}{{else}}—{{/if}}</span>
+              <div class="calling-controls">
+                <a class="calling-edit" title="{{localize 'TRESPASSER.Sheet.Character.EditCalling'}}" style="cursor: pointer; color: var(--trp-text-dim);"><i class="fas fa-cog"></i></a>
+                <a class="calling-delete" title="{{localize 'TRESPASSER.Sheet.Character.DeleteCalling'}}" style="cursor: pointer; color: var(--trp-text-dim);"><i class="fas fa-trash"></i></a>
+              </div>
+            </div>
+            <input type="hidden" name="system.calling" value="{{system.calling}}" />
           </div>
           <div class="field-block">
             <label>{{localize "TRESPASSER.Sheet.Character.Crafts"}}</label>
