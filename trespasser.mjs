@@ -397,12 +397,6 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
   });
 });
 
-// Combat start-of-combat effects (handles both combatStart hook and started flag)
-Hooks.on("combatStart", async (combat) => {
-  for (const c of combat.combatants) {
-    if (c.actor) await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-combat");
-  }
-});
 
 
 Hooks.on("deleteCombat", async (combat) => {

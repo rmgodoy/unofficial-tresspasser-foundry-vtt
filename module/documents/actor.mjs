@@ -493,7 +493,6 @@ export class TrespasserActor extends Actor {
    */
   async onTurnEnd(combatant = null) {
     if (!game.combat) return;
-    await TrespasserEffectsHelper.triggerEffects(this, "end-of-turn");
 
     // Characters gain focus equal to skill bonus (if they didn't use an expensive deed)
     if (this.type === "character") {
@@ -514,15 +513,6 @@ export class TrespasserActor extends Actor {
         }
       }
     }
-  }
-
-  /**
-   * Called when a phase starts where this actor is present.
-   * Triggers 'start-of-turn' effects.
-   */
-  async onTurnStart() {
-    if (!game.combat) return;
-    await TrespasserEffectsHelper.triggerEffects(this, "start-of-turn");
   }
 }
 

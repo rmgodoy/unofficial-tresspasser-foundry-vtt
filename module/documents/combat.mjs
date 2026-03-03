@@ -45,7 +45,13 @@ export class TrespasserCombat extends Combat {
       if (updates.length > 0) await this.updateEmbeddedDocuments("Combatant", updates);
 
       // Set initial phase to the first non-empty phase
-      await this.setFlag("trespasser", "activePhase", this._firstNonEmptyPhase());
+      const initialPhase = this._firstNonEmptyPhase();
+      await this.setFlag("trespasser", "activePhase", initialPhase);
+
+      // Trigger start-of-combat, start-of-round, and start-of-turn for the first phase
+      await this._onStartOfCombat();
+      await this._onStartOfRound();
+      await this._onStartOfTurn(initialPhase);
     }
     return super.startCombat();
   }
@@ -58,7 +64,12 @@ export class TrespasserCombat extends Combat {
       const updates = this.combatants.map(c => ({ _id: c.id, "flags.trespasser.actionPoints": 3 }));
       await this.updateEmbeddedDocuments("Combatant", updates);
       // Reset phase to first non-empty phase
-      await this.setFlag("trespasser", "activePhase", this._firstNonEmptyPhase());
+      const initialPhase = this._firstNonEmptyPhase();
+      await this.setFlag("trespasser", "activePhase", initialPhase);
+
+      // Trigger start-of-round and start-of-turn for the first phase
+      await this._onStartOfRound();
+      await this._onStartOfTurn(initialPhase);
     }
     return super.nextRound();
   }
@@ -85,12 +96,7 @@ export class TrespasserCombat extends Combat {
     const currentPhase = this.getFlag("trespasser", "activePhase") ?? TrespasserCombat.PHASES.EARLY;
 
     // ── 1. END OF TURN for everyone in the current phase ──────────────────
-    const currentCombatants = this.combatants.filter(c => c.initiative === currentPhase && !c.defeated);
-    for (const c of currentCombatants) {
-      // Force AP to 0 (in case they didn't spend it all)
-      await c.setFlag("trespasser", "actionPoints", 0);
-      if (c.actor) await c.actor.onTurnEnd(c);
-    }
+    await this._onEndOfTurn(currentPhase);
 
     // ── 2. Find next valid phase ───────────────────────────────────────────
     const phases = Object.values(TrespasserCombat.PHASES).sort((a, b) => b - a);
@@ -111,26 +117,78 @@ export class TrespasserCombat extends Combat {
       await this.update({ turn: 0 });
 
       // START OF TURN for all actors entering the new phase
-      const phaseEntrants = this.combatants.filter(c => c.initiative === nextPhase && !c.defeated);
-      for (const c of phaseEntrants) {
-        // Reset per-turn flags
-        await c.setFlag("trespasser", "hasMovedThisTurn", false);
-        await c.setFlag("trespasser", "usedExpensiveDeed", false);
-
-        if (c.actor) {
-          await c.actor.onTurnStart();
-        }
-      }
+      await this._onStartOfTurn(nextPhase);
     } else {
       // ── 3b. No more phases → end of round ────────────────────────────────
-      // End-of-round effects for all combatants
-      for (const c of this.combatants) {
-        if (c.actor) {
-          await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-round");
-        }
-      }
+      await this._onEndOfRound();
       // Advance to a new round (which re-rolls initiative and sets activePhase)
       return this.nextRound();
+    }
+  }
+
+  /**
+   * Trigger start-of-combat effects for all combatants.
+   */
+  async _onStartOfCombat() {
+    for (const c of this.combatants) {
+      if (c.actor) {
+        await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-combat");
+      }
+    }
+  }
+
+  /**
+   * Trigger start-of-round effects for all combatants.
+   */
+  async _onStartOfRound() {
+    for (const c of this.combatants) {
+      if (c.actor) {
+        await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-round");
+      }
+    }
+  }
+
+  /**
+   * Trigger end-of-round effects for all combatants.
+   */
+  async _onEndOfRound() {
+    for (const c of this.combatants) {
+      if (c.actor) {
+        await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-round");
+      }
+    }
+  }
+
+  /**
+   * Trigger start-of-turn effects for all combatants in a specific phase.
+   * @param {number} phase 
+   */
+  async _onStartOfTurn(phase) {
+    const phaseEntrants = this.combatants.filter(c => c.initiative === phase && !c.defeated);
+    for (const c of phaseEntrants) {
+      // Reset per-turn flags
+      await c.setFlag("trespasser", "hasMovedThisTurn", false);
+      await c.setFlag("trespasser", "usedExpensiveDeed", false);
+
+      if (c.actor) {
+        await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-turn");
+      }
+    }
+  }
+
+  /**
+   * Trigger end-of-turn effects for all combatants in a specific phase.
+   * @param {number} phase 
+   */
+  async _onEndOfTurn(phase) {
+    const currentCombatants = this.combatants.filter(c => c.initiative === phase && !c.defeated);
+    for (const c of currentCombatants) {
+      // Force AP to 0 (in case they didn't spend it all)
+      await c.setFlag("trespasser", "actionPoints", 0);
+      if (c.actor) {
+        await c.actor.onTurnEnd(c);
+        await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-turn");
+      }
     }
   }
 
