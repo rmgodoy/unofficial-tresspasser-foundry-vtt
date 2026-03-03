@@ -41,6 +41,7 @@ import { TrespasserCraftSheet }     from "./module/sheets/item-craft-sheet.mjs";
 import { TrespasserPastLifeData }  from "./module/data/item-past-life.mjs";
 import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mjs";
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
+import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -51,12 +52,14 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/actor/parts/combat-effects.hbs",
     "systems/trespasser/templates/item/parts/effect-chip.hbs",
     "systems/trespasser/templates/item/parts/effects-list.hbs",
-    "systems/trespasser/templates/item/parts/deeds-list.hbs"
+    "systems/trespasser/templates/item/parts/deeds-list.hbs",
+    "systems/trespasser/templates/combat/combat-tracker.hbs"
   ]);
 
   // Register custom document classes
   CONFIG.Actor.documentClass = TrespasserActor;
   CONFIG.Combat.documentClass = TrespasserCombat;
+  CONFIG.ui.combat = TrespasserCombatTracker;
 
   CONFIG.TRESPASSER = {
     targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
@@ -394,117 +397,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
   });
 });
 
-Hooks.on("updateCombat", async (combat, changed, options, userId) => {
-  if (game.user.id !== userId) return; // Only process effects if this user made the change
-  
-  const isRoundChange = changed.round !== undefined;
-  const isTurnChange = changed.turn !== undefined;
-  
-  if (!isRoundChange && !isTurnChange) return;
 
-  const prevCombatantId = combat.previous?.combatantId;
-  const currCombatantId = combat.combatant?.id;
-
-  // End of Turn logic
-  if (prevCombatantId && (isTurnChange || isRoundChange)) {
-    const prevCombatant = combat.combatants.get(prevCombatantId);
-    if (prevCombatant?.actor) {
-      await TrespasserEffectsHelper.triggerEffects(prevCombatant.actor, "end-of-turn");
-      
-      // Players gain focus if they didn't use heavy/mighty/special deeds
-      if (prevCombatant.actor.type === "character") {
-        const usedExpensive = prevCombatant.getFlag("trespasser", "usedExpensiveDeed");
-        if (!usedExpensive) {
-          const skillBonus = prevCombatant.actor.system.skill || 0;
-          if (skillBonus > 0) {
-            const currentFocus = prevCombatant.actor.system.combat.focus || 0;
-            const maxFocus = prevCombatant.actor.system.max_endurance || 10;
-            const newFocus = Math.min(currentFocus + skillBonus, maxFocus);
-            
-            if (newFocus > currentFocus) {
-              await prevCombatant.actor.update({ "system.combat.focus": newFocus });
-              
-              ChatMessage.create({
-                speaker: ChatMessage.getSpeaker({ actor: prevCombatant.actor }),
-                content: `<div class="trespasser-chat-card">
-                  <p><strong>${prevCombatant.actor.name}</strong> recovered <strong>${newFocus - currentFocus} Focus</strong> for maintaining concentration (no heavy/mighty/special deeds used).</p>
-                </div>`
-              });
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Round changes
-  if (isRoundChange) {
-    if (combat.previous?.round !== undefined && changed.round > combat.previous.round) {
-      // Focus restoration and end-of-round
-      for (const c of combat.combatants) {
-        if (c.actor) {
-          await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-round");
-        }
-      }
-      
-      // Start-of-round
-      for (const c of combat.combatants) {
-        if (c.actor) {
-          await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-round");
-          
-          // Decrement durations for round-based effects
-          const roundEffects = c.actor.items.filter(i => 
-            (i.type === "effect" || i.type === "state") && 
-            i.system.duration === "rounds"
-          );
-          for (const eff of roundEffects) {
-            const newVal = Math.max(0, (eff.system.durationValue || 0) - 1);
-            if (newVal <= 0) {
-              await eff.delete();
-            } else {
-              await eff.update({ "system.durationValue": newVal });
-            }
-          }
-        }
-      }
-    }
-  }
-
-  // Start of Turn for current combatant
-  if (currCombatantId && (isTurnChange || isRoundChange)) {
-    const currCombatant = combat.combatants.get(currCombatantId);
-    if (currCombatant) {
-      // Reset turn tracking flags
-      await currCombatant.setFlag("trespasser", "hasMovedThisTurn", false);
-      await currCombatant.setFlag("trespasser", "usedExpensiveDeed", false);
-      
-      if (currCombatant.actor) {
-        await TrespasserEffectsHelper.triggerEffects(currCombatant.actor, "start-of-turn");
-      }
-    }
-  }
-});
-
-Hooks.on("combatStart", async (combat, updateData) => {
-  for (const c of combat.combatants) {
-    if (c.actor) {
-      await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-combat");
-    }
-  }
-});
-
-Hooks.on("updateCombat", async (combat, changed, options, userId) => {
-  if (game.user.id !== userId) return;
-  
-  // Secondary check for combat starting
-  if (changed.started === true) {
-    for (const c of combat.combatants) {
-      if (c.actor) {
-        await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-combat");
-      }
-    }
-  }
-});
 
 Hooks.on("deleteCombat", async (combat) => {
   for (const c of combat.combatants) {
@@ -843,5 +736,161 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
 });
 
 
+/**
+ * Hook into the Combat Tracker render to inject the phased initiative UI.
+ * This is needed because Foundry V13 CombatTracker (ApplicationV2) doesn't 
+ * allow template override via defaultOptions.
+ */
+Hooks.on("renderCombatTracker", async (app, html, data) => {
+  const combat = game.combat;
+  if (!combat) return;
+
+  const activePhase = combat.getFlag("trespasser", "activePhase");
+  const combatInfo  = combat.getFlag("trespasser", "combatInfo") || {};
+
+  const PHASES = [
+    { id: 40, label: game.i18n.localize("TRESPASSER.Phase.Early"), css: "early", combatants: [] },
+    { id: 30, label: game.i18n.localize("TRESPASSER.Phase.Enemy"), css: "enemy", combatants: [] },
+    { id: 20, label: game.i18n.localize("TRESPASSER.Phase.Late"), css: "late", combatants: [] },
+    { id: 10, label: game.i18n.localize("TRESPASSER.Phase.Critical"), css: "critical", combatants: [] },
+    { id: 0,  label: game.i18n.localize("TRESPASSER.Phase.End"), css: "end", combatants: [] }
+  ];
+
+  for (const combatant of combat.combatants) {
+    if (!combatant.visible && !game.user.isGM) continue;
+    const phaseId = combatant.initiative ?? 0;
+    const phase   = PHASES.find(p => p.id === phaseId);
+    if (phase) {
+      const ap      = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+      const focus   = combatant.actor?.system.combat?.focus ?? 0;
+      phase.combatants.push({ combatant, ap, focus, activePhase });
+    }
+  }
+
+  const activePhasesData = PHASES.filter(p => p.combatants.length > 0);
+
+  // Build the HTML for the phased tracker
+  function buildSquares(count, filled, cssClass) {
+    return Array.from({ length: count }, (_, i) => {
+      const isFilled = i < filled;
+      return `<div class="${cssClass}-square${isFilled ? " filled" : ""}"></div>`;
+    }).join("");
+  }
+
+  function buildPhaseHTML(phaseData) {
+    const isActive = phaseData.id === activePhase;
+    const nextBtn  = (isActive && game.user.isGM)
+      ? `<button class="next-phase-btn trp-next-phase" title="${game.i18n.localize("TRESPASSER.Phase.Next")}">${game.i18n.localize("TRESPASSER.Phase.NextPhase")}</button>`
+      : "";
+
+    const combatantsHTML = phaseData.combatants.map(({ combatant, ap, focus }) => {
+      const isFinished = ap <= 0 || combatant.isDefeated;
+      const isActv     = phaseData.id === activePhase && !isFinished;
+      const name       = combatant.token?.name ?? combatant.name;
+      const img        = combatant.token?.texture?.src ?? combatant.img;
+      const owner      = combatant.testUserPermission(game.user, "OWNER");
+      const cls        = [isActv ? "active" : "", isFinished ? "finished" : ""].filter(Boolean).join(" ");
+
+      return `
+        <li class="combatant ${cls}" data-combatant-id="${combatant.id}">
+          <div class="avatar-container">
+            <img class="token-image" src="${img}" title="${name}"/>
+          </div>
+          <div class="combatant-info flexcol">
+            <div class="token-name"><h4>${name}</h4></div>
+            <div class="combatant-status flexrow">
+              <i class="fas fa-eye-slash" title="Hidden"></i>
+              <i class="fas fa-skull" title="Defeated"></i>
+              <i class="fas fa-bullseye" title="Targeting"></i>
+            </div>
+          </div>
+          <div class="stats-area flexcol">`
+             + (focus > 0 ? `<span class="focus-number">${focus}</span>` : "")
+            + `<div class="ap-display flexrow">
+              <div class="ap-squares flexrow">${buildSquares(3, ap, "ap")}</div>
+            </div>
+          </div>
+        </li>
+      `.trim();
+    }).join("");
+
+    return `
+      <li class="phase-group ${phaseData.css}${isActive ? " active" : ""}">
+        <div class="phase-header flexrow">
+          <div class="header-left flexrow">
+            <h4>${phaseData.label}</h4>
+          </div>
+          ${nextBtn}
+        </div>
+        <ol class="combatants-list">
+          ${combatantsHTML}
+        </ol>
+      </li>
+    `.trim();
+  }
+
+  const footerHTML = `
+    <footer class="combat-info-footer">
+      <div class="info-row">
+        <div class="left-info">
+          <span class="peril-text">
+            ${game.i18n.localize("TRESPASSER.Peril")}: ${combatInfo.perilTotal ?? 0}
+            <span class="peril-label">(${combatInfo.perilLabel ?? "Low"})</span>
+          </span>
+          <span class="deeds-usage">${combatInfo.heavy ?? 0}H / ${combatInfo.mighty ?? 0}M</span>
+        </div>
+        <div class="right-info">
+          <span class="panic-label">Panic: ${combatInfo.panicLevel ?? 0}</span>
+          <span class="init-dc-label">Init DC: ${combatInfo.enemyMaxInit ?? "-"}</span>
+        </div>
+      </div>
+    </footer>
+  `.trim();
+
+  // Get the root element - in V13 html may be the element itself
+  const root = (html instanceof HTMLElement) ? html : (html[0] ?? html);
+  
+  // Try multiple selectors to find the combat log ol element
+  const log = root.querySelector("#combat-log")
+    ?? root.querySelector("ol.directory-list")
+    ?? root.querySelector("ol");
+
+  if (log) {
+    log.innerHTML = activePhasesData.map(buildPhaseHTML).join("");
+  } else {
+    console.warn("Trespasser | Could not find combat log element to inject phases. Root:", root);
+  }
+
+  // Replace default navigation controls (|< < X > >|) with a single "Next Phase" button
+  if (game.user.isGM) {   
+    // Remove existing footer if present, then append new one
+    root.querySelector(".combat-info-footer")?.remove();
+    const section = root.closest("section") ?? root.querySelector("section") ?? root;
+    const footerEl = document.createElement("div");
+    footerEl.innerHTML = footerHTML;
+    section.appendChild(footerEl.firstElementChild);
+  }
 
 
+  // Wire up event listeners using native DOM
+  root.querySelectorAll(".trp-next-phase").forEach(btn => {
+    btn.addEventListener("click", ev => {
+      ev.preventDefault();
+      game.combat?.nextPhase();
+    });
+  });
+
+  root.querySelectorAll(".ap-square.filled").forEach(sq => {
+    sq.addEventListener("click", async ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const li = ev.currentTarget.closest(".combatant");
+      const combatant = game.combat?.combatants.get(li?.dataset.combatantId);
+      if (!combatant || !combatant.testUserPermission(game.user, "OWNER")) return;
+
+      const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+      const newAP = Math.max(0, currentAP - 1);
+      await combatant.setFlag("trespasser", "actionPoints", newAP);
+    });
+  });
+});

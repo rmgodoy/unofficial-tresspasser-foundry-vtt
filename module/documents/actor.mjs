@@ -1,3 +1,5 @@
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+
 /**
  * Custom Actor document class for Trespasser TTRPG.
  */
@@ -165,6 +167,17 @@ export class TrespasserActor extends Actor {
   }
 
   /** @override */
+  async _onCreateDescendantDocuments(parent, collection, documents, data, options, userId) {
+    super._onCreateDescendantDocuments(parent, collection, documents, data, options, userId);
+    if (collection !== "items") return;
+    if (game.user.id !== userId) return;
+
+    for (const doc of documents) {
+      if (doc.type === "effect" || doc.type === "state") {
+        await TrespasserEffectsHelper.triggerImmediate(this, doc);
+      }
+    }
+  }
 
   /** @override */
   _onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId) {
@@ -481,6 +494,35 @@ export class TrespasserActor extends Actor {
           animation: hasAnimation ? { type: "torch", speed: 2, intensity: 2 } : { type: "none" }
         }
       });
+    }
+  }
+
+  /**
+   * Called when this actor's turn ends (all AP spent or phase advances).
+   * Triggers 'end-of-turn' effects and grants Focus equal to Skill Bonus (characters only).
+   * @param {Combatant} [combatant] - The combatant object, used to check usedExpensiveDeed flag.
+   */
+  async onTurnEnd(combatant = null) {
+    if (!game.combat) return;
+
+    // Characters gain focus equal to skill bonus (if they didn't use an expensive deed)
+    if (this.type === "character") {
+      const usedExpensive = combatant ? combatant.getFlag("trespasser", "usedExpensiveDeed") : false;
+      if (!usedExpensive) {
+        const skillBonus = this.system.skill || 0;
+        if (skillBonus > 0) {
+          const currentFocus = this.system.combat?.focus ?? 0;
+          const maxFocus = this.system.max_endurance || 10;
+          const newFocus = Math.min(currentFocus + skillBonus, maxFocus);
+          if (newFocus > currentFocus) {
+            await this.update({ "system.combat.focus": newFocus });
+            ChatMessage.create({
+              speaker: ChatMessage.getSpeaker({ actor: this }),
+              content: `<div class="trespasser-chat-card"><p><strong>${this.name}</strong> recovered <strong>${newFocus - currentFocus} Focus</strong> at end of turn.</p></div>`
+            });
+          }
+        }
+      }
     }
   }
 }

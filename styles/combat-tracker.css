@@ -1,0 +1,222 @@
+/* Combat Tracker Styles - Refined for Mockup */
+#combat-tracker {
+  background: #121212;
+  color: #eee;
+  font-family: 'Signika', 'Roboto', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+.combat-tracker-header {
+  padding: 8px 12px;
+  background: #000;
+  border-bottom: 2px solid #333;
+}
+
+.combat-tracker-header h3 {
+  margin: 0;
+  font-size: 14px;
+  text-align: center;
+  color: #ffcc00;
+  letter-spacing: 1px;
+  font-family: 'Signika', sans-serif;
+  font-weight: 600;
+}
+
+.phase-group {
+  margin: 0;
+}
+
+.phase-header {
+  padding: 6px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.phase-header h4 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  font-family: 'Signika', sans-serif;
+}
+
+/* Phase specific colors - Solid backgrounds from mockup */
+.phase-group.early .phase-header { background: var(--trp-bg-header); }
+.phase-group.early .phase-header h4 { color: var(--trp-gold); }
+
+.phase-group.enemy .phase-header { background: var(--trp-bg-header); }
+.phase-group.enemy .phase-header h4 { color: var(--trp-gold); }
+
+.phase-group.late .phase-header { background: var(--trp-bg-header); }
+.phase-group.late .phase-header h4 { color: var(--trp-gold); }
+
+.phase-group.critical .phase-header { background: var(--trp-bg-header); }
+.phase-group.critical .phase-header h4 { color: var(--trp-gold); }
+
+.phase-group.end .phase-header { background: var(--trp-bg-header); }
+.phase-group.end .phase-header h4 { color: var(--trp-gold); }
+
+.next-phase-btn {
+  background: #333;
+  color: #eee;
+  border: 1px solid #555;
+  border-radius: 4px;
+  padding: 1px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: sans-serif;
+}
+
+.next-phase-btn:hover {
+  background: #444;
+  border-color: #ffcc00;
+  color: #ffcc00;
+}
+
+.combatant {
+  background: rgba(255, 255, 255, 0.02);
+  margin: 0;
+  padding: 6px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+}
+
+.combatant.active {
+  background: rgba(255, 204, 0, 0.04);
+  box-shadow: inset 2px 0 0 #ffcc00;
+}
+
+.combatant.finished {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+.avatar-container {
+  width: 44px;
+  height: 44px;
+}
+
+.token-image {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid #444;
+  background: #222;
+  object-fit: cover;
+}
+
+.combatant-info {
+  flex: 1;
+}
+
+.token-name h4 {
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ddd;
+  font-family: 'Signika', sans-serif;
+}
+
+.combatant-status {
+  margin-top: 3px;
+  gap: 6px;
+  font-size: 11px;
+  color: #666;
+}
+
+.stats-area {
+  min-width: 60px;
+  align-items: center;
+  gap: 4px;
+}
+
+.focus-number {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--trp-gold-dim, #b8973f);
+  line-height: 1;
+  text-align: center;
+  font-family: 'Signika', sans-serif;
+  min-width: 44px;
+}
+
+.ap-squares {
+  gap: 3px;
+}
+
+.ap-square {
+  width: 14px;
+  height: 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ap-square.filled {
+  background: #3f51b5;
+  box-shadow: 0 0 6px rgba(63, 81, 181, 0.4);
+  border-color: #5c6bc0;
+  cursor: pointer;
+}
+
+.combat-info-footer {
+  padding: 10px 12px;
+  background: #000;
+  border-top: 2px solid #333;
+}
+
+.info-row {
+  display: flex !important;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+}
+
+.left-info {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+}
+
+.peril-text {
+  color: #8bc34a;
+  font-weight: bold;
+}
+
+.peril-label {
+    font-size: 10px;
+    font-weight: normal;
+}
+
+.deeds-usage {
+  color: #ddd;
+}
+
+.right-info {
+  display: flex;
+  gap: 15px;
+  color: #aaa;
+}
+
+/* Scrollbar adjustment */
+#combat-log {
+  scrollbar-width: thin;
+  scrollbar-color: #444 #121212;
+}
+
+/* Hide default navigation arrow buttons - keep only Begin/End combat */
+.combat-controls .combat-control:not([data-action="endCombat"]):not([data-action="startCombat"]),
+nav.encounters a:not([data-action="endCombat"]):not([data-action="startCombat"]) {
+  display: none !important;
+}
+
+.combat-sidebar .combat-tracker {
+    background-color: var(--trp-bg-header);
+}

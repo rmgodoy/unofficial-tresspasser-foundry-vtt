@@ -192,6 +192,8 @@
         "Prevail": "Prevail",
         "Tenacity": "Tenacity",
         "Focus": "Focus",
+        "ActionPoints": "Action Points",
+        "Phase": "Combat Phase",
         "Speed": "Speed",
         "TwoHanded": "2 Handed",
         "MainHand": "Main",
@@ -365,6 +367,9 @@
       "FocusRecovered": "Recovered {value} Focus.",
       "FocusLost": "Lost {value} Focus.",
       "FocusUnaffected": "Focus was unaffected.",
+      "APGained": "Gained {value} Action Points.",
+      "APLost": "Lost {value} Action Points.",
+      "PhaseChanged": "Combat Phase changed to {phase}.",
       "ModifierGenerated": "Generated {value} modifier to {target}."
     },
     "TriggerLabels": {
@@ -665,7 +670,19 @@
         "ChooseRef": "Choose an ammo to use with <b>{name}</b>:",
         "Use": "Use Ammo"
       }
-    }
+    },
+    "Phase": {
+      "Early": "Early Phase",
+      "Enemy": "Enemy Phase",
+      "Late": "Late Phase",
+      "Critical": "Critical Phase",
+      "End": "End of Turn Phase",
+      "Next": "Next Phase",
+      "NextPhase": "Next Phase"
+    },
+    "Peril": "Peril",
+    "Panic": "Panic",
+    "InitDC": "Init DC"
   },
   "TYPES": {
     "Actor": {
