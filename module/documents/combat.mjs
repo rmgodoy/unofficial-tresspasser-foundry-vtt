@@ -12,8 +12,8 @@ export class TrespasserCombat extends Combat {
     EARLY:    40,
     ENEMY:    30,
     LATE:     20,
-    CRITICAL: 10,  // Nat 20 initiative rolls
-    END:       0   // Paragon/Tyrant extra turn at end of round
+    EXTRA:    10,  // Paragon/Tyrant extra turn at end of round
+    END:       0 
   };
 
   /**
@@ -23,7 +23,7 @@ export class TrespasserCombat extends Combat {
     [TrespasserCombat.PHASES.EARLY]: "TRESPASSER.Phase.Early",
     [TrespasserCombat.PHASES.ENEMY]: "TRESPASSER.Phase.Enemy",
     [TrespasserCombat.PHASES.LATE]: "TRESPASSER.Phase.Late",
-    [TrespasserCombat.PHASES.CRITICAL]: "TRESPASSER.Phase.Critical",
+    [TrespasserCombat.PHASES.EXTRA]: "TRESPASSER.Phase.Extra",
     [TrespasserCombat.PHASES.END]: "TRESPASSER.Phase.End"
   };
 
@@ -239,14 +239,7 @@ export class TrespasserCombat extends Combat {
         // Paragon or Tyrant gets an extra turn at End of Round (0)
         const template = actor.system.template;
         if ( template === "paragon" || template === "tyrant" ) {
-          const extraData = c.toObject();
-          delete extraData._id;
-          extraData.initiative = TrespasserCombat.PHASES.END;
-          extraData.flags = extraData.flags || {};
-          extraData.flags.trespasser = extraData.flags.trespasser || {};
-          extraData.flags.trespasser.isExtraTurn = true;
-          extraData.flags.trespasser.actionPoints = 3;
-          extraData.name = game.i18n.format("TRESPASSER.Sheet.Combat.Panic.Phase2", { name: c.name });
+          const extraData = this.createExtraCombatant(c, TrespasserCombat.PHASES.EXTRA);
           newCombatants.push(extraData);
         }
       } else if ( actor.type === "character" ) {
@@ -259,16 +252,18 @@ export class TrespasserCombat extends Combat {
         if (game.settings.get("trespasser", "showInitiativeInChat")) {
           await roll.toMessage({
             speaker: ChatMessage.getSpeaker({ actor: actor }),
-            flavor: game.i18n.localize("TRESPASSER.Chat.Initiative")
+            flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
           });
         }
 
         const total = roll.total;
         const isNat20 = roll.dice[0].results[0].result === 20;
 
-        if ( isNat20 ) {
-          // Nat 20: acts in CRITICAL phase (10)
-          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.CRITICAL });
+        if ( isNat20 || true) {
+          // Nat 20: acts in Extra phase (10)
+          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY });
+          const extraData = this.createExtraCombatant(c, TrespasserCombat.PHASES.LATE);
+          newCombatants.push(extraData);
         } else if ( total >= enemyMaxInit ) {
           // >= enemy max: Early (40)
           updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY });
@@ -421,6 +416,24 @@ export class TrespasserCombat extends Combat {
       await this._onEndOfCombat();
     }
     return super._preDelete(options, user);
+  }
+
+  /**
+   * Creates an extra combatant for a given actor and phase.
+   * @param {Actor} actor The actor to create an extra combatant for.
+   * @param {number} phase The phase to create the extra combatant for.
+   * @returns {Object} The extra combatant data.
+   */
+  createExtraCombatant(actor, phase) {
+    const extraData = actor.toObject();
+    delete extraData._id;
+    extraData.initiative = phase;
+    extraData.flags = extraData.flags || {};
+    extraData.flags.trespasser = extraData.flags.trespasser || {};
+    extraData.flags.trespasser.isExtraTurn = true;
+    extraData.flags.trespasser.actionPoints = 3;
+    extraData.name = game.i18n.format("TRESPASSER.Sheet.Combat.Panic.Phase2", { name: actor.name });
+    return extraData;
   }
 
   /**

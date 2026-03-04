@@ -13,7 +13,7 @@ This project aims to provide a robust and automated experience for playing Tresp
 ## Features
 
 ### Phased Tactical Combat
-- **Custom Combat Tracker:** Implements Trespasser's unique phased initiative (Early, Enemy, Late, Critical, End phases).
+- **Custom Combat Tracker:** Implements Trespasser's unique phased initiative (Early, Enemy, Late, Extra, End phases).
 - **Action Point Management:** Tracking of Action Points (AP) and Focus per combatant.
 - **Automated Phase Progression:** Easy navigation through the round's phases.
 

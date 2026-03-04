@@ -55,8 +55,8 @@
 .phase-group.late .phase-header { background: var(--trp-bg-header); }
 .phase-group.late .phase-header h4 { color: var(--trp-gold); }
 
-.phase-group.critical .phase-header { background: var(--trp-bg-header); }
-.phase-group.critical .phase-header h4 { color: var(--trp-gold); }
+.phase-group.extra .phase-header { background: var(--trp-bg-header); }
+.phase-group.extra .phase-header h4 { color: var(--trp-gold); }
 
 .phase-group.end .phase-header { background: var(--trp-bg-header); }
 .phase-group.end .phase-header h4 { color: var(--trp-gold); }

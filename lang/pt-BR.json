@@ -104,6 +104,12 @@
         "CreatureNamePlaceholder": "Nome da Criatura",
         "SetKeyAttr": "Definir como Atributo Chave"
       },
+      "Dialog": {
+        "SkillCheckTitle": "{skill} Check — Choose Attribute",
+        "SkillCheckQ": "Qual atributo motiva este teste?",
+        "SkillCheckBonus": "<em>(Bônus de perícia +{skill} será adicionado)</em>",
+        "Cancel": "Cancelar"
+      },
       "Attributes": {
         "Mighty": "Força",
         "Agility": "Agilidade",
@@ -194,6 +200,8 @@
         "Prevail": "Prevalecer",
         "Tenacity": "Tenacidade",
         "Focus": "Foco",
+        "ActionPoints": "Pontos de Ação",
+        "Phase": "Fase de Combate",
         "Speed": "Deslocamento",
         "TwoHanded": "2 Mãos",
         "MainHand": "Mão Principal",
@@ -364,6 +372,12 @@
       "HealthRecovered": "Recuperou {value} PV.",
       "HealthLost": "Perdeu {value} PV.",
       "HealthUnaffected": "PV não foram afetados.",
+      "FocusRecovered": "Foco Recuperado.",
+      "FocusLost": "Foco Perdido.",
+      "FocusUnaffected": "Foco não foi afetado.",
+      "APGained": "Pontos de Ação Ganhos.",
+      "APLost": "Pontos de Ação Perdidos.",
+      "PhaseChanged": "Fase de Combate alterada para {phase}.",
       "ModifierGenerated": "Gerou modificador de {value} para {target}."
     },
     "TriggerLabels": {
@@ -664,7 +678,19 @@
         "ChooseRef": "Escolha uma munição para usar com <b>{name}</b>:",
         "Use": "Usar Munição"
       }
-    }
+    },
+    "Phase": {
+      "Early": "Fase Inicial",
+      "Enemy": "Fase dos Inimigos",
+      "Late": "Fase Final",
+      "Extra": "Fase Extra",
+      "End": "Fase de Fim de Turno",
+      "Next": "Próxima Fase",
+      "NextPhase": "Próxima Fase"
+    },
+    "Peril": "Perigo",
+    "Panic": "Pânico",
+    "InitDC": "DC de Iniciativa"
   },
   "TYPES": {
     "Actor": {

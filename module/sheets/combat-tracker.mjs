@@ -42,7 +42,7 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
       { id: 40, label: "TRESPASSER.Phase.Early", css: "early", combatants: [] },
       { id: 30, label: "TRESPASSER.Phase.Enemy", css: "enemy", combatants: [] },
       { id: 20, label: "TRESPASSER.Phase.Late", css: "late", combatants: [] },
-      { id: 10, label: "TRESPASSER.Phase.Critical", css: "critical", combatants: [] },
+      { id: 10, label: "TRESPASSER.Phase.Extra", css: "extra", combatants: [] },
       { id: 0,  label: "TRESPASSER.Phase.End", css: "end", combatants: [] }
     ];
 

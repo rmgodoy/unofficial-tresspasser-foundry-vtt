@@ -745,7 +745,6 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
  * Add Trespasser Configuration button to the settings sidebar.
  */
 Hooks.on("renderSettings", (app, html, data) => {
-  console.warn('Here')
   if (!game.user.isGM) return;
 
   const $html = $(html);
@@ -787,7 +786,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
     { id: 40, label: game.i18n.localize("TRESPASSER.Phase.Early"), css: "early", combatants: [] },
     { id: 30, label: game.i18n.localize("TRESPASSER.Phase.Enemy"), css: "enemy", combatants: [] },
     { id: 20, label: game.i18n.localize("TRESPASSER.Phase.Late"), css: "late", combatants: [] },
-    { id: 10, label: game.i18n.localize("TRESPASSER.Phase.Critical"), css: "critical", combatants: [] },
+    { id: 10, label: game.i18n.localize("TRESPASSER.Phase.Extra"), css: "extra", combatants: [] },
     { id: 0,  label: game.i18n.localize("TRESPASSER.Phase.End"), css: "end", combatants: [] }
   ];
 
