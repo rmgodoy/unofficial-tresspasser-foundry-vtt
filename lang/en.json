@@ -7,6 +7,14 @@
       "Ok": "Ok",
       "Cancel": "Cancel"
     },
+    "Config": {
+      "Title": "Trespasser Configuration",
+      "ShowInitiativeInChat": "Show initiative roll in chat",
+      "ShowInitiativeInChatHint": "If enabled, initiative rolls will be posted to the chat log.",
+      "Save": "Save",
+      "Cancel": "Cancel",
+      "SavedNotice": "Trespasser Configuration saved."
+    },
     "ActorTypes": {
       "character": "Character",
       "creature": "Creature"

@@ -7,6 +7,14 @@
       "Ok": "Ok",
       "Cancel": "Cancelar"
     },
+    "Config": {
+      "Title": "Configuração do Trespasser",
+      "ShowInitiativeInChat": "Mostrar rolagem de iniciativa no chat",
+      "ShowInitiativeInChatHint": "Se habilitado, as rolagens de iniciativa serão postadas no log do chat.",
+      "Save": "Salvar",
+      "Cancel": "Cancelar",
+      "SavedNotice": "Configuração do Trespasser salva."
+    },
     "ActorTypes": {
       "character": "Personagem",
       "creature": "Criatura"

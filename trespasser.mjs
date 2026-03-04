@@ -42,6 +42,7 @@ import { TrespasserPastLifeData }  from "./module/data/item-past-life.mjs";
 import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mjs";
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
+import { showTrespasserConfigDialog } from "./module/dialogs/trespasser-config-dialog.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -78,6 +79,16 @@ Hooks.once("init", async () => {
       "reaction": "TRESPASSER.Item.ActionTypeChoices.reaction"
     }
   };
+
+  // Register settings
+  game.settings.register("trespasser", "showInitiativeInChat", {
+    name: "TRESPASSER.Config.ShowInitiativeInChat",
+    hint: "TRESPASSER.Config.ShowInitiativeInChatHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
 
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
@@ -727,6 +738,36 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
 
   header.append(exportBtn);
   header.append(importBtn);
+});
+
+
+/**
+ * Add Trespasser Configuration button to the settings sidebar.
+ */
+Hooks.on("renderSettings", (app, html, data) => {
+  console.warn('Here')
+  if (!game.user.isGM) return;
+
+  const $html = $(html);
+  const configBtn = $(`<button type="button" class="trespasser-config-btn">
+    <i class="fas fa-cogs"></i> Trespasser Configuration
+  </button>`);
+
+  configBtn.on("click", ev => {
+    ev.preventDefault();
+    showTrespasserConfigDialog();
+  });
+
+  const setupBtn = $html.find('button[data-app="configure"]');
+  if (setupBtn.length) {
+    setupBtn.before(configBtn);
+  } else {
+    // Fallback if the button is not found (e.g. AppV2 or different structure)
+    const container = $html.find(".settings-sidebar, #settings-game, #settings-access");
+    if (container.length) {
+      container.first().prepend(configBtn);
+    }
+  }
 });
 
 

@@ -130,7 +130,6 @@ export class TrespasserCombat extends Combat {
    * Trigger start-of-combat effects for all combatants.
    */
   async _onStartOfCombat() {
-    this.drawTurnIndicator();
     for (const c of this.combatants) {
       if (c.actor) {
         await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-combat");
@@ -256,11 +255,13 @@ export class TrespasserCombat extends Combat {
         const roll = new foundry.dice.Roll(`1d20 + ${initBonus}`);
         await roll.evaluate();
         
-        // Broadcast the roll so everyone sees it
-        await roll.toMessage({
-          speaker: ChatMessage.getSpeaker({ actor: actor }),
-          flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
-        });
+        // Broadcast the roll so everyone sees it (if setting is enabled)
+        if (game.settings.get("trespasser", "showInitiativeInChat")) {
+          await roll.toMessage({
+            speaker: ChatMessage.getSpeaker({ actor: actor }),
+            flavor: game.i18n.localize("TRESPASSER.Chat.Initiative")
+          });
+        }
 
         const total = roll.total;
         const isNat20 = roll.dice[0].results[0].result === 20;
@@ -395,6 +396,8 @@ export class TrespasserCombat extends Combat {
     const uniqueActors = new Set();
     for (const c of this.combatants) {
       if (c.actor) uniqueActors.add(c.actor);
+      const token = canvas.tokens.placeables.find(t => t.id === c.tokenId)
+      if (token) this.clearTurnIndicator(token);
     }
 
     for (const actor of uniqueActors) {
@@ -451,77 +454,88 @@ export class TrespasserCombat extends Combat {
  * @param {string} phase - The current combat phase (early/enemy/late)
  */
   drawTurnIndicator(token, phase) {
-  // IMPORTANT: Prevent duplicate markers - check if one already exists
-  if (token._trespasserTurnMarker) {
-    return; // Already has a marker, don't add another
-  }
-
-  const isHostile = token.document.disposition === CONST.TOKEN_DISPOSITIONS.HOSTILE;
-  let markerPath = "systems/trespasser/assets/icons/ring.svg";
-  if (isHostile) {
-    markerPath = "systems/trespasser/assets/icons/ring_enemy.svg";
-  } else {
-    markerPath = "systems/trespasser/assets/icons/ring_early.svg";
-  }
-
-  // Calculate token dimensions
-  const gridSize = canvas.grid.size;
-  const tokenSize = token.document.width * gridSize;
-
-  // Create a container for the turn marker
-  const container = new PIXI.Container();
-
-  // Mark this token as having a marker IMMEDIATELY (before async load)
-  // This prevents race conditions with multiple calls
-  token._trespasserTurnMarker = container;
-
-  // Add the container to the token right away
-  token.addChild(container);
-
-  // Load the texture and create sprite asynchronously
-  foundry.canvas.loadTexture(markerPath).then(texture => {
-    // Check if the marker was removed while we were loading
-    if (token._trespasserTurnMarker !== container || container.destroyed) {
-      return;
+    // IMPORTANT: Prevent duplicate markers - check if one already exists
+    if (token._trespasserTurnMarker) {
+      return; // Already has a marker, don't add another
     }
 
-    const sprite = new PIXI.Sprite(texture);
+    const isHostile = token.document.disposition === CONST.TOKEN_DISPOSITIONS.HOSTILE;
+    let markerPath = "systems/trespasser/assets/icons/ring.svg";
+    if (isHostile) {
+      markerPath = "systems/trespasser/assets/icons/ring_enemy.svg";
+    } else {
+      markerPath = "systems/trespasser/assets/icons/ring_early.svg";
+    }
 
-    // Size the sprite (about 40% of token size)
-    const markerSize = tokenSize * 1.5;
-    sprite.width = markerSize;
-    sprite.height = markerSize;
+    // Calculate token dimensions
+    const gridSize = canvas.grid.size;
+    const tokenSize = token.document.width * gridSize;
 
-    // Center the sprite's anchor
-    sprite.anchor.set(0.5, 0.5);
+    // Create a container for the turn marker
+    const container = new PIXI.Container();
 
-    // Position at top center of token, slightly above
-    sprite.x = tokenSize / 2;
-    sprite.y = tokenSize / 2;
-    sprite._zIndex = 1000; // Ensure it's on top
-    console.log(sprite)
-    container.addChild(sprite);
+    // Mark this token as having a marker IMMEDIATELY (before async load)
+    // This prevents race conditions with multiple calls
+    token._trespasserTurnMarker = container;
 
-    // Clean up function to remove the ticker when destroyed
-    const originalDestroy = container.destroy.bind(container);
-    container.destroy = function(options) {
-      if (container._animationTicker) {
-        canvas.app.ticker.remove(container._animationTicker);
+    // Add the container to the token right away
+    token.addChild(container);
+
+    // Load the texture and create sprite asynchronously
+    foundry.canvas.loadTexture(markerPath).then(texture => {
+      // Check if the marker was removed while we were loading
+      if (token._trespasserTurnMarker !== container || container.destroyed) {
+        return;
       }
-      originalDestroy(options);
-    };
 
-  }).catch(error => {
-    console.warn("Trespasser | Failed to load turn marker texture:", error);
-    // Check if the marker was removed while we were loading
-    if (token._trespasserTurnMarker !== container) {
-      return;
+      const sprite = new PIXI.Sprite(texture);
+
+      // Size the sprite (about 40% of token size)
+      const markerSize = tokenSize * 1.5;
+      sprite.width = markerSize;
+      sprite.height = markerSize;
+
+      // Center the sprite's anchor
+      sprite.anchor.set(0.5, 0.5);
+
+      // Position at top center of token, slightly above
+      sprite.x = tokenSize / 2;
+      sprite.y = tokenSize / 2;
+      sprite._zIndex = 1000; // Ensure it's on top
+      console.log(sprite)
+      container.addChild(sprite);
+
+      // Clean up function to remove the ticker when destroyed
+      const originalDestroy = container.destroy.bind(container);
+      container.destroy = function(options) {
+        if (container._animationTicker) {
+          canvas.app.ticker.remove(container._animationTicker);
+        }
+        originalDestroy(options);
+      };
+
+    }).catch(error => {
+      console.warn("Trespasser | Failed to load turn marker texture:", error);
+      // Check if the marker was removed while we were loading
+      if (token._trespasserTurnMarker !== container) {
+        return;
+      }
+      // Remove the empty container and use fallback
+      container.destroy();
+      token._trespasserTurnMarker = null;
+      drawFallbackTurnIndicator(token, phase);
+    });
+  }
+
+  /**
+   * Clear the turn indicator from a token.
+   * @param {Token} token - The token to clear the indicator from
+   */
+  clearTurnIndicator(token) {
+    if (token._trespasserTurnMarker) {
+      token._trespasserTurnMarker.destroy();
+      token._trespasserTurnMarker = null;
     }
-    // Remove the empty container and use fallback
-    container.destroy();
-    token._trespasserTurnMarker = null;
-    drawFallbackTurnIndicator(token, phase);
-  });
-}
+  }
 }
 
