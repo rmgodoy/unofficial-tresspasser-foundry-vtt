@@ -1,4 +1,5 @@
-assets/
-!assets/icons/
+/assets/Compedium
+/assets/Deeds
+/assets/effects
 
 .agents/

@@ -228,6 +228,18 @@ Hooks.once("init", async () => {
   game.trespasser.ItemExporter = ItemExporter;
 });
 
+Hooks.once("ready", () => {
+  // Prevent default turn marker from being added to tokens, since we are implementing our own turn marker system
+  foundry.canvas.placeables.tokens.TokenTurnMarker.prototype.draw = async function() {
+    // Return early to prevent the marker from being added to the token's container
+    return; 
+  };
+
+  if (game.combat) {
+    game.combat.updateTurnMarkers(game.combat.flags.trespasser.activePhase);
+  }
+});
+
 Hooks.on("preUpdateActor", (actor, updateData, options, userId) => {
   // Sync prototype token name for base actors if name changes
   if (updateData.name && !actor.isToken) {
@@ -235,28 +247,6 @@ Hooks.on("preUpdateActor", (actor, updateData, options, userId) => {
     updateData.prototypeToken.name = updateData.name;
   }
 });
-
-// Hooks.on("updateActor", (actor, changed, options, userId) => {
-//   if (game.user.id !== userId) return;
-
-//   if (changed.name) {
-//     if (actor.isToken) {
-//       // Sync actual token document for unlinked tokens
-//       if (actor.token && actor.token.name !== changed.name) {
-//         actor.token.update({ name: changed.name });
-//       }
-//     } else {
-//       // Sync all existing linked tokens on the active canvas
-//       if (typeof canvas !== "undefined" && canvas.scene) {
-//         const tokens = actor.getActiveTokens();
-//         const updates = tokens.filter(t => t.name !== changed.name).map(t => ({ _id: t.id, name: changed.name }));
-//         if (updates.length > 0) {
-//           canvas.scene.updateEmbeddedDocuments("Token", updates);
-//         }
-//       }
-//     }
-//   }
-// });
 
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
   // Determine color based on speaker instead of just author
@@ -397,7 +387,11 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
   });
 });
 
-
+Hooks.on("updateCombat", async (combat, changed, options, userId) => {
+  if (changed.flags?.trespasser?.activePhase !== undefined) {
+    combat.updateTurnMarkers(changed.flags.trespasser.activePhase);
+  }
+});
 
 Hooks.on("deleteCombat", async (combat) => {
   for (const c of combat.combatants) {

@@ -512,8 +512,7 @@ export class TrespasserActor extends Actor {
         const skillBonus = this.system.skill || 0;
         if (skillBonus > 0) {
           const currentFocus = this.system.combat?.focus ?? 0;
-          const maxFocus = this.system.max_endurance || 10;
-          const newFocus = Math.min(currentFocus + skillBonus, maxFocus);
+          const newFocus = currentFocus + skillBonus;
           if (newFocus > currentFocus) {
             await this.update({ "system.combat.focus": newFocus });
             ChatMessage.create({

@@ -20,11 +20,11 @@ export class TrespasserCombat extends Combat {
    * Mapping of phase values to localized labels.
    */
   static PHASE_LABELS = {
-    40: "TRESPASSER.Phase.Early",
-    30: "TRESPASSER.Phase.Enemy",
-    20: "TRESPASSER.Phase.Late",
-    10: "TRESPASSER.Phase.Critical",
-    0: "TRESPASSER.Phase.End"
+    [TrespasserCombat.PHASES.EARLY]: "TRESPASSER.Phase.Early",
+    [TrespasserCombat.PHASES.ENEMY]: "TRESPASSER.Phase.Enemy",
+    [TrespasserCombat.PHASES.LATE]: "TRESPASSER.Phase.Late",
+    [TrespasserCombat.PHASES.CRITICAL]: "TRESPASSER.Phase.Critical",
+    [TrespasserCombat.PHASES.END]: "TRESPASSER.Phase.End"
   };
 
   /** @override */
@@ -130,6 +130,7 @@ export class TrespasserCombat extends Combat {
    * Trigger start-of-combat effects for all combatants.
    */
   async _onStartOfCombat() {
+    this.drawTurnIndicator();
     for (const c of this.combatants) {
       if (c.actor) {
         await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-combat");
@@ -418,5 +419,109 @@ export class TrespasserCombat extends Combat {
     }
     return super._preDelete(options, user);
   }
+
+  /**
+   * Update turn markers on all tokens for a given phase.
+   * Removes any existing marker and draws a new one on the first combatant in the phase.
+   * @param {number} phase
+   */
+  updateTurnMarkers(phase) {
+    for(const token of canvas.tokens.placeables) {
+      const combatants = game.combat.combatants.filter(c => c.tokenId === token.id);
+      let alreadyUpdated = false;
+      for (const combatant of combatants) {
+        if (alreadyUpdated) continue;
+        if (token._trespasserTurnMarker) {
+          token._trespasserTurnMarker.destroy();
+          token._trespasserTurnMarker = undefined;
+        }
+
+        if (combatant.initiative === phase) {
+          game.combat.drawTurnIndicator(token, phase);
+          alreadyUpdated = true;
+          continue;
+        }
+      }
+    }
+  }
+
+  /**
+ * Draw an animated turn indicator arrow above a token (similar to Foundry's native marker)
+ * @param {Token} token - The token to draw the indicator for
+ * @param {string} phase - The current combat phase (early/enemy/late)
+ */
+  drawTurnIndicator(token, phase) {
+  // IMPORTANT: Prevent duplicate markers - check if one already exists
+  if (token._trespasserTurnMarker) {
+    return; // Already has a marker, don't add another
+  }
+
+  const isHostile = token.document.disposition === CONST.TOKEN_DISPOSITIONS.HOSTILE;
+  let markerPath = "systems/trespasser/assets/icons/ring.svg";
+  if (isHostile) {
+    markerPath = "systems/trespasser/assets/icons/ring_enemy.svg";
+  } else {
+    markerPath = "systems/trespasser/assets/icons/ring_early.svg";
+  }
+
+  // Calculate token dimensions
+  const gridSize = canvas.grid.size;
+  const tokenSize = token.document.width * gridSize;
+
+  // Create a container for the turn marker
+  const container = new PIXI.Container();
+
+  // Mark this token as having a marker IMMEDIATELY (before async load)
+  // This prevents race conditions with multiple calls
+  token._trespasserTurnMarker = container;
+
+  // Add the container to the token right away
+  token.addChild(container);
+
+  // Load the texture and create sprite asynchronously
+  foundry.canvas.loadTexture(markerPath).then(texture => {
+    // Check if the marker was removed while we were loading
+    if (token._trespasserTurnMarker !== container || container.destroyed) {
+      return;
+    }
+
+    const sprite = new PIXI.Sprite(texture);
+
+    // Size the sprite (about 40% of token size)
+    const markerSize = tokenSize * 1.5;
+    sprite.width = markerSize;
+    sprite.height = markerSize;
+
+    // Center the sprite's anchor
+    sprite.anchor.set(0.5, 0.5);
+
+    // Position at top center of token, slightly above
+    sprite.x = tokenSize / 2;
+    sprite.y = tokenSize / 2;
+    sprite._zIndex = 1000; // Ensure it's on top
+    console.log(sprite)
+    container.addChild(sprite);
+
+    // Clean up function to remove the ticker when destroyed
+    const originalDestroy = container.destroy.bind(container);
+    container.destroy = function(options) {
+      if (container._animationTicker) {
+        canvas.app.ticker.remove(container._animationTicker);
+      }
+      originalDestroy(options);
+    };
+
+  }).catch(error => {
+    console.warn("Trespasser | Failed to load turn marker texture:", error);
+    // Check if the marker was removed while we were loading
+    if (token._trespasserTurnMarker !== container) {
+      return;
+    }
+    // Remove the empty container and use fallback
+    container.destroy();
+    token._trespasserTurnMarker = null;
+    drawFallbackTurnIndicator(token, phase);
+  });
+}
 }
 
