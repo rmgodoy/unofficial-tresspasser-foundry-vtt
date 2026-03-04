@@ -1579,6 +1579,30 @@ select.dungeon-field-input option {
 }
 
 /* Drop zone */
+/* Add connection dropdown */
+.room-sheet .room-add-connection {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.room-sheet .room-add-connection select {
+  flex: 1;
+}
+
+.room-sheet .room-add-connection-btn {
+  cursor: pointer;
+  padding: 4px 8px;
+  color: var(--trp-gold-bright, #d4a84b);
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.room-sheet .room-add-connection-btn:hover {
+  opacity: 1;
+}
+
 .room-sheet .room-connections-drop {
   margin-top: 8px;
   border: 2px dashed var(--trp-border, #4a3f2f);
@@ -1598,4 +1622,133 @@ select.dungeon-field-input option {
   border-color: var(--trp-gold-bright, #d4a84b);
   background: rgba(201, 162, 39, 0.1);
   color: var(--trp-gold-bright, #d4a84b);
+}
+
+/* ---- Room Trap ---- */
+
+.room-sheet .room-trap-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.room-sheet .room-trap-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px;
+  background: rgba(35, 35, 35, 0.6);
+  border: 1px solid rgba(204, 68, 68, 0.25);
+  border-radius: 4px;
+}
+
+.room-sheet .trap-field-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.room-sheet .trap-field-row label {
+  min-width: 80px;
+  font-size: 11px;
+  color: var(--trp-text-dim, #888);
+  flex-shrink: 0;
+}
+
+.room-sheet .trap-field-row input[type="number"] {
+  width: 60px;
+}
+
+.room-sheet .trap-field-row input[type="text"] {
+  flex: 1;
+}
+
+.room-sheet .trap-field-inline {
+  flex-wrap: wrap;
+}
+
+.room-sheet .trap-field-inline label {
+  min-width: 60px;
+}
+
+.room-sheet .trap-flag-row {
+  display: flex;
+  gap: 16px;
+  margin-top: 4px;
+}
+
+.room-sheet .trap-flag-toggle {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  cursor: pointer;
+  color: var(--trp-text-dim, #888);
+}
+
+.room-sheet .trap-flag-toggle:has(input:checked) {
+  color: var(--trp-gold-bright, #d4a84b);
+}
+
+.room-sheet .trap-flag-toggle input {
+  display: none;
+}
+
+/* ---- Detail Traps ---- */
+
+.room-sheet .detail-trap-entry {
+  margin-bottom: 10px;
+  padding: 8px;
+  background: rgba(35, 35, 35, 0.6);
+  border: 1px solid rgba(204, 68, 68, 0.25);
+  border-left: 3px solid var(--trp-danger, #cc4444);
+  border-radius: 4px;
+}
+
+.room-sheet .detail-trap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.room-sheet .detail-trap-label {
+  font-size: 12px;
+  font-weight: bold;
+  color: var(--trp-danger, #cc4444);
+}
+
+.room-sheet .detail-trap-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.room-sheet .room-remove-detail-trap {
+  cursor: pointer;
+  color: var(--trp-text-dim, #888);
+  opacity: 0.6;
+  transition: opacity 0.15s;
+}
+
+.room-sheet .room-remove-detail-trap:hover {
+  opacity: 1;
+  color: var(--trp-danger, #cc4444);
+}
+
+.room-sheet .room-add-detail-trap {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  color: var(--trp-gold-bright, #d4a84b);
+  opacity: 0.8;
+  transition: opacity 0.15s;
+}
+
+.room-sheet .room-add-detail-trap:hover {
+  opacity: 1;
 }

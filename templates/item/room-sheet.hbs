@@ -101,12 +101,114 @@
       </div>
       {{/if}}
 
-      {{!-- Drop zone for adding connections --}}
+      {{!-- Add connection via dropdown --}}
       {{#if editable}}
+      {{#if hasDungeon}}
+      {{#if availableRooms.length}}
+      <div class="room-add-connection">
+        <select class="room-add-connection-select">
+          <option value="" disabled selected>{{localize "TRESPASSER.Dungeon.Connection.SelectRoom"}}</option>
+          {{#each availableRooms}}
+          <option value="{{_id}}">{{name}}</option>
+          {{/each}}
+        </select>
+        <a class="room-add-connection-btn" title="{{localize 'TRESPASSER.Dungeon.Connection.AddConnection'}}"><i class="fas fa-plus"></i></a>
+      </div>
+      {{/if}}
+      {{/if}}
+
+      {{!-- Drop zone for adding connections --}}
       <div class="room-connections-drop">
         <i class="fas fa-compress-arrows-alt"></i>
         <span>{{localize "TRESPASSER.Dungeon.Connection.DropHint"}}</span>
       </div>
+      {{/if}}
+    </div>
+
+    {{!-- Room Trap --}}
+    <div class="room-section room-trap-section">
+      <h3 class="room-section-title">{{localize "TRESPASSER.Dungeon.Room.RoomTrap"}}</h3>
+      <div class="room-trap-toggle">
+        <input type="checkbox" name="system.roomTrap.present" {{checked system.roomTrap.present}} id="room-trap-present-{{item.id}}" />
+        <label for="room-trap-present-{{item.id}}">{{localize "TRESPASSER.Dungeon.Room.RoomTrapPresent"}}</label>
+      </div>
+      {{#if system.roomTrap.present}}
+      <div class="room-trap-fields">
+        <div class="trap-field-row">
+          <label>{{localize "TRESPASSER.Dungeon.Room.RoomTrapHiddenValue"}}</label>
+          <input type="number" name="system.roomTrap.hiddenValue" value="{{system.roomTrap.hiddenValue}}" min="0" data-dtype="Number" />
+        </div>
+        <div class="trap-field-row">
+          <label>{{localize "TRESPASSER.Dungeon.Room.RoomTrapTrigger"}}</label>
+          <input type="text" name="system.roomTrap.trigger" value="{{system.roomTrap.trigger}}"
+                 placeholder="{{localize 'TRESPASSER.Dungeon.Room.RoomTrapTriggerPlaceholder'}}" />
+        </div>
+        <div class="trap-field-row">
+          <label>{{localize "TRESPASSER.Dungeon.Room.RoomTrapEffect"}}</label>
+          <input type="text" name="system.roomTrap.effect" value="{{system.roomTrap.effect}}"
+                 placeholder="{{localize 'TRESPASSER.Dungeon.Room.RoomTrapEffectPlaceholder'}}" />
+        </div>
+        <div class="trap-flag-row">
+          <label class="trap-flag-toggle">
+            <input type="checkbox" name="system.roomTrap.magical" {{checked system.roomTrap.magical}} />
+            <i class="fas fa-hat-wizard"></i> {{localize "TRESPASSER.Dungeon.Room.RoomTrapMagical"}}
+          </label>
+          <label class="trap-flag-toggle">
+            <input type="checkbox" name="system.roomTrap.disarmed" {{checked system.roomTrap.disarmed}} />
+            <i class="fas fa-check-circle"></i> {{localize "TRESPASSER.Dungeon.Room.RoomTrapDisarmed"}}
+          </label>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+
+    {{!-- Detail Traps --}}
+    <div class="room-section room-detail-traps-section">
+      <h3 class="room-section-title">{{localize "TRESPASSER.Dungeon.Room.DetailTraps"}}</h3>
+      {{#each detailTraps}}
+      <div class="detail-trap-entry" data-trap-index="{{@index}}">
+        <div class="detail-trap-header">
+          <span class="detail-trap-label">{{localize "TRESPASSER.Dungeon.Room.DetailTrapFeature"}}{{featureIndex}}{{#if featureName}} — {{featureName}}{{/if}}</span>
+          {{#if ../editable}}
+          <a class="room-remove-detail-trap" data-trap-index="{{@index}}" title="Remove"><i class="fas fa-times"></i></a>
+          {{/if}}
+        </div>
+        {{#if ../editable}}
+        <div class="detail-trap-fields">
+          <div class="trap-field-row trap-field-inline">
+            <label>{{localize "TRESPASSER.Dungeon.Room.DetailTrapFeature"}}</label>
+            <input type="number" class="detail-trap-feature-index" data-trap-index="{{@index}}"
+                   value="{{featureIndex}}" min="0" data-dtype="Number" />
+            <label>{{localize "TRESPASSER.Dungeon.Room.RoomTrapHiddenValue"}}</label>
+            <input type="number" class="detail-trap-hidden-value" data-trap-index="{{@index}}"
+                   value="{{hiddenValue}}" min="0" data-dtype="Number" />
+          </div>
+          <div class="trap-field-row">
+            <label>{{localize "TRESPASSER.Dungeon.Room.RoomTrapTrigger"}}</label>
+            <input type="text" class="detail-trap-trigger" data-trap-index="{{@index}}"
+                   value="{{trigger}}" placeholder="{{localize 'TRESPASSER.Dungeon.Room.RoomTrapTriggerPlaceholder'}}" />
+          </div>
+          <div class="trap-field-row">
+            <label>{{localize "TRESPASSER.Dungeon.Room.RoomTrapEffect"}}</label>
+            <input type="text" class="detail-trap-effect" data-trap-index="{{@index}}"
+                   value="{{effect}}" placeholder="{{localize 'TRESPASSER.Dungeon.Room.RoomTrapEffectPlaceholder'}}" />
+          </div>
+          <div class="trap-flag-row">
+            <label class="trap-flag-toggle">
+              <input type="checkbox" class="detail-trap-magical" data-trap-index="{{@index}}" {{#if magical}}checked{{/if}} />
+              <i class="fas fa-hat-wizard"></i> {{localize "TRESPASSER.Dungeon.Room.RoomTrapMagical"}}
+            </label>
+            <label class="trap-flag-toggle">
+              <input type="checkbox" class="detail-trap-disarmed" data-trap-index="{{@index}}" {{#if disarmed}}checked{{/if}} />
+              <i class="fas fa-check-circle"></i> {{localize "TRESPASSER.Dungeon.Room.RoomTrapDisarmed"}}
+            </label>
+          </div>
+        </div>
+        {{/if}}
+      </div>
+      {{/each}}
+      {{#if editable}}
+      <a class="room-add-detail-trap"><i class="fas fa-plus"></i> {{localize "TRESPASSER.Dungeon.Room.AddDetailTrap"}}</a>
       {{/if}}
     </div>
 
