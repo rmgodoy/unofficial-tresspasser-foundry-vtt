@@ -1,5 +1,5 @@
-
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { TrespasserCombat }        from "../documents/combat.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -73,6 +73,11 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             });
         }
 
+        // ── Determine which actions have already been used this turn ──────────
+        const usedActions = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
+
+        const deeds         = this._getSortedDeeds();
+
         const context = {
             inCombat: true,
             token: this._token,
@@ -80,24 +85,28 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             availableAP: ap,
             apDots,
             allies: this._getNearbyAllies(),
-            canDefend: ap >= 1,
-            canHelp: ap >= 1 && this._getNearbyAllies().length > 0,
-            canMove: ap >= 1 && !moveActionTaken,
-            canUndo: movementHistory.length > 1,
+            canDefend:      ap >= 1 && !usedActions.has("defend"),
+            canHelp:        ap >= 1 && !usedActions.has("help") && this._getNearbyAllies().length > 0,
+            canMove:        ap >= 1 && !moveActionTaken,
+            canUndo:        movementHistory.length > 1,
+            canPrevail:     ap >= 1 && !usedActions.has("prevail") && states.length > 0,
+            canAttemptDeed: ap >= 1 && !usedActions.has("attempt-deed") && deeds.length > 0,
             moveActionTaken,
             movementUsed,
             movementAllowed,
             speed,
             moveOptions,
-            canPrevail: ap >= 1 && states.length > 0,
-            states
+            states,
+            deeds,
+            usedActions: [...usedActions]
         };
 
-        // Ensure active panel is cleared if it's no longer accessible (Requirement 2)
-        if ( this._activePanel === "defend" && !context.canDefend ) this._activePanel = null;
-        if ( this._activePanel === "help" && !context.canHelp ) this._activePanel = null;
-        if ( this._activePanel === "move" && !context.canMove ) this._activePanel = null;
-        if ( this._activePanel === "prevail" && !context.canPrevail ) this._activePanel = null;
+        // Clear active panel if its action is no longer available
+        if ( this._activePanel === "defend"       && !context.canDefend       ) this._activePanel = null;
+        if ( this._activePanel === "help"         && !context.canHelp         ) this._activePanel = null;
+        if ( this._activePanel === "move"         && !context.canMove         ) this._activePanel = null;
+        if ( this._activePanel === "prevail"      && !context.canPrevail      ) this._activePanel = null;
+        if ( this._activePanel === "attempt-deed" && !context.canAttemptDeed  ) this._activePanel = null;
 
         return context;
     }
@@ -117,15 +126,22 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
     }
 
     /**
-     * Get allies within 2 squares.
+     * Get allies within 2 squares that are also part of the active combat.
      */
     _getNearbyAllies() {
         if (!this._token) return [];
+
+        // Build a set of tokenIds currently in combat for quick lookup
+        const combatTokenIds = new Set(
+            game.combat?.combatants.map(c => c.tokenId) ?? []
+        );
+
         const allies = canvas.tokens.placeables.filter(t => {
             if (t.id === this._token.id) return false;
             if (t.document.disposition !== this._token.document.disposition) return false;
             if (!t.actor) return false;
-            
+            if (!combatTokenIds.has(t.id)) return false;   // must be in combat
+
             // In V13, measureDistance is deprecated. Use measurePath instead.
             const waypoints = [this._token.center, t.center];
             const dist = canvas.grid.measurePath(waypoints).distance;
@@ -144,16 +160,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
      * prioritizing the one in the currently active combat phase.
      */
     _getCombatant() {
-        if (!this._token || !game.combats) return null;
-        for (const combat of game.combats) {
-            const activePhase = combat.getFlag("trespasser", "activePhase");
-            const combatant = combat.combatants.find(c => 
-                c.tokenId === this._token.id && 
-                (activePhase === undefined || activePhase === null || c.initiative === activePhase)
-            );
-            if (combatant) return combatant;
-        }
-        return null;
+        return TrespasserCombat.getPhaseCombatant(this._token);
     }
 
     _initHooks() {
@@ -243,6 +250,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 case "execute-prevail":
                     this._executePrevail();
                     break;
+                case "execute-attempt-deed":
+                    this._executeAttemptDeed();
+                    break;
             }
         });
     }
@@ -292,6 +302,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         await this._token.actor.createEmbeddedDocuments("Item", [effectData]);
         await combatant.setFlag("trespasser", "actionPoints", currentAP - cost);
+        await TrespasserCombat.recordHUDAction(this._token.actor, "defend");
         
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
@@ -361,6 +372,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         } else {
             ui.notifications.info(`Applied Help for ${targetToken.name}.`);
         }
+        await TrespasserCombat.recordHUDAction(this._token.actor, "help");
 
         this._activePanel = null;
         this.render();
@@ -465,6 +477,90 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         await this._token.actor.rollPrevail(stateId, extraAP);
         await combatant.setFlag("trespasser", "actionPoints", currentAP - totalCost);
+
+        this._activePanel = null;
+        this.render();
+    }
+
+    // ── Attempt Deed ─────────────────────────────────────────────────────────
+
+    /**
+     * Build a sorted deed list for the HUD dropdown.
+     * Format: [L] - Deed Name (FocusCost)
+     */
+    _getSortedDeeds() {
+        if (!this._token?.actor) return [];
+        const tierOrder  = { light: 1, heavy: 2, mighty: 3, special: 4 };
+        const tierLabels = { light: "L", heavy: "H", mighty: "M", special: "S" };
+
+        return this._token.actor.items
+            .filter(i => i.type === "deed")
+            .map(d => {
+                const tier = d.system.tier?.toLowerCase() || "light";
+                let focusCost = d.system.focusCost;
+                if (focusCost === null || focusCost === undefined) {
+                    if (tier === "heavy") focusCost = 2;
+                    else if (tier === "mighty") focusCost = 4;
+                    else focusCost = 0;
+                }
+                const totalCost = focusCost + (d.system.bonusCost || 0);
+                return {
+                    id: d.id,
+                    name: d.name,
+                    tier,
+                    tierLabel: tierLabels[tier] || "L",
+                    order: tierOrder[tier] || 1,
+                    focusCost: totalCost,
+                    displayName: `[${tierLabels[tier] || "L"}] - ${d.name} (${totalCost})`
+                };
+            })
+            .sort((a, b) => a.order !== b.order ? a.order - b.order : a.name.localeCompare(b.name));
+    }
+
+    /**
+     * Execute the Attempt Deed action from the HUD.
+     * Reads the deed and AP selection from the panel, then calls the shared onDeedRoll handler.
+     */
+    async _executeAttemptDeed() {
+        const deedSelect = this.element.querySelector("[name='attempt-deed-id']");
+        const apSelect   = this.element.querySelector("[name='attempt-deed-ap']");
+        if (!deedSelect || !apSelect) return;
+
+        const deedId  = deedSelect.value;
+        const apSpent = parseInt(apSelect.value) || 1;
+
+        // Build a mock sheet compatible with onDeedRoll
+        const mockSheet = {
+            actor: this._token.actor,
+            // Return pre-selected AP from HUD panel (no popup dialog)
+            _askAPDialog: async () => apSpent,
+            _getActiveWeapons: () => {
+                const equipment = this._token.actor.system.equipment || {};
+                const ids = [equipment.main_hand, equipment.off_hand].filter(Boolean);
+                return ids.map(id => this._token.actor.items.get(id)).filter(Boolean);
+            },
+            _selectAmmoDialog: async (ammoItems, weaponRef) => {
+                const { showAmmoDialog } = await import("../dialogs/ammo-dialog.mjs");
+                return showAmmoDialog(ammoItems, weaponRef);
+            },
+            _postDeedPhase: async (phaseName, phaseData, actor, item, options) => {
+                const { postDeedPhase } = await import("../sheets/character/handlers-deed.mjs");
+                return postDeedPhase(phaseName, phaseData, actor, item, options ?? {}, mockSheet);
+            },
+            _runDepletionCheck: async (item) => {
+                const { runDepletionCheck } = await import("../sheets/character/handlers-items.mjs").catch(() => ({ runDepletionCheck: async () => {} }));
+                return runDepletionCheck?.(item, mockSheet);
+            },
+            render: () => this.render()
+        };
+
+        const { onDeedRoll } = await import("../sheets/character/handlers-deed.mjs");
+        const fakeEvent = {
+            preventDefault: () => {},
+            currentTarget: { closest: () => ({ dataset: { itemId: deedId } }) }
+        };
+
+        await onDeedRoll(fakeEvent, mockSheet);
 
         this._activePanel = null;
         this.render();

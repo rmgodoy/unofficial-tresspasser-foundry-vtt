@@ -4,8 +4,8 @@
  */
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
-
-import { askAPDialog } from "../../dialogs/ap-dialog.mjs";
+import { askAPDialog }             from "../../dialogs/ap-dialog.mjs";
+import { TrespasserCombat }        from "../../documents/combat.mjs";
 
 export async function onPrevailRoll(event, sheet) {
   event.preventDefault();
@@ -14,7 +14,7 @@ export async function onPrevailRoll(event, sheet) {
   if (!effectItem) return;
 
   let extraAP = 0;
-  const combatant = game.combat?.combatants.find(c => c.actorId === sheet.actor.id);
+  const combatant = TrespasserCombat.getPhaseCombatant(sheet.actor);
   
   if (combatant && sheet.actor.type === "character") {
     const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
@@ -34,6 +34,7 @@ export async function onPrevailRoll(event, sheet) {
   }
 
   await sheet.actor.rollPrevail(effectItem.id, extraAP);
+  await TrespasserCombat.recordHUDAction(sheet.actor, "prevail");
 }
 
 export async function onIntensityChange(event, sheet) {

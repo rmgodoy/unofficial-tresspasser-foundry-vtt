@@ -365,7 +365,12 @@
       "Failure": "FALHA",
       "ResultVs": "Resultado: {total} vs {target} — {status}",
       "AccuracyVs": "{item} vs {target}",
-      "AccVsDef": "Acurácia: {accuracy} vs Rolagem de Defesa: {total}"
+      "AccVsDef": "Acurácia: {accuracy} vs Rolagem de Defesa: {total}",
+      "DefenseRoll": "Rolagem de Defesa",
+      "CreatureAccuracy": "Acurácia da Criatura",
+      "AccuracyFromAP": "Acurácia por Esforço Extra",
+      "Defense": "Defesa",
+      "Rolls": "rola"
     },
     "Trigger": {
       "EffectEvaluation": "Avaliação de Efeito",
@@ -710,6 +715,7 @@
       "Title": "Ações de Token",
       "Defend": "Defender",
       "Help": "Ajudar",
+      "AttemptDeed": "Tentar Habilidade",
       "SelectAlly": "Selecionar Aliado",
       "Attribute": "Atributo",
       "APCost": "Custo de PA",

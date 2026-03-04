@@ -27,6 +27,72 @@ export class TrespasserCombat extends Combat {
     [TrespasserCombat.PHASES.END]: "TRESPASSER.Phase.End"
   };
 
+  /**
+   * Find the correct combatant for an actor, token, tokenId, or actorId
+   * in the currently active combat phase.
+   * Priority: 1) Active phase match → 2) Foundry's current turn → 3) Any match.
+   * @param {Actor|Token|TokenDocument|string} target
+   * @param {Combat} [combat=game.combat]
+   * @returns {Combatant|null}
+   */
+  static getPhaseCombatant(target, combat = game.combat) {
+    if (!target || !combat) return null;
+
+    // Resolve tokenId and actorId from whatever was passed in
+    let actorId = null;
+    let tokenId = null;
+
+    if (typeof target === "string") {
+      // Could be either — try both
+      actorId = target;
+      tokenId = target;
+    } else if (target instanceof Actor) {
+      actorId = target.id;
+    } else {
+      // Token or TokenDocument
+      tokenId = target.id ?? target.document?.id;
+      actorId = target.actor?.id ?? target.document?.actor?.id;
+    }
+
+    const matches = (c) =>
+      (tokenId && c.tokenId === tokenId) ||
+      (actorId && c.actorId === actorId);
+
+    const activePhase = combat.getFlag("trespasser", "activePhase");
+
+    // 1. Match in the active phase
+    if (activePhase !== undefined && activePhase !== null) {
+      const phaseMatch = combat.combatants.find(
+        c => matches(c) && Number(c.initiative) === Number(activePhase)
+      );
+      if (phaseMatch) return phaseMatch;
+    }
+
+    // 2. Foundry's current active turn combatant
+    if (combat.combatant && matches(combat.combatant)) return combat.combatant;
+
+    // 3. First matching combatant
+    return combat.combatants.find(c => matches(c)) ?? null;
+  }
+
+  /**
+   * Record that a HUD action has been used this turn for a given actor.
+   * Works from any context (sheet, HUD, handler) — not just the HUD class.
+   * @param {Actor|string} actorOrId  - Actor document or actorId
+   * @param {string}       actionId   - e.g. "attempt-deed", "prevail", "defend", "help"
+   * @param {Combat}       [combat]   - defaults to game.combat
+   */
+  static async recordHUDAction(actorOrId, actionId, combat = game.combat) {
+    const target = typeof actorOrId === "string"
+      ? { id: actorOrId }  // getPhaseCombatant accepts actorId strings
+      : actorOrId;
+    const combatant = TrespasserCombat.getPhaseCombatant(target, combat);
+    if (!combatant) return;
+    const used = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
+    used.add(actionId);
+    await combatant.setFlag("trespasser", "usedHUDActions", [...used]);
+  }
+
   /** @override */
   async startCombat() {
     if ( game.user.isGM ) {
@@ -39,8 +105,8 @@ export class TrespasserCombat extends Combat {
           const skillBonus = combatant.actor.system.skill || 2;
           await combatant.actor.update({ "system.combat.focus": skillBonus });
         }
-        // Every actor starts with 3 AP by default
-        updates.push({ _id: combatant.id, "flags.trespasser.actionPoints": 3 });
+        // Every actor starts with 3 AP and a clean action history
+        updates.push({ _id: combatant.id, "flags.trespasser.actionPoints": 3, "flags.trespasser.usedHUDActions": [] });
       }
       if (updates.length > 0) await this.updateEmbeddedDocuments("Combatant", updates);
 
@@ -60,8 +126,12 @@ export class TrespasserCombat extends Combat {
   async nextRound() {
     if ( game.user.isGM ) {
       await this.rollAllTrespasserInitiatives();
-      // Reset AP for everyone
-      const updates = this.combatants.map(c => ({ _id: c.id, "flags.trespasser.actionPoints": 3 }));
+      // Reset AP and used-action history for everyone
+      const updates = this.combatants.map(c => ({
+        _id: c.id,
+        "flags.trespasser.actionPoints": 3,
+        "flags.trespasser.usedHUDActions": []
+      }));
       await this.updateEmbeddedDocuments("Combatant", updates);
       // Reset phase to first non-empty phase
       const initialPhase = this._firstNonEmptyPhase();
@@ -181,7 +251,8 @@ export class TrespasserCombat extends Combat {
         "flags.trespasser.movementAllowed": 0,
         "flags.trespasser.movementUsed": 0,
         "flags.trespasser.movementHistory": token?.document?.movementHistory ?? [],
-        "flags.trespasser.usedExpensiveDeed": false
+        "flags.trespasser.usedExpensiveDeed": false,
+        "flags.trespasser.usedHUDActions": []
       });
 
       if (c.actor) {

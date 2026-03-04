@@ -11,6 +11,32 @@
         </header>
 
         <div class="hud-actions">
+            <!-- ATTEMPT DEED -->
+            <div class="hud-action-group">
+                <button class="hud-action-btn deed" data-action="toggle-panel" data-panel="attempt-deed" {{#unless canAttemptDeed}}disabled{{/unless}}>
+                    {{localize "TRESPASSER.HUD.AttemptDeed"}}
+                </button>
+                <div class="hud-sub-panel hidden" id="panel-attempt-deed">
+                    <div class="field-row">
+                        <label>{{localize "TRESPASSER.Item.Type.Deed"}}</label>
+                        <select name="attempt-deed-id">
+                            {{#each deeds}}
+                            <option value="{{id}}">{{displayName}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div class="field-row">
+                        <label>{{localize "TRESPASSER.HUD.APCost"}}</label>
+                        <select name="attempt-deed-ap">
+                            <option value="1">1 AP (+0 Acc)</option>
+                            <option value="2" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>2 AP (+2 Acc)</option>
+                            <option value="3" {{#if (trespasserGt 3 availableAP)}}disabled{{/if}}>3 AP (+4 Acc)</option>
+                        </select>
+                    </div>
+                    <button class="action-confirm-btn" data-action="execute-attempt-deed">{{localize "TRESPASSER.HUD.Confirm"}}</button>
+                </div>
+            </div>
+
             <!-- DEFEND -->
             <div class="hud-action-group">
                 <button class="hud-action-btn defend" data-action="toggle-panel" data-panel="defend" {{#unless canDefend}}disabled{{/unless}}>

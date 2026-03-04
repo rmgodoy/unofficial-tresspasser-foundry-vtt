@@ -370,7 +370,12 @@
       "Failure": "FAILURE",
       "ResultVs": "Result: {total} vs {target} — {status}",
       "AccuracyVs": "{item} vs {target}",
-      "AccVsDef": "Accuracy: {accuracy} vs Defense Roll: {total}"
+      "AccVsDef": "Accuracy: {accuracy} vs Defense Roll: {total}",
+      "DefenseRoll": "Defense Roll",
+      "CreatureAccuracy": "Creature Accuracy",
+      "AccuracyFromAP": "Accuracy from Extra Effort",
+      "Defense": "Defense",
+      "Rolls": "rolls"
     },
     "Trigger": {
       "EffectEvaluation": "Effect Evaluation",
@@ -715,6 +720,7 @@
       "Title": "Token Actions",
       "Defend": "Defend",
       "Help": "Help",
+      "AttemptDeed": "Attempt Deed",
       "Move": "Move",
       "UndoMove": "Undo Move",
       "MovementUsed": "Movement Used",
