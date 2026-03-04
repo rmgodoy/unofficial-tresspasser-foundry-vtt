@@ -8,20 +8,32 @@
 export const DUNGEON_CONFIG = {
   actionsPerRound: 3,
 
-  // Hostility tiers: maps tier number to DC, treasure formula, and encounter chance
+  // Hostility tiers: maps tier number to DC, encounter TR formula, and label (p.54/260)
   hostilityTiers: {
-    1: { label: "TRESPASSER.Dungeon.Hostility.Bleak", dc: 10, treasureFormula: "2d6 * 10", encounterLabel: "I" },
-    2: { label: "TRESPASSER.Dungeon.Hostility.Sinister", dc: 12, treasureFormula: "2d6 * 20", encounterLabel: "II" },
-    3: { label: "TRESPASSER.Dungeon.Hostility.Frightening", dc: 15, treasureFormula: "2d6 * 30", encounterLabel: "III" },
+    0: { label: "TRESPASSER.Dungeon.Hostility.FirstDay", dc: 10, treasureFormula: "2d6 * 5", encounterLabel: "0" },
+    1: { label: "TRESPASSER.Dungeon.Hostility.Bleak", dc: 12, treasureFormula: "2d6 * 10", encounterLabel: "I" },
+    2: { label: "TRESPASSER.Dungeon.Hostility.Sinister", dc: 14, treasureFormula: "2d6 * 20", encounterLabel: "II" },
+    3: { label: "TRESPASSER.Dungeon.Hostility.Frightening", dc: 16, treasureFormula: "2d6 * 30", encounterLabel: "III" },
     4: { label: "TRESPASSER.Dungeon.Hostility.Harrowing", dc: 18, treasureFormula: "2d6 * 40", encounterLabel: "IV" },
     5: { label: "TRESPASSER.Dungeon.Hostility.Nightmarish", dc: 20, treasureFormula: "2d6 * 50", encounterLabel: "V" }
   },
 
+  // Dungeon size determines room count and treasure dice (p.260)
+  // Treasure = (size dice)d6 × hostility multiplier
+  sizeTreasureDice: {
+    tiny: "2d6",
+    small: "4d6",
+    medium: "6d6",
+    large: "8d6",
+    huge: "10d6"
+  },
+
   sizeCategories: {
+    tiny: "TRESPASSER.Dungeon.Size.Tiny",
     small: "TRESPASSER.Dungeon.Size.Small",
     medium: "TRESPASSER.Dungeon.Size.Medium",
     large: "TRESPASSER.Dungeon.Size.Large",
-    massive: "TRESPASSER.Dungeon.Size.Massive"
+    huge: "TRESPASSER.Dungeon.Size.Huge"
   },
 
   forms: {
@@ -37,7 +49,7 @@ export const DUNGEON_CONFIG = {
     other: "TRESPASSER.Dungeon.Form.Other"
   },
 
-  // The 11 dungeon actions from the core rules (p.55)
+  // Dungeon actions from the core rules (p.55)
   actions: {
     explore: {
       label: "TRESPASSER.Dungeon.Actions.Explore",
@@ -57,10 +69,10 @@ export const DUNGEON_CONFIG = {
       description: "TRESPASSER.Dungeon.Actions.InteractDesc",
       cost: 1
     },
-    loot: {
-      label: "TRESPASSER.Dungeon.Actions.Loot",
+    search: {
+      label: "TRESPASSER.Dungeon.Actions.Search",
       icon: "fa-solid fa-search",
-      description: "TRESPASSER.Dungeon.Actions.LootDesc",
+      description: "TRESPASSER.Dungeon.Actions.SearchDesc",
       cost: 1
     },
     hide: {
@@ -69,10 +81,16 @@ export const DUNGEON_CONFIG = {
       description: "TRESPASSER.Dungeon.Actions.HideDesc",
       cost: 1
     },
-    smash: {
-      label: "TRESPASSER.Dungeon.Actions.Smash",
+    vandalize: {
+      label: "TRESPASSER.Dungeon.Actions.Vandalize",
       icon: "fa-solid fa-hammer",
-      description: "TRESPASSER.Dungeon.Actions.SmashDesc",
+      description: "TRESPASSER.Dungeon.Actions.VandalizeDesc",
+      cost: 1
+    },
+    pickLock: {
+      label: "TRESPASSER.Dungeon.Actions.PickLock",
+      icon: "fa-solid fa-key",
+      description: "TRESPASSER.Dungeon.Actions.PickLockDesc",
       cost: 1
     },
     disarm: {
@@ -93,18 +111,19 @@ export const DUNGEON_CONFIG = {
       description: "TRESPASSER.Dungeon.Actions.MomentsRestDesc",
       cost: 1
     },
-    combat: {
-      label: "TRESPASSER.Dungeon.Actions.Combat",
-      icon: "fa-solid fa-swords",
-      description: "TRESPASSER.Dungeon.Actions.CombatDesc",
-      cost: 1
-    },
     incant: {
       label: "TRESPASSER.Dungeon.Actions.Incant",
       icon: "fa-solid fa-wand-sparkles",
       description: "TRESPASSER.Dungeon.Actions.IncantDesc",
       cost: 1
     }
+  },
+
+  // Simultaneous action rules (p.55): party can attempt 2+ actions at once
+  // Each simultaneous action raises alarm by +1 and triggers an immediate alarm check
+  simultaneousAction: {
+    alarmPerAction: 1,
+    triggersAlarmCheck: true
   },
 
   // The five dungeon sparks (p.56)

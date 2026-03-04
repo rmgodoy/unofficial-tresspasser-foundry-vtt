@@ -23,6 +23,24 @@ export class TrespasserRoomData extends foundry.abstract.TypeDataModel {
         hidden: new fields.BooleanField({ initial: false })
       })),
       discovered: new fields.BooleanField({ initial: false }),
+      // Room trap: triggers when party enters via Explore (p.55)
+      roomTrap: new fields.SchemaField({
+        present: new fields.BooleanField({ initial: false }),
+        hiddenValue: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        trigger: new fields.StringField({ initial: "" }),
+        effect: new fields.StringField({ initial: "" }),
+        magical: new fields.BooleanField({ initial: false }),
+        disarmed: new fields.BooleanField({ initial: false })
+      }),
+      // Detail traps: associated with specific room features (poison needles, etc.)
+      detailTraps: new fields.ArrayField(new fields.SchemaField({
+        featureIndex: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        hiddenValue: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        trigger: new fields.StringField({ initial: "" }),
+        effect: new fields.StringField({ initial: "" }),
+        magical: new fields.BooleanField({ initial: false }),
+        disarmed: new fields.BooleanField({ initial: false })
+      })),
       hazards: new fields.HTMLField({ initial: "" }),
       loot: new fields.HTMLField({ initial: "" }),
       sortOrder: new fields.NumberField({

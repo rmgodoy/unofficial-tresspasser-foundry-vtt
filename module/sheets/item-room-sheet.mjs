@@ -59,6 +59,26 @@ export class TrespasserRoomSheet extends foundry.appv1.sheets.ItemSheet {
       return { ...conn, name };
     });
 
+    // Detail traps — enrich with feature name from index
+    const features = this.item.system.features ?? [];
+    context.detailTraps = (this.item.system.detailTraps ?? []).map(trap => ({
+      ...trap,
+      featureName: features[trap.featureIndex] ?? ""
+    }));
+
+    // Available rooms for the connection dropdown (rooms in the same dungeon
+    // that are not this room and not already connected)
+    context.availableRooms = [];
+    context.hasDungeon = false;
+    if (this.item.parent?.type === "dungeon") {
+      context.hasDungeon = true;
+      const connectedIds = new Set(rawConnections.map(c => c.roomId));
+      const otherRooms = this.item.parent.items
+        .filter(i => i.type === "room" && i.id !== this.item.id && !connectedIds.has(i.id));
+      otherRooms.sort((a, b) => (a.system.sortOrder ?? 0) - (b.system.sortOrder ?? 0));
+      context.availableRooms = otherRooms.map(r => ({ _id: r.id, name: r.name }));
+    }
+
     return context;
   }
 
@@ -84,6 +104,17 @@ export class TrespasserRoomSheet extends foundry.appv1.sheets.ItemSheet {
     html.find(".room-connection-locked").on("change", this._onToggleConnectionFlag.bind(this, "locked"));
     html.find(".room-connection-hidden").on("change", this._onToggleConnectionFlag.bind(this, "hidden"));
     html.find(".room-open-connection").on("click", this._onOpenConnectedRoom.bind(this));
+    html.find(".room-add-connection-btn").on("click", this._onAddConnectionFromDropdown.bind(this));
+
+    // Detail traps
+    html.find(".room-add-detail-trap").on("click", this._onAddDetailTrap.bind(this));
+    html.find(".room-remove-detail-trap").on("click", this._onRemoveDetailTrap.bind(this));
+    html.find(".detail-trap-feature-index").on("change", this._onChangeDetailTrapField.bind(this, "featureIndex"));
+    html.find(".detail-trap-hidden-value").on("change", this._onChangeDetailTrapField.bind(this, "hiddenValue"));
+    html.find(".detail-trap-trigger").on("change", this._onChangeDetailTrapField.bind(this, "trigger"));
+    html.find(".detail-trap-effect").on("change", this._onChangeDetailTrapField.bind(this, "effect"));
+    html.find(".detail-trap-magical").on("change", this._onToggleDetailTrapFlag.bind(this, "magical"));
+    html.find(".detail-trap-disarmed").on("change", this._onToggleDetailTrapFlag.bind(this, "disarmed"));
 
     // Drop zone visual feedback
     const dropZone = html.find(".room-connections-drop");
@@ -142,45 +173,7 @@ export class TrespasserRoomSheet extends foundry.appv1.sheets.ItemSheet {
       }));
     }
 
-    // Cannot connect to self
-    if (targetRoom.id === this.item.id) return;
-
-    // Check if already connected
-    const existingConnections = this.item.system.connections ?? [];
-    if (existingConnections.some(c => c.roomId === targetRoom.id)) {
-      ui.notifications.info(game.i18n.format("TRESPASSER.Dungeon.Connection.AlreadyConnected", { name: targetRoom.name }));
-      return;
-    }
-
-    // Add connection to this room
-    const myConnections = [...existingConnections, {
-      roomId: targetRoom.id,
-      type: "doorway",
-      description: "",
-      locked: false,
-      hidden: false
-    }];
-
-    // Add reverse connection to the other room
-    const theirConnections = [...(targetRoom.system.connections ?? [])];
-    if (!theirConnections.some(c => c.roomId === this.item.id)) {
-      theirConnections.push({
-        roomId: this.item.id,
-        type: "doorway",
-        description: "",
-        locked: false,
-        hidden: false
-      });
-    }
-
-    // Update both rooms
-    await this.item.update({ "system.connections": myConnections });
-    await targetRoom.update({ "system.connections": theirConnections });
-
-    ui.notifications.info(game.i18n.format("TRESPASSER.Dungeon.Connection.Created", {
-      from: this.item.name,
-      to: targetRoom.name
-    }));
+    await this._createBidirectionalConnection(targetRoom);
   }
 
   /* -------------------------------------------- */
@@ -275,5 +268,110 @@ export class TrespasserRoomSheet extends foundry.appv1.sheets.ItemSheet {
     if (!roomId || !this.item.parent) return;
     const room = this.item.parent.items.get(roomId);
     if (room) room.sheet.render(true);
+  }
+
+  /**
+   * Add a connection from the dropdown picker.
+   */
+  async _onAddConnectionFromDropdown(event) {
+    event.preventDefault();
+    const select = this.element.find(".room-add-connection-select");
+    const roomId = select.val();
+    if (!roomId) return;
+    const dungeon = this.item.parent;
+    if (!dungeon) return;
+    const targetRoom = dungeon.items.get(roomId);
+    if (!targetRoom) return;
+    await this._createBidirectionalConnection(targetRoom);
+  }
+
+  /**
+   * Create a bidirectional connection between this room and a target room.
+   * Checks for duplicates and self-connections.
+   * @param {Item} targetRoom - The room to connect to
+   */
+  async _createBidirectionalConnection(targetRoom) {
+    if (targetRoom.id === this.item.id) return;
+
+    const existingConnections = this.item.system.connections ?? [];
+    if (existingConnections.some(c => c.roomId === targetRoom.id)) {
+      ui.notifications.info(game.i18n.format("TRESPASSER.Dungeon.Connection.AlreadyConnected", { name: targetRoom.name }));
+      return;
+    }
+
+    const myConnections = [...existingConnections, {
+      roomId: targetRoom.id,
+      type: "doorway",
+      description: "",
+      locked: false,
+      hidden: false
+    }];
+
+    const theirConnections = [...(targetRoom.system.connections ?? [])];
+    if (!theirConnections.some(c => c.roomId === this.item.id)) {
+      theirConnections.push({
+        roomId: this.item.id,
+        type: "doorway",
+        description: "",
+        locked: false,
+        hidden: false
+      });
+    }
+
+    await this.item.update({ "system.connections": myConnections });
+    await targetRoom.update({ "system.connections": theirConnections });
+
+    ui.notifications.info(game.i18n.format("TRESPASSER.Dungeon.Connection.Created", {
+      from: this.item.name,
+      to: targetRoom.name
+    }));
+  }
+
+  /* -------------------------------------------- */
+  /*  Detail Trap Handlers                        */
+  /* -------------------------------------------- */
+
+  async _onAddDetailTrap(event) {
+    event.preventDefault();
+    const traps = [...(this.item.system.detailTraps ?? [])];
+    traps.push({
+      featureIndex: 0,
+      hiddenValue: 0,
+      trigger: "",
+      effect: "",
+      magical: false,
+      disarmed: false
+    });
+    await this.item.update({ "system.detailTraps": traps });
+  }
+
+  async _onRemoveDetailTrap(event) {
+    event.preventDefault();
+    const index = parseInt(event.currentTarget.dataset.trapIndex);
+    if (isNaN(index)) return;
+    const traps = [...(this.item.system.detailTraps ?? [])];
+    traps.splice(index, 1);
+    await this.item.update({ "system.detailTraps": traps });
+  }
+
+  async _onChangeDetailTrapField(field, event) {
+    const index = parseInt(event.currentTarget.dataset.trapIndex);
+    if (isNaN(index)) return;
+    const traps = [...(this.item.system.detailTraps ?? [])];
+    if (!traps[index]) return;
+    const value = field === "featureIndex" || field === "hiddenValue"
+      ? parseInt(event.currentTarget.value) || 0
+      : event.currentTarget.value;
+    traps[index] = { ...traps[index], [field]: value };
+    await this.item.update({ "system.detailTraps": traps });
+  }
+
+  async _onToggleDetailTrapFlag(flag, event) {
+    const index = parseInt(event.currentTarget.dataset.trapIndex);
+    if (isNaN(index)) return;
+    const traps = [...(this.item.system.detailTraps ?? [])];
+    if (!traps[index]) return;
+    traps[index] = { ...traps[index], [flag]: !traps[index][flag] };
+    await this.item.update({ "system.detailTraps": traps });
   }
 }

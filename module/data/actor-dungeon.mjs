@@ -12,11 +12,11 @@ export class TrespasserDungeonData extends foundry.abstract.TypeDataModel {
       form: new fields.StringField({ initial: "" }),
       traits: new fields.ArrayField(new fields.StringField()),
       hostilityTier: new fields.NumberField({
-        required: true, initial: 1, min: 1, max: 5, integer: true
+        required: true, initial: 1, min: 0, max: 5, integer: true
       }),
       sizeCategory: new fields.StringField({
         initial: "medium",
-        choices: ["small", "medium", "large", "massive"]
+        choices: ["tiny", "small", "medium", "large", "huge"]
       }),
       alarm: new fields.NumberField({
         required: true, initial: 0, min: 0, integer: true
