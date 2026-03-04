@@ -160,7 +160,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
      * prioritizing the one in the currently active combat phase.
      */
     _getCombatant() {
-        return TrespasserCombat.getPhaseCombatant(this._token);
+        return TrespasserCombat.getPhaseCombatant(this._token.id);
     }
 
     _initHooks() {
