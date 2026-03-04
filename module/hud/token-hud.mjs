@@ -208,10 +208,10 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 targetAttribute: type,
                 modifier: "+2",
                 isCombat: true,
-                type: isWholeRound ? "passive" : "active",
+                type: "active",
                 duration: "triggers",
                 durationValue: 1,
-                when: isWholeRound ? "end-of-round" : "immediate"
+                when: "end-of-round"
             }
         };
 
@@ -265,7 +265,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 isCombat: true,
                 duration: "triggers",
                 durationValue: 1,
-                when: "immediate"
+                when: "end-of-round"
             }
         };
 
