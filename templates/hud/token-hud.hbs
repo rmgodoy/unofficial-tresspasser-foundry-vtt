@@ -35,6 +35,40 @@
                 </div>
             </div>
 
+            <!-- MOVE -->
+            <div class="hud-action-group">
+                <button class="hud-action-btn move" data-action="toggle-panel" data-panel="move" {{#unless canMove}}disabled{{/unless}}>
+                    {{localize "TRESPASSER.HUD.Move"}}
+                </button>
+                {{#if canUndo}}
+                <button class="undo-btn" data-action="execute-undo" title="{{localize "TRESPASSER.HUD.UndoMove"}}">
+                    <i class="fas fa-undo"></i>
+                </button>
+                {{/if}}
+                <div class="hud-sub-panel hidden" id="panel-move">
+                    <div class="field-row">
+                        <label>{{localize "TRESPASSER.Sheet.Combat.Speed"}}</label>
+                        <span>{{speed}} sq</span>
+                    </div>
+                    {{#if moveActionTaken}}
+                    <div class="field-row">
+                        <label>{{localize "TRESPASSER.HUD.MovementUsed"}}</label>
+                        <span>{{movementUsed}} / {{movementAllowed}} sq</span>
+                    </div>
+                    {{else}}
+                    <div class="field-row">
+                        <label>{{localize "TRESPASSER.HUD.APCost"}}</label>
+                        <select name="move-cost">
+                            {{#each moveOptions}}
+                            <option value="{{cost}}">{{cost}} AP ({{dist}} sq)</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <button class="action-confirm-btn" data-action="execute-move">{{localize "TRESPASSER.HUD.Confirm"}}</button>
+                    {{/if}}
+                </div>
+            </div>
+
             <!-- HELP -->
             <div class="hud-action-group">
                 <button class="hud-action-btn help" data-action="toggle-panel" data-panel="help" {{#unless canHelp}}disabled{{/unless}}>

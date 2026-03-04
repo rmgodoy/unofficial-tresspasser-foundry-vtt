@@ -60,6 +60,20 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             active: i < ap
         }));
 
+        const moveActionTaken = combatant.getFlag("trespasser", "moveActionTaken") ?? false;
+        const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+        const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
+        const movementHistory = combatant.getFlag("trespasser", "movementHistory") ?? [];
+        const speed = this._token.actor?.system.combat?.speed ?? 5;
+
+        const moveOptions = [];
+        for (let i = 1; i <= ap; i++) {
+            moveOptions.push({
+                cost: i,
+                dist: speed + (i - 1) * 2
+            });
+        }
+
         return {
             inCombat: true,
             token: this._token,
@@ -68,7 +82,14 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             apDots,
             allies: this._getNearbyAllies(),
             canDefend: ap >= 1,
-            canHelp: ap >= 1 && this._getNearbyAllies().length > 0
+            canHelp: ap >= 1 && this._getNearbyAllies().length > 0,
+            canMove: ap >= 1 && !moveActionTaken,
+            canUndo: movementHistory.length > 1,
+            moveActionTaken,
+            movementUsed,
+            movementAllowed,
+            speed,
+            moveOptions
         };
     }
 
@@ -172,6 +193,12 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                     break;
                 case "execute-help":
                     this._executeHelp();
+                    break;
+                case "execute-move":
+                    this._executeMove();
+                    break;
+                case "execute-undo":
+                    this._undoMove();
                     break;
             }
         });
@@ -327,5 +354,65 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             speaker: { alias: data.sourceName },
             content: `<strong>${data.sourceName}</strong> gives <strong>Help</strong> (+${data.bonus} ${data.attr}) to <strong>${targetActor.name}</strong> for ${data.cost} AP.`
         });
+    }
+
+    async _executeMove() {
+        const costInput = this.element.querySelector('[name="move-cost"]');
+        const cost = costInput ? parseInt(costInput.value) : 1;
+        
+        let combatant = null;
+        for (const combat of game.combats) {
+            combatant = combat.combatants.find(c => c.tokenId === this._token.id);
+            if (combatant) break;
+        }
+        if (!combatant) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        if (currentAP < cost) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            return;
+        }
+
+        const speed = this._token.actor?.system.combat?.speed ?? 5;
+        const dist = speed + (cost - 1) * 2;
+
+        await combatant.update({
+            "flags.trespasser.actionPoints": currentAP - cost,
+            "flags.trespasser.moveActionTaken": true,
+            "flags.trespasser.movementAllowed": dist,
+            "flags.trespasser.movementUsed": 0
+        });
+
+        ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ token: this._token }),
+            content: `<strong>${this._token.name}</strong> uses <strong>Move</strong> for ${cost} AP (Speed: ${dist} sq).`
+        });
+
+        this._activePanel = null;
+        this.render();
+    }
+
+    async _undoMove() {
+        if (!this._token) return;
+
+        const tokenDoc = this._token.document;
+        // Native movement history check
+        if ((tokenDoc.movementHistory?.length ?? 0) <= 1) return;
+
+        // Use Foundry's native undo — this handles position AND the yellow path visualization correctly
+        // Add to bypass set so our preUpdateToken hook doesn't block this as an illegal move
+        globalThis._trespasserUndoSet ??= new Set();
+        globalThis._trespasserUndoSet.add(tokenDoc.id);
+        try {
+            await tokenDoc.revertRecordedMovement();
+        } 
+        catch (e) {
+            console.error("Trespasser | Error undoing movement:", e);
+        }
+        finally {
+            globalThis._trespasserUndoSet.delete(tokenDoc.id);
+        }
+
+        // HUD will be re-rendered by the updateToken hook
     }
 }

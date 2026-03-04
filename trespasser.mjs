@@ -442,8 +442,83 @@ Hooks.on("deleteCombat", async (combat) => {
   }
 });
 
+// Token IDs currently undergoing a Trespasser undo — used to bypass movement hooks
+globalThis._trespasserUndoSet = new Set();
+
+/**
+ * Calculate total distance moved from native token document movement history.
+ * @param {TokenDocument} tokenDoc
+ * @returns {number}
+ * @private
+ */
+function _calculateTokenMovementDistance(tokenDoc) {
+  const history = tokenDoc.movementHistory;
+  if ( !history || history.length < 2 ) return 0;
+  let totalDistance = 0;
+  for ( let i = 0; i < history.length - 1; i++ ) {
+    const start = history[i];
+    const end = history[i+1];
+    const distRaw = canvas.grid.measurePath([start, end]).distance;
+    totalDistance += Math.round(distRaw / canvas.dimensions.distance);
+  }
+  return totalDistance;
+}
+
+/**
+ * Handle token movement restrictions in combat.
+ */
+Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
+  // Only enforce if position changes
+  if (changed.x === undefined && changed.y === undefined) return;
+  // Bypass enforcement for undo operations
+  if (globalThis._trespasserUndoSet.has(tokenDoc.id)) return;
+  if (!game.combat || !game.combat.active || !game.combat.started) return;
+  
+  const combatant = game.combat.combatants.find(c => c.tokenId === tokenDoc.id);
+  if (!combatant) return;
+
+  const activePhase = game.combat.getFlag("trespasser", "activePhase");
+  
+  // If it's not this token's phase, block non-GMs; GM repositioning is allowed but not tracked
+  if (combatant.initiative !== activePhase) {
+      if (!game.user.isGM) {
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotYourPhase"));
+          return false;
+      }
+      return; // GM reposition out of phase — don't track
+  }
+
+  // GMs bypass the action/limit checks but their in-phase moves are tracked
+  if (game.user.isGM) {
+    options.trespasserTrack = true;
+    return;
+  }
+
+  const moveActionTaken = combatant.getFlag("trespasser", "moveActionTaken") ?? false;
+  if (!moveActionTaken) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.MoveActionRequired"));
+      return false;
+  }
+
+  const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
+  const movementUsed = _calculateTokenMovementDistance(tokenDoc);
+  
+  // Calculate distance of the proposed move
+  const start  = { x: tokenDoc.x,             y: tokenDoc.y };
+  const end    = { x: changed.x ?? tokenDoc.x, y: changed.y ?? tokenDoc.y };
+  const distRaw = canvas.grid.measurePath([start, end]).distance;
+  const dist    = Math.round(distRaw / canvas.dimensions.distance);
+
+  if ((movementUsed + dist) > movementAllowed) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.MovementLimitExceeded"));
+      return false;
+  }
+
+  options.trespasserTrack = true;
+});
+
 Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
-  if (game.user.id !== userId) return; // Only trigger for the user who moved the token
+  if (game.user.id !== userId) return;
   
   // Sync token name back to actor name if it's unlinked
   if (changed.name && !tokenDoc.isLinked && tokenDoc.actor) {
@@ -452,24 +527,32 @@ Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
     }
   }
 
-  // Check if position actually changed
-  if (changed.x === undefined && changed.y === undefined && changed.elevation === undefined) return;
-  
+  // Only position changes from here on
+  if (changed.x === undefined && changed.y === undefined) return;
   if (!game.combat || !game.combat.active || !game.combat.started) return;
-  
+
   const combatant = game.combat.combatants.find(c => c.tokenId === tokenDoc.id);
   if (!combatant) return;
+
+  const activePhase = game.combat.getFlag("trespasser", "activePhase");
+  if (combatant.initiative !== activePhase) return;
+
+  // Sync flags with native movement history
+  const totalDist = _calculateTokenMovementDistance(tokenDoc);
   
-  // Only trigger on the combatant's own turn
-  if (game.combat.combatant?.id !== combatant.id) return;
-  
-  // Only trigger once per turn
-  if (combatant.getFlag("trespasser", "hasMovedThisTurn")) return;
-  
-  if (combatant.actor) {
-    await combatant.setFlag("trespasser", "hasMovedThisTurn", true);
+  await combatant.update({
+    "flags.trespasser.movementUsed": totalDist,
+    "flags.trespasser.movementHistory": tokenDoc.movementHistory,
+    "flags.trespasser.hasMovedThisTurn": totalDist > 0
+  });
+
+  // Trigger on-move effects if this was a valid tracked move (not an undo)
+  if (options.trespasserTrack && combatant.actor) {
     await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
   }
+
+  // Re-render the HUD so the Undo button appears immediately after moving
+  game.trespasser?.tokenHUD?.render();
 });
 
 /**

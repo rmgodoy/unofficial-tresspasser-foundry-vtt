@@ -170,8 +170,19 @@ export class TrespasserCombat extends Combat {
     const phaseEntrants = this.combatants.filter(c => c.initiative === phase && !c.defeated);
     for (const c of phaseEntrants) {
       // Reset per-turn flags
-      await c.setFlag("trespasser", "hasMovedThisTurn", false);
-      await c.setFlag("trespasser", "usedExpensiveDeed", false);
+      const token = c.token;
+      if (token?.document?.clearMovementHistory) {
+        await token.document.clearMovementHistory();
+      }
+      
+      await c.update({
+        "flags.trespasser.hasMovedThisTurn": false,
+        "flags.trespasser.moveActionTaken": false,
+        "flags.trespasser.movementAllowed": 0,
+        "flags.trespasser.movementUsed": 0,
+        "flags.trespasser.movementHistory": token?.document?.movementHistory ?? [],
+        "flags.trespasser.usedExpensiveDeed": false
+      });
 
       if (c.actor) {
         await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-turn");

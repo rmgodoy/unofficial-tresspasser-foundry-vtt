@@ -330,7 +330,10 @@
       "NotEnoughEndurance": "Not enough Endurance to use {name}. (Needs {cost}, has {current})",
       "NoAmmo": "You have no ammo available!",
       "AmmoConsumed": "Consumed {name} for the attack.",
-      "NoAP": "You don't have enough Action Points!"
+      "NoAP": "You don't have enough Action Points!",
+      "MoveActionRequired": "You must take the Move action (spend AP) before moving your token.",
+      "MovementLimitExceeded": "You have exceeded your movement limit for this turn.",
+      "NotYourPhase": "It is not this token's phase!"
     },
     "Chat": {
       "SkillCheck": "{name} — {skill} Check",
@@ -710,6 +713,9 @@
       "Title": "Token Actions",
       "Defend": "Defend",
       "Help": "Help",
+      "Move": "Move",
+      "UndoMove": "Undo Move",
+      "MovementUsed": "Movement Used",
       "SelectAlly": "Select Ally",
       "Attribute": "Attribute",
       "APCost": "AP Cost",
