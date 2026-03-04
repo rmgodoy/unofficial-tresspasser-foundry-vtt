@@ -515,7 +515,6 @@ export class TrespasserCombat extends Combat {
       sprite.x = tokenSize / 2;
       sprite.y = tokenSize / 2;
       sprite._zIndex = 1000; // Ensure it's on top
-      console.log(sprite)
       container.addChild(sprite);
 
       // Clean up function to remove the ticker when destroyed
