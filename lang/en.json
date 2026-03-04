@@ -700,7 +700,19 @@
     },
     "Peril": "Peril",
     "Panic": "Panic",
-    "InitDC": "Init DC"
+    "InitDC": "Init DC",
+    "HUD": {
+      "Title": "Token Actions",
+      "Defend": "Defend",
+      "Help": "Help",
+      "SelectAlly": "Select Ally",
+      "Attribute": "Attribute",
+      "APCost": "AP Cost",
+      "ExtraAP": "AP to spend",
+      "Confirm": "Confirm",
+      "NextCheck": "Next Check",
+      "WholeRound": "Whole Round"
+    }
   },
   "TYPES": {
     "Actor": {

@@ -43,6 +43,7 @@ import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mj
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 import { showTrespasserConfigDialog } from "./module/dialogs/trespasser-config-dialog.mjs";
+import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -239,12 +240,30 @@ Hooks.once("init", async () => {
   game.trespasser.ItemExporter = ItemExporter;
 });
 
+/**
+ * Socket handling for Token Action HUD / Help action
+ */
 Hooks.once("ready", () => {
+  // Initialize Token Action HUD
+  game.trespasser.tokenHUD = new TrespasserTokenHUD();
+
+  // Socket listener for Help requests
+  game.socket.on("system.trespasser.help", async data => {
+    console.log("Trespasser | Socket Message Received:", data.type, "User is GM:", game.user.isGM);
+    if (data.type === "applyHelp" && game.user.isGM) {
+      console.log("Trespasser | Processing help request for", data.sourceName);
+      if (game.trespasser.tokenHUD) {
+        game.trespasser.tokenHUD._handleHelpRequest(data);
+      }
+    }
+  });
+
   // Prevent default turn marker from being added to tokens, since we are implementing our own turn marker system
-  foundry.canvas.placeables.tokens.TokenTurnMarker.prototype.draw = async function() {
-    // Return early to prevent the marker from being added to the token's container
-    return; 
-  };
+  if (foundry.canvas.placeables.tokens.TokenTurnMarker) {
+    foundry.canvas.placeables.tokens.TokenTurnMarker.prototype.draw = async function() {
+      return; 
+    };
+  }
 
   if (game.combat) {
     game.combat.updateTurnMarkers(game.combat.flags.trespasser.activePhase);

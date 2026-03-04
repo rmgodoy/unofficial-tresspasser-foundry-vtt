@@ -1,0 +1,73 @@
+{{#if inCombat}}
+<div class="hud-content">
+    <header>
+        <div class="hud-title">{{localize "TRESPASSER.HUD.Title"}}</div>
+        <div class="ap-indicator" title="{{localize "TRESPASSER.Sheet.Combat.ActionPoints"}}">
+            {{#each apDots}}
+            <div class="ap-dot {{#if active}}active{{/if}}"></div>
+            {{/each}}
+        </div>
+    </header>
+
+    <div class="hud-actions">
+        <!-- DEFEND -->
+        <div class="hud-action-group">
+            <button class="hud-action-btn defend" data-action="toggle-panel" data-panel="defend" {{#unless canDefend}}disabled{{/unless}}>
+                {{localize "TRESPASSER.HUD.Defend"}} (1 AP)
+            </button>
+            <div class="hud-sub-panel hidden" id="panel-defend">
+                <div class="field-row">
+                    <label>{{localize "TRESPASSER.Dialog.EffectEditor.TargetAttr"}}</label>
+                    <select name="defend-type">
+                        <option value="guard">{{localize "TRESPASSER.Sheet.Combat.Guard"}}</option>
+                        <option value="resist">{{localize "TRESPASSER.Sheet.Combat.Resist"}}</option>
+                    </select>
+                </div>
+                <div class="field-row">
+                    <label>{{localize "TRESPASSER.HUD.APCost"}}</label>
+                    <select name="defend-cost">
+                        <option value="1">1 AP ({{localize "TRESPASSER.HUD.NextCheck"}})</option>
+                        <option value="2" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>2 AP ({{localize "TRESPASSER.HUD.WholeRound"}})</option>
+                    </select>
+                </div>
+                <button class="action-confirm-btn" data-action="execute-defend">{{localize "TRESPASSER.HUD.Confirm"}}</button>
+            </div>
+        </div>
+
+        <!-- HELP -->
+        <div class="hud-action-group">
+            <button class="hud-action-btn help" data-action="toggle-panel" data-panel="help" {{#unless canHelp}}disabled{{/unless}}>
+                {{localize "TRESPASSER.HUD.Help"}} (1 AP)
+            </button>
+            <div class="hud-sub-panel hidden" id="panel-help">
+                <div class="field-row">
+                    <label>{{localize "TRESPASSER.HUD.SelectAlly"}}</label>
+                    <select name="help-target">
+                        {{#each allies}}
+                        <option value="{{id}}">{{name}} ({{distance}} sq)</option>
+                        {{/each}}
+                    </select>
+                </div>
+                <div class="field-row">
+                    <label>{{localize "TRESPASSER.HUD.Attribute"}}</label>
+                    <select name="help-attr">
+                        <option value="accuracy">{{localize "TRESPASSER.Sheet.Combat.Accuracy"}}</option>
+                        <option value="guard">{{localize "TRESPASSER.Sheet.Combat.Guard"}}</option>
+                        <option value="resist">{{localize "TRESPASSER.Sheet.Combat.Resist"}}</option>
+                        <option value="prevail">{{localize "TRESPASSER.Sheet.Combat.Prevail"}}</option>
+                    </select>
+                </div>
+                <div class="field-row">
+                    <label>{{localize "TRESPASSER.HUD.APCost"}}</label>
+                    <select name="help-cost">
+                        <option value="1">1 AP (+1)</option>
+                        <option value="2" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>2 AP (+2)</option>
+                        <option value="3" {{#if (trespasserGt 3 availableAP)}}disabled{{/if}}>3 AP (+3)</option>
+                    </select>
+                </div>
+                <button class="action-confirm-btn" data-action="execute-help">{{localize "TRESPASSER.HUD.Confirm"}}</button>
+            </div>
+        </div>
+    </div>
+</div>
+{{/if}}

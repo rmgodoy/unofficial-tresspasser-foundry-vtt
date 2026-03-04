@@ -700,7 +700,19 @@
     },
     "Peril": "Perigo",
     "Panic": "Pânico",
-    "InitDC": "DC de Iniciativa"
+    "InitDC": "DC de Iniciativa",
+    "HUD": {
+      "Title": "Ações de Token",
+      "Defend": "Defender",
+      "Help": "Ajudar",
+      "SelectAlly": "Selecionar Aliado",
+      "Attribute": "Atributo",
+      "APCost": "Custo de PA",
+      "ExtraAP": "PA para gastar",
+      "Confirm": "Confirmar",
+      "NextCheck": "Próximo Teste",
+      "WholeRound": "Rodada Inteira"
+    }
   },
   "TYPES": {
     "Actor": {
