@@ -259,7 +259,7 @@ export class TrespasserCombat extends Combat {
         const total = roll.total;
         const isNat20 = roll.dice[0].results[0].result === 20;
 
-        if ( isNat20 || true) {
+        if ( isNat20 ) {
           // Nat 20: acts in Extra phase (10)
           updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY });
           const extraData = this.createExtraCombatant(c, TrespasserCombat.PHASES.LATE);
