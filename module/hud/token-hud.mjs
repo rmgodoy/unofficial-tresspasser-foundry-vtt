@@ -1,3 +1,6 @@
+
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 /**
@@ -38,14 +41,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
     _prepareContext(options) {
         if (!this._token) return { inCombat: false };
         
-        // Find combatant across ALL combats
-        let combatant = null;
-        if (game.combats) {
-            for (const combat of game.combats) {
-                combatant = combat.combatants.find(c => c.tokenId === this._token.id);
-                if (combatant) break;
-            }
-        }
+        // Find combatant across ALL combats (matching active phase)
+        const combatant = this._getCombatant();
 
         // Diagnostic for player
         if (!game.user.isGM) {
@@ -54,6 +51,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         }
 
         if (!combatant) return { inCombat: false };
+
+        const states = TrespasserEffectsHelper.getActorEffects(this._token.actor).combat.filter(e => e.item?.type === "state");
 
         const ap = combatant.getFlag("trespasser", "actionPoints") ?? 3;
         const apDots = Array.from({ length: 3 }, (_, i) => ({
@@ -74,7 +73,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             });
         }
 
-        return {
+        const context = {
             inCombat: true,
             token: this._token,
             actor: this._token.actor,
@@ -89,8 +88,18 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             movementUsed,
             movementAllowed,
             speed,
-            moveOptions
+            moveOptions,
+            canPrevail: ap >= 1 && states.length > 0,
+            states
         };
+
+        // Ensure active panel is cleared if it's no longer accessible (Requirement 2)
+        if ( this._activePanel === "defend" && !context.canDefend ) this._activePanel = null;
+        if ( this._activePanel === "help" && !context.canHelp ) this._activePanel = null;
+        if ( this._activePanel === "move" && !context.canMove ) this._activePanel = null;
+        if ( this._activePanel === "prevail" && !context.canPrevail ) this._activePanel = null;
+
+        return context;
     }
 
     /** @override */
@@ -130,6 +139,23 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         return allies;
     }
 
+    /**
+     * Centralized way to find the correct combatant for the token,
+     * prioritizing the one in the currently active combat phase.
+     */
+    _getCombatant() {
+        if (!this._token || !game.combats) return null;
+        for (const combat of game.combats) {
+            const activePhase = combat.getFlag("trespasser", "activePhase");
+            const combatant = combat.combatants.find(c => 
+                c.tokenId === this._token.id && 
+                (activePhase === undefined || activePhase === null || c.initiative === activePhase)
+            );
+            if (combatant) return combatant;
+        }
+        return null;
+    }
+
     _initHooks() {
         // Handle token selection changes
         Hooks.on("controlToken", (token, controlled) => {
@@ -160,6 +186,20 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             if (combatant.tokenId === this._token.id) {
                 this.render();
             }
+        });
+
+        // Handle actor/item changes to keep HUD in sync
+        Hooks.on("updateActor", (actor) => {
+            if (this._token && actor.id === this._token.actor?.id) this.render();
+        });
+        Hooks.on("createItem", (item) => {
+            if (this._token && item.parent?.id === this._token.actor?.id) this.render();
+        });
+        Hooks.on("updateItem", (item) => {
+            if (this._token && item.parent?.id === this._token.actor?.id) this.render();
+        });
+        Hooks.on("deleteItem", (item) => {
+            if (this._token && item.parent?.id === this._token.actor?.id) this.render();
         });
 
         // Check immediately in case we are already in combat/have selection
@@ -200,6 +240,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 case "execute-undo":
                     this._undoMove();
                     break;
+                case "execute-prevail":
+                    this._executePrevail();
+                    break;
             }
         });
     }
@@ -221,11 +264,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const costInput = this.element.querySelector('[name="defend-cost"]');
         const cost = costInput ? parseInt(costInput.value) : 1;
         
-        let combatant = null;
-        for (const combat of game.combats) {
-            combatant = combat.combatants.find(c => c.tokenId === this._token.id);
-            if (combatant) break;
-        }
+        const combatant = this._getCombatant();
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
@@ -269,15 +308,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const costInput = this.element.querySelector('[name="help-cost"]');
         const cost = costInput ? parseInt(costInput.value) : 1;
 
-        let combatant = null;
-        let combatId = null;
-        for (const combat of game.combats) {
-            combatant = combat.combatants.find(c => c.tokenId === this._token.id);
-            if (combatant) {
-                combatId = combat.id;
-                break;
-            }
-        }
+        const combatant = this._getCombatant();
+        const combatId = combatant?.parent?.id;
         if (!combatant) return;
 
         const targetToken = canvas.tokens.get(targetId);
@@ -360,11 +392,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const costInput = this.element.querySelector('[name="move-cost"]');
         const cost = costInput ? parseInt(costInput.value) : 1;
         
-        let combatant = null;
-        for (const combat of game.combats) {
-            combatant = combat.combatants.find(c => c.tokenId === this._token.id);
-            if (combatant) break;
-        }
+        const combatant = this._getCombatant();
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
@@ -414,5 +442,31 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         }
 
         // HUD will be re-rendered by the updateToken hook
+    }
+
+    async _executePrevail() {
+        const stateSelect = this.element.querySelector('[name="prevail-state"]');
+        const extraApSelect = this.element.querySelector('[name="prevail-extra-ap"]');
+        
+        if (!stateSelect || !extraApSelect) return;
+
+        const stateId = stateSelect.value;
+        const extraAP = parseInt(extraApSelect.value) || 0;
+        const totalCost = 1 + extraAP;
+
+        const combatant = this._getCombatant();
+        if (!combatant) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        if (currentAP < totalCost) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            return;
+        }
+
+        await this._token.actor.rollPrevail(stateId, extraAP);
+        await combatant.setFlag("trespasser", "actionPoints", currentAP - totalCost);
+
+        this._activePanel = null;
+        this.render();
     }
 }

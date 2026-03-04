@@ -349,6 +349,8 @@
       "EffectTriggeredAdded": "<strong>{name}</strong> triggered: Added {target} effect.",
       "PrevailSuccess": "Prevails against <b>{name}</b> (Roll: {roll} vs {target}) — <b>Success!</b>",
       "PrevailFailed": "Failed to prevail against <b>{name}</b> (Roll: {roll} vs {target}) — <b>Failed</b>",
+      "PrevailCheck": "Prevail Check: {name}",
+      "PrevailVsDC": "Roll Total: {total} vs DC {dc}",
       "Hit": "HIT!",
       "Miss": "MISS!",
       "Sparks": "Sparks: {count}",

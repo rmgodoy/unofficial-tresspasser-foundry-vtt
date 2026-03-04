@@ -14,7 +14,7 @@
             <!-- DEFEND -->
             <div class="hud-action-group">
                 <button class="hud-action-btn defend" data-action="toggle-panel" data-panel="defend" {{#unless canDefend}}disabled{{/unless}}>
-                    {{localize "TRESPASSER.HUD.Defend"}} (1 AP)
+                    {{localize "TRESPASSER.HUD.Defend"}}
                 </button>
                 <div class="hud-sub-panel hidden" id="panel-defend">
                     <div class="field-row">
@@ -72,7 +72,7 @@
             <!-- HELP -->
             <div class="hud-action-group">
                 <button class="hud-action-btn help" data-action="toggle-panel" data-panel="help" {{#unless canHelp}}disabled{{/unless}}>
-                    {{localize "TRESPASSER.HUD.Help"}} (1 AP)
+                    {{localize "TRESPASSER.HUD.Help"}}
                 </button>
                 <div class="hud-sub-panel hidden" id="panel-help">
                     <div class="field-row">
@@ -102,6 +102,32 @@
                         </select>
                     </div>
                     <button class="action-confirm-btn" data-action="execute-help">{{localize "TRESPASSER.HUD.Confirm"}}</button>
+                </div>
+            </div>
+
+            <!-- PREVAIL -->
+            <div class="hud-action-group">
+                <button class="hud-action-btn prevail" data-action="toggle-panel" data-panel="prevail" {{#unless canPrevail}}disabled{{/unless}}>
+                    {{localize "TRESPASSER.Sheet.Combat.Prevail"}}
+                </button>
+                <div class="hud-sub-panel hidden" id="panel-prevail">
+                    <div class="field-row">
+                        <label>{{localize "TRESPASSER.Sheet.Combat.States"}}</label>
+                        <select name="prevail-state">
+                            {{#each states}}
+                            <option value="{{this.id}}">{{this.name}} ({{this.intensity}})</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <div class="field-row">
+                        <label>{{localize "TRESPASSER.HUD.APCost"}}</label>
+                        <select name="prevail-extra-ap">
+                            <option value="0">1 AP (+0)</option>
+                            <option value="1" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>2 AP (+2)</option>
+                            <option value="2" {{#if (trespasserGt 3 availableAP)}}disabled{{/if}}>3 AP (+4)</option>
+                        </select>
+                    </div>
+                    <button class="action-confirm-btn" data-action="execute-prevail">{{localize "TRESPASSER.HUD.Confirm"}}</button>
                 </div>
             </div>
         </div>

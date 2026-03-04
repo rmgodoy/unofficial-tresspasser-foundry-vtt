@@ -512,6 +512,11 @@ export class TrespasserActor extends Actor {
    * Triggers 'end-of-turn' effects and grants Focus equal to Skill Bonus (characters only).
    * @param {Combatant} [combatant] - The combatant object, used to check usedExpensiveDeed flag.
    */
+  /**
+   * Called when this actor's turn ends (all AP spent or phase advances).
+   * Triggers 'end-of-turn' effects and grants Focus equal to Skill Bonus (characters only).
+   * @param {Combatant} [combatant] - The combatant object, used to check usedExpensiveDeed flag.
+   */
   async onTurnEnd(combatant = null) {
     if (!game.combat) return;
 
@@ -533,6 +538,68 @@ export class TrespasserActor extends Actor {
         }
       }
     }
+  }
+
+  /**
+   * Roll a Prevail check to remove a state.
+   * DC = min(20, 10 + Intensity)
+   * Bonus = Prevail Stat + (Extra AP * 2)
+   * 
+   * @param {string} stateItemId - The ID of the state item to prevail against.
+   * @param {number} extraAP - Extra Action Points spent for +2 bonus each.
+   */
+  async rollPrevail(stateItemId, extraAP = 0) {
+    const stateItem = this.items.get(stateItemId);
+    if (!stateItem) {
+      ui.notifications.warn("State item not found.");
+      return;
+    }
+
+    const intensity = stateItem.system.intensity || 0;
+    const dc = Math.min(20, 10 + intensity);
+    const prevailStat = this.type === "creature" 
+      ? (this.system.combat?.roll_bonus || 0) 
+      : (this.system.combat?.prevail || 0);
+    const apBonus = extraAP * 2;
+    const totalBonus = prevailStat + apBonus;
+
+    // Check for advantage on the prevail roll
+    const isAdv = TrespasserEffectsHelper.hasAdvantage(this, "roll_bonus") ||
+                  TrespasserEffectsHelper.hasAdvantage(this, "accuracy") ||
+                  TrespasserEffectsHelper.hasAdvantage(this, "prevail");
+    
+    const formula = isAdv ? `2d20kh + ${totalBonus}` : `1d20 + ${totalBonus}`;
+
+    const roll = new foundry.dice.Roll(formula);
+    await roll.evaluate();
+
+    const success = roll.total >= dc;
+    
+    let flavor = `<div class="trespasser-chat-card">
+      <h3>${game.i18n.format("TRESPASSER.Chat.PrevailCheck", { name: stateItem.name })}</h3>
+      <p>${game.i18n.format("TRESPASSER.Chat.PrevailVsDC", { total: roll.total, dc: dc })}</p>
+      <div class="roll-details" style="font-size: 10px; color: var(--trp-text-dim); margin-bottom: 5px;">
+        Formula: ${roll.formula} (d20: ${roll.dice[0].total})<br>
+        Bonus: ${prevailStat} (Prevail) ${apBonus > 0 ? `+ ${apBonus} (AP)` : ""}
+      </div>
+      <p class="${success ? 'hit-text' : 'miss-text'}" style="font-size: 16px; font-weight: bold; text-align: center;">
+        ${success ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}
+      </p>
+    </div>`;
+
+    await roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      flavor: flavor
+    });
+
+    if (success) {
+      await stateItem.delete();
+    }
+
+    // Trigger any effects that fire when a prevail check is made
+    await TrespasserEffectsHelper.triggerEffects(this, "on-prevail");
+
+    return roll;
   }
 }
 

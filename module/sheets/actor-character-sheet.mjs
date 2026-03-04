@@ -9,12 +9,13 @@ import { showCallingDialog }           from "../dialogs/calling-dialog.mjs";
 import { showCraftDialog }             from "../dialogs/craft-dialog.mjs";
 import { showRestDialog }              from "../dialogs/rest-dialog.mjs";
 import { showAmmoDialog }              from "../dialogs/ammo-dialog.mjs";
+import { askAPDialog }               from "../dialogs/ap-dialog.mjs";
 
 import { getCharacterData, buildClockSegments } from "./character/get-data.mjs";
 import { activateCharacterListeners }           from "./character/listeners.mjs";
 
 import { onAttributeRoll, onCombatStatRoll, onSkillRoll } from "./character/handlers-rolls.mjs";
-import { onDeedRoll, postDeedPhase, requestCDAndRoll, evaluateAndShowRoll, askAPDialog } from "./character/handlers-deed.mjs";
+import { onDeedRoll, postDeedPhase, requestCDAndRoll, evaluateAndShowRoll } from "./character/handlers-deed.mjs";
 import { onTalentRoll, onFeatureRoll, onIncantationRoll }                   from "./character/handlers-talent.mjs";
 import { handleRestAction, recoverItemCost, spendRDAndRoll }                from "./character/handlers-rest.mjs";
 import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck }  from "./character/handlers-items.mjs";

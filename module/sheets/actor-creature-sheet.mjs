@@ -1,5 +1,6 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { showItemInfoDialog }  from "../dialogs/item-info-dialog.mjs";
+import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 
 /**
  * Extend the basic ActorSheet with some very simple logic.
@@ -237,10 +238,6 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
   /**
    * Handle rolling a prevail check for an effect/state on a creature.
    *
-   * DC = min(20, 10 + netSum) where netSum is the sum of all numeric modifiers
-   * on the actor that share the same target attribute, when timing, and type.
-   * On success, ALL matched effects are removed.
-   *
    * @param {Event} event
    */
   async _onPrevailRoll(event) {
@@ -250,33 +247,27 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
     const effectItem = this.actor.items.get(itemId);
     if (!effectItem) return;
 
-    const intensity = effectItem.system.intensity || 0;
-    const dc = Math.min(20, 10 + intensity);
+    let extraAP = 0;
+    const combatant = game.combat?.combatants.find(c => c.actorId === this.actor.id);
+    
+    if (combatant && this.actor.type === "creature") {
+      const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+      if (availableAP < 1) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+        return;
+      }
 
-    const rollBonus = this.actor.system.combat?.roll_bonus ?? this.actor.system.roll_bonus ?? 0;
-
-    // Check for advantage on the prevail roll
-    const isAdv = TrespasserEffectsHelper.hasAdvantage(this.actor, "roll_bonus") ||
-                  TrespasserEffectsHelper.hasAdvantage(this.actor, "accuracy");
-    const formula = isAdv ? `2d20kh + ${rollBonus}` : `1d20 + ${rollBonus}`;
-
-    const roll = new foundry.dice.Roll(formula);
-    await roll.evaluate();
-
-    const success = roll.total >= dc;
-
-    const flavor = success
-      ? game.i18n.format("TRESPASSER.Chat.PrevailSuccess", { name: effectItem.name, roll: roll.total, target: dc })
-      : game.i18n.format("TRESPASSER.Chat.PrevailFailed",  { name: effectItem.name, roll: roll.total, target: dc });
-
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: flavor
-    });
-
-    if (success) {
-      await effectItem.delete();
+      let apSpent = 1;
+      if (availableAP > 1) {
+        apSpent = await askAPDialog(availableAP);
+        if (apSpent === null) return;
+      }
+      
+      extraAP = apSpent - 1;
+      await combatant.setFlag("trespasser", "actionPoints", availableAP - apSpent);
     }
+
+    await this.actor.rollPrevail(effectItem.id, extraAP);
   }
 
   /**
