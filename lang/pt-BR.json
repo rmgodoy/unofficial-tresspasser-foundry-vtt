@@ -329,7 +329,8 @@
       "NotEnoughFocus": "Foco insuficiente para usar {name}. (Necessário {cost}, possui {current})",
       "NotEnoughEndurance": "Vigor insuficiente para usar {name}. (Necessário {cost}, possui {current})",
       "NoAmmo": "Você não possui munição disponível!",
-      "AmmoConsumed": "Consumiu {name} para o ataque."
+      "AmmoConsumed": "Consumiu {name} para o ataque.",
+      "NoAP": "Você não tem Pontos de Ação suficientes!"
     },
     "Chat": {
       "SkillCheck": "{name} — Teste de {skill}",
@@ -677,6 +678,15 @@
         "SelectTitle": "Selecionar Munição",
         "ChooseRef": "Escolha uma munição para usar com <b>{name}</b>:",
         "Use": "Usar Munição"
+      },
+      "SpendAP": {
+        "Title": "Gastar Pontos de Ação",
+        "Question": "Quantos Pontos de Ação você deseja gastar nesta habilidade?",
+        "Available": "Disponível: {count} PA",
+        "Confirm": "Rolar Habilidade",
+        "Bonus": "Bônus de Acurácia: +{bonus}",
+        "DefaultOption": "1 PA (Sem Bônus)",
+        "AdditionalOption": "{count} PA (+{bonus} de Acurácia)"
       }
     },
     "Phase": {

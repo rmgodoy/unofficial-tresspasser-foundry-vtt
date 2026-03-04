@@ -329,7 +329,8 @@
       "NotEnoughFocus": "Not enough Focus to use {name}. (Needs {cost}, has {current})",
       "NotEnoughEndurance": "Not enough Endurance to use {name}. (Needs {cost}, has {current})",
       "NoAmmo": "You have no ammo available!",
-      "AmmoConsumed": "Consumed {name} for the attack."
+      "AmmoConsumed": "Consumed {name} for the attack.",
+      "NoAP": "You don't have enough Action Points!"
     },
     "Chat": {
       "SkillCheck": "{name} — {skill} Check",
@@ -677,6 +678,15 @@
         "SelectTitle": "Select Ammo",
         "ChooseRef": "Choose an ammo to use with <b>{name}</b>:",
         "Use": "Use Ammo"
+      },
+      "SpendAP": {
+        "Title": "Spend Action Points",
+        "Question": "How many Action Points do you want to spend on this deed?",
+        "Available": "Available: {count} AP",
+        "Confirm": "Roll Deed",
+        "Bonus": "Accuracy Bonus: +{bonus}",
+        "DefaultOption": "1 AP (No Bonus)",
+        "AdditionalOption": "{count} AP (+{bonus} Accuracy)"
       }
     },
     "Phase": {

@@ -14,7 +14,7 @@ import { getCharacterData, buildClockSegments } from "./character/get-data.mjs";
 import { activateCharacterListeners }           from "./character/listeners.mjs";
 
 import { onAttributeRoll, onCombatStatRoll, onSkillRoll } from "./character/handlers-rolls.mjs";
-import { onDeedRoll, postDeedPhase, requestCDAndRoll, evaluateAndShowRoll } from "./character/handlers-deed.mjs";
+import { onDeedRoll, postDeedPhase, requestCDAndRoll, evaluateAndShowRoll, askAPDialog } from "./character/handlers-deed.mjs";
 import { onTalentRoll, onFeatureRoll, onIncantationRoll }                   from "./character/handlers-talent.mjs";
 import { handleRestAction, recoverItemCost, spendRDAndRoll }                from "./character/handlers-rest.mjs";
 import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck }  from "./character/handlers-items.mjs";
@@ -80,6 +80,7 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   }
   async _requestCDAndRoll(roll, flavor)     { return requestCDAndRoll(roll, flavor, this); }
   async _evaluateAndShowRoll(roll, flavor, cd) { return evaluateAndShowRoll(roll, flavor, cd, this); }
+  async _askAPDialog(availableAP)             { return askAPDialog(availableAP); }
 
   // ── Talents / Features / Incantations ─────────────────────────────────────
   async _onTalentRoll(event)                { return onTalentRoll(event, this); }

@@ -80,8 +80,28 @@ export async function onDeedRoll(event, sheet) {
   await TrespasserEffectsHelper.triggerEffects(sheet.actor, "on-use-deed");
 
   // Accuracy roll
+  let apBonus = 0;
+  const combatant = game.combat?.combatants.find(c => c.actorId === sheet.actor.id);
+  if (combatant && sheet.actor.type === "character") {
+    const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+    if (availableAP < 1) {
+       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+       return;
+    }
+    
+    // Default is 1 AP, but can spend more if available
+    let apSpent = 1;
+    if (availableAP > 1) {
+      apSpent = await sheet._askAPDialog(availableAP);
+      if (apSpent === null) return; // Cancelled
+    }
+    
+    apBonus = (apSpent - 1) * 2;
+    await combatant.setFlag("trespasser", "actionPoints", availableAP - apSpent);
+  }
+
   const isAdv    = TrespasserEffectsHelper.hasAdvantage(sheet.actor, "accuracy");
-  const accuracy = sheet.actor.system.combat.accuracy ?? 0;
+  const accuracy = (sheet.actor.system.combat.accuracy ?? 0) + apBonus;
   const formula  = isAdv ? `2d20kh + ${accuracy}` : `1d20 + ${accuracy}`;
   const accRoll  = new foundry.dice.Roll(formula);
   await accRoll.evaluate();
@@ -156,6 +176,7 @@ export async function onDeedRoll(event, sheet) {
     <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${rollTotal} <span style="font-size:10px;color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
     ${resultsHtml}`;
   if (totalCost > 0) accFlavor += `<p class="cost-note" style="margin-top:5px;">${game.i18n.format("TRESPASSER.Chat.SpentFocus", { count: totalCost })}</p>`;
+  if (apBonus > 0) accFlavor += `<p class="cost-note" style="margin-top:2px;color:#2ecc71;">+${apBonus} Accuracy from Extra Effort</p>`;
   accFlavor += `</div>`;
 
   await accRoll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor: accFlavor });
@@ -329,4 +350,52 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet) {
   });
 
   return roll;
+}
+
+export async function askAPDialog(availableAP) {
+  const content = `
+    <div class="trespasser-dialog ap-dialog">
+      <p>${game.i18n.localize("TRESPASSER.Dialog.SpendAP.Question")}</p>
+      <div class="form-group" style="margin-top: 10px;">
+        <label>${game.i18n.format("TRESPASSER.Dialog.SpendAP.Available", { count: availableAP })}</label>
+        <select id="ap-spent" style="width: 100%;">
+          ${Array.from({ length: availableAP }, (_, i) => i + 1).map(val => {
+            const bonus = (val - 1) * 2;
+            const label = val === 1 
+              ? game.i18n.localize("TRESPASSER.Dialog.SpendAP.DefaultOption") 
+              : game.i18n.format("TRESPASSER.Dialog.SpendAP.AdditionalOption", { count: val, bonus: bonus });
+            return `<option value="${val}">${label}</option>`;
+          }).join("")}
+        </select>
+      </div>
+      <p id="ap-bonus-preview" style="margin-top: 5px; font-style: italic; font-size: 0.9em; color: var(--trp-gold-bright);">
+        ${game.i18n.format("TRESPASSER.Dialog.SpendAP.Bonus", { bonus: 0 })}
+      </p>
+    </div>
+    <script>
+      document.getElementById("ap-spent").addEventListener("change", (ev) => {
+        const val = parseInt(ev.target.value);
+        const bonus = (val - 1) * 2;
+        document.getElementById("ap-bonus-preview").innerText = game.i18n.format("TRESPASSER.Dialog.SpendAP.Bonus", { bonus: bonus });
+      });
+    </script>
+  `;
+
+  return new Promise((resolve) => {
+    new Dialog({
+      title: game.i18n.localize("TRESPASSER.Dialog.SpendAP.Title"),
+      content,
+      buttons: {
+        confirm: {
+          label: game.i18n.localize("TRESPASSER.Dialog.SpendAP.Confirm"),
+          callback: (html) => resolve(parseInt(html.find("#ap-spent").val()))
+        },
+        cancel: {
+          label: game.i18n.localize("TRESPASSER.Dialog.Cancel"),
+          callback: () => resolve(null)
+        }
+      },
+      default: "confirm"
+    }, { classes: ["trespasser", "dialog"] }).render(true);
+  });
 }
