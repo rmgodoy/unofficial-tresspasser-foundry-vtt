@@ -141,8 +141,11 @@ export class TrespasserCombat extends Combat {
    * Trigger start-of-round effects for all combatants.
    */
   async _onStartOfRound() {
+    const processedActors = new Set();
     for (const c of this.combatants) {
-      if (c.actor) {
+      if (c.actor && !processedActors.has(c.actor.id)) {
+        processedActors.add(c.actor.id);
+        await TrespasserEffectsHelper.decrementRounds(c.actor);
         await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-round");
       }
     }

@@ -21,6 +21,7 @@ import { TrespasserCallingData }    from "./module/data/item-calling.mjs";
 import { TrespasserActor }         from "./module/documents/actor.mjs";
 import { TrespasserCombat }        from "./module/documents/combat.mjs";
 import { TrespasserEffectsHelper } from "./module/helpers/effects-helper.mjs";
+import { DurationHelper }          from "./module/helpers/duration-helper.mjs";
 import { TrespasserCharacterSheet } from "./module/sheets/actor-character-sheet.mjs";
 import { TrespasserCreatureSheet }  from "./module/sheets/actor-creature-sheet.mjs";
 import { TrespasserArmorSheet }     from "./module/sheets/item-armor-sheet.mjs";
@@ -205,6 +206,7 @@ Hooks.once("init", async () => {
   // Handlebars helpers
   Handlebars.registerHelper("trespasserChecked", (value) => (value ? "checked" : ""));
   Handlebars.registerHelper("trespasserGt", (a, b) => a > b);
+  Handlebars.registerHelper("gt", (a, b) => a > b);
   Handlebars.registerHelper("eq", (a, b) => a === b);
   Handlebars.registerHelper("or", (...args) => args.slice(0, -1).some(Boolean));
   Handlebars.registerHelper("ne", (a, b) => a !== b);
@@ -428,11 +430,11 @@ Hooks.on("deleteCombat", async (combat) => {
     if (c.actor) {
       await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");
       
-      // Remove combat-length effects
-      const toRemove = c.actor.items.filter(i => 
-        (i.type === "effect" || i.type === "state") && 
-        i.system.duration === "combat"
-      );
+      // Remove effects where combat-end triggers expiry (compound or legacy "combat" duration)
+      const toRemove = c.actor.items.filter(i => {
+        if (i.type !== "effect" && i.type !== "state") return false;
+        return DurationHelper.shouldExpire(i) || i.system.duration === "combat";
+      });
       for (const eff of toRemove) {
         await eff.delete();
       }

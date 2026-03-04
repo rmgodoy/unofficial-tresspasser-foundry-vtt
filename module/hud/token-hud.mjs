@@ -133,6 +133,14 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         Hooks.on("deleteCombat", () => this.close());
         Hooks.on("canvasReady", () => this._checkAndRenderForActiveToken());
 
+        // Handle AP changes (stored in flags) on combatants
+        Hooks.on("updateCombatant", (combatant, changed) => {
+            if (!this._token) return;
+            if (combatant.tokenId === this._token.id) {
+                this.render();
+            }
+        });
+
         // Check immediately in case we are already in combat/have selection
         if (game.ready) this._checkAndRenderForActiveToken();
         else Hooks.once("ready", () => this._checkAndRenderForActiveToken());
@@ -209,9 +217,10 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 modifier: "+2",
                 isCombat: true,
                 type: "active",
-                duration: "triggers",
+                duration: isWholeRound? "rounds" : "triggers",
                 durationValue: 1,
-                when: "end-of-round"
+                durationConditions: [{ mode: isWholeRound ? "rounds" : "triggers", value: 1 }],
+                when: "use"
             }
         };
 
@@ -265,7 +274,12 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 isCombat: true,
                 duration: "triggers",
                 durationValue: 1,
-                when: "end-of-round"
+                durationOperator: "OR",
+                durationConditions: [
+                    { mode: "triggers", value: 1 },
+                    { mode: "rounds", value: 1 }
+                ],
+                when: "use"
             }
         };
 
@@ -282,14 +296,11 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             attr: attr
         };
 
-        console.log("Trespasser | Emitting help request socket (to GM):", payload);
         game.socket.emit("system.trespasser.help", payload);
-
         if (game.user.isGM) {
-            // Trigger locally for GM
-            this._handleHelpRequest(payload);
+            await this._handleHelpRequest(payload);
         } else {
-            ui.notifications.info(`Requested Help for ${targetToken.name}. Waiting for GM confirmation.`);
+            ui.notifications.info(`Applied Help for ${targetToken.name}.`);
         }
 
         this._activePanel = null;
@@ -297,34 +308,24 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
     }
 
     /**
-     * Helper to show the confirmation dialog locally for the GM.
+     * Automatically apply the help effect (called on GM client).
      */
     async _handleHelpRequest(data) {
         const targetActor = fromUuidSync(data.targetActorUuid);
         if (!targetActor) return;
 
-        const confirm = await Dialog.confirm({
-            title: `Help Action: ${data.sourceName}`,
-            content: `<p><strong>${data.sourceName}</strong> wants to help <strong>${targetActor.name}</strong> with a +${data.bonus} bonus to ${data.attr}.</p><p>Spend ${data.cost} AP from ${data.sourceName}?</p>`,
-            yes: () => true,
-            no: () => false,
-            defaultYes: true
-        });
-
-        if (confirm) {
-            const combat = game.combats.get(data.combatId);
-            const combatant = combat?.combatants.get(data.sourceCombatantId);
-            if (combatant) {
-                const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-                await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - data.cost));
-            }
-
-            await targetActor.createEmbeddedDocuments("Item", [data.effectData]);
-            
-            ChatMessage.create({
-                speaker: { alias: data.sourceName },
-                content: `<strong>${data.sourceName}</strong> gives <strong>Help</strong> (+${data.bonus} ${data.attr}) to <strong>${targetActor.name}</strong> for ${data.cost} AP.`
-            });
+        const combat = game.combats.get(data.combatId);
+        const combatant = combat?.combatants.get(data.sourceCombatantId);
+        if (combatant) {
+            const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - data.cost));
         }
+
+        await targetActor.createEmbeddedDocuments("Item", [data.effectData]);
+        
+        ChatMessage.create({
+            speaker: { alias: data.sourceName },
+            content: `<strong>${data.sourceName}</strong> gives <strong>Help</strong> (+${data.bonus} ${data.attr}) to <strong>${targetActor.name}</strong> for ${data.cost} AP.`
+        });
     }
 }

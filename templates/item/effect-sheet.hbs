@@ -71,21 +71,54 @@
         </select>
       </div>
 
-      <div class="field-row">
+      {{!-- Compound Duration --}}
+      <div class="field-row" style="flex-direction:column;gap:4px;align-items:flex-start;">
         <label>{{localize "TRESPASSER.Item.duration"}}</label>
-        <select name="system.duration">
-          {{{selectOptions config.durationModes selected=system.duration localize=true}}}
-        </select>
-      </div>
 
-      {{#if (or (eq system.duration "rounds") (eq system.duration "triggers"))}}
-      <div class="field-row">
-        <label>
-          {{#if (eq system.duration "rounds")}}{{localize "TRESPASSER.DurationLabels.Rounds"}}{{else}}{{localize "TRESPASSER.DurationLabels.Triggers"}}{{/if}}
-        </label>
-        <input type="number" name="system.durationValue" value="{{system.durationValue}}" />
+        {{!-- Operator selector — only meaningful when 2+ conditions are present --}}
+        {{#if (gt system.durationConditions.length 1)}}
+        <div class="dur-operator-wrap" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <span style="font-size:11px;color:var(--trp-text-dim);">{{localize "TRESPASSER.DurationLabels.Operator"}}</span>
+          <select name="system.durationOperator" style="width:70px;">
+            <option value="OR" {{#if (eq system.durationOperator "OR")}}selected{{/if}}>{{localize "TRESPASSER.DurationLabels.OR"}}</option>
+            <option value="AND" {{#if (eq system.durationOperator "AND")}}selected{{/if}}>{{localize "TRESPASSER.DurationLabels.AND"}}</option>
+          </select>
+        </div>
+        {{/if}}
+
+        {{!-- Condition rows --}}
+        <div id="dur-conditions-list">
+          {{#each system.durationConditions as |cond idx|}}
+          <div class="duration-condition-row" data-index="{{idx}}" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <select class="dur-mode" name="system.durationConditions.{{idx}}.mode" style="flex:1;">
+              {{{selectOptions @root.config.durationModes selected=cond.mode localize=true}}}
+            </select>
+            <input type="number" class="dur-value" name="system.durationConditions.{{idx}}.value"
+              value="{{cond.value}}"
+              style="width:52px;text-align:center;{{#unless (or (eq cond.mode 'rounds') (eq cond.mode 'triggers'))}}display:none;{{/unless}}" />
+            {{#if @root.editable}}
+            <a class="dur-remove-condition" data-index="{{idx}}" title="{{localize 'TRESPASSER.DurationLabels.RemoveCondition'}}"
+              style="color:var(--trp-red-dim,#c0392b);cursor:pointer;">
+              <i class="fas fa-times"></i>
+            </a>
+            {{/if}}
+          </div>
+          {{else}}
+          {{!-- No conditions yet — render a default indefinite row --}}
+          <div class="duration-condition-row" data-index="0" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+            <select class="dur-mode" name="system.durationConditions.0.mode" style="flex:1;">
+              {{{selectOptions @root.config.durationModes selected="indefinite" localize=true}}}
+            </select>
+          </div>
+          {{/each}}
+        </div>
+
+        {{#if editable}}
+        <a class="dur-add-condition" style="font-size:11px;cursor:pointer;">
+          <i class="fas fa-plus"></i> {{localize "TRESPASSER.DurationLabels.AddCondition"}}
+        </a>
+        {{/if}}
       </div>
-      {{/if}}
 
       <div class="field-row editor-row" style="margin-top: 10px;">
         <label>{{localize "TRESPASSER.Item.Description"}}</label>
@@ -104,7 +137,7 @@
               {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" 
                   effect=cs 
                   index=index 
-                  editable=../editable 
+                  editable=@root.editable 
                   deleteClass="counter-state-remove"
                   editableIntensity=false
               }}

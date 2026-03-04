@@ -406,7 +406,12 @@
       "Indefinite": "Indefinido",
       "Combat": "Combate Inteiro",
       "Rounds": "Rodadas",
-      "Triggers": "Gatilhos"
+      "Triggers": "Gatilhos",
+      "OR": "OU",
+      "AND": "E",
+      "Operator": "Operador",
+      "AddCondition": "Adicionar Condição",
+      "RemoveCondition": "Remover Condição"
     },
     "Item": {
       "Damage": "Dano",

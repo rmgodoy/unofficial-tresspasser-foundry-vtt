@@ -1,5 +1,6 @@
 import { esc } from "./utils.mjs";
 import { TrespasserEffectsHelper } from "../effects-helper.mjs";
+import { DurationHelper } from "../duration-helper.mjs";
 
 export function buildEffectContent(item) {
   const sys = item.system;
@@ -23,10 +24,11 @@ export function buildEffectContent(item) {
     metaParts.push(`<span style="color: var(--trp-red-dim);">${game.i18n.localize("TRESPASSER.Item.gmOnly")}</span>`);
   }
 
-  if (sys.duration && sys.duration !== "indefinite") {
-    const durLabel = game.i18n.localize(TrespasserEffectsHelper.DURATION_LABELS[sys.duration]) || sys.duration;
-    const durPart = sys.duration === "rounds" ? `${durLabel}: ${sys.durationValue}` : durLabel;
-    metaParts.push(`${game.i18n.localize("TRESPASSER.Item.duration")}: ${durPart}`);
+  // Duration summary (supports compound conditions)
+  const hasNonIndefinite = DurationHelper.getConditions({ system: sys })
+    .some(c => c.mode !== "indefinite");
+  if (hasNonIndefinite) {
+    metaParts.push(`${game.i18n.localize("TRESPASSER.Item.duration")}: ${DurationHelper.formatSummary({ system: sys })}`);
   }
 
   let meta = `<div class="info-dlg-meta">${metaParts.join(" | ")}</div>`;

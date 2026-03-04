@@ -101,8 +101,11 @@ export async function onDeedRoll(event, sheet) {
   }
 
   const isAdv    = TrespasserEffectsHelper.hasAdvantage(sheet.actor, "accuracy");
-  const accuracy = (sheet.actor.system.combat.accuracy ?? 0) + apBonus;
-  const formula  = isAdv ? `2d20kh + ${accuracy}` : `1d20 + ${accuracy}`;
+  const effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, "accuracy", "use");
+  const accuracy = sheet.actor.system.combat.accuracy ?? 0;
+  let formula  = isAdv ? `2d20kh + ${accuracy}` : `1d20 + ${accuracy}`;
+  if (effectBonus !== 0) formula += ` + ${effectBonus}`;
+  if (apBonus !== 0) formula += ` + ${apBonus}`;
   const accRoll  = new foundry.dice.Roll(formula);
   await accRoll.evaluate();
 
@@ -177,9 +180,13 @@ export async function onDeedRoll(event, sheet) {
     ${resultsHtml}`;
   if (totalCost > 0) accFlavor += `<p class="cost-note" style="margin-top:5px;">${game.i18n.format("TRESPASSER.Chat.SpentFocus", { count: totalCost })}</p>`;
   if (apBonus > 0) accFlavor += `<p class="cost-note" style="margin-top:2px;color:#2ecc71;">+${apBonus} Accuracy from Extra Effort</p>`;
-  accFlavor += `</div>`;
+  // if (effectBonus > 0) accFlavor += `<p class="cost-note" style="margin-top:2px;color:#3498db;">+${effectBonus} Accuracy from Effects</p>`;
+  // accFlavor += `</div>`;
 
   await accRoll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor: accFlavor });
+  
+  // Trigger any effects that fire when a bonus is "used"
+  await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: "accuracy" });
 
   if (anyHit || targets.length === 0) {
     await sheet._postDeedPhase("Base", effects.base, sheet.actor, item, phaseOptions);

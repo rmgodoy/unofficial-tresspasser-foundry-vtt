@@ -239,6 +239,15 @@
   color: var(--trp-gold-bright);
 }
 
+.attr-total {
+  font-size: 0.9em;
+  color: var(--trp-gold-bright);
+  font-weight: 700;
+  margin-left: 2px;
+  vertical-align: middle;
+  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+}
+
 /* ═══════════════════════════════════════════════════
    TAB NAV
 ═══════════════════════════════════════════════════ */

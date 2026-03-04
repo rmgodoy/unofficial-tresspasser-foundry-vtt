@@ -27,11 +27,21 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
         choices: Object.values(TrespasserEffectsHelper.TRIGGER_WHEN),
         blank: true
       }),
+      // --- Legacy flat duration fields (kept for backward compat; deprecated) ---
       duration: new fields.StringField({
         initial: "indefinite",
         choices: Object.values(TrespasserEffectsHelper.DURATION_MODES)
       }),
       durationValue: new fields.NumberField({ initial: 0 }),
+      // --- Compound duration (new) ---
+      durationOperator: new fields.StringField({
+        initial: "OR",
+        choices: ["OR", "AND"]
+      }),
+      durationConditions: new fields.ArrayField(
+        new fields.ObjectField(),
+        { initial: [] }
+      ),
       intensityIncrement: new fields.NumberField({ initial: 0 }),
       counterStates: new fields.ArrayField(new fields.ObjectField(), { initial: [] })
     };

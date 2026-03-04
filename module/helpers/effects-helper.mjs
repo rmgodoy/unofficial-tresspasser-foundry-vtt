@@ -1,3 +1,5 @@
+import { DurationHelper } from "./duration-helper.mjs";
+
 /**
  * Helper class for managing Trespasser effects, states, and modifier parsing.
  */
@@ -270,6 +272,9 @@ export class TrespasserEffectsHelper {
             when: eff.when,
             duration: eff.duration || "indefinite",
             durationValue: eff.durationValue || 0,
+            durationConditions: eff.durationConditions || [],
+            durationOperator: eff.durationOperator || "OR",
+            durationSummary: null, // inline effects don't have a live item; no compound summary
             intensityIncrement: eff.intensityIncrement || 0,
             property,
             index
@@ -309,6 +314,9 @@ export class TrespasserEffectsHelper {
           when: item.system.when,
           duration: item.system.duration || "indefinite",
           durationValue: item.system.durationValue || 0,
+          durationConditions: item.system.durationConditions || [],
+          durationOperator: item.system.durationOperator || "OR",
+          durationSummary: DurationHelper.formatSummary(item),
           intensityIncrement: item.system.intensityIncrement || 0,
           item: item,
           fromInjury
@@ -329,9 +337,10 @@ export class TrespasserEffectsHelper {
    * Calculates the total numeric bonus for a specific attribute from all active effects.
    * @param {Actor} actor 
    * @param {string} attributeKey 
+   * @param {string} [includeTiming] Optional timing to include (e.g. "use")
    * @returns {number}
    */
-  static getAttributeBonus(actor, attributeKey) {
+  static getAttributeBonus(actor, attributeKey, includeTiming = null) {
     if (!actor) return 0;
     const effects = this.getActorEffects(actor);
     const allEffects = [...effects.combat, ...effects.nonCombat, ...effects.passive];
@@ -341,7 +350,8 @@ export class TrespasserEffectsHelper {
       if (eff.target !== attributeKey) continue;
 
       // Skip active effects that have a specific trigger timing (they aren't constant bonuses)
-      if (eff.type === "active" && eff.when && eff.when !== "immediate") continue;
+      // UNLESS the specific timing is explicitly requested (e.g. when making a roll)
+      if (eff.type === "active" && eff.when && eff.when !== "immediate" && eff.when !== includeTiming) continue;
       
       // Parse numeric modifier, ignoring dice formulas for static calculation
       const modStr = eff.modifier.toString().replace("+", "").trim();
@@ -380,14 +390,14 @@ export class TrespasserEffectsHelper {
       );
       total += value;
 
-      // Decrement triggers for bonuses used here
-      if (eff.duration === "triggers") {
-        const remaining = (eff.durationValue || 0) - 1;
-        if (remaining <= 0) {
+      // Decrement triggers-based conditions and evaluate expiry
+      const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "triggers");
+      if (shouldExpire) {
+        if (eff.item?.type === "effect" || eff.item?.type === "state") {
           await eff.item.delete();
-        } else {
-          await eff.item.update({ "system.durationValue": remaining });
         }
+      } else {
+        await eff.item.update({ "system.durationConditions": updatedConditions });
       }
     }
     return total;
@@ -479,41 +489,22 @@ export class TrespasserEffectsHelper {
               ${Object.entries(this.TRIGGER_LABELS).map(([v, label]) => `<option value="${v}" ${when === v ? "selected" : ""}>${game.i18n.localize(label)}</option>`).join("")}
             </select>
           </div>
-          <div class="field-row">
-            <label>${game.i18n.localize("TRESPASSER.Item.duration")}</label>
-            <select id="eff-duration">
-              ${Object.entries(this.DURATION_LABELS).map(([k, v]) => `<option value="${k}" ${(effectData.duration || "indefinite") === k ? "selected" : ""}>${game.i18n.localize(v)}</option>`).join("")}
-            </select>
-          </div>
-          <div class="field-row" id="duration-value-row" style="${(effectData.duration === 'rounds' || effectData.duration === 'triggers') ? '' : 'display:none;'}">
-            <label id="eff-duration-label">${effectData.duration === 'triggers' ? game.i18n.localize("TRESPASSER.DurationLabels.Triggers") : game.i18n.localize("TRESPASSER.DurationLabels.Rounds")}</label>
-            <input type="number" id="eff-durationValue" value="${effectData.durationValue || 0}" />
-          </div>
-          <script>
-            document.getElementById('eff-duration').addEventListener('change', (e) => {
-              const row = document.getElementById('duration-value-row');
-              const label = document.getElementById('eff-duration-label');
-              const show = (e.target.value === 'rounds' || e.target.value === 'triggers');
-              row.style.display = show ? "" : "none";
-              if (show) {
-                label.innerText = (e.target.value === 'triggers') 
-                  ? "${game.i18n.localize("TRESPASSER.DurationLabels.Triggers")}"
-                  : "${game.i18n.localize("TRESPASSER.DurationLabels.Rounds")}";
-              }
-            });
-          </script>
+
+          ${this._buildDurationDialogSection(effectData)}
         </div>
       </div>
     `;
 
     return new Promise((resolve) => {
-      new Dialog({
+      const dlg = new Dialog({
         title: game.i18n.localize("TRESPASSER.Dialog.EffectEditor.Title"),
         content: content,
         buttons: {
           ok: {
             label: game.i18n.localize("TRESPASSER.Dialog.General.Save"),
             callback: (html) => {
+              const { conditions, operator } = this._readDurationDialogSection(html);
+              const singleLegacy = conditions.length === 1 ? conditions[0] : null;
               resolve({
                 type: html.find("#eff-type").val(),
                 isCombat: html.find("#eff-isCombat").is(":checked"),
@@ -524,8 +515,11 @@ export class TrespasserEffectsHelper {
                 target: html.find("#eff-target").val(),
                 modifier: html.find("#eff-modifier").val(),
                 when: html.find("#eff-when").val(),
-                duration: html.find("#eff-duration").val(),
-                durationValue: parseInt(html.find("#eff-durationValue").val()) || 0
+                durationOperator: operator,
+                durationConditions: conditions,
+                // Legacy compat fields
+                duration: singleLegacy?.mode ?? "indefinite",
+                durationValue: singleLegacy?.value ?? 0
               });
             }
           },
@@ -535,8 +529,118 @@ export class TrespasserEffectsHelper {
           }
         },
         default: "ok"
-      }, { classes: ["trespasser", "dialog"] }).render(true);
+      }, { classes: ["trespasser", "dialog"] });
+
+      dlg.render(true);
+      Hooks.once("renderDialog", (_app, html) => {
+        if (_app !== dlg) return;
+        this._activateDurationDialogListeners(html);
+      });
     });
+  }
+
+  /**
+   * Builds the HTML for the compound duration section of the effect dialog.
+   * @private
+   */
+  static _buildDurationDialogSection(effectData) {
+    let conditions = effectData.durationConditions;
+    if (!Array.isArray(conditions) || conditions.length === 0) {
+      const legacyMode = effectData.duration ?? "indefinite";
+      conditions = [{ mode: legacyMode, value: effectData.durationValue ?? 0 }];
+    }
+    const operator = effectData.durationOperator ?? "OR";
+
+    const modeOptions = (selected) => Object.entries(this.DURATION_LABELS)
+      .map(([k, v]) => `<option value="${k}" ${selected === k ? "selected" : ""}>${game.i18n.localize(v)}</option>`)
+      .join("");
+
+    const rowsHtml = conditions.map((c, i) => `
+      <div class="duration-condition-row" data-index="${i}" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+        <select class="dur-mode" style="flex:1;">${modeOptions(c.mode)}</select>
+        <input type="number" class="dur-value" value="${c.value ?? 0}"
+          style="width:52px;text-align:center;display:${(c.mode === "rounds" || c.mode === "triggers") ? "block" : "none"};" />
+        <a class="dur-remove" title="${game.i18n.localize("TRESPASSER.DurationLabels.RemoveCondition")}"
+          style="color:var(--trp-red-dim,#c0392b);cursor:pointer;"><i class="fas fa-times"></i></a>
+      </div>
+    `).join("");
+
+    const operatorDisplay = conditions.length >= 2 ? "" : "display:none;";
+
+    return `
+      <div class="field-row" style="flex-direction:column;gap:2px;align-items:flex-start;">
+        <label>${game.i18n.localize("TRESPASSER.Item.duration")}</label>
+        <div id="dur-operator-row" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;${operatorDisplay}">
+          <span style="font-size:11px;color:var(--trp-text-dim);">${game.i18n.localize("TRESPASSER.DurationLabels.Operator")}</span>
+          <select id="dur-operator" style="width:70px;">
+            <option value="OR" ${operator === "OR" ? "selected" : ""}>${game.i18n.localize("TRESPASSER.DurationLabels.OR")}</option>
+            <option value="AND" ${operator === "AND" ? "selected" : ""}>${game.i18n.localize("TRESPASSER.DurationLabels.AND")}</option>
+          </select>
+        </div>
+        <div id="dur-conditions-list">${rowsHtml}</div>
+        <a id="dur-add-condition" style="font-size:11px;cursor:pointer;">
+          <i class="fas fa-plus"></i> ${game.i18n.localize("TRESPASSER.DurationLabels.AddCondition")}
+        </a>
+      </div>
+    `;
+  }
+
+  /**
+   * Activates event listeners for the compound duration section inside a rendered dialog.
+   * @private
+   */
+  static _activateDurationDialogListeners(html) {
+    const modeOptions = () => Object.entries(this.DURATION_LABELS)
+      .map(([k, v]) => `<option value="${k}">${game.i18n.localize(v)}</option>`)
+      .join("");
+
+    const updateOperatorVisibility = () => {
+      const rows = html.find(".duration-condition-row").length;
+      html.find("#dur-operator-row").toggle(rows >= 2);
+    };
+
+    const bindRow = (row) => {
+      row.find(".dur-mode").on("change", function() {
+        const needsVal = this.value === "rounds" || this.value === "triggers";
+        row.find(".dur-value").css("display", needsVal ? "block" : "none");
+      });
+      row.find(".dur-remove").on("click", () => {
+        row.remove();
+        updateOperatorVisibility();
+      });
+    };
+
+    html.find(".duration-condition-row").each(function() { bindRow($(this)); });
+
+    html.find("#dur-add-condition").on("click", () => {
+      const newRow = $(`
+        <div class="duration-condition-row" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+          <select class="dur-mode" style="flex:1;">${modeOptions()}</select>
+          <input type="number" class="dur-value" value="1" style="width:52px;text-align:center;display:none;" />
+          <a class="dur-remove" title="${game.i18n.localize("TRESPASSER.DurationLabels.RemoveCondition")}"
+            style="color:var(--trp-red-dim,#c0392b);cursor:pointer;"><i class="fas fa-times"></i></a>
+        </div>
+      `);
+      html.find("#dur-conditions-list").append(newRow);
+      bindRow(newRow);
+      updateOperatorVisibility();
+    });
+  }
+
+  /**
+   * Reads the compound duration section from a rendered dialog's jQuery HTML.
+   * @private
+   */
+  static _readDurationDialogSection(html) {
+    const operator = html.find("#dur-operator").val() ?? "OR";
+    const conditions = [];
+    html.find(".duration-condition-row").each(function() {
+      const mode  = $(this).find(".dur-mode").val();
+      const value = parseInt($(this).find(".dur-value").val()) || 0;
+      conditions.push({ mode, value });
+    });
+    if (conditions.length === 0) conditions.push({ mode: "indefinite", value: 0 });
+    return { conditions, operator };
   }
 
   /**
@@ -545,13 +649,17 @@ export class TrespasserEffectsHelper {
    * @param {Actor} actor
    * @param {string} timing "start-of-round", "start-of-turn", "end-of-turn", "end-of-round"
    */
-  static async triggerEffects(actor, timing) {
+  static async triggerEffects(actor, timing, { filterTarget = null } = {}) {
     if (!actor) return;
     const effects = this.getActorEffects(actor);
     const allEffects = [...effects.combat, ...effects.nonCombat, ...effects.passive];
     
-    // Filter effects that match the required timing
-    const triggered = allEffects.filter(e => e.when === timing);
+    // Filter effects that match the required timing (and target if specified)
+    const triggered = allEffects.filter(e => {
+      const matchTiming = e.when === timing;
+      const matchTarget = !filterTarget || e.target === filterTarget;
+      return matchTiming && matchTarget;
+    });
     if (triggered.length === 0) return;
 
     for (const eff of triggered) {
@@ -621,14 +729,14 @@ export class TrespasserEffectsHelper {
         await eff.item.update({ "system.intensity": currentIntensity + increment });
       }
 
-      // Handle triggers-based duration
-      if (eff.duration === "triggers") {
-        const remaining = (eff.durationValue || 0) - 1;
-        if (remaining <= 0) {
+      // Decrement triggers-based conditions and evaluate expiry
+      const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "triggers");
+      if (shouldExpire) {
+        if (eff.item?.type === "effect" || eff.item?.type === "state") {
           await eff.item.delete();
-        } else {
-          await eff.item.update({ "system.durationValue": remaining });
         }
+      } else {
+        await eff.item.update({ "system.durationConditions": updatedConditions });
       }
     }
   }
@@ -698,11 +806,14 @@ export class TrespasserEffectsHelper {
       await item.update({ "system.intensity": intensity + increment });
     }
 
-    // Handle triggers-based duration
-    if (item.system.duration === "triggers") {
-      const remaining = (item.system.durationValue || 0) - 1;
-      if (remaining <= 0) await item.delete();
-      else await item.update({ "system.durationValue": remaining });
+    // Decrement triggers-based conditions and evaluate expiry
+    const { shouldExpire, updatedConditions } = DurationHelper.processEvent(item, "triggers");
+    if (shouldExpire) {
+      if (item.type === "effect" || item.type === "state") {
+        await item.delete();
+      }
+    } else {
+      await item.update({ "system.durationConditions": updatedConditions });
     }
   }
 
@@ -790,5 +901,27 @@ export class TrespasserEffectsHelper {
       }
     }
     return flavor;
+  }
+  /**
+   * Decrements "rounds" duration for all standalone effects/states on an actor.
+   * Called typically at the start of a combat round.
+   * @param {Actor} actor 
+   */
+  static async decrementRounds(actor) {
+    if (!actor) return;
+    const effects = actor.items.filter(i => i.type === "effect" || i.type === "state");
+    for (const item of effects) {
+      const { shouldExpire, updatedConditions } = DurationHelper.processEvent(item, "rounds");
+      if (shouldExpire) {
+        await item.delete();
+      } else {
+        // Only update if rounds were actually decremented
+        const current = DurationHelper.getConditions(item);
+        const hasChanged = JSON.stringify(current) !== JSON.stringify(updatedConditions);
+        if (hasChanged) {
+          await item.update({ "system.durationConditions": updatedConditions });
+        }
+      }
+    }
   }
 }

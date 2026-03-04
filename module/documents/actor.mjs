@@ -34,13 +34,23 @@ export class TrespasserActor extends Actor {
     const data = this.system;
     const attrValue = data.attributes[attribute] ?? 0;
     const skillDie = data.skill_die || "d6";
-    const formula = `1${skillDie} + ${attrValue}`;
+    
+    // Get numeric bonuses from all active effects and 'use' timing effects
+    const bonus = TrespasserEffectsHelper.getAttributeBonus(this, attribute, "use");
+    
+    const formula = `1${skillDie} + ${attrValue} + ${bonus}`;
 
     const roll = new foundry.dice.Roll(formula);
+    const attrLabel = game.i18n.localize(`TRESPASSER.Attributes.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
+    
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      flavor: `${game.i18n.localize(`TRESPASSER.Attributes.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`)} Check`,
+      flavor: `${attrLabel} Check ${bonus !== 0 ? `(Bonus: ${bonus > 0 ? "+" : ""}${bonus})` : ""}`,
     });
+
+    // Trigger any effects that fire when a bonus is "used"
+    await TrespasserEffectsHelper.triggerEffects(this, "use");
+
     return roll;
   }
 

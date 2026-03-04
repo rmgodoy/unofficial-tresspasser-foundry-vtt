@@ -14,16 +14,10 @@
               {{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
             </div>
             
-            {{#if (or (eq this.duration "rounds") (eq this.duration "triggers"))}}
-              <div class="effect-duration-control" style="display: flex; align-items: center; gap: 4px;">
-                <span style="font-size: 10px; color: var(--trp-text-dim);">
-                  {{#if (eq this.duration "rounds")}}{{localize "TRESPASSER.DurationLabels.Rounds"}}{{else}}{{localize "TRESPASSER.DurationLabels.Triggers"}}{{/if}}
-                </span>
-                <input type="number" class="effect-duration-input" value="{{this.durationValue}}" style="width: 40px; text-align: center;" />
-              </div>
-            {{else if (ne this.duration "indefinite")}}
-              <div class="effect-duration-type" style="font-size: 10px; color: var(--trp-text-dim);">
-                {{localize (lookup ../durationModes this.duration)}}
+            {{#if this.durationSummary}}
+              <div class="effect-duration-control" style="font-size: 10px; color: var(--trp-text-dim); display:flex; align-items:center; gap:4px;">
+                <i class="fas fa-clock" style="opacity:0.6;"></i>
+                <span>{{this.durationSummary}}</span>
               </div>
             {{/if}}
 

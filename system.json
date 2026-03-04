@@ -1,6 +1,6 @@
 {
-  "id": "trespasser-issue-6",
-  "title": "Trespasser 6",
+  "id": "trespasser",
+  "title": "Trespasser",
   "description": "A Foundry VTT system for the Trespasser TTRPG by Tundalus.",
   "version": "0.0.2-4",
   "compatibility": {

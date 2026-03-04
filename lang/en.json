@@ -406,7 +406,12 @@
       "Indefinite": "Indefinite",
       "Combat": "Whole Combat",
       "Rounds": "Rounds",
-      "Triggers": "Triggers"
+      "Triggers": "Triggers",
+      "OR": "OR",
+      "AND": "AND",
+      "Operator": "Operator",
+      "AddCondition": "Add Condition",
+      "RemoveCondition": "Remove Condition"
     },
     "Item": {
       "Damage": "Damage",

@@ -23,6 +23,24 @@ export async function getCharacterData(sheet, options = {}) {
     value,
   }));
 
+  // Calculate total attributes and combat stats including effect bonuses
+  const bonuses = context.system.bonuses || {};
+  context.totalAttributes = {};
+  for (const attr of ["mighty", "agility", "intellect", "spirit"]) {
+    const base = context.system.attributes[attr] ?? 0;
+    const bon  = bonuses[attr] ?? 0;
+    const eff  = TrespasserEffectsHelper.getAttributeBonus(actor, attr, "use");
+    context.totalAttributes[attr] = base + bon + eff;
+  }
+
+  context.totalCombat = {};
+  const combatStats = ["initiative", "accuracy", "guard", "resist", "prevail", "tenacity", "focus", "speed"];
+  for (const stat of combatStats) {
+    const base = context.system.combat[stat] ?? 0;
+    const eff  = TrespasserEffectsHelper.getAttributeBonus(actor, stat, "use");
+    context.totalCombat[stat] = base + eff;
+  }
+
   // Fixed 3-slot craft array
   const crafts = context.system.crafts ?? [];
   context.craftsSlots = [crafts[0] ?? "", crafts[1] ?? "", crafts[2] ?? ""];

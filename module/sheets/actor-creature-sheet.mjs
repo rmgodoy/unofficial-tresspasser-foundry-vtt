@@ -314,13 +314,19 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
 
       const statKey = item.system.accuracyTest?.toLowerCase() || "guard";
       const targetStat = targetActor.system.combat[statKey] ?? 10;
+      const targetBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");
       const isTargetCreature = targetActor.type === "creature";
       
       const offset = isTargetCreature ? -10 : 0;
-      const rollFormula = `1d20 + ${targetStat} + ${offset}`;
+      let rollFormula = `1d20 + ${targetStat}`;
+      if (offset !== 0) rollFormula += ` + ${offset}`;
+      if (targetBonus !== 0) rollFormula += ` + ${targetBonus}`;
       
       const defenseRoll = new foundry.dice.Roll(rollFormula);
       await defenseRoll.evaluate();
+      
+      // Trigger target's 'use' effects for the tested stat
+      await TrespasserEffectsHelper.triggerEffects(targetActor, "use", { filterTarget: statKey });
 
       const d20Result = defenseRoll.dice[0].results[0].result;
       const rollTotal = defenseRoll.total;
