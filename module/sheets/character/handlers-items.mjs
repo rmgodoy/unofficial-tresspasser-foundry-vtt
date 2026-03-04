@@ -9,9 +9,10 @@ export async function onItemCreate(event, sheet) {
   event.preventDefault();
   const type = event.currentTarget.dataset.type ?? "deed";
 
-  const excludedTypes = ["deed", "feature", "talent", "effect", "state"];
-  if (!excludedTypes.includes(type)) {
-    const inventoryItems = sheet.actor.items.filter(i => !excludedTypes.includes(i.type) && !i.system.equipped);
+  // Only physical inventory types count against the inventory cap
+  const inventoryTypes = ["weapon", "armor", "accessory", "rations", "item"];
+  if (inventoryTypes.includes(type)) {
+    const inventoryItems = sheet.actor.items.filter(i => inventoryTypes.includes(i.type) && !i.system.equipped);
     const maxSlots = sheet.actor.system.inventory_max ?? 5;
     if (inventoryItems.length >= maxSlots) {
       ui.notifications.error(game.i18n.localize("TRESPASSER.Notifications.InventoryCapReached"));

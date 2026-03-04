@@ -155,10 +155,9 @@ export async function getCharacterData(sheet, options = {}) {
   };
   context.deeds = allDeeds;
 
-  // Inventory
-  const allInventoryItems = actor.items.filter(i =>
-    !["deed", "feature", "talent", "incantation", "effect", "state", "injury"].includes(i.type)
-  );
+  // Only physical inventory types appear in inventory
+  const inventoryTypes = ["weapon", "armor", "accessory", "rations", "item"];
+  const allInventoryItems = actor.items.filter(i => inventoryTypes.includes(i.type));
   context.unequippedItems = allInventoryItems.filter(i => !i.system.equipped);
   context.equippedItems   = allInventoryItems.filter(i => i.system.equipped);
 
