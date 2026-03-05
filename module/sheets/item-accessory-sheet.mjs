@@ -185,37 +185,9 @@ export class TrespasserAccessorySheet extends foundry.appv1.sheets.ItemSheet {
     const currentArray = [...(this.item.system[targetType] || [])];
     const effectData = foundry.utils.deepClone(currentArray[index]);
     
-    // Rename/Remove conflicting fields before passing to Item.implementation
-    const docType = effectData.type || "effect";
-    delete effectData.type;
-    delete effectData.uuid;
-    delete effectData.name;
-    delete effectData.img;
-
-    // Create a virtual Item document for the sheet to work on
-    const tempItem = new Item.implementation({
-      name: effectData.name || "Effect",
-      type: docType,
-      img: effectData.img,
-      system: effectData
-    }, { parent: this.item.parent });
-
-    // Override update to sync back to the current item
-    tempItem.update = async (updateData) => {
-      const arr = [...(this.item.system[targetType] || [])];
-      arr[index] = foundry.utils.mergeObject(arr[index], updateData.system || updateData);
-      await this.item.update({
-        "system.description": this.item.system.description,
-        [`system.${targetType}`]: arr
-      });
-
-      if (this.item.actor && this.item.system.equipped) {
-         // Refresh the effect on the actor
-         await this.item.actor._applyLinkedItems([arr[index]], { passiveOnly: true });
-      }
-      return tempItem;
-    };
-
-    tempItem.sheet.render(true);
+    if (effectData.uuid) {
+      await TrespasserEffectsHelper.openEffectSheet(effectData.uuid);
+      return;
+    }
   }
 }

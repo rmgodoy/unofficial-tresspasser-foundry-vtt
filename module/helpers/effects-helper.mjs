@@ -924,4 +924,13 @@ export class TrespasserEffectsHelper {
       }
     }
   }
+
+  static async openEffectSheet(uuid, callback) {
+    const doc = await fromUuid(uuid);
+    if (!doc) return;
+    doc.sheet._updateObject = async (_event, formData) => {
+      if (callback) await callback(doc, formData);
+    } 
+    doc.sheet.render(true);
+  }
 }

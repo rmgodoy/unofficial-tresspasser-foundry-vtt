@@ -1,3 +1,5 @@
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+
 /**
  * Item Sheet for Rations in the Trespasser TTRPG system.
  */
@@ -44,7 +46,7 @@ export class TrespasserRationsSheet extends foundry.appv1.sheets.ItemSheet {
     html.find(".applied-effects-list").on("dragover", ev => ev.preventDefault());
 
     // Delete effect chip
-    html.find(".effect-delete").on("click", this._onRemoveEffect.bind(this));
+    html.find(".effect-remove").on("click", this._onRemoveEffect.bind(this));
 
     // Intensity change
     html.find('.effect-intensity-input').change(this._onIntensityChange.bind(this));
@@ -114,7 +116,7 @@ export class TrespasserRationsSheet extends foundry.appv1.sheets.ItemSheet {
     const index = Number(el.dataset.index);
     const value = parseInt(input.value) || 0;
 
-    const currentEffects = foundry.utils.deepClone(this.item.system.effects) || [];
+    const currentEffects = this.item.system.effects || [];
     if (currentEffects[index]) {
       currentEffects[index].intensity = value;
       await this.item.update({
@@ -132,30 +134,10 @@ export class TrespasserRationsSheet extends foundry.appv1.sheets.ItemSheet {
     const targetType = "effects";
     const currentArray = [...(this.item.system[targetType] || [])];
     const effectData = foundry.utils.deepClone(currentArray[index]);
-    
-    // Rename/Remove conflicting fields before passing to Item.implementation
-    const docType = effectData.type || "effect";
-    delete effectData.type;
-    delete effectData.uuid;
-    delete effectData.name;
-    delete effectData.img;
 
-    const tempItem = new Item.implementation({
-      name: effectData.name || "Effect",
-      type: docType,
-      img: effectData.img,
-      system: effectData
-    }, { parent: this.item.parent });
-
-    tempItem.update = async (updateData) => {
-      const arr = [...(this.item.system[targetType] || [])];
-      arr[index] = foundry.utils.mergeObject(arr[index], updateData.system || updateData);
-      await this.item.update({
-        [`system.${targetType}`]: arr
-      });
-      return tempItem;
-    };
-
-    tempItem.sheet.render(true);
+    if (effectData.uuid) {
+      await TrespasserEffectsHelper.openEffectSheet(effectData.uuid, onUpdate);
+      return;
+    }
   }
 }

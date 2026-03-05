@@ -35,8 +35,8 @@
     <div class="effects-section" style="margin-top: 20px; border-top: 1px solid var(--trp-gold-dim); padding-top: 10px;">
         <h3 style="font-family: var(--trp-font-header); color: var(--trp-gold-bright); margin-bottom: 10px;">{{localize "TRESPASSER.Item.LinkedEffects"}}</h3>
         <div class="applied-effects-list" data-type="effects" style="min-height: 100px; border: 2px dashed var(--trp-gold-dim); border-radius: 6px; padding: 10px;">
-          {{#each system.effects as |eff i|}}
-            {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" eff=eff i=i}}
+          {{#each system.effects as |effect index|}}
+            {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index editable=true editableIntensity=true deleteClass="effect-remove"}}
           {{else}}
             <div class="effect-placeholder" style="text-align: center; color: var(--trp-text-dim); padding: 20px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</div>
           {{/each}}
