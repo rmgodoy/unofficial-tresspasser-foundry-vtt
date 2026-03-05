@@ -410,7 +410,8 @@
       "OnDeedHit": "On Deed Hit",
       "OnDeedMiss": "On Deed Miss",
       "StartOfCombat": "Start of Combat",
-      "EndOfCombat": "End of Combat"
+      "EndOfCombat": "End of Combat",
+      "Continuous": "Continuous"
     },
     "DurationLabels": {
       "Indefinite": "Indefinite",

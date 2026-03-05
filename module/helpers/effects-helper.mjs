@@ -26,7 +26,8 @@ export class TrespasserEffectsHelper {
     DEED_HIT: "on-deed-hit",
     DEED_MISS: "on-deed-miss",
     START_COMBAT: "start-of-combat",
-    END_COMBAT: "end-of-combat"
+    END_COMBAT: "end-of-combat",
+    CONTINUOUS: "continuous"
   };
 
   /**
@@ -51,7 +52,8 @@ export class TrespasserEffectsHelper {
     "on-deed-hit": "TRESPASSER.TriggerLabels.OnDeedHit",
     "on-deed-miss": "TRESPASSER.TriggerLabels.OnDeedMiss",
     "start-of-combat": "TRESPASSER.TriggerLabels.StartOfCombat",
-    "end-of-combat": "TRESPASSER.TriggerLabels.EndOfCombat"
+    "end-of-combat": "TRESPASSER.TriggerLabels.EndOfCombat",
+    "continuous": "TRESPASSER.TriggerLabels.Continuous"
   };
 
   /**
@@ -249,15 +251,16 @@ export class TrespasserEffectsHelper {
       }
     }
 
-    // 1. Gather effects from items (e.g., Armor effects)
     for (const item of actor.items) {
       // Passive/Built-in effects from equipped items
-      if (item.system.equipped && Array.isArray(item.system.effects)) {
+      // Weapons, Armor, and Accessories are excluded as they manage their equipment-time effects via Linked Items (actual documents)
+      const equippableTypes = ["weapon", "armor", "accessory", "item"];
+      if (item.system.equipped && !equippableTypes.includes(item.type) && Array.isArray(item.system.effects)) {
         item.system.effects.forEach((eff, index) => {
           const property = "effects";
           const effData = {
             id: `${item.id}-${property}-${index}`, // Stable Synthetic ID
-            name: `${item.name} (${eff.type || "effect"})`,
+            name: eff.name ? `${item.name}: ${eff.name}` : `${item.name} (${eff.type || "effect"})`,
             intensity: eff.intensity || 0,
             modifier: this.parseModifier(eff.modifier, eff.intensity || 0),
             target: eff.target,
@@ -351,7 +354,7 @@ export class TrespasserEffectsHelper {
 
       // Skip active effects that have a specific trigger timing (they aren't constant bonuses)
       // UNLESS the specific timing is explicitly requested (e.g. when making a roll)
-      if (eff.type === "active" && eff.when && eff.when !== "immediate" && eff.when !== includeTiming) continue;
+      if (eff.type === "active" && eff.when && eff.when !== "immediate" && eff.when !== "continuous" && eff.when !== includeTiming) continue;
       
       // Parse numeric modifier, ignoring dice formulas for static calculation
       const modStr = eff.modifier.toString().replace("+", "").trim();
@@ -381,7 +384,7 @@ export class TrespasserEffectsHelper {
     for (const eff of allEffects) {
       if (eff.target !== attributeKey) continue;
       // Skip timed actives that haven't fired yet
-      if (eff.type === "active" && eff.when && eff.when !== "immediate") continue;
+      if (eff.type === "active" && eff.when && eff.when !== "immediate" && eff.when !== "continuous") continue;
 
       const value = await this.evaluateModifier(
         eff.modifier,

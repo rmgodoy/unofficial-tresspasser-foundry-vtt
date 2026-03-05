@@ -1,3 +1,5 @@
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+
 /**
  * Item Sheet for Talents in the Trespasser TTRPG system.
  */

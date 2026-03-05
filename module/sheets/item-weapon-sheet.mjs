@@ -1,3 +1,5 @@
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+
 /**
  * Extend the basic ItemSheet with some very simple logic.
  * @extends {ItemSheet}

@@ -405,7 +405,8 @@
       "OnDeedHit": "Ao Acertar Habilidade",
       "OnDeedMiss": "Ao Errar Habilidade",
       "StartOfCombat": "Início de Combate",
-      "EndOfCombat": "Fim de Combate"
+      "EndOfCombat": "Fim de Combate",
+      "Continuous": "Contínuo"
     },
     "DurationLabels": {
       "Indefinite": "Indefinido",

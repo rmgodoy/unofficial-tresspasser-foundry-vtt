@@ -6,6 +6,7 @@
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { askAPDialog }             from "../../dialogs/ap-dialog.mjs";
 import { TrespasserCombat }        from "../../documents/combat.mjs";
+import { showItemInfoDialog }      from "../../dialogs/item-info-dialog.mjs";
 
 export async function onPrevailRoll(event, sheet) {
   event.preventDefault();
@@ -59,8 +60,6 @@ export async function onDurationChange(event, sheet) {
   if (item) await item.update({ "system.durationValue": val });
 }
 
-import { showItemInfoDialog } from "../../dialogs/item-info-dialog.mjs";
-
 export async function onEffectInfo(event, sheet) {
   const li = event.currentTarget.closest("[data-item-id]");
   if (!li) return;
@@ -86,10 +85,38 @@ export async function onEffectEdit(event, sheet) {
     
     // Create a virtual Item document for the sheet to work on
     const effectData = foundry.utils.deepClone(parentItem.system[found.property][found.index]);
+    
+    // Rename/Remove conflicting fields before passing to Item.implementation
+    const docType = effectData.type || "effect";
+    delete effectData.type;
+    delete effectData.uuid;
+    delete effectData.name;
+    delete effectData.img;
 
-    if (effectData.uuid) {
-      await TrespasserEffectsHelper.openEffectSheet(effectData.uuid);
-      return;
-    }
+    const tempItem = new Item.implementation({
+      name: found.name || "Effect",
+      type: docType,
+      img: found.img,
+      system: effectData
+    }, { parent: actor });
+
+    // Force the ID to be the synthetic one to avoid confusion if needed, 
+    // but usually not necessary for the sheet.
+    
+    // Override update to sync back to the parent item
+    tempItem.update = async (updateData) => {
+      const currentArray = [...parentItem.system[found.property]];
+      const newSystemData = foundry.utils.mergeObject(currentArray[found.index], updateData.system || updateData);
+      currentArray[found.index] = newSystemData;
+      await parentItem.update({ [`system.${found.property}`]: currentArray });
+      return tempItem;
+    };
+
+    // Render the sheet for the virtual item
+    tempItem.sheet.render(true);
+  } else {
+    // Standalone Effect/State item
+    const effectItem = actor.items.get(found.id);
+    if (effectItem) effectItem.sheet.render(true);
   }
 }

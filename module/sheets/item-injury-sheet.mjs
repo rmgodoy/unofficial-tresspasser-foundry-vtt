@@ -1,3 +1,5 @@
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+
 /**
  * Sheet for the Injury item type.
  * Minimalist — no tabs, consistent with the Weapon sheet style.

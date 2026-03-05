@@ -161,7 +161,10 @@ export class TrespasserActor extends Actor {
     await this.update(actorUpdates);
 
     // 5. Apply Linked Items
-    if (item.system.effects?.length > 0) await this._applyLinkedItems(item.system.effects, { passiveOnly: (item.type === "weapon" || item.type === "item") });
+    if (item.system.effects?.length > 0 && item.type !== "weapon") {
+      await this._applyLinkedItems(item.system.effects, { passiveOnly: (item.type === "item") });
+    }
+
     if (item.type === "weapon") {
       if (item.system.enhancementEffects?.length > 0) await this._applyLinkedItems(item.system.enhancementEffects, { passiveOnly: true });
       if (item.system.extraDeeds?.length > 0) await this._applyLinkedItems(item.system.extraDeeds);
@@ -267,7 +270,7 @@ export class TrespasserActor extends Actor {
     await item.update({ "system.equipped": false });
 
     // Remove or reduce linked effects
-    if (item.system.effects && item.system.effects.length > 0) {
+    if (item.system.effects?.length > 0 && item.type !== "weapon") {
       await this._removeLinkedItems(item.system.effects, item.id);
     }
 
@@ -359,6 +362,7 @@ export class TrespasserActor extends Actor {
    * @param {string}  [options.injuryId]     The injury item ID to stamp on each applied item
    */
   async _applyLinkedItems(itemsArray, { passiveOnly = false, fromInjury = false, injuryId = null } = {}) {
+    console.warn("Applying linked items", itemsArray, passiveOnly, fromInjury, injuryId);
     if (!itemsArray || !Array.isArray(itemsArray)) return;
     
     for (const eff of itemsArray) {
@@ -374,7 +378,7 @@ export class TrespasserActor extends Actor {
         const isCombat  = sys.isCombat;
         const isImmediate = sys.when === "immediate" || !sys.when; // Treat blank as immediate for safety
         
-        if (!isPassive || !isCombat || !isImmediate) continue;
+        if (!isPassive || !isCombat || !isImmediate){ console.warn("Skipping effect", sourceItem); continue;}
       }
       
       const desiredIntensity = parseInt(eff.intensity) || sourceItem.system.intensity || 0;
@@ -397,7 +401,7 @@ export class TrespasserActor extends Actor {
         itemData.flags.trespasser.fromInjury = true;
         if (injuryId) itemData.flags.trespasser.injuryId = injuryId;
       }
-      
+      console.warn("Creating item", itemData);
       await foundry.documents.BaseItem.create(itemData, { parent: this });
     }
   }
