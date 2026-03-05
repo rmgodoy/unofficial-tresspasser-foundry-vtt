@@ -203,6 +203,54 @@ export class TrespasserEffectsHelper {
   }
 
   /**
+   * Posts or renders a standardized chat card with buttons to apply effects manually.
+   * This is the system standard for situational effects from armor, weapons, or deeds.
+   * @param {Object|Object[]} effects - Single effect or array of effects from item data
+   * @param {Actor} actor - The source actor
+   * @param {Object} options - title, description, renderOnly (returns HTML instead of creating msg)
+   * @returns {Promise<string|ChatMessage>}
+   */
+  static async applyEffectChat(effects, actor, { title = "", description = "", renderOnly = false } = {}) {
+    if (!effects) return null;
+    const effArray = Array.isArray(effects) ? effects : [effects];
+    if (effArray.length === 0) return null;
+
+    // Filter out passive effects (they should be already applied as documents)
+    const activeOnly = [];
+    for (const eff of effArray) {
+      if (!eff.uuid) continue;
+      const source = await fromUuid(eff.uuid);
+      if (source && (source.system.type === "passive" || source.system.when === "immediate" || !source.system.when)) continue;
+      activeOnly.push(eff);
+    }
+    if (activeOnly.length === 0) return null;
+
+    let cardHtml = `<div class="trespasser-chat-card">`;
+    if (title) cardHtml += `<h3>${title}</h3>`;
+    if (description) cardHtml += `<p><em>${description}</em></p>`;
+
+    cardHtml += `<div class="applied-effects">
+      <strong>${game.i18n.localize("TRESPASSER.Chat.EffectsStates")}</strong>`;
+
+    for (const eff of activeOnly) {
+      const intensity = parseInt(eff.intensity) || 0;
+      const nameLabel = intensity !== 0 ? `${eff.name} ${intensity}` : eff.name;
+      cardHtml += `
+        <a class="apply-effect-btn" data-uuid="${eff.uuid}" data-intensity="${intensity}">
+          <img src="${eff.img}" width="20" height="20" /><span>${nameLabel}</span><i class="fas fa-hand-sparkles"></i>
+        </a>`;
+    }
+    cardHtml += `</div></div>`;
+
+    if (renderOnly) return cardHtml;
+
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content: cardHtml
+    });
+  }
+
+  /**
    * Helper for asynchronous string replacement with regex.
    * @private
    */
@@ -253,10 +301,14 @@ export class TrespasserEffectsHelper {
 
     for (const item of actor.items) {
       // Passive/Built-in effects from equipped items
-      // Weapons, Armor, and Accessories are excluded as they manage their equipment-time effects via Linked Items (actual documents)
       const equippableTypes = ["weapon", "armor", "accessory", "item"];
-      if (item.system.equipped && !equippableTypes.includes(item.type) && Array.isArray(item.system.effects)) {
+      const isEquippable = equippableTypes.includes(item.type);
+      
+      if (item.system.equipped && Array.isArray(item.system.effects)) {
         item.system.effects.forEach((eff, index) => {
+          // If it's an equippable, we skip immediate/passive effects because those should have been converted to real Effect documents
+          if (isEquippable && (eff.type === "passive" || eff.when === "immediate" || !eff.when)) return;
+
           const property = "effects";
           const effData = {
             id: `${item.id}-${property}-${index}`, // Stable Synthetic ID
@@ -280,7 +332,9 @@ export class TrespasserEffectsHelper {
             durationSummary: null, // inline effects don't have a live item; no compound summary
             intensityIncrement: eff.intensityIncrement || 0,
             property,
-            index
+            index,
+            synthetic: true,
+            hiddenOnSheet: isEquippable // Hide equippable-derived effects from the sheet; they trigger in chat
           };
           if (eff.isCombat) effects.combat.push(effData);
           else effects.nonCombat.push(effData);

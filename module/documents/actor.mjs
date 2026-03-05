@@ -162,7 +162,7 @@ export class TrespasserActor extends Actor {
 
     // 5. Apply Linked Items
     if (item.system.effects?.length > 0 && item.type !== "weapon") {
-      await this._applyLinkedItems(item.system.effects, { passiveOnly: (item.type === "item") });
+      await this._applyLinkedItems(item.system.effects, { passiveOnly: ["armor", "accessory", "item"].includes(item.type) });
     }
 
     if (item.type === "weapon") {

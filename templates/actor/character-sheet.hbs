@@ -244,6 +244,7 @@
         </h4>
         <div class="effects-list">
           {{#each activeEffects.nonCombat}}
+          {{#unless this.hiddenOnSheet}}
           <div class="effect-row" data-item-id="{{this.id}}" style="display: flex; align-items: center; background: rgba(0,0,0,0.2); margin-bottom: 5px; padding: 5px; border-radius: 4px; {{#if this.fromInjury}}border-left: 2px solid var(--trp-red-dim);{{/if}}">
             <div style="flex: 1;">
               <b>{{this.name}}</b>
@@ -256,6 +257,7 @@
             <a class="effect-remove" title="{{localize 'TRESPASSER.Item.RemoveEffect'}}"><i class="fas fa-trash"></i></a>
             {{/unless}}
           </div>
+          {{/unless}}
           {{else}}
           <p class="notes">{{localize "TRESPASSER.Sheet.Character.NoNonCombatEffects"}}</p>
           {{/each}}

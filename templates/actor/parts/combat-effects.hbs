@@ -6,6 +6,7 @@
         </h3>
         <div class="combat-effects-list">
           {{#each activeEffects.combat}}
+          {{#unless this.hiddenOnSheet}}
           <div class="effect-row combat-effect" data-item-id="{{this.id}}">
             <div class="effect-name">
               {{this.name}}
@@ -37,6 +38,7 @@
             {{/unless}}
             <a class="effect-remove" title="{{localize 'TRESPASSER.Item.RemoveEffect'}}"><i class="fas fa-trash"></i></a>
           </div>
+          {{/unless}}
           {{else}}
           <div class="empty-list">{{localize "TRESPASSER.Sheet.Equipments.Empty"}}</div>
           {{/each}}

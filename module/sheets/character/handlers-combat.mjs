@@ -25,8 +25,15 @@ export async function onEquipRoll(event, sheet) {
     })
   });
 
-  // Triggered effects (when: "use")
+  // ── Triggered effects (when: "use") ──────────────────────────────────────
   if (Array.isArray(item.system.effects)) {
+    // Armor type: show choice in chat for manual application
+    if (item.type === "armor") {
+      await TrespasserEffectsHelper.applyEffectChat(item.system.effects, sheet.actor, { title: item.name });
+      return; 
+    }
+
+    // Other items: auto-apply logic for "use" effects
     for (const eff of item.system.effects) {
       if (eff.when !== "use") continue;
 

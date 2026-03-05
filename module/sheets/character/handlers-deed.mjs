@@ -390,37 +390,20 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
     }
   }
 
-  // Filter out passive effects
-  const activeOnlyEffects = [];
-  for (const eff of finalEffects) {
-    const source = await fromUuid(eff.uuid);
-    if (["effect", "state"].includes(source?.type) && source.system.type === "passive") continue;
-    activeOnlyEffects.push(eff);
-  }
-  finalEffects = activeOnlyEffects;
-
   const hasDamage      = phaseData.damage      && phaseData.damage.trim()      !== "";
-  const hasEffects     = finalEffects.length > 0;
   const hasDescription = phaseData.description && phaseData.description.trim() !== "";
-  const title          = options.title || phaseName;
 
-  if (!hasDamage && !hasEffects && !hasDescription && !options.forceOutput) return;
+  const effectsHtml = await TrespasserEffectsHelper.applyEffectChat(finalEffects, actor, {
+    title: options.title || phaseName,
+    description: phaseData.description,
+    renderOnly: true
+  });
 
-  let flavorHtml = `<div class="trespasser-chat-card"><h3>${item.name} — ${title}</h3>`;
-  if (options.introText)  flavorHtml += `<p>${options.introText}</p>`;
-  if (hasDescription)     flavorHtml += `<p><em>${phaseData.description}</em></p>`;
+  if (!hasDamage && !effectsHtml && !hasDescription && !options.forceOutput) return;
 
-  if (hasEffects) {
-    flavorHtml += `<div class="applied-effects"><strong>${game.i18n.localize("TRESPASSER.Chat.EffectsStates")}</strong>`;
-    for (const eff of finalEffects) {
-      const intensity = parseInt(eff.intensity) ?? 1;
-      const nameLabel = intensity !== 0 ? `${eff.name} ${intensity}` : eff.name;
-      flavorHtml += `<a class="apply-effect-btn" data-uuid="${eff.uuid}" data-intensity="${intensity}">
-        <img src="${eff.img}" width="20" height="20" /><span>${nameLabel}</span><i class="fas fa-hand-sparkles"></i>
-      </a>`;
-    }
-    flavorHtml += `</div>`;
-  }
+  let flavorHtml = effectsHtml || `<div class="trespasser-chat-card"><h3>${item.name} — ${options.title || phaseName}</h3>`;
+  if (!effectsHtml && hasDescription) flavorHtml += `<p><em>${phaseData.description}</em></p>`;
+  if (options.introText) flavorHtml += `<p>${options.introText}</p>`;
   flavorHtml += `</div>`;
 
   if (hasDamage) {
