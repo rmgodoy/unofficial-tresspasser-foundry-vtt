@@ -168,7 +168,6 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
    */
   prepareDerivedData() {
     const actor  = this.parent;
-    const st     = this.states;
     const level  = this.level;
 
     // 0. Fetch and store Effect Bonuses in the document field
@@ -216,13 +215,13 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     // 5. Combat Derived Stats
     const keyAttrValue = eff[this.key_attribute] ?? eff.mighty;
 
-    this.combat.initiative = eff.agility + this.skill + (st.hastened ?? 0) + this.bonuses.initiative;
-    this.combat.accuracy   = keyAttrValue + this.skill + (st.accurate  ?? 0) + this.bonuses.accuracy;
-    this.combat.guard      = eff.agility + this.armor + (st.guarded   ?? 0) + this.bonuses.guard;
-    this.combat.resist     = eff.spirit  + this.skill + (st.willfull  ?? 0) + this.bonuses.resist;
+    this.combat.initiative = eff.agility + this.skill + this.bonuses.initiative;
+    this.combat.accuracy   = keyAttrValue + this.skill + this.bonuses.accuracy;
+    this.combat.guard      = eff.agility + this.armor + this.bonuses.guard;
+    this.combat.resist     = eff.spirit  + this.skill + this.bonuses.resist;
     this.combat.prevail    = eff.intellect + this.skill + this.bonuses.prevail;
     this.combat.tenacity   = eff.mighty  + eff.spirit + this.bonuses.tenacity;
-    this.combat.speed      = 5 + (st.swift ?? 0) + this.bonuses.speed;
+    this.combat.speed      = 5 + this.bonuses.speed;
 
     // 6. Deeds Capacity
     this.deed_slots.light = 0;
