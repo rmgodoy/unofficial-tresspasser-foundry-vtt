@@ -377,7 +377,8 @@
       "Rolls": "rola",
       "TakeAimMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. (Alcance: +{bonus} qdr).",
       "InteractMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. {bonusText}",
-      "ManeuverMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. {focusText} (Bônus: +{bonus})"
+      "ManeuverMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. {focusText} (Bônus: +{bonus})",
+      "SmashMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. Pode quebrar: {material}."
     },
     "Trigger": {
       "EffectEvaluation": "Avaliação de Efeito",
@@ -761,7 +762,14 @@
       "Maneuver": "Manobra",
       "ManeuverOption": "{cost} PA (+{bonus} Acurácia)",
       "FocusCost": "{count} Foco",
-      "SpentFocusMsg": "e gastou {count} de Foco"
+      "SpentFocusMsg": "e gastou {count} de Foco",
+      "Smash": "Esmagar",
+      "SmashOption": "{cost} PA (+{bonus} For)",
+      "SmashMaterial1": "matéria vegetal, cerâmica",
+      "SmashMaterial2": "madeira",
+      "SmashMaterial3": "pedra frágil ou rachada",
+      "SmashMaterial4": "pedra sólida",
+      "SmashMaterial5": "metal fraco"
     }
   },
   "TYPES": {

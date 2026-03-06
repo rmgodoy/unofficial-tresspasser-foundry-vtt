@@ -99,6 +99,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             canTakeAim: ap >= 1 && !usedActions.has("take-aim"),
             canInteract: ap >= 1 && !usedActions.has("interact"),
             canManeuver: ap >= 1 && !usedActions.has("maneuver") && (!usedActions.has("attempt-deed") || focus >= 2),
+            canSmash: ap >= 1 && !usedActions.has("smash"),
             maneuverFocusCost: usedActions.has("attempt-deed") ? 2 : 0,
             deedFocusCost: usedActions.has("maneuver") ? 2 : 0,
             availableFocus: focus,
@@ -123,6 +124,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if ( this._activePanel === "take-aim"      && !context.canTakeAim     ) this._activePanel = null;
         if ( this._activePanel === "interact"      && !context.canInteract    ) this._activePanel = null;
         if ( this._activePanel === "maneuver"      && !context.canManeuver    ) this._activePanel = null;
+        if ( this._activePanel === "smash"         && !context.canSmash       ) this._activePanel = null;
 
         return context;
     }
@@ -284,6 +286,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                     break;
                 case "execute-maneuver":
                     this._executeManeuver();
+                    break;
+                case "execute-smash":
+                    this._executeSmash();
                     break;
             }
         });
@@ -809,6 +814,49 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 cost: cost,
                 focusText: focusText,
                 bonus: bonus
+            })
+        });
+
+        this._activePanel = null;
+        this.render();
+    }
+
+    async _executeSmash() {
+        const costInput = this.element.querySelector('[name="smash-cost"]');
+        const cost = costInput ? parseInt(costInput.value) : 1;
+        
+        const combatant = this._getCombatant();
+        if (!combatant) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        if (currentAP < cost) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            return;
+        }
+
+        const actor = this._token.actor;
+        let baseMight = actor.system.attributes?.mighty ?? 0;
+        
+        // Bonus might equals the extra AP spent
+        const extraAP = cost - 1;
+        const totalMight = baseMight + extraAP;
+
+        let materialIdx = totalMight;
+        if (materialIdx < 1) materialIdx = 1;
+        if (materialIdx > 5) materialIdx = 5;
+
+        const materialStr = game.i18n.localize(`TRESPASSER.HUD.SmashMaterial${materialIdx}`);
+
+        await combatant.setFlag("trespasser", "actionPoints", currentAP - cost);
+        await TrespasserCombat.recordHUDAction(actor, "smash");
+
+        ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ token: this._token }),
+            content: game.i18n.format("TRESPASSER.Chat.SmashMessage", {
+                name: this._token.name,
+                action: game.i18n.localize("TRESPASSER.HUD.Smash"),
+                cost: cost,
+                material: materialStr
             })
         });
 
