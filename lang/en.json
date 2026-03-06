@@ -378,7 +378,9 @@
       "TakeAimMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. (Range: +{bonus} sq).",
       "InteractMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. {bonusText}",
       "ManeuverMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. {focusText} (Bonus: +{bonus})",
-      "SmashMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. Can break: {material}."
+      "SmashMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. Can break: {material}.",
+      "RummageMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP to manage their inventory.",
+      "ThrowMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. Throwing range: {range} sq."
     },
     "Trigger": {
       "EffectEvaluation": "Effect Evaluation",
@@ -769,7 +771,10 @@
       "SmashMaterial2": "wood",
       "SmashMaterial3": "fragile or cracked stone",
       "SmashMaterial4": "solid stone",
-      "SmashMaterial5": "weak metal"
+      "SmashMaterial5": "weak metal",
+      "Rummage": "Rummage",
+      "Throw": "Throw",
+      "ThrowOption": "{cost} AP ({range} sq)"
     }
   },
   "TYPES": {

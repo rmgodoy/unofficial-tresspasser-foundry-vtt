@@ -247,6 +247,29 @@
                     <button class="action-confirm-btn" data-action="execute-smash">{{localize "TRESPASSER.HUD.Confirm"}}</button>
                 </div>
             </div>
+            <!-- RUMMAGE -->
+            <div class="hud-action-group">
+                <button class="hud-action-btn rummage" data-action="execute-rummage" {{#unless canRummage}}disabled{{/unless}}>
+                    <span class="btn-text">{{localize "TRESPASSER.HUD.Rummage"}}</span>
+                </button>
+            </div>
+            <!-- THROW -->
+            <div class="hud-action-group">
+                <button class="hud-action-btn throw" data-action="toggle-panel" data-panel="throw" {{#unless canThrow}}disabled{{/unless}}>
+                    <span class="btn-text">{{localize "TRESPASSER.HUD.Throw"}}</span>
+                </button>
+                <div class="hud-sub-panel hidden" id="panel-throw">
+                    <div class="field-row">
+                        <label>{{localize "TRESPASSER.HUD.APCost"}}</label>
+                        <select name="throw-cost">
+                            {{#each throwOptions}}
+                            <option value="{{cost}}">{{localize "TRESPASSER.HUD.ThrowOption" cost=cost range=range}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <button class="action-confirm-btn" data-action="execute-throw">{{localize "TRESPASSER.HUD.Confirm"}}</button>
+                </div>
+            </div>
         </div>
     </div>
     {{/if}}

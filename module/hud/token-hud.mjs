@@ -100,6 +100,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             canInteract: ap >= 1 && !usedActions.has("interact"),
             canManeuver: ap >= 1 && !usedActions.has("maneuver") && (!usedActions.has("attempt-deed") || focus >= 2),
             canSmash: ap >= 1 && !usedActions.has("smash"),
+            canRummage: ap >= 1 && !usedActions.has("rummage"),
+            canThrow: ap >= 1 && !usedActions.has("throw"),
             maneuverFocusCost: usedActions.has("attempt-deed") ? 2 : 0,
             deedFocusCost: usedActions.has("maneuver") ? 2 : 0,
             availableFocus: focus,
@@ -111,7 +113,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             states,
             deeds,
             concoctions,
-            usedActions: [...usedActions]
+            usedActions: [...usedActions],
+            throwOptions: this._getThrowOptions(ap)
         };
 
         // Clear active panel if its action is no longer available
@@ -125,6 +128,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if ( this._activePanel === "interact"      && !context.canInteract    ) this._activePanel = null;
         if ( this._activePanel === "maneuver"      && !context.canManeuver    ) this._activePanel = null;
         if ( this._activePanel === "smash"         && !context.canSmash       ) this._activePanel = null;
+        if ( this._activePanel === "rummage"       && !context.canRummage     ) this._activePanel = null;
+        if ( this._activePanel === "throw"         && !context.canThrow       ) this._activePanel = null;
 
         return context;
     }
@@ -183,6 +188,24 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
      */
     _getCombatant() {
         return TrespasserCombat.getPhaseCombatant(this._token.id);
+    }
+
+    /**
+     * Calculate throw distance options based on available AP and Agility.
+     */
+    _getThrowOptions(ap) {
+        if (!this._token?.actor) return [];
+        const baseAgility = this._token.actor.system.attributes?.agility ?? 0;
+        const bonusAgility = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "agility");
+        const agility = baseAgility + bonusAgility;
+        const options = [];
+        for (let i = 1; i <= ap; i++) {
+            options.push({
+                cost: i,
+                range: 5 + agility + (i - 1) * 2
+            });
+        }
+        return options;
     }
 
     _initHooks() {
@@ -289,6 +312,12 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                     break;
                 case "execute-smash":
                     this._executeSmash();
+                    break;
+                case "execute-rummage":
+                    this._executeRummage();
+                    break;
+                case "execute-throw":
+                    this._executeThrow();
                     break;
             }
         });
@@ -858,6 +887,68 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 action: game.i18n.localize("TRESPASSER.HUD.Smash"),
                 cost: cost,
                 material: materialStr
+            })
+        });
+
+        this._activePanel = null;
+        this.render();
+    }
+
+    async _executeRummage() {
+        const combatant = this._getCombatant();
+        if (!combatant) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        if (currentAP < 1) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            return;
+        }
+
+        await combatant.setFlag("trespasser", "actionPoints", currentAP - 1);
+        await TrespasserCombat.recordHUDAction(this._token.actor, "rummage");
+
+        ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ token: this._token }),
+            content: game.i18n.format("TRESPASSER.Chat.RummageMessage", {
+                name: this._token.name,
+                action: game.i18n.localize("TRESPASSER.HUD.Rummage"),
+                cost: 1
+            })
+        });
+
+        this._activePanel = null;
+        this.render();
+    }
+
+    async _executeThrow() {
+        const costInput = this.element.querySelector('[name="throw-cost"]');
+        const cost = costInput ? parseInt(costInput.value) : 1;
+        
+        const combatant = this._getCombatant();
+        if (!combatant) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        if (currentAP < cost) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            return;
+        }
+
+        const actor = this._token.actor;
+        const baseAgility = actor.system.attributes?.agility ?? 0;
+        const bonusAgility = TrespasserEffectsHelper.getAttributeBonus(actor, "agility");
+        const agility = baseAgility + bonusAgility;
+        const range = 5 + agility + (cost - 1) * 2;
+
+        await combatant.setFlag("trespasser", "actionPoints", currentAP - cost);
+        await TrespasserCombat.recordHUDAction(actor, "throw");
+
+        ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ token: this._token }),
+            content: game.i18n.format("TRESPASSER.Chat.ThrowMessage", {
+                name: this._token.name,
+                action: game.i18n.localize("TRESPASSER.HUD.Throw"),
+                cost: cost,
+                range: range
             })
         });
 
