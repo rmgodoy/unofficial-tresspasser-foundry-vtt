@@ -293,11 +293,12 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             }
         });
 
-        // Add dragging logic to header
-        const header = this.element.querySelector("header");
-        if (header) {
-            header.addEventListener("mousedown", this._onHeaderMouseDown.bind(this));
-        }
+        // Add dragging logic to header using event delegation
+        this.element.addEventListener("mousedown", ev => {
+            if (ev.target.closest("header")) {
+                this._onHeaderMouseDown(ev);
+            }
+        });
     }
 
     /**
