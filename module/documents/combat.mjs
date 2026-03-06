@@ -215,7 +215,7 @@ export class TrespasserCombat extends Combat {
     for (const c of this.combatants) {
       if (c.actor && !processedActors.has(c.actor.id)) {
         processedActors.add(c.actor.id);
-        await TrespasserEffectsHelper.decrementRounds(c.actor);
+        await TrespasserEffectsHelper.decrementRound(c.actor);
         await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-round");
       }
     }

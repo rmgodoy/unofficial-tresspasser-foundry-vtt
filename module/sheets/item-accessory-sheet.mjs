@@ -130,7 +130,7 @@ export class TrespasserAccessorySheet extends foundry.appv1.sheets.ItemSheet {
     });
 
     if (this.item.actor && this.item.system.equipped) {
-       await this.item.actor._applyLinkedItems([entry], { passiveOnly: targetType === "effects" });
+       await this.item.actor._applyLinkedItems([entry], { continuousOnly: targetType === "effects" });
     }
   }
 
@@ -172,7 +172,7 @@ export class TrespasserAccessorySheet extends foundry.appv1.sheets.ItemSheet {
 
       if (this.item.actor && this.item.system.equipped) {
          // Refresh the effect on the actor
-         await this.item.actor._applyLinkedItems([currentArray[index]], { passiveOnly: true });
+         await this.item.actor._applyLinkedItems([currentArray[index]], { continuousOnly: true });
       }
     }
   }

@@ -1,8 +1,8 @@
 <form class="{{cssClass}} trespasser-sheet item craft" autocomplete="off">
 
   {{!-- ═══ HEADER ═══ --}}
-  <header class="sheet-header" style="display:flex; gap:10px; align-items:center; border-bottom:2px solid var(--trp-gold-border); padding-bottom:10px; margin-bottom:12px;">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" width="64" height="64"
+  <header class="sheet-header item-header-layout">
+    <img class="header-column image-column" src="{{item.img}}" data-edit="img" title="{{item.name}}" width="64" height="64"
          style="border:2px solid var(--trp-gold-border); border-radius:4px; object-fit:cover; cursor:pointer;" />
     <div style="flex:1;">
       <input type="text" name="name" value="{{item.name}}"
@@ -16,7 +16,9 @@
     {{!-- ═══ DESCRIPTION ═══ --}}
     <div style="margin-bottom:16px; border-bottom:1px solid var(--trp-border); padding-bottom:12px;">
       <h4>{{localize "TRESPASSER.Item.Description"}}</h4>
-      {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror"}}
+      <div class="trp-editor-container">
+        {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+      </div>
     </div>
 
     {{!-- ═══ KEY ATTRIBUTE ═══ --}}

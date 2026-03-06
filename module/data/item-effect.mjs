@@ -9,8 +9,8 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
     return {
       description: new fields.HTMLField(),
       type: new fields.StringField({
-        initial: "active",
-        choices: ["active", "passive"]
+        initial: "continuous",
+        choices: ["on-trigger", "continuous"]
       }),
       isCombat: new fields.BooleanField({ initial: false }),
       isOnlyReminder: new fields.BooleanField({ initial: false }),
@@ -43,7 +43,8 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
         { initial: [] }
       ),
       intensityIncrement: new fields.NumberField({ initial: 0 }),
-      counterStates: new fields.ArrayField(new fields.ObjectField(), { initial: [] })
+      counterStates: new fields.ArrayField(new fields.ObjectField(), { initial: [] }),
+      isPrevailable: new fields.BooleanField({ initial: true })
     };
   }
 }

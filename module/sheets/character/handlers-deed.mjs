@@ -155,17 +155,19 @@ export async function onDeedRoll(event, sheet) {
 
   // ── 11. After/End phases + depletion ──────────────────────────────────────
   if (anyHit || !isAttack || targets.length === 0) {
-    await sheet._postDeedPhase("Base", effects.base, sheet.actor, item, phaseOptions);
-    await sheet._postDeedPhase("Hit",  effects.hit,  sheet.actor, item, phaseOptions);
+    const commonOptions = { ...phaseOptions, anyHit, maxSparks };
+    await sheet._postDeedPhase("Base", effects.base, sheet.actor, item, commonOptions);
+    await sheet._postDeedPhase("Hit",  effects.hit,  sheet.actor, item, commonOptions);
     if (maxSparks > 0) {
       await sheet._postDeedPhase("Spark", effects.spark, sheet.actor, item, {
-        ...phaseOptions, title: maxSparks > 1 ? `Spark (x${maxSparks})` : "Spark"
+        ...commonOptions, title: maxSparks > 1 ? `Spark (x${maxSparks})` : "Spark"
       });
     }
   }
 
-  await sheet._postDeedPhase("After", effects.after, sheet.actor, item, phaseOptions);
-  await sheet._postDeedPhase("End",   effects.end,   sheet.actor, item, phaseOptions);
+  const finalOptions = { ...phaseOptions, anyHit, maxSparks };
+  await sheet._postDeedPhase("After", effects.after, sheet.actor, item, finalOptions);
+  await sheet._postDeedPhase("End",   effects.end,   sheet.actor, item, finalOptions);
 
   if (!isCreature) {
     for (const weapon of fragileItems) await sheet._runDepletionCheck(weapon);
@@ -383,9 +385,22 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
   if (phaseData.appliesWeaponEffects || (phaseData.damage && phaseData.damage.includes("<wd>"))) {
     for (const weapon of activeWeapons) {
       if (!weapon) continue;
+      
+      // Weapon Basic Effects
       if (phaseData.appliesWeaponEffects && weapon.system.effects) {
         finalEffects.push(...Array.from(weapon.system.effects).map(e => ({...e})));
       }
+
+      // Enhancement Effects: always display if 1+ spark
+      if (options.maxSparks > 0 && Array.isArray(weapon.system.enhancementEffects)) {
+        finalEffects.push(...Array.from(weapon.system.enhancementEffects).map(e => ({...e})));
+      }
+
+      // Oil Effects: always display if Hit
+      if (options.anyHit && Array.isArray(weapon.system.oilEffects)) {
+        finalEffects.push(...Array.from(weapon.system.oilEffects).map(e => ({...e})));
+      }
+
       if (weapon.system.properties?.fragile && options.fragileItems) options.fragileItems.add(weapon);
     }
   }

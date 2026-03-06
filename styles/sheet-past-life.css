@@ -2,9 +2,7 @@
    PAST LIFE ITEM SHEET
    ═══════════════════════════════════════════════════ */
 
-.past-life .item-header-layout .description-column .editor-container {
-  height: 80px;
-}
+
 
 .past-life .sheet-tabs {
   background: var(--trp-bg-header);

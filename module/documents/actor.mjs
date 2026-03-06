@@ -59,7 +59,7 @@ export class TrespasserActor extends Actor {
    */
   _getUsedInventorySlots() {
     const unequippedItems = this.items.filter(i => {
-      const isSpecial = ["deed", "feature", "talent", "incantation", "effect", "state", "injury"].includes(i.type);
+      const isSpecial = ["deed", "feature", "talent", "incantation", "effect", "injury"].includes(i.type);
       return !isSpecial && !i.system.equipped;
     });
     return unequippedItems.reduce((acc, i) => {
@@ -160,23 +160,30 @@ export class TrespasserActor extends Actor {
 
     await this.update(actorUpdates);
 
-    // 5. Apply Linked Items
-    if (item.system.effects?.length > 0 && item.type !== "weapon") {
-      await this._applyLinkedItems(item.system.effects, { passiveOnly: ["armor", "accessory", "item"].includes(item.type) });
+    if (item.system.subType === "light_source" || (item.type === "weapon" && item.system.isLightSource)) await this._syncTokenLight();
+
+    // Apply continuous and Trigger effects based on item type
+    if (item.system.effects?.length > 0) {
+      // Weapons handle effects differently (some apply to target, some to self)
+      // The guide says: "If a weapon has a continuous effect, it's applied immediatly to the one with the weapon equipped and must be removed when unequipped."
+      await this._applyLinkedItems(item.system.effects, { 
+        continuousOnly: true,
+        sourceType: item.type
+      });
     }
 
     if (item.type === "weapon") {
-      if (item.system.enhancementEffects?.length > 0) await this._applyLinkedItems(item.system.enhancementEffects, { passiveOnly: true });
+      if (item.system.enhancementEffects?.length > 0) await this._applyLinkedItems(item.system.enhancementEffects, { continuousOnly: true });
+      if (item.system.oilEffects?.length > 0) await this._applyLinkedItems(item.system.oilEffects, { continuousOnly: true });
       if (item.system.extraDeeds?.length > 0) await this._applyLinkedItems(item.system.extraDeeds);
     }
+
     if (item.type === "accessory" || item.type === "item") {
       if (item.system.talents?.length > 0) await this._applyLinkedItems(item.system.talents);
       if (item.system.features?.length > 0) await this._applyLinkedItems(item.system.features);
       if (item.system.deeds?.length > 0) await this._applyLinkedItems(item.system.deeds);
       if (item.system.incantations?.length > 0) await this._applyLinkedItems(item.system.incantations);
     }
-
-    if (item.system.subType === "light_source" || (item.type === "weapon" && item.system.isLightSource)) await this._syncTokenLight();
   }
 
   /** @override */
@@ -186,7 +193,7 @@ export class TrespasserActor extends Actor {
     if (game.user.id !== userId) return;
 
     for (const doc of documents) {
-      if (doc.type === "effect" || doc.type === "state") {
+      if (doc.type === "effect" && doc.system.type === "on-trigger" && doc.system.when === "immediate") {
         await TrespasserEffectsHelper.triggerImmediate(this, doc);
       }
     }
@@ -227,7 +234,8 @@ export class TrespasserActor extends Actor {
       if (sys.effects?.length > 0)  this._removeLinkedItems(sys.effects, itemId);
       if (doc.type === "weapon") {
         if (doc.system.enhancementEffects?.length > 0) this._removeLinkedItems(doc.system.enhancementEffects, itemId);
-        if (doc.system.extraDeeds?.length > 0) this._removeLinkedItems(doc.system.extraDeeds, itemId);
+        if (doc.system.oilEffects?.length > 0)         this._removeLinkedItems(doc.system.oilEffects, itemId);
+        if (doc.system.extraDeeds?.length > 0)         this._removeLinkedItems(doc.system.extraDeeds, itemId);
       }
     }
 
@@ -270,7 +278,7 @@ export class TrespasserActor extends Actor {
     await item.update({ "system.equipped": false });
 
     // Remove or reduce linked effects
-    if (item.system.effects?.length > 0 && item.type !== "weapon") {
+    if (item.system.effects?.length > 0) {
       await this._removeLinkedItems(item.system.effects, item.id);
     }
 
@@ -288,6 +296,11 @@ export class TrespasserActor extends Actor {
     } else if (item.type === "weapon") {
       if (item.system.enhancementEffects && item.system.enhancementEffects.length > 0) {
         await this._removeLinkedItems(item.system.enhancementEffects, item.id);
+      }
+      if (item.system.oilEffects && item.system.oilEffects.length > 0) {
+        await this._removeLinkedItems(item.system.oilEffects, item.id);
+        // Clear oil effects from the item data as well per guide: "The oil effect will be removed once the weapon is unequipped."
+        await item.update({ "system.oilEffects": [] });
       }
       if (item.system.extraDeeds && item.system.extraDeeds.length > 0) {
         await this._removeLinkedItems(item.system.extraDeeds, item.id);
@@ -357,12 +370,11 @@ export class TrespasserActor extends Actor {
    * Helper to apply an array of UUID references as actual items on the actor.
    * @param {Array}  itemsArray
    * @param {Object} [options]
-   * @param {boolean} [options.passiveOnly]  Only apply passive/combat/immediate effects
+   * @param {boolean} [options.continuousOnly]  Only apply continuous/immediate effects
    * @param {boolean} [options.fromInjury]   Mark applied items as injury-sourced (no Prevail)
    * @param {string}  [options.injuryId]     The injury item ID to stamp on each applied item
    */
-  async _applyLinkedItems(itemsArray, { passiveOnly = false, fromInjury = false, injuryId = null } = {}) {
-    console.warn("Applying linked items", itemsArray, passiveOnly, fromInjury, injuryId);
+  async _applyLinkedItems(itemsArray, { continuousOnly = false, fromInjury = false, injuryId = null, sourceType = null } = {}) {
     if (!itemsArray || !Array.isArray(itemsArray)) return;
     
     for (const eff of itemsArray) {
@@ -371,15 +383,12 @@ export class TrespasserActor extends Actor {
       const sourceItem = await fromUuid(eff.uuid);
       if (!sourceItem) continue;
 
-      // Filter: only passive, combat, immediate effects if requested
-      if (passiveOnly && ["effect", "state"].includes(sourceItem.type)) {
-        const sys = sourceItem.system;
-        const isPassive = sys.type === "passive";
-        const isCombat  = sys.isCombat;
-        const isImmediate = sys.when === "immediate" || !sys.when; // Treat blank as immediate for safety
-        
-        if (!isPassive || !isCombat || !isImmediate){ console.warn("Skipping effect", sourceItem); continue;}
-      }
+      const sys = sourceItem.system;
+      const isContinuous = sys.type === "continuous";
+      const isImmediate = sys.when === "immediate" || !sys.when;
+
+      // If continuousOnly is requested, only apply effects that are continuous or immediate
+      if (continuousOnly && !isContinuous && !isImmediate) continue;
       
       const desiredIntensity = parseInt(eff.intensity) || sourceItem.system.intensity || 0;
 
@@ -387,7 +396,7 @@ export class TrespasserActor extends Actor {
       const itemData = sourceItem.toObject();
       delete itemData._id;
 
-      if (["effect", "state"].includes(sourceItem.type)) {
+      if (sourceItem.type === "effect") {
         itemData.system.intensity = desiredIntensity;
       }
 
@@ -401,7 +410,6 @@ export class TrespasserActor extends Actor {
         itemData.flags.trespasser.fromInjury = true;
         if (injuryId) itemData.flags.trespasser.injuryId = injuryId;
       }
-      console.warn("Creating item", itemData);
       await foundry.documents.BaseItem.create(itemData, { parent: this });
     }
   }

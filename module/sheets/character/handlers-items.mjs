@@ -37,6 +37,11 @@ export async function onItemConsume(event, sheet) {
   if (item.system.subType === "resource") return;
 
   if (!["bombs", "oils", "powders", "potions", "scrolls", "esoteric"].includes(item.system.subType)) return;
+  
+  // Special case for Oils: open application dialog
+  if (item.system.subType === "oils") {
+    return TrespasserEffectsHelper.applyOilDialog(sheet.actor, item);
+  }
 
   let flavorHtml = `<div class="trespasser-chat-card phase-base">`;
   flavorHtml += `<h3 style="margin:0;padding-bottom:4px;border-bottom:1px solid var(--trp-gold-dim);color:var(--trp-gold-bright);">${game.i18n.format("TRESPASSER.Chat.UsedItem", { name: item.name })}</h3>`;

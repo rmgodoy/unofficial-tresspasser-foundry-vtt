@@ -9,7 +9,6 @@ import { TrespasserArmorData }     from "./module/data/item-armor.mjs";
 import { TrespasserWeaponData }    from "./module/data/item-weapon.mjs";
 import { TrespasserRationsData }   from "./module/data/item-rations.mjs";
 import { TrespasserEffectData }    from "./module/data/item-effect.mjs";
-import { TrespasserStateData }     from "./module/data/item-state.mjs";
 import { TrespasserDeedData }      from "./module/data/item-deed.mjs";
 import { TrespasserFeatureData }   from "./module/data/item-feature.mjs";
 import { TrespasserTalentData }    from "./module/data/item-talent.mjs";
@@ -28,7 +27,6 @@ import { TrespasserArmorSheet }     from "./module/sheets/item-armor-sheet.mjs";
 import { TrespasserWeaponSheet }    from "./module/sheets/item-weapon-sheet.mjs";
 import { TrespasserRationsSheet }   from "./module/sheets/item-rations-sheet.mjs";
 import { TrespasserEffectSheet }    from "./module/sheets/item-effect-sheet.mjs";
-import { TrespasserStateSheet }     from "./module/sheets/item-state-sheet.mjs";
 import { TrespasserDeedSheet }      from "./module/sheets/item-deed-sheet.mjs";
 import { TrespasserFeatureSheet }   from "./module/sheets/item-feature-sheet.mjs";
 import { TrespasserTalentSheet }    from "./module/sheets/item-talent-sheet.mjs";
@@ -100,7 +98,6 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.weapon = TrespasserWeaponData;
   CONFIG.Item.dataModels.rations = TrespasserRationsData;
   CONFIG.Item.dataModels.effect = TrespasserEffectData;
-  CONFIG.Item.dataModels.state = TrespasserStateData;
   CONFIG.Item.dataModels.deed = TrespasserDeedData;
   CONFIG.Item.dataModels.feature = TrespasserFeatureData;
   CONFIG.Item.dataModels.talent = TrespasserTalentData;
@@ -146,11 +143,6 @@ Hooks.once("init", async () => {
     types: ["effect"],
     makeDefault: true,
     label: "Trespasser Effect Sheet",
-  });
-  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserStateSheet, {
-    types: ["state"],
-    makeDefault: true,
-    label: "Trespasser State Sheet",
   });
   foundry.documents.collections.Items.registerSheet("trespasser", TrespasserDeedSheet, {
     types: ["deed"],
@@ -233,6 +225,9 @@ Hooks.once("init", async () => {
       "/": lvalue / rvalue,
       "%": lvalue % rvalue
     }[operator];
+  });
+  Handlebars.registerHelper('sum', function(a, b) {
+    return a + b;
   });
 
   console.log("Trespasser | System ready");
@@ -432,7 +427,7 @@ Hooks.on("deleteCombat", async (combat) => {
       
       // Remove effects where combat-end triggers expiry (compound or legacy "combat" duration)
       const toRemove = c.actor.items.filter(i => {
-        if (i.type !== "effect" && i.type !== "state") return false;
+        if (i.type !== "effect") return false;
         return DurationHelper.shouldExpire(i) || i.system.duration === "combat";
       });
       for (const eff of toRemove) {
@@ -515,6 +510,8 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
   }
 
   options.trespasserTrack = true;
+  options.trespasserMoveDist = dist;
+  options.trespasserIsFirstMove = (movementUsed === 0);
 });
 
 Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
@@ -546,9 +543,19 @@ Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
     "flags.trespasser.hasMovedThisTurn": totalDist > 0
   });
 
-  // Trigger on-move effects if this was a valid tracked move (not an undo)
+  // Trigger movement effects if this was a valid tracked move (not an undo)
   if (options.trespasserTrack && combatant.actor) {
-    await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+    const dist = options.trespasserMoveDist || 0;
+    
+    // 1. First move of the turn trigger
+    if (options.trespasserIsFirstMove && dist > 0) {
+      await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
+    }
+
+    // 2. Continuous movement trigger (once per square)
+    for (let i = 0; i < dist; i++) {
+      await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+    }
   }
 
   // Re-render the HUD so the Undo button appears immediately after moving
@@ -573,12 +580,12 @@ Hooks.on("createItem", async (item, options, userId) => {
     if (sys.talents?.length > 0)  await actor._applyLinkedItems(sys.talents);
     if (sys.features?.length > 0) await actor._applyLinkedItems(sys.features);
     if (sys.deeds?.length > 0)    await actor._applyLinkedItems(sys.deeds);
-    if (sys.effects?.length > 0)  await actor._applyLinkedItems(sys.effects, { passiveOnly: true });
+    if (sys.effects?.length > 0)  await actor._applyLinkedItems(sys.effects, { continuousOnly: true });
   } else if (item.type === "injury") {
-    // Apply all passive effects listed on the injury — these cannot be prevailed against
+    // Apply all effects listed on the injury — these cannot be prevailed against
     const effects = item.system.effects || [];
     if (effects.length > 0) {
-      await actor._applyLinkedItems(effects, { passiveOnly: false, fromInjury: true, injuryId: item.id });
+      await actor._applyLinkedItems(effects, { continuousOnly: false, fromInjury: true, injuryId: item.id });
     }
   }
 });
@@ -603,9 +610,9 @@ Hooks.on("deleteItem", async (item, options, userId) => {
     if (sys.deeds?.length > 0)    await actor._removeLinkedItems(sys.deeds, item.id);
     if (sys.effects?.length > 0)  await actor._removeLinkedItems(sys.effects, item.id);
   } else if (item.type === "injury") {
-    // Remove all effect/state items on this actor that were stamped with this injury's ID
+    // Remove all effect items on this actor that were stamped with this injury's ID
     const toRemove = actor.items.filter(
-      i => (i.type === "effect" || i.type === "state") &&
+      i => (i.type === "effect") &&
            i.flags?.trespasser?.injuryId === item.id
     );
     for (const eff of toRemove) {
@@ -634,12 +641,12 @@ Hooks.on("updateItem", async (item, changed, options, userId) => {
     if ("talents" in changed.system)  await actor._applyLinkedItems(sys.talents || []);
     if ("features" in changed.system) await actor._applyLinkedItems(sys.features || []);
     if ("deeds" in changed.system)    await actor._applyLinkedItems(sys.deeds || []);
-    if ("effects" in changed.system)  await actor._applyLinkedItems(sys.effects || [], { passiveOnly: true });
+    if ("effects" in changed.system)  await actor._applyLinkedItems(sys.effects || [], { continuousOnly: true });
   } else if (item.type === "injury" && ("system" in changed) && "effects" in changed.system) {
     // Re-apply whenever the injury's effects list changes
     const effects = item.system.effects || [];
     if (effects.length > 0) {
-      await actor._applyLinkedItems(effects, { passiveOnly: false, fromInjury: true, injuryId: item.id });
+      await actor._applyLinkedItems(effects, { continuousOnly: false, fromInjury: true, injuryId: item.id });
     }
   }
 });
@@ -649,7 +656,7 @@ Hooks.on("updateItem", async (item, changed, options, userId) => {
  */
 Hooks.on("preCreateItem", (item, createData, options, userId) => {
   const actor = item.parent;
-  if (actor && (item.type === "effect" || item.type === "state")) {
+  if (actor && (item.type === "effect")) {
     const system = item.system;
     let intensityToApply = system.intensity || 0;
 
@@ -659,7 +666,7 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
     if (counterStates.length > 0) {
       const counterNames = new Set(counterStates.map(cs => cs.name));
       const existingCounters = actor.items.filter(i => 
-        (i.type === "effect" || i.type === "state") && 
+        (i.type === "effect") && 
         counterNames.has(i.name)
       );
 
@@ -714,7 +721,6 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
         iconPath = "systems/trespasser/assets/icons/food.png";
         break;
       case "effect":
-      case "state":
         iconPath = "systems/trespasser/assets/icons/effects.png";
         break;
       case "deed":

@@ -29,7 +29,9 @@ export class DurationHelper {
     if (Array.isArray(conditions) && conditions.length > 0) return conditions;
 
     // Legacy fallback: construct a single-element array from the old fields.
-    const legacyMode = sys.duration ?? "indefinite";
+    let legacyMode = sys.duration ?? "indefinite";
+    if (legacyMode === "rounds") legacyMode = "round";
+    if (legacyMode === "triggers") legacyMode = "trigger";
     return [{ mode: legacyMode, value: sys.durationValue ?? 0 }];
   }
 
@@ -53,12 +55,12 @@ export class DurationHelper {
   }
 
   /**
-   * Decrements all conditions of a given event-type ("rounds" or "triggers")
+   * Decrements all conditions of a given event-type ("round" or "trigger")
    * and returns the updated conditions array.  The caller is responsible for
    * persisting the change via `item.update()`.
    *
    * @param {Item}   item  - The effect/state item.
-   * @param {string} event - "rounds" or "triggers"
+   * @param {string} event - "round" or "trigger"
    * @returns {Array<{mode: string, value: number}>} The updated conditions array.
    */
   static decrementConditions(item, event) {
@@ -74,7 +76,7 @@ export class DurationHelper {
    * Returns { shouldExpire, updatedConditions }.
    *
    * @param {Item}   item
-   * @param {string} event  "rounds" | "triggers"
+   * @param {string} event  "round" | "trigger"
    * @returns {{ shouldExpire: boolean, updatedConditions: Array }}
    */
   static processEvent(item, event) {
@@ -101,8 +103,8 @@ export class DurationHelper {
     switch (condition.mode) {
       case "indefinite": return false;
       case "combat":     return !game.combat;
-      case "rounds":
-      case "triggers":   return (condition.value ?? 0) <= 0;
+      case "round":
+      case "trigger":   return (condition.value ?? 0) <= 0;
       default:           return false;
     }
   }
@@ -122,8 +124,8 @@ export class DurationHelper {
       switch (c.mode) {
         case "indefinite": return game.i18n.localize("TRESPASSER.DurationLabels.Indefinite");
         case "combat":     return game.i18n.localize("TRESPASSER.DurationLabels.Combat");
-        case "rounds":     return `${c.value ?? 0} ${game.i18n.localize("TRESPASSER.DurationLabels.Rounds")}`;
-        case "triggers":   return `${c.value ?? 0} ${game.i18n.localize("TRESPASSER.DurationLabels.Triggers")}`;
+        case "round":     return `${c.value ?? 0} ${game.i18n.localize("TRESPASSER.DurationLabels.Round")}`;
+        case "trigger":   return `${c.value ?? 0} ${game.i18n.localize("TRESPASSER.DurationLabels.Trigger")}`;
         default:           return c.mode;
       }
     });

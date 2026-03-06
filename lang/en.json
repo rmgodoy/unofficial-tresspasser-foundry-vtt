@@ -28,7 +28,6 @@
       "feature": "Feature",
       "talent": "Talent",
       "effect": "Effect",
-      "state": "State",
       "incantation": "Incantation",
       "item": "Item",
       "injury": "Injury",
@@ -82,8 +81,8 @@
         "CurrentHealth": "Current Health",
         "MaxHealth": "Max Health",
         "EffectTypes": {
-          "Active": "Active",
-          "Passive": "Passive"
+          "OnTrigger": "On Trigger",
+          "Continuous": "Continuous"
         }
       },
       "Header": {
@@ -396,6 +395,7 @@
       "StartOfTurn": "Start of Turn",
       "EndOfTurn": "End of Turn",
       "EndOfRound": "End of Round",
+      "OnFirstMove": "On First Move",
       "OnMove": "On Move",
       "Use": "Use",
       "Targeted": "Targeted",
@@ -416,8 +416,8 @@
     "DurationLabels": {
       "Indefinite": "Indefinite",
       "Combat": "Whole Combat",
-      "Rounds": "Rounds",
-      "Triggers": "Triggers",
+      "Round": "Round",
+      "Trigger": "Trigger",
       "OR": "OR",
       "AND": "AND",
       "Operator": "Operator",
@@ -425,6 +425,7 @@
       "RemoveCondition": "Remove Condition"
     },
     "Item": {
+      "ResourceType": "Resource Type",
       "Damage": "Damage",
       "Equippable": "Equippable",
       "WeaponDie": "Weapon Die",
@@ -448,6 +449,7 @@
       "modifier": "Modifier",
       "isOnlyReminder": "Is Reminder Only?",
       "gmOnly": "GM Only?",
+      "IsPrevailable": "Is Prevailable?",
       "triggerWhen": "Trigger (When)",
       "Trigger": "Trigger",
       "duration": "Duration",
@@ -504,8 +506,9 @@
       "RollExpressionPlaceholder": "1d20 + <sd>",
       "WeaponEffects": "Weapon Effects",
       "EnhancementEffects": "Enhancement Effects",
-      "LinkedEffects": "Linked Effects / States",
-      "CounterEffects": "Counter Effects / States",
+      "OilEffects": "Oil Effects",
+      "LinkedEffects": "Linked Effects",
+      "CounterEffects": "Counter Effects",
       "CounterEffectsNote": "Dragging an effect here will make it a counter to this one, subtracting intensities when applied.",
       "DamageDealt": "Damage Dealt",
       "DamageReceived": "Damage Received",
@@ -650,10 +653,10 @@
       "Tabs": {
         "Attributes": "Attributes",
         "Skills": "Skills",
-        "Inventory": "Inventory"
+        "Inventory": "Possessions"
       },
-      "DropHint": "Drop Items, Weapons, or Armor here to add them to this Past Life's inventory template.",
-      "InvalidItemType": "Only Item, Weapon, or Armor types can be added to a Past Life inventory.",
+      "DropHint": "Drop Items, Weapons, or Armor here to add them to this Past Life's possessions template.",
+      "InvalidItemType": "Only Item, Weapon, or Armor types can be added to a Past Life possessions.",
       "Applied": "Past Life '{name}' applied to {actor}."
     },
     "Dialog": {
@@ -673,7 +676,7 @@
         "Title": "Effect Editor",
         "Type": "Type",
         "Active": "Active",
-        "Passive": "Passive",
+        "Continuous": "Continuous",
         "IsCombat": "Is Combat?",
         "Intensity": "Intensity",
         "TargetAttr": "Target Attribute",
@@ -703,6 +706,13 @@
         "Bonus": "Accuracy Bonus: +{bonus}",
         "DefaultOption": "1 AP (No Bonus)",
         "AdditionalOption": "{count} AP (+{bonus} Accuracy)"
+      },
+      "ApplyOil": {
+        "Title": "Apply Oil",
+        "ChooseRef": "Choose a weapon to apply <strong>{name}</strong> to:",
+        "Weapon": "Weapon",
+        "Apply": "Apply",
+        "Applied": "{oil} applied to {weapon}."
       }
     },
     "Phase": {
@@ -743,7 +753,6 @@
       "armor": "Armor",
       "rations": "Rations",
       "effect": "Effect",
-      "state": "State",
       "deed": "Deed",
       "feature": "Feature",
       "talent": "Talent",

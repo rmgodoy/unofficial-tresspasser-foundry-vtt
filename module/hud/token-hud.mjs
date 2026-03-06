@@ -52,7 +52,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         if (!combatant) return { inCombat: false };
 
-        const states = TrespasserEffectsHelper.getActorEffects(this._token.actor).combat.filter(e => e.item?.type === "state");
+        const states = TrespasserEffectsHelper.getActorEffects(this._token.actor).combat.filter(e => e.item?.type === "effect");
 
         const ap = combatant.getFlag("trespasser", "actionPoints") ?? 3;
         const apDots = Array.from({ length: 3 }, (_, i) => ({

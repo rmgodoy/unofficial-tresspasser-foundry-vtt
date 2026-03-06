@@ -1,18 +1,23 @@
 <form class="{{cssClass}} trespasser-sheet item deed" autocomplete="off">
-  <header class="sheet-header">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
-    <div class="header-info">
-      <div class="name-group">
-        <h1 class="item-title">{{item.name}}</h1>
-      </div>
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    </div>
+
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.deed'}}"/>
+      </h1>
     </div>
   </header>
 
   <section class="sheet-body scrollable">
     <div class="details-grid">
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Equipments.Name"}}</label>
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.deed'}}" />
+      <div class="field-row full-width">
+        <label>{{localize "TRESPASSER.Item.Description"}}</label>
+        <div class="trp-editor-container">
+          {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+        </div>
       </div>
 
       <div class="field-row">

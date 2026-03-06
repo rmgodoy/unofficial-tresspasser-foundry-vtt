@@ -1,28 +1,25 @@
 <form class="{{cssClass}} trespasser-sheet item talent" autocomplete="off">
-  <header class="sheet-header" style="display: flex; gap: 10px; align-items: center; border-bottom: 2px solid var(--trp-gold-border); padding-bottom: 10px; margin-bottom: 10px;">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" width="64" height="64" style="border: 2px solid var(--trp-gold-border); border-radius: 4px;" />
-    <div class="header-info" style="flex: 1;">
-      <h1 class="item-title" style="margin: 0;">
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.talent'}}" style="font-family: 'Cinzel', serif; font-size: 24px; color: var(--trp-gold-bright); border: none; border-bottom: 1px solid #555; background: transparent; width: 100%;" />
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    </div>
+
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Item.Name'}}"/>
       </h1>
     </div>
   </header>
 
-  <section class="sheet-body scrollable" style="overflow-y: auto; padding: 10px;">
+  <section class="sheet-body scrollable">
 
     {{!-- Usable toggle + cost fields --}}
     <div class="description-section" style="margin-bottom: 16px; border-bottom: 1px solid var(--trp-border); padding-bottom: 12px;">
       <div class="details-grid">
+
         <div class="field-row">
           <label>{{localize "TRESPASSER.Item.Usable"}}</label>
           <input type="checkbox" name="system.usable" {{checked system.usable}} />
-        </div>
-
-        <div class="field-row">
-          <label>{{localize "TRESPASSER.Item.actionType"}}</label>
-          <select name="system.type">
-            {{selectOptions config.actionTypeChoices selected=system.type localize=true}}
-          </select>
         </div>
 
         {{#if system.usable}}
@@ -46,15 +43,24 @@
           <label>{{localize "TRESPASSER.Item.BonusCost"}}</label>
           <input type="number" name="system.bonusCost" value="{{system.bonusCost}}" placeholder="0" />
         </div>
+
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Item.actionType"}}</label>
+          <select name="system.type">
+            {{selectOptions config.actionTypeChoices selected=system.type localize=true}}
+          </select>
+        </div>
         {{/if}}
+
+        <div class="field-row description-column">
+          <label>{{localize "TRESPASSER.Item.Description"}}</label>
+          <div class="trp-editor-container">
+            {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+          </div>
+        </div>
       </div>
     </div>
 
-    {{!-- Description --}}
-    <div class="description-section" style="margin-bottom: 20px; border-bottom: 2px solid var(--trp-border); padding-bottom: 15px;">
-      <h3 style="margin-bottom: 5px; color: var(--trp-gold-bright);">{{localize "TRESPASSER.Item.Description"}}</h3>
-      {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror"}}
-    </div>
 
     {{!-- Linked Effects --}}
     <div class="links-section">

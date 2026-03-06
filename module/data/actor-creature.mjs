@@ -64,18 +64,15 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
 
     for (const key of allTrackedKeys) {
       this.bonuses[key] = TrespasserEffectsHelper.getAttributeBonus(actor, key);
-      console.warn("key", key, "bonus", this.bonuses[key]);
     }
 
-    // Creature 'roll_bonus' usually stands in for its global combat Accuracy for deeds. 
-    // If an effect targets 'accuracy', let's apply it to roll_bonus as well for consistency.
-    const effectiveRollBonus = this.bonuses.roll_bonus + this.bonuses.accuracy;
-
-    this.combat.guard = this.guard + this.bonuses.guard;
-    this.combat.resist = this.resist + this.bonuses.resist;
-    this.combat.initiative = this.initiative + this.bonuses.initiative;
-    this.combat.accuracy = this.accuracy + this.bonuses.accuracy; 
-    this.combat.speed = this.speed + this.bonuses.speed;
-    this.combat.roll_bonus = this.roll_bonus + effectiveRollBonus;
+    // Creature stats stay as pure base values.
+    // Summing for display is handled by get-data.mjs or simple helper logic.
+    this.combat.guard = this.guard;
+    this.combat.resist = this.resist;
+    this.combat.initiative = this.initiative;
+    this.combat.accuracy = this.accuracy; 
+    this.combat.speed = this.speed;
+    this.combat.roll_bonus = this.roll_bonus;
   }
 }

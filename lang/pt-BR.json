@@ -28,7 +28,6 @@
       "feature": "Característica",
       "talent": "Talento",
       "effect": "Efeito",
-      "state": "Estado",
       "incantation": "Encantamento",
       "item": "Item",
       "injury": "Ferimento",
@@ -82,8 +81,8 @@
         "CurrentHealth": "Vida Atual",
         "MaxHealth": "Vida Máxima",
         "EffectTypes": {
-          "Active": "Ativo",
-          "Passive": "Passivo"
+          "OnTrigger": "Ao Disparar",
+          "Continuous": "Contínuo"
         }
       },
       "Header": {
@@ -330,7 +329,10 @@
       "NotEnoughEndurance": "Vigor insuficiente para usar {name}. (Necessário {cost}, possui {current})",
       "NoAmmo": "Você não possui munição disponível!",
       "AmmoConsumed": "Consumiu {name} para o ataque.",
-      "NoAP": "Você não tem Pontos de Ação suficientes!"
+      "NoAP": "Você não tem Pontos de Ação suficientes!",
+      "MoveActionRequired": "Você deve realizar a ação de Mover (gastar PA) antes de mover seu token.",
+      "MovementLimitExceeded": "Você excedeu seu limite de movimento para este turno.",
+      "NotYourPhase": "Não é a fase deste token!"
     },
     "Chat": {
       "SkillCheck": "{name} — Teste de {skill}",
@@ -346,6 +348,8 @@
       "EffectTriggeredAdded": "<strong>{name}</strong> disparou: Adicionado efeito {target}.",
       "PrevailSuccess": "Prevalece contra <b>{name}</b> (Rolagem: {roll} vs {target}) — <b>Sucesso!</b>",
       "PrevailFailed": "Falhou ao prevalecer contra <b>{name}</b> (Rolagem: {roll} vs {target}) — <b>Falha</b>",
+      "PrevailCheck": "Teste de Prevalecer: {name}",
+      "PrevailVsDC": "Total da Rolagem: {total} vs DC {dc}",
       "Hit": "ACERTO!",
       "Miss": "FALHA!",
       "Sparks": "Fagulhas: {count}",
@@ -391,6 +395,7 @@
       "StartOfTurn": "Início do Turno",
       "EndOfTurn": "Fim do Turno",
       "EndOfRound": "Fim da Rodada",
+      "OnFirstMove": "No Primeiro Movimento",
       "OnMove": "Ao Mover",
       "Use": "Uso",
       "Targeted": "Alvo de Habilidade",
@@ -411,8 +416,8 @@
     "DurationLabels": {
       "Indefinite": "Indefinido",
       "Combat": "Combate Inteiro",
-      "Rounds": "Rodadas",
-      "Triggers": "Gatilhos",
+      "Round": "Rodada",
+      "Trigger": "Gatilho",
       "OR": "OU",
       "AND": "E",
       "Operator": "Operador",
@@ -420,6 +425,7 @@
       "RemoveCondition": "Remover Condição"
     },
     "Item": {
+      "ResourceType": "Tipo de Recurso",
       "Damage": "Dano",
       "Equippable": "Equipável",
       "WeaponDie": "Dado de Arma",
@@ -443,6 +449,7 @@
       "modifier": "Modificador",
       "isOnlyReminder": "Apenas Lembrete?",
       "gmOnly": "Somente Mestre?",
+      "IsPrevailable": "Prevalecível?",
       "triggerWhen": "Quando",
       "Trigger": "Gatilho",
       "duration": "Duração",
@@ -499,6 +506,7 @@
       "RollExpressionPlaceholder": "1d20 + <sd>",
       "WeaponEffects": "Efeitos da Arma",
       "EnhancementEffects": "Efeitos de Encantamento",
+      "OilEffects": "Efeitos de Óleo",
       "LinkedEffects": "Efeitos Vinculados / Estados",
       "CounterEffects": "Efeitos de Anulação / Estados",
       "CounterEffectsNote": "Arraste um efeito aqui para torná-lo uma anulação deste, subtraindo intensidades quando aplicado.",
@@ -668,7 +676,7 @@
         "Title": "Editor de Efeitos",
         "Type": "Tipo",
         "Active": "Ativo",
-        "Passive": "Passivo",
+        "Continuous": "Contínuo",
         "IsCombat": "É Combate?",
         "Intensity": "Intensidade",
         "TargetAttr": "Atributo Alvo",
@@ -698,6 +706,13 @@
         "Bonus": "Bônus de Acurácia: +{bonus}",
         "DefaultOption": "1 PA (Sem Bônus)",
         "AdditionalOption": "{count} PA (+{bonus} de Acurácia)"
+      },
+      "ApplyOil": {
+        "Title": "Aplicar Óleo",
+        "ChooseRef": "Escolha uma arma para aplicar <strong>{name}</strong>:",
+        "Weapon": "Arma",
+        "Apply": "Aplicar",
+        "Applied": "{oil} aplicado a {weapon}."
       }
     },
     "Phase": {
@@ -717,6 +732,9 @@
       "Defend": "Defender",
       "Help": "Ajudar",
       "AttemptDeed": "Tentar Habilidade",
+      "Move": "Mover",
+      "UndoMove": "Desfazer Movimento",
+      "MovementUsed": "Movimento Usado",
       "SelectAlly": "Selecionar Aliado",
       "Attribute": "Atributo",
       "APCost": "Custo de PA",
@@ -735,7 +753,6 @@
       "armor": "Armadura",
       "rations": "Rações",
       "effect": "Efeito",
-      "state": "Estado",
       "deed": "Habilidade",
       "feature": "Característica",
       "talent": "Talento",

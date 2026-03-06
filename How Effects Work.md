@@ -5,8 +5,8 @@ In the Trespasser system, effects are a core component that dynamically modify a
 ## Effect Anatomy
 
 An Effect consists of the following parameters, defined in the standard schema:
-- **Type**: `Active` (trigger-based, temporary effects) or `Passive` (constant stat bonuses usually deriving from equipment like armors or weapons).
-- **Is Combat**: Determines whether the effect shows up under the "Combat" tab or the "Non-Combat" tab of the character sheet.
+- **Type**: `On Trigger` (trigger-based, temporary effects) or `Continuous` (constant bonuses usually deriving from equipment or permanent features).
+- **Is Combat**: Determines whether the effect shows up under the "Combat" tab or the "Character" tab of the character sheet.
 - **Is Only Reminder**: Flags the effect to output narrative/reminder chat text instead of mechanically modifying actor health/focus. 
 - **GM Only**: When it is a simple reminder, checking this option whispers the message exclusively to the GM instead of emitting a public chat message.
 - **Intensity**: A numerical value stored as `intensity`. It replaces the literal text `<Int>` in parsing the modifier string.
@@ -42,7 +42,7 @@ The `when` property dictates the temporal scope of the effect. Effects only fire
 
 ### Continuous (`continuous`)
 - **Evaluation**: The effect applies as a constant static bonus consistently. 
-- **Trigger Behavior**: It never generates automated chat messages traversing turns. Functions like `getAttributeBonus()` sum up all active/passive continuous tags on the actor (for stats like stat-modifiers, armor, initiatives).
+- **Trigger Behavior**: It never generates automated chat messages traversing turns. Functions like `getAttributeBonus()` sum up all active continuous effects on the actor (for stats like stat-modifiers, armor, initiatives).
 
 ### Temporal / Turn-Based Boundaries
 These timing phases automatically trigger generating mechanical adjustments and chat cards at specific steps of the general combat tracker pipeline.
@@ -103,20 +103,20 @@ How effects apply and behave varies dramatically depending on the **parent Item 
 ### 1. Equippable Items (Armor, Accessories, general Items)
 Items intended to be passively worn have special background optimizations so they don't bloat the actor's database with child documents.
 When an armor, accessory, or generic equippable is **Equipped**:
-- **Constant / Passive Application**: Any effects explicitly marked with the type `passive` OR the When trigger `immediate` are seamlessly intercepted and natively appended as raw Document `Item` datasets on the Actor, structurally linked under `flags.trespasser.linkedSource`. If the item is unequipped, it crawls the actor and automatically deletes these cloned objects.
+- **Continuous Application**: Any effects explicitly marked with the type `continuous` OR the When trigger `immediate` are seamlessly intercepted and natively appended as raw Document `Item` datasets on the Actor, structurally linked under `flags.trespasser.linkedSource`. If the item is unequipped, it crawls the actor and automatically deletes these cloned objects.
 - **Situational / Active Effects**: Crucially, if an equipped armor or accessory holds effects meant to trigger on phases (e.g. `start-of-turn` bleeding or `on-deed-hit-received`), it **does not** create independent documents. Instead, `getActorEffects()` dynamically sweeps your equipped gear, capturing those situational objects natively as **Synthetic Effects** (`synthetic: true`). These pseudo-document effects exist purely in memory during combat; they resolve correctly in chat and damage pipelines seamlessly without touching database storage. They are flagged with `hiddenOnSheet: true` so the player's active effect sheet doesn't get flooded.
 
 ### 2. Weapons
 Weapons behave distinctly relative to general equippable items because their effects are typically aggressively manual.
 When a weapon is **Equipped**:
 - **Weapon "Effects" Array**: A weapon's base `effects` are **never** unpacked directly onto the actor statically. Instead, they lie dormant on the weapon data itself. When a player actively rolls an attack (`postDeedPhase`), and an attack resolves, the game injects the weapon's `effects` into the chat card's output payload automatically. Players can then manually click the effect buttons on the card to pinpoint those statuses directly to hit targets dynamically.
-- **Enhancement Effects (`enhancementEffects`) & Extra Deeds (`extraDeeds`)**: These specific arrays on a weapon *do* follow the standard `passive` mapping rule (described in equippable items above). They spawn real documents natively mapped to the actor, intended to give permanent modifications while wielding (like a magic sword granting `+1 Accuracy` passively).
+- **Enhancement Effects (`enhancementEffects`) & Extra Deeds (`extraDeeds`)**: These specific arrays on a weapon follow the standard mapping rule. They spawn real documents natively mapped to the actor, intended to give permanent modifications while wielding (like a magic sword granting `+1 Accuracy` continuously).
 
 ### 3. Features & Callings
 Features are core intrinsic actor logic nodes (e.g. Level 1 Class mechanics).
 When a Feature is **Purchased / Dropped onto an Actor**:
 - The `createItem` hook runs specifically scanning all `effects` and `deeds` contained inside the feature block.
-- **Immediate Full Unpack**: Unlike equippables, features ignore the `passiveOnly` safety filter. They automatically clone and unpack **all** contained effects directly onto the actor, converting them into embedded documents linked back to the feature.
+- **Immediate Full Unpack**: Unlike equippables, features ignore the `continuousOnly` safety filter. They automatically clone and unpack **all** contained effects directly onto the actor, converting them into embedded documents linked back to the feature.
 - **Orphan Sweeping**: Because of the `linkedSource` flag tracker, if a player subsequently deletes the feature from their sheet, the system automatically loops and cascades deletion onto every imported sub-effect.
 
 ### 4. Talents & Deeds

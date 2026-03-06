@@ -23,22 +23,20 @@ export async function getCharacterData(sheet, options = {}) {
     value,
   }));
 
-  // Calculate total attributes and combat stats including effect bonuses
-  const bonuses = context.system.bonuses || {};
+  // Calculate total attributes including effect bonuses for display
   context.totalAttributes = {};
   for (const attr of ["mighty", "agility", "intellect", "spirit"]) {
     const base = context.system.attributes[attr] ?? 0;
-    const bon  = bonuses[attr] ?? 0;
-    const eff  = TrespasserEffectsHelper.getAttributeBonus(actor, attr, "use");
-    context.totalAttributes[attr] = base + bon + eff;
+    const bonus = TrespasserEffectsHelper.getAttributeBonus(actor, attr, "use");
+    context.totalAttributes[attr] = base + bonus;
   }
 
   context.totalCombat = {};
-  const combatStats = ["initiative", "accuracy", "guard", "resist", "prevail", "tenacity", "focus", "speed"];
+  const combatStats = ["initiative", "accuracy", "guard", "resist", "prevail", "tenacity", "focus", "speed", "armor", "max_health"];
   for (const stat of combatStats) {
-    const base = context.system.combat[stat] ?? 0;
-    const eff  = TrespasserEffectsHelper.getAttributeBonus(actor, stat, "use");
-    context.totalCombat[stat] = base + eff;
+    const base = context.system[stat] ?? context.system.combat[stat] ?? 0;
+    const bonus = TrespasserEffectsHelper.getAttributeBonus(actor, stat, "use");
+    context.totalCombat[stat] = base + bonus;
   }
 
   // Fixed 3-slot craft array

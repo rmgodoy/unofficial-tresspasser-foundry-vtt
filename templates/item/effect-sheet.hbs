@@ -1,20 +1,19 @@
 <form class="{{cssClass}} trespasser-sheet item effect" autocomplete="off">
-  <header class="sheet-header">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    </div>
     <div class="header-info">
       <div class="name-group">
-        <h1 class="item-title">{{item.name}}</h1>
+        <h1 class="item-title" style="margin: 0;">
+        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.effect'}}" style="font-family: 'Cinzel', serif; font-size: 24px; color: var(--trp-gold-bright); border: none; border-bottom: 1px solid #555; background: transparent; width: 100%;" />
+        </h1>
       </div>
     </div>
   </header>
 
   <section class="sheet-body scrollable">
     <div class="details-grid">
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Equipments.Name"}}</label>
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.effect'}}" />
-      </div>
-
       <div class="field-row">
         <label>{{localize "TRESPASSER.Item.Type"}}</label>
         <select name="system.type">
@@ -30,6 +29,11 @@
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.isOnlyReminder" {{checked system.isOnlyReminder}} id="effect-reminder-{{item.id}}"/>
         <label for="effect-reminder-{{item.id}}">{{localize "TRESPASSER.Item.isOnlyReminder"}}</label>
+      </div>
+      
+      <div class="field-row checkbox-row">
+        <input type="checkbox" name="system.isPrevailable" {{checked system.isPrevailable}} id="effect-prevailable-{{item.id}}"/>
+        <label for="effect-prevailable-{{item.id}}">{{localize "TRESPASSER.Item.IsPrevailable"}}</label>
       </div>
 
       {{#if system.isOnlyReminder}}
@@ -64,6 +68,7 @@
       </div>
       {{/unless}}
 
+      {{#if (eq system.type 'on-trigger')}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Item.triggerWhen"}}</label>
         <select name="system.when">
@@ -95,7 +100,7 @@
             </select>
             <input type="number" class="dur-value" name="system.durationConditions.{{idx}}.value"
               value="{{cond.value}}"
-              style="width:52px;text-align:center;{{#unless (or (eq cond.mode 'rounds') (eq cond.mode 'triggers'))}}display:none;{{/unless}}" />
+              style="width:52px;text-align:center;{{#unless (or (eq cond.mode 'round') (eq cond.mode 'trigger'))}}display:none;{{/unless}}" />
             {{#if @root.editable}}
             <a class="dur-remove-condition" data-index="{{idx}}" title="{{localize 'TRESPASSER.DurationLabels.RemoveCondition'}}"
               style="color:var(--trp-red-dim,#c0392b);cursor:pointer;">
@@ -119,13 +124,7 @@
         </a>
         {{/if}}
       </div>
-
-      <div class="field-row editor-row" style="margin-top: 10px;">
-        <label>{{localize "TRESPASSER.Item.Description"}}</label>
-        {{editor system.description target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
-      </div>
-
-      <hr />
+      {{/if}}
 
       <div class="applied-effects-section">
         <h3 class="section-title">{{localize "TRESPASSER.Item.CounterEffects"}}</h3>
@@ -145,6 +144,13 @@
           {{else}}
             <p class="notes">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</p>
           {{/if}}
+        </div>
+      </div>
+
+      <div class="field-row editor-row" style="margin-top: 10px;">
+        <label>{{localize "TRESPASSER.Item.Description"}}</label>
+        <div class="trp-editor-container">
+          {{editor system.description target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
         </div>
       </div>
     </div>

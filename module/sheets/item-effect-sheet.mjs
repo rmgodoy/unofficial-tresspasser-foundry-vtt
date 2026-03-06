@@ -23,8 +23,8 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
     // Add constants for the sheet
     context.config = {
       effectTypes: {
-        "active": "TRESPASSER.Sheet.Effects.EffectTypes.Active",
-        "passive": "TRESPASSER.Sheet.Effects.EffectTypes.Passive"
+        "on-trigger": "TRESPASSER.Sheet.Effects.EffectTypes.OnTrigger",
+        "continuous": "TRESPASSER.Sheet.Effects.EffectTypes.Continuous"
       },
       targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
       triggerWhen: TrespasserEffectsHelper.TRIGGER_LABELS,
@@ -74,9 +74,9 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
     const sourceItem = await fromUuid(dropData.uuid);
     if (!sourceItem) return;
     
-    // Validate types: Only effects or states can be counter states
-    if (sourceItem.type !== "effect" && sourceItem.type !== "state") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropEffectsStatesOnly"));
+    // Validate types: Only effects can be counter states
+    if (sourceItem.type !== "effect") {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropEffectsOnly"));
       return;
     }
 
@@ -141,7 +141,7 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
     const mode   = event.currentTarget.value;
     const valInput = row.querySelector('.dur-value');
     if (valInput) {
-      const needsVal = mode === "rounds" || mode === "triggers";
+      const needsVal = mode === "round" || mode === "trigger";
       valInput.style.display = needsVal ? "" : "none";
     }
   }

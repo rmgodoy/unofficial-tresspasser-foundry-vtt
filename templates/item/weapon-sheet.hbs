@@ -3,18 +3,21 @@
     <div class="header-column image-column">
       <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
     </div>
-
     <div class="header-column details-column">
       <h1 class="item-title">
         <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Item.Name'}}"/>
       </h1>
+    </div>
+  </header>
 
-      <div class="detail-row">
+  <section class="sheet-body scrollable">
+    <div class="custom-attributes-area">
+      <div class="attribute-fields">
         <label>{{localize "TRESPASSER.Item.WeaponDie"}}</label>
         <input type="text" name="system.weaponDie" value="{{system.weaponDie}}" placeholder="d6" />
       </div>
 
-      <div class="detail-row">
+      <div class="attribute-fields">
         <label>{{localize "TRESPASSER.Item.Type"}}</label>
         <select name="system.type">
           <option value="melee" {{#if (eq system.type "melee")}}selected{{/if}}>{{localize "TRESPASSER.Item.WeaponType.Melee"}}</option>
@@ -23,29 +26,17 @@
         </select>
       </div>
 
-      <div class="detail-row">
+      <div class="attribute-fields">
         <label>{{localize "TRESPASSER.Item.Price"}}</label>
         <input type="number" name="system.price" value="{{system.price}}" min="0" />
       </div>
 
-      <div class="detail-row flex-row" style="margin-top: 5px;">
+      <div class="attribute-fields flex-row" style="margin-top: 5px;">
         <div class="field-item checkbox-item">
           <label for="item-needs-ammo-{{item.id}}">{{localize "TRESPASSER.Item.NeedsAmmo"}}</label>
           <input type="checkbox" name="system.needsAmmo" {{checked system.needsAmmo}} id="item-needs-ammo-{{item.id}}"/>
         </div>
       </div>
-    </div>
-
-    <div class="header-column description-column">
-      <div class="editor-container">
-        {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror"}}
-      </div>
-    </div>
-  </header>
-
-  <section class="sheet-body scrollable">
-    <div class="custom-attributes-area">
-      <h3 class="section-title">{{localize "TRESPASSER.Sheet.Items.CustomAttributes"}}</h3>
 
       <div class="attribute-fields">
         <div class="attribute-group flex-row">
@@ -100,7 +91,7 @@
           </div>
         </div>
       <!-- Effects Sections -->
-      <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 15px; margin-top: 15px; border-top: 1px solid var(--trp-border-light); padding-top: 10px;">
+      <div style="grid-column: span 2; display: flex; flex-direction: column; gap: 15px; margin-top: 15px; border-top: 1px solid var(--trp-border-light); padding-block: 10px;">
         {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
             title=(localize "TRESPASSER.Item.WeaponEffects") 
             items=system.effects 
@@ -112,6 +103,12 @@
             items=system.enhancementEffects 
             property="enhancementEffects" 
             deleteClass="enhancement-remove"}}
+            
+        {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
+            title=(localize "TRESPASSER.Item.OilEffects") 
+            items=system.oilEffects 
+            property="oilEffects" 
+            deleteClass="oil-remove"}}
 
         {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
             title=(localize "TRESPASSER.Item.ExtraDeeds") 
@@ -120,6 +117,13 @@
             deleteClass="deed-remove"}}
       </div>
 
+    </div>
+
+    <div class="attribute-fields description-column">
+      <label>{{localize "TRESPASSER.Item.Description"}}</label>
+      <div class="trp-editor-container">
+        {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+      </div>
     </div>
   </section>
 </form>

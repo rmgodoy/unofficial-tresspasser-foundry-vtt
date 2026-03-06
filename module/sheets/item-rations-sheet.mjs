@@ -136,7 +136,7 @@ export class TrespasserRationsSheet extends foundry.appv1.sheets.ItemSheet {
     const effectData = foundry.utils.deepClone(currentArray[index]);
 
     if (effectData.uuid) {
-      await TrespasserEffectsHelper.openEffectSheet(effectData.uuid, onUpdate);
+      await TrespasserEffectsHelper.openEffectSheet(effectData.uuid);
       return;
     }
   }
