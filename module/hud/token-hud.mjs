@@ -66,6 +66,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
         const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
         const speed = baseSpeed + bonusSpeed;
+        const focus = this._token.actor?.system.combat?.focus ?? 0;
 
         const moveOptions = [];
         for (let i = 1; i <= ap; i++) {
@@ -93,10 +94,14 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             canMove:        ap >= 1 && !usedActions.has("move"),
             canUndo:        movementHistory.length > 1,
             canPrevail:     ap >= 1 && !usedActions.has("prevail") && states.length > 0,
-            canAttemptDeed: ap >= 1 && !usedActions.has("attempt-deed") && deeds.length > 0,
+            canAttemptDeed: ap >= 1 && !usedActions.has("attempt-deed") && deeds.length > 0 && (!usedActions.has("maneuver") || focus >= 2),
             canUseConcoction: ap >= 1 && concoctions.length > 0 && !usedActions.has("use-concoction"),
             canTakeAim: ap >= 1 && !usedActions.has("take-aim"),
             canInteract: ap >= 1 && !usedActions.has("interact"),
+            canManeuver: ap >= 1 && !usedActions.has("maneuver") && (!usedActions.has("attempt-deed") || focus >= 2),
+            maneuverFocusCost: usedActions.has("attempt-deed") ? 2 : 0,
+            deedFocusCost: usedActions.has("maneuver") ? 2 : 0,
+            availableFocus: focus,
             moveActionTaken,
             movementUsed,
             movementAllowed,
@@ -117,6 +122,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if ( this._activePanel === "concoction"   && !context.canUseConcoction) this._activePanel = null;
         if ( this._activePanel === "take-aim"      && !context.canTakeAim     ) this._activePanel = null;
         if ( this._activePanel === "interact"      && !context.canInteract    ) this._activePanel = null;
+        if ( this._activePanel === "maneuver"      && !context.canManeuver    ) this._activePanel = null;
 
         return context;
     }
@@ -275,6 +281,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                     break;
                 case "execute-interact":
                     this._executeInteract();
+                    break;
+                case "execute-maneuver":
+                    this._executeManeuver();
                     break;
             }
         });
@@ -749,6 +758,57 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 action: game.i18n.localize("TRESPASSER.HUD.Interact"),
                 cost: cost,
                 bonusText: bonusText
+            })
+        });
+
+        this._activePanel = null;
+        this.render();
+    }
+
+    async _executeManeuver() {
+        const costInput = this.element.querySelector('[name="maneuver-cost"]');
+        const cost = costInput ? parseInt(costInput.value) : 1;
+        
+        const combatant = this._getCombatant();
+        if (!combatant) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        if (currentAP < cost) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            return;
+        }
+
+        const usedActions = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
+        let focusCost = 0;
+        if (usedActions.has("attempt-deed")) {
+            focusCost = 2;
+        }
+
+        const actor = this._token.actor;
+        const currentFocus = actor.system.combat?.focus ?? 0;
+
+        if (focusCost > 0 && currentFocus < focusCost) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotEnoughFocus"));
+            return;
+        }
+
+        const bonus = (cost - 1) * 2;
+        const focusText = focusCost > 0 ? game.i18n.format("TRESPASSER.Chat.SpentFocusMsg", { count: focusCost }) : "";
+
+        await combatant.setFlag("trespasser", "actionPoints", currentAP - cost);
+        if (focusCost > 0) {
+            await actor.update({ "system.combat.focus": currentFocus - focusCost });
+        }
+        await TrespasserCombat.recordHUDAction(this._token.actor, "maneuver");
+
+        ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ token: this._token }),
+            content: game.i18n.format("TRESPASSER.Chat.ManeuverMessage", {
+                name: this._token.name,
+                action: game.i18n.localize("TRESPASSER.HUD.Maneuver"),
+                cost: cost,
+                focusText: focusText,
+                bonus: bonus
             })
         });
 

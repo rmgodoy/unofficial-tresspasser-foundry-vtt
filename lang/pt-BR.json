@@ -376,7 +376,8 @@
       "Defense": "Defesa",
       "Rolls": "rola",
       "TakeAimMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. (Alcance: +{bonus} qdr).",
-      "InteractMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. {bonusText}"
+      "InteractMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. {bonusText}",
+      "ManeuverMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. {focusText} (Bônus: +{bonus})"
     },
     "Trigger": {
       "EffectEvaluation": "Avaliação de Efeito",
@@ -756,7 +757,11 @@
       "Squares": "qdr",
       "Interact": "Interagir",
       "InteractOption": "{cost} PA (+{bonus} Teste)",
-      "WithBonus": "(Bônus: +{bonus})"
+      "WithBonus": "(Bônus: +{bonus})",
+      "Maneuver": "Manobra",
+      "ManeuverOption": "{cost} PA (+{bonus} Acurácia)",
+      "FocusCost": "{count} Foco",
+      "SpentFocusMsg": "e gastou {count} de Foco"
     }
   },
   "TYPES": {

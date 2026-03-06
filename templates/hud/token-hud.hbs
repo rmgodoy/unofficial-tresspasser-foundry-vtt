@@ -13,34 +13,57 @@
         <div class="hud-actions">
             <!-- ATTEMPT DEED -->
             <div class="hud-action-group">
-                <button class="hud-action-btn deed" data-action="toggle-panel" data-panel="attempt-deed" {{#unless canAttemptDeed}}disabled{{/unless}}>
-                    {{localize "TRESPASSER.HUD.AttemptDeed"}}
+                <button class="hud-action-btn attempt-deed" data-action="toggle-panel" data-panel="attempt-deed" {{#unless canAttemptDeed}}disabled{{/unless}}>
+                    <span class="btn-text">{{localize "TRESPASSER.HUD.AttemptDeed"}}</span>
+                    {{#if (trespasserGt deedFocusCost 0)}}
+                    <span class="focus-cost-chip">{{localize "TRESPASSER.HUD.FocusCost" count=deedFocusCost}}</span>
+                    {{/if}}
                 </button>
                 <div class="hud-sub-panel hidden" id="panel-attempt-deed">
                     <div class="field-row">
-                        <label>{{localize "TRESPASSER.Item.Type.Deed"}}</label>
                         <select name="attempt-deed-id">
                             {{#each deeds}}
-                            <option value="{{id}}">{{displayName}}</option>
+                            <option value="{{id}}">[{{localize (concat "TRESPASSER.Item.WeightChoices.Short." (capitalize tier))}}] {{name}} ({{system.focusCost}}F)</option>
                             {{/each}}
                         </select>
                     </div>
                     <div class="field-row">
                         <label>{{localize "TRESPASSER.HUD.APCost"}}</label>
                         <select name="attempt-deed-ap">
-                            <option value="1">1 AP (+0 Acc)</option>
-                            <option value="2" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>2 AP (+2 Acc)</option>
-                            <option value="3" {{#if (trespasserGt 3 availableAP)}}disabled{{/if}}>3 AP (+4 Acc)</option>
+                            <option value="1">1 AP (Base)</option>
+                            <option value="2" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>2 AP (+1 Acc)</option>
+                            <option value="3" {{#if (trespasserGt 3 availableAP)}}disabled{{/if}}>3 AP (+2 Acc)</option>
                         </select>
                     </div>
                     <button class="action-confirm-btn" data-action="execute-attempt-deed">{{localize "TRESPASSER.HUD.Confirm"}}</button>
                 </div>
             </div>
 
+            <!-- MANEUVER -->
+            <div class="hud-action-group">
+                <button class="hud-action-btn maneuver" data-action="toggle-panel" data-panel="maneuver" {{#unless canManeuver}}disabled{{/unless}}>
+                    <span class="btn-text">{{localize "TRESPASSER.HUD.Maneuver"}}</span>
+                    {{#if (trespasserGt maneuverFocusCost 0)}}
+                    <span class="focus-cost-chip">{{localize "TRESPASSER.HUD.FocusCost" count=maneuverFocusCost}}</span>
+                    {{/if}}
+                </button>
+                <div class="hud-sub-panel hidden" id="panel-maneuver">
+                    <div class="field-row">
+                        <label>{{localize "TRESPASSER.HUD.APCost"}}</label>
+                        <select name="maneuver-cost">
+                            <option value="1">{{localize "TRESPASSER.HUD.ManeuverOption" cost=1 bonus=0}}</option>
+                            <option value="2" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>{{localize "TRESPASSER.HUD.ManeuverOption" cost=2 bonus=2}}</option>
+                            <option value="3" {{#if (trespasserGt 3 availableAP)}}disabled{{/if}}>{{localize "TRESPASSER.HUD.ManeuverOption" cost=3 bonus=4}}</option>
+                        </select>
+                    </div>
+                    <button class="action-confirm-btn" data-action="execute-maneuver">{{localize "TRESPASSER.HUD.Confirm"}}</button>
+                </div>
+            </div>
+
             <!-- DEFEND -->
             <div class="hud-action-group">
                 <button class="hud-action-btn defend" data-action="toggle-panel" data-panel="defend" {{#unless canDefend}}disabled{{/unless}}>
-                    {{localize "TRESPASSER.HUD.Defend"}}
+                    <span class="btn-text">{{localize "TRESPASSER.HUD.Defend"}}</span>
                 </button>
                 <div class="hud-sub-panel hidden" id="panel-defend">
                     <div class="field-row">
@@ -64,7 +87,7 @@
             <!-- MOVE -->
             <div class="hud-action-group">
                 <button class="hud-action-btn move" data-action="toggle-panel" data-panel="move" {{#unless canMove}}disabled{{/unless}}>
-                    {{localize "TRESPASSER.HUD.Move"}}
+                    <span class="btn-text">{{localize "TRESPASSER.HUD.Move"}}</span>
                 </button>
                 {{#if canUndo}}
                 <button class="undo-btn" data-action="execute-undo" title="{{localize "TRESPASSER.HUD.UndoMove"}}">
@@ -98,7 +121,7 @@
             <!-- HELP -->
             <div class="hud-action-group">
                 <button class="hud-action-btn help" data-action="toggle-panel" data-panel="help" {{#unless canHelp}}disabled{{/unless}}>
-                    {{localize "TRESPASSER.HUD.Help"}}
+                    <span class="btn-text">{{localize "TRESPASSER.HUD.Help"}}</span>
                 </button>
                 <div class="hud-sub-panel hidden" id="panel-help">
                     <div class="field-row">
@@ -134,7 +157,7 @@
             <!-- PREVAIL -->
             <div class="hud-action-group">
                 <button class="hud-action-btn prevail" data-action="toggle-panel" data-panel="prevail" {{#unless canPrevail}}disabled{{/unless}}>
-                    {{localize "TRESPASSER.Sheet.Combat.Prevail"}}
+                    <span class="btn-text">{{localize "TRESPASSER.Sheet.Combat.Prevail"}}</span>
                 </button>
                 <div class="hud-sub-panel hidden" id="panel-prevail">
                     <div class="field-row">
@@ -160,7 +183,7 @@
             <!-- USE CONCOCTION -->
             <div class="hud-action-group">
                 <button class="hud-action-btn concoction" data-action="toggle-panel" data-panel="concoction" {{#unless canUseConcoction}}disabled{{/unless}}>
-                    {{localize "TRESPASSER.HUD.UseConcoction"}}
+                    <span class="btn-text">{{localize "TRESPASSER.HUD.UseConcoction"}}</span>
                 </button>
                 <div class="hud-sub-panel hidden" id="panel-concoction">
                     <div class="field-row">
@@ -177,7 +200,7 @@
             <!-- TAKE AIM -->
             <div class="hud-action-group">
                 <button class="hud-action-btn take-aim" data-action="toggle-panel" data-panel="take-aim" {{#unless canTakeAim}}disabled{{/unless}}>
-                    {{localize "TRESPASSER.HUD.TakeAim"}}
+                    <span class="btn-text">{{localize "TRESPASSER.HUD.TakeAim"}}</span>
                 </button>
                 <div class="hud-sub-panel hidden" id="panel-take-aim">
                     <div class="field-row">
@@ -193,7 +216,7 @@
             <!-- INTERACT -->
             <div class="hud-action-group">
                 <button class="hud-action-btn interact" data-action="toggle-panel" data-panel="interact" {{#unless canInteract}}disabled{{/unless}}>
-                    {{localize "TRESPASSER.HUD.Interact"}}
+                    <span class="btn-text">{{localize "TRESPASSER.HUD.Interact"}}</span>
                 </button>
                 <div class="hud-sub-panel hidden" id="panel-interact">
                     <div class="field-row">

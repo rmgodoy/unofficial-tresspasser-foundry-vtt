@@ -81,19 +81,25 @@
     border: 1px solid var(--trp-border);
     color: var(--trp-text-bright);
     font-family: var(--trp-font-header);
-    font-size: 11px;
-    padding: 2px 12px;
-    height: 32px;
+    font-size: 10px;
+    padding: 4px 8px;
+    min-height: 32px;
     cursor: pointer;
     text-transform: uppercase;
     transition: all 0.2s;
     display: flex;
-    flex-direction: row;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 110px;
-    white-space: nowrap;
+    gap: 1px;
+    width: 115px;
     border-radius: var(--trp-radius-sm);
+    line-height: 1.1;
+}
+
+.trespasser-token-hud .hud-action-btn .btn-text {
+    white-space: normal;
+    text-align: center;
 }
 
 .trespasser-token-hud .hud-action-btn:hover:not(:disabled) {
@@ -102,7 +108,7 @@
     border-color: var(--trp-gold-bright);
 }
 
-.trespasser-token-hud .hud-action-btn.deed:hover:not(:disabled) {
+.trespasser-token-hud .hud-action-btn.attempt-deed:hover:not(:disabled) {
     background: #8e24aa;
     color: white;
     border-color: #ba68c8;
@@ -142,6 +148,12 @@
     background: #7b1fa2;
     color: white;
     border-color: #9c27b0;
+}
+
+.trespasser-token-hud .hud-action-btn.maneuver:hover:not(:disabled) {
+    background: #fbc02d;
+    color: #333;
+    border-color: #fdd835;
 }
 
 .trespasser-token-hud .hud-action-btn.concoction:hover:not(:disabled) {
@@ -283,4 +295,19 @@
 
 .hidden {
     display: none !important;
+}
+
+/* Chips for focus costs */
+.trespasser-token-hud .focus-cost-chip {
+    display: inline-block;
+    background: #c62828;
+    color: white;
+    font-size: 8px;
+    padding: 1px 3px;
+    border-radius: 3px;
+    margin-top: 2px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    font-weight: bold;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }

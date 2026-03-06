@@ -51,7 +51,11 @@ export async function onDeedRoll(event, sheet) {
     }
   }
 
-  // ── 2. Focus cost ──────────────────────────────────────────────────────────
+  // ── 2. Focus cost & Surcharge ──────────────────────────────────────────────
+  const combatant   = TrespasserCombat.getPhaseCombatant(sheet.actor);
+  const usedActions = new Set(combatant?.getFlag("trespasser", "usedHUDActions") ?? []);
+  const surcharge   = usedActions.has("maneuver") ? 2 : 0;
+
   const tier = item.system.tier;
   let baseCost = item.system.focusCost;
   if (baseCost === null || baseCost === undefined) {
@@ -65,7 +69,7 @@ export async function onDeedRoll(event, sheet) {
   }
   const currentBonusCost = item.system.bonusCost || 0;
   const currentUses      = item.system.uses || 0;
-  const totalCost        = baseCost + currentBonusCost;
+  const totalCost        = baseCost + currentBonusCost + surcharge;
 
   if (totalCost > 0) {
     const currentFocus = sheet.actor.system.combat.focus || 0;
@@ -75,6 +79,13 @@ export async function onDeedRoll(event, sheet) {
       return;
     }
     await sheet.actor.update({ "system.combat.focus": currentFocus - totalCost });
+    
+    if (surcharge > 0) {
+        ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+            content: `<strong>${sheet.actor.name}</strong> ${game.i18n.format("TRESPASSER.Chat.SpentFocusMsg", { count: 2 })} to use a Deed after a Maneuver.`
+        });
+    }
   }
 
   // ── 3. Target check (attack deeds only) ───────────────────────────────────
@@ -84,8 +95,7 @@ export async function onDeedRoll(event, sheet) {
     return;
   }
 
-  // ── 4. Resolve combatant & AP ──────────────────────────────────────────────
-  const combatant   = TrespasserCombat.getPhaseCombatant(sheet.actor);
+  // ── 4. Resolve AP ─────────────────────────────────────────────────────────
   let apSpent = 1;
   let apBonus = 0;
 
