@@ -747,7 +747,8 @@
       "Confirm": "Confirm",
       "NextCheck": "Next Check",
       "WholeRound": "Whole Round",
-      "UseConcoction": "Use Concoction"
+      "UseConcoction": "Use Concoction",
+      "TakeAim": "Take Aim"
     }
   },
   "TYPES": {

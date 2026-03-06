@@ -102,6 +102,48 @@
     border-color: var(--trp-gold-bright);
 }
 
+.trespasser-token-hud .hud-action-btn.deed:hover:not(:disabled) {
+    background: #8e24aa;
+    color: white;
+    border-color: #ba68c8;
+}
+
+.trespasser-token-hud .hud-action-btn.defend:hover:not(:disabled) {
+    background: #1e88e5;
+    color: white;
+    border-color: #64b5f6;
+}
+
+.trespasser-token-hud .hud-action-btn.move:hover:not(:disabled) {
+    background: #43a047;
+    color: white;
+    border-color: #81c784;
+}
+
+.trespasser-token-hud .hud-action-btn.help:hover:not(:disabled) {
+    background: #fbc02d;
+    color: var(--trp-bg-dark);
+    border-color: #fff176;
+}
+
+.trespasser-token-hud .hud-action-btn.prevail:hover:not(:disabled) {
+    background: #e53935;
+    color: white;
+    border-color: #ef5350;
+}
+
+.trespasser-token-hud .hud-action-btn.take-aim:hover:not(:disabled) {
+    background: #00acc1;
+    color: white;
+    border-color: #4dd0e1;
+}
+
+.trespasser-token-hud .hud-action-btn.concoction:hover:not(:disabled) {
+    background: #fb8c00;
+    color: white;
+    border-color: #ffb74d;
+}
+
 .trespasser-token-hud .hud-action-btn:disabled {
     opacity: 0.4;
     cursor: not-allowed !important;
