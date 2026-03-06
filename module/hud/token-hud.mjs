@@ -120,6 +120,10 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
     /** @override */
     _onRender(context, options) {
         this._restorePanelState();
+        
+        // Smart side logic
+        const onRight = (this.position.left ?? 0) > window.innerWidth / 2;
+        this.element.classList.toggle("hud-on-right", onRight);
     }
 
     /**
@@ -264,6 +268,48 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                     break;
             }
         });
+
+        // Add dragging logic to header
+        const header = this.element.querySelector("header");
+        if (header) {
+            header.addEventListener("mousedown", this._onHeaderMouseDown.bind(this));
+        }
+    }
+
+    /**
+     * Handle dragging by the header.
+     * @param {MouseEvent} ev 
+     */
+    _onHeaderMouseDown(ev) {
+        // Only left click
+        if (ev.button !== 0) return;
+        ev.preventDefault();
+
+        const initialLeft = this.position.left || this.element.offsetLeft;
+        const initialTop = this.position.top || this.element.offsetTop;
+        const startX = ev.pageX;
+        const startY = ev.pageY;
+
+        const onMove = (moveEv) => {
+            const dx = moveEv.pageX - startX;
+            const dy = moveEv.pageY - startY;
+            const newLeft = initialLeft + dx;
+            this.setPosition({
+                left: newLeft,
+                top: initialTop + dy
+            });
+            // Smart side logic
+            const onRight = newLeft > window.innerWidth / 2;
+            this.element.classList.toggle("hud-on-right", onRight);
+        };
+
+        const onUp = () => {
+            window.removeEventListener("mousemove", onMove);
+            window.removeEventListener("mouseup", onUp);
+        };
+
+        window.addEventListener("mousemove", onMove);
+        window.addEventListener("mouseup", onUp);
     }
 
     _togglePanel(panelId) {
@@ -293,6 +339,20 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         }
 
         const label = game.i18n.localize(type === "guard" ? "TRESPASSER.Sheet.Combat.Guard" : "TRESPASSER.Sheet.Combat.Resist");
+        const isWholeRound = cost === 2;
+
+        const durationOptions = {};
+        if (!isWholeRound) {
+            durationOptions.durationOperator = 'OR';
+            durationOptions.durationConditions = [
+                {mode: 'trigger', value: 1},
+                {mode: "round", value: 1}
+            ];
+        } else {
+            durationOptions.durationOperator = 'OR';
+            durationOptions.durationConditions = [{mode: "round", value: 1}];
+        }
+
         const effectData = {
             name: `${game.i18n.localize("TRESPASSER.HUD.Defend")} (${label})`,
             type: "effect",
@@ -303,10 +363,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 isCombat: true,
                 isPrevailable: false,
                 type: "on-trigger",
-                duration: isWholeRound ? "round" : "trigger",
-                durationValue: 1,
-                durationConditions: [{ mode: isWholeRound ? "round" : "trigger", value: 1 }],
-                when: isWholeRound ? "immediate" : "use"
+                when: "use",
+                ...durationOptions,
             }
         };
 
