@@ -938,10 +938,11 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
   const activePhasesData = PHASES.filter(p => p.combatants.length > 0);
 
   // Build the HTML for the phased tracker
-  function buildSquares(count, filled, cssClass) {
-    return Array.from({ length: count }, (_, i) => {
+  function buildIcons(filled, cssClass) {
+    const totalSlots = Math.max(3, filled);
+    return Array.from({ length: totalSlots }, (_, i) => {
       const isFilled = i < filled;
-      return `<div class="${cssClass}-square${isFilled ? " filled" : ""}"></div>`;
+      return `<div class="${cssClass}-icon${isFilled ? " active" : ""}"></div>`;
     }).join("");
   }
 
@@ -975,7 +976,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
           <div class="stats-area flexcol">`
              + (focus > 0 ? `<span class="focus-number">${focus}</span>` : "")
             + `<div class="ap-display flexrow">
-              <div class="ap-squares flexrow">${buildSquares(3, ap, "ap")}</div>
+              <div class="ap-indicator flexrow">${buildIcons(ap, "ap")}</div>
             </div>
           </div>
         </li>
@@ -1048,7 +1049,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
     });
   });
 
-  root.querySelectorAll(".ap-square.filled").forEach(sq => {
+  root.querySelectorAll(".ap-icon.active").forEach(sq => {
     sq.addEventListener("click", async ev => {
       ev.preventDefault();
       ev.stopPropagation();

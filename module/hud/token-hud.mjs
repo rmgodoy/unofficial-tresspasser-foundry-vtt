@@ -55,7 +55,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const states = TrespasserEffectsHelper.getActorEffects(this._token.actor).combat.filter(e => e.item?.type === "effect");
 
         const ap = combatant.getFlag("trespasser", "actionPoints") ?? 3;
-        const apDots = Array.from({ length: 3 }, (_, i) => ({
+        // Show at least the base 3 AP, but expand if bonus AP is granted.
+        const maxApCount = Math.max(3, ap);
+        const apDots = Array.from({ length: maxApCount }, (_, i) => ({
             active: i < ap
         }));
 

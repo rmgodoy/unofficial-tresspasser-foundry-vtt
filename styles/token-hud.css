@@ -49,20 +49,27 @@
 
 .trespasser-token-hud .ap-indicator {
     display: flex;
-    gap: 4px;
+    gap: 2px;
+    margin-top: 4px;
 }
 
-.trespasser-token-hud .ap-dot {
-    width: 12px;
-    height: 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+.trespasser-token-hud .ap-icon {
+    width: 14px;
+    height: 14px;
+    background-color: var(--trp-text-dim);
+    -webkit-mask: url("../assets/icons/action_icon.svg") no-repeat center;
+    mask: url("../assets/icons/action_icon.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    opacity: 0.2;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
-.trespasser-token-hud .ap-dot.active {
-    background: #3f51b5;
-    box-shadow: 0 0 6px rgba(63, 81, 181, 0.4);
-    border-color: #5c6bc0;
+.trespasser-token-hud .ap-icon.active {
+    background-color: #3f51b5;
+    opacity: 1;
+    filter: drop-shadow(0 0 3px rgba(63, 81, 181, 0.8));
+    transform: scale(1.1) rotate(5deg);
 }
 
 .trespasser-token-hud .hud-actions {
