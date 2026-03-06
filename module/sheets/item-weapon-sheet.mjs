@@ -53,6 +53,7 @@ export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
     // Remove buttons
     html.find('.effect-remove').click(this._onRemoveLink.bind(this, 'effects'));
     html.find('.enhancement-remove').click(this._onRemoveLink.bind(this, 'enhancementEffects'));
+    html.find('.oil-remove').click(this._onRemoveLink.bind(this, 'oilEffects'));
     html.find('.deed-remove').click(this._onRemoveLink.bind(this, 'extraDeeds'));
 
     // Drag-and-drop
@@ -98,7 +99,7 @@ export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropDeedsOnly"));
       return;
     }
-    if ((targetType === "effects" || targetType === "enhancementEffects") && 
+    if ((targetType === "effects" || targetType === "enhancementEffects" || targetType === "oilEffects") && 
         (sourceItem.type !== "effect" && sourceItem.type !== "state")) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropEffectsStatesOnly"));
       return;

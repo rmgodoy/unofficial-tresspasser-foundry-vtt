@@ -156,6 +156,24 @@
                     <button class="action-confirm-btn" data-action="execute-prevail">{{localize "TRESPASSER.HUD.Confirm"}}</button>
                 </div>
             </div>
+
+            <!-- USE CONCOCTION -->
+            <div class="hud-action-group">
+                <button class="hud-action-btn concoction" data-action="toggle-panel" data-panel="concoction" {{#unless canUseConcoction}}disabled{{/unless}}>
+                    {{localize "TRESPASSER.HUD.UseConcoction"}}
+                </button>
+                <div class="hud-sub-panel hidden" id="panel-concoction">
+                    <div class="field-row">
+                        <label>{{localize "TRESPASSER.Dialog.Concoction.Instruction"}}</label>
+                        <select name="concoction-id">
+                            {{#each concoctions}}
+                            <option value="{{this.id}}">{{this.name}}</option>
+                            {{/each}}
+                        </select>
+                    </div>
+                    <button class="action-confirm-btn" data-action="execute-use-concoction">{{localize "TRESPASSER.HUD.Confirm"}}</button>
+                </div>
+            </div>
         </div>
     </div>
     {{/if}}

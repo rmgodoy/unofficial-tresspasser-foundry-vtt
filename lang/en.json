@@ -713,6 +713,11 @@
         "Weapon": "Weapon",
         "Apply": "Apply",
         "Applied": "{oil} applied to {weapon}."
+      },
+      "Concoction": {
+        "Title": "Use Concoction",
+        "Instruction": "Select a concoction to use:",
+        "Use": "Use Item"
       }
     },
     "Phase": {
@@ -741,7 +746,8 @@
       "ExtraAP": "AP to spend",
       "Confirm": "Confirm",
       "NextCheck": "Next Check",
-      "WholeRound": "Whole Round"
+      "WholeRound": "Whole Round",
+      "UseConcoction": "Use Concoction"
     }
   },
   "TYPES": {

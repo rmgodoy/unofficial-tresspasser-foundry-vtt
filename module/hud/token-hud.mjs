@@ -63,7 +63,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
         const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
         const movementHistory = combatant.getFlag("trespasser", "movementHistory") ?? [];
-        const speed = this._token.actor?.system.combat?.speed ?? 5;
+        const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
+        const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
+        const speed = baseSpeed + bonusSpeed;
 
         const moveOptions = [];
         for (let i = 1; i <= ap; i++) {
@@ -77,6 +79,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const usedActions = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
 
         const deeds         = this._getSortedDeeds();
+        const concoctions   = this._getAvailableConcoctions();
 
         const context = {
             inCombat: true,
@@ -87,10 +90,11 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             allies: this._getNearbyAllies(),
             canDefend:      ap >= 1 && !usedActions.has("defend"),
             canHelp:        ap >= 1 && !usedActions.has("help") && this._getNearbyAllies().length > 0,
-            canMove:        ap >= 1 && !moveActionTaken,
+            canMove:        ap >= 1 && !usedActions.has("move"),
             canUndo:        movementHistory.length > 1,
             canPrevail:     ap >= 1 && !usedActions.has("prevail") && states.length > 0,
             canAttemptDeed: ap >= 1 && !usedActions.has("attempt-deed") && deeds.length > 0,
+            canUseConcoction: ap >= 1 && concoctions.length > 0 && !usedActions.has("use-concoction"),
             moveActionTaken,
             movementUsed,
             movementAllowed,
@@ -98,6 +102,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             moveOptions,
             states,
             deeds,
+            concoctions,
             usedActions: [...usedActions]
         };
 
@@ -107,6 +112,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if ( this._activePanel === "move"         && !context.canMove         ) this._activePanel = null;
         if ( this._activePanel === "prevail"      && !context.canPrevail      ) this._activePanel = null;
         if ( this._activePanel === "attempt-deed" && !context.canAttemptDeed  ) this._activePanel = null;
+        if ( this._activePanel === "concoction"   && !context.canUseConcoction) this._activePanel = null;
 
         return context;
     }
@@ -253,6 +259,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 case "execute-attempt-deed":
                     this._executeAttemptDeed();
                     break;
+                case "execute-use-concoction":
+                    this._executeUseConcoction();
+                    break;
             }
         });
     }
@@ -283,20 +292,21 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             return;
         }
 
-        const isWholeRound = cost === 2;
+        const label = game.i18n.localize(type === "guard" ? "TRESPASSER.Sheet.Combat.Guard" : "TRESPASSER.Sheet.Combat.Resist");
         const effectData = {
-            name: `Defend (${game.i18n.localize("TRESPASSER.HUD.Defend")})`,
+            name: `${game.i18n.localize("TRESPASSER.HUD.Defend")} (${label})`,
             type: "effect",
             img: "icons/magic/defensive/shield-barrier-blue.webp",
             system: {
                 targetAttribute: type,
                 modifier: "+2",
                 isCombat: true,
-                type: "active",
-                duration: isWholeRound? "rounds" : "triggers",
+                isPrevailable: false,
+                type: "on-trigger",
+                duration: isWholeRound ? "round" : "trigger",
                 durationValue: 1,
-                durationConditions: [{ mode: isWholeRound ? "rounds" : "triggers", value: 1 }],
-                when: "use"
+                durationConditions: [{ mode: isWholeRound ? "round" : "trigger", value: 1 }],
+                when: isWholeRound ? "immediate" : "use"
             }
         };
 
@@ -342,12 +352,14 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 targetAttribute: attr,
                 modifier: `+${bonus}`,
                 isCombat: true,
-                duration: "triggers",
+                isPrevailable: false,
+                type: "on-trigger",
+                duration: "trigger",
                 durationValue: 1,
                 durationOperator: "OR",
                 durationConditions: [
-                    { mode: "triggers", value: 1 },
-                    { mode: "rounds", value: 1 }
+                    { mode: "trigger", value: 1 },
+                    { mode: "round", value: 1 }
                 ],
                 when: "use"
             }
@@ -413,7 +425,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             return;
         }
 
-        const speed = this._token.actor?.system.combat?.speed ?? 5;
+        const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
+        const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
+        const speed = baseSpeed + bonusSpeed;
         const dist = speed + (cost - 1) * 2;
 
         await combatant.update({
@@ -427,6 +441,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             speaker: ChatMessage.getSpeaker({ token: this._token }),
             content: `<strong>${this._token.name}</strong> uses <strong>Move</strong> for ${cost} AP (Speed: ${dist} sq).`
         });
+
+        await TrespasserCombat.recordHUDAction(this._token.actor, "move");
 
         this._activePanel = null;
         this.render();
@@ -451,6 +467,13 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         }
         finally {
             globalThis._trespasserUndoSet.delete(tokenDoc.id);
+        }
+
+        const combatant = this._getCombatant();
+        const usedActions = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
+        
+        if(usedActions.has("move")) {
+            await TrespasserCombat.removeHUDAction(this._token.actor, "move");
         }
 
         // HUD will be re-rendered by the updateToken hook
@@ -561,6 +584,40 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         };
 
         await onDeedRoll(fakeEvent, mockSheet);
+
+        this._activePanel = null;
+        this.render();
+    }
+
+    /**
+     * Get list of concoctions from inventory.
+     */
+    _getAvailableConcoctions() {
+        if (!this._token?.actor) return [];
+        const validSubTypes = ["potions", "bombs", "oils", "powders"];
+        return this._token.actor.items.filter(i => 
+            i.type === "item" && validSubTypes.includes(i.system.subType)
+        );
+    }
+
+    async _executeUseConcoction() {
+        const select = this.element.querySelector("[name='concoction-id']");
+        if (!select) return;
+        const itemId = select.value;
+        if (!itemId) return;
+
+        const combatant = this._getCombatant();
+        if (!combatant) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        if (currentAP < 1) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            return;
+        }
+
+        await this._token.actor.onItemConsume(itemId);
+        await combatant.setFlag("trespasser", "actionPoints", currentAP - 1);
+        await TrespasserCombat.recordHUDAction(this._token.actor, "use-concoction");
 
         this._activePanel = null;
         this.render();

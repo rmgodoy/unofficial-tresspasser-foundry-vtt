@@ -713,6 +713,11 @@
         "Weapon": "Arma",
         "Apply": "Aplicar",
         "Applied": "{oil} aplicado a {weapon}."
+      },
+      "Concoction": {
+        "Title": "Usar Concoção",
+        "Instruction": "Selecione uma concoção para usar:",
+        "Use": "Usar Item"
       }
     },
     "Phase": {
@@ -741,7 +746,8 @@
       "ExtraAP": "PA para gastar",
       "Confirm": "Confirmar",
       "NextCheck": "Próximo Teste",
-      "WholeRound": "Rodada Inteira"
+      "WholeRound": "Rodada Inteira",
+      "UseConcoction": "Usar Concoção"
     }
   },
   "TYPES": {

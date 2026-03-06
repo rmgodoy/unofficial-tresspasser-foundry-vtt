@@ -613,6 +613,74 @@ export class TrespasserActor extends Actor {
 
     return roll;
   }
+
+  /**
+   * Consume an item from the actor's inventory.
+   * @param {string} itemId 
+   */
+  async onItemConsume(itemId) {
+    const item = this.items.get(itemId);
+    if (!item) return;
+
+    if (item.system.subType === "resource") return;
+
+    const consumableTypes = ["bombs", "oils", "powders", "potions", "scrolls", "esoteric"];
+    if (!consumableTypes.includes(item.system.subType)) return;
+    
+    // Special case for Oils: open application dialog
+    if (item.system.subType === "oils") {
+      return TrespasserEffectsHelper.applyOilDialog(this, item);
+    }
+
+    let flavorHtml = `<div class="trespasser-chat-card phase-base">`;
+    flavorHtml += `<h3 style="margin:0;padding-bottom:4px;border-bottom:1px solid var(--trp-gold-dim);color:var(--trp-gold-bright);">${game.i18n.format("TRESPASSER.Chat.UsedItem", { name: item.name })}</h3>`;
+
+    if (item.system.description) {
+      flavorHtml += `<div style="font-size:12px;font-style:italic;margin-bottom:8px;color:var(--trp-text-dim);">${item.system.description}</div>`;
+    }
+
+    if (item.system.effects?.length > 0) {
+      flavorHtml += `<div style="margin-top:8px;">`;
+      flavorHtml += `<div style="font-size:11px;color:var(--trp-text-dim);text-transform:uppercase;margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Combat.States")}</div>`;
+      for (const eff of item.system.effects) {
+        flavorHtml += `
+          <div style="display:flex;align-items:center;background:rgba(0,0,0,0.5);border:1px solid var(--trp-gold-dim);border-radius:3px;padding:2px 4px;margin-bottom:2px;">
+            <img src="${eff.img}" style="width:20px;height:20px;border:none;margin-right:6px;" />
+            <span style="font-size:13px;font-family:var(--trp-font-primary);color:var(--trp-gold-light);flex:1;">${eff.name}</span>
+            <a class="apply-effect-btn" data-uuid="${eff.uuid}" data-name="${eff.name}" data-intensity="${eff.intensity || 0}" title="Apply to Targets" style="color:var(--trp-gold-bright);cursor:pointer;padding:0 4px;">
+              <i class="fas fa-play"></i> ${game.i18n.localize("TRESPASSER.Chat.Apply")}
+            </a>
+          </div>`;
+      }
+      flavorHtml += `</div>`;
+    }
+
+    if (item.system.deeds?.length > 0) {
+      flavorHtml += `<div style="margin-top:8px;font-size:12px;"><strong>${game.i18n.localize("TRESPASSER.Chat.GrantsDeeds")}</strong> ${item.system.deeds.map(d => d.name).join(", ")}</div>`;
+    }
+    if (item.system.incantations?.length > 0) {
+      flavorHtml += `<div style="margin-top:8px;font-size:12px;"><strong>${game.i18n.localize("TRESPASSER.Chat.GrantsIncantations")}</strong> ${item.system.incantations.map(d => d.name).join(", ")}</div>`;
+    }
+
+    flavorHtml += `</div>`;
+
+    const dmg = item.system.damage;
+    if (dmg && dmg.trim() !== "") {
+      try {
+        let expr = TrespasserEffectsHelper.replacePlaceholders(dmg, this);
+        const roll = new foundry.dice.Roll(expr);
+        await roll.evaluate();
+        await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this }), flavor: flavorHtml });
+      } catch (e) {
+        console.error(e);
+        await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this }), content: flavorHtml });
+      }
+    } else {
+      await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this }), content: flavorHtml });
+    }
+
+    await item.delete();
+  }
 }
 
 

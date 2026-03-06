@@ -92,6 +92,23 @@ export class TrespasserCombat extends Combat {
     used.add(actionId);
     await combatant.setFlag("trespasser", "usedHUDActions", [...used]);
   }
+  
+  /**
+   * Remove a HUD action from the used actions list for a given actor.
+   * @param {Actor|string} actorOrId  - Actor document or actorId
+   * @param {string}       actionId   - e.g. "attempt-deed", "prevail", "defend", "help"
+   * @param {Combat}       [combat]   - defaults to game.combat
+   */
+  static async removeHUDAction(actorOrId, actionId, combat = game.combat) {
+    const target = typeof actorOrId === "string"
+      ? { id: actorOrId }  // getPhaseCombatant accepts actorId strings
+      : actorOrId;
+    const combatant = TrespasserCombat.getPhaseCombatant(target, combat);
+    if (!combatant) return;
+    const used = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
+    used.delete(actionId);
+    await combatant.setFlag("trespasser", "usedHUDActions", [...used]);
+  }
 
   /** @override */
   async startCombat() {
