@@ -138,6 +138,12 @@
     border-color: #4dd0e1;
 }
 
+.trespasser-token-hud .hud-action-btn.interact:hover:not(:disabled) {
+    background: #7b1fa2;
+    color: white;
+    border-color: #9c27b0;
+}
+
 .trespasser-token-hud .hud-action-btn.concoction:hover:not(:disabled) {
     background: #fb8c00;
     color: white;

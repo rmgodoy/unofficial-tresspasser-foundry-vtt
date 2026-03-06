@@ -375,7 +375,8 @@
       "AccuracyFromAP": "Accuracy from Extra Effort",
       "Defense": "Defense",
       "Rolls": "rolls",
-      "TakeAimMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. (Range: +{bonus} sq)."
+      "TakeAimMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. (Range: +{bonus} sq).",
+      "InteractMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. {bonusText}"
     },
     "Trigger": {
       "EffectEvaluation": "Effect Evaluation",
@@ -752,7 +753,10 @@
       "TakeAim": "Take Aim",
       "TakeAimOption": "{cost} AP (+{bonus} sq)",
       "SpeedValue": "{value} sq",
-      "Squares": "sq"
+      "Squares": "sq",
+      "Interact": "Interact",
+      "InteractOption": "{cost} AP (+{bonus} Check)",
+      "WithBonus": "(Bonus: +{bonus})"
     }
   },
   "TYPES": {

@@ -375,7 +375,8 @@
       "AccuracyFromAP": "Acurácia por Esforço Extra",
       "Defense": "Defesa",
       "Rolls": "rola",
-      "TakeAimMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. (Alcance: +{bonus} qdr)."
+      "TakeAimMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. (Alcance: +{bonus} qdr).",
+      "InteractMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. {bonusText}"
     },
     "Trigger": {
       "EffectEvaluation": "Avaliação de Efeito",
@@ -752,7 +753,10 @@
       "TakeAim": "Mirar",
       "TakeAimOption": "{cost} PA (+{bonus} qdr)",
       "SpeedValue": "{value} qdr",
-      "Squares": "qdr"
+      "Squares": "qdr",
+      "Interact": "Interagir",
+      "InteractOption": "{cost} PA (+{bonus} Teste)",
+      "WithBonus": "(Bônus: +{bonus})"
     }
   },
   "TYPES": {

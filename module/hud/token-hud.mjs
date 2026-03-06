@@ -96,6 +96,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             canAttemptDeed: ap >= 1 && !usedActions.has("attempt-deed") && deeds.length > 0,
             canUseConcoction: ap >= 1 && concoctions.length > 0 && !usedActions.has("use-concoction"),
             canTakeAim: ap >= 1 && !usedActions.has("take-aim"),
+            canInteract: ap >= 1 && !usedActions.has("interact"),
             moveActionTaken,
             movementUsed,
             movementAllowed,
@@ -115,6 +116,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if ( this._activePanel === "attempt-deed" && !context.canAttemptDeed  ) this._activePanel = null;
         if ( this._activePanel === "concoction"   && !context.canUseConcoction) this._activePanel = null;
         if ( this._activePanel === "take-aim"      && !context.canTakeAim     ) this._activePanel = null;
+        if ( this._activePanel === "interact"      && !context.canInteract    ) this._activePanel = null;
 
         return context;
     }
@@ -270,6 +272,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                     break;
                 case "execute-take-aim":
                     this._executeTakeAim();
+                    break;
+                case "execute-interact":
+                    this._executeInteract();
                     break;
             }
         });
@@ -711,6 +716,39 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 action: game.i18n.localize("TRESPASSER.HUD.TakeAim"),
                 cost: cost,
                 bonus: rangeBonus
+            })
+        });
+
+        this._activePanel = null;
+        this.render();
+    }
+
+    async _executeInteract() {
+        const costInput = this.element.querySelector('[name="interact-cost"]');
+        const cost = costInput ? parseInt(costInput.value) : 1;
+        
+        const combatant = this._getCombatant();
+        if (!combatant) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        if (currentAP < cost) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            return;
+        }
+
+        const bonus = (cost - 1) * 2;
+        const bonusText = bonus > 0 ? game.i18n.format("TRESPASSER.HUD.WithBonus", { bonus }) : "";
+
+        await combatant.setFlag("trespasser", "actionPoints", currentAP - cost);
+        await TrespasserCombat.recordHUDAction(this._token.actor, "interact");
+
+        ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ token: this._token }),
+            content: game.i18n.format("TRESPASSER.Chat.InteractMessage", {
+                name: this._token.name,
+                action: game.i18n.localize("TRESPASSER.HUD.Interact"),
+                cost: cost,
+                bonusText: bonusText
             })
         });
 

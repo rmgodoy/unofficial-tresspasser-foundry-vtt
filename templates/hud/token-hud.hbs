@@ -190,6 +190,23 @@
                     <button class="action-confirm-btn" data-action="execute-take-aim">{{localize "TRESPASSER.HUD.Confirm"}}</button>
                 </div>
             </div>
+            <!-- INTERACT -->
+            <div class="hud-action-group">
+                <button class="hud-action-btn interact" data-action="toggle-panel" data-panel="interact" {{#unless canInteract}}disabled{{/unless}}>
+                    {{localize "TRESPASSER.HUD.Interact"}}
+                </button>
+                <div class="hud-sub-panel hidden" id="panel-interact">
+                    <div class="field-row">
+                        <label>{{localize "TRESPASSER.HUD.APCost"}}</label>
+                        <select name="interact-cost">
+                            <option value="1">{{localize "TRESPASSER.HUD.InteractOption" cost=1 bonus=0}}</option>
+                            <option value="2" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>{{localize "TRESPASSER.HUD.InteractOption" cost=2 bonus=2}}</option>
+                            <option value="3" {{#if (trespasserGt 3 availableAP)}}disabled{{/if}}>{{localize "TRESPASSER.HUD.InteractOption" cost=3 bonus=4}}</option>
+                        </select>
+                    </div>
+                    <button class="action-confirm-btn" data-action="execute-interact">{{localize "TRESPASSER.HUD.Confirm"}}</button>
+                </div>
+            </div>
         </div>
     </div>
     {{/if}}
