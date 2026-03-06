@@ -256,6 +256,12 @@ export class TrespasserCombat extends Combat {
   async _onStartOfTurn(phase) {
     const phaseEntrants = this.combatants.filter(c => c.initiative === phase && !c.defeated);
     for (const c of phaseEntrants) {
+      // If this combatant is finishing a 'Wait' action, they carry over their state and don't trigger start-of-turn effects again.
+      if (c.getFlag("trespasser", "isWaitFinish")) {
+        await c.setFlag("trespasser", "isWaitFinish", false);
+        continue;
+      }
+
       // Reset per-turn flags
       const token = c.token;
       if (token?.document?.clearMovementHistory) {
@@ -464,18 +470,25 @@ export class TrespasserCombat extends Combat {
   /** @override */
   _onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId) {
     super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
-    if (collection !== "Combatant") return;
-    if (!this.started || !game.user.isGM || game.user.id !== userId) return;
+    if (collection !== "combatants") return;
 
     // Check if any initiative or defeated state was changed
     const needsCheck = changes.some(c => c.initiative !== undefined || c.defeated !== undefined);
     if (needsCheck) this.verifyPhaseAdvancement();
   }
 
+  /** @override */
+  _onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId) {
+    super._onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId);
+    if (collection !== "combatants") return;
+    this.verifyPhaseAdvancement();
+  }
+
   /**
    * Checks if the current phase is empty and advances if necessary.
    */
   async verifyPhaseAdvancement() {
+    console.warn('Here');
     if (!this.started || !game.user.isGM) return;
     const currentPhase = this.getFlag("trespasser", "activePhase");
     const activeCombatants = this.combatants.filter(c => c.initiative === currentPhase && !c.defeated);

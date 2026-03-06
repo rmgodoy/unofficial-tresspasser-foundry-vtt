@@ -82,6 +82,12 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const deeds         = this._getSortedDeeds();
         const concoctions   = this._getAvailableConcoctions();
 
+        const hasLateTurn = game.combat?.combatants.some(c => 
+            c.actorId === this._token.actor?.id && 
+            Number(c.initiative) === TrespasserCombat.PHASES.LATE &&
+            !c.defeated
+        );
+
         const context = {
             inCombat: true,
             token: this._token,
@@ -116,7 +122,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             usedActions: [...usedActions],
             throwOptions: this._getThrowOptions(ap),
             vaultRange: this._getVaultRange(),
-            canVault: ap >= 1 && !usedActions.has("vault")
+            canVault: ap >= 1 && !usedActions.has("vault"),
+            canWait: ap >= 1 && (game.combat?.getFlag("trespasser", "activePhase") === TrespasserCombat.PHASES.EARLY) && !hasLateTurn
         };
 
         // Clear active panel if its action is no longer available
@@ -342,6 +349,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                     break;
                 case "execute-vault":
                     this._executeVault();
+                    break;
+                case "execute-wait":
+                    this._executeWait();
                     break;
             }
         });
@@ -1011,6 +1021,44 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         });
 
         await TrespasserCombat.recordHUDAction(this._token.actor, "vault");
+
+        this._activePanel = null;
+        this.render();
+    }
+
+    async _executeWait() {
+        const combat = game.combat;
+        if (!combat) return;
+
+        const combatant = this._getCombatant();
+        if (!combatant) return;
+
+        // Verify it's actually the Early phase
+        const activePhase = combat.getFlag("trespasser", "activePhase");
+        if (activePhase !== TrespasserCombat.PHASES.EARLY) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        const usedActions = combatant.getFlag("trespasser", "usedHUDActions") ?? [];
+        const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
+        const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+
+        // Just move this combatant to the Late Phase
+        await combatant.update({
+            initiative: TrespasserCombat.PHASES.LATE,
+            "flags.trespasser.movementAllowed": movementAllowed - movementUsed,
+            "flags.trespasser.movementUsed": 0,
+            "flags.trespasser.isWaitFinish": true
+        });
+
+        // Send message
+        ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ token: this._token }),
+            content: game.i18n.format("TRESPASSER.Chat.WaitMessage", {
+                name: this._token.name,
+                ap: currentAP,
+                move: movementAllowed - movementUsed
+            })
+        });
 
         this._activePanel = null;
         this.render();

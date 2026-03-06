@@ -276,6 +276,12 @@
                     <span class="btn-text">{{localize "TRESPASSER.HUD.Vault"}} ({{vaultRange}} {{localize "TRESPASSER.HUD.Squares"}})</span>
                 </button>
             </div>
+            <!-- WAIT -->
+            <div class="hud-action-group">
+                <button class="hud-action-btn wait" data-action="execute-wait" {{#unless canWait}}disabled{{/unless}} title="{{localize "TRESPASSER.HUD.WaitTip"}}">
+                    <span class="btn-text">{{localize "TRESPASSER.HUD.Wait"}}</span>
+                </button>
+            </div>
         </div>
     </div>
     {{/if}}

@@ -384,6 +384,7 @@
       "SmashMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. Pode quebrar: {material}.",
       "RummageMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA para gerenciar seu inventário.",
       "ThrowMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. Alcance do arremesso: {range} qdr.",
+      "WaitMessage": "<strong>{name}</strong> usou <strong>Esperar</strong>. O turno foi movido para a Fase Tardia com {ap} AP e {move} pontos de movimento reservados.",
       "VaultMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por 1 PA. (Alcance do Salto: {range} qdr)."
     },
     "Trigger": {
@@ -780,7 +781,9 @@
       "Throw": "Arremessar",
       "ThrowOption": "{cost} PA ({range} qdr)",
       "Vault": "Salto",
-      "VaultTip": "Pule em uma linha reta (ortogonal ou diagonal). Custo de PA: 1."
+      "VaultTip": "Pule em uma linha reta (ortogonal ou diagonal). Custo de PA: 1.",
+      "Wait": "Esperar",
+      "WaitTip": "Mova seu turno para a Fase Tardia, levando AP e Movimento. Disponível apenas na Fase Inicial."
     }
   },
   "TYPES": {
