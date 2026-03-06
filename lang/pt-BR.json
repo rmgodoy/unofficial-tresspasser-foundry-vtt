@@ -374,7 +374,8 @@
       "CreatureAccuracy": "Acurácia da Criatura",
       "AccuracyFromAP": "Acurácia por Esforço Extra",
       "Defense": "Defesa",
-      "Rolls": "rola"
+      "Rolls": "rola",
+      "TakeAimMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. (Alcance: +{bonus} qdr)."
     },
     "Trigger": {
       "EffectEvaluation": "Avaliação de Efeito",
@@ -747,7 +748,11 @@
       "Confirm": "Confirmar",
       "NextCheck": "Próximo Teste",
       "WholeRound": "Rodada Inteira",
-      "UseConcoction": "Usar Concoção"
+      "UseConcoction": "Usar Concoção",
+      "TakeAim": "Mirar",
+      "TakeAimOption": "{cost} PA (+{bonus} qdr)",
+      "SpeedValue": "{value} qdr",
+      "Squares": "qdr"
     }
   },
   "TYPES": {

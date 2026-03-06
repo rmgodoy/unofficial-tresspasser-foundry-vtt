@@ -706,7 +706,12 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
-            content: `<strong>${this._token.name}</strong> uses <strong>Take Aim</strong> for ${cost} AP. (Range: +${rangeBonus} sq).`
+            content: game.i18n.format("TRESPASSER.Chat.TakeAimMessage", {
+                name: this._token.name,
+                action: game.i18n.localize("TRESPASSER.HUD.TakeAim"),
+                cost: cost,
+                bonus: rangeBonus
+            })
         });
 
         this._activePanel = null;

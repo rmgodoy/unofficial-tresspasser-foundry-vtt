@@ -74,19 +74,19 @@
                 <div class="hud-sub-panel hidden" id="panel-move">
                     <div class="field-row">
                         <label>{{localize "TRESPASSER.Sheet.Combat.Speed"}}</label>
-                        <span>{{speed}} sq</span>
+                        <span>{{localize "TRESPASSER.HUD.SpeedValue" value=speed}}</span>
                     </div>
                     {{#if moveActionTaken}}
                     <div class="field-row">
                         <label>{{localize "TRESPASSER.HUD.MovementUsed"}}</label>
-                        <span>{{movementUsed}} / {{movementAllowed}} sq</span>
+                        <span>{{movementUsed}} / {{movementAllowed}} {{localize "TRESPASSER.HUD.Squares"}}</span>
                     </div>
                     {{else}}
                     <div class="field-row">
                         <label>{{localize "TRESPASSER.HUD.APCost"}}</label>
                         <select name="move-cost">
                             {{#each moveOptions}}
-                            <option value="{{cost}}">{{cost}} AP ({{dist}} sq)</option>
+                            <option value="{{cost}}">{{cost}} AP ({{localize "TRESPASSER.HUD.SpeedValue" value=dist}})</option>
                             {{/each}}
                         </select>
                     </div>
@@ -183,8 +183,8 @@
                     <div class="field-row">
                         <label>{{localize "TRESPASSER.HUD.APCost"}}</label>
                         <select name="take-aim-cost">
-                            <option value="1">1 AP (+4 sq)</option>
-                            <option value="2" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>2 AP (+8 sq)</option>
+                            <option value="1">{{localize "TRESPASSER.HUD.TakeAimOption" cost=1 bonus=4}}</option>
+                            <option value="2" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>{{localize "TRESPASSER.HUD.TakeAimOption" cost=2 bonus=8}}</option>
                         </select>
                     </div>
                     <button class="action-confirm-btn" data-action="execute-take-aim">{{localize "TRESPASSER.HUD.Confirm"}}</button>

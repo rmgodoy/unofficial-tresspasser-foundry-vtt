@@ -374,7 +374,8 @@
       "CreatureAccuracy": "Creature Accuracy",
       "AccuracyFromAP": "Accuracy from Extra Effort",
       "Defense": "Defense",
-      "Rolls": "rolls"
+      "Rolls": "rolls",
+      "TakeAimMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. (Range: +{bonus} sq)."
     },
     "Trigger": {
       "EffectEvaluation": "Effect Evaluation",
@@ -748,7 +749,10 @@
       "NextCheck": "Next Check",
       "WholeRound": "Whole Round",
       "UseConcoction": "Use Concoction",
-      "TakeAim": "Take Aim"
+      "TakeAim": "Take Aim",
+      "TakeAimOption": "{cost} AP (+{bonus} sq)",
+      "SpeedValue": "{value} sq",
+      "Squares": "sq"
     }
   },
   "TYPES": {
