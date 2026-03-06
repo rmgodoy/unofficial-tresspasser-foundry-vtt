@@ -819,18 +819,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const itemId = select.value;
         if (!itemId) return;
 
-        const combatant = this._getCombatant();
-        if (!combatant) return;
-
-        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < 1) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
-            return;
-        }
-
+        // onItemConsume now handles AP consumption and action tracking for concoctions
         await this._token.actor.onItemConsume(itemId);
-        await combatant.setFlag("trespasser", "actionPoints", currentAP - 1);
-        await TrespasserCombat.recordHUDAction(this._token.actor, "use-concoction");
 
         this._activePanel = null;
         this.render();

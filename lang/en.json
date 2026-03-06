@@ -365,6 +365,7 @@
       "Trained": " (trained)",
       "UsedItem": "Used {name}",
       "Apply": "Apply",
+      "Applied": "Applied",
       "GrantsDeeds": "Grants Deeds:",
       "GrantsIncantations": "Grants Incantations:",
       "DestroyedConsumed": "{name} has been destroyed/consumed.",

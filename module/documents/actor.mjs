@@ -1,4 +1,5 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { TrespasserCombat } from './combat.mjs';
 
 /**
  * Custom Actor document class for Trespasser TTRPG.
@@ -618,7 +619,13 @@ export class TrespasserActor extends Actor {
    * Consume an item from the actor's inventory.
    * @param {string} itemId 
    */
-  async onItemConsume(itemId) {
+  /**
+   * Consume an item from the actor's inventory.
+   * @param {string} itemId 
+   * @param {object} [options]
+   * @param {boolean} [options.spendAP=true] - Whether to consume AP in combat.
+   */
+  async onItemConsume(itemId, { spendAP = true } = {}) {
     const item = this.items.get(itemId);
     if (!item) return;
 
@@ -626,10 +633,35 @@ export class TrespasserActor extends Actor {
 
     const consumableTypes = ["bombs", "oils", "powders", "potions", "scrolls", "esoteric"];
     if (!consumableTypes.includes(item.system.subType)) return;
+
+    // 1. Handle AP and HUD Tracking for Concoctions (Potions, Bombs, Oils, Powders)
+    const isConcoction = ["potions", "bombs", "oils", "powders"].includes(item.system.subType);
+    if (isConcoction && game.combat && spendAP) {
+      const combatant = TrespasserCombat.getPhaseCombatant(this);
+      const activePhase = game.combat.getFlag("trespasser", "activePhase");
+      if (combatant) {
+        if (combatant.initiative !== activePhase && !game.user.isGM) {
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotYourPhase"));
+          return;
+        }
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        if (currentAP < 1) {
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+          return;
+        }
+        await combatant.setFlag("trespasser", "actionPoints", currentAP - 1);
+        await TrespasserCombat.recordHUDAction(this, "use-concoction");
+      }
+    }
     
-    // Special case for Oils: open application dialog
+    // 2. Special case for Oils: open application dialog
     if (item.system.subType === "oils") {
       return TrespasserEffectsHelper.applyOilDialog(this, item);
+    }
+
+    // 3. Immediate Effect Application for Potions
+    if (item.system.subType === "potions" && item.system.effects?.length > 0) {
+      await this._applyLinkedItems(item.system.effects);
     }
 
     let flavorHtml = `<div class="trespasser-chat-card phase-base">`;
@@ -643,13 +675,18 @@ export class TrespasserActor extends Actor {
       flavorHtml += `<div style="margin-top:8px;">`;
       flavorHtml += `<div style="font-size:11px;color:var(--trp-text-dim);text-transform:uppercase;margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Combat.States")}</div>`;
       for (const eff of item.system.effects) {
+        const isApplied = item.system.subType === "potions";
         flavorHtml += `
           <div style="display:flex;align-items:center;background:rgba(0,0,0,0.5);border:1px solid var(--trp-gold-dim);border-radius:3px;padding:2px 4px;margin-bottom:2px;">
             <img src="${eff.img}" style="width:20px;height:20px;border:none;margin-right:6px;" />
             <span style="font-size:13px;font-family:var(--trp-font-primary);color:var(--trp-gold-light);flex:1;">${eff.name}</span>
+            ${isApplied ? `
+            <span style="font-size:11px;color:var(--trp-text-dim);padding:0 4px;">
+              <i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.Chat.Applied")}
+            </span>` : `
             <a class="apply-effect-btn" data-uuid="${eff.uuid}" data-name="${eff.name}" data-intensity="${eff.intensity || 0}" title="Apply to Targets" style="color:var(--trp-gold-bright);cursor:pointer;padding:0 4px;">
               <i class="fas fa-play"></i> ${game.i18n.localize("TRESPASSER.Chat.Apply")}
-            </a>
+            </a>`}
           </div>`;
       }
       flavorHtml += `</div>`;
