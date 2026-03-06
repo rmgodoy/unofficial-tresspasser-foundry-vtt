@@ -114,7 +114,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             deeds,
             concoctions,
             usedActions: [...usedActions],
-            throwOptions: this._getThrowOptions(ap)
+            throwOptions: this._getThrowOptions(ap),
+            vaultRange: this._getVaultRange(),
+            canVault: ap >= 1 && !usedActions.has("vault")
         };
 
         // Clear active panel if its action is no longer available
@@ -130,6 +132,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if ( this._activePanel === "smash"         && !context.canSmash       ) this._activePanel = null;
         if ( this._activePanel === "rummage"       && !context.canRummage     ) this._activePanel = null;
         if ( this._activePanel === "throw"         && !context.canThrow       ) this._activePanel = null;
+        if ( this._activePanel === "vault"         && !context.canVault       ) this._activePanel = null;
 
         return context;
     }
@@ -206,6 +209,24 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             });
         }
         return options;
+    }
+
+    /**
+     * Calculate vault jump range based on armor weight and agility.
+     */
+    _getVaultRange() {
+        if (!this._token?.actor) return 2;
+        const actor = this._token.actor;
+        const equippedArmor = actor.items.filter(i => i.type === "armor" && i.system.equipped);
+        const isLightOrUnarmored = !equippedArmor.some(a => a.system.weight === "H");
+        
+        if (!isLightOrUnarmored) return 2;
+
+        const baseAgility = actor.system.attributes?.agility ?? 0;
+        const bonusAgility = TrespasserEffectsHelper.getAttributeBonus(actor, "agility");
+        const agility = baseAgility + bonusAgility;
+        
+        return Math.max(2, agility);
     }
 
     _initHooks() {
@@ -318,6 +339,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                     break;
                 case "execute-throw":
                     this._executeThrow();
+                    break;
+                case "execute-vault":
+                    this._executeVault();
                     break;
             }
         });
@@ -951,6 +975,42 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 range: range
             })
         });
+
+        this._activePanel = null;
+        this.render();
+    }
+
+    async _executeVault() {
+        const combatant = this._getCombatant();
+        if (!combatant) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        if (currentAP < 1) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            return;
+        }
+
+        const range = this._getVaultRange();
+
+        await combatant.update({
+            "flags.trespasser.actionPoints": currentAP - 1,
+            "flags.trespasser.moveActionTaken": true,
+            "flags.trespasser.movementAllowed": range,
+            "flags.trespasser.movementUsed": 0,
+            "flags.trespasser.isVaulting": true,
+            "flags.trespasser.vaultStartPos": { x: this._token.document.x, y: this._token.document.y }
+        });
+
+        ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ token: this._token }),
+            content: game.i18n.format("TRESPASSER.Chat.VaultMessage", {
+                name: this._token.name,
+                action: game.i18n.localize("TRESPASSER.HUD.Vault"),
+                range: range
+            })
+        });
+
+        await TrespasserCombat.recordHUDAction(this._token.actor, "vault");
 
         this._activePanel = null;
         this.render();

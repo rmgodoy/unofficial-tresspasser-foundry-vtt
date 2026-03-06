@@ -90,6 +90,15 @@ Hooks.once("init", async () => {
     default: true
   });
 
+  game.settings.register("trespasser", "restrictMovementAction", {
+    name: "TRESPASSER.Config.RestrictMovementAction",
+    hint: "TRESPASSER.Config.RestrictMovementActionHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
@@ -484,7 +493,8 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
   }
 
   // GMs bypass the action/limit checks but their in-phase moves are tracked
-  if (game.user.isGM) {
+  const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
+  if (game.user.isGM || !restrictMovement) {
     options.trespasserTrack = true;
     return;
   }
@@ -497,12 +507,25 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
 
   const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
   const movementUsed = _calculateTokenMovementDistance(tokenDoc);
+  const isVaulting = combatant.getFlag("trespasser", "isVaulting") ?? false;
   
   // Calculate distance of the proposed move
   const start  = { x: tokenDoc.x,             y: tokenDoc.y };
   const end    = { x: changed.x ?? tokenDoc.x, y: changed.y ?? tokenDoc.y };
   const distRaw = canvas.grid.measurePath([start, end]).distance;
   const dist    = Math.round(distRaw / canvas.dimensions.distance);
+
+  if (isVaulting) {
+      const startPos = combatant.getFlag("trespasser", "vaultStartPos") || start;
+      const dx = end.x - startPos.x;
+      const dy = end.y - startPos.y;
+      const isStraight = dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy);
+      
+      if (!isStraight) {
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.VaultStraightLine"));
+          return false;
+      }
+  }
 
   if ((movementUsed + dist) > movementAllowed) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.MovementLimitExceeded"));
@@ -540,7 +563,8 @@ Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
   await combatant.update({
     "flags.trespasser.movementUsed": totalDist,
     "flags.trespasser.movementHistory": tokenDoc.movementHistory,
-    "flags.trespasser.hasMovedThisTurn": totalDist > 0
+    "flags.trespasser.hasMovedThisTurn": totalDist > 0,
+    "flags.trespasser.isVaulting": false
   });
 
   // Trigger movement effects if this was a valid tracked move (not an undo)

@@ -11,6 +11,8 @@
       "Title": "Configuração do Trespasser",
       "ShowInitiativeInChat": "Mostrar rolagem de iniciativa no chat",
       "ShowInitiativeInChatHint": "Se habilitado, as rolagens de iniciativa serão postadas no log do chat.",
+      "RestrictMovementAction": "Restringir Ação de Movimento",
+      "RestrictMovementActionHint": "Se habilitado, o movimento só é permitido após realizar uma ação de Mover ou Salto. Se desabilitado, os tokens podem se mover livremente.",
       "Save": "Salvar",
       "Cancel": "Cancelar",
       "SavedNotice": "Configuração do Trespasser salva."
@@ -332,7 +334,8 @@
       "NoAP": "Você não tem Pontos de Ação suficientes!",
       "MoveActionRequired": "Você deve realizar a ação de Mover (gastar PA) antes de mover seu token.",
       "MovementLimitExceeded": "Você excedeu seu limite de movimento para este turno.",
-      "NotYourPhase": "Não é a fase deste token!"
+      "NotYourPhase": "Não é a fase deste token!",
+      "VaultStraightLine": "O Salto deve ser em uma linha reta (ortogonal ou diagonal)."
     },
     "Chat": {
       "SkillCheck": "{name} — Teste de {skill}",
@@ -380,7 +383,8 @@
       "ManeuverMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. {focusText} (Bônus: +{bonus})",
       "SmashMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. Pode quebrar: {material}.",
       "RummageMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA para gerenciar seu inventário.",
-      "ThrowMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. Alcance do arremesso: {range} qdr."
+      "ThrowMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. Alcance do arremesso: {range} qdr.",
+      "VaultMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por 1 PA. (Alcance do Salto: {range} qdr)."
     },
     "Trigger": {
       "EffectEvaluation": "Avaliação de Efeito",
@@ -774,7 +778,9 @@
       "SmashMaterial5": "metal fraco",
       "Rummage": "Vasculhar",
       "Throw": "Arremessar",
-      "ThrowOption": "{cost} PA ({range} qdr)"
+      "ThrowOption": "{cost} PA ({range} qdr)",
+      "Vault": "Salto",
+      "VaultTip": "Pule em uma linha reta (ortogonal ou diagonal). Custo de PA: 1."
     }
   },
   "TYPES": {
