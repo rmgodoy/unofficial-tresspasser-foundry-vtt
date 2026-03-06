@@ -23,7 +23,7 @@
                     <div class="field-row">
                         <select name="attempt-deed-id">
                             {{#each deeds}}
-                            <option value="{{id}}">[{{localize (concat "TRESPASSER.Item.WeightChoices.Short." (capitalize tier))}}] {{name}} ({{system.focusCost}}F)</option>
+                            <option value="{{id}}">[{{tierLabel}}] {{name}} ({{focusCost}}F)</option>
                             {{/each}}
                         </select>
                     </div>
