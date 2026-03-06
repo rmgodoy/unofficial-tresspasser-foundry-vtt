@@ -106,7 +106,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             canUseConcoction: ap >= 1 && concoctions.length > 0 && !usedActions.has("use-concoction"),
             canTakeAim: ap >= 1 && !usedActions.has("take-aim"),
             canInteract: ap >= 1 && !usedActions.has("interact"),
-            canManeuver: ap >= 1 && !usedActions.has("maneuver") && (!usedActions.has("attempt-deed") || focus >= 2),
+            canManeuver: ap >= 1 && !usedActions.has("maneuver") && ((usedActions.has("attempt-deed") && focus >= 2) || usedActions.has("attempt-deed")),
             canSmash: ap >= 1 && !usedActions.has("smash"),
             canRummage: ap >= 1 && !usedActions.has("rummage"),
             canThrow: ap >= 1 && !usedActions.has("throw"),
@@ -123,6 +123,11 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             concoctions,
             usedActions: [...usedActions],
             throwOptions: this._getThrowOptions(ap),
+            deedOptions: this._getDeedOptions(ap),
+            maneuverOptions: this._getManeuverOptions(ap),
+            interactOptions: this._getInteractOptions(ap),
+            smashOptions: this._getSmashOptions(ap),
+            takeAimOptions: this._getTakeAimOptions(ap),
             vaultRange: this._getVaultRange(),
             canVault: ap >= 1 && !usedActions.has("vault"),
             canWait: ap >= 1 && (game.combat?.getFlag("trespasser", "activePhase") === TrespasserCombat.PHASES.EARLY) && !hasLateTurn
@@ -215,6 +220,66 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             options.push({
                 cost: i,
                 range: 5 + agility + (i - 1) * 2
+            });
+        }
+        return options;
+    }
+
+    _getDeedOptions(ap) {
+        const options = [];
+        const max = Math.max(3, ap);
+        for (let i = 1; i <= max; i++) {
+            options.push({
+                cost: i,
+                label: i === 1 ? "1 AP (Base)" : `${i} AP (+${i - 1} Acc)`
+            });
+        }
+        return options;
+    }
+
+    _getManeuverOptions(ap) {
+        const options = [];
+        const max = Math.max(3, ap);
+        for (let i = 1; i <= max; i++) {
+            options.push({
+                cost: i,
+                bonus: (i - 1) * 2
+            });
+        }
+        return options;
+    }
+
+    _getInteractOptions(ap) {
+        const options = [];
+        const max = Math.max(3, ap);
+        for (let i = 1; i <= max; i++) {
+            options.push({
+                cost: i,
+                bonus: (i - 1) * 2
+            });
+        }
+        return options;
+    }
+
+    _getSmashOptions(ap) {
+        const options = [];
+        const max = Math.max(3, ap);
+        for (let i = 1; i <= max; i++) {
+            options.push({
+                cost: i,
+                bonus: i - 1
+            });
+        }
+        return options;
+    }
+
+    _getTakeAimOptions(ap) {
+        const options = [];
+        const max = Math.min(2, ap);
+        for (let i = 1; i <= max; i++) {
+            options.push({
+                cost: i,
+                bonus: i === 1 ? 4 : 8
             });
         }
         return options;
@@ -859,7 +924,11 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const currentFocus = actor.system.combat?.focus ?? 0;
 
         if (focusCost > 0 && currentFocus < focusCost) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotEnoughFocus"));
+            ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.NotEnoughFocus", {
+                name: game.i18n.localize("TRESPASSER.HUD.Maneuver"),
+                cost: focusCost,
+                current: currentFocus
+            }));
             return;
         }
 

@@ -95,11 +95,11 @@
     text-transform: uppercase;
     transition: all 0.2s;
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
-    gap: 1px;
-    width: 115px;
+    gap: 4px;
+    width: 135px;
     border-radius: var(--trp-radius-sm);
     line-height: 1.1;
 }
@@ -107,6 +107,39 @@
 .trespasser-token-hud .hud-action-btn .btn-text {
     white-space: normal;
     text-align: center;
+}
+
+.trespasser-token-hud .btn-icons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.trespasser-token-hud .action-icon {
+    width: 8px;
+    height: 8px;
+    background-color: var(--trp-gold);
+    -webkit-mask: url("../assets/icons/action_icon.svg") no-repeat center;
+    mask: url("../assets/icons/action_icon.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    transition: all 0.2s;
+}
+
+.trespasser-token-hud .flexible-icon {
+    width: 8px;
+    height: 8px;
+    background-color: var(--trp-gold-dim);
+    -webkit-mask: url("../assets/icons/flexible_icon.svg") no-repeat center;
+    mask: url("../assets/icons/flexible_icon.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    transition: all 0.2s;
+}
+
+.trespasser-token-hud .hud-action-btn:hover .action-icon,
+.trespasser-token-hud .hud-action-btn:hover .flexible-icon {
+    background-color: var(--trp-bg-dark);
 }
 
 .trespasser-token-hud .hud-action-btn:hover:not(:disabled) {
