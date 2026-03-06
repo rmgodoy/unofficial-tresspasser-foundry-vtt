@@ -213,7 +213,7 @@ export class TrespasserEffectsHelper {
    * @param {Object} options - title, description, renderOnly (returns HTML instead of creating msg)
    * @returns {Promise<string|ChatMessage>}
    */
-  static async applyEffectChat(effects, actor, { title = "", description = "", renderOnly = false } = {}) {
+  static async applyEffectChat(effects, actor, { title = "", description = "", renderOnly = false, bypassFilter = false } = {}) {
     if (!effects) return null;
     const effArray = Array.isArray(effects) ? effects : [effects];
     if (effArray.length === 0) return null;
@@ -223,7 +223,7 @@ export class TrespasserEffectsHelper {
     for (const eff of effArray) {
       if (!eff.uuid) continue;
       const source = await fromUuid(eff.uuid);
-      if (source && (source.system.type === "continuous" || source.system.when === "immediate" || !source.system.when)) continue;
+      if (!bypassFilter && source && (source.system.type === "continuous" || source.system.when === "immediate" || !source.system.when)) continue;
       activeOnly.push(eff);
     }
     if (activeOnly.length === 0) return null;

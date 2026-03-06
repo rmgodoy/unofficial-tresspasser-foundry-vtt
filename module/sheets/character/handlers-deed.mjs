@@ -385,49 +385,56 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export async function postDeedPhase(phaseName, phaseData, actor, item, options, sheet) {
-  if (!phaseData) return;
-
+  const pData = phaseData || {};
   let finalEffects = [];
-  if (phaseData.appliedEffects) finalEffects = Array.from(phaseData.appliedEffects).map(e => ({...e}));
+  
+  if (pData.appliedEffects) finalEffects = Array.from(pData.appliedEffects).map(e => ({...e}));
 
   const activeWeapons = sheet._getActiveWeapons();
 
-  if (phaseData.appliesWeaponEffects || (phaseData.damage && phaseData.damage.includes("<wd>"))) {
+  const validWeaponDeedTypes = ["melee", "missile", "versatile", "innate"];
+  const isWeaponDeed = validWeaponDeedTypes.includes(item?.system?.type);
+
+  if (pData.appliesWeaponEffects || (pData.damage && pData.damage.includes("<wd>")) || isWeaponDeed) {
     for (const weapon of activeWeapons) {
       if (!weapon) continue;
       
       // Weapon Basic Effects
-      if (phaseData.appliesWeaponEffects && weapon.system.effects) {
+      if (pData.appliesWeaponEffects && weapon.system.effects) {
         finalEffects.push(...Array.from(weapon.system.effects).map(e => ({...e})));
       }
 
-      // Enhancement Effects: always display if 1+ spark
-      if (options.maxSparks > 0 && Array.isArray(weapon.system.enhancementEffects)) {
+      // Enhancement Effects: ONLY on the Spark phase
+      if (phaseName === "Spark" && Array.isArray(weapon.system.enhancementEffects)) {
         finalEffects.push(...Array.from(weapon.system.enhancementEffects).map(e => ({...e})));
       }
 
-      // Oil Effects: always display if Hit
-      if (options.anyHit && Array.isArray(weapon.system.oilEffects)) {
+      // Oil Effects: ONLY on the Hit phase
+      if (phaseName === "Hit" && options.anyHit && Array.isArray(weapon.system.oilEffects) && weapon.system.oilEffects.length > 0) {
         finalEffects.push(...Array.from(weapon.system.oilEffects).map(e => ({...e})));
+        // Consume the oil effects after applying them to the Hit phase
+        weapon.update({ "system.oilEffects": [] });
       }
 
       if (weapon.system.properties?.fragile && options.fragileItems) options.fragileItems.add(weapon);
     }
   }
 
-  const hasDamage      = phaseData.damage      && phaseData.damage.trim()      !== "";
-  const hasDescription = phaseData.description && phaseData.description.trim() !== "";
+  const hasDamage      = pData.damage      && pData.damage.trim()      !== "";
+  const hasDescription = pData.description && pData.description.trim() !== "";
+  const hasEffects     = finalEffects.length > 0;
+
+  if (!hasDamage && !hasEffects && !hasDescription && !options.forceOutput) return;
 
   const effectsHtml = await TrespasserEffectsHelper.applyEffectChat(finalEffects, actor, {
     title: options.title || phaseName,
-    description: phaseData.description,
-    renderOnly: true
+    description: pData.description,
+    renderOnly: true,
+    bypassFilter: true
   });
 
-  if (!hasDamage && !effectsHtml && !hasDescription && !options.forceOutput) return;
-
   let flavorHtml = effectsHtml || `<div class="trespasser-chat-card"><h3>${item.name} — ${options.title || phaseName}</h3>`;
-  if (!effectsHtml && hasDescription) flavorHtml += `<p><em>${phaseData.description}</em></p>`;
+  if (!effectsHtml && hasDescription) flavorHtml += `<p><em>${pData.description}</em></p>`;
   if (options.introText) flavorHtml += `<p>${options.introText}</p>`;
   flavorHtml += `</div>`;
 
