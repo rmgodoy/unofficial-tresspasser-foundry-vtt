@@ -85,7 +85,7 @@ export async function onDeedRoll(event, sheet) {
       if (surcharge > 0) {
           ChatMessage.create({
               speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-              content: `<strong>${sheet.actor.name}</strong> ${game.i18n.format("TRESPASSER.Chat.SpentFocusMsg", { count: 2 })} to use a Deed after a Maneuver.`
+              content: `<strong>${sheet.actor.name}</strong> ${game.i18n.format("TRESPASSER.Chat.DeedSurcharge", { count: 2 })}`
           });
       }
     }

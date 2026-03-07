@@ -390,7 +390,8 @@
       "RummageMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP to manage their inventory.",
       "ThrowMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. Throwing range: {range} sq.",
       "WaitMessage": "<strong>{name}</strong> uses <strong>Wait</strong>. Turn moves to the Late Phase with {ap} AP and {move} movement points reserved.",
-      "VaultMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for 1 AP. (Jump Range: {range} sq)."
+      "VaultMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for 1 AP. (Jump Range: {range} sq).",
+      "DeedSurcharge": "spent {count} Focus to use a Deed after a Maneuver."
     },
     "Trigger": {
       "EffectEvaluation": "Effect Evaluation",

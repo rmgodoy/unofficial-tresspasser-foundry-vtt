@@ -930,7 +930,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         }
 
         const bonus = (cost - 1) * 2;
-        const focusText = focusCost > 0 ? game.i18n.format("TRESPASSER.Chat.SpentFocusMsg", { count: focusCost }) : "";
+        const focusText = focusCost > 0 ? game.i18n.format("TRESPASSER.HUD.SpentFocusMsg", { count: focusCost }) : "";
 
         if (restrictAPF) {
             await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
