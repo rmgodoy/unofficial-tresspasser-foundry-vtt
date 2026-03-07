@@ -73,18 +73,21 @@ export async function onDeedRoll(event, sheet) {
 
   if (totalCost > 0) {
     const currentFocus = sheet.actor.system.combat.focus || 0;
-    if (currentFocus < totalCost) {
+    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+    if (restrictAPF && currentFocus < totalCost) {
       ui.notifications.error(game.i18n.format("TRESPASSER.Notifications.NotEnoughFocus",
         { name: item.name, cost: totalCost, current: currentFocus }));
       return;
     }
-    await sheet.actor.update({ "system.combat.focus": currentFocus - totalCost });
-    
-    if (surcharge > 0) {
-        ChatMessage.create({
-            speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-            content: `<strong>${sheet.actor.name}</strong> ${game.i18n.format("TRESPASSER.Chat.SpentFocusMsg", { count: 2 })} to use a Deed after a Maneuver.`
-        });
+    if (restrictAPF) {
+      await sheet.actor.update({ "system.combat.focus": Math.max(0, currentFocus - totalCost) });
+      
+      if (surcharge > 0) {
+          ChatMessage.create({
+              speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+              content: `<strong>${sheet.actor.name}</strong> ${game.i18n.format("TRESPASSER.Chat.SpentFocusMsg", { count: 2 })} to use a Deed after a Maneuver.`
+          });
+      }
     }
   }
 
@@ -101,7 +104,8 @@ export async function onDeedRoll(event, sheet) {
 
   if (combatant) {
     const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-    if (availableAP < 1) {
+    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+    if (restrictAPF && availableAP < 1) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
       return;
     }
@@ -159,7 +163,10 @@ export async function onDeedRoll(event, sheet) {
   // ── 10. Spend AP + record action ──────────────────────────────────────────
   if (combatant) {
     const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - apSpent));
+    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+    if (restrictAPF) {
+      await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - apSpent));
+    }
     await TrespasserCombat.recordHUDAction(sheet.actor, "attempt-deed");
   }
 

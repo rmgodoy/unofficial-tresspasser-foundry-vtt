@@ -645,11 +645,14 @@ export class TrespasserActor extends Actor {
           return;
         }
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < 1) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        if (restrictAPF && currentAP < 1) {
           ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
           return;
         }
-        await combatant.setFlag("trespasser", "actionPoints", currentAP - 1);
+        if (restrictAPF) {
+          await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
+        }
         await TrespasserCombat.recordHUDAction(this, "use-concoction");
       }
     }

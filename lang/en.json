@@ -13,6 +13,10 @@
       "ShowInitiativeInChatHint": "If enabled, initiative rolls will be posted to the chat log.",
       "RestrictMovementAction": "Restrict Movement Action",
       "RestrictMovementActionHint": "If enabled, movement is only allowed after taking a Move or Vault action. If disabled, tokens can move freely.",
+      "RestrictHUDActions": "Restrict Actions per Turn",
+      "RestrictHUDActionsHint": "If enabled, HUD actions (Defend, Help, etc.) can only be used once per turn unless otherwise specified.",
+      "RestrictAPFocusUsage": "Restrict AP and Focus action usage",
+      "RestrictAPFocusUsageHint": "If enabled, the system enforces AP and Focus costs. If disabled, actions can be used without sufficient points.",
       "Save": "Save",
       "Cancel": "Cancel",
       "SavedNotice": "Trespasser Configuration saved."

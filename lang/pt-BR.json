@@ -13,6 +13,10 @@
       "ShowInitiativeInChatHint": "Se habilitado, as rolagens de iniciativa serão postadas no log do chat.",
       "RestrictMovementAction": "Restringir Ação de Movimento",
       "RestrictMovementActionHint": "Se habilitado, o movimento só é permitido após realizar uma ação de Mover ou Salto. Se desabilitado, os tokens podem se mover livremente.",
+      "RestrictHUDActions": "Restringir Ações por Turno",
+      "RestrictHUDActionsHint": "Se habilitado, ações do HUD (Defender, Ajudar, etc.) só podem ser usadas uma vez por turno, a menos que especificado de outra forma.",
+      "RestrictAPFocusUsage": "Restringir uso de PA e Foco",
+      "RestrictAPFocusUsageHint": "Se habilitado, o sistema impõe custos de PA e Foco. Se desabilitado, as ações podem ser usadas sem pontos suficientes.",
       "Save": "Salvar",
       "Cancel": "Cancelar",
       "SavedNotice": "Configuração do Trespasser salva."

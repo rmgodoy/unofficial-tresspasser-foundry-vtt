@@ -80,6 +80,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         // ── Determine which actions have already been used this turn ──────────
         const usedActions = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
+        const restrictHUD = game.settings.get("trespasser", "restrictHUDActions");
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
 
         const deeds         = this._getSortedDeeds();
         const concoctions   = this._getAvailableConcoctions();
@@ -97,19 +99,19 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             availableAP: ap,
             apDots,
             allies: this._getNearbyAllies(),
-            canDefend:      ap >= 1 && !usedActions.has("defend"),
-            canHelp:        ap >= 1 && !usedActions.has("help") && this._getNearbyAllies().length > 0,
-            canMove:        ap >= 1 && !usedActions.has("move"),
+            canDefend:      (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("defend")),
+            canHelp:        (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("help")) && this._getNearbyAllies().length > 0,
+            canMove:        (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("move")),
             canUndo:        movementHistory.length > 1,
-            canPrevail:     ap >= 1 && !usedActions.has("prevail") && states.length > 0,
-            canAttemptDeed: ap >= 1 && !usedActions.has("attempt-deed") && deeds.length > 0 && (!usedActions.has("maneuver") || focus >= 2),
-            canUseConcoction: ap >= 1 && concoctions.length > 0 && !usedActions.has("use-concoction"),
-            canTakeAim: ap >= 1 && !usedActions.has("take-aim"),
-            canInteract: ap >= 1 && !usedActions.has("interact"),
-            canManeuver: ap >= 1 && !usedActions.has("maneuver") && ((usedActions.has("attempt-deed") && focus >= 2) || usedActions.has("attempt-deed")),
-            canSmash: ap >= 1 && !usedActions.has("smash"),
-            canRummage: ap >= 1 && !usedActions.has("rummage"),
-            canThrow: ap >= 1 && !usedActions.has("throw"),
+            canPrevail:     (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("prevail")) && states.length > 0,
+            canAttemptDeed: (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("attempt-deed")) && deeds.length > 0 && (!restrictAPF || !usedActions.has("maneuver") || focus >= 2),
+            canUseConcoction: (ap >= 1 || !restrictAPF) && concoctions.length > 0 && (!restrictHUD || !usedActions.has("use-concoction")),
+            canTakeAim:     (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("take-aim")),
+            canInteract:    (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("interact")),
+            canManeuver:    (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("maneuver")) && (!restrictAPF || !usedActions.has("attempt-deed") || focus >= 2),
+            canSmash:       (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("smash")),
+            canRummage:     (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("rummage")),
+            canThrow:       (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("throw")),
             maneuverFocusCost: usedActions.has("attempt-deed") ? 2 : 0,
             deedFocusCost: usedActions.has("maneuver") ? 2 : 0,
             availableFocus: focus,
@@ -129,8 +131,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             smashOptions: this._getSmashOptions(ap),
             takeAimOptions: this._getTakeAimOptions(ap),
             vaultRange: this._getVaultRange(),
-            canVault: ap >= 1 && !usedActions.has("vault"),
-            canWait: ap >= 1 && (game.combat?.getFlag("trespasser", "activePhase") === TrespasserCombat.PHASES.EARLY) && !hasLateTurn
+            canVault: (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("vault")),
+            canWait: (ap >= 1 || !restrictAPF) && (game.combat?.getFlag("trespasser", "activePhase") === TrespasserCombat.PHASES.EARLY) && !hasLateTurn
         };
 
         // Clear active panel if its action is no longer available
@@ -488,7 +490,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < cost) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        
+        if (restrictAPF && currentAP < cost) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
             return;
         }
@@ -524,7 +528,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         };
 
         await this._token.actor.createEmbeddedDocuments("Item", [effectData]);
-        await combatant.setFlag("trespasser", "actionPoints", currentAP - cost);
+        if (restrictAPF) {
+            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+        }
         await TrespasserCombat.recordHUDAction(this._token.actor, "defend");
         
         ChatMessage.create({
@@ -549,7 +555,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!targetToken) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < cost) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        
+        if (restrictAPF && currentAP < cost) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
             return;
         }
@@ -557,7 +565,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const bonus = cost; 
 
         // Deduct AP from current actor
-        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+        if (restrictAPF) {
+            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+        }
 
         // Format attribute name for better display
         const attrLabel = game.i18n.localize(`TRESPASSER.Sheet.Combat.${attr.charAt(0).toUpperCase() + attr.slice(1)}`) || attr;
@@ -606,7 +616,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < cost) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        
+        if (restrictAPF && currentAP < cost) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
             return;
         }
@@ -616,12 +628,20 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const speed = baseSpeed + bonusSpeed;
         const dist = speed + (cost - 1) * 2;
 
-        await combatant.update({
-            "flags.trespasser.actionPoints": currentAP - cost,
-            "flags.trespasser.moveActionTaken": true,
-            "flags.trespasser.movementAllowed": dist,
-            "flags.trespasser.movementUsed": 0
-        });
+        if (restrictAPF) {
+            await combatant.update({
+                "flags.trespasser.actionPoints": Math.max(0, currentAP - cost),
+                "flags.trespasser.moveActionTaken": true,
+                "flags.trespasser.movementAllowed": dist,
+                "flags.trespasser.movementUsed": 0
+            });
+        } else {
+            await combatant.update({
+                "flags.trespasser.moveActionTaken": true,
+                "flags.trespasser.movementAllowed": dist,
+                "flags.trespasser.movementUsed": 0
+            });
+        }
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
@@ -679,13 +699,17 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < totalCost) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        
+        if (restrictAPF && currentAP < totalCost) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
             return;
         }
 
         await this._token.actor.rollPrevail(stateId, extraAP);
-        await combatant.setFlag("trespasser", "actionPoints", currentAP - totalCost);
+        if (restrictAPF) {
+            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - totalCost));
+        }
 
         this._activePanel = null;
         this.render();
@@ -807,14 +831,18 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < cost) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        
+        if (restrictAPF && currentAP < cost) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
             return;
         }
 
         const rangeBonus = cost === 1 ? 4 : 8;
 
-        await combatant.setFlag("trespasser", "actionPoints", currentAP - cost);
+        if (restrictAPF) {
+            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+        }
         await TrespasserCombat.recordHUDAction(this._token.actor, "take-aim");
 
         ChatMessage.create({
@@ -839,7 +867,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < cost) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        
+        if (restrictAPF && currentAP < cost) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
             return;
         }
@@ -847,7 +877,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const bonus = (cost - 1) * 2;
         const bonusText = bonus > 0 ? game.i18n.format("TRESPASSER.HUD.WithBonus", { bonus }) : "";
 
-        await combatant.setFlag("trespasser", "actionPoints", currentAP - cost);
+        if (restrictAPF) {
+            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+        }
         await TrespasserCombat.recordHUDAction(this._token.actor, "interact");
 
         ChatMessage.create({
@@ -872,7 +904,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < cost) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        
+        if (restrictAPF && currentAP < cost) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
             return;
         }
@@ -886,7 +920,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const actor = this._token.actor;
         const currentFocus = actor.system.combat?.focus ?? 0;
 
-        if (focusCost > 0 && currentFocus < focusCost) {
+        if (restrictAPF && focusCost > 0 && currentFocus < focusCost) {
             ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.NotEnoughFocus", {
                 name: game.i18n.localize("TRESPASSER.HUD.Maneuver"),
                 cost: focusCost,
@@ -898,9 +932,11 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const bonus = (cost - 1) * 2;
         const focusText = focusCost > 0 ? game.i18n.format("TRESPASSER.Chat.SpentFocusMsg", { count: focusCost }) : "";
 
-        await combatant.setFlag("trespasser", "actionPoints", currentAP - cost);
-        if (focusCost > 0) {
-            await actor.update({ "system.combat.focus": currentFocus - focusCost });
+        if (restrictAPF) {
+            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+            if (focusCost > 0) {
+                await actor.update({ "system.combat.focus": Math.max(0, currentFocus - focusCost) });
+            }
         }
         await TrespasserCombat.recordHUDAction(this._token.actor, "maneuver");
 
@@ -927,7 +963,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < cost) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        
+        if (restrictAPF && currentAP < cost) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
             return;
         }
@@ -945,7 +983,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         const materialStr = game.i18n.localize(`TRESPASSER.HUD.SmashMaterial${materialIdx}`);
 
-        await combatant.setFlag("trespasser", "actionPoints", currentAP - cost);
+        if (restrictAPF) {
+            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+        }
         await TrespasserCombat.recordHUDAction(actor, "smash");
 
         ChatMessage.create({
@@ -967,12 +1007,16 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < 1) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        
+        if (restrictAPF && currentAP < 1) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
             return;
         }
 
-        await combatant.setFlag("trespasser", "actionPoints", currentAP - 1);
+        if (restrictAPF) {
+            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
+        }
         await TrespasserCombat.recordHUDAction(this._token.actor, "rummage");
 
         ChatMessage.create({
@@ -996,7 +1040,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < cost) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        
+        if (restrictAPF && currentAP < cost) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
             return;
         }
@@ -1007,7 +1053,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const agility = baseAgility + bonusAgility;
         const range = 5 + agility + (cost - 1) * 2;
 
-        await combatant.setFlag("trespasser", "actionPoints", currentAP - cost);
+        if (restrictAPF) {
+            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+        }
         await TrespasserCombat.recordHUDAction(actor, "throw");
 
         ChatMessage.create({
@@ -1029,21 +1077,33 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!combatant) return;
 
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-        if (currentAP < 1) {
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        
+        if (restrictAPF && currentAP < 1) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
             return;
         }
 
         const range = this._getVaultRange();
 
-        await combatant.update({
-            "flags.trespasser.actionPoints": currentAP - 1,
-            "flags.trespasser.moveActionTaken": true,
-            "flags.trespasser.movementAllowed": range,
-            "flags.trespasser.movementUsed": 0,
-            "flags.trespasser.isVaulting": true,
-            "flags.trespasser.vaultStartPos": { x: this._token.document.x, y: this._token.document.y }
-        });
+        if (restrictAPF) {
+            await combatant.update({
+                "flags.trespasser.actionPoints": Math.max(0, currentAP - 1),
+                "flags.trespasser.moveActionTaken": true,
+                "flags.trespasser.movementAllowed": range,
+                "flags.trespasser.movementUsed": 0,
+                "flags.trespasser.isVaulting": true,
+                "flags.trespasser.vaultStartPos": { x: this._token.document.x, y: this._token.document.y }
+            });
+        } else {
+            await combatant.update({
+                "flags.trespasser.moveActionTaken": true,
+                "flags.trespasser.movementAllowed": range,
+                "flags.trespasser.movementUsed": 0,
+                "flags.trespasser.isVaulting": true,
+                "flags.trespasser.vaultStartPos": { x: this._token.document.x, y: this._token.document.y }
+            });
+        }
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),

@@ -6,6 +6,8 @@
 export async function showTrespasserConfigDialog() {
   const showInit = game.settings.get("trespasser", "showInitiativeInChat");
   const restrictMov = game.settings.get("trespasser", "restrictMovementAction");
+  const restrictHUD = game.settings.get("trespasser", "restrictHUDActions");
+  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
 
   const content = `
     <form class="trespasser-config-form">
@@ -24,6 +26,22 @@ export async function showTrespasserConfigDialog() {
         </div>
         <p class="notes">${game.i18n.localize("TRESPASSER.Config.RestrictMovementActionHint")}</p>
       </div>
+
+      <div class="form-group">
+        <label>${game.i18n.localize("TRESPASSER.Config.RestrictHUDActions")}</label>
+        <div class="form-fields">
+          <input type="checkbox" name="restrictHUDActions" ${restrictHUD ? "checked" : ""}>
+        </div>
+        <p class="notes">${game.i18n.localize("TRESPASSER.Config.RestrictHUDActionsHint")}</p>
+      </div>
+
+      <div class="form-group">
+        <label>${game.i18n.localize("TRESPASSER.Config.RestrictAPFocusUsage")}</label>
+        <div class="form-fields">
+          <input type="checkbox" name="restrictAPFocusUsage" ${restrictAPF ? "checked" : ""}>
+        </div>
+        <p class="notes">${game.i18n.localize("TRESPASSER.Config.RestrictAPFocusUsageHint")}</p>
+      </div>
     </form>`;
 
   new Dialog({
@@ -35,9 +53,13 @@ export async function showTrespasserConfigDialog() {
         label: game.i18n.localize("TRESPASSER.Config.Save"),
         callback: async (html) => {
           const show = html.find('[name="showInitiativeInChat"]').is(":checked");
-          const restrict = html.find('[name="restrictMovementAction"]').is(":checked");
+          const restrictM = html.find('[name="restrictMovementAction"]').is(":checked");
+          const restrictH = html.find('[name="restrictHUDActions"]').is(":checked");
+          const restrictA = html.find('[name="restrictAPFocusUsage"]').is(":checked");
           await game.settings.set("trespasser", "showInitiativeInChat", show);
-          await game.settings.set("trespasser", "restrictMovementAction", restrict);
+          await game.settings.set("trespasser", "restrictMovementAction", restrictM);
+          await game.settings.set("trespasser", "restrictHUDActions", restrictH);
+          await game.settings.set("trespasser", "restrictAPFocusUsage", restrictA);
           ui.notifications.info(game.i18n.localize("TRESPASSER.Config.SavedNotice"));
         }
       },

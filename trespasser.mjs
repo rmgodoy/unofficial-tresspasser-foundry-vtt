@@ -99,6 +99,24 @@ Hooks.once("init", async () => {
     default: false
   });
 
+  game.settings.register("trespasser", "restrictHUDActions", {
+    name: "TRESPASSER.Config.RestrictHUDActions",
+    hint: "TRESPASSER.Config.RestrictHUDActionsHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register("trespasser", "restrictAPFocusUsage", {
+    name: "TRESPASSER.Config.RestrictAPFocusUsage",
+    hint: "TRESPASSER.Config.RestrictAPFocusUsageHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
