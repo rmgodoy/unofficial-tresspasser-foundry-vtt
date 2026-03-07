@@ -43,6 +43,10 @@ import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mj
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 
+// ── Party imports ────────────────────────────────────────────────────────────
+import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
+import { TrespasserPartySheet }   from "./module/sheets/actor-party-sheet.mjs";
+
 // ── Dungeon Exploration imports ──────────────────────────────────────────────
 import { TrespasserDungeonData }   from "./module/data/actor-dungeon.mjs";
 import { TrespasserRoomData }      from "./module/data/item-room.mjs";
@@ -62,6 +66,8 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/item/parts/effects-list.hbs",
     "systems/trespasser/templates/item/parts/deeds-list.hbs",
     "systems/trespasser/templates/combat/combat-tracker.hbs",
+    // Party template
+    "systems/trespasser/templates/actor/party-sheet.hbs",
     // Dungeon exploration templates
     "systems/trespasser/templates/dungeon/dungeon-tabs.hbs",
     "systems/trespasser/templates/dungeon/dungeon-overview.hbs",
@@ -101,6 +107,7 @@ Hooks.once("init", async () => {
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
   CONFIG.Actor.dataModels.dungeon  = TrespasserDungeonData;
+  CONFIG.Actor.dataModels.party    = TrespasserPartyData;
 
   CONFIG.Item.dataModels.armor = TrespasserArmorData;
   CONFIG.Item.dataModels.weapon = TrespasserWeaponData;
@@ -136,6 +143,12 @@ Hooks.once("init", async () => {
     types: ["dungeon"],
     makeDefault: true,
     label: "Trespasser Dungeon Sheet",
+  });
+  // Party sheet (AppV2)
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserPartySheet, {
+    types: ["party"],
+    makeDefault: true,
+    label: "Trespasser Party Sheet",
   });
 
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);

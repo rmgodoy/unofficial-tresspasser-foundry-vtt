@@ -10,7 +10,8 @@
     "ActorTypes": {
       "character": "Character",
       "creature": "Creature",
-      "dungeon": "Dungeon"
+      "dungeon": "Dungeon",
+      "party": "Party"
     },
     "ItemTypes": {
       "weapon": "Weapon",
@@ -693,6 +694,34 @@
       "Description": "Description",
       "Details": "Details"
     },
+    "Party": {
+      "NamePlaceholder": "The Company of the Ashen Star",
+      "Members": "Party Members",
+      "NoMembers": "No members yet. Drag character actors here or use the picker below.",
+      "AddMember": "Add Member",
+      "RemoveMember": "Remove from Party",
+      "SelectCharacter": "\u2014 Select a character \u2014",
+      "DropHint": "Drag a character actor here to add them to the party",
+      "DropCharactersOnly": "Only character actors can be added to the party.",
+      "AlreadyMember": "{name} is already in the party.",
+      "MemberAdded": "{name} joined the party.",
+      "Notes": "Notes",
+      "GroupCheck": "Group Check",
+      "Attribute": "\u2014 Attribute \u2014",
+      "NoSkill": "\u2014 No Skill \u2014",
+      "Roll": "Roll",
+      "SelectAttribute": "Select an attribute for the group check.",
+      "Resource": {
+        "HP": "Hit Points",
+        "Endurance": "Endurance",
+        "RecoveryDice": "Recovery Dice",
+        "Resolve": "Resolve",
+        "Armor": "Armor",
+        "Rations": "Rations",
+        "Injuries": "Injuries",
+        "Light": "Light Sources"
+      }
+    },
     "Dungeon": {
       "Tracker": "Dungeon Tracker",
       "Name": "Dungeon Name",
@@ -909,7 +938,8 @@
     "Actor": {
       "character": "Character",
       "creature": "Creature",
-      "dungeon": "Dungeon"
+      "dungeon": "Dungeon",
+      "party": "Party"
     },
     "Item": {
       "armor": "Armor",

@@ -33,7 +33,8 @@
     "Actor": {
       "character": {},
       "creature": {},
-      "dungeon": {}
+      "dungeon": {},
+      "party": {}
     },
     "Item": {
       "item": {},
