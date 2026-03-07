@@ -543,7 +543,6 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const cost = costInput ? parseInt(costInput.value) : 1;
 
         const combatant = this._getCombatant();
-        const combatId = combatant?.parent?.id;
         if (!combatant) return;
 
         const targetToken = canvas.tokens.get(targetId);
@@ -557,72 +556,46 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         const bonus = cost; 
 
-        const effectData = {
-            name: `Help from ${this._token.name}`,
-            type: "effect",
-            img: "icons/magic/life/heart-hand-blue.webp",
-            system: {
-                targetAttribute: attr,
-                modifier: `+${bonus}`,
-                isCombat: true,
-                isPrevailable: false,
-                type: "on-trigger",
-                duration: "trigger",
-                durationValue: 1,
-                durationOperator: "OR",
-                durationConditions: [
-                    { mode: "trigger", value: 1 },
-                    { mode: "round", value: 1 }
-                ],
-                when: "use"
-            }
-        };
+        // Deduct AP from current actor
+        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
 
-        // Always request GM confirmation for Help
-        const payload = {
-            type: "applyHelp",
-            targetActorUuid: targetToken.actor.uuid,
-            effectData: effectData,
-            sourceName: this._token.name,
-            sourceCombatantId: combatant.id,
-            combatId: combatId,
-            cost: cost,
-            bonus: bonus,
-            attr: attr
-        };
+        // Format attribute name for better display
+        const attrLabel = game.i18n.localize(`TRESPASSER.Sheet.Combat.${attr.charAt(0).toUpperCase() + attr.slice(1)}`) || attr;
 
-        game.socket.emit("system.trespasser.help", payload);
-        if (game.user.isGM) {
-            await this._handleHelpRequest(payload);
-        } else {
-            ui.notifications.info(`Applied Help for ${targetToken.name}.`);
-        }
+        // Post detailed chat card
+        await ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ token: this._token }),
+            content: `
+              <div class="trespasser-chat-card">
+                <h3 style="margin:0;padding-bottom:4px;border-bottom:1px solid var(--trp-gold-dim);color:var(--trp-gold-bright);">
+                  ${game.i18n.localize("TRESPASSER.HUD.Help")}
+                </h3>
+                <p><strong>${this._token.name}</strong> gives <strong>Help</strong> to <strong>${targetToken.name}</strong>.</p>
+                
+                <a class="apply-effect-btn apply-help-btn" 
+                   data-target-uuid="${targetToken.actor.uuid}"
+                   data-target-attribute="${attr}"
+                   data-modifier="+${bonus}"
+                   data-source-name="${this._token.name}"
+                   title="${game.i18n.localize("TRESPASSER.Chat.Apply")}">
+                  <img src="systems/trespasser/assets/icons/effects.png" style="width:32px;height:32px;border:none;margin-right:12px;" />
+                  <div style="flex:1;">
+                    <div style="color:var(--trp-gold-light);font-weight:bold;font-size:16px;">+${bonus} ${attrLabel}</div>
+                    <div style="font-size:11px;color:var(--trp-text-dim);line-height:1.2;">Duration: Next check this round</div>
+                  </div>
+                  <i class="fas fa-hand-holding-heart"></i>
+                </a>
+
+                <p style="font-size:10px;margin-top:8px;text-align:right;color:var(--trp-text-dim);border-top:1px solid rgba(255,255,255,0.05);padding-top:4px;">
+                  AP Spent: ${cost}
+                </p>
+              </div>`
+        });
+
         await TrespasserCombat.recordHUDAction(this._token.actor, "help");
 
         this._activePanel = null;
         this.render();
-    }
-
-    /**
-     * Automatically apply the help effect (called on GM client).
-     */
-    async _handleHelpRequest(data) {
-        const targetActor = fromUuidSync(data.targetActorUuid);
-        if (!targetActor) return;
-
-        const combat = game.combats.get(data.combatId);
-        const combatant = combat?.combatants.get(data.sourceCombatantId);
-        if (combatant) {
-            const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - data.cost));
-        }
-
-        await targetActor.createEmbeddedDocuments("Item", [data.effectData]);
-        
-        ChatMessage.create({
-            speaker: { alias: data.sourceName },
-            content: `<strong>${data.sourceName}</strong> gives <strong>Help</strong> (+${data.bonus} ${data.attr}) to <strong>${targetActor.name}</strong> for ${data.cost} AP.`
-        });
     }
 
     async _executeMove() {

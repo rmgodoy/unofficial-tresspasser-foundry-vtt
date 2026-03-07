@@ -253,17 +253,6 @@ Hooks.once("ready", () => {
   // Initialize Token Action HUD
   game.trespasser.tokenHUD = new TrespasserTokenHUD();
 
-  // Socket listener for Help requests
-  game.socket.on("system.trespasser.help", async data => {
-    console.log("Trespasser | Socket Message Received:", data.type, "User is GM:", game.user.isGM);
-    if (data.type === "applyHelp" && game.user.isGM) {
-      console.log("Trespasser | Processing help request for", data.sourceName);
-      if (game.trespasser.tokenHUD) {
-        game.trespasser.tokenHUD._handleHelpRequest(data);
-      }
-    }
-  });
-
   // Prevent default turn marker from being added to tokens, since we are implementing our own turn marker system
   if (foundry.canvas.placeables.tokens.TokenTurnMarker) {
     foundry.canvas.placeables.tokens.TokenTurnMarker.prototype.draw = async function() {
@@ -337,6 +326,44 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         await foundry.documents.BaseItem.create(itemData, { parent: actor });
         ui.notifications.info(`Applied ${sourceItem.name} to ${actor.name}.`);
       }
+    });
+  });
+
+  html.querySelectorAll(".apply-help-btn").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const targetUuid = btn.dataset.targetUuid;
+      const attr = btn.dataset.targetAttribute;
+      const mod = btn.dataset.modifier;
+      const sourceName = btn.dataset.sourceName;
+
+      const doc = await fromUuid(targetUuid);
+      const targetActor = doc?.actor || doc;
+      if (!targetActor) return;
+
+      const effectData = {
+        name: `Help from ${sourceName}`,
+        type: "effect",
+        img: "system/trespasser/assets/icons/effects.png",
+        system: {
+          targetAttribute: attr,
+          modifier: mod,
+          isCombat: true,
+          isPrevailable: false,
+          type: "on-trigger",
+          duration: "trigger",
+          durationValue: 1,
+          durationOperator: "OR",
+          durationConditions: [
+            { mode: "trigger", value: 1 },
+            { mode: "round", value: 1 }
+          ],
+          when: "use"
+        }
+      };
+
+      await targetActor.createEmbeddedDocuments("Item", [effectData]);
+      ui.notifications.info(`Applied Help to ${targetActor.name}.`);
     });
   });
 
