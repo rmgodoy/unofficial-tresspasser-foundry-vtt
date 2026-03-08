@@ -488,7 +488,6 @@ export class TrespasserCombat extends Combat {
    * Checks if the current phase is empty and advances if necessary.
    */
   async verifyPhaseAdvancement() {
-    console.warn('Here');
     if (!this.started || !game.user.isGM) return;
     const currentPhase = this.getFlag("trespasser", "activePhase");
     const activeCombatants = this.combatants.filter(c => c.initiative === currentPhase && !c.defeated);
