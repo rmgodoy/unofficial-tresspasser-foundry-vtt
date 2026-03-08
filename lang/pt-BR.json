@@ -5,7 +5,15 @@
       "Save": "Salvar",
       "Edit": "Editar",
       "Ok": "Ok",
-      "Cancel": "Cancelar"
+      "Cancel": "Cancelar",
+      "Clear": "Limpar",
+      "Delete": "Excluir",
+      "Close": "Fechar",
+      "Confirm": "Confirmar",
+      "Unknown": "Desconhecido",
+      "None": "Nenhum",
+      "Active": "Ativo",
+      "Disabled": "Desativado"
     },
     "Config": {
       "Title": "Configuração do Trespasser",
@@ -391,7 +399,18 @@
       "ThrowMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por {cost} PA. Alcance do arremesso: {range} qdr.",
       "WaitMessage": "<strong>{name}</strong> usou <strong>Esperar</strong>. O turno foi movido para a Fase Tardia com {ap} AP e {move} pontos de movimento reservados.",
       "VaultMessage": "<strong>{name}</strong> usa <strong>{action}</strong> por 1 PA. (Alcance do Salto: {range} qdr).",
-      "DeedSurcharge": "gastou {count} de Foco para usar uma Habilidade após uma Manobra."
+      "DeedSurcharge": "gastou {count} de Foco para usar uma Habilidade após uma Manobra.",
+      "RollMessage": "<strong>{name}</strong> rola <strong>{action}</strong>: {formula} = {total}",
+      "AttackMessage": "<strong>{name}</strong> ataca com <strong>{action}</strong>: {formula} = {total}. Dano base: {damage}",
+      "DamageMessage": "<strong>{name}</strong> causa <strong>{damage}</strong> de dano.",
+      "HealMessage": "<strong>{name}</strong> cura <strong>{amount}</strong> PV.",
+      "EffectMessage": "<strong>{name}</strong> aplica <strong>{effect}</strong> em <strong>{target}</strong>.",
+      "AppliedEffect": "Aplicou {name} em {target}.",
+      "HelpFrom": "Ajuda de {name}",
+      "AppliedHelp": "Ajuda aplicada em {name}.",
+      "TookDamage": "{name} sofreu <strong>{damage}</strong> de dano.",
+      "TookDamageReduction": "{name} sofreu <strong>{damage}</strong> de dano ({raw} − {reduction} de redução).",
+      "HealedAmount": "{name} foi curado em <strong>{amount}</strong> PV."
     },
     "Trigger": {
       "EffectEvaluation": "Avaliação de Efeito",
@@ -405,7 +424,9 @@
       "APGained": "Pontos de Ação Ganhos.",
       "APLost": "Pontos de Ação Perdidos.",
       "PhaseChanged": "Fase de Combate alterada para {phase}.",
-      "ModifierGenerated": "Gerou modificador de {value} para {target}."
+      "ModifierGenerated": "Gerou modificador de {value} para {target}.",
+      "Prevalence": "Prevalência",
+      "Expiry": "Expiração"
     },
     "TriggerLabels": {
       "StartOfRound": "Início da Rodada",
@@ -735,7 +756,10 @@
         "Title": "Usar Concoção",
         "Instruction": "Selecione uma concoção para usar:",
         "Use": "Usar Item"
-      }
+      },
+      "Attribute": "Atributo",
+      "Difficulty": "Dificuldade",
+      "Roll": "Rolar"
     },
     "Phase": {
       "Early": "Fase Inicial",
@@ -790,12 +814,207 @@
       "VaultTip": "Pule em uma linha reta (ortogonal ou diagonal). Custo de PA: 1.",
       "Wait": "Esperar",
       "WaitTip": "Mova seu turno para a Fase Tardia, levando AP e Movimento. Disponível apenas na Fase Inicial."
+    },
+    "NewItem": "Novo {type}",
+    "DeleteItemTitle": "Excluir Item",
+    "DeleteItemContent": "Tem certeza que deseja excluir <strong>{name}</strong>?",
+    "Character": "Personagem",
+    "Creature": "Criatura",
+    "Dungeon": {
+      "Label": "Masmorra",
+      "Tabs": {
+        "Overview": "Visão Geral",
+        "Rooms": "Salas",
+        "Log": "Log",
+        "Notes": "Notas"
+      },
+      "NamePlaceholder": "Nome da Masmorra",
+      "Location": "Localização",
+      "LocationPlaceholder": "Região ou Local",
+      "HostilityTier": "Nível de Hostilidade",
+      "SizeCategory": "Categoria de Tamanho",
+      "FormLabel": "Forma",
+      "Description": "Descrição",
+      "Notes": "Notas da GM",
+      "Traits": "Traços da Masmorra",
+      "TraitsPlaceholder": "Adicionar traço...",
+      "EncounterTable": "Tabela de Encontros",
+      "EncounterTableHint": "Arraste uma Tabela de Rolagem aqui para configurar os encontros.",
+      "RollTable": "Rolar Tabela",
+      "CreateTable": "Criar Nova Tabela",
+      "RemoveTable": "Remover Tabela",
+      "Encounters": "Encontros",
+      "UnknownTable": "Tabela Desconhecida",
+      "MapImage": "Imagem do Mapa",
+      "Rooms": "Salas",
+      "AddRoom": "Adicionar Sala",
+      "NoRooms": "Nenhuma sala criada para esta masmorra.",
+      "RoundLog": "Log de Rodadas",
+      "NoLogEntries": "Nenhuma ação registrada nesta sessão.",
+      "DC": "DC",
+      "ActionsRemaining": "Ações Restantes",
+      "Alarm": "Alarme",
+      "AlarmValue": "Alarme: {value}",
+      "Round": "Rodada",
+      "RoundAbbr": "R",
+      "Action": "Ação",
+      "Detail": "Detalhe",
+      "Actions": {
+        "Explore": "Explorar",
+        "ExploreDesc": "Mova-se cautelosamente para uma sala adjacente e inexplorada ou explore a sala atual.",
+        "Traverse": "Atravessar",
+        "TraverseDesc": "Mova-se para qualquer sala previamente explorada ou para a entrada da masmorra.",
+        "Interact": "Interagir",
+        "InteractDesc": "Envolva-se com uma característica da sala atual de forma complexa ou demorada.",
+        "Search": "Vasculhar",
+        "SearchDesc": "Investigue a sala explorada para aprender os detalhes restantes.",
+        "Hide": "Esconder",
+        "HideDesc": "Espere na escuridão silenciosa até que a masmorra fique calma novamente.",
+        "Vandalize": "Vandalizar",
+        "VandalizeDesc": "Arrombe uma porta trancada, baú ou realize outro ato de destruição de propriedade.",
+        "PickLock": "Abrir Fechadura",
+        "PickLockDesc": "Tente abrir uma porta ou baú trancado.",
+        "Disarm": "Desarmar",
+        "DisarmDesc": "Tente desarmar uma armadilha.",
+        "Converse": "Conversar",
+        "ConverseDesc": "Passe alguns minutos conversando com uma criatura.",
+        "MomentsRest": "Descanso Curto",
+        "MomentsRestDesc": "Pausa de 10 minutos para comer e recuperar forças.",
+        "Incant": "Encantar",
+        "IncantDesc": "Conconjure um encantamento enquanto o grupo vigia."
+      },
+      "Room": {
+        "Name": "Nome da Sala",
+        "Discovered": "Descoberta",
+        "Connections": "Conexões",
+        "Features": "Características",
+        "Hazards": "Perigos",
+        "Loot": "Saque",
+        "UnexploredConnections": "Conexões Inexploradas",
+        "ExploredConnections": "Conexões Exploraas",
+        "NoConnections": "Não há conexões conhecidas desta sala.",
+        "AllExplored": "Todas as salas conectadas já foram exploradas.",
+        "RoomTrapPresent": "Armadilha de Sala Presente",
+        "TrapWarning": "<strong>AVISO DA GM:</strong> {label}!",
+        "DetailTraps": "Armadilhas de Detalhe",
+        "DetailTrapsWarning": "<strong>AVISO DA GM:</strong> Existem {count} {label} ativas nesta sala!"
+      },
+      "Log": {
+        "UnexploredCount": "{count} salas inexploradas conectadas",
+        "AlarmChange": "Alarme subiu para {value}"
+      },
+      "Result": {
+        "Success": "Sucesso",
+        "SuccessDesc": "Você consegue o que pretendia sem complicações imprevistas.",
+        "Shadow": "Sombra",
+        "ShadowDesc": "Seu sucesso tem um custo. Você consegue o que deseja, mas algo dá errado.",
+        "Failure": "Falha",
+        "FailureDesc": "Você falha. O progresso é interrompido e você deve encontrar outra maneira ou enfrentar as consequências.",
+        "Harmful": "Prejudicial",
+        "HarmfulDesc": "Você se machuca — desde arranhões até um ferimento persistente, dependendo da tarefa.",
+        "Daunting": "Desanimador",
+        "DauntingDesc": "Seu esforço foi humilhante. Observadores questionam se você pertence a este lugar. O moral fraqueja."
+      },
+      "Reaction": {
+        "Hostile": "Hostil",
+        "Wary": "Cauteloso",
+        "Curious": "Curioso",
+        "Friendly": "Amigável"
+      },
+      "Approach": {
+        "Ambush": "Emboscada",
+        "AmbushDesc": "Inicie o combate escondido. O lado oposto pula seus turnos na primeira rodada.",
+        "Fight": "Lutar",
+        "FightDesc": "Avance corajosamente sem nenhum esforço para disfarçar as intenções. O combate começa normalmente.",
+        "Greet": "Cumprimentar",
+        "GreetDesc": "Surja pacificamente com as armas abaixadas. O outro lado pode escolher qualquer abordagem, incluindo emboscada.",
+        "Warn": "Avisar",
+        "WarnDesc": "Torne sua presença conhecida e emita ameaças ou exigências, mas aguarde a ação. O outro lado não pode emboscar.",
+        "Withdraw": "Retirar-se",
+        "WithdrawDesc": "Recue para o seu último lugar de segurança. Pode perder tempo ou suprimentos."
+      },
+      "Encounter": {
+        "Title": "Encontro",
+        "Triggered": "Encontro Disparado!",
+        "NoEncounter": "Nenhum encontro esta rodada.",
+        "AlarmRise": "O alarme sobe para {value}.",
+        "AlarmReset": "O alarme redefine para 0.",
+        "Reaction": "Reação",
+        "Surprise": "Teste de Surpresa",
+        "Approach": "Escolher Abordagem",
+        "Distance": "Distância",
+        "Check": "Teste de Encontro",
+        "Label": "Encontro",
+        "RandomDesc": "Encontro aleatório!",
+        "DistanceRollHint": "Role 2d6 quadrados (apertado) ou 3d6 quadrados (aberto)",
+        "Details": {
+          "Title": "Detalhes do Encontro",
+          "Instruction": "Use estas tabelas para gerar contexto para o encontro conforme necessário.",
+          "Activity": "Atividade",
+          "Disposition": "Disposição",
+          "Complication": "Complicação"
+        }
+      },
+      "DepletionRollHint": "Role cada dado de esgotamento. Em um 1-2, a fonte de luz é esgotada.",
+      "LightSources": "Fontes de Luz",
+      "LightDepletion": "Esgotamento de Luz",
+      "DepletionPrompt": "Faça testes de esgotamento para fontes de luz ativas.",
+      "RoundEnd": "Fim da Rodada {round}",
+      "NewRound": "Nova Rodada",
+      "ActionSpent": "Ação Gasta",
+      "NoActionsRemaining": "Nenhuma ação restante nesta rodada.",
+      "Session": {
+        "Started": "A exploração de {name} começou!",
+        "Round1": "Rodada 1 — 3 ações disponíveis.",
+        "EndConfirm": "Tem certeza que deseja encerrar esta sessão de exploração?",
+        "EndYes": "Encerrar Sessão",
+        "Pause": "Pausar Sessão",
+        "Resume": "Retomar Sessão",
+        "BeginExploration": "Iniciar Exploração",
+        "EndExploration": "Finalizar Exploração",
+        "EndTitle": "Encerrar Exploração",
+        "Ended": "A exploração de {name} foi encerrada.",
+        "Summary": "Resumo: {rounds} rodadas, {actions} ações."
+      }
+    },
+    "Tracker": {
+      "Title": "Rastreador de Masmorra"
+    },
+    "Agility": "Agilidade",
+    "Might": "Might",
+    "Intellect": "Intelecto",
+    "Willpower": "Vontade",
+    "Athletics": "Atletismo",
+    "Tinkering": "Tinkering",
+    "Stealth": "Furtividade",
+    "Perception": "Percepção",
+    "Magic": "Magia",
+    "Melee": "Melee",
+    "Accuracy": "Acurácia",
+    "Defense": "Defesa",
+    "Evasion": "Evasão",
+    "Speed": "Velocidade",
+    "Health": "Vida",
+    "MaxHealth": "Vida Máxima",
+    "Endurance": "Endurance",
+    "MaxEndurance": "Max Endurance",
+    "Armor": "Armadura",
+    "Focus": "Foco",
+    "Level": "Nível",
+    "Experience": "Experiência",
+    "Party": {
+      "Label": "Grupo",
+      "Roll": "Rolagem",
+      "GroupCheck": "Teste de Grupo",
+      "NoMembers": "Nenhum membro no grupo."
     }
   },
   "TYPES": {
     "Actor": {
       "character": "Personagem",
-      "creature": "Criatura"
+      "creature": "Criatura",
+      "dungeon": "Masmorra",
+      "party": "Grupo"
     },
     "Item": {
       "armor": "Armadura",
@@ -811,7 +1030,8 @@
       "injury": "Ferimento",
       "calling": "Vocação",
       "craft": "Ofício",
-      "past_life": "Vida Passada"
+      "past_life": "Vida Passada",
+      "room": "Sala"
     }
   }
 }

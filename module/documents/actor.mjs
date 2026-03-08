@@ -19,10 +19,19 @@ export class TrespasserActor extends Actor {
     
     // Set default images
     if (!data.img || data.img === "icons/svg/mystery-man.svg") {
-      if (this.type === "character") {
-        this.updateSource({ img: "systems/trespasser/assets/icons/pesant.png" });
-      } else if (this.type === "creature") {
-        this.updateSource({ img: "systems/trespasser/assets/icons/creature.png" });
+      switch(this.type) {
+        case "character":
+          this.updateSource({ img: "systems/trespasser/assets/icons/pesant.png" });
+          break;
+        case "creature":
+          this.updateSource({ img: "systems/trespasser/assets/icons/creature.png" });
+          break;
+        case "party":
+          this.updateSource({ img: "systems/trespasser/assets/icons/party.png" });
+          break;
+        case "dungeon":
+          this.updateSource({ img: "systems/trespasser/assets/icons/dungeon.png" });
+          break;
       }
     }
   }

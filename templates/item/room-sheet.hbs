@@ -1,12 +1,14 @@
 <form class="{{cssClass}} trespasser-sheet item room" autocomplete="off">
-  <header class="sheet-header">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
-    <div class="header-info">
-      <div class="name-group">
-        <h1 class="item-title">
-          <input name="name" type="text" value="{{item.name}}" placeholder="Room Name" />
-        </h1>
-      </div>
+
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    </div>
+
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Dungeon.Room.Name'}}"/>
+      </h1>
     </div>
   </header>
 
@@ -24,9 +26,11 @@
     </div>
 
     {{!-- Description --}}
-    <div class="room-section">
-      <h3 class="room-section-title">{{localize "TRESPASSER.Item.Description"}}</h3>
-      {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror"}}
+    <div class="field-item description-column">
+      <label>{{localize "TRESPASSER.Item.Description"}}</label>
+      <div class="trp-editor-container">
+        {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+      </div>
     </div>
 
     {{!-- Features --}}
@@ -213,15 +217,19 @@
     </div>
 
     {{!-- Hazards --}}
-    <div class="room-section">
+    <div class="field-item description-column">
       <h3 class="room-section-title">{{localize "TRESPASSER.Dungeon.Room.Hazards"}}</h3>
-      {{editor hazardsHTML target="system.hazards" button=true editable=editable engine="prosemirror"}}
+      <div class="trp-editor-container">
+        {{editor hazardsHTML target="system.hazards" button=true editable=editable engine="prosemirror" resizable=true}}
+      </div>
     </div>
 
     {{!-- Loot --}}
-    <div class="room-section">
+    <div class="field-item description-column">
       <h3 class="room-section-title">{{localize "TRESPASSER.Dungeon.Room.Loot"}}</h3>
-      {{editor lootHTML target="system.loot" button=true editable=editable engine="prosemirror"}}
+      <div class="trp-editor-container">
+        {{editor lootHTML target="system.loot" button=true editable=editable engine="prosemirror" resizable=true}}
+      </div>
     </div>
 
   </section>

@@ -14,7 +14,8 @@
   ],
   "esmodules": ["trespasser.mjs"],
   "styles": [
-    "styles/trespasser.css"
+    "styles/trespasser.css",
+    "styles/dungeon.css"
   ],
   "languages": [
     {

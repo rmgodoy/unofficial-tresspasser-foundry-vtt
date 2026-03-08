@@ -5,7 +5,15 @@
       "Save": "Save",
       "Edit": "Edit",
       "Ok": "Ok",
-      "Cancel": "Cancel"
+      "Cancel": "Cancel",
+      "Clear": "Clear",
+      "Delete": "Delete",
+      "Close": "Close",
+      "Confirm": "Confirm",
+      "Unknown": "Unknown",
+      "None": "None",
+      "Active": "Active",
+      "Disabled": "Disabled"
     },
     "Config": {
       "Title": "Trespasser Configuration",
@@ -393,7 +401,18 @@
       "ThrowMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. Throwing range: {range} sq.",
       "WaitMessage": "<strong>{name}</strong> uses <strong>Wait</strong>. Turn moves to the Late Phase with {ap} AP and {move} movement points reserved.",
       "VaultMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for 1 AP. (Jump Range: {range} sq).",
-      "DeedSurcharge": "spent {count} Focus to use a Deed after a Maneuver."
+      "DeedSurcharge": "spent {count} Focus to use a Deed after a Maneuver.",
+      "RollMessage": "<strong>{name}</strong> rolls <strong>{action}</strong>: {formula} = {total}",
+      "AttackMessage": "<strong>{name}</strong> attacks with <strong>{action}</strong>: {formula} = {total}. Base Damage: {damage}",
+      "DamageMessage": "<strong>{name}</strong> deals <strong>{damage}</strong> damage.",
+      "HealMessage": "<strong>{name}</strong> heals <strong>{amount}</strong> HP.",
+      "EffectMessage": "<strong>{name}</strong> applies <strong>{effect}</strong> to <strong>{target}</strong>.",
+      "AppliedEffect": "Applied {name} to {target}.",
+      "HelpFrom": "Help from {name}",
+      "AppliedHelp": "Applied Help to {name}.",
+      "TookDamage": "{name} took <strong>{damage}</strong> damage.",
+      "TookDamageReduction": "{name} took <strong>{damage}</strong> damage ({raw} − {reduction} reduction).",
+      "HealedAmount": "{name} was healed for <strong>{amount}</strong> HP."
     },
     "Trigger": {
       "EffectEvaluation": "Effect Evaluation",
@@ -407,7 +426,9 @@
       "APGained": "Gained {value} Action Points.",
       "APLost": "Lost {value} Action Points.",
       "PhaseChanged": "Combat Phase changed to {phase}.",
-      "ModifierGenerated": "Generated {value} modifier to {target}."
+      "ModifierGenerated": "Generated {value} modifier to {target}.",
+      "Prevalence": "Prevalence",
+      "Expiry": "Expiry"
     },
     "TriggerLabels": {
       "StartOfRound": "Start of Round",
@@ -737,7 +758,10 @@
         "Title": "Use Concoction",
         "Instruction": "Select a concoction to use:",
         "Use": "Use Item"
-      }
+      },
+      "Attribute": "Attribute",
+      "Difficulty": "Difficulty",
+      "Roll": "Roll"
     },
     "Phase": {
       "Early": "Early Phase",
@@ -808,15 +832,15 @@
       "NoMembers": "No members yet. Drag character actors here or use the picker below.",
       "AddMember": "Add Member",
       "RemoveMember": "Remove from Party",
-      "SelectCharacter": "\u2014 Select a character \u2014",
+      "SelectCharacter": "— Select a character —",
       "DropHint": "Drag a character actor here to add them to the party",
       "DropCharactersOnly": "Only character actors can be added to the party.",
       "AlreadyMember": "{name} is already in the party.",
       "MemberAdded": "{name} joined the party.",
       "Notes": "Notes",
       "GroupCheck": "Group Check",
-      "Attribute": "\u2014 Attribute \u2014",
-      "NoSkill": "\u2014 No Skill \u2014",
+      "Attribute": "— Attribute —",
+      "NoSkill": "— No Skill —",
       "Roll": "Roll",
       "SelectAttribute": "Select an attribute for the group check.",
       "Resource": {
@@ -828,7 +852,8 @@
         "Rations": "Rations",
         "Injuries": "Injuries",
         "Light": "Light Sources"
-      }
+      },
+      "Label": "Party"
     },
     "Dungeon": {
       "Tracker": "Dungeon Tracker",
@@ -960,7 +985,18 @@
         "Reaction": "Reaction",
         "Surprise": "Surprise Check",
         "Approach": "Choose Approach",
-        "Distance": "Distance"
+        "Distance": "Distance",
+        "Check": "Encounter Check",
+        "Label": "Encounter",
+        "RandomDesc": "Random Encounter!",
+        "DistanceRollHint": "Roll 2d6 squares (cramped) or 3d6 squares (open)",
+        "Details": {
+          "Title": "Encounter Details",
+          "Instruction": "Use these tables to generate context for the encounter as needed.",
+          "Activity": "Activity",
+          "Disposition": "Disposition",
+          "Complication": "Complication"
+        }
       },
       "LightSources": "Light Sources",
       "LightDepletion": "Light Depletion",
@@ -976,7 +1012,11 @@
         "Summary": "{rounds} rounds, {actions} actions taken.",
         "EndTitle": "End Exploration",
         "EndConfirm": "Are you sure you want to end this exploration session?",
-        "EndYes": "End Session"
+        "EndYes": "End Session",
+        "Pause": "Pause Session",
+        "Resume": "Resume Session",
+        "BeginExploration": "Begin Exploration",
+        "EndExploration": "End Exploration"
       },
       "Room": {
         "Name": "Room Name",
@@ -1005,7 +1045,13 @@
         "HazardsPlaceholder": "Traps, environmental dangers, etc.",
         "Loot": "Loot",
         "LootPlaceholder": "Treasure and items found here...",
-        "SortOrder": "Sort Order"
+        "SortOrder": "Sort Order",
+        "UnexploredConnections": "Unexplored Connections",
+        "ExploredConnections": "Explored Connections",
+        "NoConnections": "There are no known connections from this room.",
+        "AllExplored": "All connected rooms have already been explored.",
+        "TrapWarning": "<strong>GM WARNING:</strong> {label}!",
+        "DetailTrapsWarning": "<strong>GM WARNING:</strong> There are {count} active {label} in this room!"
       },
       "Connection": {
         "Doorway": "Doorway",
@@ -1022,7 +1068,7 @@
         "Remove": "Remove Connection",
         "OpenRoom": "Open Room",
         "DescPlaceholder": "e.g., Narrow corridor, iron-barred gate...",
-        "SelectRoom": "\u2014 Select a room \u2014",
+        "SelectRoom": "— Select a room —",
         "AddConnection": "Add Connection",
         "DropHint": "Drop a Room item here to connect",
         "DropRoomsOnly": "Only Room items can be dropped here.",
@@ -1039,8 +1085,61 @@
         "Rooms": "Rooms",
         "Log": "Log",
         "Notes": "Notes"
-      }
-    }
+      },
+      "Label": "Dungeon",
+      "RollTable": "Roll Table",
+      "CreateTable": "Create New Table",
+      "RemoveTable": "Remove Table",
+      "Encounters": "Encounters",
+      "UnknownTable": "Unknown Table",
+      "RoundAbbr": "R",
+      "Action": "Action",
+      "Detail": "Detail",
+      "Log": {
+        "UnexploredCount": "{count} unexplored rooms connected",
+        "AlarmChange": "Alarm rose to {value}"
+      },
+      "Result": {
+        "Success": "Success",
+        "SuccessDesc": "You achieve what you intended without unforeseen complications.",
+        "Shadow": "Shadow",
+        "ShadowDesc": "Your success has a cost. You get what you want, but something goes wrong.",
+        "Failure": "Failure",
+        "FailureDesc": "You fail. Progress is halted and you must find another way or face consequences.",
+        "Harmful": "Harmful",
+        "HarmfulDesc": "You hurt yourself — from scratches to a persistent injury.",
+        "Daunting": "Daunting",
+        "DauntingDesc": "Your effort was humbling. Onlookers question if you belong here. Morale falters."
+      },
+      "DepletionRollHint": "Roll each depletion die. On a 1-2, the light source is depleted."
+    },
+    "Character": "Character",
+    "Creature": "Creature",
+    "Tracker": {
+      "Title": "Dungeon Tracker"
+    },
+    "Agility": "Agility",
+    "Might": "Might",
+    "Intellect": "Intellect",
+    "Willpower": "Willpower",
+    "Athletics": "Athletics",
+    "Tinkering": "Tinkering",
+    "Stealth": "Stealth",
+    "Perception": "Perception",
+    "Magic": "Magic",
+    "Melee": "Melee",
+    "Accuracy": "Accuracy",
+    "Defense": "Defense",
+    "Evasion": "Evasion",
+    "Speed": "Speed",
+    "Health": "Health",
+    "MaxHealth": "Max Health",
+    "Endurance": "Endurance",
+    "MaxEndurance": "Max Endurance",
+    "Armor": "Armor",
+    "Focus": "Focus",
+    "Level": "Level",
+    "Experience": "Experience"
   },
   "TYPES": {
     "Actor": {

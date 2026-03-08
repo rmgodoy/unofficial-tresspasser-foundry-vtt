@@ -27,7 +27,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     classes: ["trespasser", "dungeon-tracker"],
     position: { width: 360, height: "auto", top: 80 },
     window: {
-      title: "TRESPASSER.Dungeon.Tracker",
+      title: "TRESPASSER.Dungeon.Tracker.Title",
       resizable: true,
       minimizable: true
     },
@@ -353,7 +353,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
       content += `</tr>`;
     }
     content += `</table>`;
-    content += `<p><em>Roll each depletion die. On a 1-2, the light source is depleted.</em></p>`;
+    content += `<p><em>${game.i18n.localize("TRESPASSER.Dungeon.DepletionRollHint")}</em></p>`;
     content += `</div>`;
 
     await ChatMessage.create({
@@ -509,10 +509,10 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     const roundLog = [...(freshSystem.roundLog ?? [])];
     roundLog.push({
       round: newRound,
-      action: "New Round",
+      action: game.i18n.localize("TRESPASSER.Dungeon.NewRound"),
       detail: encounterResult.encountered
-        ? "Encounter resolved. " + game.i18n.format("TRESPASSER.Dungeon.Encounter.AlarmRise", { value: newAlarm })
-        : game.i18n.format("TRESPASSER.Dungeon.Encounter.AlarmRise", { value: newAlarm })
+        ? "Encounter resolved. " + game.i18n.format("TRESPASSER.Dungeon.AlarmValue", { value: newAlarm })
+        : game.i18n.format("TRESPASSER.Dungeon.AlarmValue", { value: newAlarm })
     });
 
     await this.dungeon.update({
@@ -525,7 +525,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     await ChatMessage.create({
       content: `<div class="trespasser-dungeon-round">
         <strong>${game.i18n.format("TRESPASSER.Dungeon.RoundEnd", { round: newRound })}</strong>
-        <div>Alarm: ${newAlarm}</div>
+        <div>${game.i18n.localize("TRESPASSER.Dungeon.Alarm")}: ${newAlarm}</div>
       </div>`,
       speaker: ChatMessage.getSpeaker({ alias: this.dungeon.name })
     });
@@ -575,7 +575,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
 
   /** @override */
   get title() {
-    return game.i18n.localize("TRESPASSER.Dungeon.Tracker");
+    return game.i18n.localize("TRESPASSER.Dungeon.Tracker.Title");
   }
 
   /** @override */
@@ -634,7 +634,7 @@ export function registerDungeonTrackerHooks() {
     if (tokenControls && typeof tokenControls.tools === "object" && !(tokenControls.tools instanceof Map)) {
       tokenControls.tools.dungeonTracker = {
         name: "dungeonTracker",
-        title: "TRESPASSER.Dungeon.Tracker",
+        title: "TRESPASSER.Dungeon.Tracker.Title",
         icon: "fas fa-dungeon",
         onChange: () => DungeonTracker.launch(),
         button: true

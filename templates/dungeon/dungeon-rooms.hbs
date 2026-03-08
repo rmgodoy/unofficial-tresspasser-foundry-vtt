@@ -26,10 +26,10 @@
         <div class="dungeon-room-info">
           <span class="dungeon-room-name">{{name}}</span>
           <span class="dungeon-room-meta">
-            {{#if connectionsCount}}<span class="room-badge" data-tooltip="Connections"><i class="fas fa-door-open"></i> {{connectionsCount}}</span>{{/if}}
-            {{#if featuresCount}}<span class="room-badge" data-tooltip="Features"><i class="fas fa-star"></i> {{featuresCount}}</span>{{/if}}
-            {{#if hasHazards}}<span class="room-badge hazard" data-tooltip="Hazards"><i class="fas fa-triangle-exclamation"></i></span>{{/if}}
-            {{#if hasLoot}}<span class="room-badge loot" data-tooltip="Loot"><i class="fas fa-gem"></i></span>{{/if}}
+            {{#if connectionsCount}}<span class="room-badge" data-tooltip="{{localize 'TRESPASSER.Dungeon.Room.Connections'}}"><i class="fas fa-door-open"></i> {{connectionsCount}}</span>{{/if}}
+            {{#if featuresCount}}<span class="room-badge" data-tooltip="{{localize 'TRESPASSER.Dungeon.Room.Features'}}"><i class="fas fa-star"></i> {{featuresCount}}</span>{{/if}}
+            {{#if hasHazards}}<span class="room-badge hazard" data-tooltip="{{localize 'TRESPASSER.Dungeon.Room.Hazards'}}"><i class="fas fa-triangle-exclamation"></i></span>{{/if}}
+            {{#if hasLoot}}<span class="room-badge loot" data-tooltip="{{localize 'TRESPASSER.Dungeon.Room.Loot'}}"><i class="fas fa-gem"></i></span>{{/if}}
           </span>
         </div>
         <div class="dungeon-room-controls">

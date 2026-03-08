@@ -1426,9 +1426,9 @@ select.dungeon-field-input option {
 ═══════════════════════════════════════════════════ */
 
 .room-sheet .room-section {
-  margin-top: 16px;
-  border-top: 1px solid var(--trp-gold-dim, #7a6c3c);
-  padding-top: 10px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--trp-gold-dim, #7a6c3c);
+  padding-bottom: 10px;
 }
 
 .room-sheet .room-section:first-of-type {

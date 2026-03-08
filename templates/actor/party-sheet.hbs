@@ -29,7 +29,7 @@
           <option value="{{key}}">{{label}}</option>
           {{/each}}
         </select>
-        <label class="group-check-dc-label">DC</label>
+        <label class="group-check-dc-label">{{localize "TRESPASSER.Dungeon.DC"}}</label>
         <input type="number" class="group-check-dc" value="{{defaultDC}}" min="1" />
         <button type="button" class="group-check-btn" data-action="rollGroupCheck">
           <i class="fas fa-dice-d20"></i> {{localize "TRESPASSER.Party.Roll"}}
@@ -52,7 +52,7 @@
         <div class="party-member-info">
           <div class="party-member-name-row">
             <a class="party-member-name" data-action="openMemberSheet" data-actor-id="{{_id}}">{{name}}</a>
-            <span class="party-member-level">Lvl {{level}}</span>
+            <span class="party-member-level">{{localize "TRESPASSER.Sheet.Header.Level"}} {{level}}</span>
             {{#if ../editable}}
             <a class="party-remove-member" data-action="removeMember" data-actor-id="{{_id}}" title="{{localize 'TRESPASSER.Party.RemoveMember'}}">
               <i class="fas fa-times"></i>

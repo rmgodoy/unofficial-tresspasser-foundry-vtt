@@ -52,14 +52,14 @@
         <div class="dungeon-section-header-row">
           <h3 class="dungeon-section-header">{{localize "TRESPASSER.Dungeon.RoundLog"}}</h3>
           {{#if editable}}
-          <a class="dungeon-btn-small" data-action="clearLog" data-tooltip="Clear Log"><i class="fas fa-eraser"></i></a>
+          <a class="dungeon-btn-small" data-action="clearLog" data-tooltip="{{localize 'TRESPASSER.General.Clear'}}"><i class="fas fa-eraser"></i></a>
           {{/if}}
         </div>
         <div class="dungeon-inner-block dungeon-turn-tracker-entries">
           {{#if roundLog.length}}
             {{#each roundLog}}
             <div class="dungeon-log-entry">
-              <span class="log-round">R{{round}}</span>
+              <span class="log-round">{{localize "TRESPASSER.Dungeon.RoundAbbr"}}{{round}}</span>
               <span class="log-action">{{action}}</span>
               <span class="log-detail">{{detail}}</span>
             </div>
@@ -102,18 +102,18 @@
           <div class="dungeon-section-header-row">
             {{#if editable}}
             {{#if encounterTableId}}
-            <a class="dungeon-btn-small encounter-corner-left" data-action="removeEncounterTable" data-tooltip="Remove Table"><i class="fas fa-xmark"></i></a>
+            <a class="dungeon-btn-small encounter-corner-left" data-action="removeEncounterTable" data-tooltip="{{localize 'TRESPASSER.Dungeon.RemoveTable'}}"><i class="fas fa-xmark"></i></a>
             {{/if}}
             {{/if}}
             <h3 class="dungeon-section-header">{{localize "TRESPASSER.Dungeon.EncounterTable"}}</h3>
             {{#if editable}}
-            <a class="dungeon-btn-small encounter-corner-right" data-action="createEncounterTable" data-tooltip="Create New Table"><i class="fas fa-plus"></i></a>
+            <a class="dungeon-btn-small encounter-corner-right" data-action="createEncounterTable" data-tooltip="{{localize 'TRESPASSER.Dungeon.CreateTable'}}"><i class="fas fa-plus"></i></a>
             {{/if}}
           </div>
           <div class="dungeon-inner-block">
             {{#if encounterTableId}}
               <div class="encounter-formula-bar">
-                <a class="encounter-formula-left encounter-roll-btn" data-action="rollEncounterTable" data-tooltip="Roll Table"><i class="fas fa-dice-d20"></i> {{encounterTableFormula}}</a>
+                <a class="encounter-formula-left encounter-roll-btn" data-action="rollEncounterTable" data-tooltip="{{localize 'TRESPASSER.Dungeon.RollTable'}}"><i class="fas fa-dice-d20"></i> {{encounterTableFormula}}</a>
                 <span class="encounter-table-name">{{encounterTableName}}</span>
               </div>
               {{#if encounterTableEntries.length}}
@@ -130,7 +130,7 @@
             {{else}}
               <div class="encounter-drop-zone">
                 <i class="fas fa-dice-d20"></i>
-                <span>Drag a Roll Table here</span>
+                <span>{{localize "TRESPASSER.Dungeon.EncounterTableHint"}}</span>
               </div>
             {{/if}}
           </div>

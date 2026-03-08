@@ -372,7 +372,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
       const sourceItem = await fromUuid(uuid);
       if (!sourceItem) {
-        ui.notifications.error("Original effect could not be found.");
+        ui.notifications.error(game.i18n.localize("TRESPASSER.Dialog.ItemNotFound"));
         return;
       }
 
@@ -380,7 +380,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
       const tokens = canvas.tokens.controlled;
       if (tokens.length === 0) {
-        ui.notifications.warn("Please select at least one token to apply the effect to.");
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
         return;
       }
 
@@ -393,7 +393,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         delete itemData._id;
 
         await foundry.documents.BaseItem.create(itemData, { parent: actor });
-        ui.notifications.info(`Applied ${sourceItem.name} to ${actor.name}.`);
+        ui.notifications.info(game.i18n.format("TRESPASSER.Chat.AppliedEffect", { name: sourceItem.name, target: actor.name }));
       }
     });
   });
@@ -411,7 +411,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       if (!targetActor) return;
 
       const effectData = {
-        name: `Help from ${sourceName}`,
+        name: game.i18n.format("TRESPASSER.Chat.HelpFrom", { name: sourceName }),
         type: "effect",
         img: "system/trespasser/assets/icons/effects.png",
         system: {
@@ -432,7 +432,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       };
 
       await targetActor.createEmbeddedDocuments("Item", [effectData]);
-      ui.notifications.info(`Applied Help to ${targetActor.name}.`);
+      ui.notifications.info(game.i18n.format("TRESPASSER.Chat.AppliedHelp", { name: targetActor.name }));
     });
   });
 
@@ -447,7 +447,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       let tokens = canvas.tokens.controlled;
       if (tokens.length === 0) tokens = Array.from(game.user.targets);
       if (tokens.length === 0) {
-        ui.notifications.warn("Select or target at least one token to apply damage to.");
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
         return;
       }
 
@@ -479,8 +479,8 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         }
 
         const msg = reduction !== 0
-          ? `${actor.name} took <strong>${finalDamage}</strong> damage (${rawDamage} − ${Math.abs(reduction)} reduction).`
-          : `${actor.name} took <strong>${finalDamage}</strong> damage.`;
+          ? game.i18n.format("TRESPASSER.Chat.TookDamageReduction", { name: actor.name, damage: finalDamage, raw: rawDamage, reduction: Math.abs(reduction) })
+          : game.i18n.format("TRESPASSER.Chat.TookDamage", { name: actor.name, damage: finalDamage });
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),
           content: `<div class="trespasser-chat-card"><p>${msg}</p></div>`
@@ -499,7 +499,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       let tokens = canvas.tokens.controlled;
       if (tokens.length === 0) tokens = Array.from(game.user.targets);
       if (tokens.length === 0) {
-        ui.notifications.warn("Select or target at least one token to heal.");
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
         return;
       }
 
@@ -512,7 +512,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),
-          content: `<div class="trespasser-chat-card"><p>${actor.name} was healed for <strong>${healAmount}</strong> HP.</p></div>`
+          content: `<div class="trespasser-chat-card"><p>${game.i18n.format("TRESPASSER.Chat.HealedAmount", { name: actor.name, amount: healAmount })}</p></div>`
         });
       }
     });
@@ -865,7 +865,7 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
         iconPath = "systems/trespasser/assets/icons/pesant.png";
         break;
       case "room":
-        iconPath = "icons/svg/door-closed-outline.svg";
+        iconPath = "systems/trespasser/assets/icons/room.png";
         break;
       case "item":
         const subType = item.system.subType;

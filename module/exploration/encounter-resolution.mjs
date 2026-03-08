@@ -28,11 +28,11 @@ export async function resolveEndOfRound(dungeon) {
 
   // Build the encounter check chat card
   let checkContent = `<div class="trespasser-encounter-check">`;
-  checkContent += `<strong>Encounter Check</strong>`;
+  checkContent += `<strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Check")}</strong>`;
   checkContent += `<div class="encounter-roll-result">`;
   checkContent += `<span class="encounter-die">d10: ${encounterRoll.total}</span>`;
   checkContent += ` vs `;
-  checkContent += `<span class="encounter-alarm">Alarm: ${alarm}</span>`;
+  checkContent += `<span class="encounter-alarm">${game.i18n.localize("TRESPASSER.Dungeon.Alarm")}: ${alarm}</span>`;
   checkContent += `</div>`;
 
   if (encountered) {
@@ -56,7 +56,7 @@ export async function resolveEndOfRound(dungeon) {
   // --- Encounter triggered! ---
 
   // 1. Draw from linked RollTable
-  let encounterDescription = "Random encounter!";
+  let encounterDescription = game.i18n.localize("TRESPASSER.Dungeon.Encounter.RandomDesc");
   const tableId = system.encounterTableId;
   if (tableId) {
     const table = game.tables.get(tableId);
@@ -88,12 +88,12 @@ export async function resolveEndOfRound(dungeon) {
 
   let encounterContent = `<div class="trespasser-encounter-card">`;
   encounterContent += `<h3>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Title")}</h3>`;
-  encounterContent += `<div class="encounter-description"><strong>Encounter:</strong> ${encounterDescription}</div>`;
+  encounterContent += `<div class="encounter-description"><strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Label")}:</strong> ${encounterDescription}</div>`;
   encounterContent += `<div class="encounter-reaction"><strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Reaction")}:</strong> ${reactionLabel} (2d6: ${reactionTotal})</div>`;
-  encounterContent += `<div class="encounter-surprise"><strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Surprise")}:</strong> Group AGILITY | STEALTH vs DC ${dc}</div>`;
+  encounterContent += `<div class="encounter-surprise"><strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Surprise")}:</strong> ${game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", {skill: "AGILITY | STEALTH"})} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</div>`;
 
   // Distance suggestion
-  encounterContent += `<div class="encounter-distance"><strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Distance")}:</strong> Roll 2d6 squares (cramped) or 3d6 squares (open)</div>`;
+  encounterContent += `<div class="encounter-distance"><strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Distance")}:</strong> ${game.i18n.localize("TRESPASSER.Dungeon.Encounter.DistanceRollHint")}</div>`;
 
   // Available approaches
   encounterContent += `<div class="encounter-approaches">`;
