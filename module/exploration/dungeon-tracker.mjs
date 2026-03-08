@@ -100,16 +100,20 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
    * @returns {Actor[]}
    */
   _getAvailableDungeons() {
+    // Collect all actors of type 'dungeon' from the world
+    const worldDungeons = game.actors.filter(a => a.type === "dungeon");
+    
+    // Also collect 'dungeon' actors that might exist only as tokens on the current scene (unlinked)
+    const sceneDungeons = [];
     const scene = canvas?.scene;
     if (scene) {
-      const dungeonTokens = scene.tokens
-        .filter(td => td.actor?.type === "dungeon")
-        .map(td => td.actor);
-      const unique = [...new Map(dungeonTokens.map(a => [a.id, a])).values()];
-      if (unique.length > 0) return unique;
+      const dungeonTokens = scene.tokens.filter(td => td.actor?.type === "dungeon" && !td.actorLink);
+      sceneDungeons.push(...dungeonTokens.map(td => td.actor));
     }
-    // Fallback: all dungeon actors in the world
-    return game.actors.filter(a => a.type === "dungeon");
+
+    // Combine and unique by ID
+    const all = [...worldDungeons, ...sceneDungeons];
+    return [...new Map(all.map(a => [a.id, a])).values()];
   }
 
   /* -------------------------------------------- */
@@ -595,6 +599,20 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
       this._deleteItemHookId = Hooks.on("deleteItem", (item) => {
         if (this.dungeon && item.parent?.id === this.dungeon.id) this.render();
       });
+      this._createActorHookId = Hooks.on("createActor", (actor) => {
+        if (actor.type === "dungeon") {
+          this.render({ force: true });
+        }
+      });
+      this._deleteActorHookId = Hooks.on("deleteActor", (actor) => {
+        if (actor.type === "dungeon") {
+          if (this.dungeon?.id === actor.id) {
+            this.dungeon = null;
+            this.sessionState = "idle";
+          }
+          this.render({ force: true });
+        }
+      });
     }
   }
 
@@ -615,6 +633,14 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     if (this._deleteItemHookId) {
       Hooks.off("deleteItem", this._deleteItemHookId);
       this._deleteItemHookId = null;
+    }
+    if (this._createActorHookId) {
+      Hooks.off("createActor", this._createActorHookId);
+      this._createActorHookId = null;
+    }
+    if (this._deleteActorHookId) {
+      Hooks.off("deleteActor", this._deleteActorHookId);
+      this._deleteActorHookId = null;
     }
     DungeonTracker._instance = null;
     return super.close(options);
