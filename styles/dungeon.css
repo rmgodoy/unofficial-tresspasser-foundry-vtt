@@ -1830,3 +1830,22 @@ select.dungeon-field-input option {
 .room-sheet .room-add-detail-trap:hover {
   opacity: 1;
 }
+
+/* ========================================================================== */
+/* 1. Dungeon Tracker Button (Main Toolbar)                                   */
+/* ========================================================================== */
+
+button[data-tool="dungeonTracker"] {
+  font-family: var(--font-awesome);
+    font-size: var(--font-size-16);
+    background: var(--color-cool-5-75);
+    color: var(--color-light-1);
+    border: 1px solid var(--color-cool-4);
+}
+
+/* Style the button when it is hovered */
+button[data-tool="dungeonTracker"]:hover {
+    background: var(--color-cool-5);
+    border-color: var(--color-cool-4);
+    color: var(--color-light-1);
+}

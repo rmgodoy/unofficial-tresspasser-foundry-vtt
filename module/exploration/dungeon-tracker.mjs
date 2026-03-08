@@ -629,16 +629,29 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
  * Register the dungeon tracker scene control button and hooks.
  */
 export function registerDungeonTrackerHooks() {
-  Hooks.on("getSceneControlButtons", (controls) => {
-    const tokenControls = controls.tokens ?? controls.token;
-    if (tokenControls && typeof tokenControls.tools === "object" && !(tokenControls.tools instanceof Map)) {
-      tokenControls.tools.dungeonTracker = {
-        name: "dungeonTracker",
-        title: "TRESPASSER.Dungeon.Tracker.Title",
-        icon: "fas fa-dungeon",
-        onChange: () => DungeonTracker.launch(),
-        button: true
-      };
-    }
+  Hooks.on("renderSceneControls", (controls, html) => {
+    // In Foundry V13, html is a native HTMLElement.
+    if (html.querySelector(".dungeon-tracker-control")) return;
+
+    const layers = html.querySelector("#scene-controls-layers");
+    if (!layers) return;
+
+    const li = document.createElement("li");
+    li.classList.add("control", "dungeon-tracker-control");
+    li.innerHTML = `
+      <button type="button" class="control ui-control tool icon button fas fa-dungeon" 
+        data-action="tool" data-tool="dungeonTracker" 
+        aria-label="Dungeon Tracker" 
+        aria-pressed="false" data-tooltip="">
+      </button>
+    `;
+
+    li.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      DungeonTracker.launch();
+    });
+
+    layers.appendChild(li);
   });
 }
