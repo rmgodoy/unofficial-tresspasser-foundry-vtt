@@ -7,7 +7,7 @@
               {{#each (lookup ../deedsGrouped tier)}}
               <div class="deed-slot" data-item-id="{{this.id}}">
                 <div class="deed-slot-header">
-                  <span class="deed-slot-title deed-rollable rollable" title="{{localize 'TRESPASSER.Sheet.Combat.UseDeed'}}">{{this.name}}{{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}</span>
+                  <span class="deed-slot-title deed-rollable rollable" data-action="deedRoll" title="{{localize 'TRESPASSER.Sheet.Combat.UseDeed'}}">{{this.name}}{{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}</span>
                   <div style="display: flex; gap: 6px; align-items: center;">
                     {{#if this.showCost}}
                       <span class="deed-slot-skill">{{this.displayCost}}</span>
@@ -33,8 +33,8 @@
                 </div>
                 
                 <div class="deed-slot-controls">
-                  <a class="item-edit" title="{{localize 'TRESPASSER.Sheet.Equipments.Edit'}}"><i class="fas fa-edit"></i></a>
-                  <a class="item-delete" title="{{localize 'TRESPASSER.Sheet.Equipments.Delete'}}"><i class="fas fa-trash"></i></a>
+                  <a data-action="itemEdit" title="{{localize 'TRESPASSER.Sheet.Equipments.Edit'}}"><i class="fas fa-edit"></i></a>
+                  <a data-action="itemDelete" title="{{localize 'TRESPASSER.Sheet.Equipments.Delete'}}"><i class="fas fa-trash"></i></a>
                 </div>
 
               </div>

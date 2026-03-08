@@ -33,7 +33,7 @@
     },
     "ActorTypes": {
       "character": "Character",
-      "creature": "Creature",
+      "npc": "NPC",
       "dungeon": "Dungeon",
       "party": "Party"
     },
@@ -1169,7 +1169,7 @@
   "TYPES": {
     "Actor": {
       "character": "Character",
-      "creature": "Creature",
+      "npc": "NPC",
       "dungeon": "Dungeon",
       "party": "Party"
     },

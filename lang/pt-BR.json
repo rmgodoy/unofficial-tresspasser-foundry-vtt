@@ -33,7 +33,7 @@
     },
     "ActorTypes": {
       "character": "Personagem",
-      "creature": "Criatura"
+      "npc": "NPC"
     },
     "ItemTypes": {
       "weapon": "Arma",
@@ -1134,7 +1134,7 @@
   "TYPES": {
     "Actor": {
       "character": "Personagem",
-      "creature": "Criatura",
+      "npc": "NPC",
       "dungeon": "Masmorra",
       "party": "Grupo"
     },

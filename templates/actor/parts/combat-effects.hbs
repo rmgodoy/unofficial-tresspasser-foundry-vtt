@@ -2,7 +2,7 @@
       <div class="states-section">
         <h3 class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
           {{localize "TRESPASSER.Sheet.Combat.States"}} / {{localize "TRESPASSER.Sheet.Combat.CombatEffects"}}
-          <a class="item-create button" data-type="effect">+ {{localize "TRESPASSER.Sheet.Character.AddItem"}}</a>
+          <a class="button" data-action="itemCreate" data-type="effect">+ {{localize "TRESPASSER.Sheet.Character.AddItem"}}</a>
         </h3>
         <div class="combat-effects-list">
           {{#each activeEffects.combat}}
@@ -11,11 +11,11 @@
             <div class="effect-name">
               {{this.name}}
               {{#if (eq this.type "continuous")}} <span style="font-size: 9px; opacity: 0.7;">({{localize "TRESPASSER.Sheet.Effects.EffectTypes.Continuous"}})</span>{{/if}}
-              <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
-              <a class="effect-edit" title="{{localize 'TRESPASSER.General.Edit'}}"><i class="fas fa-edit"></i></a>
+              <a data-action="effectInfo" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
+              <a data-action="effectEdit" title="{{localize 'TRESPASSER.General.Edit'}}"><i class="fas fa-edit"></i></a>
               {{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
             </div>
-            
+
             {{#if (and this.durationSummary (ne this.type "continuous"))}}
               <div class="effect-duration-control" style="font-size: 10px; color: var(--trp-text-dim); display:flex; align-items:center; gap:4px;">
                 <i class="fas fa-clock" style="opacity:0.6;"></i>
@@ -26,7 +26,7 @@
             {{#unless this.isOnlyReminder}}
             <div class="effect-mod">{{this.target}}: {{this.modifier}}</div>
             {{/unless}}
-            
+
             <div class="effect-intensity-control">
               <label>{{localize "TRESPASSER.Item.int"}}</label>
               <input type="number" class="effect-intensity-input" value="{{this.intensity}}" />
@@ -34,12 +34,12 @@
 
             {{#if this.isPrevailable}}
             {{#unless this.fromInjury}}
-            <button type="button" class="effect-prevail prevail-btn">
+            <button type="button" class="prevail-btn" data-action="prevailRoll">
               <i class="fas fa-dice"></i> {{localize "TRESPASSER.Sheet.Combat.Prevail"}}
             </button>
             {{/unless}}
             {{/if}}
-            <a class="effect-remove" title="{{localize 'TRESPASSER.Item.RemoveEffect'}}"><i class="fas fa-trash"></i></a>
+            <a data-action="effectRemove" title="{{localize 'TRESPASSER.Item.RemoveEffect'}}"><i class="fas fa-trash"></i></a>
           </div>
           {{/unless}}
           {{else}}
