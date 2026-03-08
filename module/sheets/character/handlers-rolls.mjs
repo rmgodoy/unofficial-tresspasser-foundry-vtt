@@ -9,27 +9,32 @@ export async function onAttributeRoll(event, sheet) {
   event.preventDefault();
   const attrKey = event.currentTarget.dataset.attribute;
   const attrVal = sheet.actor.system.attributes[attrKey] ?? 0;
-  const bonus   = sheet.actor.system.bonuses[attrKey] ?? 0;
+  const effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, attrKey, "use");
   const label   = game.i18n.localize(`TRESPASSER.Sheet.Attributes.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
 
   const isAdv = TrespasserEffectsHelper.hasAdvantage(sheet.actor, attrKey);
   let formula = isAdv ? `2d20kh + ${attrVal}` : `1d20 + ${attrVal}`;
-  if (bonus !== 0) formula += ` + ${bonus}`;
+  if (effectBonus !== 0) formula += ` + ${effectBonus}`;
 
   const roll   = new foundry.dice.Roll(formula);
   const flavor = isAdv
     ? game.i18n.format("TRESPASSER.Chat.SkillCheckAdv", { name: sheet.actor.name, skill: label })
     : game.i18n.format("TRESPASSER.Chat.SkillCheck", { name: sheet.actor.name, skill: label });
-  await sheet._requestCDAndRoll(roll, flavor);
+  
+  const result = await sheet._requestCDAndRoll(roll, flavor);
+  if (result) await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: attrKey });
 }
 
 export async function onCombatStatRoll(event, sheet) {
   event.preventDefault();
   const statKey = event.currentTarget.dataset.stat;
   const statVal = sheet.actor.system.combat[statKey] ?? 0;
+  const effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, statKey, "use");
   const label   = statKey.charAt(0).toUpperCase() + statKey.slice(1);
   const isAdv   = TrespasserEffectsHelper.hasAdvantage(sheet.actor, statKey);
-  const formula = isAdv ? `2d20kh + ${statVal}` : `1d20 + ${statVal}`;
+  
+  let formula = isAdv ? `2d20kh + ${statVal}` : `1d20 + ${statVal}`;
+  if (effectBonus !== 0) formula += ` + ${effectBonus}`;
 
   const roll   = new foundry.dice.Roll(formula);
   const flavor = isAdv
@@ -38,10 +43,15 @@ export async function onCombatStatRoll(event, sheet) {
 
   if (statKey === "resist" || statKey === "guard") {
     const targetCD = sheet._getAccuracyFromTarget();
-    if (targetCD !== null) return sheet._evaluateAndShowRoll(roll, flavor, targetCD);
+    if (targetCD !== null) {
+      const result = await sheet._evaluateAndShowRoll(roll, flavor, targetCD);
+      if (result) await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: statKey });
+      return;
+    }
   }
 
-  await sheet._requestCDAndRoll(roll, flavor);
+  const result = await sheet._requestCDAndRoll(roll, flavor);
+  if (result) await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: statKey });
 }
 
 export async function onSkillRoll(skillKey, isTrained, sheet) {
@@ -56,7 +66,8 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
   const formatAttrBtn = (key, lbl) => {
     const base  = attr[key]    ?? 0;
     const bon   = bonuses[key] ?? 0;
-    const total = base + bon;
+    const eff   = TrespasserEffectsHelper.getAttributeBonus(actor, key, "use");
+    const total = base + bon + eff;
     return `<button class="trp-attr-btn" data-attr="${key}">${lbl} (${total})</button>`;
   };
 
@@ -83,17 +94,22 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
           const chosenAttr = ev.currentTarget.dataset.attr;
           const attrVal    = attr[chosenAttr]    ?? 0;
           const attrBonus  = bonuses[chosenAttr] ?? 0;
+          const effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, chosenAttr, "use");
           const isAdv      = TrespasserEffectsHelper.hasAdvantage(actor, chosenAttr);
 
           let formula = isAdv ? `2d20kh + ${attrVal}` : `1d20 + ${attrVal}`;
           if (attrBonus  !== 0) formula += ` + ${attrBonus}`;
+          if (effectBonus !== 0) formula += ` + ${effectBonus}`;
           if (skillBonus  > 0)  formula += ` + ${skillBonus}`;
 
           const roll = new foundry.dice.Roll(formula);
           const flavorFull = isAdv
             ? game.i18n.format("TRESPASSER.Chat.SkillCheckAdv", { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`
             : game.i18n.format("TRESPASSER.Chat.SkillCheck",    { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`;
-          await sheet._requestCDAndRoll(roll, flavorFull);
+          
+          const result = await sheet._requestCDAndRoll(roll, flavorFull);
+          if (result) await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: chosenAttr });
+          
           html.closest(".app").find(".header-button.close").trigger("click");
           resolve(roll);
         });

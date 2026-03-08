@@ -1,18 +1,23 @@
 <form class="{{cssClass}} trespasser-sheet item deed" autocomplete="off">
-  <header class="sheet-header">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
-    <div class="header-info">
-      <div class="name-group">
-        <h1 class="item-title">{{item.name}}</h1>
-      </div>
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    </div>
+
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.deed'}}"/>
+      </h1>
     </div>
   </header>
 
   <section class="sheet-body scrollable">
     <div class="details-grid">
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Equipments.Name"}}</label>
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.deed'}}" />
+      <div class="field-row full-width">
+        <label>{{localize "TRESPASSER.Item.Description"}}</label>
+        <div class="trp-editor-container">
+          {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+        </div>
       </div>
 
       <div class="field-row">
@@ -93,7 +98,7 @@
             </div>
             <div class="applied-effects-list" data-phase="start" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
                 {{#each system.effects.start.appliedEffects as |effect index|}}
-                  {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+                  {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete" editable=true editableIntensity=true}}
                 {{else}}
                   <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
                 {{/each}}
@@ -119,7 +124,7 @@
             </div>
             <div class="applied-effects-list" data-phase="before" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
               {{#each system.effects.before.appliedEffects as |effect index|}}
-                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete" editable=true editableIntensity=true}}
               {{else}}
                 <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
               {{/each}}
@@ -145,7 +150,7 @@
             </div>
             <div class="applied-effects-list" data-phase="base" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
               {{#each system.effects.base.appliedEffects as |effect index|}}
-                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete" editable=true editableIntensity=true}}
               {{else}}
                 <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
               {{/each}}
@@ -171,7 +176,7 @@
             </div>
             <div class="applied-effects-list" data-phase="hit" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
               {{#each system.effects.hit.appliedEffects as |effect index|}}
-                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete" editable=true editableIntensity=true}}
               {{else}}
                 <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
               {{/each}}
@@ -197,7 +202,7 @@
             </div>
             <div class="applied-effects-list" data-phase="spark" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
               {{#each system.effects.spark.appliedEffects as |effect index|}}
-                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete" editable=true editableIntensity=true}}
               {{else}}
                 <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
               {{/each}}
@@ -223,7 +228,7 @@
             </div>
             <div class="applied-effects-list" data-phase="after" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
               {{#each system.effects.after.appliedEffects as |effect index|}}
-                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete" editable=true editableIntensity=true}}
               {{else}}
                 <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
               {{/each}}
@@ -249,7 +254,7 @@
             </div>
             <div class="applied-effects-list" data-phase="end" style="flex: 2; border: 1px dashed #444; min-height: 24px; padding: 2px; display: flex; flex-wrap: wrap; align-items: start;">
               {{#each system.effects.end.appliedEffects as |effect index|}}
-                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete"}}
+                {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass="effect-delete" editable=true editableIntensity=true}}
               {{else}}
                 <span style="color: #777; font-size: 11px; padding: 4px; pointer-events: none;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
               {{/each}}

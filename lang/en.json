@@ -5,7 +5,29 @@
       "Save": "Save",
       "Edit": "Edit",
       "Ok": "Ok",
-      "Cancel": "Cancel"
+      "Cancel": "Cancel",
+      "Clear": "Clear",
+      "Delete": "Delete",
+      "Close": "Close",
+      "Confirm": "Confirm",
+      "Unknown": "Unknown",
+      "None": "None",
+      "Active": "Active",
+      "Disabled": "Disabled"
+    },
+    "Config": {
+      "Title": "Trespasser Configuration",
+      "ShowInitiativeInChat": "Show initiative roll in chat",
+      "ShowInitiativeInChatHint": "If enabled, initiative rolls will be posted to the chat log.",
+      "RestrictMovementAction": "Restrict Movement Action",
+      "RestrictMovementActionHint": "If enabled, movement is only allowed after taking a Move or Vault action. If disabled, tokens can move freely.",
+      "RestrictHUDActions": "Restrict Actions per Turn",
+      "RestrictHUDActionsHint": "If enabled, HUD actions (Defend, Help, etc.) can only be used once per turn unless otherwise specified.",
+      "RestrictAPFocusUsage": "Restrict AP and Focus action usage",
+      "RestrictAPFocusUsageHint": "If enabled, the system enforces AP and Focus costs. If disabled, actions can be used without sufficient points.",
+      "Save": "Save",
+      "Cancel": "Cancel",
+      "SavedNotice": "Trespasser Configuration saved."
     },
     "ActorTypes": {
       "character": "Character",
@@ -22,7 +44,6 @@
       "feature": "Feature",
       "talent": "Talent",
       "effect": "Effect",
-      "state": "State",
       "incantation": "Incantation",
       "item": "Item",
       "injury": "Injury",
@@ -76,8 +97,8 @@
         "CurrentHealth": "Current Health",
         "MaxHealth": "Max Health",
         "EffectTypes": {
-          "Active": "Active",
-          "Passive": "Passive"
+          "OnTrigger": "On Trigger",
+          "Continuous": "Continuous"
         }
       },
       "Header": {
@@ -323,7 +344,12 @@
       "NotEnoughFocus": "Not enough Focus to use {name}. (Needs {cost}, has {current})",
       "NotEnoughEndurance": "Not enough Endurance to use {name}. (Needs {cost}, has {current})",
       "NoAmmo": "You have no ammo available!",
-      "AmmoConsumed": "Consumed {name} for the attack."
+      "AmmoConsumed": "Consumed {name} for the attack.",
+      "NoAP": "You don't have enough Action Points!",
+      "MoveActionRequired": "You must take the Move action (spend AP) before moving your token.",
+      "MovementLimitExceeded": "You have exceeded your movement limit for this turn.",
+      "NotYourPhase": "It is not this token's phase!",
+      "VaultStraightLine": "Vault must be in a straight line (orthogonal or diagonal)."
     },
     "Chat": {
       "SkillCheck": "{name} — {skill} Check",
@@ -339,6 +365,8 @@
       "EffectTriggeredAdded": "<strong>{name}</strong> triggered: Added {target} effect.",
       "PrevailSuccess": "Prevails against <b>{name}</b> (Roll: {roll} vs {target}) — <b>Success!</b>",
       "PrevailFailed": "Failed to prevail against <b>{name}</b> (Roll: {roll} vs {target}) — <b>Failed</b>",
+      "PrevailCheck": "Prevail Check: {name}",
+      "PrevailVsDC": "Roll Total: {total} vs DC {dc}",
       "Hit": "HIT!",
       "Miss": "MISS!",
       "Sparks": "Sparks: {count}",
@@ -351,6 +379,7 @@
       "Trained": " (trained)",
       "UsedItem": "Used {name}",
       "Apply": "Apply",
+      "Applied": "Applied",
       "GrantsDeeds": "Grants Deeds:",
       "GrantsIncantations": "Grants Incantations:",
       "DestroyedConsumed": "{name} has been destroyed/consumed.",
@@ -358,7 +387,32 @@
       "Failure": "FAILURE",
       "ResultVs": "Result: {total} vs {target} — {status}",
       "AccuracyVs": "{item} vs {target}",
-      "AccVsDef": "Accuracy: {accuracy} vs Defense Roll: {total}"
+      "AccVsDef": "Accuracy: {accuracy} vs Defense Roll: {total}",
+      "DefenseRoll": "Defense Roll",
+      "CreatureAccuracy": "Creature Accuracy",
+      "AccuracyFromAP": "Accuracy from Extra Effort",
+      "Defense": "Defense",
+      "Rolls": "rolls",
+      "TakeAimMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. (Range: +{bonus} sq).",
+      "InteractMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. {bonusText}",
+      "ManeuverMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. {focusText} (Bonus: +{bonus})",
+      "SmashMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. Can break: {material}.",
+      "RummageMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP to manage their inventory.",
+      "ThrowMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. Throwing range: {range} sq.",
+      "WaitMessage": "<strong>{name}</strong> uses <strong>Wait</strong>. Turn moves to the Late Phase with {ap} AP and {move} movement points reserved.",
+      "VaultMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for 1 AP. (Jump Range: {range} sq).",
+      "DeedSurcharge": "spent {count} Focus to use a Deed after a Maneuver.",
+      "RollMessage": "<strong>{name}</strong> rolls <strong>{action}</strong>: {formula} = {total}",
+      "AttackMessage": "<strong>{name}</strong> attacks with <strong>{action}</strong>: {formula} = {total}. Base Damage: {damage}",
+      "DamageMessage": "<strong>{name}</strong> deals <strong>{damage}</strong> damage.",
+      "HealMessage": "<strong>{name}</strong> heals <strong>{amount}</strong> HP.",
+      "EffectMessage": "<strong>{name}</strong> applies <strong>{effect}</strong> to <strong>{target}</strong>.",
+      "AppliedEffect": "Applied {name} to {target}.",
+      "HelpFrom": "Help from {name}",
+      "AppliedHelp": "Applied Help to {name}.",
+      "TookDamage": "{name} took <strong>{damage}</strong> damage.",
+      "TookDamageReduction": "{name} took <strong>{damage}</strong> damage ({raw} − {reduction} reduction).",
+      "HealedAmount": "{name} was healed for <strong>{amount}</strong> HP."
     },
     "Trigger": {
       "EffectEvaluation": "Effect Evaluation",
@@ -372,13 +426,16 @@
       "APGained": "Gained {value} Action Points.",
       "APLost": "Lost {value} Action Points.",
       "PhaseChanged": "Combat Phase changed to {phase}.",
-      "ModifierGenerated": "Generated {value} modifier to {target}."
+      "ModifierGenerated": "Generated {value} modifier to {target}.",
+      "Prevalence": "Prevalence",
+      "Expiry": "Expiry"
     },
     "TriggerLabels": {
       "StartOfRound": "Start of Round",
       "StartOfTurn": "Start of Turn",
       "EndOfTurn": "End of Turn",
       "EndOfRound": "End of Round",
+      "OnFirstMove": "On First Move",
       "OnMove": "On Move",
       "Use": "Use",
       "Targeted": "Targeted",
@@ -393,15 +450,22 @@
       "OnDeedHit": "On Deed Hit",
       "OnDeedMiss": "On Deed Miss",
       "StartOfCombat": "Start of Combat",
-      "EndOfCombat": "End of Combat"
+      "EndOfCombat": "End of Combat",
+      "Continuous": "Continuous"
     },
     "DurationLabels": {
       "Indefinite": "Indefinite",
       "Combat": "Whole Combat",
-      "Rounds": "Rounds",
-      "Triggers": "Triggers"
+      "Round": "Round",
+      "Trigger": "Trigger",
+      "OR": "OR",
+      "AND": "AND",
+      "Operator": "Operator",
+      "AddCondition": "Add Condition",
+      "RemoveCondition": "Remove Condition"
     },
     "Item": {
+      "ResourceType": "Resource Type",
       "Damage": "Damage",
       "Equippable": "Equippable",
       "WeaponDie": "Weapon Die",
@@ -425,6 +489,7 @@
       "modifier": "Modifier",
       "isOnlyReminder": "Is Reminder Only?",
       "gmOnly": "GM Only?",
+      "IsPrevailable": "Is Prevailable?",
       "triggerWhen": "Trigger (When)",
       "Trigger": "Trigger",
       "duration": "Duration",
@@ -481,8 +546,9 @@
       "RollExpressionPlaceholder": "1d20 + <sd>",
       "WeaponEffects": "Weapon Effects",
       "EnhancementEffects": "Enhancement Effects",
-      "LinkedEffects": "Linked Effects / States",
-      "CounterEffects": "Counter Effects / States",
+      "OilEffects": "Oil Effects",
+      "LinkedEffects": "Linked Effects",
+      "CounterEffects": "Counter Effects",
       "CounterEffectsNote": "Dragging an effect here will make it a counter to this one, subtracting intensities when applied.",
       "DamageDealt": "Damage Dealt",
       "DamageReceived": "Damage Received",
@@ -627,10 +693,10 @@
       "Tabs": {
         "Attributes": "Attributes",
         "Skills": "Skills",
-        "Inventory": "Inventory"
+        "Inventory": "Possessions"
       },
-      "DropHint": "Drop Items, Weapons, or Armor here to add them to this Past Life's inventory template.",
-      "InvalidItemType": "Only Item, Weapon, or Armor types can be added to a Past Life inventory.",
+      "DropHint": "Drop Items, Weapons, or Armor here to add them to this Past Life's possessions template.",
+      "InvalidItemType": "Only Item, Weapon, or Armor types can be added to a Past Life possessions.",
       "Applied": "Past Life '{name}' applied to {actor}."
     },
     "Dialog": {
@@ -650,7 +716,7 @@
         "Title": "Effect Editor",
         "Type": "Type",
         "Active": "Active",
-        "Passive": "Passive",
+        "Continuous": "Continuous",
         "IsCombat": "Is Combat?",
         "Intensity": "Intensity",
         "TargetAttr": "Target Attribute",
@@ -671,13 +737,37 @@
         "SelectTitle": "Select Ammo",
         "ChooseRef": "Choose an ammo to use with <b>{name}</b>:",
         "Use": "Use Ammo"
-      }
+      },
+      "SpendAP": {
+        "Title": "Spend Action Points",
+        "Question": "How many Action Points do you want to spend on this deed?",
+        "Available": "Available: {count} AP",
+        "Confirm": "Roll Deed",
+        "Bonus": "Accuracy Bonus: +{bonus}",
+        "DefaultOption": "1 AP (No Bonus)",
+        "AdditionalOption": "{count} AP (+{bonus} Accuracy)"
+      },
+      "ApplyOil": {
+        "Title": "Apply Oil",
+        "ChooseRef": "Choose a weapon to apply <strong>{name}</strong> to:",
+        "Weapon": "Weapon",
+        "Apply": "Apply",
+        "Applied": "{oil} applied to {weapon}."
+      },
+      "Concoction": {
+        "Title": "Use Concoction",
+        "Instruction": "Select a concoction to use:",
+        "Use": "Use Item"
+      },
+      "Attribute": "Attribute",
+      "Difficulty": "Difficulty",
+      "Roll": "Roll"
     },
     "Phase": {
       "Early": "Early Phase",
       "Enemy": "Enemy Phase",
       "Late": "Late Phase",
-      "Critical": "Critical Phase",
+      "Extra": "Extra Phase",
       "End": "End of Turn Phase",
       "Next": "Next Phase",
       "NextPhase": "Next Phase"
@@ -685,6 +775,48 @@
     "Peril": "Peril",
     "Panic": "Panic",
     "InitDC": "Init DC",
+    "HUD": {
+      "Title": "Token Actions",
+      "Defend": "Defend",
+      "Help": "Help",
+      "AttemptDeed": "Attempt Deed",
+      "Move": "Move",
+      "UndoMove": "Undo Move",
+      "MovementUsed": "Movement Used",
+      "SelectAlly": "Select Ally",
+      "Attribute": "Attribute",
+      "APCost": "AP Cost",
+      "ExtraAP": "AP to spend",
+      "Confirm": "Confirm",
+      "NextCheck": "Next Check",
+      "WholeRound": "Whole Round",
+      "UseConcoction": "Use Concoction",
+      "TakeAim": "Take Aim",
+      "TakeAimOption": "{cost} AP (+{bonus} sq)",
+      "SpeedValue": "{value} sq",
+      "Squares": "sq",
+      "Interact": "Interact",
+      "InteractOption": "{cost} AP (+{bonus} Check)",
+      "WithBonus": "(Bonus: +{bonus})",
+      "Maneuver": "Maneuver",
+      "ManeuverOption": "{cost} AP (+{bonus} Acc)",
+      "FocusCost": "{count} Focus",
+      "SpentFocusMsg": "and spent {count} Focus",
+      "Smash": "Smash",
+      "SmashOption": "{cost} AP (+{bonus} Might)",
+      "SmashMaterial1": "plant matter, ceramic",
+      "SmashMaterial2": "wood",
+      "SmashMaterial3": "fragile or cracked stone",
+      "SmashMaterial4": "solid stone",
+      "SmashMaterial5": "weak metal",
+      "Rummage": "Rummage",
+      "Throw": "Throw",
+      "ThrowOption": "{cost} AP ({range} sq)",
+      "Vault": "Vault",
+      "VaultTip": "Jump in a straight line (orthogonal or diagonal). AP Cost: 1.",
+      "Wait": "Wait",
+      "WaitTip": "Move your turn to the Late Phase, carrying over AP and Movement. Only available in Early Phase."
+    },
     "Cancel": "Cancel",
     "ItemName": "Item Name",
     "NewItem": "New {type}",
@@ -700,15 +832,15 @@
       "NoMembers": "No members yet. Drag character actors here or use the picker below.",
       "AddMember": "Add Member",
       "RemoveMember": "Remove from Party",
-      "SelectCharacter": "\u2014 Select a character \u2014",
+      "SelectCharacter": "— Select a character —",
       "DropHint": "Drag a character actor here to add them to the party",
       "DropCharactersOnly": "Only character actors can be added to the party.",
       "AlreadyMember": "{name} is already in the party.",
       "MemberAdded": "{name} joined the party.",
       "Notes": "Notes",
       "GroupCheck": "Group Check",
-      "Attribute": "\u2014 Attribute \u2014",
-      "NoSkill": "\u2014 No Skill \u2014",
+      "Attribute": "— Attribute —",
+      "NoSkill": "— No Skill —",
       "Roll": "Roll",
       "SelectAttribute": "Select an attribute for the group check.",
       "Resource": {
@@ -720,10 +852,14 @@
         "Rations": "Rations",
         "Injuries": "Injuries",
         "Light": "Light Sources"
-      }
+      },
+      "Label": "Party"
     },
     "Dungeon": {
-      "Tracker": "Dungeon Tracker",
+      "Tracker": {
+        "Title": "Dungeon Tracker",
+        "SelectDungeon": "Select Dungeon"
+      },
       "Name": "Dungeon Name",
       "NamePlaceholder": "The Forsaken Depths",
       "Location": "Location",
@@ -852,7 +988,18 @@
         "Reaction": "Reaction",
         "Surprise": "Surprise Check",
         "Approach": "Choose Approach",
-        "Distance": "Distance"
+        "Distance": "Distance",
+        "Check": "Encounter Check",
+        "Label": "Encounter",
+        "RandomDesc": "Random Encounter!",
+        "DistanceRollHint": "Roll 2d6 squares (cramped) or 3d6 squares (open)",
+        "Details": {
+          "Title": "Encounter Details",
+          "Instruction": "Use these tables to generate context for the encounter as needed.",
+          "Activity": "Activity",
+          "Disposition": "Disposition",
+          "Complication": "Complication"
+        }
       },
       "LightSources": "Light Sources",
       "LightDepletion": "Light Depletion",
@@ -868,7 +1015,11 @@
         "Summary": "{rounds} rounds, {actions} actions taken.",
         "EndTitle": "End Exploration",
         "EndConfirm": "Are you sure you want to end this exploration session?",
-        "EndYes": "End Session"
+        "EndYes": "End Session",
+        "Pause": "Pause Session",
+        "Resume": "Resume Session",
+        "BeginExploration": "Begin Exploration",
+        "EndExploration": "End Exploration"
       },
       "Room": {
         "Name": "Room Name",
@@ -897,7 +1048,14 @@
         "HazardsPlaceholder": "Traps, environmental dangers, etc.",
         "Loot": "Loot",
         "LootPlaceholder": "Treasure and items found here...",
-        "SortOrder": "Sort Order"
+        "SortOrder": "Sort Order",
+        "UnexploredConnections": "Unexplored Connections",
+        "ExploredConnections": "Explored Connections",
+        "NoConnections": "There are no known connections from this room.",
+        "AllExplored": "All connected rooms have already been explored.",
+        "TrapWarning": "<strong>GM WARNING:</strong> {label}!",
+        "DetailTrapsWarning": "<strong>GM WARNING:</strong> There are {count} active {label} in this room!",
+        "OpenRoom": "Open Room Sheet"
       },
       "Connection": {
         "Doorway": "Doorway",
@@ -914,7 +1072,7 @@
         "Remove": "Remove Connection",
         "OpenRoom": "Open Room",
         "DescPlaceholder": "e.g., Narrow corridor, iron-barred gate...",
-        "SelectRoom": "\u2014 Select a room \u2014",
+        "SelectRoom": "— Select a room —",
         "AddConnection": "Add Connection",
         "DropHint": "Drop a Room item here to connect",
         "DropRoomsOnly": "Only Room items can be dropped here.",
@@ -931,8 +1089,73 @@
         "Rooms": "Rooms",
         "Log": "Log",
         "Notes": "Notes"
-      }
-    }
+      },
+      "Label": "Dungeon",
+      "RollTable": "Roll Table",
+      "CreateTable": "Create New Table",
+      "RemoveTable": "Remove Table",
+      "Encounters": "Encounters",
+      "UnknownTable": "Unknown Table",
+      "RoundAbbr": "R",
+      "Action": "Action",
+      "Detail": "Detail",
+      "Log": {
+        "UnexploredCount": "{count} unexplored rooms connected",
+        "AlarmChange": "Alarm rose to {value}"
+      },
+      "Result": {
+        "Success": "Success",
+        "SuccessDesc": "You achieve what you intended without unforeseen complications.",
+        "Shadow": "Shadow",
+        "ShadowDesc": "Your success has a cost. You get what you want, but something goes wrong.",
+        "Failure": "Failure",
+        "FailureDesc": "You fail. Progress is halted and you must find another way or face consequences.",
+        "Harmful": "Harmful",
+        "HarmfulDesc": "You hurt yourself — from scratches to a persistent injury.",
+        "Daunting": "Daunting",
+        "DauntingDesc": "Your effort was humbling. Onlookers question if you belong here. Morale falters."
+      },
+      "DepletionRollHint": "Roll each depletion die. On a 1-2, the light source is depleted.",
+      "DungeonActions": "Dungeon Actions",
+      "ConnectedRooms": "Connected Rooms",
+      "NoConnectedRooms": "No connected rooms found.",
+      "NextRound": "Next Round",
+      "MoveHere": "Move Here",
+      "NoDungeonFound": "No dungeon found.",
+      "CreateDungeonHint": "Create a dungeon actor first.",
+      "NoExplorationInProgress": "No exploration in progress.",
+      "WaitingForGM": "Waiting for the GM to start exploration.",
+      "OpenDungeonSheet": "Open Dungeon Sheet",
+      "ExplorationPaused": "Exploration Paused",
+      "RecentActivity": "Recent Activity"
+    },
+    "Character": "Character",
+    "Creature": "Creature",
+    "Tracker": {
+      "Title": "Dungeon Tracker"
+    },
+    "Agility": "Agility",
+    "Might": "Might",
+    "Intellect": "Intellect",
+    "Willpower": "Willpower",
+    "Athletics": "Athletics",
+    "Tinkering": "Tinkering",
+    "Stealth": "Stealth",
+    "Perception": "Perception",
+    "Magic": "Magic",
+    "Melee": "Melee",
+    "Accuracy": "Accuracy",
+    "Defense": "Defense",
+    "Evasion": "Evasion",
+    "Speed": "Speed",
+    "Health": "Health",
+    "MaxHealth": "Max Health",
+    "Endurance": "Endurance",
+    "MaxEndurance": "Max Endurance",
+    "Armor": "Armor",
+    "Focus": "Focus",
+    "Level": "Level",
+    "Experience": "Experience"
   },
   "TYPES": {
     "Actor": {
@@ -945,7 +1168,6 @@
       "armor": "Armor",
       "rations": "Rations",
       "effect": "Effect",
-      "state": "State",
       "deed": "Deed",
       "feature": "Feature",
       "talent": "Talent",

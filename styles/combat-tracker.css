@@ -55,8 +55,8 @@
 .phase-group.late .phase-header { background: var(--trp-bg-header); }
 .phase-group.late .phase-header h4 { color: var(--trp-gold); }
 
-.phase-group.critical .phase-header { background: var(--trp-bg-header); }
-.phase-group.critical .phase-header h4 { color: var(--trp-gold); }
+.phase-group.extra .phase-header { background: var(--trp-bg-header); }
+.phase-group.extra .phase-header h4 { color: var(--trp-gold); }
 
 .phase-group.end .phase-header { background: var(--trp-bg-header); }
 .phase-group.end .phase-header h4 { color: var(--trp-gold); }
@@ -135,35 +135,59 @@
 .stats-area {
   min-width: 60px;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 2px;
+}
+
+.focus-display {
+  line-height: 1;
+  display: flex;
+  justify-content: center;
 }
 
 .focus-number {
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 700;
-  color: var(--trp-gold-dim, #b8973f);
+  color: var(--trp-gold);
+  font-family: var(--trp-font-header);
   line-height: 1;
-  text-align: center;
-  font-family: 'Signika', sans-serif;
-  min-width: 44px;
 }
 
-.ap-squares {
-  gap: 3px;
+.ap-display {
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.ap-square {
-  width: 14px;
-  height: 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+.ap-indicator {
+  display: flex;
+  gap: 1px;
+  align-items: center;
 }
 
-.ap-square.filled {
-  background: #3f51b5;
-  box-shadow: 0 0 6px rgba(63, 81, 181, 0.4);
-  border-color: #5c6bc0;
+.ap-icon {
+  width: 15px;
+  height: 15px;
+  background-color: var(--trp-text-dim);
+  -webkit-mask: url("/systems/trespasser/assets/icons/action_icon.svg") no-repeat center;
+  mask: url("/systems/trespasser/assets/icons/action_icon.svg") no-repeat center;
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  opacity: 0.15;
+  transition: all 0.25s ease;
+}
+
+.ap-icon.active {
+  background-color: #3f51b5;
+  opacity: 1;
+  filter: drop-shadow(0 0 3px rgba(63, 81, 181, 0.7));
   cursor: pointer;
+}
+
+.ap-icon.active:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 0 5px rgba(63, 81, 181, 1));
 }
 
 .combat-info-footer {

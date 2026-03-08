@@ -23,6 +23,22 @@ export async function getCharacterData(sheet, options = {}) {
     value,
   }));
 
+  // Calculate total attributes including effect bonuses for display
+  context.totalAttributes = {};
+  for (const attr of ["mighty", "agility", "intellect", "spirit"]) {
+    const base = context.system.attributes[attr] ?? 0;
+    const bonus = TrespasserEffectsHelper.getAttributeBonus(actor, attr, "use");
+    context.totalAttributes[attr] = base + bonus;
+  }
+
+  context.totalCombat = {};
+  const combatStats = ["initiative", "accuracy", "guard", "resist", "prevail", "tenacity", "focus", "speed", "armor", "max_health"];
+  for (const stat of combatStats) {
+    const base = context.system[stat] ?? context.system.combat[stat] ?? 0;
+    const bonus = TrespasserEffectsHelper.getAttributeBonus(actor, stat, "use");
+    context.totalCombat[stat] = base + bonus;
+  }
+
   // Fixed 3-slot craft array
   const crafts = context.system.crafts ?? [];
   context.craftsSlots = [crafts[0] ?? "", crafts[1] ?? "", crafts[2] ?? ""];
@@ -137,10 +153,9 @@ export async function getCharacterData(sheet, options = {}) {
   };
   context.deeds = allDeeds;
 
-  // Inventory
-  const allInventoryItems = actor.items.filter(i =>
-    !["deed", "feature", "talent", "incantation", "effect", "state", "injury"].includes(i.type)
-  );
+  // Only physical inventory types appear in inventory
+  const inventoryTypes = ["weapon", "armor", "accessory", "rations", "item"];
+  const allInventoryItems = actor.items.filter(i => inventoryTypes.includes(i.type));
   context.unequippedItems = allInventoryItems.filter(i => !i.system.equipped);
   context.equippedItems   = allInventoryItems.filter(i => i.system.equipped);
 

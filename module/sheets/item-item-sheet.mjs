@@ -212,70 +212,10 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
     const targetType = targetEl.dataset.type;
     const currentArray = [...(this.item.system[targetType] || [])];
     const effectData = foundry.utils.deepClone(currentArray[index]);
-    
-    // Rename/Remove conflicting fields before passing to Item.implementation
-    const docType = effectData.type || "effect";
-    delete effectData.type;
-    delete effectData.uuid;
-    delete effectData.name;
-    delete effectData.img;
 
-    // Create a virtual Item document for the sheet to work on
-    const tempItem = new Item.implementation({
-      name: effectData.name || "Effect",
-      type: docType,
-      img: effectData.img,
-      system: effectData
-    }, { parent: this.item.parent }); // Parent can be actor or null
-
-    // Override update to sync back to the current item
-    tempItem.update = async (updateData) => {
-      const arr = [...(this.item.system[targetType] || [])];
-      arr[index] = foundry.utils.mergeObject(arr[index], updateData.system || updateData);
-      await this.item.update({
-        "system.description": this.item.system.description,
-        [`system.${targetType}`]: arr
-      });
-      return tempItem;
-    };
-
-    tempItem.sheet.render(true);
-  }
-  /** @override */
-  async _updateObject(event, formData) {
-    const st = formData["system.subType"];
-    const currentSt = this.item.system.subType;
-    
-    if (st && st !== currentSt) {
-      const cleanData = {};
-      
-      // If it's a light source, force equippable to true
-      if (st === "light_source") formData["system.equippable"] = true;
-
-      // If it's no longer esoteric, clear incantations
-      if (st !== "esoteric") cleanData["system.incantations"] = [];
-      
-      // If it's no longer scrolls or artifacts, clear deeds
-      if (!["scrolls", "artifacts"].includes(st)) cleanData["system.deeds"] = [];
-      
-      // If it's no longer artifacts, clear talents and features
-      if (st !== "artifacts") {
-        cleanData["system.talents"] = [];
-        cleanData["system.features"] = [];
-      }
-
-      // If it's no longer a consumable or artifact, clear effects (unless it's an artifact, they have effects too in template)
-      if (!["bombs", "oils", "powders", "potions", "artifacts"].includes(st)) {
-        cleanData["system.effects"] = [];
-      }
-      
-      foundry.utils.mergeObject(formData, cleanData);
+    if(effectData.uuid) {
+      await TrespasserEffectsHelper.openEffectSheet(effectData.uuid);
+      return;
     }
-    
-    if (this.item.system.subType === "light_source") {
-      formData["system.equippable"] = true;
-    }
-
-    return super._updateObject(event, formData);
   }
 }

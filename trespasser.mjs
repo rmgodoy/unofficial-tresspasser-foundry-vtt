@@ -9,7 +9,6 @@ import { TrespasserArmorData }     from "./module/data/item-armor.mjs";
 import { TrespasserWeaponData }    from "./module/data/item-weapon.mjs";
 import { TrespasserRationsData }   from "./module/data/item-rations.mjs";
 import { TrespasserEffectData }    from "./module/data/item-effect.mjs";
-import { TrespasserStateData }     from "./module/data/item-state.mjs";
 import { TrespasserDeedData }      from "./module/data/item-deed.mjs";
 import { TrespasserFeatureData }   from "./module/data/item-feature.mjs";
 import { TrespasserTalentData }    from "./module/data/item-talent.mjs";
@@ -21,13 +20,13 @@ import { TrespasserCallingData }    from "./module/data/item-calling.mjs";
 import { TrespasserActor }         from "./module/documents/actor.mjs";
 import { TrespasserCombat }        from "./module/documents/combat.mjs";
 import { TrespasserEffectsHelper } from "./module/helpers/effects-helper.mjs";
+import { DurationHelper }          from "./module/helpers/duration-helper.mjs";
 import { TrespasserCharacterSheet } from "./module/sheets/actor-character-sheet.mjs";
 import { TrespasserCreatureSheet }  from "./module/sheets/actor-creature-sheet.mjs";
 import { TrespasserArmorSheet }     from "./module/sheets/item-armor-sheet.mjs";
 import { TrespasserWeaponSheet }    from "./module/sheets/item-weapon-sheet.mjs";
 import { TrespasserRationsSheet }   from "./module/sheets/item-rations-sheet.mjs";
 import { TrespasserEffectSheet }    from "./module/sheets/item-effect-sheet.mjs";
-import { TrespasserStateSheet }     from "./module/sheets/item-state-sheet.mjs";
 import { TrespasserDeedSheet }      from "./module/sheets/item-deed-sheet.mjs";
 import { TrespasserFeatureSheet }   from "./module/sheets/item-feature-sheet.mjs";
 import { TrespasserTalentSheet }    from "./module/sheets/item-talent-sheet.mjs";
@@ -42,6 +41,8 @@ import { TrespasserPastLifeData }  from "./module/data/item-past-life.mjs";
 import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mjs";
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
+import { showTrespasserConfigDialog } from "./module/dialogs/trespasser-config-dialog.mjs";
+import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -103,6 +104,43 @@ Hooks.once("init", async () => {
     dungeon: DUNGEON_CONFIG
   };
 
+  // Register settings
+  game.settings.register("trespasser", "showInitiativeInChat", {
+    name: "TRESPASSER.Config.ShowInitiativeInChat",
+    hint: "TRESPASSER.Config.ShowInitiativeInChatHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
+  game.settings.register("trespasser", "restrictMovementAction", {
+    name: "TRESPASSER.Config.RestrictMovementAction",
+    hint: "TRESPASSER.Config.RestrictMovementActionHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register("trespasser", "restrictHUDActions", {
+    name: "TRESPASSER.Config.RestrictHUDActions",
+    hint: "TRESPASSER.Config.RestrictHUDActionsHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register("trespasser", "restrictAPFocusUsage", {
+    name: "TRESPASSER.Config.RestrictAPFocusUsage",
+    hint: "TRESPASSER.Config.RestrictAPFocusUsageHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
@@ -113,7 +151,6 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.weapon = TrespasserWeaponData;
   CONFIG.Item.dataModels.rations = TrespasserRationsData;
   CONFIG.Item.dataModels.effect = TrespasserEffectData;
-  CONFIG.Item.dataModels.state = TrespasserStateData;
   CONFIG.Item.dataModels.deed = TrespasserDeedData;
   CONFIG.Item.dataModels.feature = TrespasserFeatureData;
   CONFIG.Item.dataModels.talent = TrespasserTalentData;
@@ -172,11 +209,6 @@ Hooks.once("init", async () => {
     types: ["effect"],
     makeDefault: true,
     label: "Trespasser Effect Sheet",
-  });
-  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserStateSheet, {
-    types: ["state"],
-    makeDefault: true,
-    label: "Trespasser State Sheet",
   });
   foundry.documents.collections.Items.registerSheet("trespasser", TrespasserDeedSheet, {
     types: ["deed"],
@@ -238,6 +270,7 @@ Hooks.once("init", async () => {
   // Handlebars helpers
   Handlebars.registerHelper("trespasserChecked", (value) => (value ? "checked" : ""));
   Handlebars.registerHelper("trespasserGt", (a, b) => a > b);
+  Handlebars.registerHelper("gt", (a, b) => a > b);
   Handlebars.registerHelper("eq", (a, b) => a === b);
   Handlebars.registerHelper("or", (...args) => args.slice(0, -1).some(Boolean));
   Handlebars.registerHelper("ne", (a, b) => a !== b);
@@ -265,6 +298,9 @@ Hooks.once("init", async () => {
       "%": lvalue % rvalue
     }[operator];
   });
+  Handlebars.registerHelper('sum', function(a, b) {
+    return a + b;
+  });
 
   // Dungeon Handlebars helpers (registers "eq" only if not already present)
   ensureDungeonHelpers();
@@ -279,6 +315,25 @@ Hooks.once("init", async () => {
   game.trespasser.ItemExporter = ItemExporter;
 });
 
+/**
+ * Socket handling for Token Action HUD / Help action
+ */
+Hooks.once("ready", () => {
+  // Initialize Token Action HUD
+  game.trespasser.tokenHUD = new TrespasserTokenHUD();
+
+  // Prevent default turn marker from being added to tokens, since we are implementing our own turn marker system
+  if (foundry.canvas.placeables.tokens.TokenTurnMarker) {
+    foundry.canvas.placeables.tokens.TokenTurnMarker.prototype.draw = async function() {
+      return; 
+    };
+  }
+
+  if (game.combat) {
+    game.combat.updateTurnMarkers(game.combat.flags.trespasser.activePhase);
+  }
+});
+
 Hooks.on("preUpdateActor", (actor, updateData, options, userId) => {
   // Sync prototype token name for base actors if name changes
   if (updateData.name && !actor.isToken) {
@@ -286,28 +341,6 @@ Hooks.on("preUpdateActor", (actor, updateData, options, userId) => {
     updateData.prototypeToken.name = updateData.name;
   }
 });
-
-// Hooks.on("updateActor", (actor, changed, options, userId) => {
-//   if (game.user.id !== userId) return;
-
-//   if (changed.name) {
-//     if (actor.isToken) {
-//       // Sync actual token document for unlinked tokens
-//       if (actor.token && actor.token.name !== changed.name) {
-//         actor.token.update({ name: changed.name });
-//       }
-//     } else {
-//       // Sync all existing linked tokens on the active canvas
-//       if (typeof canvas !== "undefined" && canvas.scene) {
-//         const tokens = actor.getActiveTokens();
-//         const updates = tokens.filter(t => t.name !== changed.name).map(t => ({ _id: t.id, name: changed.name }));
-//         if (updates.length > 0) {
-//           canvas.scene.updateEmbeddedDocuments("Token", updates);
-//         }
-//       }
-//     }
-//   }
-// });
 
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
   // Determine color based on speaker instead of just author
@@ -339,7 +372,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
       const sourceItem = await fromUuid(uuid);
       if (!sourceItem) {
-        ui.notifications.error("Original effect could not be found.");
+        ui.notifications.error(game.i18n.localize("TRESPASSER.Dialog.ItemNotFound"));
         return;
       }
 
@@ -347,7 +380,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
       const tokens = canvas.tokens.controlled;
       if (tokens.length === 0) {
-        ui.notifications.warn("Please select at least one token to apply the effect to.");
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
         return;
       }
 
@@ -360,8 +393,46 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         delete itemData._id;
 
         await foundry.documents.BaseItem.create(itemData, { parent: actor });
-        ui.notifications.info(`Applied ${sourceItem.name} to ${actor.name}.`);
+        ui.notifications.info(game.i18n.format("TRESPASSER.Chat.AppliedEffect", { name: sourceItem.name, target: actor.name }));
       }
+    });
+  });
+
+  html.querySelectorAll(".apply-help-btn").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const targetUuid = btn.dataset.targetUuid;
+      const attr = btn.dataset.targetAttribute;
+      const mod = btn.dataset.modifier;
+      const sourceName = btn.dataset.sourceName;
+
+      const doc = await fromUuid(targetUuid);
+      const targetActor = doc?.actor || doc;
+      if (!targetActor) return;
+
+      const effectData = {
+        name: game.i18n.format("TRESPASSER.Chat.HelpFrom", { name: sourceName }),
+        type: "effect",
+        img: "system/trespasser/assets/icons/effects.png",
+        system: {
+          targetAttribute: attr,
+          modifier: mod,
+          isCombat: true,
+          isPrevailable: false,
+          type: "on-trigger",
+          duration: "trigger",
+          durationValue: 1,
+          durationOperator: "OR",
+          durationConditions: [
+            { mode: "trigger", value: 1 },
+            { mode: "round", value: 1 }
+          ],
+          when: "use"
+        }
+      };
+
+      await targetActor.createEmbeddedDocuments("Item", [effectData]);
+      ui.notifications.info(game.i18n.format("TRESPASSER.Chat.AppliedHelp", { name: targetActor.name }));
     });
   });
 
@@ -376,7 +447,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       let tokens = canvas.tokens.controlled;
       if (tokens.length === 0) tokens = Array.from(game.user.targets);
       if (tokens.length === 0) {
-        ui.notifications.warn("Select or target at least one token to apply damage to.");
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
         return;
       }
 
@@ -408,8 +479,8 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         }
 
         const msg = reduction !== 0
-          ? `${actor.name} took <strong>${finalDamage}</strong> damage (${rawDamage} − ${Math.abs(reduction)} reduction).`
-          : `${actor.name} took <strong>${finalDamage}</strong> damage.`;
+          ? game.i18n.format("TRESPASSER.Chat.TookDamageReduction", { name: actor.name, damage: finalDamage, raw: rawDamage, reduction: Math.abs(reduction) })
+          : game.i18n.format("TRESPASSER.Chat.TookDamage", { name: actor.name, damage: finalDamage });
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),
           content: `<div class="trespasser-chat-card"><p>${msg}</p></div>`
@@ -428,7 +499,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       let tokens = canvas.tokens.controlled;
       if (tokens.length === 0) tokens = Array.from(game.user.targets);
       if (tokens.length === 0) {
-        ui.notifications.warn("Select or target at least one token to heal.");
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
         return;
       }
 
@@ -441,25 +512,29 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),
-          content: `<div class="trespasser-chat-card"><p>${actor.name} was healed for <strong>${healAmount}</strong> HP.</p></div>`
+          content: `<div class="trespasser-chat-card"><p>${game.i18n.format("TRESPASSER.Chat.HealedAmount", { name: actor.name, amount: healAmount })}</p></div>`
         });
       }
     });
   });
 });
 
-
+Hooks.on("updateCombat", async (combat, changed, options, userId) => {
+  if (changed.flags?.trespasser?.activePhase !== undefined) {
+    combat.updateTurnMarkers(changed.flags.trespasser.activePhase);
+  }
+});
 
 Hooks.on("deleteCombat", async (combat) => {
   for (const c of combat.combatants) {
     if (c.actor) {
       await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");
-
-      // Remove combat-length effects
-      const toRemove = c.actor.items.filter(i =>
-        (i.type === "effect" || i.type === "state") &&
-        i.system.duration === "combat"
-      );
+      
+      // Remove effects where combat-end triggers expiry (compound or legacy "combat" duration)
+      const toRemove = c.actor.items.filter(i => {
+        if (i.type !== "effect") return false;
+        return DurationHelper.shouldExpire(i) || i.system.duration === "combat";
+      });
       for (const eff of toRemove) {
         await eff.delete();
       }
@@ -467,9 +542,100 @@ Hooks.on("deleteCombat", async (combat) => {
   }
 });
 
-Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
-  if (game.user.id !== userId) return; // Only trigger for the user who moved the token
+// Token IDs currently undergoing a Trespasser undo — used to bypass movement hooks
+globalThis._trespasserUndoSet = new Set();
 
+/**
+ * Calculate total distance moved from native token document movement history.
+ * @param {TokenDocument} tokenDoc
+ * @returns {number}
+ * @private
+ */
+function _calculateTokenMovementDistance(tokenDoc) {
+  const history = tokenDoc.movementHistory;
+  if ( !history || history.length < 2 ) return 0;
+  let totalDistance = 0;
+  for ( let i = 0; i < history.length - 1; i++ ) {
+    const start = history[i];
+    const end = history[i+1];
+    const distRaw = canvas.grid.measurePath([start, end]).distance;
+    totalDistance += Math.round(distRaw / canvas.dimensions.distance);
+  }
+  return totalDistance;
+}
+
+/**
+ * Handle token movement restrictions in combat.
+ */
+Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
+  // Only enforce if position changes
+  if (changed.x === undefined && changed.y === undefined) return;
+  // Bypass enforcement for undo operations
+  if (globalThis._trespasserUndoSet.has(tokenDoc.id)) return;
+  if (!game.combat || !game.combat.active || !game.combat.started) return;
+  
+  const combatant = game.combat.combatants.find(c => c.tokenId === tokenDoc.id);
+  if (!combatant) return;
+
+  const activePhase = game.combat.getFlag("trespasser", "activePhase");
+  
+  // If it's not this token's phase, block non-GMs; GM repositioning is allowed but not tracked
+  if (combatant.initiative !== activePhase) {
+      if (!game.user.isGM) {
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotYourPhase"));
+          return false;
+      }
+      return; // GM reposition out of phase — don't track
+  }
+
+  // GMs bypass the action/limit checks but their in-phase moves are tracked
+  const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
+  if (game.user.isGM || !restrictMovement) {
+    options.trespasserTrack = true;
+    return;
+  }
+
+  const moveActionTaken = combatant.getFlag("trespasser", "moveActionTaken") ?? false;
+  if (!moveActionTaken) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.MoveActionRequired"));
+      return false;
+  }
+
+  const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
+  const movementUsed = _calculateTokenMovementDistance(tokenDoc);
+  const isVaulting = combatant.getFlag("trespasser", "isVaulting") ?? false;
+  
+  // Calculate distance of the proposed move
+  const start  = { x: tokenDoc.x,             y: tokenDoc.y };
+  const end    = { x: changed.x ?? tokenDoc.x, y: changed.y ?? tokenDoc.y };
+  const distRaw = canvas.grid.measurePath([start, end]).distance;
+  const dist    = Math.round(distRaw / canvas.dimensions.distance);
+
+  if (isVaulting) {
+      const startPos = combatant.getFlag("trespasser", "vaultStartPos") || start;
+      const dx = end.x - startPos.x;
+      const dy = end.y - startPos.y;
+      const isStraight = dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy);
+      
+      if (!isStraight) {
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.VaultStraightLine"));
+          return false;
+      }
+  }
+
+  if ((movementUsed + dist) > movementAllowed) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.MovementLimitExceeded"));
+      return false;
+  }
+
+  options.trespasserTrack = true;
+  options.trespasserMoveDist = dist;
+  options.trespasserIsFirstMove = (movementUsed === 0);
+});
+
+Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
+  if (game.user.id !== userId) return;
+  
   // Sync token name back to actor name if it's unlinked
   if (changed.name && !tokenDoc.isLinked && tokenDoc.actor) {
     if (tokenDoc.actor.name !== changed.name) {
@@ -477,24 +643,43 @@ Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
     }
   }
 
-  // Check if position actually changed
-  if (changed.x === undefined && changed.y === undefined && changed.elevation === undefined) return;
-
+  // Only position changes from here on
+  if (changed.x === undefined && changed.y === undefined) return;
   if (!game.combat || !game.combat.active || !game.combat.started) return;
 
   const combatant = game.combat.combatants.find(c => c.tokenId === tokenDoc.id);
   if (!combatant) return;
 
-  // Only trigger on the combatant's own turn
-  if (game.combat.combatant?.id !== combatant.id) return;
+  const activePhase = game.combat.getFlag("trespasser", "activePhase");
+  if (combatant.initiative !== activePhase) return;
 
-  // Only trigger once per turn
-  if (combatant.getFlag("trespasser", "hasMovedThisTurn")) return;
+  // Sync flags with native movement history
+  const totalDist = _calculateTokenMovementDistance(tokenDoc);
+  
+  await combatant.update({
+    "flags.trespasser.movementUsed": totalDist,
+    "flags.trespasser.movementHistory": tokenDoc.movementHistory,
+    "flags.trespasser.hasMovedThisTurn": totalDist > 0,
+    "flags.trespasser.isVaulting": false
+  });
 
-  if (combatant.actor) {
-    await combatant.setFlag("trespasser", "hasMovedThisTurn", true);
-    await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+  // Trigger movement effects if this was a valid tracked move (not an undo)
+  if (options.trespasserTrack && combatant.actor) {
+    const dist = options.trespasserMoveDist || 0;
+    
+    // 1. First move of the turn trigger
+    if (options.trespasserIsFirstMove && dist > 0) {
+      await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
+    }
+
+    // 2. Continuous movement trigger (once per square)
+    for (let i = 0; i < dist; i++) {
+      await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+    }
   }
+
+  // Re-render the HUD so the Undo button appears immediately after moving
+  game.trespasser?.tokenHUD?.render();
 });
 
 /**
@@ -515,12 +700,12 @@ Hooks.on("createItem", async (item, options, userId) => {
     if (sys.talents?.length > 0)  await actor._applyLinkedItems(sys.talents);
     if (sys.features?.length > 0) await actor._applyLinkedItems(sys.features);
     if (sys.deeds?.length > 0)    await actor._applyLinkedItems(sys.deeds);
-    if (sys.effects?.length > 0)  await actor._applyLinkedItems(sys.effects, { passiveOnly: true });
+    if (sys.effects?.length > 0)  await actor._applyLinkedItems(sys.effects, { continuousOnly: true });
   } else if (item.type === "injury") {
-    // Apply all passive effects listed on the injury — these cannot be prevailed against
+    // Apply all effects listed on the injury — these cannot be prevailed against
     const effects = item.system.effects || [];
     if (effects.length > 0) {
-      await actor._applyLinkedItems(effects, { passiveOnly: false, fromInjury: true, injuryId: item.id });
+      await actor._applyLinkedItems(effects, { continuousOnly: false, fromInjury: true, injuryId: item.id });
     }
   }
 });
@@ -545,9 +730,9 @@ Hooks.on("deleteItem", async (item, options, userId) => {
     if (sys.deeds?.length > 0)    await actor._removeLinkedItems(sys.deeds, item.id);
     if (sys.effects?.length > 0)  await actor._removeLinkedItems(sys.effects, item.id);
   } else if (item.type === "injury") {
-    // Remove all effect/state items on this actor that were stamped with this injury's ID
+    // Remove all effect items on this actor that were stamped with this injury's ID
     const toRemove = actor.items.filter(
-      i => (i.type === "effect" || i.type === "state") &&
+      i => (i.type === "effect") &&
            i.flags?.trespasser?.injuryId === item.id
     );
     for (const eff of toRemove) {
@@ -576,12 +761,12 @@ Hooks.on("updateItem", async (item, changed, options, userId) => {
     if ("talents" in changed.system)  await actor._applyLinkedItems(sys.talents || []);
     if ("features" in changed.system) await actor._applyLinkedItems(sys.features || []);
     if ("deeds" in changed.system)    await actor._applyLinkedItems(sys.deeds || []);
-    if ("effects" in changed.system)  await actor._applyLinkedItems(sys.effects || [], { passiveOnly: true });
+    if ("effects" in changed.system)  await actor._applyLinkedItems(sys.effects || [], { continuousOnly: true });
   } else if (item.type === "injury" && ("system" in changed) && "effects" in changed.system) {
     // Re-apply whenever the injury's effects list changes
     const effects = item.system.effects || [];
     if (effects.length > 0) {
-      await actor._applyLinkedItems(effects, { passiveOnly: false, fromInjury: true, injuryId: item.id });
+      await actor._applyLinkedItems(effects, { continuousOnly: false, fromInjury: true, injuryId: item.id });
     }
   }
 });
@@ -591,7 +776,7 @@ Hooks.on("updateItem", async (item, changed, options, userId) => {
  */
 Hooks.on("preCreateItem", (item, createData, options, userId) => {
   const actor = item.parent;
-  if (actor && (item.type === "effect" || item.type === "state")) {
+  if (actor && (item.type === "effect")) {
     const system = item.system;
     let intensityToApply = system.intensity || 0;
 
@@ -600,8 +785,8 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
     let wasCountered = false;
     if (counterStates.length > 0) {
       const counterNames = new Set(counterStates.map(cs => cs.name));
-      const existingCounters = actor.items.filter(i =>
-        (i.type === "effect" || i.type === "state") &&
+      const existingCounters = actor.items.filter(i => 
+        (i.type === "effect") && 
         counterNames.has(i.name)
       );
 
@@ -656,7 +841,6 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
         iconPath = "systems/trespasser/assets/icons/food.png";
         break;
       case "effect":
-      case "state":
         iconPath = "systems/trespasser/assets/icons/effects.png";
         break;
       case "deed":
@@ -681,7 +865,7 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
         iconPath = "systems/trespasser/assets/icons/pesant.png";
         break;
       case "room":
-        iconPath = "icons/svg/door-closed-outline.svg";
+        iconPath = "systems/trespasser/assets/icons/room.png";
         break;
       case "item":
         const subType = item.system.subType;
@@ -791,6 +975,35 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
 
 
 /**
+ * Add Trespasser Configuration button to the settings sidebar.
+ */
+Hooks.on("renderSettings", (app, html, data) => {
+  if (!game.user.isGM) return;
+
+  const $html = $(html);
+  const configBtn = $(`<button type="button" class="trespasser-config-btn">
+    <i class="fas fa-cogs"></i> Trespasser Configuration
+  </button>`);
+
+  configBtn.on("click", ev => {
+    ev.preventDefault();
+    showTrespasserConfigDialog();
+  });
+
+  const setupBtn = $html.find('button[data-app="configure"]');
+  if (setupBtn.length) {
+    setupBtn.before(configBtn);
+  } else {
+    // Fallback if the button is not found (e.g. AppV2 or different structure)
+    const container = $html.find(".settings-sidebar, #settings-game, #settings-access");
+    if (container.length) {
+      container.first().prepend(configBtn);
+    }
+  }
+});
+
+
+/**
  * Hook into the Combat Tracker render to inject the phased initiative UI.
  * This is needed because Foundry V13 CombatTracker (ApplicationV2) doesn't
  * allow template override via defaultOptions.
@@ -806,7 +1019,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
     { id: 40, label: game.i18n.localize("TRESPASSER.Phase.Early"), css: "early", combatants: [] },
     { id: 30, label: game.i18n.localize("TRESPASSER.Phase.Enemy"), css: "enemy", combatants: [] },
     { id: 20, label: game.i18n.localize("TRESPASSER.Phase.Late"), css: "late", combatants: [] },
-    { id: 10, label: game.i18n.localize("TRESPASSER.Phase.Critical"), css: "critical", combatants: [] },
+    { id: 10, label: game.i18n.localize("TRESPASSER.Phase.Extra"), css: "extra", combatants: [] },
     { id: 0,  label: game.i18n.localize("TRESPASSER.Phase.End"), css: "end", combatants: [] }
   ];
 
@@ -824,10 +1037,11 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
   const activePhasesData = PHASES.filter(p => p.combatants.length > 0);
 
   // Build the HTML for the phased tracker
-  function buildSquares(count, filled, cssClass) {
-    return Array.from({ length: count }, (_, i) => {
+  function buildIcons(filled, cssClass) {
+    const totalSlots = Math.max(3, filled);
+    return Array.from({ length: totalSlots }, (_, i) => {
       const isFilled = i < filled;
-      return `<div class="${cssClass}-square${isFilled ? " filled" : ""}"></div>`;
+      return `<div class="${cssClass}-icon${isFilled ? " active" : ""}"></div>`;
     }).join("");
   }
 
@@ -861,7 +1075,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
           <div class="stats-area flexcol">`
              + (focus > 0 ? `<span class="focus-number">${focus}</span>` : "")
             + `<div class="ap-display flexrow">
-              <div class="ap-squares flexrow">${buildSquares(3, ap, "ap")}</div>
+              <div class="ap-indicator flexrow">${buildIcons(ap, "ap")}</div>
             </div>
           </div>
         </li>
@@ -934,7 +1148,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
     });
   });
 
-  root.querySelectorAll(".ap-square.filled").forEach(sq => {
+  root.querySelectorAll(".ap-icon.active").forEach(sq => {
     sq.addEventListener("click", async ev => {
       ev.preventDefault();
       ev.stopPropagation();

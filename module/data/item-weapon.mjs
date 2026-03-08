@@ -39,6 +39,13 @@ export class TrespasserWeaponData extends foundry.abstract.TypeDataModel {
         img: new fields.StringField({ required: true }),
         intensity: new fields.NumberField({ initial: 1, min: 0 })
       }), { initial: [] }),
+      oilEffects: new fields.ArrayField(new fields.SchemaField({
+        uuid: new fields.StringField({ required: true }),
+        type: new fields.StringField({ required: true }),
+        name: new fields.StringField({ required: true }),
+        img: new fields.StringField({ required: true }),
+        intensity: new fields.NumberField({ initial: 1, min: 0 })
+      }), { initial: [] }),
       extraDeeds: new fields.ArrayField(new fields.SchemaField({
         uuid: new fields.StringField({ required: true }),
         type: new fields.StringField({ required: true }),

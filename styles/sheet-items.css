@@ -79,8 +79,10 @@
 }
 
 .item-sheet .sheet-body {
-  padding: 12px;
+  padding: 24px;
   overflow-y: auto;
+  flex: 1;
+  min-height: 0;
 }
 
 /* Details Grid */
@@ -123,21 +125,29 @@
   cursor: pointer;
 }
 
+.field-row.checkbox-row.ration-checkbox-row {
+  border-bottom: 1px solid rgba(74, 63, 47, 0.2);;
+  padding-bottom: 8px;
+}
+
 /* ── Item & Weapon Header Layout ───────────────────────────── */
 .item-header-layout {
-  display: grid;
-  grid-template-columns: 120px 220px 1fr;
+  display: flex;
+  flex-wrap: wrap;
   gap: 20px;
-  align-items: center;
+  align-items: flex-start;
   border-bottom: 2px solid var(--trp-gold-dim);
   padding: 10px 12px;
   background: var(--trp-bg-header);
-  margin-bottom: 15px;
+}
+
+.header-column.image-column {
+  flex: 0 0 64px;
 }
 
 .header-column.image-column .profile-img {
-  width: 120px;
-  height: 120px;
+  width: 64px;
+  height: 64px;
   object-fit: cover;
   border: 2px solid var(--trp-border-light);
   border-radius: var(--trp-radius);
@@ -146,6 +156,8 @@
 }
 
 .header-column.details-column {
+  flex: 1 1 220px;
+  min-width: 200px;
   align-self: start;
   padding-top: 5px;
 }
@@ -196,13 +208,42 @@
 }
 
 .header-column.description-column {
-  align-self: end;
+  flex: 2 1 300px;
+  min-width: 250px;
+  align-self: stretch;
 }
 
-.header-column.description-column .editor-container {
-  height: 120px;
+.trp-editor-container {
+  min-height: 120px;
   background: rgba(0,0,0,0.05);
   border: 1px solid var(--trp-border);
+  display: flex;
+  flex-direction: column;
+  resize: vertical;
+  overflow: hidden;
+  position: relative;
+}
+
+/* Ensure the editor within our wrapper expands */
+.trp-editor-container .editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Target Foundry's internal container to fill the space */
+.trp-editor-container .editor-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100% !important;
+  min-height: 100px;
+  resize: none !important; /* Disable internal resize handle if it exists */
+}
+
+.trp-editor-container .ProseMirror {
+  flex: 1;
+  overflow-y: auto !important;
 }
 
 .custom-attributes-area {
@@ -210,6 +251,7 @@
   background: rgba(0, 0, 0, 0.2);
   border: 1px solid var(--trp-border);
   border-radius: var(--trp-radius);
+  margin-bottom: 8px;
 }
 
 .section-title {

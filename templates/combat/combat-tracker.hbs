@@ -41,18 +41,14 @@
           </div>
 
           <div class="stats-area flexcol">
-             <div class="focus-display flexrow">
-                <div class="focus-squares flexrow">
-                  {{#times turn.focus}}
-                    <div class="focus-square filled"></div>
-                  {{/times}}
-                </div>
+             <div class="focus-display flexrow" title="{{localize "TRESPASSER.Sheet.Combat.Focus"}}">
+                <span class="focus-number">{{turn.focus}}</span>
              </div>
              <div class="ap-display flexrow">
-                <div class="ap-squares flexrow">
-                  {{#times 3}}
-                    <div class="ap-square {{#trespasserGt turn.ap this}}filled{{/trespasserGt}}" data-action="clickAP"></div>
-                  {{/times}}
+                <div class="ap-indicator flexrow">
+                  {{#each turn.apDots}}
+                    <div class="ap-icon {{#if active}}active{{/if}}" data-action="clickAP"></div>
+                  {{/each}}
                 </div>
              </div>
           </div>

@@ -1,3 +1,6 @@
+import { DurationHelper } from "./duration-helper.mjs";
+import { showOilDialog } from "../dialogs/oil-dialog.mjs";
+
 /**
  * Helper class for managing Trespasser effects, states, and modifier parsing.
  */
@@ -6,39 +9,43 @@ export class TrespasserEffectsHelper {
    * Constant for effect trigger timings.
    */
   static TRIGGER_WHEN = {
+    START_COMBAT: "start-of-combat",
     START_ROUND: "start-of-round",
     START_TURN: "start-of-turn",
     END_TURN: "end-of-turn",
     END_ROUND: "end-of-round",
+    END_COMBAT: "end-of-combat",
+    ON_FIRST_MOVE: "on-first-move",
     ON_MOVE: "on-move",
     USE: "use",
     TARGETED: "targeted",
-    IMMEDIATE: "immediate",
     DAMAGE_DEALT: "damage-dealt",
     DAMAGE_RECEIVED: "damage-received",
     ON_PREVAIL: "on-prevail",
-    USE_DEED: "on-use-deed",
-    TARGETED_DEED: "on-targeted-deed",
-    DEED_HIT_RECEIVED: "on-deed-hit-received",
-    DEED_MISS_RECEIVED: "on-deed-miss-received",
-    DEED_HIT: "on-deed-hit",
-    DEED_MISS: "on-deed-miss",
-    START_COMBAT: "start-of-combat",
-    END_COMBAT: "end-of-combat"
+    ON_USE_DEED: "on-use-deed",
+    ON_TARGETED_DEED: "on-targeted-deed",
+    ON_DEED_HIT_RECEIVED: "on-deed-hit-received",
+    ON_DEED_MISS_RECEIVED: "on-deed-miss-received",
+    ON_DEED_HIT: "on-deed-hit",
+    ON_DEED_MISS: "on-deed-miss",
+    IMMEDIATE: "immediate",
+    CONTINUOUS: "continuous"
   };
 
   /**
    * Labels for effect trigger timings.
    */
   static TRIGGER_LABELS = {
+    "start-of-combat": "TRESPASSER.TriggerLabels.StartOfCombat",
     "start-of-round": "TRESPASSER.TriggerLabels.StartOfRound",
     "start-of-turn": "TRESPASSER.TriggerLabels.StartOfTurn",
     "end-of-turn": "TRESPASSER.TriggerLabels.EndOfTurn",
     "end-of-round": "TRESPASSER.TriggerLabels.EndOfRound",
+    "end-of-combat": "TRESPASSER.TriggerLabels.EndOfCombat",
+    "on-first-move": "TRESPASSER.TriggerLabels.OnFirstMove",
     "on-move": "TRESPASSER.TriggerLabels.OnMove",
     "use": "TRESPASSER.TriggerLabels.Use",
     "targeted": "TRESPASSER.TriggerLabels.Targeted",
-    "immediate": "TRESPASSER.TriggerLabels.Immediate",
     "damage-dealt": "TRESPASSER.TriggerLabels.DamageDealt",
     "damage-received": "TRESPASSER.TriggerLabels.DamageReceived",
     "on-prevail": "TRESPASSER.TriggerLabels.OnPrevail",
@@ -48,8 +55,8 @@ export class TrespasserEffectsHelper {
     "on-deed-miss-received": "TRESPASSER.TriggerLabels.OnDeedMissReceived",
     "on-deed-hit": "TRESPASSER.TriggerLabels.OnDeedHit",
     "on-deed-miss": "TRESPASSER.TriggerLabels.OnDeedMiss",
-    "start-of-combat": "TRESPASSER.TriggerLabels.StartOfCombat",
-    "end-of-combat": "TRESPASSER.TriggerLabels.EndOfCombat"
+    "immediate": "TRESPASSER.TriggerLabels.Immediate",
+    "continuous": "TRESPASSER.TriggerLabels.Continuous"
   };
 
   /**
@@ -58,8 +65,8 @@ export class TrespasserEffectsHelper {
   static DURATION_MODES = {
     INDEFINITE: "indefinite",
     COMBAT: "combat",
-    ROUNDS: "rounds",
-    TRIGGERS: "triggers"
+    ROUND: "round",
+    TRIGGER: "trigger"
   };
 
   /**
@@ -68,8 +75,8 @@ export class TrespasserEffectsHelper {
   static DURATION_LABELS = {
     "indefinite": "TRESPASSER.DurationLabels.Indefinite",
     "combat": "TRESPASSER.DurationLabels.Combat",
-    "rounds": "TRESPASSER.DurationLabels.Rounds",
-    "triggers": "TRESPASSER.DurationLabels.Triggers"
+    "round": "TRESPASSER.DurationLabels.Round",
+    "trigger": "TRESPASSER.DurationLabels.Trigger"
   };
 
   /**
@@ -199,6 +206,54 @@ export class TrespasserEffectsHelper {
   }
 
   /**
+   * Posts or renders a standardized chat card with buttons to apply effects manually.
+   * This is the system standard for situational effects from armor, weapons, or deeds.
+   * @param {Object|Object[]} effects - Single effect or array of effects from item data
+   * @param {Actor} actor - The source actor
+   * @param {Object} options - title, description, renderOnly (returns HTML instead of creating msg)
+   * @returns {Promise<string|ChatMessage>}
+   */
+  static async applyEffectChat(effects, actor, { title = "", description = "", renderOnly = false, bypassFilter = false } = {}) {
+    if (!effects) return null;
+    const effArray = Array.isArray(effects) ? effects : [effects];
+    if (effArray.length === 0) return null;
+
+    // Filter out continuous effects (they should be already applied as documents)
+    const activeOnly = [];
+    for (const eff of effArray) {
+      if (!eff.uuid) continue;
+      const source = await fromUuid(eff.uuid);
+      if (!bypassFilter && source && (source.system.type === "continuous" || source.system.when === "immediate" || !source.system.when)) continue;
+      activeOnly.push(eff);
+    }
+    if (activeOnly.length === 0) return null;
+
+    let cardHtml = `<div class="trespasser-chat-card">`;
+    if (title) cardHtml += `<h3>${title}</h3>`;
+    if (description) cardHtml += `<p><em>${description}</em></p>`;
+
+    cardHtml += `<div class="applied-effects">
+      <strong>${game.i18n.localize("TRESPASSER.Chat.EffectsStates")}</strong>`;
+
+    for (const eff of activeOnly) {
+      const intensity = parseInt(eff.intensity) || 0;
+      const nameLabel = intensity !== 0 ? `${eff.name} ${intensity}` : eff.name;
+      cardHtml += `
+        <a class="apply-effect-btn" data-uuid="${eff.uuid}" data-intensity="${intensity}">
+          <img src="${eff.img}" width="20" height="20" /><span>${nameLabel}</span><i class="fas fa-hand-sparkles"></i>
+        </a>`;
+    }
+    cardHtml += `</div></div>`;
+
+    if (renderOnly) return cardHtml;
+
+    return ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content: cardHtml
+    });
+  }
+
+  /**
    * Helper for asynchronous string replacement with regex.
    * @private
    */
@@ -224,13 +279,12 @@ export class TrespasserEffectsHelper {
   /**
    * Aggregates all active effects (Combat and Non-Combat) from an actor.
    * @param {Actor} actor 
-   * @returns {Object} { combat: Array, nonCombat: Array, passive: Array }
+   * @returns {Object} { combat: Array, nonCombat: Array, continuous: Array }
    */
   static getActorEffects(actor) {
     const effects = {
       combat: [],
-      nonCombat: [],
-      passive: []
+      nonCombat: []
     };
 
     const sourceMapByUuid = {};
@@ -247,15 +301,20 @@ export class TrespasserEffectsHelper {
       }
     }
 
-    // 1. Gather effects from items (e.g., Armor effects)
     for (const item of actor.items) {
       // Passive/Built-in effects from equipped items
+      const equippableTypes = ["weapon", "armor", "accessory", "item"];
+      const isEquippable = equippableTypes.includes(item.type);
+      
       if (item.system.equipped && Array.isArray(item.system.effects)) {
         item.system.effects.forEach((eff, index) => {
+          // If it's an equippable, we skip immediate/continuous effects because those should have been converted to real Effect documents
+          if (isEquippable && (eff.type === "continuous" || eff.when === "immediate" || !eff.when)) return;
+
           const property = "effects";
           const effData = {
             id: `${item.id}-${property}-${index}`, // Stable Synthetic ID
-            name: `${item.name} (${eff.type || "effect"})`,
+            name: eff.name ? `${item.name}: ${eff.name}` : `${item.name} (${eff.type || "effect"})`,
             intensity: eff.intensity || 0,
             modifier: this.parseModifier(eff.modifier, eff.intensity || 0),
             target: eff.target,
@@ -270,17 +329,23 @@ export class TrespasserEffectsHelper {
             when: eff.when,
             duration: eff.duration || "indefinite",
             durationValue: eff.durationValue || 0,
+            durationConditions: eff.durationConditions || [],
+            durationOperator: eff.durationOperator || "OR",
+            durationSummary: null, // inline effects don't have a live item; no compound summary
             intensityIncrement: eff.intensityIncrement || 0,
             property,
-            index
+            index,
+            isPrevailable: !!eff.isPrevailable,
+            synthetic: true,
+            hiddenOnSheet: isEquippable // Hide equippable-derived effects from the sheet; they trigger in chat
           };
           if (eff.isCombat) effects.combat.push(effData);
           else effects.nonCombat.push(effData);
         });
       }
 
-      // Standalone Effect/State items currently on the actor
-      if (item.type === "effect" || item.type === "state") {
+      // Standalone Effect items currently on the actor
+      if (item.type === "effect") {
         const linkedUuid  = item.flags?.trespasser?.linkedSource;
         const fromInjury  = item.flags?.trespasser?.fromInjury === true;
         const injuryId    = item.flags?.trespasser?.injuryId;
@@ -309,12 +374,17 @@ export class TrespasserEffectsHelper {
           when: item.system.when,
           duration: item.system.duration || "indefinite",
           durationValue: item.system.durationValue || 0,
+          durationConditions: item.system.durationConditions || [],
+          durationOperator: item.system.durationOperator || "OR",
+          durationSummary: DurationHelper.formatSummary(item),
           intensityIncrement: item.system.intensityIncrement || 0,
+          isPrevailable: !!item.system.isPrevailable,
+          gmOnly: !!item.system.gmOnly,
           item: item,
           fromInjury
         };
 
-        if (item.system.isCombat) {
+        if (effData.isCombat) {
           effects.combat.push(effData);
         } else {
           effects.nonCombat.push(effData);
@@ -329,19 +399,21 @@ export class TrespasserEffectsHelper {
    * Calculates the total numeric bonus for a specific attribute from all active effects.
    * @param {Actor} actor 
    * @param {string} attributeKey 
+   * @param {string} [includeTiming] Optional timing to include (e.g. "use")
    * @returns {number}
    */
-  static getAttributeBonus(actor, attributeKey) {
+  static getAttributeBonus(actor, attributeKey, includeTiming = null) {
     if (!actor) return 0;
     const effects = this.getActorEffects(actor);
-    const allEffects = [...effects.combat, ...effects.nonCombat, ...effects.passive];
+    const allEffects = [...effects.combat, ...effects.nonCombat];
     
     let total = 0;
     for (const eff of allEffects) {
       if (eff.target !== attributeKey) continue;
 
-      // Skip active effects that have a specific trigger timing (they aren't constant bonuses)
-      if (eff.type === "active" && eff.when && eff.when !== "immediate") continue;
+      // Skip on-trigger effects that have a specific trigger timing (they aren't constant bonuses)
+      // UNLESS the specific timing is explicitly requested (e.g. when making a roll)
+      if (eff.type === "on-trigger" && eff.when && eff.when !== "immediate" && eff.when !== includeTiming) continue;
       
       // Parse numeric modifier, ignoring dice formulas for static calculation
       const modStr = eff.modifier.toString().replace("+", "").trim();
@@ -365,13 +437,13 @@ export class TrespasserEffectsHelper {
   static async evaluateDamageBonus(actor, attributeKey, weaponDie = "d4", { toMessage = true } = {}) {
     if (!actor) return 0;
     const effects = this.getActorEffects(actor);
-    const allEffects = [...effects.combat, ...effects.nonCombat, ...effects.passive];
+    const allEffects = [...effects.combat, ...effects.nonCombat];
 
     let total = 0;
     for (const eff of allEffects) {
       if (eff.target !== attributeKey) continue;
       // Skip timed actives that haven't fired yet
-      if (eff.type === "active" && eff.when && eff.when !== "immediate") continue;
+      if (eff.type === "active" && eff.when && eff.when !== "immediate" && eff.when !== "continuous") continue;
 
       const value = await this.evaluateModifier(
         eff.modifier,
@@ -380,14 +452,14 @@ export class TrespasserEffectsHelper {
       );
       total += value;
 
-      // Decrement triggers for bonuses used here
-      if (eff.duration === "triggers") {
-        const remaining = (eff.durationValue || 0) - 1;
-        if (remaining <= 0) {
+      // Decrement triggers-based conditions and evaluate expiry
+      const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "triggers");
+      if (shouldExpire) {
+        if (eff.item?.type === "effect" || eff.item?.type === "state") {
           await eff.item.delete();
-        } else {
-          await eff.item.update({ "system.durationValue": remaining });
         }
+      } else {
+        await eff.item.update({ "system.durationConditions": updatedConditions });
       }
     }
     return total;
@@ -402,7 +474,7 @@ export class TrespasserEffectsHelper {
   static hasAdvantage(actor, attributeKey) {
     if (!actor) return false;
     const effects = this.getActorEffects(actor);
-    const allEffects = [...effects.combat, ...effects.nonCombat, ...effects.passive];
+    const allEffects = [...effects.combat, ...effects.nonCombat];
     
     for (const eff of allEffects) {
       if (eff.target !== attributeKey) continue;
@@ -413,145 +485,22 @@ export class TrespasserEffectsHelper {
 
 
   /**
-   * Shows a dialog to create or edit an effect object.
-
-   * @param {Object} effectData Existing data or empty object
-   * @returns {Promise<Object|null>} The updated effect data or null if cancelled
-   */
-  static async showEffectDialog(effectData = {}) {
-    const isCombat   = effectData.isCombat ?? false;
-    const type = effectData.type ?? "active";
-    const intensity  = effectData.intensity ?? 0;
-    const increment  = effectData.intensityIncrement ?? 0;
-    const target     = effectData.targetAttribute || effectData.target || "health";
-    const modifier = effectData.modifier ?? "0";
-    const when = effectData.when ?? "immediate";
-
-    const content = `
-      <div class="dialog-content">
-        <div class="details-grid">
-          <div class="field-row">
-            <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.Type")}</label>
-            <select id="eff-type">
-              <option value="active" ${type === "active" ? "selected" : ""}>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.Active")}</option>
-              <option value="passive" ${type === "passive" ? "selected" : ""}>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.Passive")}</option>
-            </select>
-          </div>
-          <div class="field-row">
-            <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.IsCombat")}</label>
-            <input type="checkbox" id="eff-isCombat" ${isCombat ? "checked" : ""} />
-          </div>
-          <div class="field-row">
-            <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.isOnlyReminder")}</label>
-            <input type="checkbox" id="eff-isOnlyReminder" ${effectData.isOnlyReminder ? "checked" : ""} />
-          </div>
-          <div class="field-row" id="gm-only-row" style="${effectData.isOnlyReminder ? "" : "display:none;"}">
-            <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.gmOnly")}</label>
-            <input type="checkbox" id="eff-gmOnly" ${effectData.gmOnly ? "checked" : ""} />
-          </div>
-          <script>
-            document.getElementById('eff-isOnlyReminder').addEventListener('change', (e) => {
-              document.getElementById('gm-only-row').style.display = e.target.checked ? '' : 'none';
-            });
-          </script>
-          <div class="field-row">
-            <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.Intensity")}</label>
-            <input type="number" id="eff-intensity" value="${intensity}" />
-          </div>
-          <div class="field-row">
-            <label>${game.i18n.localize("TRESPASSER.Item.intensityIncrement")}</label>
-            <input type="number" id="eff-intensityIncrement" value="${increment}" />
-          </div>
-          <div class="field-row">
-            <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.TargetAttr")}</label>
-            <select id="eff-target">
-              ${Object.entries(this.TARGET_ATTRIBUTES).map(([k, v]) => `<option value="${k}" ${target === k ? "selected" : ""}>${game.i18n.localize(v)}</option>`).join("")}
-            </select>
-          </div>
-          <div class="field-row">
-            <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.Modifier")}</label>
-            <input type="text" id="eff-modifier" value="${modifier}" placeholder="${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.ModifierPlaceholder")}" />
-          </div>
-          <p class="notes">${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.IntensityNote")}</p>
-          <div class="field-row">
-            <label>${game.i18n.localize("TRESPASSER.Dialog.EffectEditor.TriggerWhen")}</label>
-            <select id="eff-when">
-              ${Object.entries(this.TRIGGER_LABELS).map(([v, label]) => `<option value="${v}" ${when === v ? "selected" : ""}>${game.i18n.localize(label)}</option>`).join("")}
-            </select>
-          </div>
-          <div class="field-row">
-            <label>${game.i18n.localize("TRESPASSER.Item.duration")}</label>
-            <select id="eff-duration">
-              ${Object.entries(this.DURATION_LABELS).map(([k, v]) => `<option value="${k}" ${(effectData.duration || "indefinite") === k ? "selected" : ""}>${game.i18n.localize(v)}</option>`).join("")}
-            </select>
-          </div>
-          <div class="field-row" id="duration-value-row" style="${(effectData.duration === 'rounds' || effectData.duration === 'triggers') ? '' : 'display:none;'}">
-            <label id="eff-duration-label">${effectData.duration === 'triggers' ? game.i18n.localize("TRESPASSER.DurationLabels.Triggers") : game.i18n.localize("TRESPASSER.DurationLabels.Rounds")}</label>
-            <input type="number" id="eff-durationValue" value="${effectData.durationValue || 0}" />
-          </div>
-          <script>
-            document.getElementById('eff-duration').addEventListener('change', (e) => {
-              const row = document.getElementById('duration-value-row');
-              const label = document.getElementById('eff-duration-label');
-              const show = (e.target.value === 'rounds' || e.target.value === 'triggers');
-              row.style.display = show ? "" : "none";
-              if (show) {
-                label.innerText = (e.target.value === 'triggers') 
-                  ? "${game.i18n.localize("TRESPASSER.DurationLabels.Triggers")}"
-                  : "${game.i18n.localize("TRESPASSER.DurationLabels.Rounds")}";
-              }
-            });
-          </script>
-        </div>
-      </div>
-    `;
-
-    return new Promise((resolve) => {
-      new Dialog({
-        title: game.i18n.localize("TRESPASSER.Dialog.EffectEditor.Title"),
-        content: content,
-        buttons: {
-          ok: {
-            label: game.i18n.localize("TRESPASSER.Dialog.General.Save"),
-            callback: (html) => {
-              resolve({
-                type: html.find("#eff-type").val(),
-                isCombat: html.find("#eff-isCombat").is(":checked"),
-                isOnlyReminder: html.find("#eff-isOnlyReminder").is(":checked"),
-                gmOnly: html.find("#eff-gmOnly").is(":checked"),
-                intensity: parseInt(html.find("#eff-intensity").val()) || 0,
-                intensityIncrement: parseInt(html.find("#eff-intensityIncrement").val()) || 0,
-                target: html.find("#eff-target").val(),
-                modifier: html.find("#eff-modifier").val(),
-                when: html.find("#eff-when").val(),
-                duration: html.find("#eff-duration").val(),
-                durationValue: parseInt(html.find("#eff-durationValue").val()) || 0
-              });
-            }
-          },
-          cancel: {
-            label: game.i18n.localize("TRESPASSER.Dialog.Cancel"),
-            callback: () => resolve(null)
-          }
-        },
-        default: "ok"
-      }, { classes: ["trespasser", "dialog"] }).render(true);
-    });
-  }
-
-  /**
    * Triggers automated effects on an actor based on the timing (e.g. "start-of-turn", "end-of-turn").
    * Generates a chat message and automatically applies health adjustments if applicable.
    * @param {Actor} actor
    * @param {string} timing "start-of-round", "start-of-turn", "end-of-turn", "end-of-round"
    */
-  static async triggerEffects(actor, timing) {
+  static async triggerEffects(actor, timing, { filterTarget = null } = {}) {
     if (!actor) return;
     const effects = this.getActorEffects(actor);
-    const allEffects = [...effects.combat, ...effects.nonCombat, ...effects.passive];
+    const allEffects = [...effects.combat, ...effects.nonCombat];
     
-    // Filter effects that match the required timing
-    const triggered = allEffects.filter(e => e.when === timing);
+    // Filter effects that match the required timing (and target if specified)
+    const triggered = allEffects.filter(e => {
+      const matchTiming = e.when === timing;
+      const matchTarget = !filterTarget || e.target === filterTarget;
+      return matchTiming && matchTarget;
+    });
     if (triggered.length === 0) return;
 
     for (const eff of triggered) {
@@ -621,15 +570,58 @@ export class TrespasserEffectsHelper {
         await eff.item.update({ "system.intensity": currentIntensity + increment });
       }
 
-      // Handle triggers-based duration
-      if (eff.duration === "triggers") {
-        const remaining = (eff.durationValue || 0) - 1;
-        if (remaining <= 0) {
-          await eff.item.delete();
-        } else {
-          await eff.item.update({ "system.durationValue": remaining });
-        }
+      // Process duration consumption
+      const durationConditions = eff.item.system.durationConditions || [];
+      const hasRoundDuration = durationConditions.some(c => c.mode === "round");
+      const hasTriggerDuration = durationConditions.some(c => c.mode === "trigger");
+
+      if (timing === "end-of-round" && hasRoundDuration) {
+        const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "round");
+        if (shouldExpire) await eff.item.delete();
+        else await eff.item.update({ "system.durationConditions": updatedConditions });
+      } else if (hasTriggerDuration) {
+        const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "trigger");
+        if (shouldExpire) await eff.item.delete();
+        else await eff.item.update({ "system.durationConditions": updatedConditions });
       }
+    }
+  }
+
+  /**
+   * Dialog to apply an oil to an equipped weapon.
+   * @param {Actor} actor 
+   * @param {Item} oilItem 
+   */
+  static async applyOilDialog(actor, oilItem) {
+    const equippedWeapons = actor.items.filter(i => 
+      i.type === "weapon" && 
+      i.system.equipped && 
+      ["melee", "missile"].includes(i.system.type)
+    );
+    if (equippedWeapons.length === 0) {
+      ui.notifications.warn("No equipped weapons to apply oil to.");
+      return;
+    }
+
+    const weaponId = await showOilDialog(equippedWeapons, oilItem);
+    if (!weaponId) return;
+
+    const weapon = actor.items.get(weaponId);
+    if (!weapon) return;
+
+    const existingOilEffects = weapon.system.oilEffects || [];
+    const newEffects = (oilItem.system.effects || []).map(e => ({
+      ...e,
+      sourceOil: oilItem.id
+    }));
+
+    await weapon.update({ "system.oilEffects": [...existingOilEffects, ...newEffects] });
+    ui.notifications.info(game.i18n.format("TRESPASSER.Dialog.ApplyOil.Applied", { oil: oilItem.name, weapon: weapon.name }));
+    
+    // Consume oil if it's an item
+    if (oilItem.system.quantity !== undefined) {
+      if (oilItem.system.quantity > 1) await oilItem.update({ "system.quantity": oilItem.system.quantity - 1 });
+      else await oilItem.delete();
     }
   }
 
@@ -698,12 +690,7 @@ export class TrespasserEffectsHelper {
       await item.update({ "system.intensity": intensity + increment });
     }
 
-    // Handle triggers-based duration
-    if (item.system.duration === "triggers") {
-      const remaining = (item.system.durationValue || 0) - 1;
-      if (remaining <= 0) await item.delete();
-      else await item.update({ "system.durationValue": remaining });
-    }
+    await item.delete();
   }
 
   /**
@@ -790,5 +777,35 @@ export class TrespasserEffectsHelper {
       }
     }
     return flavor;
+  }
+  /**
+   * Decrements "round" duration for all standalone effects on an actor.
+   * @param {Actor} actor 
+   */
+  static async decrementRound(actor) {
+    if (!actor) return;
+    const effects = actor.items.filter(i => i.type === "effect");
+    for (const item of effects) {
+      const { shouldExpire, updatedConditions } = DurationHelper.processEvent(item, "round");
+      if (shouldExpire) {
+        await item.delete();
+      } else {
+        // Only update if round were actually decremented
+        const current = DurationHelper.getConditions(item);
+        const hasChanged = JSON.stringify(current) !== JSON.stringify(updatedConditions);
+        if (hasChanged) {
+          await item.update({ "system.durationConditions": updatedConditions });
+        }
+      }
+    }
+  }
+
+  static async openEffectSheet(uuid, callback) {
+    const doc = await fromUuid(uuid);
+    if (!doc) return;
+    doc.sheet._updateObject = async (_event, formData) => {
+      if (callback) await callback(doc, formData);
+    } 
+    doc.sheet.render(true);
   }
 }

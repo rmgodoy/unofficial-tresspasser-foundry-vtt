@@ -12,8 +12,8 @@ const { api, sheets } = foundry.applications;
 export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
 
   static DEFAULT_OPTIONS = {
-    classes: ["trespasser", "sheet", "dungeon"],
-    position: { width: 1280, height: 1280 },
+    classes: ["trespasser", "sheet", "dungeon", "trespasser-sheet"],
+    position: { width: 670, height: 760 },
     actions: {
       switchTab: TrespasserDungeonSheet.#onSwitchTab,
       createRoom: TrespasserDungeonSheet.#onCreateRoom,
@@ -151,7 +151,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
     context.encounterTableId = system.encounterTableId || "";
     if (system.encounterTableId) {
       const table = game.tables.get(system.encounterTableId);
-      context.encounterTableName = table?.name ?? "Unknown Table";
+      context.encounterTableName = table?.name ?? game.i18n.localize("TRESPASSER.Dungeon.UnknownTable");
       if (table) {
         context.encounterTableFormula = table.formula ?? "";
         const tableData = table.toObject();
@@ -273,7 +273,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
 
   static async #onCreateEncounterTable(event, target) {
     const table = await RollTable.create({
-      name: `${this.actor.name} Encounters`,
+      name: `${this.actor.name} ${game.i18n.localize("TRESPASSER.Dungeon.Encounters")}`,
       formula: "1d6"
     });
     await this.actor.update({ "system.encounterTableId": table.id });
@@ -303,7 +303,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
 
     // Only allow room items on dungeons
     if (item.type !== "room") {
-      ui.notifications.warn("Dungeons can only hold Room items.");
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Dungeon.DropRoomsOnly"));
       return false;
     }
 

@@ -168,7 +168,6 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
    */
   prepareDerivedData() {
     const actor  = this.parent;
-    const st     = this.states;
     const level  = this.level;
 
     // 0. Fetch and store Effect Bonuses in the document field
@@ -189,40 +188,31 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     // 1. Progression Advancement
     this.xp_to_next_level = currentTableData.xp || (level * 10);
     this.skill = currentTableData.skillBonus || (2 + Math.floor(level / 3));
-    this.skill_die = currentTableData.skillDie || "d6";
-
-    // 2. Effective Core Attributes (for calculation purposes)
-    const eff = {
-      mighty:    this.attributes.mighty + this.bonuses.mighty,
-      agility:   this.attributes.agility + this.bonuses.agility,
-      intellect: this.attributes.intellect + this.bonuses.intellect,
-      spirit:    this.attributes.spirit + this.bonuses.spirit
-    };
-
-    // 3. Resources
+    // 2. Resources
     const baseHP = currentTableData.hp || ((level + 1) * 5);
-    this.max_health = baseHP + (level + 1) * eff.mighty + this.bonuses.max_health;
-    this.max_endurance = 10 + eff.spirit;
+    // Use base attributes for derived resources
+    this.max_health = baseHP + (level + 1) * this.attributes.mighty;
+    this.max_endurance = 10 + this.attributes.spirit;
     this.max_recovery_dice = this.max_endurance;
 
-    // 4. Armor Calculation from items
+    // 3. Armor Calculation from items (base only)
     let totalArmor = 0;
     if (actor && actor.items) {
       const equippedArmor = actor.items.filter(i => i.type === "armor" && i.system.equipped);
       totalArmor = equippedArmor.reduce((acc, item) => acc + (item.system.armorRating || 0), 0);
     }
-    this.armor = totalArmor + this.bonuses.armor;
+    this.armor = totalArmor;
 
-    // 5. Combat Derived Stats
-    const keyAttrValue = eff[this.key_attribute] ?? eff.mighty;
+    // 4. Combat Derived Stats (pure base values)
+    const keyAttrValue = this.attributes[this.key_attribute] ?? this.attributes.mighty;
 
-    this.combat.initiative = eff.agility + this.skill + (st.hastened ?? 0) + this.bonuses.initiative;
-    this.combat.accuracy   = keyAttrValue + this.skill + (st.accurate  ?? 0) + this.bonuses.accuracy;
-    this.combat.guard      = eff.agility + this.armor + (st.guarded   ?? 0) + this.bonuses.guard;
-    this.combat.resist     = eff.spirit  + this.skill + (st.willfull  ?? 0) + this.bonuses.resist;
-    this.combat.prevail    = eff.intellect + this.skill + this.bonuses.prevail;
-    this.combat.tenacity   = eff.mighty  + eff.spirit + this.bonuses.tenacity;
-    this.combat.speed      = 5 + (st.swift ?? 0) + this.bonuses.speed;
+    this.combat.initiative = this.attributes.agility + this.skill;
+    this.combat.accuracy   = keyAttrValue + this.skill;
+    this.combat.guard      = this.attributes.agility + this.armor;
+    this.combat.resist     = this.attributes.spirit  + this.skill;
+    this.combat.prevail    = this.attributes.intellect + this.skill;
+    this.combat.tenacity   = this.attributes.mighty  + this.attributes.spirit;
+    this.combat.speed      = 5;
 
     // 6. Deeds Capacity
     this.deed_slots.light = 0;
@@ -241,7 +231,7 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
       });
     }
 
-    this.inventory_max = 5 + eff.mighty;
+    this.inventory_max = 5 + this.attributes.mighty;
 
     // 7. Deed Max and Attribute Points
     this.deed_max.light  = currentTableData.deedsLight  ?? 6;

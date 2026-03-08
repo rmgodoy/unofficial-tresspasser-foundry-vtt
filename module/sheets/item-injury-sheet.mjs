@@ -1,3 +1,5 @@
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+
 /**
  * Sheet for the Injury item type.
  * Minimalist — no tabs, consistent with the Weapon sheet style.
@@ -182,30 +184,10 @@ export class TrespasserInjurySheet extends foundry.appv1.sheets.ItemSheet {
     const targetType = "effects";
     const currentArray = [...(this.item.system[targetType] || [])];
     const effectData = foundry.utils.deepClone(currentArray[index]);
-    
-    // Rename/Remove conflicting fields before passing to Item.implementation
-    const docType = effectData.type || "effect";
-    delete effectData.type;
-    delete effectData.uuid;
-    delete effectData.name;
-    delete effectData.img;
 
-    const tempItem = new Item.implementation({
-      name: effectData.name || "Effect",
-      type: docType,
-      img: effectData.img,
-      system: effectData
-    }, { parent: this.item.parent });
-
-    tempItem.update = async (updateData) => {
-      const arr = [...(this.item.system[targetType] || [])];
-      arr[index] = foundry.utils.mergeObject(arr[index], updateData.system || updateData);
-      await this.item.update({
-        [`system.${targetType}`]: arr
-      });
-      return tempItem;
-    };
-
-    tempItem.sheet.render(true);
+    if(effectData.uuid) {
+      await TrespasserEffectsHelper.openEffectSheet(effectData.uuid);
+      return;
+    }
   }
 }

@@ -272,7 +272,7 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
 
     let content = `<div class="trespasser-group-check">`;
     content += `<h3>${game.i18n.localize("TRESPASSER.Party.GroupCheck")}: ${checkLabel}</h3>`;
-    content += `<p class="group-check-dc-line">DC ${dc}</p>`;
+    content += `<p class="group-check-dc-line">${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</p>`;
     content += `<div class="group-check-results">`;
     for (const r of results) {
       const cls = r.success ? "success" : "failure";
@@ -285,13 +285,13 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     }
     content += `</div>`;
     content += `<div class="group-check-summary">`;
-    content += `<strong>${successes} / ${total}</strong> succeeded`;
+    content += `<strong>${successes} / ${total}</strong> ${game.i18n.localize("TRESPASSER.Party.Succeeded")}`;
     if (allSucceed) {
-      content += ` — <span class="group-check-all">All succeed!</span>`;
+      content += ` — <span class="group-check-all">${game.i18n.localize("TRESPASSER.Party.AllSucceed")}</span>`;
     } else if (halfOrMore) {
-      content += ` — <span class="group-check-half">Half or more succeed</span>`;
+      content += ` — <span class="group-check-half">${game.i18n.localize("TRESPASSER.Party.HalfMoreSucceed")}</span>`;
     } else {
-      content += ` — <span class="group-check-fail">Fewer than half succeed</span>`;
+      content += ` — <span class="group-check-fail">${game.i18n.localize("TRESPASSER.Party.FewerHalfSucceed")}</span>`;
     }
     content += `</div></div>`;
 
