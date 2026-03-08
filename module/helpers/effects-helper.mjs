@@ -426,6 +426,47 @@ export class TrespasserEffectsHelper {
   }
 
   /**
+   * Evaluates and triggers all 'use' effects for a specific attribute.
+   * Sums the results, replaces placeholders, rolls any dice formulas, and
+   * decrements/triggers the usage conditions on the original effect items.
+   *
+   * @param {Actor}  actor
+   * @param {string} attributeKey  The attribute to get bonuses for (e.g., "mighty", "accuracy")
+   * @param {Object} [options]
+   * @param {boolean} [options.toMessage]  Whether to post the evaluation rolls to chat
+   * @returns {Promise<number>}  The total numeric bonus from triggered effects
+   */
+  static async evaluateAttributeBonus(actor, attributeKey, { toMessage = true } = {}) {
+    if (!actor) return 0;
+    const effects = this.getActorEffects(actor);
+    const allEffects = [...effects.combat, ...effects.nonCombat];
+
+    let total = 0;
+    for (const eff of allEffects) {
+      // We only care about effects targeting this attribute and triggering on 'use'
+      if (eff.target !== attributeKey || eff.when !== "use") continue;
+      
+      const value = await this.evaluateModifier(
+        eff.modifier,
+        eff.intensity || 0,
+        { actor, toMessage }
+      );
+      total += value;
+
+      // Trigger usage decrement and expiry
+      if (eff.item) {
+        const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "trigger");
+        if (shouldExpire) {
+            if (eff.item.type === "effect" || eff.item.type === "state") await eff.item.delete();
+        } else {
+            await eff.item.update({ "system.durationConditions": updatedConditions });
+        }
+      }
+    }
+    return total;
+  }
+
+  /**
    * Asynchronously evaluates all modifiers for a damage attribute key (damage_dealt / damage_received),
    * rolling any dice expressions and resolving <sd> / <wd> tokens from the actor's current state.
    *

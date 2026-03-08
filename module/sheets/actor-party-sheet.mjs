@@ -12,6 +12,7 @@
  */
 
 const { api, sheets } = foundry.applications;
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
 
@@ -64,17 +65,17 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
 
     // Attributes and skills for the group check dropdowns
     context.attributes = [
-      { key: "mighty", label: game.i18n.localize("TRESPASSER.Attributes.Mighty") },
-      { key: "agility", label: game.i18n.localize("TRESPASSER.Attributes.Agility") },
-      { key: "intellect", label: game.i18n.localize("TRESPASSER.Attributes.Intellect") },
-      { key: "spirit", label: game.i18n.localize("TRESPASSER.Attributes.Spirit") }
+      { key: "mighty", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Mighty") },
+      { key: "agility", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Agility") },
+      { key: "intellect", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Intellect") },
+      { key: "spirit", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Spirit") }
     ];
     context.skills = [
       "acrobatics", "alchemy", "athletics", "crafting", "folklore", "letters",
       "magic", "nature", "perception", "speech", "stealth", "tinkering"
     ].map(s => ({
       key: s,
-      label: game.i18n.localize(`TRESPASSER.Skills.${s.charAt(0).toUpperCase() + s.slice(1)}`)
+      label: game.i18n.localize(`TRESPASSER.Sheet.Skills.${s.charAt(0).toUpperCase() + s.slice(1)}`)
     }));
 
     // Default DC from active dungeon if one is running
@@ -98,40 +99,27 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
   _buildMemberContext(actor, lightTags) {
     const s = actor.system;
 
-    // Count rations
+    // Count rations (total quantity of all 'rations' type items)
     const rations = actor.items
       .filter(i => i.type === "rations")
       .reduce((sum, i) => sum + (i.system.quantity ?? 1), 0);
 
-    // Count injuries (stored as string array on system.injuries, or as embedded injury items)
-    const injuries = (s.injuries?.length ?? 0) || actor.items.filter(i => i.type === "injury").length;
+    // Count injuries (total number of 'injury' type items)
+    const injuries = actor.items.filter(i => i.type === "injury").length;
 
-    // Light sources (same detection as dungeon tracker)
+    // Light sources (as requested: sub-type of light source or weapons with light source property)
     const lightSources = [];
     for (const item of actor.items) {
       let isLight = false;
-      let depDie = "";
 
-      if (item.system.isLightFuel) {
-        isLight = true;
-        depDie = item.system.depletionDie ?? "";
-      }
-
-      if (!isLight && item.type === "equipment") {
-        if (!item.system.equipped && item.system.equipped !== undefined) continue;
-        const tags = item.system.tags ?? [];
-        const tagMatch = tags.some(t => lightTags.includes(t.toLowerCase()));
-        const nameMatch = lightTags.some(t => item.name.toLowerCase().includes(t));
-        if (tagMatch || nameMatch) {
-          isLight = true;
-          depDie = item.system.depletionDie ?? "";
-        }
-      }
+      if (item.type === "item" && item.system.subType === "light_source") isLight = true;
+      else if (item.type === "weapon" && item.system.isLightSource) isLight = true;
+      else if (item.system.isLightFuel) isLight = true;
 
       if (isLight) {
         lightSources.push({
           name: item.name,
-          depletionDie: depDie,
+          depletionDie: item.system.depletionDie ?? "",
           quantity: item.system.quantity ?? 1
         });
       }
@@ -149,7 +137,8 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
       recoveryDice: s.recovery_dice ?? 0,
       recoveryDiceMax: s.max_recovery_dice ?? 0,
       resolve: s.resolve ?? 0,
-      armor: s.armor ?? 0,
+      armor: s.armorDieAmmount ?? 0,
+      armorMax: actor.items.filter(i => i.type === "armor" && i.system.equipped).length,
       rations,
       injuries,
       lightSources
@@ -172,6 +161,80 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
       }
     } catch { /* no tracker available */ }
     return null;
+  }
+
+  /* -------------------------------------------- */
+  /* Lifecycle                                    */
+  /* -------------------------------------------- */
+
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Register hooks to refresh the party sheet when a member's data changes
+    if (!this._memberUpdateHookId) {
+      this._memberUpdateHookId = Hooks.on("updateActor", (actor, changed) => {
+        const members = this.document.system.members ?? [];
+        if (members.includes(actor.id)) {
+          this.render();
+        }
+      });
+
+      this._memberDeleteHookId = Hooks.on("deleteActor", (actor) => {
+        const members = this.document.system.members ?? [];
+        if (members.includes(actor.id)) {
+          const newMembers = members.filter(id => id !== actor.id);
+          this.document.update({ "system.members": newMembers });
+          this.render();
+        }
+      });
+
+      this._memberItemUpdateHookId = Hooks.on("updateItem", (item) => {
+        const members = this.document.system.members ?? [];
+        if (item.parent?.id && members.includes(item.parent.id)) {
+          this.render();
+        }
+      });
+
+      this._memberItemCreateHookId = Hooks.on("createItem", (item) => {
+        const members = this.document.system.members ?? [];
+        if (item.parent?.id && members.includes(item.parent.id)) {
+          this.render();
+        }
+      });
+
+      this._memberItemDeleteHookId = Hooks.on("deleteItem", (item) => {
+        const members = this.document.system.members ?? [];
+        if (item.parent?.id && members.includes(item.parent.id)) {
+          this.render();
+        }
+      });
+    }
+  }
+
+  /** @override */
+  async close(options = {}) {
+    if (this._memberUpdateHookId) {
+      Hooks.off("updateActor", this._memberUpdateHookId);
+      this._memberUpdateHookId = null;
+    }
+    if (this._memberDeleteHookId) {
+      Hooks.off("deleteActor", this._memberDeleteHookId);
+      this._memberDeleteHookId = null;
+    }
+    if (this._memberItemUpdateHookId) {
+      Hooks.off("updateItem", this._memberItemUpdateHookId);
+      this._memberItemUpdateHookId = null;
+    }
+    if (this._memberItemCreateHookId) {
+      Hooks.off("createItem", this._memberItemCreateHookId);
+      this._memberItemCreateHookId = null;
+    }
+    if (this._memberItemDeleteHookId) {
+      Hooks.off("deleteItem", this._memberItemDeleteHookId);
+      this._memberItemDeleteHookId = null;
+    }
+    return super.close(options);
   }
 
   /* -------------------------------------------- */
@@ -228,19 +291,60 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     }
 
     const memberIds = this.document.system.members ?? [];
-    const members = memberIds
+    const allMembers = memberIds
       .map(id => game.actors.get(id))
       .filter(a => a?.type === "character");
 
-    if (members.length === 0) {
+    if (allMembers.length === 0) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Party.NoMembers"));
       return;
     }
 
+    let members = allMembers;
+    const alwaysFull = game.settings.get("trespasser", "groupCheckFullParty");
+    if (!alwaysFull) {
+      const selection = await new Promise(resolve => {
+        new Dialog({
+          title: game.i18n.localize("TRESPASSER.Party.SelectParticipants"),
+          content: `
+            <p>${game.i18n.localize("TRESPASSER.Party.SelectParticipantsHint")}</p>
+            <div class="participant-selection" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
+              ${allMembers.map(m => `
+                <div class="form-group" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px; border-bottom: 1px solid #444; padding: 4px;">
+                  <input type="checkbox" name="participant" value="${m.id}" checked>
+                  <img src="${m.img}" width="24" height="24" style="border-radius: 4px; border: 1px solid #666;">
+                  <label style="flex: 1;">${m.name}</label>
+                </div>
+              `).join('')}
+            </div>
+          `,
+          buttons: {
+            run: {
+              icon: '<i class="fas fa-dice"></i>',
+              label: game.i18n.localize("TRESPASSER.Party.RunCheck"),
+              callback: (html) => {
+                const selectedIds = html.find('input[name="participant"]:checked').map((i, el) => el.value).get();
+                resolve(allMembers.filter(m => selectedIds.includes(m.id)));
+              }
+            },
+            cancel: {
+              icon: '<i class="fas fa-times"></i>',
+              label: game.i18n.localize("TRESPASSER.General.Cancel"),
+              callback: () => resolve(null)
+            }
+          },
+          default: "run"
+        }, { classes: ["trespasser", "dialog", "group-participant-select"] }).render(true);
+      });
+
+      if (!selection || selection.length === 0) return;
+      members = selection;
+    }
+
     // Build the check label
-    const attrLabel = game.i18n.localize(`TRESPASSER.Attributes.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
+    const attrLabel = game.i18n.localize(`TRESPASSER.Sheet.Attributes.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
     const skillLabel = skill
-      ? game.i18n.localize(`TRESPASSER.Skills.${skill.charAt(0).toUpperCase() + skill.slice(1)}`)
+      ? game.i18n.localize(`TRESPASSER.Sheet.Skills.${skill.charAt(0).toUpperCase() + skill.slice(1)}`)
       : null;
     const checkLabel = skillLabel ? `${attrLabel} | ${skillLabel}` : attrLabel;
 
@@ -248,9 +352,18 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     const results = [];
     for (const actor of members) {
       const data = actor.system;
-      const attrValue = data.attributes?.[attribute] ?? 0;
-      const skillDie = data.skill_die || "d6";
-      const formula = `1${skillDie} + ${attrValue}`;
+      const attrBase = data.attributes?.[attribute] ?? 0;
+      const staticBonus = data.bonuses?.[attribute] ?? 0;
+      
+      // Skill bonus if trained
+      const isTrained = skill && data.skills?.[skill] === true;
+      const skillBonus = isTrained ? (data.skill ?? 0) : 0;
+      
+      // Get triggered bonus and consume usage charges
+      const triggeredBonus = await TrespasserEffectsHelper.evaluateAttributeBonus(actor, attribute);
+      
+      const totalBonus = attrBase + staticBonus + skillBonus + triggeredBonus;
+      const formula = `1d20 + ${totalBonus}`;
 
       const roll = new foundry.dice.Roll(formula);
       await roll.evaluate();

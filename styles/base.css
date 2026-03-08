@@ -26,7 +26,8 @@
 
 /* ─── Sheet Root ─── */
 .trespasser-sheet,
-.trespasser.dungeon-tracker {
+.trespasser.dungeon-tracker,
+.trespasser.sheet.party {
   /* Fallbacks for V2 sheets missing Foundry V1 variables */
   --color-scrollbar: #782e22;
   --color-scrollbar-track: transparent;

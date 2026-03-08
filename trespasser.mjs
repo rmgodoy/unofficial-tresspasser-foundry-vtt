@@ -141,6 +141,15 @@ Hooks.once("init", async () => {
     default: false
   });
 
+  game.settings.register("trespasser", "groupCheckFullParty", {
+    name: "TRESPASSER.Config.GroupCheckFullParty",
+    hint: "TRESPASSER.Config.GroupCheckFullPartyHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
@@ -522,6 +531,16 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
   if (changed.flags?.trespasser?.activePhase !== undefined) {
     combat.updateTurnMarkers(changed.flags.trespasser.activePhase);
+  }
+});
+
+Hooks.on("updateCombatant", (combatant, changed, options, userId) => {
+  if (!game.combat) return;
+  const isDefeatedChanged = changed.defeated !== undefined;
+  const isAPChanged = changed.flags?.trespasser?.actionPoints !== undefined;
+  if (isDefeatedChanged || isAPChanged) {
+    const activePhase = game.combat.getFlag("trespasser", "activePhase");
+    game.combat.updateTurnMarkers(activePhase);
   }
 });
 
@@ -1053,7 +1072,11 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
       : "";
 
     const combatantsHTML = phaseData.combatants.map(({ combatant, ap, focus }) => {
-      const isFinished = ap <= 0 || combatant.isDefeated;
+      const isDefeated = combatant.defeated;
+      const isHidden   = combatant.token?.hidden ?? combatant.hidden;
+      const isTargeted = game.user.targets.has(combatant.token?.object);
+
+      const isFinished = ap <= 0 || isDefeated;
       const isActv     = phaseData.id === activePhase && !isFinished;
       const name       = combatant.token?.name ?? combatant.name;
       const img        = combatant.token?.texture?.src ?? combatant.img;
@@ -1068,13 +1091,19 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
           <div class="combatant-info flexcol">
             <div class="token-name"><h4>${name}</h4></div>
             <div class="combatant-status flexrow">
-              <i class="fas fa-eye-slash" title="Hidden"></i>
-              <i class="fas fa-skull" title="Defeated"></i>
-              <i class="fas fa-bullseye" title="Targeting"></i>
+              <a class="combatant-control ${isHidden ? "active" : ""}" data-action="toggleHidden" title="${game.i18n.localize("COMBAT.ToggleVis")}">
+                <i class="fas ${isHidden ? "fa-eye-slash" : "fa-eye"}"></i>
+              </a>
+              <a class="combatant-control ${isDefeated ? "active" : ""}" data-action="toggleDefeated" title="${game.i18n.localize("COMBAT.ToggleDead")}">
+                <i class="fas fa-skull"></i>
+              </a>
+              <a class="combatant-control ${isTargeted ? "active" : ""}" data-action="toggleTarget" title="${game.i18n.localize("COMBAT.ToggleTarget")}">
+                <i class="fas fa-bullseye"></i>
+              </a>
             </div>
           </div>
           <div class="stats-area flexcol">`
-             + (focus > 0 ? `<span class="focus-number">${focus}</span>` : "")
+             + (focus > 0 ? `<div class="focus-display flexrow"><span class="focus-number">${focus}</span></div>` : "")
             + `<div class="ap-display flexrow">
               <div class="ap-indicator flexrow">${buildIcons(ap, "ap")}</div>
             </div>
@@ -1160,6 +1189,32 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
       const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 3;
       const newAP = Math.max(0, currentAP - 1);
       await combatant.setFlag("trespasser", "actionPoints", newAP);
+    });
+  });
+
+  root.querySelectorAll(".combatant-control[data-action]").forEach(el => {
+    el.addEventListener("click", async ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const li = el.closest(".combatant");
+      const combatant = game.combat?.combatants.get(li?.dataset.combatantId);
+      if (!combatant) return;
+
+      const action = el.dataset.action;
+      switch (action) {
+        case "toggleHidden":
+          if (!game.user.isGM && !combatant.testUserPermission(game.user, "OWNER")) return;
+          const t = combatant.token;
+          if (t) return t.update({ hidden: !t.hidden });
+          return combatant.update({ hidden: !combatant.hidden });
+        case "toggleDefeated":
+          if (!game.user.isGM && !combatant.testUserPermission(game.user, "OWNER")) return;
+          return app._onToggleDefeatedStatus(combatant);
+        case "toggleTarget":
+          const token = combatant.token?.object;
+          if (!token) return;
+          return token.setTarget(!token.isTargeted, { releaseOthers: false });
+      }
     });
   });
 });

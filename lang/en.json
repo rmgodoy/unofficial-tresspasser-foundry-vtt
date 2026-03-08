@@ -25,6 +25,8 @@
       "RestrictHUDActionsHint": "If enabled, HUD actions (Defend, Help, etc.) can only be used once per turn unless otherwise specified.",
       "RestrictAPFocusUsage": "Restrict AP and Focus action usage",
       "RestrictAPFocusUsageHint": "If enabled, the system enforces AP and Focus costs. If disabled, actions can be used without sufficient points.",
+      "GroupCheckFullParty": "Group Check always use full party",
+      "GroupCheckFullPartyHint": "If enabled, group checks will always include all party members without showing a selection popup.",
       "Save": "Save",
       "Cancel": "Cancel",
       "SavedNotice": "Trespasser Configuration saved."
@@ -131,6 +133,20 @@
         "Intellect": "Intellect",
         "Spirit": "Spirit"
       },
+      "Skills": {
+        "Acrobatics": "Acrobatics",
+        "Alchemy": "Alchemy",
+        "Athletics": "Athletics",
+        "Crafting": "Crafting",
+        "Folklore": "Folklore",
+        "Letters": "Letters",
+        "Magic": "Magic",
+        "Nature": "Nature",
+        "Perception": "Perception",
+        "Speech": "Speech",
+        "Stealth": "Stealth",
+        "Tinkering": "Tinkering"
+      },
       "Tabs": {
         "Character": "Character",
         "Equipments": "Equipments",
@@ -160,20 +176,6 @@
         "NoFeatures": "No features yet.",
         "NoTalents": "No talents yet.",
         "NoIncantations": "No incantations yet."
-      },
-      "Skills": {
-        "Acrobatics": "Acrobatics",
-        "Alchemy": "Alchemy",
-        "Athletics": "Athletics",
-        "Crafting": "Crafting",
-        "Folklore": "Folklore",
-        "Letters": "Letters",
-        "Magic": "Magic",
-        "Nature": "Nature",
-        "Perception": "Perception",
-        "Speech": "Speech",
-        "Stealth": "Stealth",
-        "Tinkering": "Tinkering"
       },
       "Equipments": {
         "Weapon": "Weapon",
@@ -843,6 +845,13 @@
       "NoSkill": "— No Skill —",
       "Roll": "Roll",
       "SelectAttribute": "Select an attribute for the group check.",
+      "SelectParticipants": "Select Participants",
+      "SelectParticipantsHint": "Choose which party members will participate in this check.",
+      "RunCheck": "Run Check",
+      "Succeeded": "Succeeded",
+      "AllSucceed": "Total Success!",
+      "HalfMoreSucceed": "Success!",
+      "FewerHalfSucceed": "Failure",
       "Resource": {
         "HP": "Hit Points",
         "Endurance": "Endurance",

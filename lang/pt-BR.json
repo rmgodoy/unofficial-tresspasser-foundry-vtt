@@ -25,6 +25,8 @@
       "RestrictHUDActionsHint": "Se habilitado, ações do HUD (Defender, Ajudar, etc.) só podem ser usadas uma vez por turno, a menos que especificado de outra forma.",
       "RestrictAPFocusUsage": "Restringir uso de PA e Foco",
       "RestrictAPFocusUsageHint": "Se habilitado, o sistema impõe custos de PA e Foco. Se desabilitado, as ações podem ser usadas sem pontos suficientes.",
+      "GroupCheckFullParty": "Teste de Grupo sempre usa todo o grupo",
+      "GroupCheckFullPartyHint": "Se habilitado, os testes de grupo sempre incluirão todos os membros do grupo sem mostrar uma janela de seleção.",
       "Save": "Salvar",
       "Cancel": "Cancelar",
       "SavedNotice": "Configuração do Trespasser salva."
@@ -129,6 +131,20 @@
         "Intellect": "Intelecto",
         "Spirit": "Espírito"
       },
+      "Skills": {
+        "Acrobatics": "Acrobacia",
+        "Alchemy": "Alquimia",
+        "Athletics": "Atletismo",
+        "Crafting": "Ofício",
+        "Folklore": "Folclore",
+        "Letters": "Letras",
+        "Magic": "Magia",
+        "Nature": "Natureza",
+        "Perception": "Percepção",
+        "Speech": "Lábia",
+        "Stealth": "Furtividade",
+        "Tinkering": "Engenhocaria"
+      },
       "Tabs": {
         "Character": "Personagem",
         "Equipments": "Equipamentos",
@@ -158,20 +174,6 @@
         "NoFeatures": "Nenhuma característica ainda.",
         "NoTalents": "Nenhum talento ainda.",
         "NoIncantations": "Nenhum encantamento ainda."
-      },
-      "Skills": {
-        "Acrobatics": "Acrobacia",
-        "Alchemy": "Alquimia",
-        "Athletics": "Atletismo",
-        "Crafting": "Artesanato",
-        "Folklore": "Folclore",
-        "Letters": "Letras",
-        "Magic": "Magia",
-        "Nature": "Natureza",
-        "Perception": "Percepção",
-        "Speech": "Lábia",
-        "Stealth": "Furtividade",
-        "Tinkering": "Engenharia"
       },
       "Equipments": {
         "Weapon": "Arma",
@@ -818,6 +820,41 @@
     "NewItem": "Novo {type}",
     "DeleteItemTitle": "Excluir Item",
     "DeleteItemContent": "Tem certeza que deseja excluir <strong>{name}</strong>?",
+    "Party": {
+      "NamePlaceholder": "A Companhia da Estrela de Cinza",
+      "Members": "Membros do Grupo",
+      "NoMembers": "Nenhum membro participante. Arraste atores de personagem aqui ou use o seletor abaixo.",
+      "AddMember": "Adicionar Membro",
+      "RemoveMember": "Remover do Grupo",
+      "SelectCharacter": "— Selecionar um personagem —",
+      "DropHint": "Arraste um ator de personagem aqui para adicioná-lo ao grupo",
+      "DropCharactersOnly": "Apenas atores de personagem podem ser adicionados ao grupo.",
+      "AlreadyMember": "{name} já faz parte do grupo.",
+      "MemberAdded": "{name} se juntou ao grupo.",
+      "Notes": "Notas",
+      "GroupCheck": "Teste de Grupo",
+      "Attribute": "— Atributo —",
+      "NoSkill": "— Sem Perícia —",
+      "Roll": "Rolagem",
+      "SelectAttribute": "Selecione um atributo para o teste de grupo.",
+      "SelectParticipants": "Selecionar Participantes",
+      "SelectParticipantsHint": "Escolha quais membros do grupo participarão deste teste.",
+      "RunCheck": "Realizar Teste",
+      "Succeeded": "Sucesso(s)",
+      "AllSucceed": "Sucesso Total!",
+      "HalfMoreSucceed": "Sucesso!",
+      "FewerHalfSucceed": "Falha",
+      "Resource": {
+        "HP": "Pontos de Vida",
+        "Endurance": "Vigor",
+        "RecoveryDice": "Dados de Recuperação",
+        "Resolve": "Resolução",
+        "Armor": "Armadura",
+        "Rations": "Rações",
+        "Injuries": "Ferimentos",
+        "Light": "Fontes de Luz"
+      }
+    },
     "Character": "Personagem",
     "Creature": "Criatura",
     "Dungeon": {
@@ -1092,13 +1129,7 @@
     "Armor": "Armadura",
     "Focus": "Foco",
     "Level": "Nível",
-    "Experience": "Experiência",
-    "Party": {
-      "Label": "Grupo",
-      "Roll": "Rolagem",
-      "GroupCheck": "Teste de Grupo",
-      "NoMembers": "Nenhum membro no grupo."
-    }
+    "Experience": "Experiência"
   },
   "TYPES": {
     "Actor": {

@@ -36,7 +36,8 @@ This project aims to provide a robust and automated experience for playing Tresp
 
 ## Contributors
 
-- **Lead Developer:** [rmgodoy](https://github.com/rmgodoy)
+- [rmgodoy](https://github.com/rmgodoy)
+- [Smothmoth](https://github.com/Smothmoth)
 
 ---
 
