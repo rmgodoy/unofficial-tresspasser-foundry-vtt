@@ -137,7 +137,8 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
       recoveryDice: s.recovery_dice ?? 0,
       recoveryDiceMax: s.max_recovery_dice ?? 0,
       resolve: s.resolve ?? 0,
-      armor: s.armor ?? 0,
+      armor: s.armorDieAmmount ?? 0,
+      armorMax: actor.items.filter(i => i.type === "armor" && i.system.equipped).length,
       rations,
       injuries,
       lightSources

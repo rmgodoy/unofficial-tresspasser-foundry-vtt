@@ -100,6 +100,7 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
       }),
 
       armor: new fields.NumberField({ required: true, integer: true, initial: 0, min: 0 }),
+      armorDieAmmount: new fields.NumberField({ required: true, integer: true, initial: 0, min: 0 }),
 
       // Derived combat stats
       combat: new fields.SchemaField({
@@ -197,11 +198,14 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
 
     // 3. Armor Calculation from items (base only)
     let totalArmor = 0;
+    let armorDieAmmount = 0;
     if (actor && actor.items) {
       const equippedArmor = actor.items.filter(i => i.type === "armor" && i.system.equipped);
       totalArmor = equippedArmor.reduce((acc, item) => acc + (item.system.armorRating || 0), 0);
+      armorDieAmmount = equippedArmor.filter(i => !i.system.broken).length;
     }
     this.armor = totalArmor;
+    this.armorDieAmmount = armorDieAmmount;
 
     // 4. Combat Derived Stats (pure base values)
     const keyAttrValue = this.attributes[this.key_attribute] ?? this.attributes.mighty;
