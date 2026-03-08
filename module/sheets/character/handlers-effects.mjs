@@ -8,9 +8,9 @@ import { askAPDialog }             from "../../dialogs/ap-dialog.mjs";
 import { TrespasserCombat }        from "../../documents/combat.mjs";
 import { showItemInfoDialog }      from "../../dialogs/item-info-dialog.mjs";
 
-export async function onPrevailRoll(event, sheet) {
+export async function onPrevailRoll(event, sheet, target) {
   event.preventDefault();
-  const li         = event.currentTarget.closest(".effect-row");
+  const li         = target.closest(".effect-row");
   const effectItem = sheet.actor.items.get(li.dataset.itemId);
   if (!effectItem) return;
 
@@ -46,8 +46,8 @@ export async function onIntensityChange(event, sheet) {
   if (item) await item.update({ "system.intensity": val });
 }
 
-export async function onEffectRemove(event, sheet) {
-  const li   = event.currentTarget.closest(".effect-row");
+export async function onEffectRemove(event, sheet, target) {
+  const li   = target.closest(".effect-row");
   const item = sheet.actor.items.get(li.dataset.itemId);
   if (item) await item.delete();
 }
@@ -60,15 +60,15 @@ export async function onDurationChange(event, sheet) {
   if (item) await item.update({ "system.durationValue": val });
 }
 
-export async function onEffectInfo(event, sheet) {
-  const li = event.currentTarget.closest("[data-item-id]");
+export async function onEffectInfo(event, sheet, target) {
+  const li = target.closest("[data-item-id]");
   if (!li) return;
   const item = sheet.actor.items.get(li.dataset.itemId);
   if (item) showItemInfoDialog(item.uuid);
 }
 
-export async function onEffectEdit(event, sheet) {
-  const li     = event.currentTarget.closest(".effect-row");
+export async function onEffectEdit(event, sheet, target) {
+  const li     = target.closest(".effect-row");
   const actor  = sheet.actor;
   const itemId = li.dataset.itemId;
 

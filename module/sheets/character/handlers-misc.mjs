@@ -5,10 +5,10 @@
 
 export { buildClockSegments } from "./get-data.mjs";
 
-export async function onInjuryClockClick(event, sheet) {
+export async function onInjuryClockClick(event, sheet, target) {
   event.preventDefault();
   event.stopPropagation();
-  const el     = event.currentTarget;
+  const el     = target;
   const item   = sheet.actor.items.get(el.dataset.itemId);
   if (!item) return;
 
@@ -19,9 +19,9 @@ export async function onInjuryClockClick(event, sheet) {
   await item.update({ "system.currentClock": newVal });
 }
 
-export async function onToggleLight(event, sheet) {
+export async function onToggleLight(event, sheet, target) {
   event.preventDefault();
-  const el   = event.currentTarget.closest("[data-item-id]");
+  const el   = target.closest("[data-item-id]");
   const item = sheet.actor.items.get(el.dataset.itemId);
   if (!item) return;
 

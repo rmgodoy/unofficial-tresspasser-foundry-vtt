@@ -1,8 +1,8 @@
 /**
  * Character Sheet — Deed roll handlers
  * onDeedRoll       — orchestrator, called from both sheet and HUD
- * rollCharacterDeed — character targeting a creature
- * rollCreatureDeed  — creature targeting a character
+ * rollCharacterDeed — character targeting an NPC
+ * rollNPCDeed       — NPC targeting a character
  * postDeedPhase    — chat output for a single deed phase
  */
 
@@ -14,15 +14,15 @@ import { askAPDialog }             from "../../dialogs/ap-dialog.mjs";
 // Main orchestrator
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function onDeedRoll(event, sheet) {
+export async function onDeedRoll(event, sheet, target) {
   event.preventDefault();
-  const el = event.currentTarget.closest("[data-item-id]");
+  const el = target.closest("[data-item-id]");
   if (!el) return;
   const item = sheet.actor.items.get(el.dataset.itemId);
   if (!item) return;
 
   const isAttack  = item.system.actionType !== "support";
-  const isCreature = sheet.actor.type === "creature";
+  const isCreature = sheet.actor.type === "npc";
 
   // ── 1. Ammo check (characters only) ───────────────────────────────────────
   if (!isCreature) {

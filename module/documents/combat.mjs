@@ -314,10 +314,10 @@ export class TrespasserCombat extends Combat {
       await this.deleteEmbeddedDocuments("Combatant", extras.map(c => c.id));
     }
 
-    // 2. Identify living creatures to calculate enemy max initiative
+    // 2. Identify living NPCs to calculate enemy max initiative
     const livingCreatures = this.combatants.filter(c => {
       const actor = c.actor;
-      if ( !actor || actor.type !== "creature" ) return false;
+      if ( !actor || actor.type !== "npc" ) return false;
       return !c.defeated;
     });
 
@@ -340,7 +340,7 @@ export class TrespasserCombat extends Combat {
       const actor = c.actor;
       if ( !actor ) continue;
 
-      if ( actor.type === "creature" ) {
+      if ( actor.type === "npc" ) {
         // Enemies are set to base 30 (Enemy Phase)
         updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.ENEMY });
 
@@ -399,7 +399,7 @@ export class TrespasserCombat extends Combat {
     let panicLevel = 2;
     
     const players = baseCombatants.filter(c => c.actor?.type === "character");
-    const enemies = baseCombatants.filter(c => c.actor?.type === "creature");
+    const enemies = baseCombatants.filter(c => c.actor?.type === "npc");
 
     const livingPlayers = players.filter(c => !c.defeated);
     const livingEnemies = enemies.filter(c => !c.defeated);

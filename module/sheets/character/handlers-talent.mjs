@@ -4,10 +4,10 @@
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 
-export async function onTalentRoll(event, sheet) {
+export async function onTalentRoll(event, sheet, target) {
   event.preventDefault();
   event.stopImmediatePropagation();
-  const el = event.currentTarget.closest("[data-item-id]");
+  const el = target.closest("[data-item-id]");
   if (!el) return;
   const item = sheet.actor.items.get(el.dataset.itemId);
   if (!item) return;
@@ -101,10 +101,10 @@ export async function onTalentRoll(event, sheet) {
   }
 }
 
-export async function onFeatureRoll(event, sheet) {
+export async function onFeatureRoll(event, sheet, target) {
   event.preventDefault();
   event.stopImmediatePropagation();
-  const li   = event.currentTarget.closest("[data-item-id]");
+  const li   = target.closest("[data-item-id]");
   const item = sheet.actor.items.get(li.dataset.itemId);
   if (!item) return;
 
@@ -128,10 +128,10 @@ export async function onFeatureRoll(event, sheet) {
   await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), content });
 }
 
-export async function onIncantationRoll(event, sheet) {
+export async function onIncantationRoll(event, sheet, target) {
   event.preventDefault();
   event.stopImmediatePropagation();
-  const el = event.currentTarget.closest("[data-item-id]");
+  const el = target.closest("[data-item-id]");
   if (!el) return;
   const item = sheet.actor.items.get(el.dataset.itemId);
   if (!item) return;
@@ -157,9 +157,9 @@ export async function onIncantationRoll(event, sheet) {
   const roll = new foundry.dice.Roll(formula);
   await roll.evaluate();
 
-  const target    = 15;
-  const diff      = roll.total - target;
-  const isSuccess = roll.total >= target;
+  const dc        = 15;
+  const diff      = roll.total - dc;
+  const isSuccess = roll.total >= dc;
   let sparks = 0, shadows = 0;
 
   if (diff >= 0) sparks  = Math.floor(diff / 5);
@@ -180,7 +180,7 @@ export async function onIncantationRoll(event, sheet) {
   const flavor = `
     <div class="trespasser-chat-card incantation-card">
       <h3>Incantation: ${item.name}</h3>
-      <p><strong>${game.i18n.localize("TRESPASSER.Chat.ResultVs").split(" ")[0]}:</strong> ${roll.total} vs ${target} — ${resultText}</p>
+      <p><strong>${game.i18n.localize("TRESPASSER.Chat.ResultVs").split(" ")[0]}:</strong> ${roll.total} vs ${dc} — ${resultText}</p>
       <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
         <div class="metric spark"  style="color:#64b5f6;"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
         <div class="metric shadow" style="color:#9575cd;"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>

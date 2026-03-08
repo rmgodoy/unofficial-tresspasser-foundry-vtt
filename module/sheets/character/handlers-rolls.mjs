@@ -5,9 +5,9 @@
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 
-export async function onAttributeRoll(event, sheet) {
+export async function onAttributeRoll(event, sheet, target) {
   event.preventDefault();
-  const attrKey = event.currentTarget.dataset.attribute;
+  const attrKey = target.dataset.attribute;
   const attrVal = sheet.actor.system.attributes[attrKey] ?? 0;
   const effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, attrKey, "use");
   const label   = game.i18n.localize(`TRESPASSER.Sheet.Attributes.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
@@ -25,9 +25,9 @@ export async function onAttributeRoll(event, sheet) {
   if (result) await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: attrKey });
 }
 
-export async function onCombatStatRoll(event, sheet) {
+export async function onCombatStatRoll(event, sheet, target) {
   event.preventDefault();
-  const statKey = event.currentTarget.dataset.stat;
+  const statKey = target.dataset.stat;
   const statVal = sheet.actor.system.combat[statKey] ?? 0;
   const effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, statKey, "use");
   const label   = statKey.charAt(0).toUpperCase() + statKey.slice(1);

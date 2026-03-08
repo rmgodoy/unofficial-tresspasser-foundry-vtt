@@ -1,13 +1,16 @@
 /**
- * Character Sheet — getData helper
+ * Character Sheet — context preparation helper
  * Exports: getCharacterData(sheet, options)
  */
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 
+const { sheets } = foundry.applications;
+
 export async function getCharacterData(sheet, options = {}) {
-  const context = await foundry.appv1.sheets.ActorSheet.prototype.getData.call(sheet, options);
-  const actor   = sheet.actor;
+  const context = await sheets.ActorSheetV2.prototype._prepareContext.call(sheet, options);
+  const actor   = sheet.document;
+  context.actor  = actor;
   context.system = actor.system;
   context.flags  = actor.flags;
 

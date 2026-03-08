@@ -788,12 +788,10 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         };
 
         const { onDeedRoll } = await import("../sheets/character/handlers-deed.mjs");
-        const fakeEvent = {
-            preventDefault: () => {},
-            currentTarget: { closest: () => ({ dataset: { itemId: deedId } }) }
-        };
+        const fakeEvent = { preventDefault: () => {} };
+        const fakeTarget = { closest: () => ({ dataset: { itemId: deedId } }) };
 
-        await onDeedRoll(fakeEvent, mockSheet);
+        await onDeedRoll(fakeEvent, mockSheet, fakeTarget);
 
         this._activePanel = null;
         this.render();

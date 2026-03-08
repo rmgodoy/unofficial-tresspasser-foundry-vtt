@@ -5,9 +5,9 @@
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 
-export async function onEquipRoll(event, sheet) {
+export async function onEquipRoll(event, sheet, target) {
   event.preventDefault();
-  const slot   = event.currentTarget.dataset.slot;
+  const slot   = target.dataset.slot;
   const itemId = sheet.actor.system.equipment[slot];
   const item   = sheet.actor.items.get(itemId);
 

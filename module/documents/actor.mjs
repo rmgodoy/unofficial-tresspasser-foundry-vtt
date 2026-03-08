@@ -23,7 +23,7 @@ export class TrespasserActor extends Actor {
         case "character":
           this.updateSource({ img: "systems/trespasser/assets/icons/pesant.webp" });
           break;
-        case "creature":
+        case "npc":
           this.updateSource({ img: "systems/trespasser/assets/icons/creature.webp" });
           break;
         case "party":
@@ -579,7 +579,7 @@ export class TrespasserActor extends Actor {
 
     const intensity = stateItem.system.intensity || 0;
     const dc = Math.min(20, 10 + intensity);
-    const prevailStat = this.type === "creature" 
+    const prevailStat = this.type === "npc"
       ? (this.system.combat?.roll_bonus || 0) 
       : (this.system.combat?.prevail || 0);
     const apBonus = extraAP * 2;

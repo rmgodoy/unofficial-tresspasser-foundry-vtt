@@ -5,9 +5,9 @@
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 
-export async function onItemCreate(event, sheet) {
+export async function onItemCreate(event, sheet, target) {
   event.preventDefault();
-  const type = event.currentTarget.dataset.type ?? "deed";
+  const type = target.dataset.type ?? "deed";
 
   // Only physical inventory types count against the inventory cap
   const inventoryTypes = ["weapon", "armor", "accessory", "rations", "item"];
@@ -23,22 +23,22 @@ export async function onItemCreate(event, sheet) {
   const newLabel  = game.i18n.localize("TRESPASSER.General.New") || "New";
   const name      = `${newLabel} ${type.charAt(0).toUpperCase() + type.slice(1)}`;
   const system    = {};
-  if (event.currentTarget.dataset.tier) system.tier = event.currentTarget.dataset.tier;
+  if (target.dataset.tier) system.tier = target.dataset.tier;
 
   await foundry.documents.BaseItem.create({ name, type, system }, { parent: sheet.actor });
 }
 
-export async function onItemConsume(event, sheet) {
+export async function onItemConsume(event, sheet, target) {
   event.preventDefault();
-  const li   = event.currentTarget.closest("[data-item-id]");
+  const li   = target.closest("[data-item-id]");
   const itemId = li?.dataset.itemId;
   if (!itemId) return;
   await sheet.actor.onItemConsume(itemId);
 }
 
-export async function onDepletionRoll(event, sheet) {
+export async function onDepletionRoll(event, sheet, target) {
   event.preventDefault();
-  const li   = event.currentTarget.closest("[data-item-id]");
+  const li   = target.closest("[data-item-id]");
   const item = sheet.actor.items.get(li.dataset.itemId);
   if (!item) return;
   await sheet._runDepletionCheck(item);
