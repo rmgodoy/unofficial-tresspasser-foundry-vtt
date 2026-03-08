@@ -856,7 +856,10 @@
       "Label": "Party"
     },
     "Dungeon": {
-      "Tracker": "Dungeon Tracker",
+      "Tracker": {
+        "Title": "Dungeon Tracker",
+        "SelectDungeon": "Select Dungeon"
+      },
       "Name": "Dungeon Name",
       "NamePlaceholder": "The Forsaken Depths",
       "Location": "Location",
@@ -1051,7 +1054,8 @@
         "NoConnections": "There are no known connections from this room.",
         "AllExplored": "All connected rooms have already been explored.",
         "TrapWarning": "<strong>GM WARNING:</strong> {label}!",
-        "DetailTrapsWarning": "<strong>GM WARNING:</strong> There are {count} active {label} in this room!"
+        "DetailTrapsWarning": "<strong>GM WARNING:</strong> There are {count} active {label} in this room!",
+        "OpenRoom": "Open Room Sheet"
       },
       "Connection": {
         "Doorway": "Doorway",
@@ -1111,7 +1115,19 @@
         "Daunting": "Daunting",
         "DauntingDesc": "Your effort was humbling. Onlookers question if you belong here. Morale falters."
       },
-      "DepletionRollHint": "Roll each depletion die. On a 1-2, the light source is depleted."
+      "DepletionRollHint": "Roll each depletion die. On a 1-2, the light source is depleted.",
+      "DungeonActions": "Dungeon Actions",
+      "ConnectedRooms": "Connected Rooms",
+      "NoConnectedRooms": "No connected rooms found.",
+      "NextRound": "Next Round",
+      "MoveHere": "Move Here",
+      "NoDungeonFound": "No dungeon found.",
+      "CreateDungeonHint": "Create a dungeon actor first.",
+      "NoExplorationInProgress": "No exploration in progress.",
+      "WaitingForGM": "Waiting for the GM to start exploration.",
+      "OpenDungeonSheet": "Open Dungeon Sheet",
+      "ExplorationPaused": "Exploration Paused",
+      "RecentActivity": "Recent Activity"
     },
     "Character": "Character",
     "Creature": "Creature",

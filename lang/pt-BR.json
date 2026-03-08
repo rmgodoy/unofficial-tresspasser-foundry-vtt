@@ -897,7 +897,8 @@
         "RoomTrapPresent": "Armadilha de Sala Presente",
         "TrapWarning": "<strong>AVISO DA GM:</strong> {label}!",
         "DetailTraps": "Armadilhas de Detalhe",
-        "DetailTrapsWarning": "<strong>AVISO DA GM:</strong> Existem {count} {label} ativas nesta sala!"
+        "DetailTrapsWarning": "<strong>AVISO DA GM:</strong> Existem {count} {label} ativas nesta sala!",
+        "OpenRoom": "Abrir Ficha da Sala"
       },
       "Log": {
         "UnexploredCount": "{count} salas inexploradas conectadas",
@@ -975,6 +976,49 @@
         "EndTitle": "Encerrar Exploração",
         "Ended": "A exploração de {name} foi encerrada.",
         "Summary": "Resumo: {rounds} rodadas, {actions} ações."
+      },
+      "Tracker": {
+        "Title": "Dungeon Tracker",
+        "SelectDungeon": "Selecionar Masmorra"
+      },
+      "DungeonActions": "Ações na Masmorra",
+      "ConnectedRooms": "Salas Conectadas",
+      "NoConnectedRooms": "Nenhuma sala conectada.",
+      "NextRound": "Próxima Rodada",
+      "MoveHere": "Mover para cá",
+      "NoDungeonFound": "Nenhuma masmorra encontrada.",
+      "CreateDungeonHint": "Crie um ator do tipo masmorra primeiro.",
+      "NoExplorationInProgress": "Nenhuma exploração em andamento.",
+      "WaitingForGM": "Aguardando o Mestre iniciar a exploração.",
+      "OpenDungeonSheet": "Abrir Ficha da Masmorra",
+      "ExplorationPaused": "Exploração Pausada",
+      "RecentActivity": "Atividade Recente",
+      "Hostility": {
+        "FirstDay": "0 - Primeiro Dia",
+        "Bleak": "I - Sombrio",
+        "Sinister": "II - Sinistro",
+        "Frightening": "III - Assustador",
+        "Harrowing": "IV - Angustiante",
+        "Nightmarish": "V - Pesadelo"
+      },
+      "Size": {
+        "Tiny": "Minúscula (2d4 salas, ~5)",
+        "Small": "Pequena (4d4 salas, ~10)",
+        "Medium": "Média (6d4 salas, ~15)",
+        "Large": "Grande (8d4 salas, ~20)",
+        "Huge": "Enorme (10d4 salas, ~25)"
+      },
+      "Form": {
+        "Cave": "Caverna",
+        "Ruin": "Ruína",
+        "Tower": "Torre",
+        "Crypt": "Cripta",
+        "Fortress": "Fortaleza",
+        "Temple": "Templo",
+        "Mine": "Mina",
+        "Lair": "Covil",
+        "Sewer": "Esgoto",
+        "Other": "Outro"
       }
     },
     "Tracker": {

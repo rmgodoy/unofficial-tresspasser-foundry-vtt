@@ -9,15 +9,34 @@
    ====================================================================== */
 
 /* --- Layout --- */
-.trespasser.sheet.dungeon {
-  --dungeon-accent: #7a6a3a;
-  --dungeon-accent-bright: #c9a227;
-  --dungeon-discovered: #3a5a3a;
-  --dungeon-undiscovered: #4a3a3a;
-}
+:root {
+  --dungeon-accent: var(--trp-gold-dim);
+  --dungeon-accent-bright: var(--trp-gold-bright);
+  --dungeon-discovered: var(--trp-green-bright);
+  --dungeon-undiscovered: var(--trp-bg-input);
 
-.trespasser.sheet.dungeon .window-content {
-  padding: 0 0 0 42px;
+  --bg-primary: var(--trp-bg-dark);
+  --bg-secondary: var(--trp-bg-panel);
+  --bg-tertiary: var(--trp-bg-input);
+  --bg-input: var(--trp-bg-input);
+  --bg-hover: #332d20;
+  
+  --accent-gold: var(--trp-gold);
+  --accent-gold-dim: var(--trp-gold-dim);
+  --accent-gold-bright: var(--trp-gold-bright);
+  
+  --text-primary: var(--trp-text-bright);
+  --text-secondary: var(--trp-text);
+  --text-muted: var(--trp-text-dim);
+  
+  --border-color: var(--trp-border);
+  --border-light: var(--trp-border-light);
+  
+  --accent-red-bright: var(--trp-red);
+  --accent-green: var(--trp-green-bright);
+  
+  --font-header: var(--trp-font-header);
+  --font-body: var(--trp-font-body);
 }
 
 /* Tab content area */
@@ -808,7 +827,7 @@ select.dungeon-field-input option {
 
 .tracker-start-btn:hover {
   background: var(--accent-gold, #c9a227);
-  color: #111;
+  color: var(--trp-bg-dark);
 }
 
 .tracker-no-dungeon {
@@ -977,16 +996,22 @@ select.dungeon-field-input option {
 }
 
 .tracker-action-pip {
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  background: #333;
-  transition: background 0.2s;
+  width: 14px;
+  height: 14px;
+  background-color: var(--trp-border-light);
+  -webkit-mask-image: url('/systems/trespasser/assets/icons/action_icon.svg');
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-image: url('/systems/trespasser/assets/icons/action_icon.svg');
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  transition: background-color 0.2s;
 }
 
 .tracker-action-pip.filled {
-  background: #4a9eff;
+  background-color: var(--trp-gold);
 }
 
 /* --- Current Room --- */
@@ -1179,7 +1204,7 @@ select.dungeon-field-input option {
   font-size: 10px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: #e8a030;
+  color: var(--trp-gold-bright);
   margin: 0 0 4px;
 }
 
@@ -1372,13 +1397,13 @@ select.dungeon-field-input option {
 
 /* --- Light Depletion Chat Cards --- */
 .trespasser-light-depletion {
-  border-left: 3px solid #e8a030;
+  border-left: 3px solid var(--trp-gold-bright);
   padding-left: 8px;
 }
 
 .trespasser-light-depletion h3 {
   margin: 0 0 6px;
-  color: #e8a030;
+  color: var(--trp-gold-bright);
 }
 
 .light-depletion-table {
