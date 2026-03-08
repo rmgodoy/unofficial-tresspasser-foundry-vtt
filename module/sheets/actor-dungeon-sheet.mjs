@@ -32,14 +32,6 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
     window: { resizable: true }
   };
 
-  static PARTS = {
-    tabs: { template: "systems/trespasser/templates/dungeon/dungeon-tabs.hbs" },
-    overview: { template: "systems/trespasser/templates/dungeon/dungeon-overview.hbs" },
-    rooms: { template: "systems/trespasser/templates/dungeon/dungeon-rooms.hbs" },
-    log: { template: "systems/trespasser/templates/dungeon/dungeon-log.hbs" },
-    notes: { template: "systems/trespasser/templates/dungeon/dungeon-notes.hbs" }
-  };
-
   static TABS = {
     overview: { id: "overview", group: "primary", label: "TRESPASSER.Dungeon.Tabs.Overview", icon: "dungeon" },
     rooms: { id: "rooms", group: "primary", label: "TRESPASSER.Dungeon.Tabs.Rooms", icon: "door-open" },

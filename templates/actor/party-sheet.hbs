@@ -22,7 +22,6 @@
           <option value="{{key}}">{{label}}</option>
           {{/each}}
         </select>
-        <span class="group-check-pipe">|</span>
         <select class="group-check-skill">
           <option value="">{{localize "TRESPASSER.Party.NoSkill"}}</option>
           {{#each skills}}
@@ -104,18 +103,23 @@
     {{!-- Add member controls --}}
     {{#if editable}}
     <div class="party-add-member">
+      <div class="party-drop-hint">
+        <i class="fas fa-user-plus"></i> {{localize "TRESPASSER.Party.DropHint"}}
+      </div>
+      
       {{#if availableCharacters.length}}
-      <select class="party-add-member-select">
-        <option value="" disabled selected>{{localize "TRESPASSER.Party.SelectCharacter"}}</option>
-        {{#each availableCharacters}}
-        <option value="{{_id}}">{{name}}</option>
-        {{/each}}
-      </select>
-      <a class="party-add-member-btn" data-action="addMember" title="{{localize 'TRESPASSER.Party.AddMember'}}">
-        <i class="fas fa-plus"></i>
-      </a>
+      <div class="party-add-member-controls">
+        <select class="party-add-member-select">
+          <option value="" disabled selected>{{localize "TRESPASSER.Party.SelectCharacter"}}</option>
+          {{#each availableCharacters}}
+          <option value="{{_id}}">{{name}}</option>
+          {{/each}}
+        </select>
+        <a class="party-add-member-btn" data-action="addMember" title="{{localize 'TRESPASSER.Party.AddMember'}}">
+          <i class="fas fa-plus"></i>
+        </a>
+      </div>
       {{/if}}
-      <p class="party-drop-hint"><i class="fas fa-user-plus"></i> {{localize "TRESPASSER.Party.DropHint"}}</p>
     </div>
     {{/if}}
   </div>
@@ -123,7 +127,7 @@
   {{!-- Notes --}}
   <div class="party-section party-notes">
     <h3 class="party-section-title">{{localize "TRESPASSER.Party.Notes"}}</h3>
-    {{editor enrichedNotes target="system.notes" button=true editable=editable engine="prosemirror"}}
+    <prose-mirror name="system.notes" value="{{system.notes}}" toggled="false" compact="true">{{{enrichedNotes}}}</prose-mirror>
   </div>
 
 </section>
