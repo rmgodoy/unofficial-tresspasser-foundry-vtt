@@ -2,7 +2,7 @@
   "id": "trespasser",
   "title": "Trespasser",
   "description": "A Foundry VTT system for the Trespasser TTRPG by Tundalus.",
-  "version": "0.0.3-2",
+  "version": "0.0.4",
   "compatibility": {
     "minimum": "13",
     "verified": "13"
@@ -58,6 +58,6 @@
   "primaryTokenAttribute": "system.health",
   "secondaryTokenAttribute": "system.endurance",
   "url": "https://github.com/rmgodoy/unofficial-tresspasser-foundry-vtt",
-  "manifest": "https://raw.githubusercontent.com/rmgodoy/unofficial-tresspasser-foundry-vtt/issue-6/system.json",
-  "download": "https://github.com/rmgodoy/unofficial-tresspasser-foundry-vtt/archive/refs/heads/issue-6.zip"
+  "manifest": "https://raw.githubusercontent.com/rmgodoy/unofficial-tresspasser-foundry-vtt/main/system.json",
+  "download": "https://github.com/rmgodoy/unofficial-tresspasser-foundry-vtt/archive/refs/heads/main.zip"
 }
