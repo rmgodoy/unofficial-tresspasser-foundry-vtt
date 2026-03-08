@@ -557,19 +557,20 @@ export class TrespasserCombat extends Combat {
    */
   updateTurnMarkers(phase) {
     for(const token of canvas.tokens.placeables) {
-      const combatants = game.combat.combatants.filter(c => c.tokenId === token.id);
-      let alreadyUpdated = false;
-      for (const combatant of combatants) {
-        if (alreadyUpdated) continue;
-        if (token._trespasserTurnMarker) {
-          token._trespasserTurnMarker.destroy();
-          token._trespasserTurnMarker = undefined;
-        }
+      if (token._trespasserTurnMarker) {
+        token._trespasserTurnMarker.destroy();
+        token._trespasserTurnMarker = undefined;
+      }
 
-        if (combatant.initiative === phase) {
+      const combatants = game.combat.combatants.filter(c => c.tokenId === token.id);
+      for (const combatant of combatants) {
+        const ap = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+        const isDefeated = combatant.defeated;
+        const hasAP = ap > 0;
+
+        if (combatant.initiative === phase && !isDefeated && hasAP) {
           game.combat.drawTurnIndicator(token, phase);
-          alreadyUpdated = true;
-          continue;
+          break; // Only one marker per token
         }
       }
     }

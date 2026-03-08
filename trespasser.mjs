@@ -525,6 +525,16 @@ Hooks.on("updateCombat", async (combat, changed, options, userId) => {
   }
 });
 
+Hooks.on("updateCombatant", (combatant, changed, options, userId) => {
+  if (!game.combat) return;
+  const isDefeatedChanged = changed.defeated !== undefined;
+  const isAPChanged = changed.flags?.trespasser?.actionPoints !== undefined;
+  if (isDefeatedChanged || isAPChanged) {
+    const activePhase = game.combat.getFlag("trespasser", "activePhase");
+    game.combat.updateTurnMarkers(activePhase);
+  }
+});
+
 Hooks.on("deleteCombat", async (combat) => {
   for (const c of combat.combatants) {
     if (c.actor) {
