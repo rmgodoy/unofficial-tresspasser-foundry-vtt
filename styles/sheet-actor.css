@@ -1390,8 +1390,6 @@
 
 .injury-card-controls {
   position: absolute;
-  top: 3px;
-  right: 36px;
   display: none;
   gap: 4px;
 }

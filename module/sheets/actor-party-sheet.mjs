@@ -98,40 +98,27 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
   _buildMemberContext(actor, lightTags) {
     const s = actor.system;
 
-    // Count rations
+    // Count rations (total quantity of all 'rations' type items)
     const rations = actor.items
       .filter(i => i.type === "rations")
       .reduce((sum, i) => sum + (i.system.quantity ?? 1), 0);
 
-    // Count injuries (stored as string array on system.injuries, or as embedded injury items)
-    const injuries = (s.injuries?.length ?? 0) || actor.items.filter(i => i.type === "injury").length;
+    // Count injuries (total number of 'injury' type items)
+    const injuries = actor.items.filter(i => i.type === "injury").length;
 
-    // Light sources (same detection as dungeon tracker)
+    // Light sources (as requested: sub-type of light source or weapons with light source property)
     const lightSources = [];
     for (const item of actor.items) {
       let isLight = false;
-      let depDie = "";
 
-      if (item.system.isLightFuel) {
-        isLight = true;
-        depDie = item.system.depletionDie ?? "";
-      }
-
-      if (!isLight && item.type === "equipment") {
-        if (!item.system.equipped && item.system.equipped !== undefined) continue;
-        const tags = item.system.tags ?? [];
-        const tagMatch = tags.some(t => lightTags.includes(t.toLowerCase()));
-        const nameMatch = lightTags.some(t => item.name.toLowerCase().includes(t));
-        if (tagMatch || nameMatch) {
-          isLight = true;
-          depDie = item.system.depletionDie ?? "";
-        }
-      }
+      if (item.type === "item" && item.system.subType === "light_source") isLight = true;
+      else if (item.type === "weapon" && item.system.isLightSource) isLight = true;
+      else if (item.system.isLightFuel) isLight = true;
 
       if (isLight) {
         lightSources.push({
           name: item.name,
-          depletionDie: depDie,
+          depletionDie: item.system.depletionDie ?? "",
           quantity: item.system.quantity ?? 1
         });
       }
@@ -172,6 +159,80 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
       }
     } catch { /* no tracker available */ }
     return null;
+  }
+
+  /* -------------------------------------------- */
+  /* Lifecycle                                    */
+  /* -------------------------------------------- */
+
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Register hooks to refresh the party sheet when a member's data changes
+    if (!this._memberUpdateHookId) {
+      this._memberUpdateHookId = Hooks.on("updateActor", (actor, changed) => {
+        const members = this.document.system.members ?? [];
+        if (members.includes(actor.id)) {
+          this.render();
+        }
+      });
+
+      this._memberDeleteHookId = Hooks.on("deleteActor", (actor) => {
+        const members = this.document.system.members ?? [];
+        if (members.includes(actor.id)) {
+          const newMembers = members.filter(id => id !== actor.id);
+          this.document.update({ "system.members": newMembers });
+          this.render();
+        }
+      });
+
+      this._memberItemUpdateHookId = Hooks.on("updateItem", (item) => {
+        const members = this.document.system.members ?? [];
+        if (item.parent?.id && members.includes(item.parent.id)) {
+          this.render();
+        }
+      });
+
+      this._memberItemCreateHookId = Hooks.on("createItem", (item) => {
+        const members = this.document.system.members ?? [];
+        if (item.parent?.id && members.includes(item.parent.id)) {
+          this.render();
+        }
+      });
+
+      this._memberItemDeleteHookId = Hooks.on("deleteItem", (item) => {
+        const members = this.document.system.members ?? [];
+        if (item.parent?.id && members.includes(item.parent.id)) {
+          this.render();
+        }
+      });
+    }
+  }
+
+  /** @override */
+  async close(options = {}) {
+    if (this._memberUpdateHookId) {
+      Hooks.off("updateActor", this._memberUpdateHookId);
+      this._memberUpdateHookId = null;
+    }
+    if (this._memberDeleteHookId) {
+      Hooks.off("deleteActor", this._memberDeleteHookId);
+      this._memberDeleteHookId = null;
+    }
+    if (this._memberItemUpdateHookId) {
+      Hooks.off("updateItem", this._memberItemUpdateHookId);
+      this._memberItemUpdateHookId = null;
+    }
+    if (this._memberItemCreateHookId) {
+      Hooks.off("createItem", this._memberItemCreateHookId);
+      this._memberItemCreateHookId = null;
+    }
+    if (this._memberItemDeleteHookId) {
+      Hooks.off("deleteItem", this._memberItemDeleteHookId);
+      this._memberItemDeleteHookId = null;
+    }
+    return super.close(options);
   }
 
   /* -------------------------------------------- */
