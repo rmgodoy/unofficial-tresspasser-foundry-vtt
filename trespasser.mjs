@@ -823,64 +823,65 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
   }
 
   if (item.type === "injury") {
-    item.updateSource({ img: "systems/trespasser/assets/icons/effects.png" });
+    item.updateSource({ img: "systems/trespasser/assets/icons/injury.webp" });
   }
   if (item.img === "icons/svg/item-bag.svg") {
     let iconPath = "icons/svg/item-bag.svg";
     switch (item.type) {
       case "armor":
-        iconPath = "systems/trespasser/assets/icons/armor_and_shields.png";
+        iconPath = "systems/trespasser/assets/icons/armor.webp";
         break;
       case "weapon":
-        iconPath = "systems/trespasser/assets/icons/weapons.png";
+        iconPath = "systems/trespasser/assets/icons/weapon.webp";
         break;
       case "accessory":
-        iconPath = "systems/trespasser/assets/icons/accessories.png";
+        iconPath = "systems/trespasser/assets/icons/item.webp";
         break;
       case "rations":
-        iconPath = "systems/trespasser/assets/icons/food.png";
+        iconPath = "systems/trespasser/assets/icons/food.webp";
         break;
       case "effect":
-        iconPath = "systems/trespasser/assets/icons/effects.png";
+        iconPath = "systems/trespasser/assets/icons/effect.webp";
         break;
       case "deed":
-        iconPath = "systems/trespasser/assets/icons/deeds.png";
+        iconPath = "systems/trespasser/assets/icons/deed.webp";
         break;
       case "incantation":
-        iconPath = "systems/trespasser/assets/icons/incantations.png";
+        iconPath = "systems/trespasser/assets/icons/incantation.webp";
         break;
       case "feature":
-        iconPath = "systems/trespasser/assets/icons/feature.png";
+        iconPath = "systems/trespasser/assets/icons/feature.webp";
         break;
       case "talent":
-        iconPath = "systems/trespasser/assets/icons/talents.png";
+        iconPath = "systems/trespasser/assets/icons/talent.webp";
         break;
       case "calling":
-        iconPath = "systems/trespasser/assets/icons/feature.png";
+        iconPath = "systems/trespasser/assets/icons/calling_craft.webp";
         break;
       case "craft":
-        iconPath = "systems/trespasser/assets/icons/deeds.png";
+        iconPath = "systems/trespasser/assets/icons/calling_craft.webp";
         break;
       case "past_life":
-        iconPath = "systems/trespasser/assets/icons/pesant.png";
+        iconPath = "systems/trespasser/assets/icons/pesant.webp";
         break;
       case "room":
-        iconPath = "systems/trespasser/assets/icons/room.png";
+        iconPath = "systems/trespasser/assets/icons/room.webp";
         break;
       case "item":
-        const subType = item.system.subType;
-        if (subType === "tool") iconPath = "systems/trespasser/assets/icons/tool.png";
-        else if (subType === "resource") iconPath = "systems/trespasser/assets/icons/resources.png";
-        else if (subType === "light_source") iconPath = "systems/trespasser/assets/icons/ligth_sources.png";
-        else if (subType === "bombs") iconPath = "systems/trespasser/assets/icons/bombs.png";
-        else if (subType === "oils") iconPath = "systems/trespasser/assets/icons/oils.png";
-        else if (subType === "powders") iconPath = "systems/trespasser/assets/icons/powders.png";
-        else if (subType === "potions") iconPath = "systems/trespasser/assets/icons/potions.png";
-        else if (subType === "scrolls") iconPath = "systems/trespasser/assets/icons/scrolls.png";
-        else if (subType === "esoteric") iconPath = "systems/trespasser/assets/icons/esoteric.png";
-        else if (subType === "artifacts") iconPath = "systems/trespasser/assets/icons/artifacts.png";
-        else if (subType === "miscellaneous") iconPath = "systems/trespasser/assets/icons/misellaneous.png";
-        else iconPath = "systems/trespasser/assets/icons/item.png";
+        iconPath = "systems/trespasser/assets/icons/item.webp"
+        // const subType = item.system.subType;
+        // if (subType === "tool") iconPath = "systems/trespasser/assets/icons/tool.png";
+        // else if (subType === "resource") iconPath = "systems/trespasser/assets/icons/resources.png";
+        // else if (subType === "light_source") iconPath = "systems/trespasser/assets/icons/ligth_sources.png";
+        // else if (subType === "bombs") iconPath = "systems/trespasser/assets/icons/bombs.png";
+        // else if (subType === "oils") iconPath = "systems/trespasser/assets/icons/oils.png";
+        // else if (subType === "powders") iconPath = "systems/trespasser/assets/icons/powders.png";
+        // else if (subType === "potions") iconPath = "systems/trespasser/assets/icons/potions.png";
+        // else if (subType === "scrolls") iconPath = "systems/trespasser/assets/icons/scrolls.png";
+        // else if (subType === "esoteric") iconPath = "systems/trespasser/assets/icons/esoteric.png";
+        // else if (subType === "artifacts") iconPath = "systems/trespasser/assets/icons/artifacts.png";
+        // else if (subType === "miscellaneous") iconPath = "systems/trespasser/assets/icons/misellaneous.png";
+        // else iconPath = "systems/trespasser/assets/icons/item.webp";
         break;
     }
     item.updateSource({ img: iconPath });
