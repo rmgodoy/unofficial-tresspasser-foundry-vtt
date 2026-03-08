@@ -12,6 +12,7 @@
  */
 
 const { api, sheets } = foundry.applications;
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
 
@@ -64,17 +65,17 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
 
     // Attributes and skills for the group check dropdowns
     context.attributes = [
-      { key: "mighty", label: game.i18n.localize("TRESPASSER.Attributes.Mighty") },
-      { key: "agility", label: game.i18n.localize("TRESPASSER.Attributes.Agility") },
-      { key: "intellect", label: game.i18n.localize("TRESPASSER.Attributes.Intellect") },
-      { key: "spirit", label: game.i18n.localize("TRESPASSER.Attributes.Spirit") }
+      { key: "mighty", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Mighty") },
+      { key: "agility", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Agility") },
+      { key: "intellect", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Intellect") },
+      { key: "spirit", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Spirit") }
     ];
     context.skills = [
       "acrobatics", "alchemy", "athletics", "crafting", "folklore", "letters",
       "magic", "nature", "perception", "speech", "stealth", "tinkering"
     ].map(s => ({
       key: s,
-      label: game.i18n.localize(`TRESPASSER.Skills.${s.charAt(0).toUpperCase() + s.slice(1)}`)
+      label: game.i18n.localize(`TRESPASSER.Sheet.Skills.${s.charAt(0).toUpperCase() + s.slice(1)}`)
     }));
 
     // Default DC from active dungeon if one is running
@@ -289,19 +290,60 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     }
 
     const memberIds = this.document.system.members ?? [];
-    const members = memberIds
+    const allMembers = memberIds
       .map(id => game.actors.get(id))
       .filter(a => a?.type === "character");
 
-    if (members.length === 0) {
+    if (allMembers.length === 0) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Party.NoMembers"));
       return;
     }
 
+    let members = allMembers;
+    const alwaysFull = game.settings.get("trespasser", "groupCheckFullParty");
+    if (!alwaysFull) {
+      const selection = await new Promise(resolve => {
+        new Dialog({
+          title: game.i18n.localize("TRESPASSER.Party.SelectParticipants"),
+          content: `
+            <p>${game.i18n.localize("TRESPASSER.Party.SelectParticipantsHint")}</p>
+            <div class="participant-selection" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
+              ${allMembers.map(m => `
+                <div class="form-group" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px; border-bottom: 1px solid #444; padding: 4px;">
+                  <input type="checkbox" name="participant" value="${m.id}" checked>
+                  <img src="${m.img}" width="24" height="24" style="border-radius: 4px; border: 1px solid #666;">
+                  <label style="flex: 1;">${m.name}</label>
+                </div>
+              `).join('')}
+            </div>
+          `,
+          buttons: {
+            run: {
+              icon: '<i class="fas fa-dice"></i>',
+              label: game.i18n.localize("TRESPASSER.Party.RunCheck"),
+              callback: (html) => {
+                const selectedIds = html.find('input[name="participant"]:checked').map((i, el) => el.value).get();
+                resolve(allMembers.filter(m => selectedIds.includes(m.id)));
+              }
+            },
+            cancel: {
+              icon: '<i class="fas fa-times"></i>',
+              label: game.i18n.localize("TRESPASSER.General.Cancel"),
+              callback: () => resolve(null)
+            }
+          },
+          default: "run"
+        }, { classes: ["trespasser", "dialog", "group-participant-select"] }).render(true);
+      });
+
+      if (!selection || selection.length === 0) return;
+      members = selection;
+    }
+
     // Build the check label
-    const attrLabel = game.i18n.localize(`TRESPASSER.Attributes.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
+    const attrLabel = game.i18n.localize(`TRESPASSER.Sheet.Attributes.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
     const skillLabel = skill
-      ? game.i18n.localize(`TRESPASSER.Skills.${skill.charAt(0).toUpperCase() + skill.slice(1)}`)
+      ? game.i18n.localize(`TRESPASSER.Sheet.Skills.${skill.charAt(0).toUpperCase() + skill.slice(1)}`)
       : null;
     const checkLabel = skillLabel ? `${attrLabel} | ${skillLabel}` : attrLabel;
 
@@ -309,9 +351,18 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     const results = [];
     for (const actor of members) {
       const data = actor.system;
-      const attrValue = data.attributes?.[attribute] ?? 0;
-      const skillDie = data.skill_die || "d6";
-      const formula = `1${skillDie} + ${attrValue}`;
+      const attrBase = data.attributes?.[attribute] ?? 0;
+      const staticBonus = data.bonuses?.[attribute] ?? 0;
+      
+      // Skill bonus if trained
+      const isTrained = skill && data.skills?.[skill] === true;
+      const skillBonus = isTrained ? (data.skill ?? 0) : 0;
+      
+      // Get triggered bonus and consume usage charges
+      const triggeredBonus = await TrespasserEffectsHelper.evaluateAttributeBonus(actor, attribute);
+      
+      const totalBonus = attrBase + staticBonus + skillBonus + triggeredBonus;
+      const formula = `1d20 + ${totalBonus}`;
 
       const roll = new foundry.dice.Roll(formula);
       await roll.evaluate();

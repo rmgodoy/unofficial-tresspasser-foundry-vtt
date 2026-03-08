@@ -141,6 +141,15 @@ Hooks.once("init", async () => {
     default: false
   });
 
+  game.settings.register("trespasser", "groupCheckFullParty", {
+    name: "TRESPASSER.Config.GroupCheckFullParty",
+    hint: "TRESPASSER.Config.GroupCheckFullPartyHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
