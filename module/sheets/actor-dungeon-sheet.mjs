@@ -12,8 +12,8 @@ const { api, sheets } = foundry.applications;
 export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
 
   static DEFAULT_OPTIONS = {
-    classes: ["trespasser", "sheet", "dungeon"],
-    position: { width: 1280, height: 1280 },
+    classes: ["trespasser", "sheet", "dungeon", "trespasser-sheet"],
+    position: { width: 670, height: 760 },
     actions: {
       switchTab: TrespasserDungeonSheet.#onSwitchTab,
       createRoom: TrespasserDungeonSheet.#onCreateRoom,

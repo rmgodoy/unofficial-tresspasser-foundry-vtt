@@ -25,11 +25,19 @@
 }
 
 /* ─── Sheet Root ─── */
-.trespasser-sheet {
+.trespasser-sheet,
+.trespasser.dungeon-tracker {
+  /* Fallbacks for V2 sheets missing Foundry V1 variables */
+  --color-scrollbar: #782e22;
+  --color-scrollbar-track: transparent;
+  
   font-family: var(--trp-font-body);
   font-size: 14px;
   color: var(--trp-text);
   background: var(--trp-bg-dark);
+}
+
+.trespasser-sheet {
   display: flex;
   flex-direction: column;
   height: 100%;

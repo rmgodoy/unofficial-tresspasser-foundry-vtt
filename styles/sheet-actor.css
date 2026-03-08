@@ -859,7 +859,7 @@
   overflow-y: auto;
   max-height: 300px;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-track);;
+  scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-track);
 }
 
 .items-list .item {
