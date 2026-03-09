@@ -1,5 +1,5 @@
 /* ─── CSS Variables ─── */
-:root {
+:root, .window-content {
   --trp-bg-dark:      #1a1714;
   --trp-bg-panel:     #23201c;
   --trp-bg-input:     #2e2a24;
@@ -25,6 +25,11 @@
 }
 
 /* ─── Sheet Root ─── */
+.window-content {
+  background: var(--trp-bg-dark);
+  padding: 4px;
+}
+
 .trespasser-sheet,
 .trespasser.dungeon-tracker,
 .trespasser.sheet.party {

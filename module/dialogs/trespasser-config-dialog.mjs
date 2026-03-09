@@ -9,6 +9,7 @@ export async function showTrespasserConfigDialog() {
   const restrictHUD = game.settings.get("trespasser", "restrictHUDActions");
   const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
   const groupFull = game.settings.get("trespasser", "groupCheckFullParty");
+  const restrictHaven = game.settings.get("trespasser", "restrictHavenEditToLeader");
 
   const content = `
     <form class="trespasser-config-form">
@@ -51,6 +52,14 @@ export async function showTrespasserConfigDialog() {
         </div>
         <p class="notes">${game.i18n.localize("TRESPASSER.Config.GroupCheckFullPartyHint")}</p>
       </div>
+      
+      <div class="form-group">
+        <label>${game.i18n.localize("TRESPASSER.Config.RestrictHavenEditToLeader")}</label>
+        <div class="form-fields">
+          <input type="checkbox" name="restrictHavenEditToLeader" ${restrictHaven ? "checked" : ""}>
+        </div>
+        <p class="notes">${game.i18n.localize("TRESPASSER.Config.RestrictHavenEditToLeaderHint")}</p>
+      </div>
     </form>`;
 
   new Dialog({
@@ -66,11 +75,13 @@ export async function showTrespasserConfigDialog() {
           const restrictH = html.find('[name="restrictHUDActions"]').is(":checked");
           const restrictA = html.find('[name="restrictAPFocusUsage"]').is(":checked");
           const groupF = html.find('[name="groupCheckFullParty"]').is(":checked");
+          const restrictHav = html.find('[name="restrictHavenEditToLeader"]').is(":checked");
           await game.settings.set("trespasser", "showInitiativeInChat", show);
           await game.settings.set("trespasser", "restrictMovementAction", restrictM);
           await game.settings.set("trespasser", "restrictHUDActions", restrictH);
           await game.settings.set("trespasser", "restrictAPFocusUsage", restrictA);
           await game.settings.set("trespasser", "groupCheckFullParty", groupF);
+          await game.settings.set("trespasser", "restrictHavenEditToLeader", restrictHav);
           ui.notifications.info(game.i18n.localize("TRESPASSER.Config.SavedNotice"));
         }
       },

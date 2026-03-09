@@ -58,7 +58,7 @@
 .trespasser-sheet .sheet-tabs .item {
   flex: 1 !important;
   text-align: center;
-  border-right: 1px solid var(--trp-border);
+  /* border-right: 1px solid var(--trp-border); */
   padding: 8px 12px;
 }
 

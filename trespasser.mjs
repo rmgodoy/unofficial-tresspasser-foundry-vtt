@@ -55,6 +55,10 @@ import { DUNGEON_CONFIG, ensureDungeonHelpers } from "./module/config/dungeon-co
 import { TrespasserDungeonSheet }  from "./module/sheets/actor-dungeon-sheet.mjs";
 import { TrespasserRoomSheet }     from "./module/sheets/item-room-sheet.mjs";
 import { registerDungeonTrackerHooks } from "./module/exploration/dungeon-tracker.mjs";
+import { TrespasserHavenData }   from "./module/data/actor-haven.mjs";
+import { TrespasserHirelingData } from "./module/data/item-hireling.mjs";
+import { TrespasserHavenSheet }   from "./module/sheets/actor-haven-sheet.mjs";
+import { TrespasserHirelingSheet } from "./module/sheets/item-hireling-sheet.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -150,11 +154,21 @@ Hooks.once("init", async () => {
     default: true
   });
 
+  game.settings.register("trespasser", "restrictHavenEditToLeader", {
+    name: "TRESPASSER.Config.RestrictHavenEditToLeader",
+    hint: "TRESPASSER.Config.RestrictHavenEditToLeaderHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
   CONFIG.Actor.dataModels.dungeon  = TrespasserDungeonData;
   CONFIG.Actor.dataModels.party    = TrespasserPartyData;
+  CONFIG.Actor.dataModels.haven    = TrespasserHavenData;
 
   CONFIG.Item.dataModels.armor = TrespasserArmorData;
   CONFIG.Item.dataModels.weapon = TrespasserWeaponData;
@@ -171,6 +185,7 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.craft   = TrespasserCraftData;
   CONFIG.Item.dataModels.past_life = TrespasserPastLifeData;
   CONFIG.Item.dataModels.room    = TrespasserRoomData;
+  CONFIG.Item.dataModels.hireling = TrespasserHirelingData;
 
   // Sheets
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
@@ -195,6 +210,12 @@ Hooks.once("init", async () => {
     types: ["party"],
     makeDefault: true,
     label: "Trespasser Party Sheet",
+  });
+  // Haven sheet (AppV2)
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserHavenSheet, {
+    types: ["haven"],
+    makeDefault: true,
+    label: "Trespasser Haven Sheet",
   });
 
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
@@ -275,6 +296,12 @@ Hooks.once("init", async () => {
     makeDefault: true,
     label: "Trespasser Room Sheet",
   });
+  // Hireling sheet (AppV2)
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserHirelingSheet, {
+    types: ["hireling"],
+    makeDefault: true,
+    label: "Trespasser Hireling Sheet",
+  });
 
   // Handlebars helpers
   Handlebars.registerHelper("trespasserChecked", (value) => (value ? "checked" : ""));
@@ -340,6 +367,40 @@ Hooks.once("ready", () => {
 
   if (game.combat) {
     game.combat.updateTurnMarkers(game.combat.flags.trespasser.activePhase);
+  }
+});
+
+/**
+ * Prevent players from controlling Haven tokens, even if they have ownership.
+ */
+// Variable to track the last valid (non-Haven) selection
+let _lastValidControlledTokens = [];
+
+/**
+ * Prevent players from controlling Haven tokens, even if they have ownership.
+ * If they try to select it, we immediately release it and restore their previous character selection.
+ */
+Hooks.on("controlToken", (token, controlled) => {
+  if (controlled) {
+    if (token.actor?.type === "haven" && !game.user.isGM) {
+      token.release();
+      // Restore the previous valid selection
+      if (_lastValidControlledTokens.length) {
+        _lastValidControlledTokens.forEach(t => {
+          if (!t._destroyed) t.control({ releaseOthers: false });
+        });
+      }
+    } else {
+      // Capture the current selection after this control cycle finishes
+      setTimeout(() => {
+        const current = canvas.tokens?.controlled || [];
+        if (current.length > 0 && !current.some(t => t.actor?.type === "haven")) {
+          _lastValidControlledTokens = [...current];
+        } else if (current.length === 0) {
+          _lastValidControlledTokens = [];
+        }
+      }, 0);
+    }
   }
 });
 

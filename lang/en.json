@@ -1,4 +1,4 @@
-{
+﻿{
   "TRESPASSER": {
     "General": {
       "New": "New",
@@ -27,6 +27,8 @@
       "RestrictAPFocusUsageHint": "If enabled, the system enforces AP and Focus costs. If disabled, actions can be used without sufficient points.",
       "GroupCheckFullParty": "Group Check always use full party",
       "GroupCheckFullPartyHint": "If enabled, group checks will always include all party members without showing a selection popup.",
+      "RestrictHavenEditToLeader": "Allow only Leader to edit Haven",
+      "RestrictHavenEditToLeaderHint": "If enabled, only the character assigned as Haven Leader (or GM) can modify attributes, hirelings, and treasury. If disabled, all players with owner permissions can edit the sheet.",
       "Save": "Save",
       "Cancel": "Cancel",
       "SavedNotice": "Trespasser Configuration saved."
@@ -35,7 +37,8 @@
       "character": "Character",
       "creature": "Creature",
       "dungeon": "Dungeon",
-      "party": "Party"
+      "party": "Party",
+      "haven": "Haven"
     },
     "ItemTypes": {
       "weapon": "Weapon",
@@ -51,7 +54,8 @@
       "injury": "Injury",
       "calling": "Calling",
       "craft": "Craft",
-      "past_life": "Past Life"
+      "past_life": "Past Life",
+      "hireling": "Hireling"
     },
     "Sheet": {
       "Items": {
@@ -122,7 +126,7 @@
         "SetKeyAttr": "Set as Key Attribute"
       },
       "Dialog": {
-        "SkillCheckTitle": "{skill} Check — Choose Attribute",
+        "SkillCheckTitle": "{skill} Check â€” Choose Attribute",
         "SkillCheckQ": "Which attribute drives this check?",
         "SkillCheckBonus": "<em>(Skill bonus +{skill} will be added)</em>",
         "Cancel": "Cancel"
@@ -354,26 +358,26 @@
       "VaultStraightLine": "Vault must be in a straight line (orthogonal or diagonal)."
     },
     "Chat": {
-      "SkillCheck": "{name} — {skill} Check",
-      "SkillCheckAdv": "{name} — {skill} Check (Advantage)",
-      "Roll": "{name} — {skill} Roll",
-      "RollAdv": "{name} — {skill} Roll (Advantage)",
+      "SkillCheck": "{name} â€” {skill} Check",
+      "SkillCheckAdv": "{name} â€” {skill} Check (Advantage)",
+      "Roll": "{name} â€” {skill} Roll",
+      "RollAdv": "{name} â€” {skill} Roll (Advantage)",
       "SpendRD": "{name} spent {count} RD to recover HP",
-      "BlockUsage": "{name} — {slot} Block/Usage ({item})",
+      "BlockUsage": "{name} â€” {slot} Block/Usage ({item})",
       "Initiative": "Initiative Roll vs. Enemy Max ({max})",
       "VsCD": "vs CD {cd}",
       "System": "System",
       "EffectTriggeredHP": "<strong>{name}</strong> triggered: {value} HP applied.",
       "EffectTriggeredAdded": "<strong>{name}</strong> triggered: Added {target} effect.",
-      "PrevailSuccess": "Prevails against <b>{name}</b> (Roll: {roll} vs {target}) — <b>Success!</b>",
-      "PrevailFailed": "Failed to prevail against <b>{name}</b> (Roll: {roll} vs {target}) — <b>Failed</b>",
+      "PrevailSuccess": "Prevails against <b>{name}</b> (Roll: {roll} vs {target}) â€” <b>Success!</b>",
+      "PrevailFailed": "Failed to prevail against <b>{name}</b> (Roll: {roll} vs {target}) â€” <b>Failed</b>",
       "PrevailCheck": "Prevail Check: {name}",
       "PrevailVsDC": "Roll Total: {total} vs DC {dc}",
       "Hit": "HIT!",
       "Miss": "MISS!",
       "Sparks": "Sparks: {count}",
       "Shadows": "Shadows: {count}",
-      "AccuracyRoll": "{name} — Accuracy Roll",
+      "AccuracyRoll": "{name} â€” Accuracy Roll",
       "RollTotal": "Roll Total:",
       "SpentFocus": "Spent {count} Focus",
       "DescriptionExpand": "Description (Click to Expand)",
@@ -387,7 +391,7 @@
       "DestroyedConsumed": "{name} has been destroyed/consumed.",
       "Success": "SUCCESS",
       "Failure": "FAILURE",
-      "ResultVs": "Result: {total} vs {target} — {status}",
+      "ResultVs": "Result: {total} vs {target} â€” {status}",
       "AccuracyVs": "{item} vs {target}",
       "AccVsDef": "Accuracy: {accuracy} vs Defense Roll: {total}",
       "DefenseRoll": "Defense Roll",
@@ -413,7 +417,7 @@
       "HelpFrom": "Help from {name}",
       "AppliedHelp": "Applied Help to {name}.",
       "TookDamage": "{name} took <strong>{damage}</strong> damage.",
-      "TookDamageReduction": "{name} took <strong>{damage}</strong> damage ({raw} − {reduction} reduction).",
+      "TookDamageReduction": "{name} took <strong>{damage}</strong> damage ({raw} âˆ’ {reduction} reduction).",
       "HealedAmount": "{name} was healed for <strong>{amount}</strong> HP."
     },
     "Trigger": {
@@ -634,7 +638,7 @@
         "Clock": "Clock",
         "ClockHint": "Click a segment to advance / retreat the clock.",
         "Effects": "Injury Effects",
-        "FromInjury": "Effect from Injury — cannot be prevailed against"
+        "FromInjury": "Effect from Injury â€” cannot be prevailed against"
       }
     },
     "Calling": {
@@ -657,7 +661,7 @@
       "TabFeatures": "Features",
       "TabEnhancements": "Enhancements",
       "TabProgression": "Progression",
-      "SearchPlaceholder": "Search…",
+      "SearchPlaceholder": "Searchâ€¦",
       "Apply": "Apply Selections",
       "Cancel": "Cancel",
       "NoItems": "No items available.",
@@ -682,7 +686,7 @@
       "TabAttribute": "Key Attribute",
       "TabDeeds": "Deeds",
       "TabFeatures": "Features",
-      "SearchPlaceholder": "Search…",
+      "SearchPlaceholder": "Searchâ€¦",
       "Apply": "Apply Selections",
       "Cancel": "Cancel",
       "NoItems": "No items available.",
@@ -710,7 +714,7 @@
         "Save": "Save",
         "Ok": "Ok"
       },
-      "SkillCheckTitle": "{skill} Check — Choose Attribute",
+      "SkillCheckTitle": "{skill} Check â€” Choose Attribute",
       "SkillCheckQ": "Which attribute drives this check?",
       "SkillCheckBonus": "<em>(Skill bonus +{skill} will be added)</em>",
       "ChallengeCheck": "Challenge Check",
@@ -834,15 +838,15 @@
       "NoMembers": "No members yet. Drag character actors here or use the picker below.",
       "AddMember": "Add Member",
       "RemoveMember": "Remove from Party",
-      "SelectCharacter": "— Select a character —",
+      "SelectCharacter": "â€” Select a character â€”",
       "DropHint": "Drag a character actor here to add them to the party",
       "DropCharactersOnly": "Only character actors can be added to the party.",
       "AlreadyMember": "{name} is already in the party.",
       "MemberAdded": "{name} joined the party.",
       "Notes": "Notes",
       "GroupCheck": "Group Check",
-      "Attribute": "— Attribute —",
-      "NoSkill": "— No Skill —",
+      "Attribute": "â€” Attribute â€”",
+      "NoSkill": "â€” No Skill â€”",
       "Roll": "Roll",
       "SelectAttribute": "Select an attribute for the group check.",
       "SelectParticipants": "Select Participants",
@@ -960,13 +964,13 @@
       },
       "Shadows": {
         "Costly": "Costly",
-        "CostlyDesc": "You lose something of material value — treasure, a tool pushed too far, supplies dropped in haste.",
+        "CostlyDesc": "You lose something of material value â€” treasure, a tool pushed too far, supplies dropped in haste.",
         "Slow": "Slow",
         "SlowDesc": "The task took much longer than expected. Precious time is lost. Torches flicker. Stomachs rumble.",
         "Loud": "Loud",
         "LoudDesc": "You draw attention with a loud noise or major disruption. Those nearby now know what you're up to.",
         "Harmful": "Harmful",
-        "HarmfulDesc": "You hurt yourself — anything from scratches to a lingering injury depending on the task.",
+        "HarmfulDesc": "You hurt yourself â€” anything from scratches to a lingering injury depending on the task.",
         "Daunting": "Daunting",
         "DauntingDesc": "Your effort was humiliating. Observers question whether you belong here. Morale falters."
       },
@@ -1019,7 +1023,7 @@
       "NoActionsRemaining": "No actions remaining this round.",
       "Session": {
         "Started": "Exploration of {name} has begun!",
-        "Round1": "Round 1 — 3 actions available.",
+        "Round1": "Round 1 â€” 3 actions available.",
         "Ended": "Exploration of {name} has ended.",
         "Summary": "{rounds} rounds, {actions} actions taken.",
         "EndTitle": "End Exploration",
@@ -1081,7 +1085,7 @@
         "Remove": "Remove Connection",
         "OpenRoom": "Open Room",
         "DescPlaceholder": "e.g., Narrow corridor, iron-barred gate...",
-        "SelectRoom": "— Select a room —",
+        "SelectRoom": "â€” Select a room â€”",
         "AddConnection": "Add Connection",
         "DropHint": "Drop a Room item here to connect",
         "DropRoomsOnly": "Only Room items can be dropped here.",
@@ -1120,7 +1124,7 @@
         "Failure": "Failure",
         "FailureDesc": "You fail. Progress is halted and you must find another way or face consequences.",
         "Harmful": "Harmful",
-        "HarmfulDesc": "You hurt yourself — from scratches to a persistent injury.",
+        "HarmfulDesc": "You hurt yourself â€” from scratches to a persistent injury.",
         "Daunting": "Daunting",
         "DauntingDesc": "Your effort was humbling. Onlookers question if you belong here. Morale falters."
       },
@@ -1164,14 +1168,97 @@
     "Armor": "Armor",
     "Focus": "Focus",
     "Level": "Level",
-    "Experience": "Experience"
+    "Experience": "Experience",
+    "Haven": {
+      "NamePlaceholder": "Haven Name",
+      "Treasury": "Treasury",
+      "AttributesLabel": "Attributes",
+      "SkillsLabel": "Skills",
+      "UpkeepHeader": "Haven Upkeep",
+      "UpkeepSteps": {
+        "WeeksRest": "1. Week's Rest",
+        "PayExpenses": "2. Pay Expenses",
+        "ResolveHirelings": "3. Resolve Hirelings",
+        "PopulationCheck": "4. Population Check",
+        "EventCheck": "5. Event Check"
+      },
+      "WeeksRestFlavor": "Each character gains the week's rest benefits.",
+      "PayExpensesFlavor": "Paid expenses for hirelings and services. Treasury updated.",
+      "PopulationCheckFlavor": "Make a population check to see how much the haven grows or declines.",
+      "EventCheckFlavor": "Check for a new haven event (roll d10 vs Skill Bonus) or advance existing threat clock.",
+      "AddProductionChainItem": "Add Production Chain",
+      "Attributes": {
+        "Military": "Military",
+        "Efficiency": "Efficiency",
+        "Resources": "Resources",
+        "Expertise": "Expertise",
+        "Allegiance": "Allegiance",
+        "Appeal": "Appeal"
+      },
+      "SkillBonus": "Skill Bonus",
+      "Skills": {
+        "Agriculture": "Agriculture",
+        "Construction": "Construction",
+        "Commerce": "Commerce",
+        "Cuisine": "Cuisine",
+        "Entertainment": "Entertainment",
+        "Espionage": "Espionage",
+        "Faith": "Faith",
+        "Hospitality": "Hospitality",
+        "Research": "Research",
+        "Seafaring": "Seafaring",
+        "Statecraft": "Statecraft",
+        "Warfare": "Warfare"
+      },
+      "ProcessWeek": "Process Week",
+      "Leader": "Leader",
+      "DropLeaderHint": "Drop a Character here to assign as Leader",
+      "ProductionChains": "Production",
+      "Hirelings": "Hirelings",
+      "Inventory": "Inventory",
+      "Notes": "Notes",
+      "NewChain": "New Production Chain",
+      "AddHireling": "Add Hireling",
+      "Withdraw": "Withdraw Item",
+      "WithdrawnItem": "Withdrawn {name} from Haven inventory.",
+      "DropHirelingToChainHint": "Drop a Hireling here to add to chain",
+      "DropItemHint": "Drop items here to add to Haven inventory",
+      "HirelingsList": "Hirelings List",
+      "Week": "Week",
+      "NoHirelingsHint": "No hirelings in this Haven.",
+      "CostPerWeek": "Cost (per week)",
+      "Consume": "Consume",
+      "Produce": "Produce",
+      "DropConsume": "Drop items to consume here",
+      "DropProduce": "Drop items to produce here",
+      "Active": "Active",
+      "CharactersOnly": "Only Character actors can be assigned as Leader.",
+      "HirelingMustBeInHaven": "Hireling must already be in the Haven's inventory to be assigned to a chain.",
+      "WeeklyReport": "Weekly Haven Report",
+      "TotalCost": "Weekly Cost",
+      "ProducedItem": "{name} produced {quantity}x {item}.",
+      "MissingIngredients": "{name} skipped production: Missing {item}.",
+      "ConsumedOnly": "{name} consumed resources for the week.",
+      "DidNothing": "had nothing to consume or produce.",
+      "UnassignedHirelings": "Unassigned Hirelings",
+      "NotEnoughFunds": "Haven does not have enough funds ({cost}) to pay all hirelings! Treasury: {treasury}.",
+      "InsufficientFundsError": "Cannot process week: Haven does not have enough funds ({cost}) to pay all hirelings. Current treasury: {treasury}. Please reduce costs or add funds.",
+      "TotalWeeklyCost": "Weekly Cost",
+      "TransferToCharacterOnly": "Only Character tokens can receive items from the Haven.",
+      "WithdrawnToActor": "Transferred {name} to {actor}.",
+      "TransferItemTo": "Transfer to {name}",
+      "DepositedToHaven": "Deposited {item} to {haven}.",
+      "TransferredToCharacter": "Transferred {item} to {character}.",
+      "TransferTargetNotFound": "Transfer target not found."
+    }
   },
   "TYPES": {
     "Actor": {
       "character": "Character",
       "creature": "Creature",
       "dungeon": "Dungeon",
-      "party": "Party"
+      "party": "Party",
+      "haven": "Haven"
     },
     "Item": {
       "armor": "Armor",
@@ -1188,7 +1275,8 @@
       "calling": "Calling",
       "craft": "Craft",
       "past_life": "Past Life",
-      "room": "Room"
+      "room": "Room",
+      "hireling": "Hireling"
     }
   }
 }

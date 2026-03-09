@@ -1,0 +1,81 @@
+<form class="{{cssClass}} trespasser-sheet item-sheet hireling-sheet" autocomplete="off">
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    </div>
+
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Item.Name'}}"/>
+      </h1>
+      <div class="header-details flex-row">
+        <label class="checkbox-item">
+          <input type="checkbox" name="system.active" {{checked system.active}} />
+          {{localize "TRESPASSER.Haven.Active"}}
+        </label>
+      </div>
+    </div>
+  </header>
+
+  <section class="sheet-body scrollable">
+    <div class="attribute-group flex-row">
+      <div class="field-item">
+        <label>{{localize "TRESPASSER.Haven.CostPerWeek"}}</label>
+        <input type="number" name="system.cost" value="{{system.cost}}" data-dtype="Number" />
+      </div>
+      <div class="field-item">
+        <label>{{localize "TRESPASSER.Item.Quantity"}}</label>
+        <input type="number" name="system.quantity" value="{{system.quantity}}" data-dtype="Number" />
+      </div>
+    </div>
+
+    <hr>
+
+    <div class="production-container">
+      <div class="consume-section">
+        <h3>{{localize "TRESPASSER.Haven.Consume"}}</h3>
+        <div class="item-list drop-zone" data-type="consume">
+          {{#each system.consume as |entry index|}}
+            <div class="hireling-item-chip" data-index="{{index}}" data-list="consume">
+              <span class="name">{{entry.name}}</span>
+              <div class="quantity-box">
+                <input type="number" class="hireling-item-qty" value="{{#if entry.system.quantity}}{{entry.system.quantity}}{{else}}1{{/if}}" />
+              </div>
+              <div class="controls">
+                <a class="remove-hireling-item" data-list="consume" data-index="{{index}}"><i class="fas fa-times"></i></a>
+              </div>
+            </div>
+          {{else}}
+            <p class="placeholder">{{localize "TRESPASSER.Haven.DropConsume"}}</p>
+          {{/each}}
+        </div>
+      </div>
+
+      <div class="produce-section">
+        <h3>{{localize "TRESPASSER.Haven.Produce"}}</h3>
+        <div class="item-list drop-zone" data-type="produce">
+          {{#each system.produce as |entry index|}}
+            <div class="hireling-item-chip" data-index="{{index}}" data-list="produce">
+              <span class="name">{{entry.name}}</span>
+              <div class="quantity-box">
+                <input type="number" class="hireling-item-qty" value="{{#if entry.system.quantity}}{{entry.system.quantity}}{{else}}1{{/if}}" />
+              </div>
+              <div class="controls">
+                <a class="remove-hireling-item" data-list="produce" data-index="{{index}}"><i class="fas fa-times"></i></a>
+              </div>
+            </div>
+          {{else}}
+            <p class="placeholder">{{localize "TRESPASSER.Haven.DropProduce"}}</p>
+          {{/each}}
+        </div>
+      </div>
+    </div>
+
+    <div class="field-item description-column">
+      <label>{{localize "TRESPASSER.Item.Description"}}</label>
+      <div class="trp-editor-container">
+        <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false">{{{descriptionHTML}}}</prose-mirror>
+      </div>
+    </div>
+  </section>
+</form>

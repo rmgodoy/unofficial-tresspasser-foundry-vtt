@@ -1,0 +1,218 @@
+<section class="{{cssClass}} trespasser-sheet actor haven" autocomplete="off">
+  <header class="sheet-header">
+    <div class="header-portrait">
+      <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+    </div>
+
+    <div class="header-info">
+      <div class="header-row header-identity">
+        <div class="name-group">
+          <input type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'TRESPASSER.Haven.NamePlaceholder'}}" {{disabled (not editable)}} />
+        </div>
+        
+        {{!-- Top-right Leader Display --}}
+        <div class="header-leader-mini drop-zone {{#if leader}}has-leader{{/if}}" data-action="dropLeader">
+          <label>{{localize "TRESPASSER.Haven.Leader"}}</label>
+          {{#if leader}}
+            <div class="leader-badge" data-action="openLeaderSheet">
+              <span class="name">{{leader.name}}</span>
+              {{#if editable}}
+                <a class="remove-leader" data-action="removeLeader" title="{{localize 'TRESPASSER.Remove'}}"><i class="fas fa-times"></i></a>
+              {{/if}}
+            </div>
+          {{else}}
+            <span class="placeholder">{{localize "TRESPASSER.Haven.DropLeaderHint"}}</span>
+          {{/if}}
+        </div>
+      </div>
+
+      <div class="header-row header-resources">
+        <div class="resource-box">
+          <label>{{localize "TRESPASSER.Haven.Treasury"}}</label>
+          <input type="number" name="system.treasury" value="{{system.treasury}}" data-dtype="Number" {{disabled (not editable)}} />
+        </div>
+        <div class="resource-box {{#if isOverBudget}}over-budget{{/if}}">
+          <label>{{localize "TRESPASSER.Haven.TotalWeeklyCost"}}</label>
+          <input type="number" value="{{totalWeeklyCost}}" disabled />
+        </div>
+        <div class="resource-box">
+          <label>{{localize "TRESPASSER.Haven.SkillBonus"}}</label>
+          <input type="number" name="system.skillBonus" value="{{system.skillBonus}}" {{disabled (not editable)}} />
+        </div>
+      </div>
+
+      <div class="header-row header-attributes">
+        {{#each (array "military" "efficiency" "resources" "expertise" "allegiance" "appeal") as |attr|}}
+        <div class="attribute-box">
+          <span class="attribute-label rollable" data-action="rollAttribute" data-attribute="{{attr}}">
+            {{localize (concat "TRESPASSER.Haven.Attributes." (capitalize attr))}}
+            <h3>{{lookup ../totalAttributes attr}}</h3>
+          </span>
+          <input type="number" name="system.attributes.{{attr}}" value="{{lookup ../system.attributes attr}}" {{disabled (not ../editable)}} />
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  </header>
+
+  <section class="haven-upkeep-section">
+    <h3 class="section-title">{{localize "TRESPASSER.Haven.UpkeepHeader"}}</h3>
+    <div class="upkeep-buttons">
+      <button type="button" class="upkeep-btn" data-action="upkeepWeeksRest" title="{{localize 'TRESPASSER.Haven.WeeksRestFlavor'}}">
+        <i class="fas fa-bed"></i> {{localize "TRESPASSER.Haven.UpkeepSteps.WeeksRest"}}
+      </button>
+      <button type="button" class="upkeep-btn" data-action="processWeek" title="{{localize 'TRESPASSER.Haven.ResolveHirelingsDesc'}}">
+        <i class="fas fa-users-cog"></i> {{localize "TRESPASSER.Haven.UpkeepSteps.ResolveHirelings"}}
+      </button>
+      <button type="button" class="upkeep-btn" data-action="upkeepPopulationCheck" title="{{localize 'TRESPASSER.Haven.PopulationCheckFlavor'}}">
+        <i class="fas fa-users"></i> {{localize "TRESPASSER.Haven.UpkeepSteps.PopulationCheck"}}
+      </button>
+      <button type="button" class="upkeep-btn" data-action="upkeepEventCheck" title="{{localize 'TRESPASSER.Haven.EventCheckFlavor'}}">
+        <i class="fas fa-exclamation-triangle"></i> {{localize "TRESPASSER.Haven.UpkeepSteps.EventCheck"}}
+      </button>
+    </div>
+  </section>
+
+
+  {{!-- Tabs --}}
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item" data-tab="production">{{localize "TRESPASSER.Haven.ProductionChains"}}</a>
+    <a class="item" data-tab="hirelings">{{localize "TRESPASSER.Haven.Hirelings"}}</a>
+    <a class="item" data-tab="attributes">{{localize "TRESPASSER.Haven.AttributesLabel"}}</a>
+    <a class="item" data-tab="inventory">{{localize "TRESPASSER.Haven.Inventory"}}</a>
+    <a class="item" data-tab="notes">{{localize "TRESPASSER.Haven.Notes"}}</a>
+  </nav>
+
+  <section class="sheet-content">
+    
+    {{!-- Production Chains Tab --}}
+    <div class="tab" data-group="primary" data-tab="production">
+      <div class="production-header flex-row">
+        {{#if editable}}
+          <a class="item-create button" data-type="productionChain" data-action="addChain">+ {{localize "TRESPASSER.Haven.AddProductionChainItem"}}</a>
+        {{/if}}
+      </div>
+      <div class="production-chains-list">
+        {{#each system.productionChains as |chain chainIndex|}}
+          <div class="production-chain {{#if chain.active}}active{{else}}inactive{{/if}}" data-chain-id="{{chain.id}}">
+            <div class="chain-header flex-row">
+              <input type="checkbox" class="chain-active-toggle" data-action="toggleChain" data-chain-index="{{chainIndex}}" {{checked chain.active}} {{disabled (not ../editable)}} />
+              <input type="text" class="chain-name-input" data-action="updateChainName" data-chain-index="{{chainIndex}}" value="{{chain.name}}" {{disabled (not ../editable)}} />
+              {{#if ../editable}}
+              <div class="chain-controls">
+                 <button type="button" class="remove-chain-btn" data-action="removeChain" data-chain-index="{{chainIndex}}"><i class="fas fa-trash"></i></button>
+              </div>
+              {{/if}}
+            </div>
+            <div class="chain-hirelings">
+              {{#each chain.resolvedHirelings as |h hIndex|}}
+                <div class="hireling-entry {{#unless h.system.active}}inactive{{/unless}}" data-item-id="{{h.id}}">
+                  <span class="name">{{h.name}}</span>
+                  {{#if ../../editable}}
+                  <div class="entry-controls">
+                    <a class="remove-from-chain" data-action="removeHirelingFromChain" data-chain-index="{{../chainIndex}}" data-hireling-index="{{../hIndex}}"><i class="fas fa-times"></i></a>
+                  </div>
+                  {{/if}}
+                </div>
+              {{/each}}
+              
+              {{#if (and ../../editable ../../availableHirelings.length)}}
+                <div class="add-hireling-to-chain-container flex-row">
+                  <select class="available-hirelings-select">
+                    <option value="">-- {{localize "TRESPASSER.Haven.AddHireling"}} --</option>
+                    {{#each ../../availableHirelings as |avail|}}
+                      <option value="{{avail.id}}">{{avail.name}}</option>
+                    {{/each}}
+                  </select>
+                  <button type="button" data-action="addHirelingToChain" data-chain-index="{{../chainIndex}}"><i class="fas fa-plus"></i></button>
+                </div>
+              {{/if}}
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Hirelings Tab --}}
+    <div class="tab" data-group="primary" data-tab="hirelings">
+      <div class="hirelings-grid">
+        {{#each hirelings as |h|}}
+          <div class="hireling-card {{#if h.system.active}}active{{else}}inactive{{/if}}" data-item-id="{{h.id}}">
+            <div class="card-info" data-action="openItemSheet">
+              <div class="details">
+                <span class="name">{{h.name}}</span>
+                <span class="cost">{{h.system.cost}} / {{localize "TRESPASSER.Haven.Week"}}</span>
+              </div>
+            </div>
+            <div class="card-controls">
+              <input type="checkbox" class="hireling-active-toggle" data-action="toggleHirelingActive" data-item-id="{{h.id}}" {{checked h.system.active}} {{disabled (not ../editable)}} />
+              {{#if ../editable}}
+                <a class="delete-item" data-action="deleteItem" data-item-id="{{h.id}}"><i class="fas fa-trash"></i></a>
+              {{/if}}
+            </div>
+          </div>
+        {{else}}
+          <p class="placeholder">{{localize "TRESPASSER.Haven.NoHirelingsHint"}}</p>
+        {{/each}}
+      </div>
+    </div>
+
+    {{!-- Inventory Tab --}}
+    <div class="tab" data-group="primary" data-tab="inventory">
+      <div class="inventory-list drop-zone">
+        {{#each inventory as |entry|}}
+          <div class="inventory-item" data-index="{{entry.index}}">
+            <span class="name">{{entry.name}}</span>
+            <div class="quantity-controls">
+              {{#if ../editable}}<a data-action="adjustInventoryQty" data-delta="-1"><i class="fas fa-minus"></i></a>{{/if}}
+              <span class="quantity">x{{entry.quantity}}</span>
+              {{#if ../editable}}<a data-action="adjustInventoryQty" data-delta="1"><i class="fas fa-plus"></i></a>{{/if}}
+            </div>
+            <div class="item-details">
+               <span class="type">{{entry.item.type}}</span>
+               {{#if entry.item.system.subType}}<span class="subtype">({{entry.item.system.subType}})</span>{{/if}}
+            </div>
+            <div class="controls">
+              <a class="withdraw-item" data-action="withdrawInventoryItem" title="{{localize 'TRESPASSER.Haven.Withdraw'}}"><i class="fas fa-box-open"></i></a>
+              {{#if ../editable}}
+                <a class="delete-item" data-action="deleteInventoryItem" title="{{localize 'TRESPASSER.DeleteItem'}}"><i class="fas fa-trash"></i></a>
+              {{/if}}
+            </div>
+          </div>
+        {{else}}
+           <p class="placeholder">{{localize "TRESPASSER.Haven.DropItemHint"}}</p>
+        {{/each}}
+      </div>
+    </div>
+
+
+    {{!-- Attributes & Skills Tab --}}
+    <div class="tab" data-group="primary" data-tab="attributes">
+      <div class="haven-attributes-skills-layout">
+        <div class="haven-skills-section">
+          <h3 class="section-title">{{localize "TRESPASSER.Haven.SkillsLabel"}}</h3>
+          <div class="skills-columns">
+            {{#each skillColumns as |column|}}
+            <div class="skill-column">
+              {{#each column}}
+              <div class="skill-row">
+                <input type="checkbox" name="system.skills.{{this.key}}" {{checked this.trained}} {{disabled (not ../../editable)}} />
+                <span class="skill-label rollable" data-action="rollSkill" data-skill="{{this.key}}" data-trained="{{this.trained}}">
+                  {{this.label}}
+                </span>
+              </div>
+              {{/each}}
+            </div>
+            {{/each}}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Notes Tab --}}
+    <div class="tab" data-group="primary" data-tab="notes">
+      <prose-mirror name="system.notes" value="{{system.notes}}" toggled="false" compact="false" {{#if (not editable)}}readonly{{/if}}>{{{enrichedNotes}}}</prose-mirror>
+    </div>
+
+  </section>
+</section>

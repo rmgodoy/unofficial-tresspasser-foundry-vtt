@@ -18,7 +18,7 @@ import { onAttributeRoll, onCombatStatRoll, onSkillRoll } from "./character/hand
 import { onDeedRoll, postDeedPhase, requestCDAndRoll, evaluateAndShowRoll } from "./character/handlers-deed.mjs";
 import { onTalentRoll, onFeatureRoll, onIncantationRoll }                   from "./character/handlers-talent.mjs";
 import { handleRestAction, recoverItemCost, spendRDAndRoll }                from "./character/handlers-rest.mjs";
-import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck }  from "./character/handlers-items.mjs";
+import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck, onItemTransfer }  from "./character/handlers-items.mjs";
 import { onPrevailRoll, onIntensityChange, onEffectRemove, onEffectInfo, onEffectEdit }   from "./character/handlers-effects.mjs";
 import { onEquipRoll, getActiveWeapons, getAccuracyFromTarget }             from "./character/handlers-combat.mjs";
 import { onInjuryClockClick, onToggleLight, onSpendRDHeader }               from "./character/handlers-misc.mjs";
@@ -50,6 +50,22 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   activateListeners(html) {
     super.activateListeners(html);
     activateCharacterListeners(html, this);
+
+    // Re-render when targets change so transfer buttons show up
+    if (!this._targetingHook) {
+      this._targetingHook = Hooks.on("targetToken", (user, token, targeted) => {
+        if (user.id === game.user.id) this.render();
+      });
+    }
+  }
+
+  /** @override */
+  async close(options = {}) {
+    if (this._targetingHook) {
+      Hooks.off("targetToken", this._targetingHook);
+      this._targetingHook = null;
+    }
+    return super.close(options);
   }
 
   /** @override */
@@ -103,6 +119,7 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   async _onItemConsume(event)               { return onItemConsume(event, this); }
   async _onDepletionRoll(event)             { return onDepletionRoll(event, this); }
   async _runDepletionCheck(item)            { return runDepletionCheck(item, this); }
+  async _onItemTransfer(event)              { return onItemTransfer(event, this); }
 
   // ── Effects ────────────────────────────────────────────────────────────────
   async _onPrevailRoll(event)               { return onPrevailRoll(event, this); }

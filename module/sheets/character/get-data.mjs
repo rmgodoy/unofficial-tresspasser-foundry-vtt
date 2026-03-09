@@ -281,6 +281,28 @@ export async function getCharacterData(sheet, options = {}) {
 
   context.keyAttribute = context.system.key_attribute ?? "mighty";
 
+  // Transfer Target check
+  const targets = game.user.targets;
+  if (targets.size === 1) {
+    const targetToken = targets.first();
+    const targetActor = targetToken.actor;
+    if (targetActor) {
+      if (targetActor.type === "haven") {
+        context.transferTarget = {
+          id: targetActor.id,
+          name: targetActor.name,
+          type: "haven"
+        };
+      } else if (targetActor.type === "character" && targetActor.id !== actor.id) {
+        context.transferTarget = {
+          id: targetActor.id,
+          name: targetActor.name,
+          type: "character"
+        };
+      }
+    }
+  }
+
   return context;
 }
 
