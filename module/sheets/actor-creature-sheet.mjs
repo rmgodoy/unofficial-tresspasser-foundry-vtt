@@ -1,5 +1,8 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { showItemInfoDialog }  from "../dialogs/item-info-dialog.mjs";
+import { askAPDialog } from "../dialogs/ap-dialog.mjs";
+import { onDeedRoll, postDeedPhase } from "./character/handlers-deed.mjs";
+import { TrespasserCombat } from "../documents/combat.mjs";
 
 /**
  * Extend the basic ActorSheet with some very simple logic.
@@ -237,10 +240,6 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
   /**
    * Handle rolling a prevail check for an effect/state on a creature.
    *
-   * DC = min(20, 10 + netSum) where netSum is the sum of all numeric modifiers
-   * on the actor that share the same target attribute, when timing, and type.
-   * On success, ALL matched effects are removed.
-   *
    * @param {Event} event
    */
   async _onPrevailRoll(event) {
@@ -250,216 +249,51 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
     const effectItem = this.actor.items.get(itemId);
     if (!effectItem) return;
 
-    const intensity = effectItem.system.intensity || 0;
-    const dc = Math.min(20, 10 + intensity);
+    let extraAP = 0;
+    const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
+    
+    if (combatant && this.actor.type === "creature") {
+      const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+      if (availableAP < 1) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+        return;
+      }
 
-    const rollBonus = this.actor.system.combat?.roll_bonus ?? this.actor.system.roll_bonus ?? 0;
-
-    // Check for advantage on the prevail roll
-    const isAdv = TrespasserEffectsHelper.hasAdvantage(this.actor, "roll_bonus") ||
-                  TrespasserEffectsHelper.hasAdvantage(this.actor, "accuracy");
-    const formula = isAdv ? `2d20kh + ${rollBonus}` : `1d20 + ${rollBonus}`;
-
-    const roll = new foundry.dice.Roll(formula);
-    await roll.evaluate();
-
-    const success = roll.total >= dc;
-
-    const flavor = success
-      ? game.i18n.format("TRESPASSER.Chat.PrevailSuccess", { name: effectItem.name, roll: roll.total, target: dc })
-      : game.i18n.format("TRESPASSER.Chat.PrevailFailed",  { name: effectItem.name, roll: roll.total, target: dc });
-
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: flavor
-    });
-
-    if (success) {
-      await effectItem.delete();
+      let apSpent = 1;
+      if (availableAP > 1) {
+        apSpent = await askAPDialog(availableAP);
+        if (apSpent === null) return;
+      }
+      
+      extraAP = apSpent - 1;
+      await combatant.setFlag("trespasser", "actionPoints", availableAP - apSpent);
     }
+
+    await this.actor.rollPrevail(effectItem.id, extraAP);
+    await TrespasserCombat.recordHUDAction(this.actor, "prevail");
   }
 
   /**
    * Handle rolling a Deed from the creature sheet.
-   * Delegates to the same logic mapped in Character Sheet.
-   * Note: The logic expects _onDeedRoll and _postDeedPhase which are currently housed inside actor-character-sheet.mjs.
-   * To keep things DRY we borrow the implementation or re-implement the core rolling block.
+   * Delegates to the shared onDeedRoll handler for full consistency.
    */
-  async _onDeedRoll(event) {
-    event.preventDefault();
-    const el = event.currentTarget.closest("[data-item-id]");
-    if (!el) return;
-    const itemId = el.dataset.itemId;
-    const item = this.actor.items.get(itemId);
-    if (!item) return;
+  async _onDeedRoll(event) { return onDeedRoll(event, this); }
 
-    const targets = Array.from(game.user.targets);
-    if (targets.length === 0) {
-      ui.notifications.warn("No targets selected! Roll aborted.");
-      return;
-    }
-
-    const attackerAccuracy = this.actor.system.combat?.accuracy || 0;
-    const effects = item.system.effects || {};
-    
-    // 1. Start & Before Phases
-    await this._postDeedPhase("Start", effects.start, this.actor, item);
-    await this._postDeedPhase("Before", effects.before, this.actor, item);
-
-    for (const targetToken of targets) {
-      const targetActor = targetToken.actor;
-      if (!targetActor) continue;
-
-      await TrespasserEffectsHelper.triggerEffects(targetActor, "targeted");
-
-      const statKey = item.system.accuracyTest?.toLowerCase() || "guard";
-      const targetStat = targetActor.system.combat[statKey] ?? 10;
-      const isTargetCreature = targetActor.type === "creature";
-      
-      const offset = isTargetCreature ? -10 : 0;
-      const rollFormula = `1d20 + ${targetStat} + ${offset}`;
-      
-      const defenseRoll = new foundry.dice.Roll(rollFormula);
-      await defenseRoll.evaluate();
-
-      const d20Result = defenseRoll.dice[0].results[0].result;
-      const rollTotal = defenseRoll.total;
-      const isHit = attackerAccuracy >= rollTotal;
-      
-      // Calculate Sparks and Shadows
-      const diff = attackerAccuracy - rollTotal;
-      let sparks = 0;
-      let shadows = 0;
-
-      if (isHit) {
-        sparks = Math.floor(diff / 5);
-        if (d20Result === 1) sparks += 1; // Defender Nat 1 is great for attacker
-      } else {
-        shadows = Math.floor(Math.abs(diff) / 5);
-        if (d20Result === 20) shadows += 1; // Defender Nat 20 is terrible for attacker (Heroic Dodge)
-      }
-
-      let accFlavor = `<div class="trespasser-chat-card">
-        <h3>${game.i18n.format("TRESPASSER.Chat.AccuracyVs", { item: item.name, target: targetActor.name })}</h3>
-        <p>${game.i18n.format("TRESPASSER.Chat.AccVsDef", { accuracy: attackerAccuracy, total: rollTotal })}</p>
-        <p style="font-size: 10px; color: var(--trp-text-dim);">Formula: ${defenseRoll.formula} (d20: ${d20Result})</p>
-        <p class="${isHit ? 'hit-text' : 'miss-text'}" style="font-size: 18px; font-weight: bold; text-align: center;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Hit") : game.i18n.localize("TRESPASSER.Chat.Miss")}</p>
-        
-        <div class="metrics-row" style="display:flex; gap:15px; justify-content: center; margin-top: 10px; font-weight: bold;">
-          <div class="spark-metric" style="color: #64b5f6;"><i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Sparks", { count: sparks })}</div>
-          <div class="shadow-metric" style="color: #9575cd;"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
-        </div>
-      </div>`;
-
-      await defenseRoll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-        flavor: accFlavor
-      });
-
-      if (isHit) {
-        // Build options for phases if needed
-        const phaseOptions = {
-          titleSuffix: ` vs ${targetActor.name}`,
-          sparks: sparks
-        };
-
-        await this._postDeedPhase("Base", effects.base, this.actor, item, phaseOptions);
-        await this._postDeedPhase("Hit", effects.hit, this.actor, item, phaseOptions);
-        
-        if (sparks > 0) {
-          await this._postDeedPhase("Spark", effects.spark, this.actor, item, {
-            ...phaseOptions,
-            title: `Spark (x${sparks})`
-          });
-        }
-      }
-    }
-
-    // After & End Phases (once)
-    await this._postDeedPhase("After", effects.after, this.actor, item);
-    await this._postDeedPhase("End", effects.end, this.actor, item);
-  }
-
+  /**
+   * Post a deed phase to chat — delegates to the shared postDeedPhase.
+   */
   async _postDeedPhase(phaseName, phaseData, actor, item, options = {}) {
-    if (!phaseData) return;
-    
-    let finalEffects = [...(phaseData.appliedEffects || [])];
-
-    if (phaseData.appliesWeaponEffects) {
-      const weapon = actor.items.find(i => i.type === "weapon" && i.system.equipped);
-      if (weapon && weapon.system.effects) {
-        finalEffects = finalEffects.concat(weapon.system.effects);
-      }
-    }
-
-    const hasDamage = phaseData.damage && phaseData.damage.trim() !== "";
-    const hasEffects = finalEffects.length > 0;
-    const hasDescription = phaseData.description && phaseData.description.trim() !== "";
-    const title = options.title || phaseName;
-
-    if (!hasDamage && !hasEffects && !hasDescription && !options.introText) return;
-
-    let flavorHtml = `<div class="trespasser-chat-card"><h3>${item.name} — ${title}</h3>`;
-    if (options.introText)  flavorHtml += `<p>${options.introText}</p>`;
-    if (hasDescription)     flavorHtml += `<p><em>${phaseData.description}</em></p>`;
-
-    if (hasEffects) {
-      flavorHtml += `<div class="applied-effects"><strong>${game.i18n.localize("TRESPASSER.Chat.EffectsStates")}</strong>`;
-      for (const eff of finalEffects) {
-        const intensity = parseInt(eff.intensity) || 0;
-        const nameLabel = intensity !== 0 ? `${eff.name} ${intensity}` : eff.name;
-        flavorHtml += `<a class="apply-effect-btn" data-uuid="${eff.uuid}" data-intensity="${intensity}">
-          <img src="${eff.img}" width="20" height="20" /><span>${nameLabel}</span><i class="fas fa-hand-sparkles"></i>
-        </a>`;
-      }
-      flavorHtml += `</div>`;
-    }
-    flavorHtml += `</div>`;
-
-    if (hasDamage) {
-      try {
-        let dmgExpr = phaseData.damage;
-        const skillDie = actor.system.skill_die || "d4";
-        let weaponDie = "d4";
-        const eqWeapon = actor.items.find(i => i.type === "weapon" && i.system.equipped);
-        if (eqWeapon && eqWeapon.system.weaponDie) weaponDie = eqWeapon.system.weaponDie;
-        
-        dmgExpr = TrespasserEffectsHelper.replacePlaceholders(dmgExpr, actor, weaponDie);
-
-        // Add Damage Bonus from effects
-        const damageBonus = actor.system.bonuses?.damage || 0;
-        if (damageBonus !== 0) {
-          dmgExpr = `(${dmgExpr}) + ${damageBonus}`;
-        }
-
-        const dmgRoll = new foundry.dice.Roll(dmgExpr);
-        await dmgRoll.evaluate();
-
-        // Add apply/heal buttons to the flavor HTML
-        const applyHealBtns = `<div class="trp-damage-actions" data-damage="${dmgRoll.total}" style="display:flex;gap:6px;margin-top:8px;">
-          <button class="apply-damage-btn" data-damage="${dmgRoll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
-            <i class="fas fa-heart-broken"></i> Apply Damage
-          </button>
-          <button class="heal-damage-btn" data-damage="${dmgRoll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
-            <i class="fas fa-heart"></i> Heal
-          </button>
-        </div>`;
-
-        await dmgRoll.toMessage({
-          speaker: ChatMessage.getSpeaker({ actor }),
-          flavor: flavorHtml + applyHealBtns
-        });
-        return;
-      } catch (err) {
-        console.error("Trespasser | Error rolling damage:", err);
-      }
-    }
-
-    await ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: actor }),
-      content: flavorHtml
-    });
+    return postDeedPhase(phaseName, phaseData, actor, item, options, this);
   }
+
+  /** Creatures don't equip weapon items — return empty array. */
+  _getActiveWeapons() { return []; }
+
+  /** Delegate AP dialog to shared helper. */
+  async _askAPDialog(availableAP) { return askAPDialog(availableAP); }
+
+  /** Creatures don't have depletion mechanic — no-op. */
+  async _runDepletionCheck(_item) {}
 
   /**
    * Show info dialog for an effect.

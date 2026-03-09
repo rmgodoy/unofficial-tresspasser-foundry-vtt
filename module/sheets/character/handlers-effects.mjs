@@ -4,6 +4,9 @@
  */
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
+import { askAPDialog }             from "../../dialogs/ap-dialog.mjs";
+import { TrespasserCombat }        from "../../documents/combat.mjs";
+import { showItemInfoDialog }      from "../../dialogs/item-info-dialog.mjs";
 
 export async function onPrevailRoll(event, sheet) {
   event.preventDefault();
@@ -11,25 +14,28 @@ export async function onPrevailRoll(event, sheet) {
   const effectItem = sheet.actor.items.get(li.dataset.itemId);
   if (!effectItem) return;
 
-  const intensity    = effectItem.system.intensity || 0;
-  const dc           = Math.min(20, 10 + intensity);
-  const prevailBonus = sheet.actor.system.combat.prevail || 0;
-  const roll         = new foundry.dice.Roll(`1d20 + ${prevailBonus}`);
-  await roll.evaluate();
+  let extraAP = 0;
+  const combatant = TrespasserCombat.getPhaseCombatant(sheet.actor);
   
-  // Trigger on-prevail effects
-  await TrespasserEffectsHelper.triggerEffects(sheet.actor, "on-prevail");
+  if (combatant && sheet.actor.type === "character") {
+    const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+    if (availableAP < 1) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+      return;
+    }
 
-  const success    = roll.total >= dc;
-  const flavor     = success
-    ? `Prevails against <b>${effectItem.name}</b> (Roll: ${roll.total} vs DC ${dc}) — <b>Success!</b>`
-    : `Failed to prevail against <b>${effectItem.name}</b> (Roll: ${roll.total} vs DC ${dc}) — <b>Failed</b>`;
-
-  await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor });
-
-  if (success) {
-    await effectItem.delete();
+    let apSpent = 1;
+    if (availableAP > 1) {
+      apSpent = await askAPDialog(availableAP);
+      if (apSpent === null) return;
+    }
+    
+    extraAP = apSpent - 1;
+    await combatant.setFlag("trespasser", "actionPoints", availableAP - apSpent);
   }
+
+  await sheet.actor.rollPrevail(effectItem.id, extraAP);
+  await TrespasserCombat.recordHUDAction(sheet.actor, "prevail");
 }
 
 export async function onIntensityChange(event, sheet) {
@@ -53,8 +59,6 @@ export async function onDurationChange(event, sheet) {
   const item = sheet.actor.items.get(li.dataset.itemId);
   if (item) await item.update({ "system.durationValue": val });
 }
-
-import { showItemInfoDialog } from "../../dialogs/item-info-dialog.mjs";
 
 export async function onEffectInfo(event, sheet) {
   const li = event.currentTarget.closest("[data-item-id]");

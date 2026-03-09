@@ -2,28 +2,24 @@
       <div class="states-section">
         <h3 class="section-title" style="display: flex; justify-content: space-between; align-items: center;">
           {{localize "TRESPASSER.Sheet.Combat.States"}} / {{localize "TRESPASSER.Sheet.Combat.CombatEffects"}}
-          <a class="item-create button" data-type="state">+ {{localize "TRESPASSER.Sheet.Character.AddItem"}}</a>
+          <a class="item-create button" data-type="effect">+ {{localize "TRESPASSER.Sheet.Character.AddItem"}}</a>
         </h3>
         <div class="combat-effects-list">
           {{#each activeEffects.combat}}
+          {{#unless this.hiddenOnSheet}}
           <div class="effect-row combat-effect" data-item-id="{{this.id}}">
             <div class="effect-name">
               {{this.name}}
+              {{#if (eq this.type "continuous")}} <span style="font-size: 9px; opacity: 0.7;">({{localize "TRESPASSER.Sheet.Effects.EffectTypes.Continuous"}})</span>{{/if}}
               <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
               <a class="effect-edit" title="{{localize 'TRESPASSER.General.Edit'}}"><i class="fas fa-edit"></i></a>
               {{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
             </div>
             
-            {{#if (or (eq this.duration "rounds") (eq this.duration "triggers"))}}
-              <div class="effect-duration-control" style="display: flex; align-items: center; gap: 4px;">
-                <span style="font-size: 10px; color: var(--trp-text-dim);">
-                  {{#if (eq this.duration "rounds")}}{{localize "TRESPASSER.DurationLabels.Rounds"}}{{else}}{{localize "TRESPASSER.DurationLabels.Triggers"}}{{/if}}
-                </span>
-                <input type="number" class="effect-duration-input" value="{{this.durationValue}}" style="width: 40px; text-align: center;" />
-              </div>
-            {{else if (ne this.duration "indefinite")}}
-              <div class="effect-duration-type" style="font-size: 10px; color: var(--trp-text-dim);">
-                {{localize (lookup ../durationModes this.duration)}}
+            {{#if (and this.durationSummary (ne this.type "continuous"))}}
+              <div class="effect-duration-control" style="font-size: 10px; color: var(--trp-text-dim); display:flex; align-items:center; gap:4px;">
+                <i class="fas fa-clock" style="opacity:0.6;"></i>
+                <span>{{this.durationSummary}}</span>
               </div>
             {{/if}}
 
@@ -36,13 +32,16 @@
               <input type="number" class="effect-intensity-input" value="{{this.intensity}}" />
             </div>
 
+            {{#if this.isPrevailable}}
             {{#unless this.fromInjury}}
             <button type="button" class="effect-prevail prevail-btn">
               <i class="fas fa-dice"></i> {{localize "TRESPASSER.Sheet.Combat.Prevail"}}
             </button>
             {{/unless}}
+            {{/if}}
             <a class="effect-remove" title="{{localize 'TRESPASSER.Item.RemoveEffect'}}"><i class="fas fa-trash"></i></a>
           </div>
+          {{/unless}}
           {{else}}
           <div class="empty-list">{{localize "TRESPASSER.Sheet.Equipments.Empty"}}</div>
           {{/each}}

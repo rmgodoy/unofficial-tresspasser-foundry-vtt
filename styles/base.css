@@ -25,11 +25,20 @@
 }
 
 /* ─── Sheet Root ─── */
-.trespasser-sheet {
+.trespasser-sheet,
+.trespasser.dungeon-tracker,
+.trespasser.sheet.party {
+  /* Fallbacks for V2 sheets missing Foundry V1 variables */
+  --color-scrollbar: #782e22;
+  --color-scrollbar-track: transparent;
+  
   font-family: var(--trp-font-body);
   font-size: 14px;
   color: var(--trp-text);
   background: var(--trp-bg-dark);
+}
+
+.trespasser-sheet {
   display: flex;
   flex-direction: column;
   height: 100%;
@@ -38,8 +47,9 @@
 
 /* Utilities */
 .scrollable {
+  flex: 1;
   overflow-y: auto !important;
-  height: 100%;
+  min-height: 0;
 }
 
 /* ─── All Inputs / Selects / Textareas ─── */
@@ -202,6 +212,7 @@
 
 body.game .app.window-app .window-content {
   background: var(--trp-bg-dark);
+  overflow: hidden;
 }
 
 body.game .app input[type="checkbox"] {

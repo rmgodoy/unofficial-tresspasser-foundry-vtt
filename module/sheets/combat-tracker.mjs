@@ -42,7 +42,7 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
       { id: 40, label: "TRESPASSER.Phase.Early", css: "early", combatants: [] },
       { id: 30, label: "TRESPASSER.Phase.Enemy", css: "enemy", combatants: [] },
       { id: 20, label: "TRESPASSER.Phase.Late", css: "late", combatants: [] },
-      { id: 10, label: "TRESPASSER.Phase.Critical", css: "critical", combatants: [] },
+      { id: 10, label: "TRESPASSER.Phase.Extra", css: "extra", combatants: [] },
       { id: 0,  label: "TRESPASSER.Phase.End", css: "end", combatants: [] }
     ];
 
@@ -57,6 +57,18 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
       if (phase) {
         turn.focus      = combatant.actor?.system.combat?.focus ?? 0;
         turn.ap         = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+        
+        // Status updates
+        turn.hidden     = combatant.token?.hidden ?? combatant.hidden;
+        turn.defeated   = combatant.defeated;
+        turn.isTargeted = game.user.targets.has(combatant.token?.object);
+
+        // Prepare AP dots for rendering
+        const maxApCount = Math.max(3, turn.ap);
+        turn.apDots = Array.from({ length: maxApCount }, (_, i) => ({
+            active: i < turn.ap
+        }));
+
         turn.isActive   = (phaseId === activePhase) && (turn.ap > 0) && !turn.defeated;
         turn.isFinished = turn.ap <= 0 || turn.defeated;
         phase.combatants.push(turn);
@@ -74,12 +86,15 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
   /** @override */
   activateListeners(html) {
     super.activateListeners(html);
-    html.find(".ap-square.filled").click(this._onActionPointClick.bind(this));
+    html.find(".ap-icon.active").click(this._onActionPointClick.bind(this));
     html.find(".next-phase-btn").click(ev => {
       ev.preventDefault();
       game.combat?.nextPhase();
     });
     html.find(".finish-turn-btn").click(this._onFinishTurnClick.bind(this));
+
+    // Custom controls
+    html.find(".combatant-control[data-action]").click(this._onCombatantControl.bind(this));
   }
 
   /** @override (ApplicationV2-style) */
@@ -87,7 +102,7 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
     if (super._onRender) super._onRender(context, options);
     const html = this.element;
     if (!html) return;
-    html.querySelectorAll(".ap-square.filled").forEach(el => {
+    html.querySelectorAll(".ap-icon.active").forEach(el => {
       el.addEventListener("click", ev => {
         ev.stopPropagation();
         this._onActionPointClickEl(el);
@@ -99,6 +114,44 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
         game.combat?.nextPhase();
       });
     });
+
+    html.querySelectorAll(".combatant-control[data-action]").forEach(el => {
+      el.addEventListener("click", ev => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        this._onCombatantControlEl(el);
+      });
+    });
+  }
+
+  async _onCombatantControl(ev) {
+    ev.preventDefault();
+    ev.stopPropagation();
+    this._onCombatantControlEl(ev.currentTarget);
+  }
+
+  async _onCombatantControlEl(el) {
+    const li = el.closest(".combatant");
+    const combatant = game.combat?.combatants.get(li?.dataset.combatantId);
+    if (!combatant) return;
+
+    const action = el.dataset.action;
+    switch (action) {
+      case "toggleHidden":
+        if (!game.user.isGM && !combatant.testUserPermission(game.user, "OWNER")) return;
+        const t = combatant.token;
+        if (t) return t.update({ hidden: !t.hidden });
+        return combatant.update({ hidden: !combatant.hidden });
+      
+      case "toggleDefeated":
+        if (!game.user.isGM && !combatant.testUserPermission(game.user, "OWNER")) return;
+        return this._onToggleDefeatedStatus(combatant);
+      
+      case "toggleTarget":
+        const token = combatant.token?.object;
+        if (!token) return;
+        return token.setTarget(!token.isTargeted, { releaseOthers: false });
+    }
   }
 
   async _onActionPointClick(ev) {

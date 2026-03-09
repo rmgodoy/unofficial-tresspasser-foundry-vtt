@@ -1,0 +1,133 @@
+{{!-- Party Sheet — Trespasser RPG --}}
+<section class="party-sheet-body">
+
+  {{!-- Header --}}
+  <header class="party-header">
+    <img class="party-portrait" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+    <div class="party-header-info">
+      <input class="party-name" name="name" type="text" value="{{actor.name}}"
+             placeholder="{{localize 'TRESPASSER.Party.NamePlaceholder'}}" />
+      <span class="party-member-count">{{members.length}} {{localize "TRESPASSER.Party.Members"}}</span>
+    </div>
+  </header>
+
+  {{!-- Group Check --}}
+  <div class="party-section party-group-check">
+    <h3 class="party-section-title">{{localize "TRESPASSER.Party.GroupCheck"}}</h3>
+    <div class="group-check-controls">
+      <div class="group-check-row-inputs">
+        <select class="group-check-attribute">
+          <option value="" disabled selected>{{localize "TRESPASSER.Party.Attribute"}}</option>
+          {{#each attributes}}
+          <option value="{{key}}">{{label}}</option>
+          {{/each}}
+        </select>
+        <select class="group-check-skill">
+          <option value="">{{localize "TRESPASSER.Party.NoSkill"}}</option>
+          {{#each skills}}
+          <option value="{{key}}">{{label}}</option>
+          {{/each}}
+        </select>
+        <label class="group-check-dc-label">{{localize "TRESPASSER.Dungeon.DC"}}</label>
+        <input type="number" class="group-check-dc" value="{{defaultDC}}" min="1" />
+        <button type="button" class="group-check-btn" data-action="rollGroupCheck">
+          <i class="fas fa-dice-d20"></i> {{localize "TRESPASSER.Party.Roll"}}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  {{!-- Members & Resources --}}
+  <div class="party-section party-members">
+    <h3 class="party-section-title">{{localize "TRESPASSER.Party.Members"}}</h3>
+
+    {{#if members.length}}
+    <div class="party-members-list">
+      {{#each members}}
+      <div class="party-member-card">
+        <a class="party-member-portrait" data-action="openMemberSheet" data-actor-id="{{_id}}">
+          <img src="{{img}}" alt="{{name}}" />
+        </a>
+        <div class="party-member-info">
+          <div class="party-member-name-row">
+            <a class="party-member-name" data-action="openMemberSheet" data-actor-id="{{_id}}">{{name}}</a>
+            <span class="party-member-level">{{localize "TRESPASSER.Sheet.Header.Level"}} {{level}}</span>
+            {{#if ../editable}}
+            <a class="party-remove-member" data-action="removeMember" data-actor-id="{{_id}}" title="{{localize 'TRESPASSER.Party.RemoveMember'}}">
+              <i class="fas fa-times"></i>
+            </a>
+            {{/if}}
+          </div>
+          <div class="party-member-resources">
+            <div class="party-resource hp-resource" data-tooltip="{{localize 'TRESPASSER.Party.Resource.HP'}}">
+              <i class="fas fa-heart"></i>
+              <span>{{hp}}/{{hpMax}}</span>
+            </div>
+            <div class="party-resource end-resource" data-tooltip="{{localize 'TRESPASSER.Party.Resource.Endurance'}}">
+              <i class="fas fa-shield-alt"></i>
+              <span>{{endurance}}/{{enduranceMax}}</span>
+            </div>
+            <div class="party-resource rec-resource" data-tooltip="{{localize 'TRESPASSER.Party.Resource.RecoveryDice'}}">
+              <i class="fas fa-dice"></i>
+              <span>{{recoveryDice}}/{{recoveryDiceMax}}</span>
+            </div>
+            <div class="party-resource resolve-resource" data-tooltip="{{localize 'TRESPASSER.Party.Resource.Resolve'}}">
+              <i class="fas fa-fist-raised"></i>
+              <span>{{resolve}}</span>
+            </div>
+            <div class="party-resource armor-resource" data-tooltip="{{localize 'TRESPASSER.Party.Resource.Armor'}}">
+              <i class="fas fa-chess-rook"></i>
+              <span>{{armor}}/{{armorMax}}</span>
+            </div>
+            <div class="party-resource rations-resource" data-tooltip="{{localize 'TRESPASSER.Party.Resource.Rations'}}">
+              <i class="fas fa-drumstick-bite"></i>
+              <span>{{rations}}</span>
+            </div>
+            <div class="party-resource injury-resource" data-tooltip="{{localize 'TRESPASSER.Party.Resource.Injuries'}}">
+              <i class="fas fa-bone"></i>
+              <span>{{injuries}}</span>
+            </div>
+            <div class="party-resource light-resource" data-tooltip="{{localize 'TRESPASSER.Party.Resource.Light'}}">
+              <i class="fas fa-fire"></i>
+              <span>{{lightSources.length}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <p class="party-empty-notice">{{localize "TRESPASSER.Party.NoMembers"}}</p>
+    {{/if}}
+
+    {{!-- Add member controls --}}
+    {{#if editable}}
+    <div class="party-add-member">
+      <div class="party-drop-hint">
+        <i class="fas fa-user-plus"></i> {{localize "TRESPASSER.Party.DropHint"}}
+      </div>
+      
+      {{#if availableCharacters.length}}
+      <div class="party-add-member-controls">
+        <select class="party-add-member-select">
+          <option value="" disabled selected>{{localize "TRESPASSER.Party.SelectCharacter"}}</option>
+          {{#each availableCharacters}}
+          <option value="{{_id}}">{{name}}</option>
+          {{/each}}
+        </select>
+        <a class="party-add-member-btn" data-action="addMember" title="{{localize 'TRESPASSER.Party.AddMember'}}">
+          <i class="fas fa-plus"></i>
+        </a>
+      </div>
+      {{/if}}
+    </div>
+    {{/if}}
+  </div>
+
+  {{!-- Notes --}}
+  <div class="party-section party-notes">
+    <h3 class="party-section-title">{{localize "TRESPASSER.Party.Notes"}}</h3>
+    <prose-mirror name="system.notes" value="{{system.notes}}" toggled="false" compact="true">{{{enrichedNotes}}}</prose-mirror>
+  </div>
+
+</section>

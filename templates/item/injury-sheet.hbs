@@ -14,32 +14,35 @@
         <input name="name" type="text" value="{{item.name}}"
                placeholder="{{localize 'TRESPASSER.Item.Injury.Name'}}"/>
       </h1>
-
-      <div class="detail-row">
-        <label>{{localize "TRESPASSER.Item.Injury.InjuryClock"}}</label>
-        <input type="number" name="system.injuryClock"
-               value="{{system.injuryClock}}" min="2" max="12" />
-      </div>
-
-      <div class="detail-row">
-        <label>{{localize "TRESPASSER.Item.Injury.CurrentClock"}}</label>
-        <input type="number" name="system.currentClock"
-               value="{{system.currentClock}}" min="0"
-               max="{{system.injuryClock}}" />
-      </div>
-    </div>
-
-    <!-- Description -->
-    <div class="header-column description-column">
-      <div class="editor-container">
-        {{editor descriptionHTML target="system.description" button=true
-                 editable=editable engine="prosemirror"}}
-      </div>
     </div>
   </header>
 
   <!-- ─── BODY ─── -->
   <section class="sheet-body scrollable">
+    <div class="attribute-fields">
+        <div class="attribute-group flex-row">
+          <div class="field-item">
+            <label>{{localize "TRESPASSER.Item.Injury.InjuryClock"}}</label>
+            <input type="number" name="system.injuryClock"
+                    value="{{system.injuryClock}}" min="2" max="12" />
+          </div>
+
+          <div class="field-item">
+            <label>{{localize "TRESPASSER.Item.Injury.CurrentClock"}}</label>
+            <input type="number" name="system.currentClock"
+                    value="{{system.currentClock}}" min="0"
+                    max="{{system.injuryClock}}" />
+          </div>
+        </div>
+        <div class="field-row description-column">
+          <label>{{localize "TRESPASSER.Item.Description"}}</label>
+          <div class="trp-editor-container">
+            {{editor descriptionHTML target="system.description" button=true
+                     editable=editable engine="prosemirror" resizable=true}}
+          </div>
+        </div>
+    </div>
+
     <div class="custom-attributes-area">
 
       <!-- SVG Clock display -->

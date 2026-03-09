@@ -1,0 +1,47 @@
+<section class="tab rooms {{tab.cssClass}}" data-group="primary" data-tab="rooms">
+  <div class="dungeon-rooms">
+
+    <div class="dungeon-rooms-header">
+      <h2>{{localize "TRESPASSER.Dungeon.Rooms"}}</h2>
+      {{#if editable}}
+      <a class="dungeon-btn" data-action="createRoom">
+        <i class="fas fa-plus"></i> {{localize "TRESPASSER.Dungeon.AddRoom"}}
+      </a>
+      {{/if}}
+    </div>
+
+    {{#if rooms.length}}
+    <div class="dungeon-room-list">
+      {{#each rooms}}
+      <div class="dungeon-room-row {{#if discovered}}discovered{{/if}}" data-item-id="{{_id}}">
+        <div class="dungeon-room-status">
+          <a class="dungeon-room-discovered-toggle" data-action="toggleDiscovered" data-tooltip="{{localize 'TRESPASSER.Dungeon.Room.Discovered'}}">
+            {{#if discovered}}
+            <i class="fas fa-eye"></i>
+            {{else}}
+            <i class="fas fa-eye-slash"></i>
+            {{/if}}
+          </a>
+        </div>
+        <div class="dungeon-room-info">
+          <span class="dungeon-room-name">{{name}}</span>
+          <span class="dungeon-room-meta">
+            {{#if connectionsCount}}<span class="room-badge" data-tooltip="{{localize 'TRESPASSER.Dungeon.Room.Connections'}}"><i class="fas fa-door-open"></i> {{connectionsCount}}</span>{{/if}}
+            {{#if featuresCount}}<span class="room-badge" data-tooltip="{{localize 'TRESPASSER.Dungeon.Room.Features'}}"><i class="fas fa-star"></i> {{featuresCount}}</span>{{/if}}
+            {{#if hasHazards}}<span class="room-badge hazard" data-tooltip="{{localize 'TRESPASSER.Dungeon.Room.Hazards'}}"><i class="fas fa-triangle-exclamation"></i></span>{{/if}}
+            {{#if hasLoot}}<span class="room-badge loot" data-tooltip="{{localize 'TRESPASSER.Dungeon.Room.Loot'}}"><i class="fas fa-gem"></i></span>{{/if}}
+          </span>
+        </div>
+        <div class="dungeon-room-controls">
+          <a data-action="editItem"><i class="fas fa-pen"></i></a>
+          <a data-action="deleteItem"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <div class="dungeon-empty-notice">{{localize "TRESPASSER.Dungeon.NoRooms"}}</div>
+    {{/if}}
+
+  </div>
+</section>

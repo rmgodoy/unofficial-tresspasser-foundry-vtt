@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="50mm"
+   height="50mm"
+   viewBox="0 0 50 50"
+   version="1.1"
+   id="svg5"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   sodipodi:docname="ring_early.svg"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg">
+  <sodipodi:namedview
+     id="namedview7"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     inkscape:document-units="mm"
+     showgrid="false"
+     inkscape:zoom="3.659624"
+     inkscape:cx="68.859533"
+     inkscape:cy="129.5215"
+     inkscape:window-width="2560"
+     inkscape:window-height="1369"
+     inkscape:window-x="-8"
+     inkscape:window-y="-8"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer1" />
+  <defs
+     id="defs2">
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter7641"
+       x="-0.12813411"
+       y="-0.12813411"
+       width="1.2562682"
+       height="1.2562682">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="1.5627882"
+         id="feGaussianBlur7643" />
+    </filter>
+    <filter
+       inkscape:collect="always"
+       style="color-interpolation-filters:sRGB"
+       id="filter7651"
+       x="-0.027964829"
+       y="-0.027964829"
+       width="1.0559297"
+       height="1.0559297">
+      <feGaussianBlur
+         inkscape:collect="always"
+         stdDeviation="0.36421699"
+         id="feGaussianBlur7653" />
+    </filter>
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <circle
+       style="fill:none;stroke:#b3cd26;stroke-width:2.8;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter7641)"
+       id="path429"
+       cx="25"
+       cy="23.930622"
+       r="20.098831" />
+    <circle
+       style="fill:none;stroke:#b3cd26;stroke-width:0.5;stroke-linecap:round;stroke-linejoin:round;paint-order:stroke fill markers;stroke-opacity:1;stroke-dasharray:none;filter:url(#filter7651)"
+       id="circle7645"
+       cx="25"
+       cy="23.930622"
+       r="20.098831" />
+  </g>
+</svg>

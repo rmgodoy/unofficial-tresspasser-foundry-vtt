@@ -1,0 +1,299 @@
+/* Token Action HUD Styles - Trespasser System Aesthetics */
+.trespasser-token-hud {
+    position: fixed !important;
+    z-index: 100;
+    pointer-events: none;
+    animation: hud-fade-in 0.3s ease-out;
+}
+
+@keyframes hud-fade-in {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.trespasser-token-hud .hud-content {
+    pointer-events: all;
+    background: var(--trp-bg-dark);
+    border: 1px solid var(--trp-border);
+    border-radius: var(--trp-radius);
+    padding: 8px 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+}
+
+.trespasser-token-hud header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--trp-border);
+    margin: 0;
+    cursor: move;
+}
+
+.trespasser-token-hud .hud-title {
+    font-family: var(--trp-font-header);
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--trp-gold);
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+    line-height: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.trespasser-token-hud .ap-indicator {
+    display: flex;
+    gap: 2px;
+    margin-top: 4px;
+}
+
+.trespasser-token-hud .ap-icon {
+    width: 14px;
+    height: 14px;
+    background-color: var(--trp-text-dim);
+    -webkit-mask: url("../assets/icons/action_icon.svg") no-repeat center;
+    mask: url("../assets/icons/action_icon.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    opacity: 0.2;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.trespasser-token-hud .ap-icon.active {
+    background-color: #3f51b5;
+    opacity: 1;
+    filter: drop-shadow(0 0 3px rgba(63, 81, 181, 0.8));
+    transform: scale(1.1) rotate(5deg);
+}
+
+.trespasser-token-hud .hud-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    align-items: center;
+}
+
+.trespasser-token-hud .hud-action-group {
+    position: relative;
+}
+
+.trespasser-token-hud .hud-action-btn {
+    background: var(--trp-bg-panel);
+    border: 1px solid var(--trp-border);
+    color: var(--trp-text-bright);
+    font-family: var(--trp-font-header);
+    font-size: 10px;
+    padding: 4px 8px;
+    min-height: 32px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    width: 135px;
+    border-radius: var(--trp-radius-sm);
+    line-height: 1.1;
+}
+
+.trespasser-token-hud .hud-action-btn .btn-text {
+    white-space: normal;
+    text-align: center;
+}
+
+.trespasser-token-hud .btn-icons {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.trespasser-token-hud .action-icon {
+    width: 8px;
+    height: 8px;
+    background-color: var(--trp-gold);
+    -webkit-mask: url("../assets/icons/action_icon.svg") no-repeat center;
+    mask: url("../assets/icons/action_icon.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    transition: all 0.2s;
+}
+
+.trespasser-token-hud .flexible-icon {
+    width: 8px;
+    height: 8px;
+    background-color: var(--trp-gold-dim);
+    -webkit-mask: url("../assets/icons/flexible_icon.svg") no-repeat center;
+    mask: url("../assets/icons/flexible_icon.svg") no-repeat center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    transition: all 0.2s;
+}
+
+.trespasser-token-hud .hud-action-btn:hover .action-icon,
+.trespasser-token-hud .hud-action-btn:hover .flexible-icon {
+    background-color: var(--trp-bg-dark);
+}
+
+.trespasser-token-hud .hud-action-btn:hover:not(:disabled) {
+    background: var(--trp-gold-dim);
+    color: var(--trp-bg-dark);
+    border-color: var(--trp-gold-bright);
+}
+
+.trespasser-token-hud .hud-action-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed !important;
+    filter: grayscale(1);
+}
+
+.trespasser-token-hud .hud-action-btn .cost {
+    font-size: 9px;
+    color: var(--trp-gold);
+    margin-top: 2px;
+    font-family: var(--trp-font-body);
+    font-weight: normal;
+}
+
+.trespasser-token-hud .hud-action-btn:hover .cost {
+    color: var(--trp-bg-dark);
+}
+
+/* Sub-panels */
+.trespasser-token-hud .hud-sub-panel {
+    position: absolute;
+    top: 50%;
+    left: calc(100% + 15px);
+    transform: translateY(-50%);
+    background: var(--trp-bg-panel);
+    border: 1px solid var(--trp-gold-dim);
+    padding: 12px;
+    border-radius: var(--trp-radius);
+    z-index: 101;
+    min-width: 210px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+    pointer-events: all;
+}
+
+.trespasser-token-hud .hud-sub-panel::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    right: 100%;
+    margin-top: -8px;
+    border-width: 8px;
+    border-style: solid;
+    border-color: transparent var(--trp-gold-dim) transparent transparent;
+}
+
+/* Smart Opening: Flip when HUD is on the right side of the screen */
+.trespasser-token-hud.hud-on-right .hud-sub-panel {
+    right: calc(100% + 15px);
+    left: auto;
+}
+
+.trespasser-token-hud.hud-on-right .hud-sub-panel::after {
+    left: 100%;
+    right: auto;
+    border-color: transparent transparent transparent var(--trp-gold-dim);
+}
+
+.trespasser-token-hud .field-row {
+    margin-bottom: 8px;
+}
+
+.trespasser-token-hud .field-row label {
+    font-family: var(--trp-font-header);
+    font-size: 10px;
+    text-transform: uppercase;
+    color: var(--trp-gold);
+    display: block;
+    margin-bottom: 3px;
+}
+
+.trespasser-token-hud .field-row select,
+.trespasser-token-hud .field-row input {
+    width: 100%;
+    background-color: var(--trp-bg-input) !important;
+    color: var(--trp-text-bright) !important;
+    border: 1px solid var(--trp-border) !important;
+    font-family: var(--trp-font-body) !important;
+    font-size: 13px !important;
+    padding: 2px 4px;
+    border-radius: var(--trp-radius-sm);
+}
+
+.trespasser-token-hud .action-confirm-btn {
+    width: 100%;
+    background: var(--trp-gold-dim);
+    border: 1px solid var(--trp-border);
+    color: var(--trp-text-bright);
+    font-family: var(--trp-font-header);
+    font-size: 11px;
+    text-transform: uppercase;
+    padding: 6px;
+    cursor: pointer;
+    margin-top: 6px;
+    border-radius: var(--trp-radius-sm);
+    transition: all 0.2s;
+}
+
+.trespasser-token-hud .action-confirm-btn:hover {
+    background: var(--trp-gold-bright);
+    color: var(--trp-bg-dark);
+}
+
+/* Undo Button */
+.trespasser-token-hud .undo-btn {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: var(--trp-bg-dark);
+    border: 1px solid var(--trp-border);
+    color: var(--trp-text-dim);
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    transition: all 0.2s;
+    z-index: 5;
+    pointer-events: all;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+
+.trespasser-token-hud .undo-btn:hover {
+    color: var(--trp-gold-bright);
+    border-color: var(--trp-gold);
+    background: var(--trp-bg-panel);
+    transform: scale(1.1);
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* Chips for focus costs */
+.trespasser-token-hud .focus-cost-chip {
+    display: inline-block;
+    background: #c62828;
+    color: white;
+    font-size: 8px;
+    padding: 1px 3px;
+    border-radius: 3px;
+    margin-top: 2px;
+    vertical-align: middle;
+    text-transform: uppercase;
+    font-weight: bold;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}

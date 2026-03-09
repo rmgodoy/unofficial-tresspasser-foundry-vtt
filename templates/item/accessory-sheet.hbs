@@ -32,7 +32,9 @@
 
     <div class="description-section" style="margin-top: 20px; border-top: 1px solid var(--trp-gold-dim); padding-top: 10px; margin-bottom: 20px;">
         <h3 style="font-family: var(--trp-font-header); color: var(--trp-gold-bright); margin-bottom: 10px;">{{localize "TRESPASSER.Item.Description"}}</h3>
-        {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror"}}
+        <div class="trp-editor-container">
+          {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+        </div>
     </div>
 
     <!-- Lists -->

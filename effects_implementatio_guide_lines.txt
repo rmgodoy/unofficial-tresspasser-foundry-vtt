@@ -1,0 +1,60 @@
+I want to refactor how effects work. First, we're going to remove the State item and keep only the Effect one.
+We are going to change the type from passive/active to 'On Trigger'/'Continuous'.
+On trigger effects will have the 'trigger when' attribute with the options:
+    - Start of Combat
+    - Start of Round
+    - Start of Turn
+    - End of Turn
+    - End of Round
+    - End of Combat
+    - On First Move (The first of the turn)
+    - On Move (every tile traversed triggers this - use distance, if 1 sq, triggers once, 2 squares, twice...)
+    - Use
+    - Targeted
+    - Damage Dealt
+    - Damage Received
+    - On Prevail
+    - On Use Deed
+    - On Targeted Deed
+    - On Deed Hit Received
+    - On Deed Miss Received
+    - On Deed Hit
+    - On Deed Miss
+    - Immediate
+On trigger effects will have a duration of types:
+    - Combat (how many combats? consumes at the end of a combat)
+    - Round (how many rounds? consumes by the end of round)
+    - Trigger (how many triggers? consumes on every trigger)
+
+Continuous effects will not have a trigger nor duration as they apply immediatly and constantly.
+
+Let's stablish how each type of item will work with effects and their behavior within the character:
+
+1. Weapons has 3 kinds of effects, Weapon Effects, Enhancements Effects and Oil Effect. These type of effects are to be applied to targets (enemies, allies or yourself).
+    - Weapon Effects are shown in chat when using a deed that uses the weapon effects.
+    - Enhancements Effects always show in chat when you have at least one spark with a deed while using the weapon.
+    - Oil Effects always will be displayed on chat if a deed Hit.
+  If a weapon has a continuous effect, it's applied immediatly to the one with the weapon equipped and must be removed when unequipped.
+2. Armor has a list of effects that must show in chat when using the armor to block from the Combat tab.
+  If an armor has a continuous effect, it's applied immediatly to the one with the armor equipped and must be removed when unequipped.
+3. Deed's effects are only shown in chat to be applied when executing that phase
+4. When equipped with a Feature, the character must receive any continuous effect but remove the effect if the Feature is removed. 
+  On Trigger effects will be displayed in chat if the user uses the Feature (e.g. as an action or reaction).
+5. Talent with continuous effects will be added to the character that has the talent, if the talent is removed, so do the effects. If the effect is 'On Trigger' effect, it must show on chat when using the talent (e.g. action or reaction).
+6. Rations' effects are displayed on chat when eating/using the ration.
+7. Bomb effects must be displayed on the chat once when the bomb is used.
+8. Oil effects are applied to weapons (melee or missile) when using the oil. It must show a dialog to choose one of the equipped weapons and add to the list of Oil Effects of that weapon.
+9. Potion effects are to be applied to the one using the potion. Add the effect to the actor who use it.
+10. Powder effects are displaed on chat once the powder is used.
+11. Artifacts has Enhancement Effects that are displayed on chat when the artifact is used. If the effect is 'continuous', it must apply to the character equipped with the artifact and must be removed once the item is unequipped.
+12. Accessories has alist of effects that are displayed on chat when the accessory is used. If the effect is 'continuous', it must apply to the character equipped with the accessory and must be removed once the item is unequipped.
+13. Injury effects must be applied to the character that has the injury. When the injury is removed, so must be the effects.
+
+
+We need to update Weapon so it has a new Oil Effects list attribute. This list will be populated when the player uses an oil on the weapon. The oil effect will be removed once the weapon is unequipped.
+
+IMPORTANT:
+- Code must be modular and avoid code duplication.
+- Code must be well documented and easy to understand.
+- Code must be efficient and avoid unnecessary computations.
+- Code must be compatible with FoundryVTT's V13 API and modules.

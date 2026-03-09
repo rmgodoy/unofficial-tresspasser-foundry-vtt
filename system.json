@@ -2,7 +2,7 @@
   "id": "trespasser",
   "title": "Trespasser",
   "description": "A Foundry VTT system for the Trespasser TTRPG by Tundalus.",
-  "version": "0.0.2-4",
+  "version": "0.0.4-3",
   "compatibility": {
     "minimum": "13",
     "verified": "13"
@@ -13,7 +13,10 @@
     }
   ],
   "esmodules": ["trespasser.mjs"],
-  "styles": ["styles/trespasser.css"],
+  "styles": [
+    "styles/trespasser.css",
+    "styles/dungeon.css"
+  ],
   "languages": [
     {
       "lang": "en",
@@ -30,7 +33,9 @@
     "Actor": {
       "character": {},
       "creature": {},
-      "haven": {}
+      "haven": {},
+      "dungeon": {},
+      "party": {}
     },
     "Item": {
       "item": {},
@@ -43,14 +48,14 @@
       "incantation": {},
       "effect": {},
       "accessory": {},
-      "state": {},
       "injury": {},
       "calling": {},
       "craft": {},
       "past_life": {},
       "build": {},
       "hireling": {},
-      "stronghold": {}
+      "stronghold": {},
+      "room": {}
     }
   },
   "initiative": "1d6 + @system.combat.initiative",

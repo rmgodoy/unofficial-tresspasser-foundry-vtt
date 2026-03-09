@@ -1,0 +1,28 @@
+<section class="tab log {{tab.cssClass}}" data-group="primary" data-tab="log">
+  <div class="dungeon-log">
+
+    <div class="dungeon-log-header">
+      <h2>{{localize "TRESPASSER.Dungeon.RoundLog"}}</h2>
+      {{#if editable}}
+      <a class="dungeon-btn" data-action="clearLog">
+        <i class="fas fa-eraser"></i> {{localize "TRESPASSER.General.Clear"}}
+      </a>
+      {{/if}}
+    </div>
+
+    {{#if roundLog.length}}
+    <div class="dungeon-log-entries">
+      {{#each roundLog}}
+      <div class="dungeon-log-entry">
+        <span class="log-round">{{localize "TRESPASSER.Dungeon.RoundAbbr"}}{{round}}</span>
+        <span class="log-action">{{action}}</span>
+        <span class="log-detail">{{detail}}</span>
+      </div>
+      {{/each}}
+    </div>
+    {{else}}
+    <div class="dungeon-empty-notice">{{localize "TRESPASSER.Dungeon.NoLogEntries"}}</div>
+    {{/if}}
+
+  </div>
+</section>

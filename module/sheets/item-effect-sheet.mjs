@@ -18,12 +18,13 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
   async getData(options = {}) {
     const context = await super.getData(options);
     context.system = this.item.system;
+    if (!context.system.durationConditions) context.system.durationConditions = [];
     
     // Add constants for the sheet
     context.config = {
       effectTypes: {
-        "active": "TRESPASSER.Sheet.Effects.EffectTypes.Active",
-        "passive": "TRESPASSER.Sheet.Effects.EffectTypes.Passive"
+        "on-trigger": "TRESPASSER.Sheet.Effects.EffectTypes.OnTrigger",
+        "continuous": "TRESPASSER.Sheet.Effects.EffectTypes.Continuous"
       },
       targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
       triggerWhen: TrespasserEffectsHelper.TRIGGER_LABELS,
@@ -48,6 +49,11 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
 
     // Edit buttons
     html.find('.counter-state-edit').click(this._onEditCounterState.bind(this));
+
+    // --- Compound Duration ---
+    html.find('.dur-add-condition').click(this._onAddDurationCondition.bind(this));
+    html.find('.dur-remove-condition').click(this._onRemoveDurationCondition.bind(this));
+    html.find('.dur-mode').on('change', this._onDurationModeChange.bind(this));
   }
 
   _onDragOver(event) {
@@ -68,9 +74,9 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
     const sourceItem = await fromUuid(dropData.uuid);
     if (!sourceItem) return;
     
-    // Validate types: Only effects or states can be counter states
-    if (sourceItem.type !== "effect" && sourceItem.type !== "state") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropEffectsStatesOnly"));
+    // Validate types: Only effects can be counter states
+    if (sourceItem.type !== "effect") {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropEffectsOnly"));
       return;
     }
 
@@ -109,5 +115,34 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
     const item = await fromUuid(uuid);
     if (item) item.sheet.render(true);
     else ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.ItemNotFound"));
+  }
+
+  // ---------------------------------------------------------------------------
+  // Compound Duration Handlers
+  // ---------------------------------------------------------------------------
+
+  async _onAddDurationCondition(event) {
+    event.preventDefault();
+    const conditions = foundry.utils.deepClone(this.item.system.durationConditions ?? []);
+    conditions.push({ mode: "indefinite", value: 0 });
+    await this.item.update({ "system.durationConditions": conditions });
+  }
+
+  async _onRemoveDurationCondition(event) {
+    event.preventDefault();
+    const idx = Number(event.currentTarget.dataset.index);
+    const conditions = foundry.utils.deepClone(this.item.system.durationConditions ?? []);
+    conditions.splice(idx, 1);
+    await this.item.update({ "system.durationConditions": conditions });
+  }
+
+  _onDurationModeChange(event) {
+    const row    = event.currentTarget.closest('.duration-condition-row');
+    const mode   = event.currentTarget.value;
+    const valInput = row.querySelector('.dur-value');
+    if (valInput) {
+      const needsVal = mode === "round" || mode === "trigger";
+      valInput.style.display = needsVal ? "" : "none";
+    }
   }
 }

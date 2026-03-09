@@ -9,6 +9,7 @@ import { showCallingDialog }           from "../dialogs/calling-dialog.mjs";
 import { showCraftDialog }             from "../dialogs/craft-dialog.mjs";
 import { showRestDialog }              from "../dialogs/rest-dialog.mjs";
 import { showAmmoDialog }              from "../dialogs/ammo-dialog.mjs";
+import { askAPDialog }               from "../dialogs/ap-dialog.mjs";
 
 import { getCharacterData, buildClockSegments } from "./character/get-data.mjs";
 import { activateCharacterListeners }           from "./character/listeners.mjs";
@@ -80,6 +81,7 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
   }
   async _requestCDAndRoll(roll, flavor)     { return requestCDAndRoll(roll, flavor, this); }
   async _evaluateAndShowRoll(roll, flavor, cd) { return evaluateAndShowRoll(roll, flavor, cd, this); }
+  async _askAPDialog(availableAP)             { return askAPDialog(availableAP); }
 
   // ── Talents / Features / Incantations ─────────────────────────────────────
   async _onTalentRoll(event)                { return onTalentRoll(event, this); }

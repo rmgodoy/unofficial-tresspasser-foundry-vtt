@@ -1,29 +1,28 @@
 <form class="{{cssClass}} trespasser-sheet item incantation" autocomplete="off">
-  <header class="sheet-header">
-    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
-    <div class="header-info">
-      <div class="name-group">
-        <h1 class="item-title">{{item.name}}</h1>
-      </div>
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    </div>
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.incantation'}}" />
+      </h1>
     </div>
   </header>
 
   <section class="sheet-body scrollable">
     <div class="details-grid">
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Equipments.Name"}}</label>
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.incantation'}}" />
-      </div>
-
-      <div class="field-row">
         <label>{{localize "TRESPASSER.Item.EnduranceCost"}}</label>
         <input type="number" name="system.enduranceCost" value="{{system.enduranceCost}}" min="0" />
       </div>
-    </div>
 
-    <div class="description-section" style="margin-top: 20px; border-top: 1px solid var(--trp-gold-dim); padding-top: 10px; margin-bottom: 20px;">
-        <h3 style="font-family: var(--trp-font-header); color: var(--trp-gold-bright); margin-bottom: 10px;">{{localize "TRESPASSER.Item.Description"}}</h3>
-        {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror"}}
+      <div class="field-row description-column">
+        <label>{{localize "TRESPASSER.Item.Description"}}</label>
+        <div class="trp-editor-container">
+          {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+        </div>
+      </div>
     </div>
   </section>
 </form>

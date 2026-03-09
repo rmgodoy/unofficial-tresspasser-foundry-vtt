@@ -36,7 +36,7 @@
           <div class="resource-values">
             <input type="number" name="system.health" value="{{system.health}}" min="0" />
             <span>/</span>
-            <input type="number" name="system.max_health" value="{{system.max_health}}" readonly />
+            <input type="number" name="system.max_health" value="{{sum system.max_health system.bonuses.max_health}}" readonly />
           </div>
         </div>
         <div class="resource-box" data-action="spend-rd">
@@ -72,8 +72,9 @@
         <div class="attribute-box">
           <span class="attribute-label attribute-roll rollable"
                 data-attribute="{{attr}}"
-                title="{{localize 'TRESPASSER.Sheet.Combat.ClickRollCheck' label=(localize (concat 'TRESPASSER.Sheet.Attributes.' (capitalize attr)))}}">
+                title="{{localize 'TRESPASSER.Sheet.Combat.ClickRollCheck' label=(localize (concat 'TRESPASSER.Sheet.Attributes.' (capitalize attr)))}} (Total: {{lookup ../totalAttributes attr}})">
             {{localize (concat "TRESPASSER.Sheet.Attributes." (capitalize attr))}}
+            <h3>{{lookup ../totalAttributes attr}}</h3>
           </span>
           <input type="number" name="system.attributes.{{attr}}" value="{{lookup ../system.attributes attr}}" min="0" />
           <button type="button"
@@ -102,7 +103,7 @@
   <!-- ═══════════════════════════════════════════════════
        SHEET BODY
   ════════════════════════════════════════════════════ -->
-  <section class="sheet-body">
+  <section class="sheet-body scrollable">
 
     <!-- ─── TAB 1: CHARACTER ─── -->
     <div class="tab tab-body" data-group="primary" data-tab="character">
@@ -243,9 +244,10 @@
         </h4>
         <div class="effects-list">
           {{#each activeEffects.nonCombat}}
+          {{#unless this.hiddenOnSheet}}
           <div class="effect-row" data-item-id="{{this.id}}" style="display: flex; align-items: center; background: rgba(0,0,0,0.2); margin-bottom: 5px; padding: 5px; border-radius: 4px; {{#if this.fromInjury}}border-left: 2px solid var(--trp-red-dim);{{/if}}">
             <div style="flex: 1;">
-              <b>{{this.name}}</b>
+              <b>{{this.name}}</b>{{#if (eq this.type "continuous")}} <span style="font-size: 9px; opacity: 0.7;">({{localize "TRESPASSER.Sheet.Effects.EffectTypes.Continuous"}})</span>{{/if}}
               <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
               {{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
               {{#if this.fromInjury}}<span style="font-size: 10px; color: var(--trp-red); margin-left: 4px;" title="{{localize 'TRESPASSER.Item.Injury.FromInjury'}}">⚕</span>{{/if}}
@@ -255,6 +257,7 @@
             <a class="effect-remove" title="{{localize 'TRESPASSER.Item.RemoveEffect'}}"><i class="fas fa-trash"></i></a>
             {{/unless}}
           </div>
+          {{/unless}}
           {{else}}
           <p class="notes">{{localize "TRESPASSER.Sheet.Character.NoNonCombatEffects"}}</p>
           {{/each}}
@@ -622,8 +625,9 @@
             {{/if}}
             <input type="number"
                    name="system.combat.{{stat}}"
-                   value="{{lookup ../system.combat stat}}"
-                   {{#unless (eq stat "focus")}}readonly{{/unless}} />
+                   value="{{lookup ../totalCombat stat}}"
+                   {{#unless (eq stat "focus")}}readonly{{/unless}} 
+                   title="{{localize (concat 'TRESPASSER.Sheet.Combat.' (capitalize stat))}} (Base: {{lookup ../system.combat stat}})"/>
           </div>
           {{/each}}
         </div>

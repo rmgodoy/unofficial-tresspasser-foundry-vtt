@@ -1,4 +1,5 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { TrespasserCombat } from './combat.mjs';
 
 /**
  * Custom Actor document class for Trespasser TTRPG.
@@ -18,10 +19,19 @@ export class TrespasserActor extends Actor {
     
     // Set default images
     if (!data.img || data.img === "icons/svg/mystery-man.svg") {
-      if (this.type === "character") {
-        this.updateSource({ img: "systems/trespasser/assets/icons/pesant.png" });
-      } else if (this.type === "creature") {
-        this.updateSource({ img: "systems/trespasser/assets/icons/creature.png" });
+      switch(this.type) {
+        case "character":
+          this.updateSource({ img: "systems/trespasser/assets/icons/pesant.webp" });
+          break;
+        case "creature":
+          this.updateSource({ img: "systems/trespasser/assets/icons/creature.webp" });
+          break;
+        case "party":
+          this.updateSource({ img: "systems/trespasser/assets/icons/pesant.webp" });
+          break;
+        case "dungeon":
+          this.updateSource({ img: "systems/trespasser/assets/icons/dungeon.webp" });
+          break;
       }
     }
   }
@@ -34,13 +44,23 @@ export class TrespasserActor extends Actor {
     const data = this.system;
     const attrValue = data.attributes[attribute] ?? 0;
     const skillDie = data.skill_die || "d6";
-    const formula = `1${skillDie} + ${attrValue}`;
+    
+    // Get numeric bonuses from all active effects and 'use' timing effects
+    const bonus = TrespasserEffectsHelper.getAttributeBonus(this, attribute, "use");
+    
+    const formula = `1${skillDie} + ${attrValue} + ${bonus}`;
 
     const roll = new foundry.dice.Roll(formula);
+    const attrLabel = game.i18n.localize(`TRESPASSER.Attributes.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
+    
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this }),
-      flavor: `${game.i18n.localize(`TRESPASSER.Attributes.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`)} Check`,
+      flavor: `${attrLabel} Check ${bonus !== 0 ? `(Bonus: ${bonus > 0 ? "+" : ""}${bonus})` : ""}`,
     });
+
+    // Trigger any effects that fire when a bonus is "used"
+    await TrespasserEffectsHelper.triggerEffects(this, "use");
+
     return roll;
   }
 
@@ -49,7 +69,7 @@ export class TrespasserActor extends Actor {
    */
   _getUsedInventorySlots() {
     const unequippedItems = this.items.filter(i => {
-      const isSpecial = ["deed", "feature", "talent", "incantation", "effect", "state", "injury"].includes(i.type);
+      const isSpecial = ["deed", "feature", "talent", "incantation", "effect", "injury"].includes(i.type);
       return !isSpecial && !i.system.equipped;
     });
     return unequippedItems.reduce((acc, i) => {
@@ -150,20 +170,30 @@ export class TrespasserActor extends Actor {
 
     await this.update(actorUpdates);
 
-    // 5. Apply Linked Items
-    if (item.system.effects?.length > 0) await this._applyLinkedItems(item.system.effects, { passiveOnly: (item.type === "weapon" || item.type === "item") });
+    if (item.system.subType === "light_source" || (item.type === "weapon" && item.system.isLightSource)) await this._syncTokenLight();
+
+    // Apply continuous and Trigger effects based on item type
+    if (item.system.effects?.length > 0) {
+      // Weapons handle effects differently (some apply to target, some to self)
+      // The guide says: "If a weapon has a continuous effect, it's applied immediatly to the one with the weapon equipped and must be removed when unequipped."
+      await this._applyLinkedItems(item.system.effects, { 
+        continuousOnly: true,
+        sourceType: item.type
+      });
+    }
+
     if (item.type === "weapon") {
-      if (item.system.enhancementEffects?.length > 0) await this._applyLinkedItems(item.system.enhancementEffects, { passiveOnly: true });
+      if (item.system.enhancementEffects?.length > 0) await this._applyLinkedItems(item.system.enhancementEffects, { continuousOnly: true });
+      if (item.system.oilEffects?.length > 0) await this._applyLinkedItems(item.system.oilEffects, { continuousOnly: true });
       if (item.system.extraDeeds?.length > 0) await this._applyLinkedItems(item.system.extraDeeds);
     }
+
     if (item.type === "accessory" || item.type === "item") {
       if (item.system.talents?.length > 0) await this._applyLinkedItems(item.system.talents);
       if (item.system.features?.length > 0) await this._applyLinkedItems(item.system.features);
       if (item.system.deeds?.length > 0) await this._applyLinkedItems(item.system.deeds);
       if (item.system.incantations?.length > 0) await this._applyLinkedItems(item.system.incantations);
     }
-
-    if (item.system.subType === "light_source" || (item.type === "weapon" && item.system.isLightSource)) await this._syncTokenLight();
   }
 
   /** @override */
@@ -173,7 +203,7 @@ export class TrespasserActor extends Actor {
     if (game.user.id !== userId) return;
 
     for (const doc of documents) {
-      if (doc.type === "effect" || doc.type === "state") {
+      if (doc.type === "effect" && doc.system.type === "on-trigger" && doc.system.when === "immediate") {
         await TrespasserEffectsHelper.triggerImmediate(this, doc);
       }
     }
@@ -214,7 +244,8 @@ export class TrespasserActor extends Actor {
       if (sys.effects?.length > 0)  this._removeLinkedItems(sys.effects, itemId);
       if (doc.type === "weapon") {
         if (doc.system.enhancementEffects?.length > 0) this._removeLinkedItems(doc.system.enhancementEffects, itemId);
-        if (doc.system.extraDeeds?.length > 0) this._removeLinkedItems(doc.system.extraDeeds, itemId);
+        if (doc.system.oilEffects?.length > 0)         this._removeLinkedItems(doc.system.oilEffects, itemId);
+        if (doc.system.extraDeeds?.length > 0)         this._removeLinkedItems(doc.system.extraDeeds, itemId);
       }
     }
 
@@ -257,7 +288,7 @@ export class TrespasserActor extends Actor {
     await item.update({ "system.equipped": false });
 
     // Remove or reduce linked effects
-    if (item.system.effects && item.system.effects.length > 0) {
+    if (item.system.effects?.length > 0) {
       await this._removeLinkedItems(item.system.effects, item.id);
     }
 
@@ -275,6 +306,11 @@ export class TrespasserActor extends Actor {
     } else if (item.type === "weapon") {
       if (item.system.enhancementEffects && item.system.enhancementEffects.length > 0) {
         await this._removeLinkedItems(item.system.enhancementEffects, item.id);
+      }
+      if (item.system.oilEffects && item.system.oilEffects.length > 0) {
+        await this._removeLinkedItems(item.system.oilEffects, item.id);
+        // Clear oil effects from the item data as well per guide: "The oil effect will be removed once the weapon is unequipped."
+        await item.update({ "system.oilEffects": [] });
       }
       if (item.system.extraDeeds && item.system.extraDeeds.length > 0) {
         await this._removeLinkedItems(item.system.extraDeeds, item.id);
@@ -344,11 +380,11 @@ export class TrespasserActor extends Actor {
    * Helper to apply an array of UUID references as actual items on the actor.
    * @param {Array}  itemsArray
    * @param {Object} [options]
-   * @param {boolean} [options.passiveOnly]  Only apply passive/combat/immediate effects
+   * @param {boolean} [options.continuousOnly]  Only apply continuous/immediate effects
    * @param {boolean} [options.fromInjury]   Mark applied items as injury-sourced (no Prevail)
    * @param {string}  [options.injuryId]     The injury item ID to stamp on each applied item
    */
-  async _applyLinkedItems(itemsArray, { passiveOnly = false, fromInjury = false, injuryId = null } = {}) {
+  async _applyLinkedItems(itemsArray, { continuousOnly = false, fromInjury = false, injuryId = null, sourceType = null } = {}) {
     if (!itemsArray || !Array.isArray(itemsArray)) return;
     
     for (const eff of itemsArray) {
@@ -357,15 +393,12 @@ export class TrespasserActor extends Actor {
       const sourceItem = await fromUuid(eff.uuid);
       if (!sourceItem) continue;
 
-      // Filter: only passive, combat, immediate effects if requested
-      if (passiveOnly && ["effect", "state"].includes(sourceItem.type)) {
-        const sys = sourceItem.system;
-        const isPassive = sys.type === "passive";
-        const isCombat  = sys.isCombat;
-        const isImmediate = sys.when === "immediate" || !sys.when; // Treat blank as immediate for safety
-        
-        if (!isPassive || !isCombat || !isImmediate) continue;
-      }
+      const sys = sourceItem.system;
+      const isContinuous = sys.type === "continuous";
+      const isImmediate = sys.when === "immediate" || !sys.when;
+
+      // If continuousOnly is requested, only apply effects that are continuous or immediate
+      if (continuousOnly && !isContinuous && !isImmediate) continue;
       
       const desiredIntensity = parseInt(eff.intensity) || sourceItem.system.intensity || 0;
 
@@ -373,7 +406,7 @@ export class TrespasserActor extends Actor {
       const itemData = sourceItem.toObject();
       delete itemData._id;
 
-      if (["effect", "state"].includes(sourceItem.type)) {
+      if (sourceItem.type === "effect") {
         itemData.system.intensity = desiredIntensity;
       }
 
@@ -387,7 +420,6 @@ export class TrespasserActor extends Actor {
         itemData.flags.trespasser.fromInjury = true;
         if (injuryId) itemData.flags.trespasser.injuryId = injuryId;
       }
-      
       await foundry.documents.BaseItem.create(itemData, { parent: this });
     }
   }
@@ -502,6 +534,11 @@ export class TrespasserActor extends Actor {
    * Triggers 'end-of-turn' effects and grants Focus equal to Skill Bonus (characters only).
    * @param {Combatant} [combatant] - The combatant object, used to check usedExpensiveDeed flag.
    */
+  /**
+   * Called when this actor's turn ends (all AP spent or phase advances).
+   * Triggers 'end-of-turn' effects and grants Focus equal to Skill Bonus (characters only).
+   * @param {Combatant} [combatant] - The combatant object, used to check usedExpensiveDeed flag.
+   */
   async onTurnEnd(combatant = null) {
     if (!game.combat) return;
 
@@ -512,8 +549,7 @@ export class TrespasserActor extends Actor {
         const skillBonus = this.system.skill || 0;
         if (skillBonus > 0) {
           const currentFocus = this.system.combat?.focus ?? 0;
-          const maxFocus = this.system.max_endurance || 10;
-          const newFocus = Math.min(currentFocus + skillBonus, maxFocus);
+          const newFocus = currentFocus + skillBonus;
           if (newFocus > currentFocus) {
             await this.update({ "system.combat.focus": newFocus });
             ChatMessage.create({
@@ -524,6 +560,175 @@ export class TrespasserActor extends Actor {
         }
       }
     }
+  }
+
+  /**
+   * Roll a Prevail check to remove a state.
+   * DC = min(20, 10 + Intensity)
+   * Bonus = Prevail Stat + (Extra AP * 2)
+   * 
+   * @param {string} stateItemId - The ID of the state item to prevail against.
+   * @param {number} extraAP - Extra Action Points spent for +2 bonus each.
+   */
+  async rollPrevail(stateItemId, extraAP = 0) {
+    const stateItem = this.items.get(stateItemId);
+    if (!stateItem) {
+      ui.notifications.warn("State item not found.");
+      return;
+    }
+
+    const intensity = stateItem.system.intensity || 0;
+    const dc = Math.min(20, 10 + intensity);
+    const prevailStat = this.type === "creature" 
+      ? (this.system.combat?.roll_bonus || 0) 
+      : (this.system.combat?.prevail || 0);
+    const apBonus = extraAP * 2;
+    const totalBonus = prevailStat + apBonus;
+
+    // Check for advantage on the prevail roll
+    const isAdv = TrespasserEffectsHelper.hasAdvantage(this, "roll_bonus") ||
+                  TrespasserEffectsHelper.hasAdvantage(this, "accuracy") ||
+                  TrespasserEffectsHelper.hasAdvantage(this, "prevail");
+    
+    const formula = isAdv ? `2d20kh + ${totalBonus}` : `1d20 + ${totalBonus}`;
+
+    const roll = new foundry.dice.Roll(formula);
+    await roll.evaluate();
+
+    const success = roll.total >= dc;
+    
+    let flavor = `<div class="trespasser-chat-card">
+      <h3>${game.i18n.format("TRESPASSER.Chat.PrevailCheck", { name: stateItem.name })}</h3>
+      <p>${game.i18n.format("TRESPASSER.Chat.PrevailVsDC", { total: roll.total, dc: dc })}</p>
+      <div class="roll-details" style="font-size: 10px; color: var(--trp-text-dim); margin-bottom: 5px;">
+        Formula: ${roll.formula} (d20: ${roll.dice[0].total})<br>
+        Bonus: ${prevailStat} (Prevail) ${apBonus > 0 ? `+ ${apBonus} (AP)` : ""}
+      </div>
+      <p class="${success ? 'hit-text' : 'miss-text'}" style="font-size: 16px; font-weight: bold; text-align: center;">
+        ${success ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}
+      </p>
+    </div>`;
+
+    await roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor: this }),
+      flavor: flavor
+    });
+
+    if (success) {
+      await stateItem.delete();
+    }
+
+    // Trigger any effects that fire when a prevail check is made
+    await TrespasserEffectsHelper.triggerEffects(this, "on-prevail");
+
+    return roll;
+  }
+
+  /**
+   * Consume an item from the actor's inventory.
+   * @param {string} itemId 
+   */
+  /**
+   * Consume an item from the actor's inventory.
+   * @param {string} itemId 
+   * @param {object} [options]
+   * @param {boolean} [options.spendAP=true] - Whether to consume AP in combat.
+   */
+  async onItemConsume(itemId, { spendAP = true } = {}) {
+    const item = this.items.get(itemId);
+    if (!item) return;
+
+    if (item.system.subType === "resource") return;
+
+    const consumableTypes = ["bombs", "oils", "powders", "potions", "scrolls", "esoteric"];
+    if (!consumableTypes.includes(item.system.subType)) return;
+
+    // 1. Handle AP and HUD Tracking for Concoctions (Potions, Bombs, Oils, Powders)
+    const isConcoction = ["potions", "bombs", "oils", "powders"].includes(item.system.subType);
+    if (isConcoction && game.combat && spendAP) {
+      const combatant = TrespasserCombat.getPhaseCombatant(this);
+      const activePhase = game.combat.getFlag("trespasser", "activePhase");
+      if (combatant) {
+        if (combatant.initiative !== activePhase && !game.user.isGM) {
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotYourPhase"));
+          return;
+        }
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        if (restrictAPF && currentAP < 1) {
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+          return;
+        }
+        if (restrictAPF) {
+          await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
+        }
+        await TrespasserCombat.recordHUDAction(this, "use-concoction");
+      }
+    }
+    
+    // 2. Special case for Oils: open application dialog
+    if (item.system.subType === "oils") {
+      return TrespasserEffectsHelper.applyOilDialog(this, item);
+    }
+
+    // 3. Immediate Effect Application for Potions
+    if (item.system.subType === "potions" && item.system.effects?.length > 0) {
+      await this._applyLinkedItems(item.system.effects);
+    }
+
+    let flavorHtml = `<div class="trespasser-chat-card phase-base">`;
+    flavorHtml += `<h3 style="margin:0;padding-bottom:4px;border-bottom:1px solid var(--trp-gold-dim);color:var(--trp-gold-bright);">${game.i18n.format("TRESPASSER.Chat.UsedItem", { name: item.name })}</h3>`;
+
+    if (item.system.description) {
+      flavorHtml += `<div style="font-size:12px;font-style:italic;margin-bottom:8px;color:var(--trp-text-dim);">${item.system.description}</div>`;
+    }
+
+    if (item.system.effects?.length > 0) {
+      flavorHtml += `<div style="margin-top:8px;">`;
+      flavorHtml += `<div style="font-size:11px;color:var(--trp-text-dim);text-transform:uppercase;margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Combat.States")}</div>`;
+      for (const eff of item.system.effects) {
+        const isApplied = item.system.subType === "potions";
+        flavorHtml += `
+          <div style="display:flex;align-items:center;background:rgba(0,0,0,0.5);border:1px solid var(--trp-gold-dim);border-radius:3px;padding:2px 4px;margin-bottom:2px;">
+            <img src="${eff.img}" style="width:20px;height:20px;border:none;margin-right:6px;" />
+            <span style="font-size:13px;font-family:var(--trp-font-primary);color:var(--trp-gold-light);flex:1;">${eff.name}</span>
+            ${isApplied ? `
+            <span style="font-size:11px;color:var(--trp-text-dim);padding:0 4px;">
+              <i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.Chat.Applied")}
+            </span>` : `
+            <a class="apply-effect-btn" data-uuid="${eff.uuid}" data-name="${eff.name}" data-intensity="${eff.intensity || 0}" title="Apply to Targets" style="color:var(--trp-gold-bright);cursor:pointer;padding:0 4px;">
+              <i class="fas fa-play"></i> ${game.i18n.localize("TRESPASSER.Chat.Apply")}
+            </a>`}
+          </div>`;
+      }
+      flavorHtml += `</div>`;
+    }
+
+    if (item.system.deeds?.length > 0) {
+      flavorHtml += `<div style="margin-top:8px;font-size:12px;"><strong>${game.i18n.localize("TRESPASSER.Chat.GrantsDeeds")}</strong> ${item.system.deeds.map(d => d.name).join(", ")}</div>`;
+    }
+    if (item.system.incantations?.length > 0) {
+      flavorHtml += `<div style="margin-top:8px;font-size:12px;"><strong>${game.i18n.localize("TRESPASSER.Chat.GrantsIncantations")}</strong> ${item.system.incantations.map(d => d.name).join(", ")}</div>`;
+    }
+
+    flavorHtml += `</div>`;
+
+    const dmg = item.system.damage;
+    if (dmg && dmg.trim() !== "") {
+      try {
+        let expr = TrespasserEffectsHelper.replacePlaceholders(dmg, this);
+        const roll = new foundry.dice.Roll(expr);
+        await roll.evaluate();
+        await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this }), flavor: flavorHtml });
+      } catch (e) {
+        console.error(e);
+        await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this }), content: flavorHtml });
+      }
+    } else {
+      await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this }), content: flavorHtml });
+    }
+
+    await item.delete();
   }
 }
 

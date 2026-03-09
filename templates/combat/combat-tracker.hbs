@@ -31,9 +31,15 @@
               <h4>{{turn.name}}</h4>
             </div>
             <div class="combatant-status flexrow">
-              <i class="fas fa-eye-slash" title="Hidden"></i>
-              <i class="fas fa-skull" title="Dying"></i>
-              <i class="fas fa-bullseye" title="Targeting"></i>
+              <a class="combatant-control {{#if turn.hidden}}active{{/if}}" data-action="toggleHidden" title="{{localize "COMBAT.ToggleVis"}}">
+                <i class="fas {{#if turn.hidden}}fa-eye-slash{{else}}fa-eye{{/if}}"></i>
+              </a>
+              <a class="combatant-control {{#if turn.defeated}}active{{/if}}" data-action="toggleDefeated" title="{{localize "COMBAT.ToggleDead"}}">
+                <i class="fas fa-skull"></i>
+              </a>
+              <a class="combatant-control {{#if turn.isTargeted}}active{{/if}}" data-action="toggleTarget" title="{{localize "COMBAT.ToggleTarget"}}">
+                <i class="fas fa-bullseye"></i>
+              </a>
               {{#each turn.effects}}
               <img class="effect-icon" src="{{this}}"/>
               {{/each}}
@@ -41,18 +47,14 @@
           </div>
 
           <div class="stats-area flexcol">
-             <div class="focus-display flexrow">
-                <div class="focus-squares flexrow">
-                  {{#times turn.focus}}
-                    <div class="focus-square filled"></div>
-                  {{/times}}
-                </div>
+             <div class="focus-display flexrow" title="{{localize "TRESPASSER.Sheet.Combat.Focus"}}">
+                <span class="focus-number">{{turn.focus}}</span>
              </div>
              <div class="ap-display flexrow">
-                <div class="ap-squares flexrow">
-                  {{#times 3}}
-                    <div class="ap-square {{#trespasserGt turn.ap this}}filled{{/trespasserGt}}" data-action="clickAP"></div>
-                  {{/times}}
+                <div class="ap-indicator flexrow">
+                  {{#each turn.apDots}}
+                    <div class="ap-icon {{#if active}}active{{/if}}" data-action="clickAP"></div>
+                  {{/each}}
                 </div>
              </div>
           </div>

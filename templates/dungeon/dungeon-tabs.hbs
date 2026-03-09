@@ -1,0 +1,7 @@
+<nav class="sheet-tabs tabs dungeon-icon-tabs" data-group="primary" data-application-part="tabs">
+  {{#each tabs}}
+  <a class="item {{cssClass}}" data-action="switchTab" data-tab="{{id}}" data-tooltip="{{localize label}}" data-tooltip-direction="DOWN">
+    <i class="fas fa-{{icon}}"></i>
+  </a>
+  {{/each}}
+</nav>

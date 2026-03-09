@@ -1,3 +1,5 @@
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+
 /**
  * Extend the basic ItemSheet with some very simple logic.
  * @extends {ItemSheet}
@@ -51,6 +53,7 @@ export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
     // Remove buttons
     html.find('.effect-remove').click(this._onRemoveLink.bind(this, 'effects'));
     html.find('.enhancement-remove').click(this._onRemoveLink.bind(this, 'enhancementEffects'));
+    html.find('.oil-remove').click(this._onRemoveLink.bind(this, 'oilEffects'));
     html.find('.deed-remove').click(this._onRemoveLink.bind(this, 'extraDeeds'));
 
     // Drag-and-drop
@@ -96,7 +99,7 @@ export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropDeedsOnly"));
       return;
     }
-    if ((targetType === "effects" || targetType === "enhancementEffects") && 
+    if ((targetType === "effects" || targetType === "enhancementEffects" || targetType === "oilEffects") && 
         (sourceItem.type !== "effect" && sourceItem.type !== "state")) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropEffectsStatesOnly"));
       return;
@@ -167,34 +170,11 @@ export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
     const targetType = targetEl.dataset.type;
     const currentArray = [...(this.item.system[targetType] || [])];
     const effectData = foundry.utils.deepClone(currentArray[index]);
-    
-    // Rename/Remove conflicting fields before passing to Item.implementation
-    const docType = effectData.type || "effect";
-    delete effectData.type;
-    delete effectData.uuid;
-    delete effectData.name;
-    delete effectData.img;
 
-    // Create a virtual Item document for the sheet to work on
-    const tempItem = new Item.implementation({
-      name: effectData.name || "Effect",
-      type: docType,
-      img: effectData.img,
-      system: effectData
-    }, { parent: this.item.parent });
-
-    // Override update to sync back to the current item
-    tempItem.update = async (updateData) => {
-      const arr = [...(this.item.system[targetType] || [])];
-      arr[index] = foundry.utils.mergeObject(arr[index], updateData.system || updateData);
-      await this.item.update({
-        "system.description": this.item.system.description,
-        [`system.${targetType}`]: arr
-      });
-      return tempItem;
-    };
-
-    tempItem.sheet.render(true);
+    if(effectData.uuid) {
+      await TrespasserEffectsHelper.openEffectSheet(effectData.uuid);
+      return;
+    }
   }
 
 }

@@ -127,6 +127,7 @@
   background: transparent;
   border: none;
   padding: 2px 0;
+  margin: 0;
 }
 
 .resource-values {
@@ -158,6 +159,7 @@
 /* Specific attribute input sizing */
 .attribute-box input {
   font-size: 18px;
+  line-height: 1;
 }
 
 /* ─── Key Attribute Star Button ─── */
@@ -172,10 +174,14 @@
   color: var(--trp-text-dim);
   transition: color 0.15s, transform 0.1s;
   flex-shrink: 0;
+  height: auto;
+  width: auto;
 }
 .key-attr-btn:hover {
   color: var(--trp-gold);
   transform: scale(1.2);
+  background: transparent !important;
+  box-shadow: none !important;
 }
 .key-attr-btn.is-key {
   color: var(--trp-gold-bright);
@@ -228,7 +234,7 @@
   color: var(--trp-gold);
   display: block;
   text-align: center;
-  margin-bottom: 2px;
+  margin-block: 2px;
 }
 
 .attribute-label.rollable {
@@ -237,6 +243,25 @@
 }
 .attribute-label.rollable:hover {
   color: var(--trp-gold-bright);
+  background: none !important;
+  box-shadow: none !important;
+}
+
+.attribute-box h3 {
+  font-size: initial;
+  font-weight: 700;
+  color: var(--trp-gold-bright);
+  margin: 0;
+  line-height: 1;
+}
+
+.attr-total {
+  font-size: 0.9em;
+  color: var(--trp-gold-bright);
+  font-weight: 700;
+  margin-left: 2px;
+  vertical-align: middle;
+  text-shadow: 0 0 3px rgba(0,0,0,0.5);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -297,7 +322,7 @@
 
 .trespasser-sheet .sheet-body.scrollable {
   overflow-y: auto;
-  padding: 10px 12px;
+  padding: 10px 24px;
   scrollbar-width: thin;
   scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-track);
 }
@@ -834,7 +859,7 @@
   overflow-y: auto;
   max-height: 300px;
   scrollbar-width: thin;
-  scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-track);;
+  scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-track);
 }
 
 .items-list .item {
@@ -1365,8 +1390,6 @@
 
 .injury-card-controls {
   position: absolute;
-  top: 3px;
-  right: 36px;
   display: none;
   gap: 4px;
 }
