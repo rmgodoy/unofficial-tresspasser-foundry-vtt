@@ -13,7 +13,8 @@
       "Unknown": "Unknown",
       "None": "None",
       "Active": "Active",
-      "Disabled": "Disabled"
+      "Disabled": "Disabled",
+      "Description": "Description"
     },
     "Config": {
       "Title": "Trespasser Configuration",
@@ -1229,6 +1230,12 @@
       "Hirelings": "Hirelings",
       "Inventory": "Inventory",
       "Notes": "Notes",
+      "Event": "Event",
+      "EventTitle": "Event Title",
+      "EventPlaceholder": "e.g. A storm is coming...",
+      "Clock": "Clock",
+      "ClockMax": "Max",
+      "ClockValue": "Current",
       "NewChain": "New Production Chain",
       "AddHireling": "Add Hireling",
       "Withdraw": "Withdraw Item",

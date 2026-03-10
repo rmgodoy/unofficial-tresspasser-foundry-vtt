@@ -64,7 +64,14 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       inventory: new fields.ArrayField(new fields.SchemaField({
         item: new fields.ObjectField(),
         quantity: new fields.NumberField({ initial: 1, integer: true, min: 0 })
-      }), { initial: [] })
+      }), { initial: [] }),
+
+      event: new fields.SchemaField({
+        title: new fields.StringField({ initial: "" }),
+        description: new fields.HTMLField({ initial: "" }),
+        clock: new fields.NumberField({ initial: 4, integer: true, min: 2, max: 12 }),
+        current: new fields.NumberField({ initial: 0, integer: true, min: 0 })
+      })
     };
   }
 
@@ -354,16 +361,60 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
 
   /**
    * Step 5: Event Check
+   * If no active event: Roll d10 vs Skill Bonus. Success (<=) starts a new event at current=1.
+   * If active event: Clock advances by 1.
    */
   async eventCheck() {
     const actor = this.parent;
-    await ChatMessage.create({
-      content: `<div class="trespasser-chat-card haven-report">
+    const event = this.event;
+    const isActive = !!event.title?.trim();
+    
+    if (isActive) {
+      const nextValue = Math.min(event.current + 1, event.clock);
+      await actor.update({ "system.event.current": nextValue });
+      
+      const isComplete = nextValue >= event.clock;
+      
+      await ChatMessage.create({
+        content: `<div class="trespasser-chat-card haven-report">
+          <h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.EventCheck")}</h3>
+          <p><strong>${event.title}</strong> advances!</p>
+          <div class="haven-event-status">
+            <span class="label">Threat Clock:</span>
+            <span class="value">${nextValue} / ${event.clock}</span>
+          </div>
+          ${isComplete ? `<p class="critical" style="color:#e74c3c; font-weight:bold; margin-top:10px; border:2px solid #e74c3c; padding:5px; text-align:center;">THE EVENT CLOCK IS COMPLETE!</p>` : ""}
+        </div>`,
+        speaker: ChatMessage.getSpeaker({ actor })
+      });
+    } else {
+      const skillBonus = this.skillBonus;
+      const roll = new foundry.dice.Roll("1d10");
+      await roll.evaluate();
+      
+      const starts = roll.total <= skillBonus;
+      
+      let content = `<div class="trespasser-chat-card haven-report">
         <h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.EventCheck")}</h3>
-        <p>${game.i18n.localize("TRESPASSER.Haven.EventCheckFlavor")}</p>
-      </div>`,
-      speaker: ChatMessage.getSpeaker({ actor })
-    });
+        <p>No active event. Rolling for new threat...</p>
+        <div class="haven-check-details">
+          <span>DC (Skill Bonus): <strong>${skillBonus}</strong></span>
+        </div>`;
+      
+      if (starts) {
+        content += `<p class="success" style="color:#2ecc71; font-weight:bold; margin-top:8px;">A NEW EVENT STARTS!</p>
+                   <p style="font-size:11px; font-style:italic;">The Judge should define the event in the Haven's Event tab.</p>`;
+        await actor.update({ "system.event.current": 1 });
+      } else {
+        content += `<p class="failure" style="color:#95a5a6; font-style:italic; margin-top:8px;">All is quiet in the Haven this week.</p>`;
+      }
+      content += `</div>`;
+      
+      await roll.toMessage({
+        speaker: ChatMessage.getSpeaker({ actor }),
+        flavor: content
+      });
+    }
   }
 
   /**

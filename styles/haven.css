@@ -848,3 +848,206 @@
 .build-sheet .skill-adder select {
     min-width: 120px;
 }
+
+/* ─── Event Tab ─── */
+.haven-event-layout {
+    display: flex;
+    flex-direction: row;
+    gap: 32px;
+    padding: 20px 24px;
+    height: 100%;
+    align-items: stretch;
+}
+
+.haven-event-layout .event-left-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+}
+
+.haven-event-layout .event-right-panel {
+    width: 220px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+    border-left: 1px solid rgba(74, 63, 47, 0.3);
+    padding-left: 20px;
+}
+
+.haven-event-layout .event-title-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.haven-event-layout .event-title-group label {
+    font-family: var(--trp-font-header);
+    font-size: 13px;
+    color: var(--trp-gold-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+}
+
+.haven-event-layout .event-title-group input {
+    font-family: var(--trp-font-header);
+    font-size: 20px;
+    color: var(--trp-gold-bright) !important;
+    background: rgba(0, 0, 0, 0.3) !important;
+    border: 1px solid var(--trp-border-light) !important;
+    padding: 10px 15px !important;
+    border-radius: var(--trp-radius-sm) !important;
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    width: 100%;
+}
+
+.haven-event-layout .event-description {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.haven-event-layout .event-description label {
+    font-family: var(--trp-font-header);
+    font-size: 14px;
+    color: var(--trp-gold);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding-bottom: 8px;
+    border-bottom: 2px solid var(--trp-border-light);
+}
+
+.haven-event-layout .event-description prose-mirror {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--trp-border-light);
+    border-radius: var(--trp-radius-sm);
+    min-height: 250px;
+}
+
+.haven-event-layout .event-clock-display {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.haven-event-layout .clock-svg-wrapper {
+    position: relative;
+    width: 160px;
+    height: 160px;
+}
+
+.haven-event-layout .injury-clock-svg {
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+}
+
+/* Center the total since it is the only number now */
+.haven-event-layout .clock-label-total {
+    font-family: var(--trp-font-header);
+    font-size: 28px;
+    font-weight: bold;
+    fill: var(--trp-gold-bright);
+    text-anchor: middle;
+    dominant-baseline: middle;
+    pointer-events: none;
+}
+
+.haven-event-layout .clock-config-container {
+    display: flex;
+    justify-content: center;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid var(--trp-border-light);
+    border-radius: var(--trp-radius-sm);
+    width: 100%;
+    margin-top: 10px;
+}
+
+.haven-event-layout .clock-config-container .field {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.haven-event-layout .clock-config-container label {
+    font-size: 10px;
+    font-family: var(--trp-font-header);
+    text-transform: uppercase;
+    color: var(--trp-gold-dim);
+    letter-spacing: 0.1em;
+}
+
+.haven-event-layout .clock-config-container input {
+    text-align: center;
+    font-family: var(--trp-font-header);
+    font-size: 18px;
+    font-weight: bold;
+    color: var(--trp-gold-bright) !important;
+    background: transparent !important;
+    border: none !important;
+    width: 100% !important;
+}
+
+.haven-event-layout .clock-segment {
+    fill: rgba(44, 35, 25, 0.6);
+    stroke: var(--trp-border-light);
+    stroke-width: 1.5;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.haven-event-layout .clock-segment.filled {
+    fill: var(--trp-gold-dim);
+    stroke: var(--trp-gold);
+}
+
+.haven-event-layout .clock-segment:hover {
+    fill: rgba(232, 201, 107, 0.2);
+    stroke: var(--trp-gold-bright);
+}
+
+.haven-event-layout .clock-segment.filled:hover {
+    fill: var(--trp-gold);
+}
+
+.haven-event-layout .clock-title {
+    font-family: var(--trp-font-header);
+    font-size: 11px;
+    color: var(--trp-gold-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    margin-top: 5px;
+}
+
+/* ─── Haven Chat Cards ─── */
+.haven-report .haven-event-status,
+.haven-report .haven-check-details {
+    margin: 8px 0;
+    padding: 6px 10px;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--trp-border-light);
+    border-radius: 4px;
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+}
+
+.haven-report .haven-event-status .label {
+    color: var(--trp-text-dim);
+}
+
+.haven-report .haven-event-status .value {
+    color: var(--trp-gold-bright);
+    font-weight: bold;
+}
+
+

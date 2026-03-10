@@ -91,6 +91,7 @@
     <a class="item" data-tab="hirelings">{{localize "TRESPASSER.Haven.Hirelings"}}</a>
     <a class="item" data-tab="production">{{localize "TRESPASSER.Haven.ProductionChains"}}</a>
     <a class="item" data-tab="inventory">{{localize "TRESPASSER.Haven.Inventory"}}</a>
+    <a class="item" data-tab="event">{{localize "TRESPASSER.Haven.Event"}}</a>
     <a class="item" data-tab="notes">{{localize "TRESPASSER.Haven.Notes"}}</a>
   </nav>
 
@@ -323,6 +324,45 @@
             </div>
             {{/each}}
           </div>
+        </div>
+      </div>
+    </div>
+
+    {{!-- Event Tab --}}
+    <div class="tab" data-group="primary" data-tab="event">
+      <div class="haven-event-layout">
+        <div class="event-left-panel">
+           <div class="event-title-group">
+              <label>{{localize "TRESPASSER.Haven.EventTitle"}}</label>
+              <input type="text" name="system.event.title" value="{{system.event.title}}" placeholder="{{localize 'TRESPASSER.Haven.EventPlaceholder'}}" />
+           </div>
+
+           <div class="event-description">
+             <label>{{localize "TRESPASSER.General.Description"}}</label>
+             <prose-mirror name="system.event.description" value="{{system.event.description}}" toggled="false" compact="false" {{#if (not editable)}}readonly{{/if}}>{{{enrichedEventDescription}}}</prose-mirror>
+           </div>
+        </div>
+
+        <div class="event-right-panel">
+           <div class="event-clock-display">
+             <div class="clock-svg-wrapper">
+                <svg class="injury-clock-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                  <circle cx="50" cy="50" r="44" fill="var(--trp-bg-panel)" stroke="var(--trp-border-light)" stroke-width="1.5"/>
+                  {{#each eventClockSegments as |seg i|}}
+                    <path class="clock-segment {{#if seg.filled}}filled{{/if}}" data-action="eventClockClick" data-index="{{i}}" d="{{seg.path}}" />
+                  {{/each}}
+                  <text x="50" y="52" class="clock-label-total">{{eventClockTotal}}</text>
+                </svg>
+             </div>
+             <label class="clock-title">{{localize "TRESPASSER.Haven.Clock"}}</label>
+           </div>
+
+           <div class="clock-config-container shadow-box">
+              <div class="field">
+                <label>{{localize "TRESPASSER.Haven.ClockMax"}}</label>
+                <input type="number" name="system.event.clock" value="{{system.event.clock}}" min="2" max="12" />
+              </div>
+           </div>
         </div>
       </div>
     </div>

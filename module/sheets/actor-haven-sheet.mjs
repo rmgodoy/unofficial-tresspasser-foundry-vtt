@@ -1,3 +1,5 @@
+import { buildClockSegments } from "./character/get-data.mjs";
+
 const { api, sheets } = foundry.applications;
 
 /**
@@ -32,7 +34,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       upkeepEventCheck: TrespasserHavenSheet.#onUpkeepEventCheck,
       adjustBuildClock: TrespasserHavenSheet.#onAdjustBuildClock,
       upgradeBuilding: TrespasserHavenSheet.#onUpgradeBuilding,
-      editItem: TrespasserHavenSheet.#onOpenItemSheet
+      editItem: TrespasserHavenSheet.#onOpenItemSheet,
+      eventClockClick: TrespasserHavenSheet.#onEventClockClick
     },
     form: { 
       handler: TrespasserHavenSheet.#onSubmit,
@@ -141,6 +144,18 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     context.maxBuildingLimit = system.maxBuildingLimit;
     context.numConstruction = context.constructionBuildings.length;
     context.numCompleted = context.completedBuildings.length;
+
+    // Event Info
+    const event = system.event;
+    context.enrichedEventDescription = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      event.description ?? "",
+      { async: true, relativeTo: this.document }
+    );
+    const total = Math.max(2, event.clock);
+    const filled = Math.min(event.current, total);
+    context.eventClockSegments = buildClockSegments(total, filled);
+    context.eventClockFilled = filled;
+    context.eventClockTotal = total;
 
     return context;
   }
@@ -598,5 +613,17 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
   static async #onSubmit(event, form, formData) {
     // For AppV2 and documents, updates are often clearer as flat objects
     await this.document.update(formData.object);
+  }
+
+  static async #onEventClockClick(event, target) {
+    const actor = this.document;
+    const index = parseInt(target.dataset.index);
+    const newValue = index + 1;
+    const current = actor.system.event.current;
+    
+    // Toggle: if same as current, reduce by 1
+    const nextValue = (newValue === current) ? newValue - 1 : newValue;
+    
+    return actor.update({ "system.event.current": nextValue });
   }
 }
