@@ -53,7 +53,8 @@
       "craft": {},
       "past_life": {},
       "room": {},
-      "hireling": {}
+      "hireling": {},
+      "build": {}
     }
   },
   "initiative": "1d6 + @system.combat.initiative",

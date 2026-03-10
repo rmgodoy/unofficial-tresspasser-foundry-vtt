@@ -36,8 +36,16 @@
           <input type="number" value="{{totalWeeklyCost}}" disabled />
         </div>
         <div class="resource-box">
+          <label>{{localize "TRESPASSER.Haven.PopulationRank"}}</label>
+          <input type="number" name="system.populationRank" value="{{system.populationRank}}" data-dtype="Number" {{disabled (not editable)}} />
+        </div>
+        <div class="resource-box">
+          <label>{{localize "TRESPASSER.Haven.Level"}}</label>
+          <input type="number" name="system.level" value="{{system.level}}" data-dtype="Number" {{disabled (not editable)}} />
+        </div>
+        <div class="resource-box">
           <label>{{localize "TRESPASSER.Haven.SkillBonus"}}</label>
-          <input type="number" name="system.skillBonus" value="{{system.skillBonus}}" {{disabled (not editable)}} />
+          <input type="number" value="{{system.skillBonus}}" disabled />
         </div>
       </div>
 
@@ -55,6 +63,7 @@
     </div>
   </header>
 
+  {{#if isGM}}
   <section class="haven-upkeep-section">
     <h3 class="section-title">{{localize "TRESPASSER.Haven.UpkeepHeader"}}</h3>
     <div class="upkeep-buttons">
@@ -72,13 +81,15 @@
       </button>
     </div>
   </section>
+  {{/if}}
 
 
   {{!-- Tabs --}}
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="production">{{localize "TRESPASSER.Haven.ProductionChains"}}</a>
+    <a class="item" data-tab="buildings">{{localize "TRESPASSER.Haven.BuildingsLabel"}}</a>
+    <a class="item" data-tab="skills">{{localize "TRESPASSER.Haven.SkillsLabel"}}</a>
     <a class="item" data-tab="hirelings">{{localize "TRESPASSER.Haven.Hirelings"}}</a>
-    <a class="item" data-tab="attributes">{{localize "TRESPASSER.Haven.AttributesLabel"}}</a>
+    <a class="item" data-tab="production">{{localize "TRESPASSER.Haven.ProductionChains"}}</a>
     <a class="item" data-tab="inventory">{{localize "TRESPASSER.Haven.Inventory"}}</a>
     <a class="item" data-tab="notes">{{localize "TRESPASSER.Haven.Notes"}}</a>
   </nav>
@@ -86,6 +97,113 @@
   <section class="sheet-content">
     
     {{!-- Production Chains Tab --}}
+    {{!-- Buildings Tab --}}
+    <div class="tab" data-group="primary" data-tab="buildings">
+      <div class="buildings-layout drop-zone" data-action="dropItem">
+        
+        {{!-- Under Construction --}}
+        <div class="buildings-section">
+          <h3 class="section-title">
+            {{localize "TRESPASSER.Haven.UnderConstruction"}}
+            <span class="limit-count">({{numConstruction}} / {{maxBuildSlots}})</span>
+          </h3>
+          <div class="buildings-grid">
+            {{#each constructionBuildings as |b|}}
+              <div class="building-card item" data-item-id="{{b.id}}">
+                <div class="card-header">
+                  <img src="{{b.img}}" data-action="editItem" title="{{b.name}}" />
+                  <div class="header-info">
+                    <span class="name" data-action="editItem">{{b.name}}</span>
+                    <div class="bonus-list">
+                      {{#each b.system.bonuses as |bonus|}}
+                        <span class="bonus-tag">{{capitalize bonus.attribute}} +{{bonus.value}}</span>
+                      {{/each}}
+                    </div>
+                  </div>
+                  {{#if ../editable}}
+                    <div class="card-controls">
+                      <a class="edit-item" data-action="editItem" title="Edit Building"><i class="fas fa-edit"></i></a>
+                      <a class="delete-item" data-action="deleteItem" title="{{localize 'TRESPASSER.Delete'}}"><i class="fas fa-trash"></i></a>
+                    </div>
+                  {{/if}}
+                </div>
+                <div class="card-body">
+                  {{#if b.system.replacesId}}
+                    <div class="replaces-hint">
+                      <i class="fas fa-hammer"></i> Upgrading existing building
+                    </div>
+                  {{/if}}
+                  <div class="clock-controls">
+                    <label>{{localize "TRESPASSER.Haven.Build.BuildClock"}}</label>
+                    <div class="controls-row">
+                      <a data-action="adjustBuildClock" data-delta="-1"><i class="fas fa-minus"></i></a>
+                      <span class="clock-value">{{b.system.progress}} / {{b.system.buildClock}}</span>
+                      <a data-action="adjustBuildClock" data-delta="1"><i class="fas fa-plus"></i></a>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {{else}}
+              <div class="empty-placeholder mini">
+                <p>{{localize "TRESPASSER.None"}}</p>
+              </div>
+            {{/each}}
+          </div>
+        </div>
+
+        {{!-- Completed Buildings --}}
+        <div class="buildings-section">
+          <h3 class="section-title">
+            {{localize "TRESPASSER.Haven.CompletedBuildings"}}
+            <span class="limit-count">({{numCompleted}} / {{maxBuildingLimit}})</span>
+          </h3>
+          <div class="buildings-grid">
+            {{#each completedBuildings as |b|}}
+              <div class="building-card item completed" data-item-id="{{b.id}}">
+                <div class="card-header">
+                  <img src="{{b.img}}" data-action="editItem" title="{{b.name}}" />
+                  <div class="header-info">
+                    <span class="name" data-action="editItem">{{b.name}}</span>
+                    <div class="bonus-list">
+                      {{#each b.system.bonuses as |bonus|}}
+                        <span class="bonus-tag">{{capitalize bonus.attribute}} +{{bonus.value}}</span>
+                      {{/each}}
+                    </div>
+                  </div>
+                  {{#if ../editable}}
+                    <div class="card-controls">
+                      {{#if b.system.upgradeTo}}
+                        <a class="upgrade-item" data-action="upgradeBuilding" title="Upgrade"><i class="fas fa-arrow-up"></i></a>
+                      {{/if}}
+                      <a class="edit-item" data-action="editItem" title="Edit"><i class="fas fa-edit"></i></a>
+                      <a class="delete-item" data-action="deleteItem" title="{{localize 'TRESPASSER.Delete'}}"><i class="fas fa-trash"></i></a>
+                    </div>
+                  {{/if}}
+                </div>
+                <div class="card-body">
+                  {{#if b.system.skills.length}}
+                    <div class="skill-tags">
+                      {{#each b.system.skills as |sk|}}
+                        <div class="skill-tag">
+                            <i class="fas fa-graduation-cap"></i> {{localize (concat "TRESPASSER.Haven.Skills." (capitalize sk))}}
+                        </div>
+                      {{/each}}
+                    </div>
+                  {{/if}}
+                </div>
+              </div>
+            {{else}}
+              <div class="empty-placeholder mini">
+                <p>{{localize "TRESPASSER.None"}}</p>
+              </div>
+            {{/each}}
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    {{!-- Production Tab --}}
     <div class="tab" data-group="primary" data-tab="production">
       <div class="production-header flex-row">
         {{#if editable}}
@@ -187,7 +305,7 @@
 
 
     {{!-- Attributes & Skills Tab --}}
-    <div class="tab" data-group="primary" data-tab="attributes">
+    <div class="tab" data-group="primary" data-tab="skills">
       <div class="haven-attributes-skills-layout">
         <div class="haven-skills-section">
           <h3 class="section-title">{{localize "TRESPASSER.Haven.SkillsLabel"}}</h3>

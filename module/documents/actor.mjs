@@ -32,6 +32,9 @@ export class TrespasserActor extends Actor {
         case "dungeon":
           this.updateSource({ img: "systems/trespasser/assets/icons/dungeon.webp" });
           break;
+        case "haven":
+          this.updateSource({ img: "/icons/svg/castle.svg" });
+          break;
       }
     }
   }

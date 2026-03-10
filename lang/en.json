@@ -27,8 +27,10 @@
       "RestrictAPFocusUsageHint": "If enabled, the system enforces AP and Focus costs. If disabled, actions can be used without sufficient points.",
       "GroupCheckFullParty": "Group Check always use full party",
       "GroupCheckFullPartyHint": "If enabled, group checks will always include all party members without showing a selection popup.",
-      "RestrictHavenEditToLeader": "Allow only Leader to edit Haven",
-      "RestrictHavenEditToLeaderHint": "If enabled, only the character assigned as Haven Leader (or GM) can modify attributes, hirelings, and treasury. If disabled, all players with owner permissions can edit the sheet.",
+      "RestrictHavenEditToLeader": "Restrict Haven Edits to Leader",
+      "RestrictHavenEditToLeaderHint": "If enabled, only the Haven Leader and GMs can edit the Haven actor sheet.",
+      "BypassHavenBuildingLimits": "Bypass Haven Building Limits",
+      "BypassHavenBuildingLimitsHint": "If enabled, Havens will not be restricted by the Building Limit or Build Slots defined in the progression table.",
       "Save": "Save",
       "Cancel": "Cancel",
       "SavedNotice": "Trespasser Configuration saved."
@@ -55,7 +57,8 @@
       "calling": "Calling",
       "craft": "Craft",
       "past_life": "Past Life",
-      "hireling": "Hireling"
+      "hireling": "Hireling",
+      "build": "Building"
     },
     "Sheet": {
       "Items": {
@@ -1172,9 +1175,15 @@
     "Haven": {
       "NamePlaceholder": "Haven Name",
       "Treasury": "Treasury",
-      "AttributesLabel": "Attributes",
       "SkillsLabel": "Skills",
+      "BuildingsLabel": "Buildings",
+      "CompletedBuildings": "Completed Buildings",
+      "UnderConstruction": "Building Slots (Under Construction)",
       "UpkeepHeader": "Haven Upkeep",
+      "Warning": {
+        "NoBuildSlots": "You have no available building slots (Limit: {max}).",
+        "BuildingLimitReached": "You have reached the maximum building limit (Limit: {max})."
+      },
       "UpkeepSteps": {
         "WeeksRest": "1. Week's Rest",
         "PayExpenses": "2. Pay Expenses",
@@ -1195,6 +1204,9 @@
         "Allegiance": "Allegiance",
         "Appeal": "Appeal"
       },
+      "PopulationRank": "Population Rank",
+      "PopulationIncrease": "Population Increase",
+      "Level": "Level",
       "SkillBonus": "Skill Bonus",
       "Skills": {
         "Agriculture": "Agriculture",
@@ -1249,7 +1261,15 @@
       "TransferItemTo": "Transfer to {name}",
       "DepositedToHaven": "Deposited {item} to {haven}.",
       "TransferredToCharacter": "Transferred {item} to {character}.",
-      "TransferTargetNotFound": "Transfer target not found."
+      "TransferTargetNotFound": "Transfer target not found.",
+      "Build": {
+        "Attribute": "Core Attribute Bonus",
+        "AttributeBonus": "Bonus Value",
+        "Skill": "Provided Skill",
+        "BuildClock": "Build Clock",
+        "UpgradeTo": "Upgrade Path",
+        "DropUpgradeHint": "Drop a Building here to set as upgrade path"
+      }
     }
   },
   "TYPES": {
@@ -1276,7 +1296,8 @@
       "craft": "Craft",
       "past_life": "Past Life",
       "room": "Room",
-      "hireling": "Hireling"
+      "hireling": "Hireling",
+      "build": "Building"
     }
   }
 }

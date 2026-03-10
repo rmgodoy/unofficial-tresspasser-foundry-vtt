@@ -96,7 +96,8 @@
 }
 
 .haven .header-resources .resource-box {
-    flex: 0 0 110px;
+    flex: 1;
+    min-width: 0;
 }
 
 .haven .resource-box.over-budget input {
@@ -533,4 +534,317 @@
 .production-header.flex-row {
     justify-content: flex-end;
     padding: 10px;
+}
+
+/* Buildings Tab */
+.haven-sheet .buildings-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 15px;
+    padding: 15px;
+    min-height: 50px;
+}
+
+.haven-sheet .building-card {
+    background: var(--trp-bg-panel);
+    border: 1px solid var(--trp-border);
+    border-radius: var(--trp-radius);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s, border-color 0.2s;
+}
+
+.haven-sheet .building-card:hover {
+    border-color: var(--trp-gold-dim);
+}
+
+.haven-sheet .building-card .card-header {
+    padding: 8px;
+    background: rgba(0, 0, 0, 0.3);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--trp-border-light);
+}
+
+.haven-sheet .building-card .card-header img {
+    width: 32px;
+    height: 32px;
+    border: 1px solid var(--trp-border-light);
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.haven-sheet .building-card .header-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.haven-sheet .building-card .name {
+    font-family: var(--trp-font-header);
+    font-size: 11px;
+    color: var(--trp-gold-bright);
+    margin: 0;
+    line-height: 1.2;
+    cursor: pointer;
+}
+
+.haven-sheet .building-card .bonus-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 2px;
+}
+
+.haven-sheet .building-card .bonus-tag {
+    font-size: 9px;
+    background: rgba(201, 168, 76, 0.15);
+    color: var(--trp-gold);
+    padding: 1px 4px;
+    border-radius: 2px;
+    border: 1px solid rgba(201, 168, 76, 0.3);
+    text-transform: capitalize;
+}
+
+.haven-sheet .building-card .card-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.haven-sheet .building-card .card-controls a {
+    color: var(--trp-text-dim);
+    font-size: 12px;
+    transition: color 0.2s;
+}
+
+.haven-sheet .building-card .card-controls a:hover {
+    color: var(--trp-gold);
+}
+
+.haven-sheet .building-card .card-controls a.delete-item:hover {
+    color: var(--trp-red-bright);
+}
+
+.haven-sheet .building-card .card-controls a.upgrade-item {
+    color: var(--trp-gold-dim);
+}
+
+.haven-sheet .replaces-hint {
+    font-size: 9px;
+    color: var(--trp-gold-dim);
+    font-style: italic;
+    margin-bottom: 4px;
+}
+
+.haven-sheet .building-card .card-body {
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 11px;
+}
+
+.haven-sheet .building-card .skill-tags {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.haven-sheet .building-card .skill-tag {
+    color: var(--trp-gold-dim);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.haven-sheet .empty-placeholder {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+    color: var(--trp-text-dim);
+    opacity: 0.5;
+}
+
+.haven-sheet .empty-placeholder i {
+    font-size: 48px;
+    margin-bottom: 10px;
+}
+
+.haven-sheet .empty-placeholder.mini {
+    padding: 20px;
+}
+
+.haven-sheet .section-title {
+    font-family: var(--trp-font-header);
+    font-size: 14px;
+    color: var(--trp-gold);
+    border-bottom: 1px solid var(--trp-border);
+    margin: 10px 15px 5px 15px;
+    padding-bottom: 5px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.haven-sheet .limit-count {
+    font-size: 11px;
+    color: var(--trp-text-dim);
+    text-transform: none;
+    letter-spacing: 0;
+}
+
+.haven-sheet .building-card.completed {
+    border-left: 3px solid var(--trp-gold-dim);
+}
+
+.haven-sheet .clock-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.haven-sheet .clock-controls label {
+    font-size: 9px;
+    text-transform: uppercase;
+    color: var(--trp-text-dim);
+}
+
+.haven-sheet .clock-controls .controls-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    background: rgba(0,0,0,0.2);
+    padding: 4px;
+    border-radius: 4px;
+}
+
+.haven-sheet .clock-controls .clock-value {
+    font-weight: bold;
+    color: var(--trp-gold-bright);
+    min-width: 20px;
+    text-align: center;
+}
+
+.haven-sheet .clock-controls a {
+    color: var(--trp-text-dim);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.haven-sheet .clock-controls a:hover {
+    color: var(--trp-gold);
+}
+
+/* Upgrade zone in Build Sheet */
+.build-sheet .upgrade-drop-zone {
+    border: 1px dashed var(--trp-border);
+    padding: 10px;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    min-height: 40px;
+}
+
+.build-sheet .upgrade-drop-zone.drag-over {
+    border-color: var(--trp-gold);
+    background: rgba(201, 168, 76, 0.1);
+}
+
+.build-sheet .upgrade-drop-zone .upgrade-name {
+    color: var(--trp-gold-bright);
+    font-weight: bold;
+}
+
+.build-sheet .form-fields {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.build-sheet .form-fields input[type="number"] {
+    text-align: center;
+}
+
+.build-sheet .upgrade-drop-zone .remove-upgrade {
+    position: absolute;
+    right: 8px;
+    color: var(--trp-red-dim);
+}
+
+.build-sheet .upgrade-drop-zone .placeholder {
+    font-size: 11px;
+    color: var(--trp-text-dim);
+    font-style: italic;
+}
+/* Building Sheet List Styling */
+.build-sheet .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--trp-border-light);
+    margin-bottom: 8px;
+    padding-bottom: 4px;
+}
+
+.build-sheet .section-header a {
+    color: var(--trp-gold-dim);
+}
+
+.build-sheet .bonus-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.build-sheet .bonus-row select {
+    flex: 2;
+}
+
+.build-sheet .bonus-row input {
+    flex: 1;
+}
+
+.build-sheet .skill-entries {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+}
+
+.build-sheet .skill-chip {
+    background: rgba(0,0,0,0.3);
+    border: 1px solid var(--trp-border);
+    border-radius: 12px;
+    padding: 2px 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+}
+
+.build-sheet .skill-chip a {
+    color: var(--trp-red-dim);
+}
+
+.build-sheet .skill-adder {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.build-sheet .skill-adder select {
+    min-width: 120px;
 }

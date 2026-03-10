@@ -29,7 +29,10 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       rollSkill: TrespasserHavenSheet.#onRollSkill,
       upkeepWeeksRest: TrespasserHavenSheet.#onUpkeepWeeksRest,
       upkeepPopulationCheck: TrespasserHavenSheet.#onUpkeepPopulationCheck,
-      upkeepEventCheck: TrespasserHavenSheet.#onUpkeepEventCheck
+      upkeepEventCheck: TrespasserHavenSheet.#onUpkeepEventCheck,
+      adjustBuildClock: TrespasserHavenSheet.#onAdjustBuildClock,
+      upgradeBuilding: TrespasserHavenSheet.#onUpgradeBuilding,
+      editItem: TrespasserHavenSheet.#onOpenItemSheet
     },
     form: { 
       handler: TrespasserHavenSheet.#onSubmit,
@@ -76,6 +79,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     context.actor = actor;
     context.system = system;
     context.editable = this.isEditable;
+    context.isGM = game.user.isGM;
     context.totalAttributes = system.totalAttributes;
 
     // Budget Info
@@ -87,6 +91,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
 
     // Hirelings are Documents on the Actor
     context.hirelings = actor.items.filter(i => i.type === "hireling");
+
+    // Buildings are Documents on the Actor
+    const allBuildings = actor.items.filter(i => i.type === "build");
+    context.completedBuildings = allBuildings.filter(b => b.system.progress >= b.system.buildClock);
+    context.constructionBuildings = allBuildings.filter(b => b.system.progress < b.system.buildClock);
 
     // Inventory is data-driven stacking list from system.inventory
     context.inventory = system.inventory.map((entry, index) => ({
@@ -115,9 +124,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     );
 
     // Group skills into two columns for display
-    const skillList = Object.entries(system.skills).map(([key, trained]) => ({
+    const trainedSet = system.trainedSkills;
+    const skillList = Object.entries(system.skills).map(([key, _]) => ({
       key,
-      trained,
+      trained: trainedSet.has(key),
+      inherited: !system.skills[key] && trainedSet.has(key), // Flag if trained via building
       label: game.i18n.localize(`TRESPASSER.Haven.Skills.${key.charAt(0).toUpperCase() + key.slice(1)}`)
     }));
     
@@ -125,6 +136,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       skillList.slice(0, Math.ceil(skillList.length / 2)),
       skillList.slice(Math.ceil(skillList.length / 2))
     ];
+
+    context.maxBuildSlots = system.maxBuildSlots;
+    context.maxBuildingLimit = system.maxBuildingLimit;
+    context.numConstruction = context.constructionBuildings.length;
+    context.numCompleted = context.completedBuildings.length;
 
     return context;
   }
@@ -179,6 +195,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
 
   async #onDrop(event) {
     event.preventDefault();
+    event.stopPropagation();
     const zone = event.currentTarget;
     const action = zone.dataset.action;
     
@@ -197,7 +214,31 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       // General drop - Add to custom inventory
       if (data.type !== "Item") return;
       const item = await fromUuid(data.uuid);
-      if (!item || item.type === "hireling" || item.type === "room") return;
+      if (!item) return;
+
+      // Handle special types that should be embedded documents
+      if (item.type === "hireling" || item.type === "room" || item.type === "build") {
+        if (item.parent === this.document) return; // Already here
+
+        // Check limits if not bypassed
+        if (item.type === "build" && !game.settings.get("trespasser", "bypassHavenBuildingLimits")) {
+          const system = this.document.system;
+          const allBuildings = this.document.items.filter(i => i.type === "build");
+          const numConstruction = allBuildings.filter(b => b.system.progress < b.system.buildClock).length;
+          const numCompleted = allBuildings.filter(b => b.system.progress >= b.system.buildClock).length;
+
+          if (numConstruction >= system.maxBuildSlots) {
+            ui.notifications.warn(game.i18n.format("TRESPASSER.Haven.Warning.NoBuildSlots", { max: system.maxBuildSlots }));
+            return;
+          }
+          if (numCompleted >= system.maxBuildingLimit) {
+            ui.notifications.warn(game.i18n.format("TRESPASSER.Haven.Warning.BuildingLimitReached", { max: system.maxBuildingLimit }));
+            return;
+          }
+        }
+
+        return Item.create(item.toObject(), { parent: this.document });
+      }
 
       const inventory = foundry.utils.duplicate(this.document.system.inventory);
       const itemData = item.toObject();
@@ -497,6 +538,58 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
         });
       }
     }, { classes: ["trespasser", "dialog"] }).render(true);
+  }
+
+  static async #onAdjustBuildClock(event, target) {
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    const delta = parseInt(target.dataset.delta);
+    const item = this.document.items.get(itemId);
+    if (!item) return;
+
+    const newProgress = Math.clamp((item.system.progress || 0) + delta, 0, item.system.buildClock);
+    await item.update({ "system.progress": newProgress });
+
+    // Handle replacement upon completion
+    if ( newProgress >= item.system.buildClock && item.system.replacesId ) {
+      const actor = this.document;
+      const targetId = item.system.replacesId;
+      const target = actor.items.get(targetId);
+      if ( target ) {
+        await target.delete();
+        await item.update({ "system.replacesId": "" });
+        ui.notifications.info(`${item.name} completion replaced ${target.name}.`);
+      }
+    }
+  }
+
+  static async #onUpgradeBuilding(event, target) {
+    const itemId = target.closest("[data-item-id]")?.dataset.itemId;
+    const item = this.document.items.get(itemId);
+    if ( !item || !item.system.upgradeTo ) return;
+
+    const template = await fromUuid(item.system.upgradeTo);
+    if ( !template || template.type !== "build" ) {
+      ui.notifications.error("Upgrade template not found or invalid.");
+      return;
+    }
+
+    const itemData = template.toObject();
+    itemData.system.progress = 0;
+    itemData.system.replacesId = item.id;
+
+    // Check slots if not bypassed
+    if (!game.settings.get("trespasser", "bypassHavenBuildingLimits")) {
+      const system = this.document.system;
+      const construction = this.document.items.filter(i => i.type === "build" && i.system.progress < i.system.buildClock);
+      
+      if (construction.length >= system.maxBuildSlots) {
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Haven.Warning.NoBuildSlots", { max: system.maxBuildSlots }));
+        return;
+      }
+    }
+
+    await this.document.createEmbeddedDocuments("Item", [itemData]);
+    ui.notifications.info(`Upgrading ${item.name} to ${template.name}. New construction has started.`);
   }
 
   /**

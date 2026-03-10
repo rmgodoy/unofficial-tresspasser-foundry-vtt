@@ -59,6 +59,8 @@ import { TrespasserHavenData }   from "./module/data/actor-haven.mjs";
 import { TrespasserHirelingData } from "./module/data/item-hireling.mjs";
 import { TrespasserHavenSheet }   from "./module/sheets/actor-haven-sheet.mjs";
 import { TrespasserHirelingSheet } from "./module/sheets/item-hireling-sheet.mjs";
+import { TrespasserBuildData } from "./module/data/item-build.mjs";
+import { TrespasserBuildSheet } from "./module/sheets/item-build-sheet.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -163,6 +165,15 @@ Hooks.once("init", async () => {
     default: true
   });
 
+  game.settings.register("trespasser", "bypassHavenBuildingLimits", {
+    name: "TRESPASSER.Config.BypassHavenBuildingLimits",
+    hint: "TRESPASSER.Config.BypassHavenBuildingLimitsHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
@@ -186,6 +197,7 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.past_life = TrespasserPastLifeData;
   CONFIG.Item.dataModels.room    = TrespasserRoomData;
   CONFIG.Item.dataModels.hireling = TrespasserHirelingData;
+  CONFIG.Item.dataModels.build = TrespasserBuildData;
 
   // Sheets
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
@@ -301,6 +313,12 @@ Hooks.once("init", async () => {
     types: ["hireling"],
     makeDefault: true,
     label: "Trespasser Hireling Sheet",
+  });
+  // Building sheet (AppV2)
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserBuildSheet, {
+    types: ["build"],
+    makeDefault: true,
+    label: "Trespasser Building Sheet",
   });
 
   // Handlebars helpers
