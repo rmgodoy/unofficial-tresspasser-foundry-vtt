@@ -1207,6 +1207,11 @@
       },
       "PopulationRank": "Population Rank",
       "PopulationIncrease": "Population Increase",
+      "Stagnant": "STAGNANT",
+      "StagnationDesc": "The Haven has reached the population rank required for the next level. Rank growth is stopped until the Haven levels up, but Sparks still trigger Arrivals.",
+      "Growth": "Growth",
+      "Decline": "Decline",
+      "Arrivals": "Arrivals",
       "Level": "Level",
       "SkillBonus": "Skill Bonus",
       "Skills": {

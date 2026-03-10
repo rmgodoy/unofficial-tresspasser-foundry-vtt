@@ -157,6 +157,18 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     context.eventClockFilled = filled;
     context.eventClockTotal = total;
 
+    // Arrivals
+    context.enrichedArrivals = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      system.arrivals ?? "",
+      { async: true, relativeTo: this.document }
+    );
+
+    // Notes
+    context.enrichedNotes = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      system.notes ?? "",
+      { async: true, relativeTo: this.document }
+    );
+
     return context;
   }
 

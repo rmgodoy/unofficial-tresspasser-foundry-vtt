@@ -21,6 +21,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       }),
 
       populationRank: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
+      populationState: new fields.StringField({ initial: "growth", choices: ["growth", "decline"] }),
       level: new fields.NumberField({ initial: 0, integer: true, min: 0, max: 10 }),
 
       bonuses: new fields.SchemaField({
@@ -71,7 +72,8 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
         description: new fields.HTMLField({ initial: "" }),
         clock: new fields.NumberField({ initial: 4, integer: true, min: 2, max: 12 }),
         current: new fields.NumberField({ initial: 0, integer: true, min: 0 })
-      })
+      }),
+      arrivals: new fields.HTMLField({ initial: "" })
     };
   }
 
@@ -152,6 +154,16 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
   get maxBuildingLimit() {
     const lvl = this.level;
     return (lvl + 1) * 3;
+  }
+
+  /**
+   * Returns true if the Haven has reached the population rank required for the next level.
+   */
+  get isStagnant() {
+    if (this.level >= 9) return false;
+    const thresholds = this.populationThresholds;
+    const requiredRank = thresholds[this.level + 1];
+    return this.populationRank >= requiredRank;
   }
 
   /**
@@ -285,78 +297,116 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
    */
   async populationCheck() {
     const actor = this.parent;
-    const appeal = this.totalAttributes.appeal ?? 0;
-    const isHospitality = this.skills.hospitality;
-    const bonus = isHospitality ? this.skillBonus : 0;
-    const formula = `1d20 + ${appeal} + ${bonus}`;
+    const isStagnant = this.isStagnant;
+    const state = this.populationState || "growth";
+    const messages = [];
+    messages.push(`<h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.PopulationCheck")}</h3>`);
+    
+    const oldRank = this.populationRank || 0;
+    let newRank = oldRank;
+    const updates = {};
+    
+    // Check type based on state
+    if (state === "growth") {
+      const appeal = this.totalAttributes.appeal ?? 0;
+      const isHospitality = this.trainedSkills.has("hospitality");
+      const bonus = isHospitality ? this.skillBonus : 0;
+      const formula = `1d20 + ${appeal} + ${bonus}`;
 
-    const roll = new foundry.dice.Roll(formula);
-    await roll.evaluate();
+      const roll = new foundry.dice.Roll(formula);
+      await roll.evaluate();
 
-    const total = roll.total;
-    const diceResult = roll.dice[0].results[0].result;
-    const cd = 10;
-    const isSuccess = total >= cd;
+      const total = roll.total;
+      const diceResult = roll.dice[0].results[0].result;
+      const cd = 10;
+      const isSuccess = total >= cd;
 
-    let sparks = 0;
-    if (isSuccess) {
-      const diff = total - cd;
-      sparks = Math.floor(diff / 5);
-      if (diceResult === 20) sparks += 1;
+      let sparks = 0;
+      if (isSuccess) {
+        const diff = total - cd;
+        sparks = Math.floor(diff / 5);
+        if (diceResult === 20) sparks += 1;
+      }
+
+      // Rank Increase: +1 for success, +1 per spark
+      let increase = isSuccess ? (1 + sparks) : 0;
+      const nextThreshold = (this.level < 9) ? this.populationThresholds[this.level + 1] : Infinity;
+      
+      if (oldRank >= nextThreshold && increase > 0) {
+        messages.push(`<p class="warning" style="color:#f39c12; font-weight:bold; margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Haven.Stagnant")}</p>`);
+        messages.push(`<p style="font-size:11px; font-style:italic;">Rank growth blocked by level. Rolling for Arrivals only.</p>`);
+        increase = 0;
+      } else if (oldRank + increase > nextThreshold) {
+        increase = nextThreshold - oldRank;
+        messages.push(`<p class="warning" style="font-size:11px; font-style:italic; color:#f39c12;">Growth capped at rank ${nextThreshold} until level up.</p>`);
+      }
+      
+      newRank = oldRank + increase;
+      updates["system.populationRank"] = newRank;
+
+      if (isSuccess) {
+        messages.push(`<p class="success" style="color:#2ecc71;font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Success")}</p>`);
+        if (increase > 0) messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.PopulationIncrease")}:</strong> +${increase} (Rank: ${newRank})</p>`);
+        
+        if (sparks > 0) {
+          messages.push(`<p style="color:#64b5f6;"><i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Sparks", { count: sparks })}</p>`);
+          messages.push(`<p style="color:#64b5f6; font-weight:bold;"><i class="fas fa-walking"></i> HAVEN ARRIVALS!</p>`);
+          messages.push(`<p style="font-size:11px; font-style:italic;">The Judge rolls on the Haven Arrivals table and fills the Arrivals tab.</p>`);
+        }
+      } else {
+        messages.push(`<p class="failure" style="color:#e74c3c;font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Failure")}</p>`);
+      }
+
+      await roll.toMessage({
+        speaker: ChatMessage.getSpeaker({ actor }),
+        flavor: `<div class="trespasser-chat-card haven-report">${messages.join("")}</div>`
+      });
+    } else {
+      // DECLINE
+      const allegiance = this.totalAttributes.allegiance ?? 0;
+      const isFaith = this.trainedSkills.has("faith");
+      const bonus = isFaith ? this.skillBonus : 0;
+      const formula = `1d20 + ${allegiance} + ${bonus}`;
+
+      const roll = new foundry.dice.Roll(formula);
+      await roll.evaluate();
+
+      const total = roll.total;
+      const isSuccess = total >= 20;
+      
+      if (isSuccess) {
+        messages.push(`<p class="success" style="color:#2ecc71;font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Success")} (Decline Halted)</p>`);
+        messages.push(`<p>Population rank remains stable at ${oldRank}.</p>`);
+      } else {
+        // Failure: Lose 1 rank. (One per shadow - we'll ignore shadow specifics for now as per rules image core)
+        messages.push(`<p class="failure" style="color:#e74c3c;font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Failure")} (Population Decline)</p>`);
+        newRank = Math.max(0, oldRank - 1);
+        updates["system.populationRank"] = newRank;
+        messages.push(`<p><strong>Population Rank:</strong> -1 (Now: ${newRank})</p>`);
+      }
+
+      await roll.toMessage({
+        speaker: ChatMessage.getSpeaker({ actor }),
+        flavor: `<div class="trespasser-chat-card haven-report">${messages.join("")}</div>`
+      });
     }
 
-    const increase = isSuccess ? (1 + sparks) : 0;
-    const oldRank = this.populationRank || 0;
-    const newRank = oldRank + increase;
-    
-    const updates = { "system.populationRank": newRank };
-
-    // Check for Level Up
-    // Requirements: 
-    // 1. Party level >= Haven level + 1
-    // 2. Population Rank >= threshold for Haven level + 1
-    // 3. Max 1 level per week (satisfied since this is run once per week)
+    // Level up check is separate
     const currentLevel = this.level || 0;
-    let levelUpOccurred = false;
-    
     if (currentLevel < 9) {
       const nextLevel = currentLevel + 1;
       const thresholds = this.populationThresholds;
       const requiredRank = thresholds[nextLevel];
-      
       const characters = game.actors.filter(a => a.type === "character");
       const partyLevel = characters.length ? Math.max(...characters.map(c => c.system.level ?? 0)) : 0;
       
       if (newRank >= requiredRank && partyLevel >= nextLevel) {
         updates["system.level"] = nextLevel;
-        levelUpOccurred = true;
+        ui.notifications.info(`${actor.name} reached Level ${nextLevel}!`);
       }
     }
 
-    await actor.update(updates);
-
-    const messages = [];
-    messages.push(`<h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.PopulationCheck")}</h3>`);
-    
-    if (isSuccess) {
-      messages.push(`<p class="success" style="color:#2ecc71;font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Success")}</p>`);
-      if (sparks > 0) messages.push(`<p style="color:#64b5f6;"><i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Sparks", { count: sparks })}</p>`);
-      messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.PopulationIncrease")}:</strong> +${increase} (Rank: ${newRank})</p>`);
-    } else {
-      messages.push(`<p class="failure" style="color:#e74c3c;font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Failure")}</p>`);
-    }
-
-    if (levelUpOccurred) {
-      messages.push(`<div style="margin-top:10px; padding:5px; border:2px solid gold; text-align:center; background:rgba(255,215,0,0.1);">
-        <h4 style="color:gold; margin:0;"><i class="fas fa-arrow-up"></i> HAVEN LEVEL UP! <i class="fas fa-arrow-up"></i></h4>
-        <strong>New Level: ${updates["system.level"]}</strong>
-      </div>`);
-    }
-
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor }),
-      flavor: `<div class="trespasser-chat-card haven-report">${messages.join("")}</div>`
-    });
+    if (Object.keys(updates).length) await actor.update(updates);
   }
 
   /**
