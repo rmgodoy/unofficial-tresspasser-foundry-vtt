@@ -61,6 +61,8 @@ import { TrespasserHavenSheet }   from "./module/sheets/actor-haven-sheet.mjs";
 import { TrespasserHirelingSheet } from "./module/sheets/item-hireling-sheet.mjs";
 import { TrespasserBuildData } from "./module/data/item-build.mjs";
 import { TrespasserBuildSheet } from "./module/sheets/item-build-sheet.mjs";
+import { TrespasserStrongholdData } from "./module/data/item-stronghold.mjs";
+import { TrespasserStrongholdSheet } from "./module/sheets/item-stronghold-sheet.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -198,6 +200,7 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.room    = TrespasserRoomData;
   CONFIG.Item.dataModels.hireling = TrespasserHirelingData;
   CONFIG.Item.dataModels.build = TrespasserBuildData;
+  CONFIG.Item.dataModels.stronghold = TrespasserStrongholdData;
 
   // Sheets
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
@@ -320,6 +323,13 @@ Hooks.once("init", async () => {
     makeDefault: true,
     label: "Trespasser Building Sheet",
   });
+  // Stronghold sheet (AppV2)
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserStrongholdSheet, {
+    types: ["stronghold"],
+    makeDefault: true,
+    label: "Trespasser Stronghold Sheet",
+  });
+
 
   // Handlebars helpers
   Handlebars.registerHelper("trespasserChecked", (value) => (value ? "checked" : ""));
@@ -427,6 +437,31 @@ Hooks.on("preUpdateActor", (actor, updateData, options, userId) => {
   if (updateData.name && !actor.isToken) {
     updateData.prototypeToken = updateData.prototypeToken || {};
     updateData.prototypeToken.name = updateData.name;
+  }
+});
+
+/* ─── Stronghold Benefit Syncing ─── */
+Hooks.on("createItem", (item, options, userId) => {
+  if (game.user.id !== userId) return;
+  if (item.parent?.type === "haven" && item.type === "stronghold") {
+    console.log("Trespasser | Global Hook - createItem (Stronghold)");
+    item.parent.system.syncStrongholdBenefit(item);
+  }
+});
+
+Hooks.on("updateItem", (item, delta, options, userId) => {
+  if (game.user.id !== userId) return;
+  if (item.parent?.type === "haven" && item.type === "stronghold") {
+     console.log("Trespasser | Global Hook - updateItem (Stronghold)");
+     item.parent.system.syncStrongholdBenefit(item, delta);
+  }
+});
+
+Hooks.on("deleteItem", (item, options, userId) => {
+  if (game.user.id !== userId) return;
+  if (item.parent?.type === "haven" && item.type === "stronghold") {
+     console.log("Trespasser | Global Hook - deleteItem (Stronghold)");
+     item.parent.system.syncStrongholdBenefit(item, { deleted: true });
   }
 });
 

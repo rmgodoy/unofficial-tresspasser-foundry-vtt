@@ -430,6 +430,9 @@
       "HealthRecovered": "Recovered {value} Health.",
       "HealthLost": "Lost {value} Health.",
       "HealthUnaffected": "Health was unaffected.",
+      "EnduranceRecovered": "Recovered {value} Endurance.",
+      "EnduranceLost": "Lost {value} Endurance.",
+      "EnduranceUnaffected": "Endurance was unaffected.",
       "FocusRecovered": "Recovered {value} Focus.",
       "FocusLost": "Lost {value} Focus.",
       "FocusUnaffected": "Focus was unaffected.",
@@ -1176,6 +1179,11 @@
     "Haven": {
       "NamePlaceholder": "Haven Name",
       "Treasury": "Treasury",
+      "WeeklyExpenses": "Weekly Outcome",
+      "WeeklyIncome": "Weekly Income",
+      "WeeklyBalance": "Weekly Balance",
+      "WeeklyStableCost": "Weekly Maintenance",
+      "TreasuryBreakdown": "Weekly Balance Breakdown",
       "SkillsLabel": "Skills",
       "BuildingsLabel": "Buildings",
       "CompletedBuildings": "Completed Buildings",
@@ -1259,15 +1267,14 @@
       "CharactersOnly": "Only Character actors can be assigned as Leader.",
       "HirelingMustBeInHaven": "Hireling must already be in the Haven's inventory to be assigned to a chain.",
       "WeeklyReport": "Weekly Haven Report",
-      "TotalCost": "Weekly Cost",
+      "TotalCostLabel": "Weekly Cost",
       "ProducedItem": "{name} produced {quantity}x {item}.",
       "MissingIngredients": "{name} skipped production: Missing {item}.",
       "ConsumedOnly": "{name} consumed resources for the week.",
       "DidNothing": "had nothing to consume or produce.",
       "UnassignedHirelings": "Unassigned Hirelings",
       "NotEnoughFunds": "Haven does not have enough funds ({cost}) to pay all hirelings! Treasury: {treasury}.",
-      "InsufficientFundsError": "Cannot process week: Haven does not have enough funds ({cost}) to pay all hirelings. Current treasury: {treasury}. Please reduce costs or add funds.",
-      "TotalWeeklyCost": "Weekly Cost",
+      "InsufficientFundsError": "Cannot process week: Haven does not have enough funds to cover the balance. Current treasury: {treasury}. Please reduce costs or add funds.",
       "TransferToCharacterOnly": "Only Character tokens can receive items from the Haven.",
       "WithdrawnToActor": "Transferred {name} to {actor}.",
       "TransferItemTo": "Transfer to {name}",
@@ -1281,7 +1288,21 @@
         "BuildClock": "Build Clock",
         "UpgradeTo": "Upgrade Path",
         "DropUpgradeHint": "Drop a Building here to set as upgrade path"
-      }
+      },
+      "Strongholds": "Strongholds",
+      "NoStrongholds": "No strongholds in this Haven.",
+      "CompletedStrongholds": "Completed Strongholds",
+      "StrongholdUnderConstruction": "Under Construction",
+      "StrongholdOwner": "Stronghold Owner",
+      "DropCharacterHere": "Drop a Character here",
+      "AttributeBonuses": "Attribute Bonuses",
+      "AddBonus": "Add Bonus",
+      "StrongholdActions": "Haven Actions",
+      "AddAction": "Add Action",
+      "DropFeaturesHint": "Drop Features here to provide to owner upon completion",
+      "Completed": "Completed",
+      "GeneratedIncome": "generated income",
+      "TotalStrongholdIncome": "Total Stronghold Income"
     }
   },
   "TYPES": {
@@ -1309,7 +1330,8 @@
       "past_life": "Past Life",
       "room": "Room",
       "hireling": "Hireling",
-      "build": "Building"
+      "build": "Building",
+      "stronghold": "Stronghold"
     }
   }
 }

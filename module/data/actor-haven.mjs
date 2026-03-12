@@ -78,16 +78,36 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
   }
 
   /**
-   * Total cost per week based on active hirelings.
+   * Total expenses per week (Hirelings + Completed Strongholds).
    * @returns {number}
    */
-  get totalWeeklyCost() {
+  get totalWeeklyExpenses() {
     const actor = this.parent;
-    const hirelings = actor.items.filter(i => i.type === "hireling");
-    return hirelings.reduce((total, h) => {
-      if (h.system.active) return total + (h.system.cost * h.system.quantity);
-      return total;
-    }, 0);
+    const hirelings = actor.items.filter(i => i.type === "hireling" && i.system.active);
+    const completedStrongholds = actor.items.filter(i => i.type === "stronghold" && i.system.isCompleted);
+    
+    const hirelingCost = hirelings.reduce((total, h) => total + (h.system.cost * h.system.quantity), 0);
+    const strongholdCost = completedStrongholds.reduce((total, s) => total + (s.system.weeklyCost || 0), 0);
+    
+    return hirelingCost + strongholdCost;
+  }
+
+  /**
+   * Total income per week (Completed Strongholds).
+   * @returns {number}
+   */
+  get totalWeeklyIncome() {
+    const actor = this.parent;
+    const completedStrongholds = actor.items.filter(i => i.type === "stronghold" && i.system.isCompleted);
+    return completedStrongholds.reduce((total, s) => total + (s.system.income || 0), 0);
+  }
+
+  /**
+   * Total balance per week (Income - Expenses).
+   * @returns {number}
+   */
+  get weeklyBalance() {
+    return this.totalWeeklyIncome - this.totalWeeklyExpenses;
   }
 
   /**
@@ -98,6 +118,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     const actor = this.parent;
     const totals = {};
     const buildings = actor.items.filter(i => i.type === "build" && (i.system.progress >= i.system.buildClock));
+    const strongholds = actor.items.filter(i => i.type === "stronghold" && (i.system.progress >= i.system.buildClock));
 
     for ( const key of ["military", "efficiency", "resources", "expertise", "allegiance", "appeal"] ) {
       const base = this.attributes[key] ?? 0;
@@ -109,7 +130,13 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
         return sum + itemBonuses.filter(attr => attr.attribute === key).reduce((s, a) => s + a.value, 0);
       }, 0);
 
-      totals[key] = base + bonus + buildingBonus;
+      // Add stronghold bonuses
+      const strongholdBonus = strongholds.reduce((sum, s) => {
+        const itemBonuses = s.system.bonuses || [];
+        return sum + itemBonuses.filter(attr => attr.attribute === key).reduce((s, a) => s + a.value, 0);
+      }, 0);
+
+      totals[key] = base + bonus + buildingBonus + strongholdBonus;
     }
     return totals;
   }
@@ -232,13 +259,16 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     const hirelings = actor.items.filter(i => i.type === "hireling");
     
     // Combine Step 2 & 3 Payment logic
-    const totalCost = this.totalWeeklyCost;
-    if (this.treasury < totalCost) {
-      ui.notifications.error(game.i18n.format("TRESPASSER.Haven.InsufficientFundsError", { cost: totalCost, treasury: this.treasury }));
+    const balance = this.weeklyBalance;
+    const expenses = this.totalWeeklyExpenses;
+    const income = this.totalWeeklyIncome;
+
+    if (this.treasury + balance < 0) {
+      ui.notifications.error(game.i18n.format("TRESPASSER.Haven.InsufficientFundsError", { cost: expenses - income, treasury: this.treasury }));
       return false;
     }
     
-    const newTreasury = Math.max(0, this.treasury - totalCost);
+    const newTreasury = Math.max(0, this.treasury + balance);
     const updates = { "system.treasury": newTreasury };
 
     // Identify assigned hirelings
@@ -250,7 +280,9 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
 
     const messages = [];
     messages.push(`<h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.ResolveHirelings")}</h3>`);
-    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.TotalCost")}:</strong> ${totalCost} (Paid from Treasury)</p>`);
+    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.WeeklyExpenses")}:</strong> ${expenses}</p>`);
+    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.WeeklyIncome")}:</strong> ${income}</p>`);
+    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.WeeklyBalance")}:</strong> ${balance >= 0 ? "+" : ""}${balance}</p>`);
 
     // Temporary inventory state for the week's processing
     let currentInventory = foundry.utils.duplicate(this.inventory);
@@ -281,6 +313,34 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
 
     // Update treasury and inventory
     updates["system.inventory"] = currentInventory;
+    
+    // 4. Process Strongholds (progression and features)
+    const strongholds = actor.items.filter(i => i.type === "stronghold");
+    if (strongholds.length > 0) {
+      messages.push(`<h4>${game.i18n.localize("TRESPASSER.Haven.Strongholds")}</h4>`);
+      for (const s of strongholds) {
+        if (s.system.isCompleted) continue; // Already handled for income/outcome
+        
+        const oldProgress = s.system.progress;
+        const newProgress = Math.min(s.system.buildClock, oldProgress + 1);
+        await s.update({ "system.progress": newProgress });
+        
+        if (newProgress === s.system.buildClock) {
+          messages.push(`<p style="color:#2ecc71;"><strong>${s.name} ${game.i18n.localize("TRESPASSER.Haven.Completed")}!</strong></p>`);
+          // Apply features to owner if set
+          if (s.system.ownerId) {
+            const owner = game.actors.get(s.system.ownerId);
+            if (owner && s.system.features?.length > 0) {
+              await owner._applyLinkedItems(s.system.features);
+              ui.notifications.info(`Stronghold ${s.name} features applied to ${owner.name}.`);
+            }
+          }
+        } else {
+          messages.push(`<p>${s.name}: ${game.i18n.localize("TRESPASSER.Haven.Progress")} ${newProgress}/${s.system.buildClock}</p>`);
+        }
+      }
+    }
+
     await actor.update(updates);
 
     await ChatMessage.create({
@@ -539,5 +599,79 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     if (s1.subType !== s2.subType) return false;
     if (s1.tier !== s2.tier) return false;
     return true;
+  }
+
+  /**
+   * Syncs stronghold features to its owner.
+   * Handles:
+   * - Removing features from previous owner if owner changed.
+   * - Removing features if stronghold is no longer completed.
+   * - Adding features if stronghold is completed and has an owner.
+   * @param {Item} stronghold - The stronghold item document.
+   * @param {Object} [delta] - The update delta, if called from a hook.
+   */
+  async syncStrongholdBenefit(stronghold, delta = {}) {
+    console.warn("here");
+    const actor = this.parent;
+    if (stronghold.type !== "stronghold") return;
+    
+    const strongholdUuid = stronghold.uuid;
+    const isCompleted = stronghold.system.isCompleted;
+    const ownerId = stronghold.system.ownerId;
+    
+    console.log(`Trespasser | Syncing Stronghold: ${stronghold.name} (${strongholdUuid})`);
+    console.log(`Trespasser | Status: Completed=${isCompleted}, OwnerID=${ownerId}`);
+
+    const allCharacters = game.actors.filter(a => a.type === "character");
+    
+    // 1. Cleanup
+    for (const char of allCharacters) {
+      const existing = char.items.filter(i => i.getFlag("trespasser", "strongholdSource") === strongholdUuid);
+      if (existing.length > 0) {
+        console.log(`Trespasser | Removing ${existing.length} features from ${char.name}`);
+        await char.deleteEmbeddedDocuments("Item", existing.map(i => i.id));
+      }
+    }
+
+    // 2. Addition
+    if (!delta.deleted && isCompleted && ownerId) {
+      const owner = game.actors.get(ownerId);
+      if (owner) {
+        const features = stronghold.system.features || [];
+        console.log(`Trespasser | Applying ${features.length} features to ${owner.name}`);
+        
+        for (const feat of features) {
+            console.log(`Trespasser | Looking for feature UUID: ${feat.uuid}`);
+            const sourceItem = await fromUuid(feat.uuid);
+            if (!sourceItem) {
+              console.warn(`Trespasser | FAILED: Could not find feature with UUID: ${feat.uuid}`);
+              continue;
+            }
+
+            const itemData = sourceItem.toObject();
+            delete itemData._id;
+            
+            // Mark source
+            itemData.flags = itemData.flags || {};
+            itemData.flags.trespasser = itemData.flags.trespasser || {};
+            itemData.flags.trespasser.strongholdSource = strongholdUuid;
+            
+            console.log(`Trespasser | Attempting to create feature ${sourceItem.name} on ${owner.name}`);
+            try {
+              const created = await owner.createEmbeddedDocuments("Item", [itemData]);
+              if (created.length > 0) {
+                console.log(`Trespasser | SUCCESS: Created ${sourceItem.name} (ID: ${created[0].id})`);
+              } else {
+                console.error(`Trespasser | FAILED: creation returned empty array for ${sourceItem.name}`);
+              }
+            } catch (err) {
+              console.error(`Trespasser | ERROR creating feature:`, err);
+            }
+        }
+        ui.notifications.info(`Stronghold ${stronghold.name} features updated for ${owner.name}.`);
+      } else {
+        console.warn(`Trespasser | FAILED: No Actor found for ID ${ownerId}`);
+      }
+    }
   }
 }

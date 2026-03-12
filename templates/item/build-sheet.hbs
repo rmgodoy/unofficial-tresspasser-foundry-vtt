@@ -5,7 +5,7 @@
     </div>
     <div class="header-column details-column">
       <h1 class="item-title">
-        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Item.Name'}}"/>
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemName'}}"/>
       </h1>
     </div>
   </header>
@@ -37,7 +37,7 @@
         <div class="skill-entries">
             {{#each preparedSkills as |s|}}
                 <div class="skill-chip">
-                    <span>{{s.label}}</span>
+                    <span>{{localize s.label}}</span>
                     <a data-action="removeSkill" data-index="{{s.index}}"><i class="fas fa-times"></i></a>
                 </div>
             {{/each}}
@@ -75,7 +75,7 @@
     </div>
 
     <div class="attribute-fields description-column">
-      <label>{{localize "TRESPASSER.Item.Description"}}</label>
+      <label>{{localize "TRESPASSER.General.Description"}}</label>
       <div class="trp-editor-container">
         <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false">{{{descriptionHTML}}}</prose-mirror>
       </div>

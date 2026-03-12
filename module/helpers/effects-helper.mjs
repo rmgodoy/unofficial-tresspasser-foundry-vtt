@@ -101,7 +101,9 @@ export class TrespasserEffectsHelper {
     "action_points": "TRESPASSER.Sheet.Combat.ActionPoints",
     "combat_phase": "TRESPASSER.Sheet.Combat.Phase",
     "damage_dealt": "TRESPASSER.Item.DamageDealt",
-    "damage_received": "TRESPASSER.Item.DamageReceived"
+    "damage_received": "TRESPASSER.Item.DamageReceived",
+    "endurance": "TRESPASSER.Endurance",
+    "max_endurance": "TRESPASSER.MaxEndurance"
   };
 
   /**
@@ -139,10 +141,17 @@ export class TrespasserEffectsHelper {
         return `${count}${match[2]}`;
     };
 
-    const placeholderRegex = /(\d*)<(sd|wd)>/gi;
+    const placeholderRegex = /(\d*)<(sd|wd|sb)>/gi;
     resolved = resolved.replace(placeholderRegex, (match, factorStr, type) => {
         const factor = factorStr === "" ? 1 : parseInt(factorStr);
-        const diceExpr = (type.toLowerCase() === "sd") ? sd : wd;
+        const ltype = type.toLowerCase();
+        
+        if (ltype === "sb") {
+            const skillBonus = actor?.system?.skill ?? actor?.system?.skillBonus ?? 0;
+            return (skillBonus * factor).toString();
+        }
+
+        const diceExpr = (ltype === "sd") ? sd : wd;
         return multiplyDice(diceExpr, factor);
     });
 
@@ -415,8 +424,9 @@ export class TrespasserEffectsHelper {
       // UNLESS the specific timing is explicitly requested (e.g. when making a roll)
       if (eff.type === "on-trigger" && eff.when && eff.when !== "immediate" && eff.when !== includeTiming) continue;
       
-      // Parse numeric modifier, ignoring dice formulas for static calculation
-      const modStr = eff.modifier.toString().replace("+", "").trim();
+      // Resolve placeholders (like <Int>, <sb>) before parsing numeric value
+      const resolvedMod = this.replacePlaceholders(eff.modifier.toString(), actor);
+      const modStr = resolvedMod.replace("+", "").trim();
       const value = parseFloat(modStr);
       if (!isNaN(value)) {
         total += value;
@@ -574,6 +584,16 @@ export class TrespasserEffectsHelper {
           } else {
             flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.HealthUnaffected")}</p>`;
           }
+        } else if (eff.target === "endurance") {
+          const newEnd = Math.clamp(actor.system.endurance + modValue, 0, actor.system.max_endurance);
+          await actor.update({ "system.endurance": newEnd });
+          if (modValue > 0) {
+            flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Trigger.EnduranceRecovered", { value: modValue })}</p>`;
+          } else if (modValue < 0) {
+            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.EnduranceLost", { value: Math.abs(modValue) })}</p>`;
+          } else {
+            flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.EnduranceUnaffected")}</p>`;
+          }
         } else if (eff.target === "focus") {
           flavor += await TrespasserEffectsHelper.updateFocus(actor, modValue);
         } else if (eff.target === "action_points") {
@@ -704,6 +724,13 @@ export class TrespasserEffectsHelper {
         else if (modValue < 0) flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
         else flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.HealthUnaffected")}</p>`;
       } 
+      else if (target === "endurance") {
+        const newEnd = Math.clamp(actor.system.endurance + modValue, 0, actor.system.max_endurance);
+        await actor.update({ "system.endurance": newEnd });
+        if (modValue > 0) flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Trigger.EnduranceRecovered", { value: modValue })}</p>`;
+        else if (modValue < 0) flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.EnduranceLost", { value: Math.abs(modValue) })}</p>`;
+        else flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.EnduranceUnaffected")}</p>`;
+      }
       else if (target === "focus") flavor += await TrespasserEffectsHelper.updateFocus(actor, modValue);
       else if (target === "action_points") flavor += await TrespasserEffectsHelper.updateActionPoints(actor, modValue);
       else if (target === "combat_phase") flavor += await TrespasserEffectsHelper.updateCombatPhase(actor, modValue);

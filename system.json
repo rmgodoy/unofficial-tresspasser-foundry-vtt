@@ -54,7 +54,8 @@
       "past_life": {},
       "room": {},
       "hireling": {},
-      "build": {}
+      "build": {},
+      "stronghold": {}
     }
   },
   "initiative": "1d6 + @system.combat.initiative",

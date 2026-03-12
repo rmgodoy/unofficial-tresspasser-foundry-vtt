@@ -1,13 +1,26 @@
 /* Haven and Hireling Sheet Styles */
 
-/* ─── Haven Sheet ─── */
 .trespasser-sheet.actor.haven {
     background: var(--trp-bg-dark);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
-#TrespasserHavenSheet-Actor-HoUZCtm3FXPj5QtC > section > section > nav {
+.trespasser-sheet.actor.haven .sheet-header,
+.trespasser-sheet.actor.haven .haven-upkeep-section,
+.trespasser-sheet.actor.haven .sheet-tabs {
     gap: 0;
+    flex: 0 0 auto;
 }
+
+.trespasser-sheet.actor.haven .sheet-content {
+    flex: 1;
+    overflow-y: auto;
+    padding-bottom: 20px;
+    min-height: 0; /* Important for flex-child to scroll */
+}
+
 
 /* Use the resources row for Haven stats */
 /* Identity Row refinements */
@@ -130,6 +143,87 @@
 .haven .resource-box.decline {
     border-color: var(--trp-red-dim);
     background: rgba(255, 82, 82, 0.05);
+}
+
+/* Balance Box & Popover */
+.haven .balance-box {
+    position: relative;
+}
+
+.haven .breakdown-info {
+    font-size: 10px;
+    margin-left: 4px;
+    color: var(--trp-gold-dim);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.haven .breakdown-info:hover {
+    color: var(--trp-gold-bright);
+}
+
+.haven .balance-popover {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    background: rgba(20, 20, 20, 0.95);
+    border: 1px solid var(--trp-border);
+    backdrop-filter: blur(8px);
+    border-radius: var(--trp-radius-sm);
+    padding: 10px;
+    z-index: 100;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
+    pointer-events: none;
+    transition: opacity 0.2s, transform 0.2s;
+}
+
+.haven .balance-popover.active {
+    display: block !important;
+    pointer-events: auto;
+}
+
+.haven .balance-popover h5 {
+    margin: 5px 0;
+    font-family: var(--trp-font-header);
+    font-size: 11px;
+    color: var(--trp-gold);
+    border-bottom: 1px solid var(--trp-border-light);
+}
+
+.haven .balance-popover ul {
+    list-style: none;
+    padding: 0;
+    margin: 5px 0;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.haven .balance-popover li {
+    font-size: 10px;
+    color: var(--trp-text-dim);
+    display: flex;
+    justify-content: space-between;
+    padding: 2px 0;
+}
+
+.haven .balance-popover hr {
+    border: none;
+    border-top: 1px solid var(--trp-border-light);
+    margin: 8px 0;
+}
+
+.haven .balance-display input {
+    font-weight: bold;
+}
+
+.haven .balance-box.over-budget .balance-display input {
+    color: var(--trp-red-bright);
+}
+
+.haven .balance-box:not(.over-budget) .balance-display input {
+    color: var(--trp-green-bright);
 }
 
 .haven .pop-rank-wrapper {
@@ -410,6 +504,35 @@
     gap: 8px;
     border: 1px solid var(--trp-border-light);
     font-size: 12px;
+}
+
+.haven-sheet .production-chains-section {
+    margin-top: 20px;
+    border-top: 2px solid var(--trp-border);
+    padding-top: 10px;
+}
+
+.haven-sheet .production-chains-section .section-title {
+    margin-left: 12px;
+}
+
+.haven-sheet .haven-arrivals-section {
+    margin-top: 20px;
+    border-top: 2px solid var(--trp-border);
+    padding-top: 15px;
+    padding: 0 15px 15px 15px;
+}
+
+.haven-sheet .haven-arrivals-section .section-title {
+    margin-left: 0;
+    margin-bottom: 10px;
+}
+
+.haven-sheet .haven-arrivals-section prose-mirror {
+    min-height: 200px;
+    background: rgba(0, 0, 0, 0.15);
+    border: 1px solid var(--trp-border-light);
+    border-radius: var(--trp-radius-sm);
 }
 
 .haven-sheet .add-hireling-to-chain-container {
@@ -800,6 +923,44 @@
     gap: 5px;
 }
 
+.haven-sheet .owner-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(232, 201, 107, 0.1);
+    border: 1px solid rgba(232, 201, 107, 0.3);
+    color: var(--trp-gold-bright);
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 10px;
+    font-family: var(--trp-font-header);
+    margin-top: 4px;
+}
+
+.haven-sheet .owner-name-mini {
+    font-size: 9px;
+    color: var(--trp-gold-dim);
+    font-style: italic;
+    margin-top: 1px;
+}
+
+.haven-sheet .progress-bar-container {
+    width: 100%;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+    border: 1px solid var(--trp-border-light);
+}
+
+.haven-sheet .progress-bar-fill {
+    height: 100%;
+    background: var(--trp-gold-dim);
+    box-shadow: 0 0 5px var(--trp-gold-dim);
+    transition: width 0.3s ease;
+}
+
 .haven-sheet .clock-controls label {
     font-size: 9px;
     text-transform: uppercase;
@@ -1037,17 +1198,6 @@
     filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
 }
 
-/* Center the total since it is the only number now */
-.haven-event-layout .clock-label-total {
-    font-family: var(--trp-font-header);
-    font-size: 28px;
-    font-weight: bold;
-    fill: var(--trp-gold-bright);
-    text-anchor: middle;
-    dominant-baseline: middle;
-    pointer-events: none;
-}
-
 .haven-event-layout .clock-config-container {
     display: flex;
     justify-content: center;
@@ -1139,4 +1289,251 @@
     font-weight: bold;
 }
 
+
+
+/* Strongholds Tab */
+.haven .stronghold-list {
+    display: flex;
+    flex-direction: column;
+    padding: 15px;
+    gap: 15px;
+    min-height: 480px;
+}
+
+.haven .stronghold-item, .haven .construction-item {
+    background: rgba(0, 0, 0, 0.35);
+    border: 1px solid var(--trp-border-light);
+    border-radius: var(--trp-radius-sm);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: all 0.2s;
+}
+
+.haven .stronghold-item:hover {
+    border-color: var(--trp-gold-dim);
+    background: rgba(232, 201, 107, 0.05);
+}
+
+.haven .stronghold-item img, .haven .construction-item img {
+    border: 1px solid var(--trp-border);
+    border-radius: 4px;
+}
+
+.haven .stronghold-item .item-name {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.haven .stronghold-item .item-bonuses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.haven .bonus-tag {
+    font-size: 9px;
+    background: rgba(232, 201, 107, 0.1);
+    border: 1px solid rgba(232, 201, 107, 0.3);
+    color: var(--trp-gold-light);
+    padding: 1px 4px;
+    border-radius: 2px;
+    text-transform: uppercase;
+}
+
+.haven .bonus-tag.income {
+    color: var(--trp-gold-bright);
+    background: rgba(232, 201, 107, 0.2);
+}
+
+.haven .build-progress {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 250px;
+}
+
+.haven .progress-bar {
+    flex: 1;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid var(--trp-border-light);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.haven .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--trp-gold-dim), var(--trp-gold-bright));
+    box-shadow: 0 0 5px var(--trp-gold-dim);
+    transition: width 0.5s ease-out;
+}
+
+.haven .progress-text {
+    font-size: 10px;
+    font-family: var(--trp-font-header);
+    color: var(--trp-text-dim);
+    min-width: 40px;
+    text-align: right;
+}
+
+.haven .stronghold-list .placeholder-msg {
+    text-align: center;
+    color: var(--trp-text-dim);
+    padding: 40px;
+    font-style: italic;
+}
+
+/* Stronghold Sheet Specifics */
+.stronghold-sheet .sheet-body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+}
+
+.stronghold-sheet .custom-attributes-area {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stronghold-sheet .attribute-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stronghold-sheet .form-fields {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.stronghold-sheet .form-fields input {
+    flex: 1;
+    text-align: center;
+}
+
+.stronghold-sheet .owner-drop-zone {
+    border: 1px dashed var(--trp-border-light);
+    padding: 8px;
+    min-height: 32px;
+    text-align: center;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    transition: all 0.2s;
+}
+
+.stronghold-sheet .owner-drop-zone.drag-over {
+    border-color: var(--trp-gold);
+    background: rgba(232, 201, 107, 0.1);
+}
+
+.stronghold-sheet .owner-drop-zone .placeholder {
+    font-size: 11px;
+    color: var(--trp-text-dim);
+}
+
+.stronghold-sheet .owner-drop-zone .owner-name {
+    font-weight: bold;
+    color: var(--trp-gold-bright);
+}
+
+.stronghold-sheet .owner-drop-zone .remove-owner {
+    position: absolute;
+    right: 8px;
+    color: var(--trp-red-dim);
+}
+
+.stronghold-sheet .owner-drop-zone .remove-owner:hover {
+    color: #ff4444;
+}
+
+/* Feature List Styles */
+.stronghold-sheet .features-drop-zone {
+    border: 1px dashed var(--trp-border-light);
+    padding: 12px;
+    border-radius: var(--trp-radius-sm);
+    background: rgba(0,0,0,0.1);
+}
+
+.stronghold-sheet .features-drop-zone.drag-over {
+    border-color: var(--trp-gold);
+    background: rgba(232, 201, 107, 0.05);
+}
+
+.stronghold-sheet .feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.stronghold-sheet .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 4px 8px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--trp-border-light);
+    border-radius: 4px;
+}
+
+.stronghold-sheet .feature-item img {
+    border-radius: 2px;
+}
+
+.stronghold-sheet .feature-item .name {
+    flex: 1;
+    font-size: 12px;
+}
+
+.stronghold-sheet .remove-feature {
+    color: var(--trp-text-dim);
+}
+
+.stronghold-sheet .remove-feature:hover {
+    color: var(--trp-red-dim);
+}
+
+.stronghold-sheet .attribute-list-section {
+    margin-top: 8px;
+}
+
+.stronghold-sheet .section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+    border-bottom: 1px solid var(--trp-border-light);
+    padding-bottom: 2px;
+}
+
+.stronghold-sheet .section-header label {
+    font-family: var(--trp-font-header);
+    font-size: 11px;
+    color: var(--trp-gold-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.stronghold-sheet .bonus-row, .stronghold-sheet .action-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-bottom: 4px;
+}
+
+.stronghold-sheet .action-row input {
+    flex: 1;
+}
 

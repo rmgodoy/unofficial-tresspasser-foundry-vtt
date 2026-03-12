@@ -10,7 +10,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "actor", "haven-sheet"],
-    position: { width: 600, height: 700 },
+    position: { width: 700, height: 800 },
+    scrollable: ['[data-scrollable="true"]'],
     actions: {
       processWeek: TrespasserHavenSheet.#onProcessWeek,
       removeLeader: TrespasserHavenSheet.#onRemoveLeader,
@@ -35,7 +36,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       adjustBuildClock: TrespasserHavenSheet.#onAdjustBuildClock,
       upgradeBuilding: TrespasserHavenSheet.#onUpgradeBuilding,
       editItem: TrespasserHavenSheet.#onOpenItemSheet,
-      eventClockClick: TrespasserHavenSheet.#onEventClockClick
+      eventClockClick: TrespasserHavenSheet.#onEventClockClick,
+      toggleBreakdown: TrespasserHavenSheet.#onToggleBreakdown
     },
     form: { 
       handler: TrespasserHavenSheet.#onSubmit,
@@ -51,7 +53,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     }
   };
 
-  tabGroups = { primary: "production" };
+  tabGroups = { primary: "buildings" };
   
   /** @override */
   get isEditable() {
@@ -86,8 +88,42 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     context.totalAttributes = system.totalAttributes;
 
     // Budget Info
-    context.totalWeeklyCost = actor.system.totalWeeklyCost;
-    context.isOverBudget = actor.system.totalWeeklyCost > system.treasury;
+    context.weeklyBalance = system.weeklyBalance;
+    context.totalWeeklyExpenses = system.totalWeeklyExpenses;
+    context.totalWeeklyIncome = system.totalWeeklyIncome;
+    context.isOverBudget = (system.treasury + system.weeklyBalance) < 0;
+    
+    // Breakdown data
+    context.breakdown = {
+      income: [],
+      expenses: []
+    }
+    
+    // Expenses: Hirelings
+    const hirelings = actor.items.filter(i => i.type === "hireling" && i.system.active);
+    for (const h of hirelings) {
+      context.breakdown.expenses.push({
+        label: `${h.name} (x${h.system.quantity})`,
+        value: h.system.cost * h.system.quantity
+      });
+    }
+
+    // Expenses/Income: Strongholds
+    const compStrongholds = actor.items.filter(i => i.type === "stronghold" && i.system.isCompleted);
+    for (const s of compStrongholds) {
+      if (s.system.income > 0) {
+        context.breakdown.income.push({
+          label: s.name,
+          value: s.system.income
+        });
+      }
+      if (s.system.weeklyCost > 0) {
+        context.breakdown.expenses.push({
+          label: s.name,
+          value: s.system.weeklyCost
+        });
+      }
+    }
 
     // Resolve Leader
     context.leader = system.leaderId ? game.actors.get(system.leaderId) : null;
@@ -99,6 +135,28 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const allBuildings = actor.items.filter(i => i.type === "build");
     context.completedBuildings = allBuildings.filter(b => b.system.progress >= b.system.buildClock);
     context.constructionBuildings = allBuildings.filter(b => b.system.progress < b.system.buildClock);
+
+    // Strongholds
+    const allStrongholds = actor.items.filter(i => i.type === "stronghold");
+    context.completedStrongholds = allStrongholds.filter(s => s.system.progress >= s.system.buildClock).map(s => {
+      const owner = s.system.ownerId ? game.actors.get(s.system.ownerId) : null;
+      s.ownerName = owner ? owner.name : "";
+      return s;
+    });
+    context.constructionStrongholds = allStrongholds.filter(s => s.system.progress < s.system.buildClock).map(s => {
+      const owner = s.system.ownerId ? game.actors.get(s.system.ownerId) : null;
+      s.ownerName = owner ? owner.name : "";
+      return s;
+    });
+
+    context.attributes = {
+      "military": "TRESPASSER.Haven.Attributes.Military",
+      "efficiency": "TRESPASSER.Haven.Attributes.Efficiency",
+      "resources": "TRESPASSER.Haven.Attributes.Resources",
+      "expertise": "TRESPASSER.Haven.Attributes.Expertise",
+      "allegiance": "TRESPASSER.Haven.Attributes.Allegiance",
+      "appeal": "TRESPASSER.Haven.Attributes.Appeal"
+    };
 
     // Inventory is data-driven stacking list from system.inventory
     context.inventory = system.inventory.map((entry, index) => ({
@@ -154,7 +212,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const total = Math.max(2, event.clock);
     const filled = Math.min(event.current, total);
     context.eventClockSegments = buildClockSegments(total, filled);
-    context.eventClockFilled = filled;
+    context.eventClockCurrent = filled;
     context.eventClockTotal = total;
 
     // Arrivals
@@ -244,7 +302,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       if (!item) return;
 
       // Handle special types that should be embedded documents
-      if (item.type === "hireling" || item.type === "room" || item.type === "build") {
+      if (["hireling", "room", "build", "stronghold"].includes(item.type)) {
         if (item.parent === this.document) return; // Already here
 
         // Check limits if not bypassed
@@ -513,58 +571,47 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const skillBonusValue = trained ? system.skillBonus : 0;
     const skillLabel = game.i18n.localize(`TRESPASSER.Haven.Skills.${skillKey.charAt(0).toUpperCase() + skillKey.slice(1)}`);
 
-    const formatAttrBtn = (key, label) => {
-      const val = totals[key] ?? 0;
-      return `<button class="trp-attr-btn" data-attr="${key}">${label} (${val})</button>`;
-    };
+    const attributes = [
+      { key: "military", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Military") },
+      { key: "efficiency", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Efficiency") },
+      { key: "resources", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Resources") },
+      { key: "expertise", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Expertise") },
+      { key: "allegiance", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Allegiance") },
+      { key: "appeal", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Appeal") }
+    ];
 
-    const content = `
-      <div class="dialog-content">
-        <p style="margin-bottom:12px;">
-          ${game.i18n.localize("TRESPASSER.Dialog.SkillCheckQ")}
-          ${trained ? `<em>${game.i18n.format("TRESPASSER.Dialog.SkillCheckBonus", { skill: system.skillBonus })}</em>` : ""}
-        </p>
-        <div class="trp-attr-pick">
-          ${formatAttrBtn("military",   game.i18n.localize("TRESPASSER.Haven.Attributes.Military"))}
-          ${formatAttrBtn("efficiency", game.i18n.localize("TRESPASSER.Haven.Attributes.Efficiency"))}
-          ${formatAttrBtn("resources",  game.i18n.localize("TRESPASSER.Haven.Attributes.Resources"))}
-          ${formatAttrBtn("expertise",  game.i18n.localize("TRESPASSER.Haven.Attributes.Expertise"))}
-          ${formatAttrBtn("allegiance", game.i18n.localize("TRESPASSER.Haven.Attributes.Allegiance"))}
-          ${formatAttrBtn("appeal",     game.i18n.localize("TRESPASSER.Haven.Attributes.Appeal"))}
-        </div>
-      </div>`;
+    const chosenAttr = await foundry.applications.api.DialogV2.wait({
+      window: { title: `${skillLabel} Check`, classes: ["trespasser", "dialog", "haven-attr-picker"] },
+      content: `
+        <div class="dialog-content">
+          <p style="margin-bottom:12px;">
+            ${game.i18n.localize("TRESPASSER.Dialog.SkillCheckQ")}
+            ${trained ? `<em>${game.i18n.format("TRESPASSER.Dialog.SkillCheckBonus", { skill: system.skillBonus })}</em>` : ""}
+          </p>
+        </div>`,
+      buttons: [
+        ...attributes.map(attr => ({
+          action: attr.key,
+          label: `${attr.label} (${totals[attr.key] ?? 0})`,
+          classes: ["trp-attr-btn"]
+        })),
+        { action: "cancel", label: game.i18n.localize("TRESPASSER.Dialog.Cancel"), default: true }
+      ]
+    });
 
-    new Dialog({
-      title: `${skillLabel} Check`,
-      content: content,
-      buttons: {
-        cancel: { label: game.i18n.localize("TRESPASSER.Dialog.Cancel") }
-      },
-      default: "cancel",
-      render: (html) => {
-        html.find(".trp-attr-btn").on("click", async (ev) => {
-          const chosenAttr = ev.currentTarget.dataset.attr;
-          const attrVal = totals[chosenAttr] ?? 0;
-          const label = game.i18n.localize(`TRESPASSER.Haven.Attributes.${chosenAttr.charAt(0).toUpperCase() + chosenAttr.slice(1)}`);
-          
-          const formula = `1d20 + ${attrVal} + ${skillBonusValue}`;
-          const roll = new foundry.dice.Roll(formula);
-          const flavor = `${actor.name}: ${skillLabel} (${label})`;
-          
-          await roll.evaluate();
-          await roll.toMessage({
-            speaker: ChatMessage.getSpeaker({ actor }),
-            flavor
-          });
-          // Close the dialog manually since we used custom buttons
-          const dialog = html.closest(".window-app");
-          if (dialog) {
-            const appId = dialog.dataset.appid;
-            ui.windows[appId]?.close();
-          }
-        });
-      }
-    }, { classes: ["trespasser", "dialog"] }).render(true);
+    if ( !chosenAttr || chosenAttr === "cancel" ) return;
+
+    const attrVal = totals[chosenAttr] ?? 0;
+    const label = game.i18n.localize(`TRESPASSER.Haven.Attributes.${chosenAttr.charAt(0).toUpperCase() + chosenAttr.slice(1)}`);
+    const formula = `1d20 + ${attrVal} + ${skillBonusValue}`;
+    const roll = new foundry.dice.Roll(formula);
+    const flavor = `${actor.name}: ${skillLabel} (${label})`;
+    
+    await roll.evaluate();
+    await roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      flavor
+    });
   }
 
   static async #onAdjustBuildClock(event, target) {
@@ -630,12 +677,19 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
   static async #onEventClockClick(event, target) {
     const actor = this.document;
     const index = parseInt(target.dataset.index);
-    const newValue = index + 1;
+    let newValue = index + 1;
     const current = actor.system.event.current;
     
-    // Toggle: if same as current, reduce by 1
-    const nextValue = (newValue === current) ? newValue - 1 : newValue;
+    // Toggle behavior: if clicking the first segment (index 0) and current is 1, reset to 0
+    if ( index === 0 && current === 1 ) newValue = 0;
     
-    return actor.update({ "system.event.current": nextValue });
+    return actor.update({ "system.event.current": newValue });
+  }
+  
+  static async #onToggleBreakdown(event, target) {
+    const popover = this.element.querySelector('.balance-popover');
+    if (popover) {
+      popover.classList.toggle('active');
+    }
   }
 }

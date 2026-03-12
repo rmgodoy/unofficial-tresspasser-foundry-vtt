@@ -31,13 +31,13 @@ export async function getCharacterData(sheet, options = {}) {
     context.totalAttributes[attr] = base + bonus;
   }
 
-  context.totalCombat = {};
-  const combatStats = ["initiative", "accuracy", "guard", "resist", "prevail", "tenacity", "focus", "speed", "armor", "max_health"];
-  for (const stat of combatStats) {
-    const base = context.system[stat] ?? context.system.combat[stat] ?? 0;
-    const bonus = TrespasserEffectsHelper.getAttributeBonus(actor, stat, "use");
-    context.totalCombat[stat] = base + bonus;
-  }
+  // Combat and Resource totals (already derived in the DataModel)
+  context.totalCombat = {
+    ...context.system.combat,
+    armor: context.system.armor,
+    max_health: context.system.max_health,
+    max_endurance: context.system.max_endurance
+  };
 
   // Fixed 3-slot craft array
   const crafts = context.system.crafts ?? [];

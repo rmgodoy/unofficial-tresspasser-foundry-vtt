@@ -104,3 +104,16 @@
   color: #fff;
   border-color: var(--trp-gold-bright);
 }
+
+/* Haven Attribute Picker Grid */
+.haven-attr-picker .dialog-buttons {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  padding: 10px;
+}
+
+.haven-attr-picker .dialog-button[data-action="cancel"] {
+  grid-column: span 2;
+  margin-top: 4px;
+}
