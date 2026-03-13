@@ -20,9 +20,43 @@
 
 .trespasser-sheet.actor.haven .sheet-content {
     flex: 1;
+    display: flex;
+    flex-direction: column;
     overflow-y: auto;
     padding-bottom: 20px;
-    min-height: 0; /* Important for flex-child to scroll */
+    min-height: 0;
+}
+
+/* Notes Tab full height */
+.haven .tab[data-tab="notes"] {
+    flex: 1;
+    display: none;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.haven .tab[data-tab="notes"].active {
+    display: flex;
+}
+
+.haven .tab[data-tab="notes"] prose-mirror {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+}
+
+.haven .tab[data-tab="notes"] .editor-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.haven .tab[data-tab="notes"] prose-mirror .editor-container,
+.haven .tab[data-tab="notes"] prose-mirror .ProseMirror {
+    flex: 1;
+    height: 100%;
+    min-height: 100%;
 }
 
 
