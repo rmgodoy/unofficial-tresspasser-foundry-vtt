@@ -33,7 +33,7 @@ export class TrespasserActor extends Actor {
           this.updateSource({ img: "systems/trespasser/assets/icons/dungeon.webp" });
           break;
         case "haven":
-          this.updateSource({ img: "/icons/svg/castle.svg" });
+          this.updateSource({ img: "systems/trespasser/assets/icons/haven.webp" });
           break;
       }
     }

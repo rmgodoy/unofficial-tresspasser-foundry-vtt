@@ -1002,19 +1002,15 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
         break;
       case "item":
         iconPath = "systems/trespasser/assets/icons/item.webp"
-        // const subType = item.system.subType;
-        // if (subType === "tool") iconPath = "systems/trespasser/assets/icons/tool.png";
-        // else if (subType === "resource") iconPath = "systems/trespasser/assets/icons/resources.png";
-        // else if (subType === "light_source") iconPath = "systems/trespasser/assets/icons/ligth_sources.png";
-        // else if (subType === "bombs") iconPath = "systems/trespasser/assets/icons/bombs.png";
-        // else if (subType === "oils") iconPath = "systems/trespasser/assets/icons/oils.png";
-        // else if (subType === "powders") iconPath = "systems/trespasser/assets/icons/powders.png";
-        // else if (subType === "potions") iconPath = "systems/trespasser/assets/icons/potions.png";
-        // else if (subType === "scrolls") iconPath = "systems/trespasser/assets/icons/scrolls.png";
-        // else if (subType === "esoteric") iconPath = "systems/trespasser/assets/icons/esoteric.png";
-        // else if (subType === "artifacts") iconPath = "systems/trespasser/assets/icons/artifacts.png";
-        // else if (subType === "miscellaneous") iconPath = "systems/trespasser/assets/icons/misellaneous.png";
-        // else iconPath = "systems/trespasser/assets/icons/item.webp";
+        break;
+      case "hireling":
+        iconPath = "systems/trespasser/assets/icons/pesant.webp";
+        break;
+      case "build":
+        iconPath = "systems/trespasser/assets/icons/building.webp";
+        break;
+      case "stronghold":
+        iconPath = "systems/trespasser/assets/icons/stronghold.webp";
         break;
     }
     item.updateSource({ img: iconPath });
