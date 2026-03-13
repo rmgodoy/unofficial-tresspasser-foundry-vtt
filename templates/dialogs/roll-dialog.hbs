@@ -1,0 +1,50 @@
+<div class="roll-dialog-content">
+    <div class="dice-preview">
+        <i class="fas fa-dice-d20"></i>
+        <div class="formula">{{dice}}</div>
+    </div>
+
+    <div class="bonus-details">
+        <label>{{localize "TRESPASSER.Dialog.Bonuses"}}</label>
+        <div class="bonuses-list">
+            {{#each bonuses}}
+                <div class="bonus-row">
+                    <span class="bonus-label">{{this.label}}</span>
+                    <span class="bonus-value">{{#if (gte this.value 0)}}+{{/if}}{{this.value}}</span>
+                </div>
+            {{else}}
+                <div class="bonus-row empty">
+                    <span class="bonus-label">{{localize "TRESPASSER.General.None"}}</span>
+                    <span class="bonus-value">0</span>
+                </div>
+            {{/each}}
+        </div>
+    </div>
+
+    <div class="modifier-row">
+        <div class="modifier-input">
+            <label>{{localize "TRESPASSER.Dialog.AdditionalModifier"}}</label>
+            <div class="input-wrapper">
+                 <input type="number" name="modifier" value="0" placeholder="0" autofocus onclick="this.select()" />
+            </div>
+        </div>
+
+        {{#if showCD}}
+        <div class="modifier-input cd-input">
+            <label>{{localize "TRESPASSER.Dialog.Difficulty"}} (CD)</label>
+            <div class="input-wrapper">
+                 <input type="number" name="cd" value="{{cd}}" placeholder="10" onclick="this.select()" />
+            </div>
+        </div>
+        {{/if}}
+    </div>
+
+    <footer class="dialog-footer">
+        <button type="button" class="trp-btn roll" data-action="roll">
+             <i class="fas fa-dice-d20"></i> {{localize "TRESPASSER.Dialog.Roll"}}
+        </button>
+        <button type="button" class="trp-btn cancel" data-action="cancel">
+             <i class="fas fa-times"></i> {{localize "TRESPASSER.Dialog.Cancel"}}
+        </button>
+    </footer>
+</div>

@@ -9,7 +9,9 @@ export async function onInjuryClockClick(event, sheet) {
   event.preventDefault();
   event.stopPropagation();
   const el     = event.currentTarget;
-  const item   = sheet.actor.items.get(el.dataset.id);
+  const clockContainer = el.closest(".trespasser-clock");
+  if (!clockContainer) return;
+  const item   = sheet.actor.items.get(clockContainer.dataset.id);
   if (!item) return;
 
   const total  = Number(item.system.injuryClock);

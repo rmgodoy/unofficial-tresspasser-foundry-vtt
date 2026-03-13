@@ -297,3 +297,35 @@
     font-weight: bold;
     box-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
+
+/* GM Action Point Controls */
+.trespasser-token-hud .gm-ap-controls {
+    display: flex;
+    gap: 4px;
+    margin-left: 8px;
+    align-items: center;
+}
+
+.trespasser-token-hud .gm-ap-btn {
+    background: var(--trp-bg-panel);
+    border: 1px solid var(--trp-border);
+    color: var(--trp-gold);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.2s;
+}
+
+.trespasser-token-hud .gm-ap-btn:hover {
+    background: var(--trp-gold-dim);
+    color: var(--trp-bg-dark);
+    border-color: var(--trp-gold-bright);
+    transform: scale(1.1);
+}

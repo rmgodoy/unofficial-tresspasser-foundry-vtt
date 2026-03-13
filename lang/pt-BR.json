@@ -356,7 +356,8 @@
       "MoveActionRequired": "Você deve realizar a ação de Mover (gastar PA) antes de mover seu token.",
       "MovementLimitExceeded": "Você excedeu seu limite de movimento para este turno.",
       "NotYourPhase": "Não é a fase deste token!",
-      "VaultStraightLine": "O Salto deve ser em uma linha reta (ortogonal ou diagonal)."
+      "VaultStraightLine": "O Salto deve ser em uma linha reta (ortogonal ou diagonal).",
+      "APModified": "{name} agora tem {ap} Pontos de Ação."
     },
     "Chat": {
       "SkillCheck": "{name} — Teste de {skill}",
@@ -721,6 +722,16 @@
       "SkillCheckQ": "Com qual atributo você gostaria de fazer o teste?",
       "SkillCheckBonus": "<em>(Bônus de perícia +{skill} será adicionado)</em>",
       "ChallengeCheck": "Teste de Desafio",
+      "RollTitle": "Teste de Rolagem",
+      "Dice": "Dados",
+      "Bonuses": "Bônus",
+      "AdditionalModifier": "Modificador Adicional",
+      "Roll": "Rolar",
+      "BaseAttribute": "Atributo Base",
+      "EffectBonus": "Bônus de Efeito",
+      "SkillBonus": "Bônus de Perícia",
+      "SkillCheck": "Teste de Perícia",
+      "AttributeCheck": "Teste de Atributo",
       "EffectEditor": {
         "Title": "Editor de Efeitos",
         "Type": "Tipo",
@@ -769,8 +780,7 @@
         "Use": "Usar Item"
       },
       "Attribute": "Atributo",
-      "Difficulty": "Dificuldade",
-      "Roll": "Rolar"
+      "Difficulty": "Dificuldade"
     },
     "Phase": {
       "Early": "Fase Inicial",
@@ -789,6 +799,8 @@
       "Defend": "Defender",
       "Help": "Ajudar",
       "AttemptDeed": "Tentar Habilidade",
+      "DeedOption": "{cost} PA (+{bonus} Acurácia)",
+      "DeedBaseOption": "{cost} PA (Base)",
       "Move": "Mover",
       "UndoMove": "Desfazer Movimento",
       "MovementUsed": "Movimento Usado",
@@ -824,7 +836,9 @@
       "Vault": "Salto",
       "VaultTip": "Pule em uma linha reta (ortogonal ou diagonal). Custo de PA: 1.",
       "Wait": "Esperar",
-      "WaitTip": "Mova seu turno para a Fase Tardia, levando AP e Movimento. Disponível apenas na Fase Inicial."
+      "WaitTip": "Mova seu turno para a Fase Tardia, levando AP e Movimento. Disponível apenas na Fase Inicial.",
+      "AddAP": "Adicionar Ponto de Ação",
+      "RemoveAP": "Remover Ponto de Ação"
     },
     "NewItem": "Novo {type}",
     "DeleteItemTitle": "Excluir Item",

@@ -191,13 +191,15 @@
 /* ─── Rollable spans (attributes, combat stats, skills) ─── */
 .attribute-roll.rollable,
 .combat-stat-roll.rollable,
-.skill-label.rollable {
+.skill-label.rollable,
+.resource-box .rollable {
   cursor: pointer;
   transition: color 0.15s;
   user-select: none;
   white-space: nowrap;
 }
-.attribute-roll.rollable:hover {
+.attribute-roll.rollable:hover,
+.resource-box .rollable:hover {
   color: var(--trp-gold-bright);
   text-decoration: underline dotted;
 }

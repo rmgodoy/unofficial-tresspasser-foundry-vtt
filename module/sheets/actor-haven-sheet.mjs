@@ -1,4 +1,5 @@
 import { buildClockSegments } from "./character/get-data.mjs";
+import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 
 const { api, sheets } = foundry.applications;
 
@@ -573,11 +574,50 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const totals = this.document.system.totalAttributes;
     const attrVal = totals[attrKey] ?? 0;
     const label = game.i18n.localize(`TRESPASSER.Haven.Attributes.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
-    const formula = `1d20 + ${attrVal}`;
-    const roll = new foundry.dice.Roll(formula);
-    const flavor = `${this.document.name}: ${label}`;
     
+    const result = await TrespasserRollDialog.wait({
+      dice: "1d20",
+      showCD: true,
+      cd: 10,
+      bonuses: [
+        { label, value: attrVal }
+      ]
+    }, { title: `${label} Check` });
+
+    if (!result) return;
+
+    const formula = `1d20 + ${attrVal} + ${result.modifier}`;
+    const roll = new foundry.dice.Roll(formula);
     await roll.evaluate();
+
+    const dc = result.cd ?? 10;
+    const diff = roll.total - dc;
+    const isHit = diff >= 0;
+    const sparks = isHit ? Math.floor(diff / 5) : 0;
+    const shadows = !isHit ? Math.floor(Math.abs(diff) / 5) : 0;
+    const diceResult = roll.dice[0].results[0].result;
+
+    let resultsHtml = `
+      <div class="target-result" style="border-top:1px solid var(--trp-border-light);padding-top:5px;margin-top:5px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong>VS CD ${dc}</strong>
+          <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}</span>
+        </div>
+        <div style="display:flex;gap:10px;font-size:11px;">
+          <span style="color:#64b5f6;">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
+          <span style="color:#9575cd;">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+        </div>
+      </div>
+    `;
+
+    const flavor = `
+      <div class="trespasser-chat-card">
+        <h3>${this.document.name}: ${label}</h3>
+        <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${roll.total} <span style="font-size:10px;color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
+        ${resultsHtml}
+      </div>
+    `;
+    
     return roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this.document }),
       flavor
@@ -625,11 +665,51 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
 
     const attrVal = totals[chosenAttr] ?? 0;
     const label = game.i18n.localize(`TRESPASSER.Haven.Attributes.${chosenAttr.charAt(0).toUpperCase() + chosenAttr.slice(1)}`);
-    const formula = `1d20 + ${attrVal} + ${skillBonusValue}`;
-    const roll = new foundry.dice.Roll(formula);
-    const flavor = `${actor.name}: ${skillLabel} (${label})`;
     
+    const result = await TrespasserRollDialog.wait({
+      dice: "1d20",
+      showCD: true,
+      cd: 10,
+      bonuses: [
+        { label: label, value: attrVal },
+        { label: skillLabel, value: skillBonusValue }
+      ]
+    }, { title: `${skillLabel} Check` });
+
+    if (!result) return;
+
+    const formula = `1d20 + ${attrVal} + ${skillBonusValue} + ${result.modifier}`;
+    const roll = new foundry.dice.Roll(formula);
     await roll.evaluate();
+
+    const dc = result.cd ?? 10;
+    const diff = roll.total - dc;
+    const isHit = diff >= 0;
+    const sparks = isHit ? Math.floor(diff / 5) : 0;
+    const shadows = !isHit ? Math.floor(Math.abs(diff) / 5) : 0;
+    const diceResult = roll.dice[0].results[0].result;
+
+    let resultsHtml = `
+      <div class="target-result" style="border-top:1px solid var(--trp-border-light);padding-top:5px;margin-top:5px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <strong>VS CD ${dc}</strong>
+          <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}</span>
+        </div>
+        <div style="display:flex;gap:10px;font-size:11px;">
+          <span style="color:#64b5f6;">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
+          <span style="color:#9575cd;">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+        </div>
+      </div>
+    `;
+
+    const flavor = `
+      <div class="trespasser-chat-card">
+        <h3>${actor.name}: ${skillLabel} (${label})</h3>
+        <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${roll.total} <span style="font-size:10px;color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
+        ${resultsHtml}
+      </div>
+    `;
+    
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor }),
       flavor
@@ -700,9 +780,9 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const index = parseInt(target.dataset.index);
     if ( isNaN(index) ) return;
     
+    const total = Number(this.document.system.event.clock);
     const current = Number(this.document.system.event.current);
-    let newValue = index + 1;
-    if ( index === 0 && current === 1 ) newValue = 0;
+    const newValue = (current === index + 1) ? index : Math.min(index + 1, total);
     
     return this.document.update({ "system.event.current": newValue });
   }
@@ -734,9 +814,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const project = projects.find(p => p.id === projectId);
     if (!project) return;
 
-    let newValue = index + 1;
-    if (index === 0 && Number(project.current) === 1) newValue = 0;
-    
+    const total = Number(project.clock);
+    const newValue = (project.current === index + 1) ? index : Math.min(index + 1, total);
     project.current = newValue;
     
     // Clean projects array to ensure all numbers are actual Numbers (not strings)

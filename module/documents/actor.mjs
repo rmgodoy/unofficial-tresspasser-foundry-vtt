@@ -573,7 +573,7 @@ export class TrespasserActor extends Actor {
    * @param {string} stateItemId - The ID of the state item to prevail against.
    * @param {number} extraAP - Extra Action Points spent for +2 bonus each.
    */
-  async rollPrevail(stateItemId, extraAP = 0) {
+  async rollPrevail(stateItemId, extraAP = 0, { modifier = 0, cd = null } = {}) {
     const stateItem = this.items.get(stateItemId);
     if (!stateItem) {
       ui.notifications.warn("State item not found.");
@@ -581,19 +581,17 @@ export class TrespasserActor extends Actor {
     }
 
     const intensity = stateItem.system.intensity || 0;
-    const dc = Math.min(20, 10 + intensity);
+    const dc = cd !== null ? cd : Math.min(20, 10 + intensity);
     const prevailStat = this.type === "creature" 
       ? (this.system.combat?.roll_bonus || 0) 
       : (this.system.combat?.prevail || 0);
     const apBonus = extraAP * 2;
-    const totalBonus = prevailStat + apBonus;
+    const bonuses = `${prevailStat} + ${apBonus} + ${modifier}`;
 
     // Check for advantage on the prevail roll
-    const isAdv = TrespasserEffectsHelper.hasAdvantage(this, "roll_bonus") ||
-                  TrespasserEffectsHelper.hasAdvantage(this, "accuracy") ||
-                  TrespasserEffectsHelper.hasAdvantage(this, "prevail");
+    const isAdv = TrespasserEffectsHelper.hasAdvantage(this, "prevail");
     
-    const formula = isAdv ? `2d20kh + ${totalBonus}` : `1d20 + ${totalBonus}`;
+    const formula = isAdv ? `2d20kh + ${bonuses}` : `1d20 + ${bonuses}`;
 
     const roll = new foundry.dice.Roll(formula);
     await roll.evaluate();
@@ -605,7 +603,7 @@ export class TrespasserActor extends Actor {
       <p>${game.i18n.format("TRESPASSER.Chat.PrevailVsDC", { total: roll.total, dc: dc })}</p>
       <div class="roll-details" style="font-size: 10px; color: var(--trp-text-dim); margin-bottom: 5px;">
         Formula: ${roll.formula} (d20: ${roll.dice[0].total})<br>
-        Bonus: ${prevailStat} (Prevail) ${apBonus > 0 ? `+ ${apBonus} (AP)` : ""}
+        Bonus: ${prevailStat} (Prevail) ${apBonus > 0 ? `+ ${apBonus} (AP)` : ""} ${modifier !== 0 ? `+ ${modifier} (Mod)` : ""}
       </div>
       <p class="${success ? 'hit-text' : 'miss-text'}" style="font-size: 16px; font-weight: bold; text-align: center;">
         ${success ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}
@@ -662,9 +660,7 @@ export class TrespasserActor extends Actor {
           ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
           return;
         }
-        if (restrictAPF) {
-          await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
-        }
+        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
         await TrespasserCombat.recordHUDAction(this, "use-concoction");
       }
     }
