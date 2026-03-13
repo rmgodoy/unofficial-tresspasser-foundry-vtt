@@ -73,6 +73,12 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
         clock: new fields.NumberField({ initial: 4, integer: true, min: 2, max: 12 }),
         current: new fields.NumberField({ initial: 0, integer: true, min: 0 })
       }),
+      projects: new fields.ArrayField(new fields.SchemaField({
+        id: new fields.StringField({ initial: () => foundry.utils.randomID() }),
+        name: new fields.StringField({ initial: "New Project" }),
+        clock: new fields.NumberField({ initial: 4, integer: true, min: 2, max: 12 }),
+        current: new fields.NumberField({ initial: 0, integer: true, min: 0 })
+      }), { initial: [] }),
       arrivals: new fields.HTMLField({ initial: "" })
     };
   }

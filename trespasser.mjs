@@ -71,6 +71,7 @@ Hooks.once("init", async () => {
   await foundry.applications.handlebars.loadTemplates([
     "systems/trespasser/templates/actor/parts/deed-list.hbs",
     "systems/trespasser/templates/actor/parts/combat-effects.hbs",
+    "systems/trespasser/templates/actor/parts/clock.hbs",
     "systems/trespasser/templates/item/parts/effect-chip.hbs",
     "systems/trespasser/templates/item/parts/effects-list.hbs",
     "systems/trespasser/templates/item/parts/deeds-list.hbs",
@@ -174,6 +175,15 @@ Hooks.once("init", async () => {
     config: true,
     type: Boolean,
     default: false
+  });
+
+  game.settings.register("trespasser", "clockSize", {
+    name: "TRESPASSER.Config.ClockSize",
+    hint: "TRESPASSER.Config.ClockSizeHint",
+    scope: "world",
+    config: false,
+    type: Number,
+    default: 50
   });
 
   // Register data models
@@ -385,6 +395,10 @@ Hooks.once("init", async () => {
 Hooks.once("ready", () => {
   // Initialize Token Action HUD
   game.trespasser.tokenHUD = new TrespasserTokenHUD();
+
+  // Apply clock size setting
+  const clockSize = game.settings.get("trespasser", "clockSize") || 50;
+  document.documentElement.style.setProperty('--trp-clock-size', `${clockSize}px`);
 
   // Prevent default turn marker from being added to tokens, since we are implementing our own turn marker system
   if (foundry.canvas.placeables.tokens.TokenTurnMarker) {

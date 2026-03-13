@@ -7,7 +7,11 @@
     height: 100%;
 }
 
-.trespasser-sheet.actor.haven .sheet-header,
+.trespasser-sheet.actor.haven .sheet-header {
+    flex: 0 0 auto;
+    overflow: visible;
+}
+
 .trespasser-sheet.actor.haven .haven-upkeep-section,
 .trespasser-sheet.actor.haven .sheet-tabs {
     gap: 0;
@@ -102,8 +106,13 @@
     border-color: var(--trp-gold);
 }
 
+.haven .header-info,
 .haven .header-resources {
     display: flex;
+    overflow: visible;
+}
+
+.haven .header-resources {
     gap: 12px;
     margin-top: 5px;
 }
@@ -162,50 +171,80 @@
     color: var(--trp-gold-bright);
 }
 
+.haven .balance-box:hover .balance-popover {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(-50%) translateY(0);
+}
+
 .haven .balance-popover {
     position: absolute;
-    top: 100%;
+    top: calc(100% + 10px);
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    width: 240px;
+    background: rgba(15, 15, 15, 0.95);
+    border: 1px solid var(--trp-gold-dim);
+    backdrop-filter: blur(10px);
+    border-radius: 4px;
+    padding: 12px;
+    z-index: 9999;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 0 0 1px rgba(232, 201, 107, 0.1);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.haven .balance-popover::after {
+    content: '';
+    position: absolute;
+    top: -6px;
     left: 50%;
     transform: translateX(-50%);
-    width: 200px;
-    background: rgba(20, 20, 20, 0.95);
-    border: 1px solid var(--trp-border);
-    backdrop-filter: blur(8px);
-    border-radius: var(--trp-radius-sm);
-    padding: 10px;
-    z-index: 100;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.6);
-    pointer-events: none;
-    transition: opacity 0.2s, transform 0.2s;
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-bottom: 6px solid var(--trp-gold-dim);
 }
 
-.haven .balance-popover.active {
-    display: block !important;
-    pointer-events: auto;
-}
+
 
 .haven .balance-popover h5 {
-    margin: 5px 0;
+    margin: 8px 0 4px 0;
     font-family: var(--trp-font-header);
-    font-size: 11px;
+    font-size: 13px;
     color: var(--trp-gold);
-    border-bottom: 1px solid var(--trp-border-light);
+    border-bottom: 1px solid rgba(232, 201, 107, 0.3);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    justify-content: space-between;
 }
 
 .haven .balance-popover ul {
     list-style: none;
     padding: 0;
-    margin: 5px 0;
-    max-height: 150px;
+    margin: 4px 0;
+    max-height: 200px;
     overflow-y: auto;
 }
 
 .haven .balance-popover li {
-    font-size: 10px;
-    color: var(--trp-text-dim);
+    font-size: 11px;
+    color: var(--trp-text-bright);
     display: flex;
     justify-content: space-between;
-    padding: 2px 0;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.haven .balance-popover li:last-child {
+    border-bottom: none;
+}
+
+.haven .balance-popover li .val {
+    font-family: var(--trp-font-mono);
+    color: var(--trp-gold-dim);
 }
 
 .haven .balance-popover hr {
@@ -698,23 +737,25 @@
 }
 
 /* ─── Attributes & Skills Tab ─── */
-.haven-attributes-skills-layout {
-    display: block;
-    padding: 20px 40px;
+.haven-skills-projects-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    padding: 10px 15px;
 }
 
 /* Skills Section */
 .haven-skills-section .skills-columns {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 20px 40px;
+    gap: 8px 20px;
 }
 
 .haven-skills-section .skill-row {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding: 6px 0;
+    padding: 3px 0;
     border-bottom: 1px solid rgba(74, 63, 47, 0.2);
 }
 
@@ -735,6 +776,94 @@
     margin: 0;
 }
 
+/* Projects Section */
+.haven-projects-section .projects-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 5px;
+}
+
+.haven-projects-section .project-item {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid var(--trp-border-light);
+    border-radius: var(--trp-radius-sm);
+    padding: 0 16px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    position: relative;
+    min-height: calc(var(--trp-clock-size, 50px) + 10px);
+}
+
+.haven-projects-section .project-name-input {
+    flex: 1;
+    font-family: var(--trp-font-body);
+    font-size: 13px;
+    color: var(--trp-text-bright);
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.haven-projects-section .project-name-input:focus {
+    box-shadow: none !important;
+}
+
+.haven-projects-section .delete-project {
+    color: var(--trp-red-dim);
+    font-size: 11px;
+    opacity: 0.5;
+    transition: opacity 0.2s;
+}
+
+.haven-projects-section .delete-project:hover {
+    opacity: 1;
+}
+
+.haven-projects-section .project-clock-mini {
+    width: var(--trp-clock-size, 50px);
+    height: var(--trp-clock-size, 50px);
+    flex-shrink: 0;
+}
+
+.haven-projects-section .project-clock-mini .clock-label-num {
+    font-size: 42px;
+}
+
+.haven-projects-section .project-clock-config {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    padding: 2px 6px;
+}
+
+.haven-projects-section .project-clock-config label {
+    font-size: 8px;
+    text-transform: uppercase;
+    color: var(--trp-gold-dim);
+    margin: 0;
+}
+
+.haven-projects-section .project-clock-config input {
+    width: 24px !important;
+    text-align: center;
+    background: transparent !important;
+    border: none !important;
+    font-weight: bold;
+    color: var(--trp-gold-bright) !important;
+    font-size: 11px;
+    padding: 0 !important;
+}
+
+.haven-inventory-section {
+    grid-column: 1 / -1;
+    margin-top: 15px;
+    border-top: 1px solid var(--trp-border-light);
+    padding-top: 10px;
+}
 
 .flex-row {
     display: flex;
@@ -1192,9 +1321,7 @@
     height: 160px;
 }
 
-.haven-event-layout .injury-clock-svg {
-    width: 100%;
-    height: 100%;
+.haven-event-layout .clock-svg {
     filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
 }
 
@@ -1236,7 +1363,7 @@
     width: 100% !important;
 }
 
-.haven-event-layout .clock-segment {
+.clock-segment {
     fill: rgba(44, 35, 25, 0.6);
     stroke: var(--trp-border-light);
     stroke-width: 1.5;
@@ -1244,18 +1371,47 @@
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.haven-event-layout .clock-segment.filled {
+.clock-segment.filled {
     fill: var(--trp-gold-dim);
     stroke: var(--trp-gold);
 }
 
-.haven-event-layout .clock-segment:hover {
-    fill: rgba(232, 201, 107, 0.2);
-    stroke: var(--trp-gold-bright);
+.char-injuries .clock-segment.filled {
+    fill: var(--trp-red-dim);
+    stroke: var(--trp-red);
 }
 
-.haven-event-layout .clock-segment.filled:hover {
+.clock-segment:hover {
+    fill: rgba(232, 201, 107, 0.2);
+    stroke: var(--trp-gold-bright) !important;
+}
+
+.char-injuries .clock-segment:hover {
+    fill: rgba(146, 44, 44, 0.55);
+    stroke: var(--trp-red);
+}
+
+.clock-segment.filled:hover {
     fill: var(--trp-gold);
+}
+
+.char-injuries .clock-segment.filled:hover {
+    fill: #c0393980;
+    stroke: #ff5252;
+}
+
+.clock-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.clock-label-num, .clock-label-total {
+    fill: var(--trp-text-bright);
+    font-size: 24px;
+    font-family: var(--trp-font-header);
+    text-anchor: middle;
+    font-weight: bold;
+    pointer-events: none;
 }
 
 .haven-event-layout .clock-title {

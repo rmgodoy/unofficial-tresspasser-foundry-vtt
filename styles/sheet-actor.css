@@ -570,22 +570,15 @@
 /* Mini clock in character sheet cards — bigger for readability */
 .injury-clock-widget {
   flex-shrink: 0;
-  width: 72px;
-  height: 72px;
-}
-
-.injury-clock-mini {
-  width: 72px;
-  height: 72px;
-  display: block;
+  width: 50px;
+  height: 50px;
 }
 
 /* ─── SVG Clock Segments ─── */
 /* Shared by both the mini (character sheet) and full (injury sheet) clocks */
 
 /* Unfilled segment */
-.clock-segment,
-.clock-segment-mini {
+.clock-segment {
   fill: rgba(44, 35, 25, 0.55);
   stroke: var(--trp-border-light);
   stroke-width: 1.5;
@@ -593,21 +586,18 @@
   transition: fill 0.12s, stroke 0.12s;
 }
 
-/* Filled segment — red injury colour */
-.clock-segment.filled,
-.clock-segment-mini.filled {
+/* Filled segment — injury context override */
+.char-injuries .clock-segment.filled {
   fill: var(--trp-red-dim);
   stroke: var(--trp-red);
 }
 
-.clock-segment:hover,
-.clock-segment-mini:hover {
+.char-injuries .clock-segment:hover {
   fill: rgba(146, 44, 44, 0.55);
   stroke: var(--trp-red);
 }
 
-.clock-segment.filled:hover,
-.clock-segment-mini.filled:hover {
+.char-injuries .clock-segment.filled:hover {
   fill: #c0393980;
   stroke: #ff5252;
 }
@@ -1367,7 +1357,7 @@
   border-radius: 4px;
   padding: 4px 6px;
   margin-bottom: 5px;
-  min-height: 32px;
+  min-height: calc(var(--trp-clock-size, 50px) + 8px);
   position: relative;
 }
 
@@ -1400,13 +1390,8 @@
 
 .injury-clock-widget {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-}
-
-.injury-clock-mini {
-  width: 100%;
-  height: 100%;
+  width: var(--trp-clock-size, 50px);
+  height: var(--trp-clock-size, 50px);
 }
 
 .injury-empty-slot {

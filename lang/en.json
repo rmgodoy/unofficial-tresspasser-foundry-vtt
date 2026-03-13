@@ -1,4 +1,4 @@
-﻿{
+{
   "TRESPASSER": {
     "General": {
       "New": "New",
@@ -28,8 +28,10 @@
       "RestrictAPFocusUsageHint": "If enabled, the system enforces AP and Focus costs. If disabled, actions can be used without sufficient points.",
       "GroupCheckFullParty": "Group Check always use full party",
       "GroupCheckFullPartyHint": "If enabled, group checks will always include all party members without showing a selection popup.",
-      "RestrictHavenEditToLeader": "Restrict Haven Edits to Leader",
-      "RestrictHavenEditToLeaderHint": "If enabled, only the Haven Leader and GMs can edit the Haven actor sheet.",
+      "RestrictHavenEditToLeader": "Restrict Haven Edit to Leader",
+      "RestrictHavenEditToLeaderHint": "Only the party leader can add or remove buildings and projects in Haven.",
+      "ClockSize": "Clock Size (px)",
+      "ClockSizeHint": "The width and height of all clocks in the system (Projects, Events, and Injuries).",
       "BypassHavenBuildingLimits": "Bypass Haven Building Limits",
       "BypassHavenBuildingLimitsHint": "If enabled, Havens will not be restricted by the Building Limit or Build Slots defined in the progression table.",
       "Save": "Save",
@@ -478,11 +480,13 @@
       "RemoveCondition": "Remove Condition"
     },
     "Item": {
+      "Name": "Name",
       "ResourceType": "Resource Type",
       "Damage": "Damage",
       "Equippable": "Equippable",
       "WeaponDie": "Weapon Die",
       "Type": "Type",
+      "Quantity": "Quantity",
       "Range": "Range",
       "Properties": "Properties",
       "DepletionDie": "Depletion Die",
@@ -1184,7 +1188,10 @@
       "WeeklyBalance": "Weekly Balance",
       "WeeklyStableCost": "Weekly Maintenance",
       "TreasuryBreakdown": "Weekly Balance Breakdown",
-      "SkillsLabel": "Skills",
+      "SkillsLabel": "Overview",
+      "Projects": "Projects",
+      "AddProject": "Add Project",
+      "NoProjectsHint": "No projects currently in progress.",
       "BuildingsLabel": "Buildings",
       "CompletedBuildings": "Completed Buildings",
       "UnderConstruction": "Building Slots (Under Construction)",
@@ -1195,13 +1202,12 @@
       },
       "UpkeepSteps": {
         "WeeksRest": "1. Week's Rest",
-        "PayExpenses": "2. Pay Expenses",
-        "ResolveHirelings": "3. Resolve Hirelings",
-        "PopulationCheck": "4. Population Check",
-        "EventCheck": "5. Event Check"
+        "ResolveProduction": "2. Resolve Production",
+        "PopulationCheck": "3. Population Check",
+        "EventCheck": "4. Event Check"
       },
       "WeeksRestFlavor": "Each character gains the week's rest benefits.",
-      "PayExpensesFlavor": "Paid expenses for hirelings and services. Treasury updated.",
+      "ResolveProductionFlavor": "Process all active production chains and pay wages to active hirelings.",
       "PopulationCheckFlavor": "Make a population check to see how much the haven grows or declines.",
       "EventCheckFlavor": "Check for a new haven event (roll d10 vs Skill Bonus) or advance existing threat clock.",
       "AddProductionChainItem": "Add Production Chain",
@@ -1240,10 +1246,10 @@
       "Leader": "Leader",
       "DropLeaderHint": "Drop a Character here to assign as Leader",
       "ProductionChains": "Production",
-      "Hirelings": "Hirelings",
+      "Hirelings": "Production",
       "Inventory": "Inventory",
       "Notes": "Notes",
-      "Event": "Event",
+      "Event": "Events",
       "EventTitle": "Event Title",
       "EventPlaceholder": "e.g. A storm is coming...",
       "Clock": "Clock",

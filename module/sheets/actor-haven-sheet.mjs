@@ -37,7 +37,9 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       upgradeBuilding: TrespasserHavenSheet.#onUpgradeBuilding,
       editItem: TrespasserHavenSheet.#onOpenItemSheet,
       eventClockClick: TrespasserHavenSheet.#onEventClockClick,
-      toggleBreakdown: TrespasserHavenSheet.#onToggleBreakdown
+      addProject: TrespasserHavenSheet.#onAddProject,
+      removeProject: TrespasserHavenSheet.#onRemoveProject,
+      projectClockClick: TrespasserHavenSheet.#onProjectClockClick
     },
     form: { 
       handler: TrespasserHavenSheet.#onSubmit,
@@ -53,7 +55,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     }
   };
 
-  tabGroups = { primary: "buildings" };
+  tabGroups = { primary: "skills" };
   
   /** @override */
   get isEditable() {
@@ -99,12 +101,22 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       expenses: []
     }
     
-    // Expenses: Hirelings
-    const hirelings = actor.items.filter(i => i.type === "hireling" && i.system.active);
-    for (const h of hirelings) {
+    // Expenses: Hirelings (Aggregated)
+    const activeHirelings = actor.items.filter(i => i.type === "hireling" && i.system.active);
+    const hirelingAggregation = {};
+    activeHirelings.forEach(h => {
+      const name = h.name;
+      if (!hirelingAggregation[name]) {
+        hirelingAggregation[name] = { count: 0, cost: 0 };
+      }
+      hirelingAggregation[name].count += (h.system.quantity || 1);
+      hirelingAggregation[name].cost += (h.system.cost || 0) * (h.system.quantity || 1);
+    });
+
+    for (const [name, data] of Object.entries(hirelingAggregation)) {
       context.breakdown.expenses.push({
-        label: `${h.name} (x${h.system.quantity})`,
-        value: h.system.cost * h.system.quantity
+        label: `${name} (${data.count}x)`,
+        value: data.cost
       });
     }
 
@@ -214,6 +226,16 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     context.eventClockSegments = buildClockSegments(total, filled);
     context.eventClockCurrent = filled;
     context.eventClockTotal = total;
+    
+    // Projects Info
+    context.projects = system.projects.map(p => {
+      const pTotal = Math.max(2, p.clock);
+      const pFilled = Math.min(p.current, pTotal);
+      return {
+        ...p,
+        segments: buildClockSegments(pTotal, pFilled)
+      };
+    });
 
     // Arrivals
     context.enrichedArrivals = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
@@ -675,21 +697,56 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
   }
 
   static async #onEventClockClick(event, target) {
-    const actor = this.document;
     const index = parseInt(target.dataset.index);
-    let newValue = index + 1;
-    const current = actor.system.event.current;
+    if ( isNaN(index) ) return;
     
-    // Toggle behavior: if clicking the first segment (index 0) and current is 1, reset to 0
+    const current = Number(this.document.system.event.current);
+    let newValue = index + 1;
     if ( index === 0 && current === 1 ) newValue = 0;
     
-    return actor.update({ "system.event.current": newValue });
+    return this.document.update({ "system.event.current": newValue });
+  }
+
+  static async #onAddProject(event, target) {
+    const projects = [...this.document.system.projects];
+    projects.push({
+      id: foundry.utils.randomID(),
+      name: "New Project",
+      clock: 4,
+      current: 0
+    });
+    await this.document.update({ "system.projects": projects });
+  }
+
+  static async #onRemoveProject(event, target) {
+    const projectId = target.closest("[data-project-id]")?.dataset.projectId;
+    const projects = this.document.system.projects.filter(p => p.id !== projectId);
+    await this.document.update({ "system.projects": projects });
+  }
+
+  static async #onProjectClockClick(event, target) {
+    const clockWidget = target.closest(".trespasser-clock");
+    const projectId = clockWidget?.dataset.id;
+    const index = parseInt(target.dataset.index);
+    if ( isNaN(index) || !projectId ) return;
+
+    const projects = this.document.system.toObject().projects;
+    const project = projects.find(p => p.id === projectId);
+    if (!project) return;
+
+    let newValue = index + 1;
+    if (index === 0 && Number(project.current) === 1) newValue = 0;
+    
+    project.current = newValue;
+    
+    // Clean projects array to ensure all numbers are actual Numbers (not strings)
+    const cleanedProjects = projects.map(p => ({
+      ...p,
+      clock: Number(p.clock),
+      current: Number(p.current)
+    }));
+
+    await this.document.update({ "system.projects": cleanedProjects });
   }
   
-  static async #onToggleBreakdown(event, target) {
-    const popover = this.element.querySelector('.balance-popover');
-    if (popover) {
-      popover.classList.toggle('active');
-    }
-  }
 }

@@ -52,7 +52,7 @@ export function activateCharacterListeners(html, sheet) {
   if (!sheet.isEditable) return;
 
   // Injury clock mini segments
-  html.find(".clock-segment-mini").on("click", sheet._onInjuryClockClick.bind(sheet));
+  html.find(".clock-segment").on("click", sheet._onInjuryClockClick.bind(sheet));
 
   // Key attribute star
   html.find(".key-attr-btn").on("click", (ev) => {

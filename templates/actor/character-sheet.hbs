@@ -204,24 +204,16 @@
                 </div>
               </div>
 
-              <!-- SVG Clock — fixed-size, always on the right, never displaced -->
+              <!-- SVG Clock — using reusable component -->
               <div class="injury-clock-widget">
-                <svg class="injury-clock-mini" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                  <circle cx="50" cy="50" r="44"
-                          fill="var(--trp-bg-panel)"
-                          stroke="var(--trp-border-light)"
-                          stroke-width="2"/>
-                  {{#each this.clockSegments as |seg i|}}
-                  <path class="clock-segment-mini {{#if seg.filled}}filled{{/if}}"
-                        data-item-id="{{../this.id}}"
-                        data-index="{{i}}"
-                        d="{{seg.path}}" />
-                  {{/each}}
-                  <text x="50" y="46" class="clock-label-num">{{this.system.currentClock}}</text>
-                  <line x1="34" y1="50" x2="66" y2="50"
-                        stroke="var(--trp-border-light)" stroke-width="1.2"/>
-                  <text x="50" y="62" class="clock-label-total">{{this.system.injuryClock}}</text>
-                </svg>
+                {{> "systems/trespasser/templates/actor/parts/clock.hbs" 
+                    id=this.id 
+                    current=this.system.currentClock 
+                    max=this.system.injuryClock 
+                    segments=this.clockSegments
+                    action="injuryClockClick"
+                    showMax=true
+                }}
               </div>
 
             {{else}}
