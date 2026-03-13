@@ -92,7 +92,7 @@
 }
 
 .haven .header-leader-mini .leader-badge {
-    background: rgba(232, 201, 107, 0.05);
+    background: var(--trp-gold-overlay);
     border: 1px solid var(--trp-border);
     border-radius: 4px;
     padding: 2px 8px;
@@ -104,7 +104,7 @@
 }
 
 .haven .header-leader-mini .leader-badge:hover {
-    background: rgba(232, 201, 107, 0.1);
+    background: var(--trp-gold-overlay);
     border-color: var(--trp-gold-dim);
 }
 
@@ -136,7 +136,7 @@
 }
 
 .haven .header-leader-mini.drag-over .placeholder {
-    background: rgba(201, 168, 76, 0.1);
+    background: var(--trp-gold-overlay);
     border-color: var(--trp-gold);
 }
 
@@ -175,17 +175,17 @@
 
 .haven .resource-box.over-budget input {
     color: var(--trp-red);
-    text-shadow: 0 0 5px rgba(255, 82, 82, 0.4);
+    text-shadow: 0 0 5px var(--trp-red-overlay);
 }
 
 .haven .resource-box.stagnant {
     border-color: var(--trp-gold-dim);
-    box-shadow: 0 0 10px rgba(232, 201, 107, 0.1);
+    box-shadow: 0 0 10px var(--trp-gold-overlay);
 }
 
 .haven .resource-box.decline {
     border-color: var(--trp-red-dim);
-    background: rgba(255, 82, 82, 0.05);
+    background: var(--trp-red-overlay);
 }
 
 /* Balance Box & Popover */
@@ -217,13 +217,13 @@
     left: 50%;
     transform: translateX(-50%) translateY(10px);
     width: 240px;
-    background: rgba(15, 15, 15, 0.95);
+    background: var(--trp-bg-dark);
     border: 1px solid var(--trp-gold-dim);
     backdrop-filter: blur(10px);
     border-radius: 4px;
     padding: 12px;
     z-index: 9999;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.8), 0 0 0 1px rgba(232, 201, 107, 0.1);
+    box-shadow: 0 8px 32px var(--trp-shadow-dark);
     opacity: 0;
     visibility: hidden;
     pointer-events: none;
@@ -248,7 +248,7 @@
     font-family: var(--trp-font-header);
     font-size: var(--fs-13);
     color: var(--trp-gold);
-    border-bottom: 1px solid rgba(232, 201, 107, 0.3);
+    border-bottom: 1px solid var(--trp-gold-overlay);
     text-transform: uppercase;
     letter-spacing: 0.05em;
     display: flex;
@@ -269,7 +269,7 @@
     display: flex;
     justify-content: space-between;
     padding: 3px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--trp-bg-overlay);
 }
 
 .haven .balance-popover li:last-child {
@@ -312,7 +312,7 @@
     height: 22px;
     width: 100%;
     padding: 0 4px;
-    background: rgba(0,0,0,0.3);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     color: var(--trp-text-dim);
     text-transform: uppercase;
@@ -356,7 +356,7 @@
 
 .haven-arrivals-layout prose-mirror {
     min-height: 400px;
-    background: rgba(0, 0, 0, 0.15);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     border-radius: var(--trp-radius-sm);
 }
@@ -372,7 +372,7 @@
     flex: 1;
     min-width: 0;
     padding: 4px;
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     border-radius: var(--trp-radius-sm);
     display: flex;
@@ -401,7 +401,7 @@
     margin: 2px 0 0 0;
     line-height: 1;
     border: none;
-    text-shadow: 0 0 10px rgba(0,0,0,0.5);
+    text-shadow: 0 0 10px var(--trp-shadow-dark);
 }
 
 .haven .attribute-box .attribute-label.rollable:hover {
@@ -413,7 +413,7 @@
 .haven .attribute-box input {
     width: 100%;
     height: 22px;
-    background: rgba(255, 255, 255, 0.03);
+    background: var(--trp-bg-overlay);
     border: none;
     /* border-top: 1px solid var(--trp-border-light); */
     color: var(--trp-text-bright);
@@ -425,7 +425,7 @@
 }
 
 .haven .attribute-box input:hover {
-    background: rgba(255, 255, 255, 0.07);
+    background: var(--trp-bg-overlay);
 }
 
 .haven .attribute-box input:focus {
@@ -437,7 +437,7 @@
 .haven-upkeep-section {
     margin: 12px;
     padding: 12px;
-    background: rgba(0, 0, 0, 0.25);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     border-radius: var(--trp-radius);
     display: flex;
@@ -472,7 +472,7 @@
     font-size: var(--fs-11);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--trp-bg-overlay);
     color: var(--trp-text-bright);
     border: 1px solid var(--trp-border-light);
     border-radius: var(--trp-radius-sm);
@@ -485,7 +485,7 @@
 }
 
 .haven-upkeep-section .upkeep-btn:hover {
-    background: rgba(232, 201, 107, 0.1);
+    background: var(--trp-gold-overlay);
     border-color: var(--trp-gold-dim);
     color: var(--trp-gold-bright);
 }
@@ -497,7 +497,7 @@
 
 .haven .resource-box.over-budget input {
     color: var(--trp-red);
-    text-shadow: 0 0 5px rgba(255, 82, 82, 0.4);
+    text-shadow: 0 0 5px var(--trp-red-overlay);
 }
 
 /* Leader Zone */
@@ -505,7 +505,7 @@
     border: 1px dashed var(--trp-border);
     padding: 12px;
     text-align: center;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--trp-bg-overlay);
     border-radius: var(--trp-radius);
     margin: 0 12px 15px;
 }
@@ -545,7 +545,7 @@
 
 .haven-sheet .chain-header {
     padding: 6px 12px;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--trp-bg-overlay);
     border-bottom: 1px solid var(--trp-border);
     display: flex;
     align-items: center;
@@ -603,7 +603,7 @@
 
 .haven-sheet .haven-arrivals-section prose-mirror {
     min-height: 200px;
-    background: rgba(0, 0, 0, 0.15);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     border-radius: var(--trp-radius-sm);
 }
@@ -614,7 +614,7 @@
     align-items: center;
     margin: 5px 10px 10px;
     padding: 4px 8px;
-    background: rgba(0, 0, 0, 0.15);
+    background: var(--trp-bg-overlay);
     border-radius: var(--trp-radius);
 }
 
@@ -675,7 +675,7 @@
     gap: 15px;
     padding: 10px 15px;
     border-bottom: 1px solid var(--trp-border);
-    background: rgba(0,0,0,0.1);
+    background: var(--trp-bg-overlay);
 }
 
 .haven-sheet .inventory-item:nth-child(even) {
@@ -734,7 +734,7 @@
 .hireling-sheet .item-list {
     border: 1px solid var(--trp-border);
     min-height: 120px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--trp-bg-overlay);
     padding: 8px;
     border-radius: var(--trp-radius);
 }
@@ -766,7 +766,7 @@
 }
 
 .hireling-sheet .drop-zone.drag-over {
-    background: rgba(201, 168, 76, 0.1) !important;
+    background: var(--trp-gold-overlay) !important;
     border-color: var(--trp-gold) !important;
 }
 
@@ -790,7 +790,7 @@
     align-items: center;
     gap: 12px;
     padding: 3px 0;
-    border-bottom: 1px solid rgba(74, 63, 47, 0.2);
+    border-bottom: 1px solid var(--trp-border);
 }
 
 .haven-skills-section .skill-label {
@@ -802,7 +802,7 @@
 
 .haven-skills-section .skill-label.rollable:hover {
     color: var(--trp-gold-bright);
-    text-shadow: 0 0 5px rgba(232, 201, 107, 0.4);
+    text-shadow: 0 0 5px var(--trp-shadow-gold);
     cursor: pointer;
 }
 
@@ -819,7 +819,7 @@
 }
 
 .haven-projects-section .project-item {
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     border-radius: var(--trp-radius-sm);
     padding: 0 16px;
@@ -869,7 +869,7 @@
     display: flex;
     align-items: center;
     gap: 4px;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--trp-bg-overlay);
     border-radius: 4px;
     padding: 2px 6px;
 }
@@ -936,7 +936,7 @@
 
 .haven-sheet .building-card .card-header {
     padding: 8px;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--trp-bg-overlay);
     display: flex;
     align-items: center;
     gap: 10px;
@@ -975,11 +975,11 @@
 
 .haven-sheet .building-card .bonus-tag {
     font-size: var(--fs-9);
-    background: rgba(201, 168, 76, 0.15);
+    background: var(--trp-gold-overlay);
     color: var(--trp-gold);
     padding: 1px 4px;
     border-radius: 2px;
-    border: 1px solid rgba(201, 168, 76, 0.3);
+    border: 1px solid var(--trp-gold-overlay);
     text-transform: capitalize;
 }
 
@@ -1090,8 +1090,8 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: rgba(232, 201, 107, 0.1);
-    border: 1px solid rgba(232, 201, 107, 0.3);
+    background: var(--trp-gold-overlay);
+    border: 1px solid var(--trp-gold-overlay);
     color: var(--trp-gold-bright);
     padding: 2px 8px;
     border-radius: 10px;
@@ -1110,7 +1110,7 @@
 .haven-sheet .progress-bar-container {
     width: 100%;
     height: 4px;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--trp-bg-overlay);
     border-radius: 2px;
     margin-top: 4px;
     overflow: hidden;
@@ -1135,7 +1135,7 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    background: rgba(0,0,0,0.2);
+    background: var(--trp-bg-overlay);
     padding: 4px;
     border-radius: 4px;
 }
@@ -1162,7 +1162,7 @@
     border: 1px dashed var(--trp-border);
     padding: 10px;
     border-radius: 4px;
-    background: rgba(0,0,0,0.2);
+    background: var(--trp-bg-overlay);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -1172,7 +1172,7 @@
 
 .build-sheet .upgrade-drop-zone.drag-over {
     border-color: var(--trp-gold);
-    background: rgba(201, 168, 76, 0.1);
+    background: var(--trp-gold-overlay);
 }
 
 .build-sheet .upgrade-drop-zone .upgrade-name {
@@ -1238,7 +1238,7 @@
 }
 
 .build-sheet .skill-chip {
-    background: rgba(0,0,0,0.3);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border);
     border-radius: 12px;
     padding: 2px 10px;
@@ -1286,7 +1286,7 @@
     flex-direction: column;
     gap: 16px;
     align-items: center;
-    border-left: 1px solid rgba(74, 63, 47, 0.3);
+    border-left: 1px solid var(--trp-border);
     padding-left: 20px;
 }
 
@@ -1308,11 +1308,11 @@
     font-family: var(--trp-font-header);
     font-size: var(--fs-20);
     color: var(--trp-gold-bright) !important;
-    background: rgba(0, 0, 0, 0.3) !important;
+    background: var(--trp-bg-overlay) !important;
     border: 1px solid var(--trp-border-light) !important;
     padding: 10px 15px !important;
     border-radius: var(--trp-radius-sm) !important;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+    box-shadow: inset 0 0 10px var(--trp-shadow-dark);
     width: 100%;
 }
 
@@ -1335,7 +1335,7 @@
 
 .haven-event-layout .event-description prose-mirror {
     flex: 1;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     border-radius: var(--trp-radius-sm);
     min-height: 250px;
@@ -1356,14 +1356,14 @@
 }
 
 .haven-event-layout .clock-svg {
-    filter: drop-shadow(0 0 10px rgba(0,0,0,0.5));
+    filter: drop-shadow(0 0 10px var(--trp-shadow-dark));
 }
 
 .haven-event-layout .clock-config-container {
     display: flex;
     justify-content: center;
     padding: 12px;
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     border-radius: var(--trp-radius-sm);
     width: 100%;
@@ -1398,7 +1398,7 @@
 }
 
 .clock-segment {
-    fill: rgba(44, 35, 25, 0.6);
+    fill: var(--trp-bg-overlay);
     stroke: var(--trp-border-light);
     stroke-width: 1.5;
     cursor: pointer;
@@ -1416,12 +1416,12 @@
 }
 
 .clock-segment:hover {
-    fill: rgba(232, 201, 107, 0.2);
+    fill: var(--trp-gold-overlay);
     stroke: var(--trp-gold-bright) !important;
 }
 
 .char-injuries .clock-segment:hover {
-    fill: rgba(146, 44, 44, 0.55);
+    fill: var(--trp-red-overlay);
     stroke: var(--trp-red);
 }
 
@@ -1430,8 +1430,8 @@
 }
 
 .char-injuries .clock-segment.filled:hover {
-    fill: #c0393980;
-    stroke: #ff5252;
+    fill: var(--trp-red-overlay);
+    stroke: var(--trp-red);
 }
 
 .clock-svg {
@@ -1462,7 +1462,7 @@
 .haven-report .haven-check-details {
     margin: 8px 0;
     padding: 6px 10px;
-    background: rgba(0, 0, 0, 0.2);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     border-radius: 4px;
     display: flex;
@@ -1491,7 +1491,7 @@
 }
 
 .haven .stronghold-item, .haven .construction-item {
-    background: rgba(0, 0, 0, 0.35);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     border-radius: var(--trp-radius-sm);
     padding: 8px 12px;
@@ -1503,7 +1503,7 @@
 
 .haven .stronghold-item:hover {
     border-color: var(--trp-gold-dim);
-    background: rgba(232, 201, 107, 0.05);
+    background: var(--trp-gold-overlay);
 }
 
 .haven .stronghold-item img, .haven .construction-item img {
@@ -1526,8 +1526,8 @@
 
 .haven .bonus-tag {
     font-size: var(--fs-9);
-    background: rgba(232, 201, 107, 0.1);
-    border: 1px solid rgba(232, 201, 107, 0.3);
+    background: var(--trp-gold-overlay);
+    border: 1px solid var(--trp-gold-overlay);
     color: var(--trp-gold-light);
     padding: 1px 4px;
     border-radius: 2px;
@@ -1536,7 +1536,7 @@
 
 .haven .bonus-tag.income {
     color: var(--trp-gold-bright);
-    background: rgba(232, 201, 107, 0.2);
+    background: var(--trp-gold-overlay);
 }
 
 .haven .build-progress {
@@ -1550,7 +1550,7 @@
 .haven .progress-bar {
     flex: 1;
     height: 8px;
-    background: rgba(0, 0, 0, 0.5);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     border-radius: 4px;
     overflow: hidden;
@@ -1615,7 +1615,7 @@
     min-height: 32px;
     text-align: center;
     border-radius: 4px;
-    background: rgba(0,0,0,0.2);
+    background: var(--trp-bg-overlay);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1626,7 +1626,7 @@
 
 .stronghold-sheet .owner-drop-zone.drag-over {
     border-color: var(--trp-gold);
-    background: rgba(232, 201, 107, 0.1);
+    background: var(--trp-gold-overlay);
 }
 
 .stronghold-sheet .owner-drop-zone .placeholder {
@@ -1646,7 +1646,7 @@
 }
 
 .stronghold-sheet .owner-drop-zone .remove-owner:hover {
-    color: #ff4444;
+    color: var(--trp-red);
 }
 
 /* Feature List Styles */
@@ -1654,12 +1654,12 @@
     border: 1px dashed var(--trp-border-light);
     padding: 12px;
     border-radius: var(--trp-radius-sm);
-    background: rgba(0,0,0,0.1);
+    background: var(--trp-bg-overlay);
 }
 
 .stronghold-sheet .features-drop-zone.drag-over {
     border-color: var(--trp-gold);
-    background: rgba(232, 201, 107, 0.05);
+    background: var(--trp-gold-overlay);
 }
 
 .stronghold-sheet .feature-list {
@@ -1673,7 +1673,7 @@
     align-items: center;
     gap: 10px;
     padding: 4px 8px;
-    background: rgba(0,0,0,0.25);
+    background: var(--trp-bg-overlay);
     border: 1px solid var(--trp-border-light);
     border-radius: 4px;
 }

@@ -23,7 +23,7 @@
   border: 2px solid var(--trp-border-light);
   border-radius: var(--trp-radius);
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  box-shadow: 0 0 10px var(--trp-shadow-dark);
 }
 
 .rest-btn {
@@ -100,7 +100,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border);
   border-radius: var(--trp-radius-sm);
   padding: 4px;
@@ -185,7 +185,7 @@
 }
 .key-attr-btn.is-key {
   color: var(--trp-gold-bright);
-  text-shadow: 0 0 6px rgba(232, 201, 107, 0.6);
+  text-shadow: 0 0 6px var(--trp-shadow-gold);
 }
 
 /* ─── Rollable spans (attributes, combat stats, skills) ─── */
@@ -213,18 +213,18 @@
   display: block;
   text-align: center;
   padding: 2px 4px;
-  background: rgba(201, 168, 76, 0.1);
+  background: var(--trp-gold-overlay);
   border-radius: var(--trp-radius-sm);
   margin-bottom: 2px;
 }
 .combat-stat-roll.rollable:hover {
-  color: #fff;
-  background: rgba(201, 168, 76, 0.3);
-  box-shadow: 0 0 5px var(--trp-gold-dim);
+  color: var(--trp-text-bright);
+  background: var(--trp-gold-overlay);
+  box-shadow: 0 0 5px var(--trp-shadow-gold);
 }
 .skill-label.rollable:hover {
   color: var(--trp-gold-bright);
-  text-shadow: 0 0 4px rgba(232, 201, 107, 0.3);
+  text-shadow: 0 0 4px var(--trp-shadow-gold);
 }
 
 /* ─── Attribute text in header (span, not label) ─── */
@@ -263,7 +263,7 @@
   font-weight: 700;
   margin-left: 2px;
   vertical-align: middle;
-  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+  text-shadow: 0 0 3px var(--trp-shadow-dark);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -410,7 +410,7 @@
   transition: background 0.1s;
 }
 .skill-row:hover {
-  background: rgba(201, 168, 76, 0.06);
+  background: var(--trp-gold-overlay);
 }
 
 .skill-label {
@@ -445,7 +445,7 @@
   /* unchecked appearance */
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(44, 35, 25, 0.7);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border-light) !important;
   border-radius: 2px;
   transition: background 0.12s, border-color 0.12s;
@@ -548,7 +548,7 @@
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(26, 23, 20, 0.82);  /* slight bg so they're readable */
+  background: var(--trp-bg-overlay);  /* slight bg so they're readable */
   border-radius: var(--trp-radius-sm);
   padding: 2px 4px;
 }
@@ -581,7 +581,7 @@
 
 /* Unfilled segment */
 .clock-segment {
-  fill: rgba(44, 35, 25, 0.55);
+  fill: var(--trp-bg-overlay);
   stroke: var(--trp-border-light);
   stroke-width: 1.5;
   cursor: pointer;
@@ -595,13 +595,13 @@
 }
 
 .char-injuries .clock-segment:hover {
-  fill: rgba(146, 44, 44, 0.55);
+  fill: var(--trp-red-overlay);
   stroke: var(--trp-red);
 }
 
 .char-injuries .clock-segment.filled:hover {
-  fill: #c0393980;
-  stroke: #ff5252;
+  fill: var(--trp-red-overlay);
+  stroke: var(--trp-red);
 }
 
 /* Clock centre text */
@@ -661,7 +661,7 @@
 }
 
 .equip-table thead tr {
-  background: rgba(201, 168, 76, 0.10);
+  background: var(--trp-gold-overlay);
 }
 
 /* No alternating / zebra rows — uniform background for readability */
@@ -689,7 +689,7 @@
 .equip-table td {
   padding: 3px 6px;
   vertical-align: middle;
-  border-bottom: 1px solid rgba(74, 63, 47, 0.5);
+  border-bottom: 1px solid var(--trp-border);
 }
 
 .equip-table td.col-icon {
@@ -778,7 +778,7 @@
 }
 
 .inventory-card.is-broken {
-  box-shadow: inset 0 0 10px rgba(139, 26, 26, 0.4);
+  box-shadow: inset 0 0 10px var(--trp-red-overlay);
   border-color: var(--trp-red-dim);
 }
 
@@ -786,7 +786,7 @@
   position: absolute;
   top: 4px;
   left: 4px;
-  color: #ffcc00;
+  color: var(--trp-gold);
   font-size: var(--fs-10);
   text-shadow: 0 0 2px black;
 }
@@ -859,12 +859,12 @@
   justify-content: space-between;
   align-items: center;
   padding: 4px 6px;
-  border-bottom: 1px solid rgba(74, 63, 47, 0.35);
+  border-bottom: 1px solid var(--trp-border);
   transition: background 0.1s;
 }
 
 .items-list .item:hover {
-  background: rgba(201, 168, 76, 0.06);
+  background: var(--trp-gold-overlay);
 }
 
 .items-list .item-name {
@@ -957,7 +957,7 @@
 
 .combat-equip-table td {
   padding: 2px 4px;
-  border-bottom: 1px solid rgba(74, 63, 47, 0.4);
+  border-bottom: 1px solid var(--trp-border);
   vertical-align: middle;
 }
 
@@ -1006,7 +1006,7 @@
 }
 
 .state-label.negative {
-  color: #e08888;
+  color: var(--trp-red);
 }
 
 .state-val {
@@ -1072,13 +1072,13 @@
 }
 
 .deed-slot.empty {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--trp-bg-overlay);
 }
 
 .deed-slot-header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(201, 168, 76, 0.3);
+  border-bottom: 1px solid var(--trp-gold-overlay);
   margin-bottom: 6px;
   padding-bottom: 4px;
   padding-right: 40px;
@@ -1092,7 +1092,7 @@
 }
 
 .deed-slot-title.rollable:hover {
-  text-shadow: 0 0 5px rgba(232, 201, 107, 0.4);
+  text-shadow: 0 0 5px var(--trp-shadow-gold);
 }
 
 .deed-slot-skill {
@@ -1107,7 +1107,7 @@
   color: var(--trp-text-dim);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+  border-bottom: 1px solid var(--trp-gold-overlay);
   padding-bottom: 4px;
   margin-bottom: 6px;
   display: flex;
@@ -1124,7 +1124,7 @@
 .deed-effect-row {
   display: flex;
   gap: 8px;
-  border-bottom: 1px solid rgba(74, 63, 47, 0.3);
+  border-bottom: 1px solid var(--trp-border);
   padding: 3px 0;
 }
 
@@ -1150,7 +1150,7 @@
 
 .deed-damage {
   font-weight: bold;
-  color: #ffdda1;
+  color: var(--trp-gold-bright);
 }
 
 .deed-applied {
@@ -1165,7 +1165,7 @@
   right: 8px;
   font-family: var(--trp-font-body);
   font-size: var(--fs-14);
-  color: #000;
+  color: var(--trp-bg-dark);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -1179,13 +1179,13 @@
 .deed-use-box {
   width: 12px;
   height: 12px;
-  border: 1px solid #000;
+  border: 1px solid var(--trp-bg-dark);
   cursor: pointer;
-  background: #fff;
+  background: var(--trp-text-bright);
 }
 
 .deed-use-box.filled {
-  background: #000;
+  background: var(--trp-bg-dark);
 }
 
 .deed-slot-controls {
@@ -1222,7 +1222,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border);
   margin-bottom: 2px;
   padding: 6px 8px;
@@ -1231,7 +1231,7 @@
 }
 
 .combat-effects-list .effect-row:hover {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--trp-bg-overlay);
 }
 
 .combat-effects-list .effect-name {
@@ -1281,14 +1281,14 @@
   width: auto !important;
   border-radius: var(--trp-radius-sm);
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 3px var(--trp-shadow-dark);
   transition: all 0.1s !important;
 }
 
 .prevail-btn:hover {
   background: var(--trp-gold-bright) !important;
-  border-color: #fff !important;
-  box-shadow: 0 0 10px rgba(232, 201, 107, 0.4);
+  border-color: var(--trp-text-bright) !important;
+  box-shadow: 0 0 10px var(--trp-shadow-gold);
   transform: translateY(-1px);
 }
 
@@ -1305,7 +1305,7 @@
 }
 
 .effect-remove:hover {
-  color: #e05050 !important;
+  color: var(--trp-red) !important;
 }
 
 /* ─── Tab-specific component rules (cleanup/supplementary) ─── */
@@ -1320,7 +1320,7 @@
   justify-content: space-between;
   gap: 6px;
   padding: 2px 0;
-  border-bottom: 1px dotted rgba(100,80,40,0.2);
+  border-bottom: 1px dotted var(--trp-border);
 }
 
 .skill-label {
@@ -1354,7 +1354,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(0,0,0,0.25);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border);
   border-radius: 4px;
   padding: 4px 6px;

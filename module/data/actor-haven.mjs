@@ -332,7 +332,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
         await s.update({ "system.progress": newProgress });
         
         if (newProgress === s.system.buildClock) {
-          messages.push(`<p style="color:#2ecc71;"><strong>${s.name} ${game.i18n.localize("TRESPASSER.Haven.Completed")}!</strong></p>`);
+          messages.push(`<p style="color:var(--trp-green-bright);"><strong>${s.name} ${game.i18n.localize("TRESPASSER.Haven.Completed")}!</strong></p>`);
           // Apply features to owner if set
           if (s.system.ownerId) {
             const owner = game.actors.get(s.system.ownerId);
@@ -399,28 +399,28 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       const nextThreshold = (this.level < 9) ? this.populationThresholds[this.level + 1] : Infinity;
       
       if (oldRank >= nextThreshold && increase > 0) {
-        messages.push(`<p class="warning" style="color:#f39c12; font-weight:bold; margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Haven.Stagnant")}</p>`);
+        messages.push(`<p class="warning" style="color:var(--trp-gold); font-weight:bold; margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Haven.Stagnant")}</p>`);
         messages.push(`<p style="font-size:var(--fs-11); font-style:italic;">Rank growth blocked by level. Rolling for Arrivals only.</p>`);
         increase = 0;
       } else if (oldRank + increase > nextThreshold) {
         increase = nextThreshold - oldRank;
-        messages.push(`<p class="warning" style="font-size:var(--fs-11); font-style:italic; color:#f39c12;">Growth capped at rank ${nextThreshold} until level up.</p>`);
+        messages.push(`<p class="warning" style="font-size:var(--fs-11); font-style:italic; color:var(--trp-gold);">Growth capped at rank ${nextThreshold} until level up.</p>`);
       }
       
       newRank = oldRank + increase;
       updates["system.populationRank"] = newRank;
 
       if (isSuccess) {
-        messages.push(`<p class="success" style="color:#2ecc71;font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Success")}</p>`);
+        messages.push(`<p class="success" style="color:var(--trp-green-bright);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Success")}</p>`);
         if (increase > 0) messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.PopulationIncrease")}:</strong> +${increase} (Rank: ${newRank})</p>`);
         
         if (sparks > 0) {
-          messages.push(`<p style="color:#64b5f6;"><i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Sparks", { count: sparks })}</p>`);
-          messages.push(`<p style="color:#64b5f6; font-weight:bold;"><i class="fas fa-walking"></i> HAVEN ARRIVALS!</p>`);
+          messages.push(`<p style="color:var(--trp-spark);"><i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Sparks", { count: sparks })}</p>`);
+          messages.push(`<p style="color:var(--trp-spark); font-weight:bold;"><i class="fas fa-walking"></i> HAVEN ARRIVALS!</p>`);
           messages.push(`<p style="font-size:var(--fs-11); font-style:italic;">The Judge rolls on the Haven Arrivals table and fills the Arrivals tab.</p>`);
         }
       } else {
-        messages.push(`<p class="failure" style="color:#e74c3c;font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Failure")}</p>`);
+        messages.push(`<p class="failure" style="color:var(--trp-red);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Failure")}</p>`);
       }
 
       await roll.toMessage({
@@ -441,11 +441,11 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       const isSuccess = total >= 20;
       
       if (isSuccess) {
-        messages.push(`<p class="success" style="color:#2ecc71;font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Success")} (Decline Halted)</p>`);
+        messages.push(`<p class="success" style="color:var(--trp-green-bright);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Success")} (Decline Halted)</p>`);
         messages.push(`<p>Population rank remains stable at ${oldRank}.</p>`);
       } else {
         // Failure: Lose 1 rank. (One per shadow - we'll ignore shadow specifics for now as per rules image core)
-        messages.push(`<p class="failure" style="color:#e74c3c;font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Failure")} (Population Decline)</p>`);
+        messages.push(`<p class="failure" style="color:var(--trp-shadow);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Failure")} (Population Decline)</p>`);
         newRank = Math.max(0, oldRank - 1);
         updates["system.populationRank"] = newRank;
         messages.push(`<p><strong>Population Rank:</strong> -1 (Now: ${newRank})</p>`);
@@ -499,7 +499,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
             <span class="label">Threat Clock:</span>
             <span class="value">${nextValue} / ${event.clock}</span>
           </div>
-          ${isComplete ? `<p class="critical" style="color:#e74c3c; font-weight:bold; margin-top:10px; border:2px solid #e74c3c; padding:5px; text-align:center;">THE EVENT CLOCK IS COMPLETE!</p>` : ""}
+          ${isComplete ? `<p class="critical" style="color:var(--trp-red); font-weight:bold; margin-top:10px; border:2px solid var(--trp-red); padding:5px; text-align:center;">THE EVENT CLOCK IS COMPLETE!</p>` : ""}
         </div>`,
         speaker: ChatMessage.getSpeaker({ actor })
       });
@@ -518,11 +518,11 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
         </div>`;
       
       if (starts) {
-        content += `<p class="success" style="color:#2ecc71; font-weight:bold; margin-top:8px;">A NEW EVENT STARTS!</p>
+        content += `<p class="success" style="color:var(--trp-green-bright); font-weight:bold; margin-top:8px;">A NEW EVENT STARTS!</p>
                    <p style="font-size:var(--fs-11); font-style:italic;">The Judge should define the event in the Haven's Event tab.</p>`;
         await actor.update({ "system.event.current": 1 });
       } else {
-        content += `<p class="failure" style="color:#95a5a6; font-style:italic; margin-top:8px;">All is quiet in the Haven this week.</p>`;
+        content += `<p class="failure" style="color:var(--trp-text-dim); font-style:italic; margin-top:8px;">All is quiet in the Haven this week.</p>`;
       }
       content += `</div>`;
       

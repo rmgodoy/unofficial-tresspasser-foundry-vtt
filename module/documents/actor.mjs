@@ -688,9 +688,9 @@ export class TrespasserActor extends Actor {
       for (const eff of item.system.effects) {
         const isApplied = item.system.subType === "potions";
         flavorHtml += `
-          <div style="display:flex;align-items:center;background:rgba(0,0,0,0.5);border:1px solid var(--trp-gold-dim);border-radius:3px;padding:2px 4px;margin-bottom:2px;">
+          <div style="display:flex;align-items:center;background:var(--trp-bg-overlay);border:1px solid var(--trp-gold-dim);border-radius:3px;padding:2px 4px;margin-bottom:2px;">
             <img src="${eff.img}" style="width:20px;height:20px;border:none;margin-right:6px;" />
-            <span style="font-size:var(--fs-13);font-family:var(--trp-font-primary);color:var(--trp-gold-light);flex:1;">${eff.name}</span>
+            <span style="font-size:var(--fs-13);font-family:var(--trp-font-primary);color:var(--trp-gold-bright);flex:1;">${eff.name}</span>
             ${isApplied ? `
             <span style="font-size:var(--fs-11);color:var(--trp-text-dim);padding:0 4px;">
               <i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.Chat.Applied")}

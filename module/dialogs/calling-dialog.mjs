@@ -154,8 +154,8 @@ export async function showCallingDialog(callingItem, actor) {
       .calling-dialog .calling-dlg-search{width:100%;box-sizing:border-box;margin-bottom:8px;padding:4px 8px;background:var(--trp-bg-input);border:1px solid var(--trp-border);color:var(--trp-text-bright);font-family:var(--trp-font-body);font-size:var(--fs-13);border-radius:3px;}
       .calling-dialog .calling-dlg-list{display:flex;flex-direction:column;gap:3px;overflow-y:auto;max-height:270px;padding-right:2px;}
       .calling-dialog .calling-dlg-chip-row{display:flex;align-items:center;gap:4px;}
-      .calling-dialog .calling-dlg-chip{display:flex;align-items:center;gap:8px;padding:4px 8px;background:rgba(0,0,0,0.2);border:1px solid var(--trp-border);border-radius:4px;cursor:pointer;transition:background 0.1s;}
-      .calling-dialog .calling-dlg-chip:hover{background:rgba(201,168,76,0.08);border-color:var(--trp-gold-dim);}
+      .calling-dialog .calling-dlg-chip{display:flex;align-items:center;gap:8px;padding:4px 8px;background:var(--trp-bg-overlay);border:1px solid var(--trp-border);border-radius:4px;cursor:pointer;transition:background 0.1s;}
+      .calling-dialog .calling-dlg-chip:hover{background:var(--trp-gold-overlay);border-color:var(--trp-gold-dim);}
       .calling-dialog .calling-dlg-chip img{border:none;border-radius:50%;flex-shrink:0;}
       .calling-dialog .calling-dlg-name{font-size:var(--fs-13);color:var(--trp-text-bright);flex:1;}
       .calling-dialog .calling-dlg-chip.already-trained .calling-dlg-name{color:var(--trp-text-dim);}
@@ -165,9 +165,9 @@ export async function showCallingDialog(callingItem, actor) {
       .calling-dialog .dlg-info-btn:hover{color:var(--trp-gold-bright);}
       
       /* Progression Collapsible */
-      .calling-dialog .progression-level { border: 1px solid var(--trp-border); border-radius: 4px; margin-bottom: 8px; background: rgba(0, 0, 0, 0.2); overflow: hidden; }
-      .calling-dialog .level-header { background: rgba(0, 0, 0, 0.3); padding: 8px 12px; display: flex; align-items: center; cursor: pointer; user-select: none; transition: background 0.2s; }
-      .calling-dialog .level-header:hover { background: rgba(0, 0, 0, 0.5); }
+      .calling-dialog .progression-level { border: 1px solid var(--trp-border); border-radius: 4px; margin-bottom: 8px; background: var(--trp-bg-overlay); overflow: hidden; }
+      .calling-dialog .level-header { background: var(--trp-bg-overlay); padding: 8px 12px; display: flex; align-items: center; cursor: pointer; user-select: none; transition: background 0.2s; }
+      .calling-dialog .level-header:hover { background: var(--trp-shadow-dark); }
       .calling-dialog .level-title { font-family: var(--trp-font-header); font-size: var(--fs-14); color: var(--trp-gold-bright); flex: 1; }
       .calling-dialog .level-toggle { font-size: var(--fs-12); color: var(--trp-text-dim); transition: transform 0.2s; }
       .calling-dialog .progression-level.collapsed .level-toggle { transform: rotate(-90deg); }
@@ -175,7 +175,7 @@ export async function showCallingDialog(callingItem, actor) {
       .calling-dialog .level-content { padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px 16px; }
       .calling-dialog .prog-field { display: flex; align-items: center; justify-content: flex-end; gap: 12px; font-size: var(--fs-12); }
       .calling-dialog .prog-field label { color: var(--trp-text-dim); flex: 1; text-transform: uppercase; letter-spacing: 0.05em; font-size: var(--fs-10); }
-      .calling-dialog .prog-field span { font-weight: bold; color: var(--trp-gold-bright); width: 40px; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid var(--trp-border); border-radius: 3px; padding: 2px 0; }
+      .calling-dialog .prog-field span { font-weight: bold; color: var(--trp-gold-bright); width: 40px; text-align: center; background: var(--trp-bg-overlay); border: 1px solid var(--trp-border); border-radius: 3px; padding: 2px 0; }
       .calling-dialog .prog-field.full-width { grid-column: span 2; flex-direction: column; align-items: flex-start; }
     </style>`;
 

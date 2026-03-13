@@ -1,9 +1,9 @@
 
 .roll-dialog {
-    --dialog-bg: #1a1714;
-    --dialog-border: #4a3f2f;
-    --dialog-gold: #c9a84c;
-    --dialog-text: #ddd0aa;
+    --dialog-bg: var(--trp-bg-dark);
+    --dialog-border: var(--trp-border);
+    --dialog-gold: var(--trp-gold);
+    --dialog-text: var(--trp-text);
 }
 
 .roll-dialog .window-content {
@@ -25,7 +25,7 @@
     align-items: center;
     gap: 8px;
     padding: 12px;
-    background: rgba(0,0,0,0.3);
+    background: var(--trp-bg-panel);
     border: 1px solid var(--dialog-border);
     border-radius: 4px;
 }
@@ -53,8 +53,8 @@
 }
 
 .roll-dialog-content .bonuses-list {
-    background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255, 255, 255, 0.05);
+    background: var(--trp-bg-panel);
+    border: 1px solid var(--trp-border-light);
     border-radius: 4px;
     padding: 4px 8px;
 }
@@ -65,7 +65,7 @@
     padding: 4px 0;
     font-size: var(--fs-13);
     color: var(--trp-text);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid var(--trp-border-light);
 }
 
 .roll-dialog-content .bonus-row:last-child {
@@ -122,13 +122,13 @@
 
 .roll-dialog-content .trp-btn.roll {
     background: var(--dialog-gold);
-    color: #000;
+    color: var(--trp-bg-dark);
     border: 1px solid transparent;
 }
 
 .roll-dialog-content .trp-btn.roll:hover {
     background: var(--trp-gold-bright);
-    box-shadow: 0 0 10px rgba(201, 168, 76, 0.4);
+    box-shadow: 0 0 10px var(--trp-shadow-gold);
 }
 
 .roll-dialog-content .trp-btn.cancel {

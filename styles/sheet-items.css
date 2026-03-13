@@ -98,7 +98,7 @@
   align-items: stretch;
   gap: 4px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(74, 63, 47, 0.2);
+  border-bottom: 1px solid var(--trp-border);
 }
 
 .field-row label {
@@ -126,7 +126,7 @@
 }
 
 .field-row.checkbox-row.ration-checkbox-row {
-  border-bottom: 1px solid rgba(74, 63, 47, 0.2);;
+  border-bottom: 1px solid var(--trp-border);;
   padding-bottom: 8px;
 }
 
@@ -151,8 +151,8 @@
   object-fit: cover;
   border: 2px solid var(--trp-border-light);
   border-radius: var(--trp-radius);
-  background: rgba(0,0,0,0.2);
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  background: var(--trp-bg-overlay);
+  box-shadow: 0 0 10px var(--trp-shadow-dark);
 }
 
 .header-column.details-column {
@@ -215,7 +215,7 @@
 
 .trp-editor-container {
   min-height: 120px;
-  background: rgba(0,0,0,0.05);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border);
   display: flex;
   flex-direction: column;
@@ -248,7 +248,7 @@
 
 .custom-attributes-area {
   padding: 12px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border);
   border-radius: var(--trp-radius);
   margin-bottom: 8px;
@@ -357,7 +357,7 @@
 }
 
 .applied-effects-list {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--trp-bg-overlay);
   border: 1px dashed var(--trp-border);
   border-radius: var(--trp-radius);
   padding: 10px;
@@ -371,7 +371,7 @@
 .effect-chip {
   display: flex;
   align-items: center;
-  background: rgba(26, 23, 20, 0.85);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border);
   border-radius: 4px;
   padding: 4px 6px;
@@ -398,7 +398,7 @@
 }
 
 .effect-chip .intensity-box {
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--trp-shadow-dark);
   border: 1px solid var(--trp-border);
   border-radius: 2px;
   padding: 1px 4px;
@@ -448,7 +448,7 @@
 .effect-chip .controls .remove { color: var(--trp-red-dim); }
 
 .effect-chip .controls a:hover {
-  color: #fff;
+  color: var(--trp-text-bright);
 }
 
 /* ── Calling Progression Collapsible ───────────────────── */
@@ -456,12 +456,12 @@
   border: 1px solid var(--trp-border);
   border-radius: 4px;
   margin-bottom: 8px;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--trp-bg-overlay);
   overflow: hidden;
 }
 
 .level-header {
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--trp-bg-overlay);
   padding: 8px 12px;
   display: flex;
   align-items: center;
@@ -472,7 +472,7 @@
 }
 
 .level-header:hover {
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--trp-bg-overlay);
 }
 
 .level-header .level-title {

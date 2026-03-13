@@ -151,8 +151,8 @@ export async function showCraftDialog(craftItem, actor) {
       .craft-dialog .craft-dlg-tier-filter{background:var(--trp-bg-input);border:1px solid var(--trp-border);color:var(--trp-text-bright);font-family:var(--trp-font-body);font-size:var(--fs-12);border-radius:3px;cursor:pointer;}
       .craft-dialog .craft-dlg-list{display:flex;flex-direction:column;gap:3px;overflow-y:auto;max-height:270px;padding-right:2px;}
       .craft-dialog .craft-dlg-chip-row{display:flex;align-items:center;gap:4px;}
-      .craft-dialog .craft-dlg-chip{display:flex;align-items:center;gap:8px;padding:4px 8px;background:rgba(0,0,0,0.2);border:1px solid var(--trp-border);border-radius:4px;cursor:pointer;transition:background 0.1s;}
-      .craft-dialog .craft-dlg-chip:hover{background:rgba(201,168,76,0.08);border-color:var(--trp-gold-dim);}
+      .craft-dialog .craft-dlg-chip{display:flex;align-items:center;gap:8px;padding:4px 8px;background:var(--trp-bg-overlay);border:1px solid var(--trp-border);border-radius:4px;cursor:pointer;transition:background 0.1s;}
+      .craft-dialog .craft-dlg-chip:hover{background:var(--trp-gold-overlay);border-color:var(--trp-gold-dim);}
       .craft-dialog .craft-dlg-name{font-size:var(--fs-13);color:var(--trp-text-bright);flex:1;}
       .craft-dialog .craft-dlg-empty{color:var(--trp-text-dim);font-style:italic;padding:12px 0;text-align:center;}
       .craft-dialog input[type="checkbox"]{accent-color:var(--trp-gold);}

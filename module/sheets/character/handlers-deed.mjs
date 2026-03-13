@@ -315,16 +315,16 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
             <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Hit") : game.i18n.localize("TRESPASSER.Chat.Miss")}</span>
           </div>
           <div style="display:flex;gap:10px;font-size:var(--fs-11);">
-            <span style="color:#64b5f6;">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
-            <span style="color:#9575cd;">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+            <span style="color:var(--trp-spark);">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
+            <span style="color:var(--trp-shadow);">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
           </div>
         </div>`;
     } else {
       // Support deed (no target)
       resultsHtml += `
         <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
-          <div style="color:#64b5f6;"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
-          <div style="color:#9575cd;"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
+          <div style="color:var(--trp-spark);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
+          <div style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
         </div>`;
     }
   }
@@ -334,7 +334,7 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
     <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${rollTotal} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
     ${resultsHtml}`;
   if (totalFocusCost > 0) flavor += `<p class="cost-note" style="margin-top:5px;">${game.i18n.format("TRESPASSER.Chat.SpentFocus", { count: totalFocusCost })}</p>`;
-  if (apBonus > 0)        flavor += `<p class="cost-note" style="margin-top:2px;color:#2ecc71;">+${apBonus} ${game.i18n.localize("TRESPASSER.Chat.AccuracyFromAP")}</p>`;
+  if (apBonus > 0)        flavor += `<p class="cost-note" style="margin-top:2px;color:var(--trp-green-bright);">+${apBonus} ${game.i18n.localize("TRESPASSER.Chat.AccuracyFromAP")}</p>`;
   flavor += `</div>`;
 
   await accRoll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor });
@@ -437,8 +437,8 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
           <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Hit") : game.i18n.localize("TRESPASSER.Chat.Miss")}</span>
         </div>
         <div style="display:flex;gap:10px;font-size:var(--fs-11);">
-          <span style="color:#64b5f6;">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
-          <span style="color:#9575cd;">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+          <span style="color:var(--trp-spark);">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
+          <span style="color:var(--trp-shadow);">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
         </div>
       </div>`;
 
@@ -550,10 +550,10 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
 
     if (rollObj) {
       const applyHealBtns = `<div class="trp-damage-actions" data-damage="${rollObj.total}" style="display:flex;gap:6px;margin-top:8px;">
-        <button class="apply-damage-btn" data-damage="${rollObj.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
+        <button class="apply-damage-btn" data-damage="${rollObj.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid var(--trp-red-dim);color:var(--trp-red);border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
           <i class="fas fa-heart-broken"></i> Apply Damage
         </button>
-        <button class="heal-damage-btn" data-damage="${rollObj.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
+        <button class="heal-damage-btn" data-damage="${rollObj.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid var(--trp-green);color:var(--trp-green-bright);border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
           <i class="fas fa-heart"></i> Heal
         </button>
       </div>`;
@@ -614,8 +614,8 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet) {
 
   const metrics = `
     <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
-      <div class="metric spark"  style="color:#64b5f6;"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
-      <div class="metric shadow" style="color:#9575cd;"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
+      <div class="metric spark"  style="color:var(--trp-spark);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
+      <div class="metric shadow" style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
     </div>`;
 
   await roll.toMessage({

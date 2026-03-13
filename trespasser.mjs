@@ -41,7 +41,7 @@ import { TrespasserPastLifeData }  from "./module/data/item-past-life.mjs";
 import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mjs";
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
-import { showTrespasserConfigDialog } from "./module/dialogs/trespasser-config-dialog.mjs";
+import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
 import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
@@ -194,6 +194,50 @@ Hooks.once("init", async () => {
     type: Number,
     default: 14
   });
+
+  // ── Color Theme Settings ──
+  const colorSettings = [
+    { key: "colorBgDark", default: "#1a1714" },
+    { key: "colorBgPanel", default: "#23201c" },
+    { key: "colorBgInput", default: "#2e2a24" },
+    { key: "colorBgHeader", default: "#1e1b17" },
+    { key: "colorBgSelect", default: "#3a3228" },
+    { key: "colorBorder", default: "#4a3f2f" },
+    { key: "colorBorderLight", default: "#5c4f3a" },
+    { key: "colorGold", default: "#c9a84c" },
+    { key: "colorGoldDim", default: "#a88840" },
+    { key: "colorGoldBright", default: "#e8c96b" },
+    { key: "colorRed", default: "#ff5252" },
+    { key: "colorRedDim", default: "#922c2c" },
+    { key: "colorText", default: "#ddd0aa" },
+    { key: "colorTextDim", default: "#a09070" },
+    { key: "colorTextBright", default: "#f5eccc" },
+    { key: "colorGreen", default: "#2d5a2d" },
+    { key: "colorGreenBright", default: "#4a8a4a" },
+    { key: "colorPurple", default: "#9575cd" },
+    { key: "colorBlue", default: "#3f51b5" },
+    { key: "colorLightGreen", default: "#8bc34a" },
+    { key: "colorCyan", default: "#4fc3f7" },
+    { key: "colorSpark", default: "#4fc3f7" },
+    { key: "colorShadow", default: "#9575cd" },
+    { key: "colorShadowGold", default: "#c9a84c" },
+    { key: "colorShadowDark", default: "#000000" },
+    { key: "colorBgOverlay", default: "#000000" },
+    { key: "colorGoldOverlay", default: "#c9a84c" },
+    { key: "colorRedOverlay", default: "#ff5252" },
+    { key: "colorGreenOverlay", default: "#2d5a2d" },
+    { key: "colorScrollbar", default: "#782e22" }
+  ];
+
+  for ( const color of colorSettings ) {
+    game.settings.register("trespasser", color.key, {
+      name: `TRESPASSER.Config.${color.key}`,
+      scope: "client",
+      config: false,
+      type: String,
+      default: color.default
+    });
+  }
 
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
@@ -393,9 +437,10 @@ Hooks.once("init", async () => {
 
   console.log("Trespasser | System ready");
 
-  // Expose ItemExporter globally for convenience and debugging
+  // Expose system namespace
   game.trespasser = game.trespasser || {};
   game.trespasser.ItemExporter = ItemExporter;
+  game.trespasser.Config = TrespasserConfigV2;
 });
 
 /**
@@ -406,20 +451,72 @@ Hooks.once("ready", () => {
   game.trespasser.tokenHUD = new TrespasserTokenHUD();
 
   // Function to apply settings to CSS variables
-  const applySystemSettings = () => {
+  game.trespasser.applySystemSettings = () => {
     const clockSize = game.settings.get("trespasser", "clockSize") || 50;
     document.documentElement.style.setProperty('--trp-clock-size', `${clockSize}px`);
 
-    const fontSize = game.settings.get("trespasser", "fontSizeBase") || 14;
+    const fontSize = game.settings.get("trespasser", "fontSizeBase") || 16;
     document.documentElement.style.setProperty('--trp-font-size-base', `${fontSize}px`);
+
+    // Apply colors
+    const colors = [
+      { key: "colorBgDark", var: "--trp-bg-dark" },
+      { key: "colorBgPanel", var: "--trp-bg-panel" },
+      { key: "colorBgInput", var: "--trp-bg-input" },
+      { key: "colorBgHeader", var: "--trp-bg-header" },
+      { key: "colorBgSelect", var: "--trp-bg-select" },
+      { key: "colorBorder", var: "--trp-border" },
+      { key: "colorBorderLight", var: "--trp-border-light" },
+      { key: "colorGold", var: "--trp-gold" },
+      { key: "colorGoldDim", var: "--trp-gold-dim" },
+      { key: "colorGoldBright", var: "--trp-gold-bright" },
+      { key: "colorRed", var: "--trp-red" },
+      { key: "colorRedDim", var: "--trp-red-dim" },
+      { key: "colorText", var: "--trp-text" },
+      { key: "colorTextDim", var: "--trp-text-dim" },
+      { key: "colorTextBright", var: "--trp-text-bright" },
+      { key: "colorGreen", var: "--trp-green" },
+      { key: "colorGreenBright", var: "--trp-green-bright" },
+      { key: "colorPurple", var: "--trp-purple" },
+      { key: "colorBlue", var: "--trp-blue" },
+      { key: "colorLightGreen", var: "--trp-light-green" },
+      { key: "colorCyan", var: "--trp-cyan" },
+      { key: "colorSpark", var: "--trp-spark" },
+      { key: "colorShadow", var: "--trp-shadow" },
+      { key: "colorShadowGold", var: "--trp-shadow-gold" },
+      { key: "colorShadowDark", var: "--trp-shadow-dark" },
+      { key: "colorBgOverlay", var: "--trp-bg-overlay" },
+      { key: "colorGoldOverlay", var: "--trp-gold-overlay" },
+      { key: "colorRedOverlay", var: "--trp-red-overlay" },
+      { key: "colorGreenOverlay", var: "--trp-green-overlay" },
+      { key: "colorScrollbar", var: "--trp-scrollbar" }
+    ];
+
+    for ( const c of colors ) {
+      const val = game.settings.get("trespasser", c.key);
+      document.documentElement.style.setProperty(c.var, val);
+      
+      // Update variables that need alpha (hex to rgba conversion would be better here, 
+      // but for now we'll just append hex alpha).
+      if ( c.key === "colorShadowGold" ) {
+        document.documentElement.style.setProperty('--trp-shadow-gold', `${val}66`);
+      } else if ( c.key === "colorShadowDark" ) {
+        document.documentElement.style.setProperty('--trp-shadow-dark', `${val}80`);
+      } else if ( c.key.endsWith("Overlay") ) {
+        // Overlay colors get ~10% opacity (1a in hex)
+        // Background overlay gets ~25% opacity (40 in hex)
+        const alpha = c.key === "colorBgOverlay" ? "40" : "1a";
+        document.documentElement.style.setProperty(c.var, `${val}${alpha}`);
+      }
+    }
   };
 
   // Initial application
-  applySystemSettings();
+  game.trespasser.applySystemSettings();
 
   // Listen for changes
   Hooks.on("closeSettingsConfig", () => {
-    applySystemSettings();
+    game.trespasser.applySystemSettings();
   });
 
   // Also listen for specific setting changes if they happen via API
@@ -1157,7 +1254,7 @@ Hooks.on("renderSettings", (app, html, data) => {
 
   configBtn.on("click", ev => {
     ev.preventDefault();
-    showTrespasserConfigDialog();
+    new game.trespasser.Config().render(true);
   });
 
   const setupBtn = $html.find('button[data-app="configure"]');

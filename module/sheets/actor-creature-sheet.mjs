@@ -225,7 +225,7 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
           <summary style="cursor: pointer; color: var(--trp-gold-bright); font-family: var(--trp-font-header); font-size: var(--fs-11); margin-bottom: 5px;">
             <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.DescriptionExpand")}
           </summary>
-          <div class="collapsible-content" style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; border: 1px solid var(--trp-border); margin-bottom: 10px; font-size: var(--fs-12);">
+          <div class="collapsible-content" style="background: var(--trp-bg-overlay); padding: 8px; border-radius: 4px; border: 1px solid var(--trp-border); margin-bottom: 10px; font-size: var(--fs-12);">
             ${enrichedRef}
           </div>
         </details>

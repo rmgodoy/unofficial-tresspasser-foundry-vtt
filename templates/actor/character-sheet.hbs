@@ -113,7 +113,7 @@
         <div class="char-col char-identity">
           <div class="field-block calling-block">
             <label>{{localize "TRESPASSER.Sheet.Character.Calling"}}</label>
-            <div class="calling-display" style="display: flex; align-items: center; justify-content: space-between; background: rgba(0,0,0,0.2); padding: 4px 8px; border: 1px solid var(--trp-border); border-radius: 4px;">
+            <div class="calling-display" style="display: flex; align-items: center; justify-content: space-between; background: var(--trp-bg-overlay); padding: 4px 8px; border: 1px solid var(--trp-border); border-radius: 4px;">
               <span class="calling-name" style="font-weight: bold; color: var(--trp-gold-bright);">{{#if system.calling}}{{system.calling}}{{else}}—{{/if}}</span>
               <div class="calling-controls">
                 <a class="calling-edit" title="{{localize 'TRESPASSER.Sheet.Character.EditCalling'}}" style="cursor: pointer; color: var(--trp-text-dim);"><i class="fas fa-cog"></i></a>
@@ -229,7 +229,7 @@
       </div>
 
       {{!-- Effects (Non-Combat) --}}
-      <div class="effects-panel" style="margin-top: 15px; border-top: 2px solid #444; padding-top: 10px;">
+      <div class="effects-panel" style="margin-top: 15px; border-top: 2px solid var(--trp-border); padding-top: 10px;">
         <h4 style="display: flex; justify-content: space-between; align-items: center;">
           {{localize "TRESPASSER.Sheet.Character.NonCombatEffects"}}
           <a class="item-create button" data-type="effect">+</a>
@@ -237,7 +237,7 @@
         <div class="effects-list">
           {{#each activeEffects.nonCombat}}
           {{#unless this.hiddenOnSheet}}
-          <div class="effect-row" data-item-id="{{this.id}}" style="display: flex; align-items: center; background: rgba(0,0,0,0.2); margin-bottom: 5px; padding: 5px; border-radius: 4px; {{#if this.fromInjury}}border-left: 2px solid var(--trp-red-dim);{{/if}}">
+          <div class="effect-row" data-item-id="{{this.id}}" style="display: flex; align-items: center; background: var(--trp-bg-overlay); margin-bottom: 5px; padding: 5px; border-radius: 4px; {{#if this.fromInjury}}border-left: 2px solid var(--trp-red-dim);{{/if}}">
             <div style="flex: 1;">
               <b>{{this.name}}</b>{{#if (eq this.type "continuous")}} <span style="font-size: var(--fs-9); opacity: 0.7;">({{localize "TRESPASSER.Sheet.Effects.EffectTypes.Continuous"}})</span>{{/if}}
               <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
@@ -285,7 +285,7 @@
                   {{#if equippedWeapon.main_hand}}
                     <span class="item-name">{{equippedWeapon.main_hand.name}}</span>
                   {{else}}
-                    <span style="color: #666; font-style: italic;">—</span>
+                    <span style="color: var(--trp-text-dim); font-style: italic;">—</span>
                   {{/if}}
                 </td>
                 <td style="text-align: center;">{{#if equippedWeapon.main_hand}}{{equippedWeapon.main_hand.system.weaponDie}}{{/if}}</td>
@@ -302,7 +302,7 @@
                     <span class="item-effect">{{equippedWeapon.main_hand.effectSummary}}</span>
                     <a class="item-unequip" data-item-id="{{equippedWeapon.main_hand.id}}" title="{{localize 'TRESPASSER.Sheet.Equipments.Unequip'}}" style="cursor: pointer; font-size: var(--fs-11);"><i class="fas fa-times-circle"></i></a>
                   {{else}}
-                    <span style="color: #666; font-style: italic;">{{localize "TRESPASSER.Sheet.Equipments.Empty"}}</span>
+                    <span style="color: var(--trp-text-dim); font-style: italic;">{{localize "TRESPASSER.Sheet.Equipments.Empty"}}</span>
                   {{/if}}
                 </div>
               </td>
@@ -318,7 +318,7 @@
                   {{#if equippedWeapon.off_hand}}
                     <span class="item-name">{{equippedWeapon.off_hand.name}}</span>
                   {{else}}
-                    <span style="color: #666; font-style: italic;">—</span>
+                    <span style="color: var(--trp-text-dim); font-style: italic;">—</span>
                   {{/if}}
                 </td>
                 <td style="text-align: center;">{{#if equippedWeapon.off_hand}}{{equippedWeapon.off_hand.system.weaponDie}}{{/if}}</td>
@@ -335,7 +335,7 @@
                     <span class="item-effect">{{equippedWeapon.off_hand.effectSummary}}</span>
                     <a class="item-unequip" data-item-id="{{equippedWeapon.off_hand.id}}" title="{{localize 'TRESPASSER.Sheet.Equipments.Unequip'}}" style="cursor: pointer; font-size: var(--fs-11);"><i class="fas fa-times-circle"></i></a>
                   {{else}}
-                    <span style="color: #666; font-style: italic;">{{localize "TRESPASSER.Sheet.Equipments.Empty"}}</span>
+                    <span style="color: var(--trp-text-dim); font-style: italic;">{{localize "TRESPASSER.Sheet.Equipments.Empty"}}</span>
                   {{/if}}
                 </div>
               </td>
@@ -370,7 +370,7 @@
                     {{#if item}}
                     <span class="item-name">{{item.name}}</span>
                     {{else}}
-                    <span style="color: #666; font-style: italic;">—</span>
+                    <span style="color: var(--trp-text-dim); font-style: italic;">—</span>
                     {{/if}}
                 </td>
                 <td>
@@ -395,7 +395,7 @@
                     <span class="item-effect">{{item.effectSummary}}</span>
                     <a class="item-unequip" data-item-id="{{item.id}}" title="{{localize 'TRESPASSER.Sheet.Equipments.Unequip'}}" style="cursor: pointer; font-size: var(--fs-11);"><i class="fas fa-times-circle"></i></a>
                   {{else}}
-                    <span style="color: #666; font-style: italic;">{{localize "TRESPASSER.Sheet.Equipments.Empty"}}</span>
+                    <span style="color: var(--trp-text-dim); font-style: italic;">{{localize "TRESPASSER.Sheet.Equipments.Empty"}}</span>
                   {{/if}}
                 </div>
               </td>
@@ -429,7 +429,7 @@
                     {{#if item}}
                     <span class="item-name">{{item.name}}</span>
                     {{else}}
-                    <span style="color: #666; font-style: italic;">—</span>
+                    <span style="color: var(--trp-text-dim); font-style: italic;">—</span>
                     {{/if}}
                 </td>
                 <td style="text-align: center;">—</td>
@@ -440,7 +440,7 @@
                     <span class="item-effect">{{item.effectSummary}}</span>
                     <a class="item-unequip" data-item-id="{{item.id}}" title="{{localize 'TRESPASSER.Sheet.Equipments.Unequip'}}" style="cursor: pointer; font-size: var(--fs-11);"><i class="fas fa-times-circle"></i></a>
                   {{else}}
-                    <span style="color: #666; font-style: italic;">{{localize "TRESPASSER.Sheet.Equipments.Empty"}}</span>
+                    <span style="color: var(--trp-text-dim); font-style: italic;">{{localize "TRESPASSER.Sheet.Equipments.Empty"}}</span>
                   {{/if}}
                 </div>
               </td>
@@ -474,7 +474,7 @@
             
             {{#if (eq this.system.subType "light_source")}}
             <a class="item-toggle-light" title="{{#if this.system.active}}{{localize 'TRESPASSER.Sheet.Equipments.Unlight'}}{{else}}{{localize 'TRESPASSER.Sheet.Equipments.LightSource'}}{{/if}}">
-                <i class="fas fa-fire {{#if this.system.active}}active{{/if}}" style="{{#if this.system.active}}color: var(--trp-gold-bright);{{else}}color: #555;{{/if}}"></i>
+                <i class="fas fa-fire {{#if this.system.active}}active{{/if}}" style="{{#if this.system.active}}color: var(--trp-gold-bright);{{else}}color: var(--trp-text-dim);{{/if}}"></i>
             </a>
             {{/if}}
 
@@ -504,7 +504,7 @@
         <div class="inventory-card {{#if this.system.broken}}is-broken{{/if}}" data-item-id="{{this.id}}">
           {{#if this.system.broken}}<i class="fas fa-bolt broken-icon" title="{{localize 'TRESPASSER.Item.BrokenUsed'}}"></i>{{/if}}
           <img src="{{this.img}}" class="item-icon" title="{{this.name}}" />
-          <span class="item-name">{{this.name}}{{#if (eq this.system.subType "resource")}} <span style="font-size:var(--fs-11); color:#888;">(x{{this.system.quantity}})</span>{{/if}}</span>
+          <span class="item-name">{{this.name}}{{#if (eq this.system.subType "resource")}} <span style="font-size:var(--fs-11); color:var(--trp-text-dim);">(x{{this.system.quantity}})</span>{{/if}}</span>
           <div class="item-controls">
             {{#if (or (eq this.type "armor") (eq this.type "weapon") (eq this.type "accessory") this.system.equippable)}}
             <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-dice-d6"></i></a>
@@ -515,7 +515,7 @@
 
             {{#if (or (eq this.system.subType "light_source") (and (eq this.type "weapon") this.system.isLightSource))}}
             <a class="item-toggle-light" title="{{#if this.system.active}}{{localize 'TRESPASSER.Sheet.Equipments.Unlight'}}{{else}}{{localize 'TRESPASSER.Sheet.Equipments.LightSource'}}{{/if}}">
-                <i class="fas fa-fire {{#if this.system.active}}active{{/if}}" style="{{#if this.system.active}}color: var(--trp-gold-bright);{{else}}color: #555;{{/if}}"></i>
+                <i class="fas fa-fire {{#if this.system.active}}active{{/if}}" style="{{#if this.system.active}}color: var(--trp-gold-bright);{{else}}color: var(--trp-text-dim);{{/if}}"></i>
             </a>
             {{/if}}
 
@@ -693,7 +693,7 @@
             <h5 style="font-size: var(--fs-11); text-transform: uppercase; color: var(--trp-text-dim); margin-bottom: 4px; padding-left: 5px; border-left: 2px solid var(--trp-gold);">{{localize "TRESPASSER.Item.ActionTypeChoices.action"}}</h5>
             <ul class="items-list" style="list-style: none; padding: 0; margin: 0;">
               {{#each combatActions}}
-              <li class="item" data-item-id="{{this.id}}" style="display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; background: rgba(0,0,0,0.2); margin-bottom: 2px; border-radius: 3px;">
+              <li class="item" data-item-id="{{this.id}}" style="display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; background: var(--trp-bg-overlay); margin-bottom: 2px; border-radius: 3px;">
                 <span class="item-name {{#if (eq this.type 'talent')}}talent-rollable{{else}}feature-name{{/if}} rollable" title="{{localize 'TRESPASSER.Sheet.Combat.ClickView' name=this.name}}" style="cursor: pointer;">
                   {{#if this.displayCost}}<span style="color: var(--trp-gold-bright); font-weight: bold;">{{this.displayCost}}</span> | {{/if}}{{this.name}}
                 </span>
@@ -702,7 +702,7 @@
                 </div>
               </li>
               {{else}}
-              <li style="font-size: var(--fs-11); color: #666; font-style: italic; padding: 3px 6px;">—</li>
+              <li style="font-size: var(--fs-11); color: var(--trp-text-dim); font-style: italic; padding: 3px 6px;">—</li>
               {{/each}}
             </ul>
           </div>
@@ -711,7 +711,7 @@
             <h5 style="font-size: var(--fs-11); text-transform: uppercase; color: var(--trp-text-dim); margin-bottom: 4px; padding-left: 5px; border-left: 2px solid var(--trp-gold);">{{localize "TRESPASSER.Item.ActionTypeChoices.reaction"}}</h5>
             <ul class="items-list" style="list-style: none; padding: 0; margin: 0;">
               {{#each combatReactions}}
-              <li class="item" data-item-id="{{this.id}}" style="display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; background: rgba(0,0,0,0.2); margin-bottom: 2px; border-radius: 3px;">
+              <li class="item" data-item-id="{{this.id}}" style="display: flex; align-items: center; justify-content: space-between; padding: 3px 6px; background: var(--trp-bg-overlay); margin-bottom: 2px; border-radius: 3px;">
                 <span class="item-name {{#if (eq this.type 'talent')}}talent-rollable{{else}}feature-name{{/if}} rollable" title="{{localize 'TRESPASSER.Sheet.Combat.ClickView' name=this.name}}" style="cursor: pointer;">
                   {{#if this.displayCost}}<span style="color: var(--trp-gold-bright); font-weight: bold;">{{this.displayCost}}</span> | {{/if}}{{this.name}}
                 </span>
@@ -720,7 +720,7 @@
                 </div>
               </li>
               {{else}}
-              <li style="font-size: var(--fs-11); color: #666; font-style: italic; padding: 3px 6px;">—</li>
+              <li style="font-size: var(--fs-11); color: var(--trp-text-dim); font-style: italic; padding: 3px 6px;">—</li>
               {{/each}}
             </ul>
           </div>

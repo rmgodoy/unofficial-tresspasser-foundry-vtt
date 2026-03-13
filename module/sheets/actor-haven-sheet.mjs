@@ -604,8 +604,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
           <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}</span>
         </div>
         <div style="display:flex;gap:10px;font-size:var(--fs-11);">
-          <span style="color:#64b5f6;">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
-          <span style="color:#9575cd;">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+          <span style="color:var(--trp-cyan);">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
+          <span style="color:var(--trp-purple);">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
         </div>
       </div>
     `;
@@ -712,8 +712,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
           <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}</span>
         </div>
         <div style="display:flex;gap:10px;font-size:var(--fs-11);">
-          <span style="color:#64b5f6;">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
-          <span style="color:#9575cd;">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+          <span style="color:var(--trp-cyan);">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
+          <span style="color:var(--trp-purple);">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
         </div>
       </div>
     `;

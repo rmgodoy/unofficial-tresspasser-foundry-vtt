@@ -17,7 +17,7 @@
     border: 1px solid var(--trp-border);
     border-radius: var(--trp-radius);
     padding: 8px 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 4px 15px var(--trp-shadow-dark);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -66,9 +66,9 @@
 }
 
 .trespasser-token-hud .ap-icon.active {
-    background-color: #3f51b5;
+    background-color: var(--trp-blue);
     opacity: 1;
-    filter: drop-shadow(0 0 3px rgba(63, 81, 181, 0.8));
+    filter: drop-shadow(0 0 3px var(--trp-blue));
     transform: scale(1.1) rotate(5deg);
 }
 
@@ -178,7 +178,7 @@
     border-radius: var(--trp-radius);
     z-index: 101;
     min-width: 210px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+    box-shadow: 0 8px 20px var(--trp-shadow-dark);
     pointer-events: all;
 }
 
@@ -269,7 +269,7 @@
     transition: all 0.2s;
     z-index: 5;
     pointer-events: all;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    box-shadow: 0 2px 5px var(--trp-shadow-dark);
 }
 
 .trespasser-token-hud .undo-btn:hover {
@@ -286,7 +286,7 @@
 /* Chips for focus costs */
 .trespasser-token-hud .focus-cost-chip {
     display: inline-block;
-    background: #c62828;
+    background: var(--trp-red);
     color: white;
     font-size: var(--fs-8);
     padding: 1px 3px;
@@ -295,7 +295,7 @@
     vertical-align: middle;
     text-transform: uppercase;
     font-weight: bold;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    box-shadow: 0 1px 3px var(--trp-shadow-dark);
 }
 
 /* GM Action Point Controls */

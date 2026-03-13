@@ -19,7 +19,7 @@
                 </div>
                 
                 {{!-- Render specific effect descriptions if they exist --}}
-                <div class="deed-slot-descriptions" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: 4px; border-top: 1px dotted rgba(200,200,200,0.1); padding-top: 2px;">
+                <div class="deed-slot-descriptions" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: 4px; border-top: 1px dotted var(--trp-border-light); padding-top: 2px;">
                   {{#each (array "start" "before" "base" "hit" "spark" "after" "end") as |phase|}}
                     {{#with (lookup ../system.effects phase) as |pData|}}
                       {{#if (or pData.description pData.appliedEffects.length)}}

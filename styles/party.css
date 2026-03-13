@@ -4,7 +4,7 @@
   display: flex;
   flex-direction: column;
   padding: 0;
-  background: var(--trp-bg-dark, #1a1a1a);
+  background: var(--trp-bg-dark);
 }
 
 .party-sheet-body {
@@ -38,7 +38,7 @@
   padding: 16px 24px;
   background: linear-gradient(to bottom, var(--trp-bg-header), var(--trp-bg-dark));
   border-bottom: 2px solid var(--trp-gold-dim);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 10px var(--trp-shadow-dark);
 }
 
 .party-portrait {
@@ -49,13 +49,13 @@
   object-fit: cover;
   cursor: pointer;
   transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  box-shadow: 0 0 10px var(--trp-shadow-dark);
 }
 
 .party-portrait:hover {
   border-color: var(--trp-gold-bright);
   transform: scale(1.05);
-  box-shadow: 0 0 15px rgba(201, 168, 76, 0.3);
+  box-shadow: 0 0 15px var(--trp-shadow-gold);
 }
 
 .party-header-info {
@@ -98,10 +98,10 @@
 .party-section {
   margin: 16px 24px 0;
   padding: 0 16px 16px 16px; 
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border);
   border-radius: var(--trp-radius);
-  box-shadow: inset 0 0 15px rgba(0,0,0,0.3);
+  box-shadow: inset 0 0 15px var(--trp-shadow-dark);
   display: flex;
   flex-direction: column;
 }
@@ -166,7 +166,7 @@
   background: linear-gradient(to bottom, var(--trp-gold-dim), var(--trp-gold));
   border: 1px solid var(--trp-gold-bright);
   border-radius: var(--trp-radius-sm);
-  color: #1a1714;
+  color: var(--trp-bg-dark);
   font-family: var(--trp-font-header);
   font-size: var(--fs-13);
   font-weight: 700;
@@ -174,13 +174,13 @@
   letter-spacing: 0.05em;
   transition: all 0.15s;
   margin-left: auto;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+  box-shadow: 0 2px 5px var(--trp-shadow-dark);
 }
 
 .group-check-btn:hover {
   background: var(--trp-gold-bright);
   transform: translateY(-1px);
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5), 0 0 10px rgba(201, 168, 76, 0.4);
+  box-shadow: 0 4px 8px var(--trp-shadow-dark), 0 0 10px var(--trp-shadow-gold);
 }
 
 .group-check-btn i {
@@ -221,8 +221,8 @@
 .party-member-card:hover {
   border-color: var(--trp-gold-dim);
   transform: translateX(4px);
-  background: rgba(35, 32, 28, 0.9);
-  box-shadow: -4px 4px 10px rgba(0,0,0,0.3);
+  background: var(--trp-bg-panel);
+  box-shadow: -4px 4px 10px var(--trp-shadow-dark);
 }
 
 .party-member-card:hover::before {
@@ -242,7 +242,7 @@
   border-radius: var(--trp-radius-sm);
   border: 1px solid var(--trp-border-light);
   object-fit: cover;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+  box-shadow: 0 2px 6px var(--trp-shadow-dark);
   transition: border-color 0.2s;
 }
 
@@ -320,7 +320,7 @@
   gap: 5px;
   font-size: var(--fs-12);
   color: var(--trp-text-bright);
-  background: rgba(0,0,0,0.25);
+  background: var(--trp-bg-overlay);
   padding: 2px 6px;
   border-radius: 12px;
   border: 1px solid transparent;
@@ -328,8 +328,8 @@
 }
 
 .party-resource:hover {
-  background: rgba(0,0,0,0.4);
-  border-color: rgba(201, 168, 76, 0.2);
+  background: var(--trp-bg-overlay);
+  border-color: var(--trp-gold-overlay);
 }
 
 .party-resource i {
@@ -339,19 +339,19 @@
 }
 
 .hp-resource i { color: var(--trp-red); }
-.end-resource i { color: #5ba3cf; }
+.end-resource i { color: var(--trp-blue); }
 .rec-resource i { color: var(--trp-green-bright); }
-.resolve-resource i { color: #c084cf; }
+.resolve-resource i { color: var(--trp-purple); }
 .armor-resource i { color: var(--trp-text-dim); }
-.rations-resource i { color: #c9884c; }
-.injury-resource i { color: #cf5050; }
-.light-resource i { color: #e8a030; }
+.rations-resource i { color: var(--trp-gold-dim); }
+.injury-resource i { color: var(--trp-red); }
+.light-resource i { color: var(--trp-gold); }
 
 /* ─── Add Member Section ─── */
 .party-add-member {
   margin-top: 16px;
   padding: 12px;
-  background: rgba(201, 168, 76, 0.03);
+  background: var(--trp-gold-overlay);
   border: 1px dashed var(--trp-border-light);
   border-radius: var(--trp-radius);
   display: flex;
@@ -385,7 +385,7 @@
 
 .party-add-member-btn:hover {
   background: var(--trp-gold-dim);
-  color: #1a1714;
+  color: var(--trp-bg-dark);
   border-color: var(--trp-gold-bright);
 }
 
@@ -431,11 +431,11 @@
 
 /* ─── Group Check Chat Cards ─── */
 .trespasser-group-check {
-  background: linear-gradient(to bottom, #1e1b17, #151310);
+  background: linear-gradient(to bottom, var(--trp-bg-header), var(--trp-bg-dark));
   border: 1px solid var(--trp-border);
   border-radius: 4px;
   overflow: hidden;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+  box-shadow: 0 4px 8px var(--trp-shadow-dark);
 }
 
 .trespasser-group-check h3 {
@@ -443,8 +443,8 @@
   font-size: var(--fs-15);
   margin: 0;
   padding: 8px 10px;
-  color: var(--trp-gold-bright, #e8c96b);
-  background: rgba(201, 168, 76, 0.08);
+  color: var(--trp-gold-bright);
+  background: var(--trp-gold-overlay);
   border-bottom: 1px solid var(--trp-gold-dim);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -455,7 +455,7 @@
   font-size: var(--fs-11);
   color: var(--trp-gold-dim);
   padding: 4px 10px;
-  background: rgba(0,0,0,0.3);
+  background: var(--trp-bg-overlay);
   text-transform: uppercase;
   letter-spacing: 0.1em;
 }
@@ -478,12 +478,12 @@
 }
 
 .group-check-row.success {
-  background: rgba(45, 90, 45, 0.12);
+  background: var(--trp-green-overlay);
   border-left-color: var(--trp-green-bright);
 }
 
 .group-check-row.failure {
-  background: rgba(146, 44, 44, 0.08);
+  background: var(--trp-red-overlay);
   border-left-color: var(--trp-red-dim);
 }
 
@@ -513,11 +513,11 @@
   font-family: var(--trp-font-header);
   font-size: var(--fs-12);
   padding: 8px 10px;
-  background: rgba(0,0,0,0.4);
+  background: var(--trp-bg-overlay);
   border-top: 1px solid var(--trp-border);
   text-align: center;
 }
 
-.group-check-all { color: var(--trp-green-bright); font-weight: 700; text-shadow: 0 0 5px rgba(74, 138, 74, 0.4); }
+.group-check-all { color: var(--trp-green-bright); font-weight: 700; text-shadow: 0 0 5px var(--trp-green-overlay); }
 .group-check-half { color: var(--trp-gold); }
 .group-check-fail { color: var(--trp-red); font-weight: 700; }

@@ -67,11 +67,11 @@
       <div class="effects-section" style="margin-top: 10px;">
         <h3 style="margin-bottom: 5px; color: var(--trp-gold-bright);">{{localize "TRESPASSER.Item.LinkedEffects"}}</h3>
         <p style="font-size: var(--fs-11); font-style: italic; color: var(--trp-text-dim); margin-bottom: 5px;">{{localize "TRESPASSER.Item.LinkedEffectsNote"}}</p>
-        <div class="applied-effects-list drop-zone" data-type="effects" style="min-height: 48px; padding: 4px; border: 1px dashed #555; border-radius: 4px; background: rgba(0,0,0,0.2);">
+        <div class="applied-effects-list drop-zone" data-type="effects" style="min-height: 48px; padding: 4px; border: 1px dashed var(--trp-border); border-radius: 4px; background: var(--trp-bg-overlay);">
           {{#each system.effects as |effect index|}}
             {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index editable=true editableIntensity=true deleteClass="effect-remove"}}
           {{else}}
-          <span style="color: #666; font-style: italic; line-height: 30px; margin-left: 8px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+          <span style="color: var(--trp-text-dim); font-style: italic; line-height: 30px; margin-left: 8px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
           {{/each}}
         </div>
       </div>

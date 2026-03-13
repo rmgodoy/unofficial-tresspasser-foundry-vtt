@@ -36,20 +36,20 @@
       <h4>{{localize "TRESPASSER.Craft.Deeds"}}</h4>
       <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">{{localize "TRESPASSER.Craft.DropDeedsNote"}}</p>
       <div class="craft-drop-zone" data-list="deeds"
-           style="min-height:40px; padding:4px; border:1px dashed #555; border-radius:4px; background:rgba(0,0,0,0.2); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
+           style="min-height:40px; padding:4px; border:1px dashed var(--trp-border); border-radius:4px; background:var(--trp-bg-overlay); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
         {{#each craftDeeds as |entry index|}}
           <div class="craft-chip" data-index="{{index}}"
-               style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.4); border:1px solid #444; border-radius:12px; padding:2px 8px 2px 2px; font-size:var(--fs-11);">
+               style="display:inline-flex; align-items:center; background:var(--trp-bg-overlay); border:1px solid var(--trp-border); border-radius:12px; padding:2px 8px 2px 2px; font-size:var(--fs-11);">
             <img src="{{entry.img}}" width="20" height="20" style="border:none; border-radius:10px; margin-right:6px;" />
             <span style="color:var(--trp-text-bright);">{{entry.name}}</span>
             {{#if @root.editable}}
-              <a class="craft-item-remove" data-list="deeds" style="margin-left:6px; color:#a00; cursor:pointer;" title="{{localize 'TRESPASSER.Craft.Remove'}}">
+              <a class="craft-item-remove" data-list="deeds" style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Craft.Remove'}}">
                 <i class="fas fa-times"></i>
               </a>
             {{/if}}
           </div>
         {{else}}
-          <span style="color:#666; font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Deeds"}}</span>
+          <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Deeds"}}</span>
         {{/each}}
       </div>
     </div>
@@ -59,20 +59,20 @@
       <h4>{{localize "TRESPASSER.Craft.Features"}}</h4>
       <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">{{localize "TRESPASSER.Craft.DropFeaturesNote"}}</p>
       <div class="craft-drop-zone" data-list="features"
-           style="min-height:40px; padding:4px; border:1px dashed #555; border-radius:4px; background:rgba(0,0,0,0.2); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
+           style="min-height:40px; padding:4px; border:1px dashed var(--trp-border); border-radius:4px; background:var(--trp-bg-overlay); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
         {{#each craftFeatures as |entry index|}}
           <div class="craft-chip" data-index="{{index}}"
-               style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.4); border:1px solid #444; border-radius:12px; padding:2px 8px 2px 2px; font-size:var(--fs-11);">
+               style="display:inline-flex; align-items:center; background:var(--trp-bg-overlay); border:1px solid var(--trp-border); border-radius:12px; padding:2px 8px 2px 2px; font-size:var(--fs-11);">
             <img src="{{entry.img}}" width="20" height="20" style="border:none; border-radius:10px; margin-right:6px;" />
             <span style="color:var(--trp-text-bright);">{{entry.name}}</span>
             {{#if @root.editable}}
-              <a class="craft-item-remove" data-list="features" style="margin-left:6px; color:#a00; cursor:pointer;" title="{{localize 'TRESPASSER.Craft.Remove'}}">
+              <a class="craft-item-remove" data-list="features" style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Craft.Remove'}}">
                 <i class="fas fa-times"></i>
               </a>
             {{/if}}
           </div>
         {{else}}
-          <span style="color:#666; font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.MagicTraits"}}</span>
+          <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.MagicTraits"}}</span>
         {{/each}}
       </div>
     </div>

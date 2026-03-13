@@ -19,7 +19,7 @@
   --bg-secondary: var(--trp-bg-panel);
   --bg-tertiary: var(--trp-bg-input);
   --bg-input: var(--trp-bg-input);
-  --bg-hover: #332d20;
+  --bg-hover: var(--trp-bg-panel);
   
   --accent-gold: var(--trp-gold);
   --accent-gold-dim: var(--trp-gold-dim);
@@ -44,7 +44,7 @@
   display: flex;
   flex-direction: column;
   padding: 0;
-  background: var(--bg-primary, #1a1a1a);
+  background: var(--bg-primary);
 }
 
 .trespasser.sheet.dungeon .tab {
@@ -80,10 +80,10 @@
 
 /* --- Shared Panel (outer tier) --- */
 .dungeon-panel {
-  background: var(--bg-secondary, #232323);
+  background: var(--bg-secondary);
   border-radius: 10px;
   padding: 10px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 3px 6px var(--trp-shadow-dark);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -91,10 +91,10 @@
 
 /* --- Shared Inner Block (inner tier) --- */
 .dungeon-inner-block {
-  background: var(--bg-tertiary, #2d2d2d);
+  background: var(--bg-tertiary);
   border-radius: 8px;
   padding: 10px 12px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 3px 6px var(--trp-shadow-dark);
 }
 
 /* --- Section Header (centered, underlined, gold) --- */
@@ -109,12 +109,12 @@
 }
 
 .dungeon-section-header {
-  font-family: var(--font-header, serif);
+  font-family: var(--font-header);
   font-size: var(--fs-14);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   text-decoration: underline;
   text-underline-offset: 4px;
   margin: 0;
@@ -138,10 +138,10 @@
 
 /* --- Header Panel (Section A) --- */
 .dungeon-header-panel {
-  background: var(--bg-secondary, #232323);
+  background: var(--bg-secondary);
   border-radius: 10px;
   padding: 10px 12px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 3px 6px var(--trp-shadow-dark);
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -158,7 +158,7 @@
   height: 64px;
   flex-shrink: 0;
   border-radius: 6px;
-  border: 2px solid var(--border-color, #3d3d3d);
+  border: 2px solid var(--border-color);
   overflow: hidden;
 }
 
@@ -170,7 +170,7 @@
 }
 
 .dungeon-portrait:hover {
-  border-color: var(--accent-gold, #c9a227);
+  border-color: var(--accent-gold);
 }
 
 .dungeon-header-fields {
@@ -182,21 +182,21 @@
 }
 
 .dungeon-name-input {
-  font-family: var(--font-header, serif);
+  font-family: var(--font-header);
   font-size: var(--fs-20);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.06em;
-  color: var(--text-primary, #d4d4d4);
-  background: var(--bg-tertiary, #2d2d2d);
-  border: 2px solid var(--border-color, #3d3d3d);
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
   border-radius: 6px;
   padding: 6px 12px;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 3px 6px var(--trp-shadow-dark);
 }
 
 .dungeon-name-input:focus {
-  border-color: var(--accent-gold, #c9a227);
+  border-color: var(--accent-gold);
   outline: none;
 }
 
@@ -208,23 +208,23 @@
 
 /* --- Shared Field Input Styling --- */
 .dungeon-field-input {
-  background: var(--bg-input, #2d2d2d);
-  border: 1px solid var(--border-color, #3d3d3d);
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
-  color: var(--text-primary, #d4d4d4);
-  font-family: var(--font-body, sans-serif);
+  color: var(--text-primary);
+  font-family: var(--font-body);
   font-size: var(--fs-12);
   padding: 4px 6px;
 }
 
 .dungeon-field-input:focus {
-  border-color: var(--accent-gold, #c9a227);
+  border-color: var(--accent-gold);
   outline: none;
 }
 
 select.dungeon-field-input option {
-  background: var(--bg-secondary, #232323);
-  color: var(--text-primary, #d4d4d4);
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 /* --- Two-Column Body (Section B) --- */
@@ -280,21 +280,21 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 4px;
   padding: 2px 8px;
-  background: rgba(0, 0, 0, 0.15);
-  border: 1px solid var(--border-color, #3d3d3d);
+  background: var(--trp-bg-overlay);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
   font-size: var(--fs-11);
-  color: var(--text-primary, #d4d4d4);
+  color: var(--text-primary);
 }
 
 .dungeon-trait-remove {
   cursor: pointer;
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   font-size: var(--fs-10);
 }
 
 .dungeon-trait-remove:hover {
-  color: var(--accent-red-bright, #c25454);
+  color: var(--accent-red-bright);
 }
 
 .dungeon-trait-add {
@@ -327,12 +327,12 @@ select.dungeon-field-input option {
   display: flex;
   align-items: center;
   padding: 4px 8px;
-  background: rgba(0, 0, 0, 0.15);
+  background: var(--trp-bg-overlay);
   border-radius: 4px;
-  font-family: var(--font-header, serif);
+  font-family: var(--font-header);
   font-size: var(--fs-13);
   font-weight: 700;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   text-transform: uppercase;
   letter-spacing: 0.06em;
   position: relative;
@@ -348,12 +348,12 @@ select.dungeon-field-input option {
 .encounter-roll-btn {
   cursor: pointer;
   text-decoration: none;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   transition: color 0.15s;
 }
 
 .encounter-roll-btn:hover {
-  color: var(--accent-gold-bright, #e8c840);
+  color: var(--accent-gold-bright);
 }
 
 .encounter-table-name {
@@ -376,9 +376,9 @@ select.dungeon-field-input option {
   justify-content: center;
   gap: 8px;
   padding: 24px 12px;
-  border: 2px dashed var(--border-color, #3d3d3d);
+  border: 2px dashed var(--border-color);
   border-radius: 6px;
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   font-size: var(--fs-12);
   font-style: italic;
   transition: border-color 0.2s, color 0.2s;
@@ -390,8 +390,8 @@ select.dungeon-field-input option {
 }
 
 .encounter-drop-zone:hover {
-  border-color: var(--accent-gold-dim, #7a621a);
-  color: var(--text-secondary, #9a9a9a);
+  border-color: var(--accent-gold-dim);
+  color: var(--text-secondary);
 }
 
 /* --- Encounter Table Entries --- */
@@ -399,7 +399,7 @@ select.dungeon-field-input option {
   display: flex;
   flex-direction: column;
   margin-top: 6px;
-  border-top: 1px solid var(--border-color, #3d3d3d);
+  border-top: 1px solid var(--border-color);
   padding-top: 4px;
 }
 
@@ -407,7 +407,7 @@ select.dungeon-field-input option {
   display: flex;
   gap: 6px;
   padding: 3px 0;
-  border-bottom: 1px solid var(--border-color, #3d3d3d);
+  border-bottom: 1px solid var(--border-color);
   font-size: var(--fs-11);
   align-items: center;
 }
@@ -418,10 +418,10 @@ select.dungeon-field-input option {
 
 .encounter-range {
   font-weight: bold;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   min-width: 32px;
   flex-shrink: 0;
-  font-family: var(--font-header, serif);
+  font-family: var(--font-header);
   text-align: center;
 }
 
@@ -430,12 +430,12 @@ select.dungeon-field-input option {
   height: 20px;
   object-fit: cover;
   border-radius: 3px;
-  border: 1px solid var(--border-color, #3d3d3d);
+  border: 1px solid var(--border-color);
   flex-shrink: 0;
 }
 
 .encounter-text {
-  color: var(--text-primary, #d4d4d4);
+  color: var(--text-primary);
   flex: 1;
 }
 
@@ -445,19 +445,19 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 4px;
   padding: 4px 10px;
-  background: var(--bg-tertiary, #2d2d2d);
-  border: 1px solid var(--border-color, #3d3d3d);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
-  color: var(--text-secondary, #9a9a9a);
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: var(--fs-11);
   text-decoration: none;
 }
 
 .dungeon-btn:hover {
-  background: var(--bg-hover, #353535);
-  color: var(--accent-gold, #c9a227);
-  border-color: var(--accent-gold-dim, #7a621a);
+  background: var(--bg-hover);
+  color: var(--accent-gold);
+  border-color: var(--accent-gold-dim);
 }
 
 .dungeon-btn-small {
@@ -468,7 +468,7 @@ select.dungeon-field-input option {
   height: 24px;
   background: transparent;
   border: none;
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   cursor: pointer;
   text-decoration: none;
   font-size: var(--fs-12);
@@ -476,7 +476,7 @@ select.dungeon-field-input option {
 }
 
 .dungeon-btn-small:hover {
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
 }
 
 /* --- Collapsible Map (Section C) --- */
@@ -506,7 +506,7 @@ select.dungeon-field-input option {
   top: 50%;
   transform: translateY(-50%);
   font-size: var(--fs-10);
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   transition: transform 0.2s;
 }
 
@@ -520,7 +520,7 @@ select.dungeon-field-input option {
 
 .dungeon-map-preview {
   margin-top: 6px;
-  border: 1px solid var(--border-color, #3d3d3d);
+  border: 1px solid var(--border-color);
   border-radius: 4px;
 }
 
@@ -533,9 +533,9 @@ select.dungeon-field-input option {
 /* --- Description Editor (Section D) --- */
 .dungeon-description-editor {
   min-height: 80px;
-  font-family: var(--font-body, sans-serif);
+  font-family: var(--font-body);
   font-size: var(--fs-12);
-  color: var(--text-primary, #d4d4d4);
+  color: var(--text-primary);
   line-height: 1.5;
 }
 
@@ -548,7 +548,7 @@ select.dungeon-field-input option {
   display: flex;
   gap: 8px;
   padding: 4px 0;
-  border-bottom: 1px solid var(--border-color, #3d3d3d);
+  border-bottom: 1px solid var(--border-color);
   font-size: var(--fs-11);
   align-items: baseline;
 }
@@ -559,20 +559,20 @@ select.dungeon-field-input option {
 
 .log-round {
   font-weight: bold;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   min-width: 24px;
   flex-shrink: 0;
 }
 
 .log-action {
-  color: var(--text-primary, #d4d4d4);
+  color: var(--text-primary);
   font-weight: bold;
   min-width: 80px;
   flex-shrink: 0;
 }
 
 .log-detail {
-  color: var(--text-secondary, #9a9a9a);
+  color: var(--text-secondary);
   flex: 1;
 }
 
@@ -582,15 +582,15 @@ select.dungeon-field-input option {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--border-color, #3d3d3d);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .dungeon-rooms-header h2 {
-  font-family: var(--font-header, serif);
+  font-family: var(--font-header);
   font-size: var(--fs-18);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   margin: 0;
 }
 
@@ -604,21 +604,21 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 8px;
   padding: 6px 12px;
-  border-bottom: 1px solid var(--border-color, #3d3d3d);
-  background: var(--bg-primary, #1a1a1a);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-primary);
   transition: background 0.15s;
 }
 
 .dungeon-room-row:hover {
-  background: var(--bg-hover, #353535);
+  background: var(--bg-hover);
 }
 
 .dungeon-room-row.discovered {
-  border-left: 3px solid var(--dungeon-discovered, #3a5a3a);
+  border-left: 3px solid var(--dungeon-discovered);
 }
 
 .dungeon-room-row:not(.discovered) {
-  border-left: 3px solid var(--dungeon-undiscovered, #4a3a3a);
+  border-left: 3px solid var(--dungeon-undiscovered);
   opacity: 0.7;
 }
 
@@ -627,13 +627,13 @@ select.dungeon-field-input option {
 }
 
 .dungeon-room-discovered-toggle {
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   cursor: pointer;
   font-size: var(--fs-14);
 }
 
 .dungeon-room-row.discovered .dungeon-room-discovered-toggle {
-  color: var(--accent-green, #3a8b4a);
+  color: var(--accent-green);
 }
 
 .dungeon-room-info {
@@ -647,7 +647,7 @@ select.dungeon-field-input option {
 .dungeon-room-name {
   font-weight: bold;
   font-size: var(--fs-12);
-  color: var(--text-primary, #d4d4d4);
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -664,18 +664,18 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 2px;
   font-size: var(--fs-10);
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   padding: 1px 4px;
-  background: var(--bg-secondary, #232323);
+  background: var(--bg-secondary);
   border-radius: 3px;
 }
 
 .room-badge.hazard {
-  color: var(--accent-red-bright, #c25454);
+  color: var(--accent-red-bright);
 }
 
 .room-badge.loot {
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
 }
 
 .dungeon-room-controls {
@@ -685,13 +685,13 @@ select.dungeon-field-input option {
 }
 
 .dungeon-room-controls a {
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   cursor: pointer;
   font-size: var(--fs-12);
 }
 
 .dungeon-room-controls a:hover {
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
 }
 
 /* --- Log Tab --- */
@@ -700,15 +700,15 @@ select.dungeon-field-input option {
   justify-content: space-between;
   align-items: center;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--border-color, #3d3d3d);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .dungeon-log-header h2 {
-  font-family: var(--font-header, serif);
+  font-family: var(--font-header);
   font-size: var(--fs-18);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   margin: 0;
 }
 
@@ -730,11 +730,11 @@ select.dungeon-field-input option {
 }
 
 .dungeon-notes h2 {
-  font-family: var(--font-header, serif);
+  font-family: var(--font-header);
   font-size: var(--fs-18);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   margin: 0 0 8px;
 }
 
@@ -742,7 +742,7 @@ select.dungeon-field-input option {
 .dungeon-empty-notice {
   padding: 16px 12px;
   text-align: center;
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   font-style: italic;
   font-size: var(--fs-12);
 }
@@ -755,12 +755,12 @@ select.dungeon-field-input option {
 }
 
 .dungeon-overview .form-group label {
-  font-family: var(--font-header, serif);
+  font-family: var(--font-header);
   font-size: var(--fs-9);
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--text-secondary, #9a9a9a);
+  color: var(--text-secondary);
 }
 
 
@@ -770,7 +770,7 @@ select.dungeon-field-input option {
 
 .dungeon-tracker .window-content {
   padding: 0;
-  background: var(--bg-primary, #1a1a1a);
+  background: var(--bg-primary);
   overflow-y: auto;
   scrollbar-width: thin;
   scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-track);
@@ -802,7 +802,7 @@ select.dungeon-field-input option {
   font-size: var(--fs-11);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   margin: 0 0 6px;
 }
 
@@ -819,10 +819,10 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 8px;
   padding: 6px 8px;
-  background: var(--bg-tertiary, #2d2d2d);
-  border: 1px solid var(--border-color, #3d3d3d);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
-  color: var(--text-secondary, #9a9a9a);
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: var(--fs-12);
   text-decoration: none;
@@ -830,18 +830,18 @@ select.dungeon-field-input option {
 }
 
 .tracker-dungeon-option:hover {
-  background: var(--bg-hover, #353535);
-  color: var(--text-primary, #d4d4d4);
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .tracker-dungeon-option.selected {
-  background: var(--bg-hover, #353535);
-  border-color: var(--accent-gold, #c9a227);
-  color: var(--text-primary, #d4d4d4);
+  background: var(--bg-hover);
+  border-color: var(--accent-gold);
+  color: var(--text-primary);
 }
 
 .tracker-dungeon-option .fa-check {
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   margin-left: auto;
 }
 
@@ -868,10 +868,10 @@ select.dungeon-field-input option {
 .tracker-start-btn {
   width: 100%;
   padding: 10px;
-  background: var(--accent-gold-dim, #7a621a);
-  border: 1px solid var(--accent-gold, #c9a227);
+  background: var(--accent-gold-dim);
+  border: 1px solid var(--accent-gold);
   border-radius: 3px;
-  color: var(--text-primary, #d4d4d4);
+  color: var(--text-primary);
   cursor: pointer;
   font-size: var(--fs-13);
   font-weight: bold;
@@ -879,14 +879,14 @@ select.dungeon-field-input option {
 }
 
 .tracker-start-btn:hover {
-  background: var(--accent-gold, #c9a227);
+  background: var(--accent-gold);
   color: var(--trp-bg-dark);
 }
 
 .tracker-no-dungeon {
   padding: 24px 16px;
   text-align: center;
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
 }
 
 .tracker-hint {
@@ -898,9 +898,9 @@ select.dungeon-field-input option {
 /* --- Paused Banner --- */
 .tracker-paused-banner {
   padding: 6px 10px;
-  background: rgba(201, 162, 39, 0.15);
-  border-bottom: 1px solid var(--accent-gold-dim, #7a621a);
-  color: var(--accent-gold, #c9a227);
+  background: var(--trp-gold-overlay);
+  border-bottom: 1px solid var(--accent-gold-dim);
+  color: var(--accent-gold);
   font-weight: bold;
   font-size: var(--fs-12);
   text-align: center;
@@ -911,13 +911,13 @@ select.dungeon-field-input option {
   display: flex;
   gap: 4px;
   padding: 6px 10px 8px;
-  border-top: 1px solid var(--border-color, #3d3d3d);
+  border-top: 1px solid var(--border-color);
 }
 
 .tracker-session-btn {
   flex: 1;
   padding: 6px 8px;
-  border: 1px solid var(--border-color, #3d3d3d);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
   cursor: pointer;
   font-size: var(--fs-11);
@@ -926,34 +926,34 @@ select.dungeon-field-input option {
 }
 
 .tracker-session-btn.pause {
-  background: var(--bg-tertiary, #2d2d2d);
-  color: var(--accent-gold, #c9a227);
+  background: var(--bg-tertiary);
+  color: var(--accent-gold);
 }
 
 .tracker-session-btn.pause:hover {
-  background: var(--accent-gold-dim, #7a621a);
-  color: var(--text-primary, #d4d4d4);
+  background: var(--accent-gold-dim);
+  color: var(--text-primary);
 }
 
 .tracker-session-btn.resume {
-  background: var(--bg-tertiary, #2d2d2d);
-  color: var(--accent-green, #3a8b4a);
-  border-color: var(--accent-green, #3a8b4a);
+  background: var(--bg-tertiary);
+  color: var(--accent-green);
+  border-color: var(--accent-green);
 }
 
 .tracker-session-btn.resume:hover {
-  background: rgba(58, 139, 74, 0.3);
-  color: var(--text-primary, #d4d4d4);
+  background: var(--trp-green-overlay);
+  color: var(--text-primary);
 }
 
 .tracker-session-btn.end {
-  background: var(--bg-tertiary, #2d2d2d);
-  color: var(--accent-red-bright, #c25454);
+  background: var(--bg-tertiary);
+  color: var(--accent-red-bright);
 }
 
 .tracker-session-btn.end:hover {
-  background: rgba(194, 84, 84, 0.2);
-  color: var(--text-primary, #d4d4d4);
+  background: var(--trp-red-overlay);
+  color: var(--text-primary);
 }
 
 /* --- Header --- */
@@ -962,8 +962,8 @@ select.dungeon-field-input option {
   justify-content: space-between;
   align-items: center;
   padding: 8px 10px;
-  border-bottom: 2px solid var(--accent-gold-dim, #7a621a);
-  background: var(--bg-secondary, #232323);
+  border-bottom: 2px solid var(--accent-gold-dim);
+  background: var(--bg-secondary);
 }
 
 .tracker-header-info {
@@ -973,16 +973,16 @@ select.dungeon-field-input option {
 }
 
 .tracker-dungeon-name {
-  font-family: var(--font-header, serif);
+  font-family: var(--font-header);
   font-size: var(--fs-14);
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   margin: 0;
   line-height: 1.2;
 }
 
 .tracker-hostility {
   font-size: var(--fs-10);
-  color: var(--text-secondary, #9a9a9a);
+  color: var(--text-secondary);
 }
 
 .tracker-header-controls {
@@ -991,13 +991,13 @@ select.dungeon-field-input option {
 }
 
 .tracker-header-controls a {
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   cursor: pointer;
   font-size: var(--fs-13);
 }
 
 .tracker-header-controls a:hover {
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
 }
 
 /* --- Status Bar --- */
@@ -1005,8 +1005,8 @@ select.dungeon-field-input option {
   display: flex;
   gap: 2px;
   padding: 6px 10px;
-  border-bottom: 1px solid var(--border-color, #3d3d3d);
-  background: var(--bg-secondary, #232323);
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
 }
 
 .tracker-stat {
@@ -1015,7 +1015,7 @@ select.dungeon-field-input option {
   flex-direction: column;
   align-items: center;
   padding: 4px;
-  background: var(--bg-tertiary, #2d2d2d);
+  background: var(--bg-tertiary);
   border-radius: 3px;
 }
 
@@ -1023,22 +1023,22 @@ select.dungeon-field-input option {
   font-size: var(--fs-9);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
 }
 
 .tracker-stat-value {
   font-size: var(--fs-16);
   font-weight: bold;
-  color: var(--text-primary, #d4d4d4);
+  color: var(--text-primary);
   line-height: 1.2;
 }
 
 .tracker-stat-value.exhausted {
-  color: var(--accent-red-bright, #c25454);
+  color: var(--accent-red-bright);
 }
 
 .tracker-stat-value.alarm {
-  color: var(--accent-red-bright, #c25454);
+  color: var(--accent-red-bright);
 }
 
 /* --- Action Pips --- */
@@ -1073,19 +1073,19 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 6px;
   padding: 6px 10px;
-  border-bottom: 1px solid var(--border-color, #3d3d3d);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .tracker-room-label {
   font-size: var(--fs-10);
   text-transform: uppercase;
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   flex-shrink: 0;
 }
 
 .tracker-room-name {
   font-weight: bold;
-  color: var(--text-primary, #d4d4d4);
+  color: var(--text-primary);
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -1093,26 +1093,26 @@ select.dungeon-field-input option {
 }
 
 .tracker-room-link {
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   cursor: pointer;
   flex-shrink: 0;
 }
 
 .tracker-room-link:hover {
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
 }
 
 /* --- Action Buttons --- */
 .tracker-actions-section {
   padding: 6px 10px 8px;
-  border-bottom: 1px solid var(--border-color, #3d3d3d);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .tracker-actions-section h3 {
   font-size: var(--fs-10);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   margin: 0 0 6px;
 }
 
@@ -1127,10 +1127,10 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 5px;
   padding: 5px 8px;
-  background: var(--bg-tertiary, #2d2d2d);
-  border: 1px solid var(--border-color, #3d3d3d);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
-  color: var(--text-secondary, #9a9a9a);
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: var(--fs-11);
   text-align: left;
@@ -1138,9 +1138,9 @@ select.dungeon-field-input option {
 }
 
 .tracker-action-btn:hover:not(:disabled) {
-  background: var(--bg-hover, #353535);
-  color: var(--accent-gold, #c9a227);
-  border-color: var(--accent-gold-dim, #7a621a);
+  background: var(--bg-hover);
+  color: var(--accent-gold);
+  border-color: var(--accent-gold-dim);
 }
 
 .tracker-action-btn:disabled {
@@ -1163,14 +1163,14 @@ select.dungeon-field-input option {
 /* --- Room Navigation --- */
 .tracker-rooms-section {
   padding: 6px 10px 8px;
-  border-bottom: 1px solid var(--border-color, #3d3d3d);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .tracker-rooms-section h3 {
   font-size: var(--fs-10);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   margin: 0 0 4px;
 }
 
@@ -1195,10 +1195,10 @@ select.dungeon-field-input option {
   gap: 6px;
   padding: 4px 8px;
   width: 100%;
-  background: var(--bg-tertiary, #2d2d2d);
-  border: 1px solid var(--border-color, #3d3d3d);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
   border-radius: 3px;
-  color: var(--text-secondary, #9a9a9a);
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: var(--fs-11);
   text-decoration: none;
@@ -1206,8 +1206,8 @@ select.dungeon-field-input option {
 }
 
 .tracker-room-go:hover {
-  background: var(--bg-hover, #353535);
-  color: var(--text-primary, #d4d4d4);
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .tracker-room-go i {
@@ -1217,7 +1217,7 @@ select.dungeon-field-input option {
 
 .tracker-empty {
   padding: 6px;
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   font-style: italic;
   font-size: var(--fs-11);
   text-align: center;
@@ -1226,16 +1226,16 @@ select.dungeon-field-input option {
 /* --- Round Control --- */
 .tracker-round-control {
   padding: 6px 10px 8px;
-  border-bottom: 1px solid var(--border-color, #3d3d3d);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .tracker-next-round-btn {
   width: 100%;
   padding: 8px;
-  background: var(--bg-tertiary, #2d2d2d);
-  border: 1px solid var(--accent-gold-dim, #7a621a);
+  background: var(--bg-tertiary);
+  border: 1px solid var(--accent-gold-dim);
   border-radius: 3px;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   cursor: pointer;
   font-size: var(--fs-12);
   font-weight: bold;
@@ -1243,14 +1243,14 @@ select.dungeon-field-input option {
 }
 
 .tracker-next-round-btn:hover {
-  background: var(--accent-gold-dim, #7a621a);
-  color: var(--text-primary, #d4d4d4);
+  background: var(--accent-gold-dim);
+  color: var(--text-primary);
 }
 
 /* --- Light Sources --- */
 .tracker-light-section {
   padding: 6px 10px 8px;
-  border-bottom: 1px solid var(--border-color, #3d3d3d);
+  border-bottom: 1px solid var(--border-color);
 }
 
 .tracker-light-section h3 {
@@ -1272,24 +1272,24 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 6px;
   padding: 3px 6px;
-  background: var(--bg-tertiary, #2d2d2d);
+  background: var(--bg-tertiary);
   border-radius: 2px;
   font-size: var(--fs-11);
 }
 
 .light-item {
   font-weight: bold;
-  color: var(--text-primary, #d4d4d4);
+  color: var(--text-primary);
   flex: 1;
 }
 
 .light-owner {
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   font-size: var(--fs-10);
 }
 
 .light-depletion {
-  color: var(--accent-red-bright, #c25454);
+  color: var(--accent-red-bright);
   font-size: var(--fs-10);
   font-weight: bold;
 }
@@ -1303,7 +1303,7 @@ select.dungeon-field-input option {
   font-size: var(--fs-10);
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   margin: 0 0 4px;
 }
 
@@ -1323,18 +1323,18 @@ select.dungeon-field-input option {
 
 .tracker-log-round {
   font-weight: bold;
-  color: var(--accent-gold, #c9a227);
+  color: var(--accent-gold);
   min-width: 20px;
   flex-shrink: 0;
 }
 
 .tracker-log-action {
-  color: var(--text-primary, #d4d4d4);
+  color: var(--text-primary);
   flex-shrink: 0;
 }
 
 .tracker-log-detail {
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   flex: 1;
   white-space: nowrap;
   overflow: hidden;
@@ -1358,21 +1358,21 @@ select.dungeon-field-input option {
 
 .dungeon-action-meta {
   font-size: var(--fs-10);
-  color: var(--text-secondary, #9a9a9a);
+  color: var(--text-secondary);
 }
 
 .trespasser-dungeon-round {
   display: flex;
   flex-direction: column;
   gap: 2px;
-  border-left: 3px solid var(--accent-gold, #c9a227);
+  border-left: 3px solid var(--accent-gold);
   padding-left: 8px;
 }
 
 /* --- Encounter Chat Cards --- */
 .trespasser-encounter-check {
   padding: 6px;
-  border-left: 3px solid var(--accent-red-bright, #c25454);
+  border-left: 3px solid var(--accent-red-bright);
   padding-left: 8px;
 }
 
@@ -1390,32 +1390,32 @@ select.dungeon-field-input option {
 }
 
 .encounter-alarm {
-  color: var(--accent-red-bright, #c25454);
+  color: var(--accent-red-bright);
   font-weight: bold;
 }
 
 .encounter-triggered {
-  color: var(--accent-red-bright, #c25454);
+  color: var(--accent-red-bright);
   font-weight: bold;
   font-size: var(--fs-14);
   margin-top: 4px;
 }
 
 .encounter-clear {
-  color: var(--accent-green, #3a8b4a);
+  color: var(--accent-green);
   font-style: italic;
   margin-top: 4px;
 }
 
 .trespasser-encounter-card {
-  border-left: 3px solid var(--accent-red-bright, #c25454);
+  border-left: 3px solid var(--accent-red-bright);
   padding-left: 8px;
 }
 
 .trespasser-encounter-card h3 {
   margin: 0 0 6px;
   font-size: var(--fs-14);
-  color: var(--accent-red-bright, #c25454);
+  color: var(--accent-red-bright);
 }
 
 .encounter-description,
@@ -1442,8 +1442,8 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: var(--trp-bg-overlay);
+  border: 1px solid var(--trp-border);
   border-radius: 3px;
   font-size: var(--fs-11);
 }
@@ -1470,14 +1470,14 @@ select.dungeon-field-input option {
   text-align: left;
   font-size: var(--fs-10);
   text-transform: uppercase;
-  color: var(--text-muted, #666);
+  color: var(--text-muted);
   padding: 2px 4px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--trp-border-light);
 }
 
 .light-depletion-table td {
   padding: 3px 4px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid var(--trp-border);
 }
 
 .dungeon-action-body {
@@ -1505,7 +1505,7 @@ select.dungeon-field-input option {
 
 .room-sheet .room-section {
   margin-bottom: 16px;
-  border-bottom: 1px solid var(--trp-gold-dim, #7a6c3c);
+  border-bottom: 1px solid var(--trp-gold-dim);
   padding-bottom: 10px;
 }
 
@@ -1515,7 +1515,7 @@ select.dungeon-field-input option {
 
 .room-sheet .room-section-title {
   font-family: var(--trp-font-header, "Cinzel", serif);
-  color: var(--trp-gold-bright, #d4a84b);
+  color: var(--trp-gold-bright);
   font-size: var(--fs-13);
   margin: 0 0 8px;
   text-transform: uppercase;
@@ -1528,7 +1528,7 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 6px;
   padding: 4px 0;
-  border-bottom: 1px solid rgba(74, 63, 47, 0.2);
+  border-bottom: 1px solid var(--trp-border);
 }
 
 .room-sheet .room-feature-row span {
@@ -1537,14 +1537,14 @@ select.dungeon-field-input option {
 
 .room-sheet .room-remove-feature {
   cursor: pointer;
-  color: var(--trp-text-dim, #888);
+  color: var(--trp-text-dim);
   opacity: 0.6;
   transition: opacity 0.15s;
 }
 
 .room-sheet .room-remove-feature:hover {
   opacity: 1;
-  color: var(--trp-danger, #cc4444);
+  color: var(--trp-red);
 }
 
 .room-sheet .room-feature-add {
@@ -1560,7 +1560,7 @@ select.dungeon-field-input option {
 .room-sheet .room-add-feature {
   cursor: pointer;
   padding: 4px 8px;
-  color: var(--trp-gold-bright, #d4a84b);
+  color: var(--trp-gold-bright);
 }
 
 /* Connections */
@@ -1571,9 +1571,9 @@ select.dungeon-field-input option {
 }
 
 .room-sheet .room-connection-entry {
-  border: 1px solid var(--trp-border, #4a3f2f);
+  border: 1px solid var(--trp-border);
   border-radius: var(--trp-radius, 4px);
-  background: var(--trp-bg-panel, #1e1e1e);
+  background: var(--trp-bg-panel);
   padding: 6px 8px;
 }
 
@@ -1589,12 +1589,12 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  color: var(--trp-gold-bright, #d4a84b);
+  color: var(--trp-gold-bright);
   text-decoration: none;
 }
 
 .room-sheet .room-open-connection:hover {
-  color: var(--trp-gold, #c9a227);
+  color: var(--trp-gold);
   text-decoration: underline;
 }
 
@@ -1605,20 +1605,20 @@ select.dungeon-field-input option {
 .room-sheet .room-connection-flags {
   display: flex;
   gap: 4px;
-  color: var(--trp-text-dim, #888);
+  color: var(--trp-text-dim);
   font-size: var(--fs-11);
 }
 
 .room-sheet .room-remove-connection {
   cursor: pointer;
-  color: var(--trp-text-dim, #888);
+  color: var(--trp-text-dim);
   opacity: 0.6;
   transition: opacity 0.15s;
 }
 
 .room-sheet .room-remove-connection:hover {
   opacity: 1;
-  color: var(--trp-danger, #cc4444);
+  color: var(--trp-danger);
 }
 
 .room-sheet .room-connection-details {
@@ -1643,7 +1643,7 @@ select.dungeon-field-input option {
   align-items: center;
   gap: 2px;
   cursor: pointer;
-  color: var(--trp-text-dim, #888);
+  color: var(--trp-text-dim);
   font-size: var(--fs-12);
   padding: 2px 4px;
 }
@@ -1653,7 +1653,7 @@ select.dungeon-field-input option {
 }
 
 .room-sheet .room-connection-flag-toggle:has(input:checked) {
-  color: var(--trp-gold-bright, #d4a84b);
+  color: var(--trp-gold-bright);
 }
 
 /* Drop zone */
@@ -1672,7 +1672,7 @@ select.dungeon-field-input option {
 .room-sheet .room-add-connection-btn {
   cursor: pointer;
   padding: 4px 8px;
-  color: var(--trp-gold-bright, #d4a84b);
+  color: var(--trp-gold-bright);
   opacity: 0.8;
   transition: opacity 0.15s;
 }
@@ -1683,11 +1683,11 @@ select.dungeon-field-input option {
 
 .room-sheet .room-connections-drop {
   margin-top: 8px;
-  border: 2px dashed var(--trp-border, #4a3f2f);
+  border: 2px dashed var(--trp-border);
   border-radius: var(--trp-radius, 4px);
   padding: 12px;
   text-align: center;
-  color: var(--trp-text-dim, #888);
+  color: var(--trp-text-dim);
   font-size: var(--fs-12);
   display: flex;
   align-items: center;
@@ -1697,9 +1697,9 @@ select.dungeon-field-input option {
 }
 
 .room-sheet .room-connections-drop.drag-over {
-  border-color: var(--trp-gold-bright, #d4a84b);
-  background: rgba(201, 162, 39, 0.1);
-  color: var(--trp-gold-bright, #d4a84b);
+  border-color: var(--trp-gold-bright);
+  background: var(--trp-gold-overlay);
+  color: var(--trp-gold-bright);
 }
 
 /* ---- Room Trap ---- */
@@ -1716,8 +1716,8 @@ select.dungeon-field-input option {
   flex-direction: column;
   gap: 6px;
   padding: 8px;
-  background: rgba(35, 35, 35, 0.6);
-  border: 1px solid rgba(204, 68, 68, 0.25);
+  background: var(--trp-bg-overlay);
+  border: 1px solid var(--trp-red-overlay);
   border-radius: 4px;
 }
 
@@ -1730,7 +1730,7 @@ select.dungeon-field-input option {
 .room-sheet .trap-field-row label {
   min-width: 80px;
   font-size: var(--fs-11);
-  color: var(--trp-text-dim, #888);
+  color: var(--trp-text-dim);
   flex-shrink: 0;
 }
 
@@ -1762,11 +1762,11 @@ select.dungeon-field-input option {
   gap: 4px;
   font-size: var(--fs-11);
   cursor: pointer;
-  color: var(--trp-text-dim, #888);
+  color: var(--trp-text-dim);
 }
 
 .room-sheet .trap-flag-toggle:has(input:checked) {
-  color: var(--trp-gold-bright, #d4a84b);
+  color: var(--trp-gold-bright);
 }
 
 .room-sheet .trap-flag-toggle input {
@@ -1778,9 +1778,9 @@ select.dungeon-field-input option {
 .room-sheet .detail-trap-entry {
   margin-bottom: 10px;
   padding: 8px;
-  background: rgba(35, 35, 35, 0.6);
-  border: 1px solid rgba(204, 68, 68, 0.25);
-  border-left: 3px solid var(--trp-danger, #cc4444);
+  background: var(--trp-bg-overlay);
+  border: 1px solid var(--trp-red-overlay);
+  border-left: 3px solid var(--trp-danger);
   border-radius: 4px;
 }
 
@@ -1794,7 +1794,7 @@ select.dungeon-field-input option {
 .room-sheet .detail-trap-label {
   font-size: var(--fs-12);
   font-weight: bold;
-  color: var(--trp-danger, #cc4444);
+  color: var(--trp-danger);
 }
 
 .room-sheet .detail-trap-fields {
@@ -1805,14 +1805,14 @@ select.dungeon-field-input option {
 
 .room-sheet .room-remove-detail-trap {
   cursor: pointer;
-  color: var(--trp-text-dim, #888);
+  color: var(--trp-text-dim);
   opacity: 0.6;
   transition: opacity 0.15s;
 }
 
 .room-sheet .room-remove-detail-trap:hover {
   opacity: 1;
-  color: var(--trp-danger, #cc4444);
+  color: var(--trp-danger);
 }
 
 .room-sheet .room-add-detail-trap {
@@ -1822,7 +1822,7 @@ select.dungeon-field-input option {
   margin-top: 8px;
   cursor: pointer;
   font-size: var(--fs-12);
-  color: var(--trp-gold-bright, #d4a84b);
+  color: var(--trp-gold-bright);
   opacity: 0.8;
   transition: opacity 0.15s;
 }

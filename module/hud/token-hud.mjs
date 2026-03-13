@@ -598,7 +598,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                   <i class="fas fa-hand-holding-heart"></i>
                 </a>
 
-                <p style="font-size:var(--fs-10);margin-top:8px;text-align:right;color:var(--trp-text-dim);border-top:1px solid rgba(255,255,255,0.05);padding-top:4px;">
+                <p style="font-size:var(--fs-10);margin-top:8px;text-align:right;color:var(--trp-text-dim);border-top:1px solid var(--trp-border);padding-top:4px;">
                   AP Spent: ${cost}
                 </p>
               </div>`

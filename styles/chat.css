@@ -76,7 +76,7 @@
 .trespasser-chat-card .apply-effect-btn:hover {
   background: var(--trp-bg-panel);
   border-color: var(--trp-gold-bright);
-  box-shadow: 0 0 4px rgba(232, 201, 107, 0.3);
+  box-shadow: 0 0 4px var(--trp-shadow-gold);
 }
 
 .trespasser-chat-card .apply-effect-btn img {
@@ -116,7 +116,7 @@
 }
 
 .prosemirror menu button.active {
-  background-color: #5d5d5d;
+  background-color: var(--trp-border-light);
 }
 
 /* ─── Talents & Incantations Rollables ─── */
@@ -141,7 +141,7 @@
 
 .incantation-card h3 {
   border-bottom: 2px solid var(--trp-gold);
-  color: #9575cd;
+  color: var(--trp-purple);
 }
 
 .incantation-metrics {
