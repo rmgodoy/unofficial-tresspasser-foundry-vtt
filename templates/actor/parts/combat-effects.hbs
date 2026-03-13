@@ -10,14 +10,14 @@
           <div class="effect-row combat-effect" data-item-id="{{this.id}}">
             <div class="effect-name">
               {{this.name}}
-              {{#if (eq this.type "continuous")}} <span style="font-size: 9px; opacity: 0.7;">({{localize "TRESPASSER.Sheet.Effects.EffectTypes.Continuous"}})</span>{{/if}}
+              {{#if (eq this.type "continuous")}} <span style="font-size: var(--fs-9); opacity: 0.7;">({{localize "TRESPASSER.Sheet.Effects.EffectTypes.Continuous"}})</span>{{/if}}
               <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>
               <a class="effect-edit" title="{{localize 'TRESPASSER.General.Edit'}}"><i class="fas fa-edit"></i></a>
-              {{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
+              {{#if this.sourceName}} <span style="font-size: var(--fs-11); font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
             </div>
             
             {{#if (and this.durationSummary (ne this.type "continuous"))}}
-              <div class="effect-duration-control" style="font-size: 10px; color: var(--trp-text-dim); display:flex; align-items:center; gap:4px;">
+              <div class="effect-duration-control" style="font-size: var(--fs-10); color: var(--trp-text-dim); display:flex; align-items:center; gap:4px;">
                 <i class="fas fa-clock" style="opacity:0.6;"></i>
                 <span>{{this.durationSummary}}</span>
               </div>

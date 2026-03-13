@@ -44,10 +44,10 @@ export async function onTalentRoll(event, sheet) {
     <h3>Talent: ${item.name}</h3>
     ${totalCost > 0 ? `<p class="cost-note">${game.i18n.format("TRESPASSER.Chat.SpentFocus", { count: totalCost })}</p>` : ""}
     <details>
-      <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:11px;margin-bottom:5px;">
+      <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:var(--fs-11);margin-bottom:5px;">
         <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.DescriptionExpand")}
       </summary>
-      <div class="collapsible-content" style="background:rgba(0,0,0,0.3);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:12px;">
+      <div class="collapsible-content" style="background:rgba(0,0,0,0.3);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:var(--fs-12);">
         ${enrichedDescription}
       </div>
     </details>`;
@@ -78,10 +78,10 @@ export async function onTalentRoll(event, sheet) {
     await roll.evaluate();
 
     const applyHealBtns = `<div class="trp-damage-actions" style="display:flex;gap:6px;margin-top:8px;">
-      <button class="apply-damage-btn" data-damage="${roll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+      <button class="apply-damage-btn" data-damage="${roll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
         <i class="fas fa-heart-broken"></i> Apply Damage
       </button>
-      <button class="heal-damage-btn" data-damage="${roll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+      <button class="heal-damage-btn" data-damage="${roll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
         <i class="fas fa-heart"></i> Heal
       </button>
     </div>`;
@@ -116,10 +116,10 @@ export async function onFeatureRoll(event, sheet) {
     <div class="trespasser-chat-card feature-card">
       <h3>Feature: ${item.name}</h3>
       <details>
-        <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:11px;margin-bottom:5px;">
+        <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:var(--fs-11);margin-bottom:5px;">
           <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.DescriptionExpand")}
         </summary>
-        <div class="collapsible-content" style="background:rgba(0,0,0,0.3);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:12px;">
+        <div class="collapsible-content" style="background:rgba(0,0,0,0.3);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:var(--fs-12);">
           ${enrichedRef}
         </div>
       </details>
@@ -186,10 +186,10 @@ export async function onIncantationRoll(event, sheet) {
         <div class="metric shadow" style="color:#9575cd;"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
       </div>
       <details>
-        <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:11px;margin-bottom:5px;">
+        <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:var(--fs-11);margin-bottom:5px;">
           <i class="fas fa-info-circle"></i> Description (Click to Expand)
         </summary>
-        <div class="collapsible-content" style="background:rgba(0,0,0,0.3);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:12px;">
+        <div class="collapsible-content" style="background:rgba(0,0,0,0.3);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:var(--fs-12);">
           ${enrichedDescription}
         </div>
       </details>

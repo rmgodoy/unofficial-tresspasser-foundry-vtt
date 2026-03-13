@@ -37,7 +37,7 @@
 
 .trespasser-token-hud .hud-title {
     font-family: var(--trp-font-header);
-    font-size: 10px;
+    font-size: var(--fs-10);
     text-transform: uppercase;
     color: var(--trp-gold);
     letter-spacing: 0.1em;
@@ -88,7 +88,7 @@
     border: 1px solid var(--trp-border);
     color: var(--trp-text-bright);
     font-family: var(--trp-font-header);
-    font-size: 10px;
+    font-size: var(--fs-10);
     padding: 4px 8px;
     min-height: 32px;
     cursor: pointer;
@@ -155,7 +155,7 @@
 }
 
 .trespasser-token-hud .hud-action-btn .cost {
-    font-size: 9px;
+    font-size: var(--fs-9);
     color: var(--trp-gold);
     margin-top: 2px;
     font-family: var(--trp-font-body);
@@ -211,7 +211,7 @@
 
 .trespasser-token-hud .field-row label {
     font-family: var(--trp-font-header);
-    font-size: 10px;
+    font-size: var(--fs-10);
     text-transform: uppercase;
     color: var(--trp-gold);
     display: block;
@@ -225,7 +225,7 @@
     color: var(--trp-text-bright) !important;
     border: 1px solid var(--trp-border) !important;
     font-family: var(--trp-font-body) !important;
-    font-size: 13px !important;
+    font-size: var(--fs-13) !important;
     padding: 2px 4px;
     border-radius: var(--trp-radius-sm);
 }
@@ -236,7 +236,7 @@
     border: 1px solid var(--trp-border);
     color: var(--trp-text-bright);
     font-family: var(--trp-font-header);
-    font-size: 11px;
+    font-size: var(--fs-11);
     text-transform: uppercase;
     padding: 6px;
     cursor: pointer;
@@ -265,7 +265,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: var(--fs-10);
     transition: all 0.2s;
     z-index: 5;
     pointer-events: all;
@@ -288,7 +288,7 @@
     display: inline-block;
     background: #c62828;
     color: white;
-    font-size: 8px;
+    font-size: var(--fs-8);
     padding: 1px 3px;
     border-radius: 3px;
     margin-top: 2px;
@@ -313,7 +313,7 @@
     border-radius: 50%;
     width: 18px;
     height: 18px;
-    font-size: 11px;
+    font-size: var(--fs-11);
     display: flex;
     align-items: center;
     justify-content: center;

@@ -592,13 +592,13 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                    title="${game.i18n.localize("TRESPASSER.Chat.Apply")}">
                   <img src="systems/trespasser/assets/icons/effects.png" style="width:32px;height:32px;border:none;margin-right:12px;" />
                   <div style="flex:1;">
-                    <div style="color:var(--trp-gold-light);font-weight:bold;font-size:16px;">+${bonus} ${attrLabel}</div>
-                    <div style="font-size:11px;color:var(--trp-text-dim);line-height:1.2;">Duration: Next check this round</div>
+                    <div style="color:var(--trp-gold-light);font-weight:bold;font-size:var(--fs-16);">+${bonus} ${attrLabel}</div>
+                    <div style="font-size:var(--fs-11);color:var(--trp-text-dim);line-height:1.2;">Duration: Next check this round</div>
                   </div>
                   <i class="fas fa-hand-holding-heart"></i>
                 </a>
 
-                <p style="font-size:10px;margin-top:8px;text-align:right;color:var(--trp-text-dim);border-top:1px solid rgba(255,255,255,0.05);padding-top:4px;">
+                <p style="font-size:var(--fs-10);margin-top:8px;text-align:right;color:var(--trp-text-dim);border-top:1px solid rgba(255,255,255,0.05);padding-top:4px;">
                   AP Spent: ${cost}
                 </p>
               </div>`

@@ -8,7 +8,7 @@
       <h1 class="item-title" style="margin:0;">
         <input type="text" name="name" value="{{item.name}}"
                placeholder="{{localize 'TRESPASSER.ItemTypes.calling'}}"
-               style="font-family:'Cinzel',serif; font-size:22px; color:var(--trp-gold-bright); border:none; border-bottom:1px solid #555; background:transparent; width:100%;" />
+               style="font-family:'Cinzel',serif; font-size:var(--fs-22); color:var(--trp-gold-bright); border:none; border-bottom:1px solid #555; background:transparent; width:100%;" />
       </h1>
     </div>
   </header>
@@ -47,14 +47,14 @@
       {{!-- ═══ TALENTS ═══ --}}
       <div class="calling-list-section" style="margin-bottom:16px; border-bottom:1px solid var(--trp-border); padding-bottom:12px;">
         <h4>{{localize "TRESPASSER.Calling.Talents"}}</h4>
-        <p style="font-size:11px; font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">
+        <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">
           {{localize "TRESPASSER.Calling.DropTalentsNote"}}
         </p>
         <div class="calling-drop-zone" data-list="talents"
              style="min-height:40px; padding:4px; border:1px dashed #555; border-radius:4px; background:rgba(0,0,0,0.2); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
           {{#each callingTalents as |entry index|}}
             <div class="calling-chip" data-index="{{index}}"
-                 style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.4); border:1px solid #444; border-radius:12px; padding:2px 8px 2px 2px; font-size:11px;">
+                 style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.4); border:1px solid #444; border-radius:12px; padding:2px 8px 2px 2px; font-size:var(--fs-11);">
               <img src="{{entry.img}}" width="20" height="20" style="border:none; border-radius:10px; margin-right:6px;" />
               <span style="color:var(--trp-text-bright);">{{entry.name}}</span>
               {{#if @root.editable}}
@@ -73,14 +73,14 @@
       {{!-- ═══ FEATURES ═══ --}}
       <div class="calling-list-section" style="margin-bottom:16px; border-bottom:1px solid var(--trp-border); padding-bottom:12px;">
         <h4>{{localize "TRESPASSER.Calling.Features"}}</h4>
-        <p style="font-size:11px; font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">
+        <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">
           {{localize "TRESPASSER.Calling.DropFeaturesNote"}}
         </p>
         <div class="calling-drop-zone" data-list="features"
              style="min-height:40px; padding:4px; border:1px dashed #555; border-radius:4px; background:rgba(0,0,0,0.2); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
           {{#each callingFeatures as |entry index|}}
             <div class="calling-chip" data-index="{{index}}"
-                 style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.4); border:1px solid #444; border-radius:12px; padding:2px 8px 2px 2px; font-size:11px;">
+                 style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.4); border:1px solid #444; border-radius:12px; padding:2px 8px 2px 2px; font-size:var(--fs-11);">
               <img src="{{entry.img}}" width="20" height="20" style="border:none; border-radius:10px; margin-right:6px;" />
               <span style="color:var(--trp-text-bright);">{{entry.name}}</span>
               {{#if @root.editable}}
@@ -99,14 +99,14 @@
       {{!-- ═══ ENHANCEMENTS ═══ --}}
       <div class="calling-list-section" style="margin-bottom:8px;">
         <h4>{{localize "TRESPASSER.Calling.Enhancements"}}</h4>
-        <p style="font-size:11px; font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">
+        <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">
           {{localize "TRESPASSER.Calling.DropFeaturesNote"}}
         </p>
         <div class="calling-drop-zone" data-list="enhancements"
              style="min-height:40px; padding:4px; border:1px dashed #555; border-radius:4px; background:rgba(0,0,0,0.2); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
           {{#each callingEnhancements as |entry index|}}
             <div class="calling-chip" data-index="{{index}}"
-                 style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.4); border:1px solid #444; border-radius:12px; padding:2px 8px 2px 2px; font-size:11px;">
+                 style="display:inline-flex; align-items:center; background:rgba(0,0,0,0.4); border:1px solid #444; border-radius:12px; padding:2px 8px 2px 2px; font-size:var(--fs-11);">
               <img src="{{entry.img}}" width="20" height="20" style="border:none; border-radius:10px; margin-right:6px;" />
               <span style="color:var(--trp-text-bright);">{{entry.name}}</span>
               {{#if @root.editable}}

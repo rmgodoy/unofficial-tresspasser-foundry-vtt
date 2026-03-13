@@ -601,11 +601,11 @@ export class TrespasserActor extends Actor {
     let flavor = `<div class="trespasser-chat-card">
       <h3>${game.i18n.format("TRESPASSER.Chat.PrevailCheck", { name: stateItem.name })}</h3>
       <p>${game.i18n.format("TRESPASSER.Chat.PrevailVsDC", { total: roll.total, dc: dc })}</p>
-      <div class="roll-details" style="font-size: 10px; color: var(--trp-text-dim); margin-bottom: 5px;">
+      <div class="roll-details" style="font-size: var(--fs-10); color: var(--trp-text-dim); margin-bottom: 5px;">
         Formula: ${roll.formula} (d20: ${roll.dice[0].total})<br>
         Bonus: ${prevailStat} (Prevail) ${apBonus > 0 ? `+ ${apBonus} (AP)` : ""} ${modifier !== 0 ? `+ ${modifier} (Mod)` : ""}
       </div>
-      <p class="${success ? 'hit-text' : 'miss-text'}" style="font-size: 16px; font-weight: bold; text-align: center;">
+      <p class="${success ? 'hit-text' : 'miss-text'}" style="font-size: var(--fs-16); font-weight: bold; text-align: center;">
         ${success ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}
       </p>
     </div>`;
@@ -679,20 +679,20 @@ export class TrespasserActor extends Actor {
     flavorHtml += `<h3 style="margin:0;padding-bottom:4px;border-bottom:1px solid var(--trp-gold-dim);color:var(--trp-gold-bright);">${game.i18n.format("TRESPASSER.Chat.UsedItem", { name: item.name })}</h3>`;
 
     if (item.system.description) {
-      flavorHtml += `<div style="font-size:12px;font-style:italic;margin-bottom:8px;color:var(--trp-text-dim);">${item.system.description}</div>`;
+      flavorHtml += `<div style="font-size:var(--fs-12);font-style:italic;margin-bottom:8px;color:var(--trp-text-dim);">${item.system.description}</div>`;
     }
 
     if (item.system.effects?.length > 0) {
       flavorHtml += `<div style="margin-top:8px;">`;
-      flavorHtml += `<div style="font-size:11px;color:var(--trp-text-dim);text-transform:uppercase;margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Combat.States")}</div>`;
+      flavorHtml += `<div style="font-size:var(--fs-11);color:var(--trp-text-dim);text-transform:uppercase;margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Combat.States")}</div>`;
       for (const eff of item.system.effects) {
         const isApplied = item.system.subType === "potions";
         flavorHtml += `
           <div style="display:flex;align-items:center;background:rgba(0,0,0,0.5);border:1px solid var(--trp-gold-dim);border-radius:3px;padding:2px 4px;margin-bottom:2px;">
             <img src="${eff.img}" style="width:20px;height:20px;border:none;margin-right:6px;" />
-            <span style="font-size:13px;font-family:var(--trp-font-primary);color:var(--trp-gold-light);flex:1;">${eff.name}</span>
+            <span style="font-size:var(--fs-13);font-family:var(--trp-font-primary);color:var(--trp-gold-light);flex:1;">${eff.name}</span>
             ${isApplied ? `
-            <span style="font-size:11px;color:var(--trp-text-dim);padding:0 4px;">
+            <span style="font-size:var(--fs-11);color:var(--trp-text-dim);padding:0 4px;">
               <i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.Chat.Applied")}
             </span>` : `
             <a class="apply-effect-btn" data-uuid="${eff.uuid}" data-name="${eff.name}" data-intensity="${eff.intensity || 0}" title="Apply to Targets" style="color:var(--trp-gold-bright);cursor:pointer;padding:0 4px;">
@@ -704,10 +704,10 @@ export class TrespasserActor extends Actor {
     }
 
     if (item.system.deeds?.length > 0) {
-      flavorHtml += `<div style="margin-top:8px;font-size:12px;"><strong>${game.i18n.localize("TRESPASSER.Chat.GrantsDeeds")}</strong> ${item.system.deeds.map(d => d.name).join(", ")}</div>`;
+      flavorHtml += `<div style="margin-top:8px;font-size:var(--fs-12);"><strong>${game.i18n.localize("TRESPASSER.Chat.GrantsDeeds")}</strong> ${item.system.deeds.map(d => d.name).join(", ")}</div>`;
     }
     if (item.system.incantations?.length > 0) {
-      flavorHtml += `<div style="margin-top:8px;font-size:12px;"><strong>${game.i18n.localize("TRESPASSER.Chat.GrantsIncantations")}</strong> ${item.system.incantations.map(d => d.name).join(", ")}</div>`;
+      flavorHtml += `<div style="margin-top:8px;font-size:var(--fs-12);"><strong>${game.i18n.localize("TRESPASSER.Chat.GrantsIncantations")}</strong> ${item.system.incantations.map(d => d.name).join(", ")}</div>`;
     }
 
     flavorHtml += `</div>`;

@@ -68,6 +68,14 @@ export async function showTrespasserConfigDialog() {
         </div>
         <p class="notes">${game.i18n.localize("TRESPASSER.Config.ClockSizeHint")}</p>
       </div>
+
+      <div class="form-group">
+        <label>${game.i18n.localize("TRESPASSER.Config.FontSizeBase")}</label>
+        <div class="form-fields">
+          <input type="number" name="fontSizeBase" value="${game.settings.get("trespasser", "fontSizeBase")}" min="10" max="30">
+        </div>
+        <p class="notes">${game.i18n.localize("TRESPASSER.Config.FontSizeBaseHint")}</p>
+      </div>
     </form>`;
 
   new Dialog({
@@ -85,6 +93,7 @@ export async function showTrespasserConfigDialog() {
           const groupF = html.find('[name="groupCheckFullParty"]').is(":checked");
           const restrictHav = html.find('[name="restrictHavenEditToLeader"]').is(":checked");
           const clockSize = parseInt(html.find('[name="clockSize"]').val());
+          const fontSizeBase = parseInt(html.find('[name="fontSizeBase"]').val());
 
           await game.settings.set("trespasser", "showInitiativeInChat", show);
           await game.settings.set("trespasser", "restrictMovementAction", restrictM);
@@ -93,8 +102,10 @@ export async function showTrespasserConfigDialog() {
           await game.settings.set("trespasser", "groupCheckFullParty", groupF);
           await game.settings.set("trespasser", "restrictHavenEditToLeader", restrictHav);
           await game.settings.set("trespasser", "clockSize", clockSize);
+          await game.settings.set("trespasser", "fontSizeBase", fontSizeBase);
 
           document.documentElement.style.setProperty('--trp-clock-size', `${clockSize}px`);
+          document.documentElement.style.setProperty('--trp-font-size-base', `${fontSizeBase}px`);
 
           ui.notifications.info(game.i18n.localize("TRESPASSER.Config.SavedNotice"));
         }

@@ -35,7 +35,7 @@
 
 .item-sheet .name-group .item-title {
   font-family: var(--trp-font-header);
-  font-size: 20px;
+  font-size: var(--fs-20);
   color: var(--trp-gold-bright);
   margin: 0;
   border-bottom: 1px solid var(--trp-border);
@@ -103,7 +103,7 @@
 
 .field-row label {
   flex: 0 0 auto;
-  font-size: 11px;
+  font-size: var(--fs-11);
   margin-bottom: 0;
 }
 
@@ -169,7 +169,7 @@
 
 .header-column.details-column .item-title input {
   font-family: var(--trp-font-header);
-  font-size: 24px;
+  font-size: var(--fs-24);
   color: var(--trp-gold-bright);
   background: transparent;
   border: none;
@@ -190,7 +190,7 @@
 
 .header-column.details-column .detail-row label {
   font-weight: bold;
-  font-size: 10px;
+  font-size: var(--fs-10);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--trp-gold);
@@ -203,7 +203,7 @@
   border: 1px solid var(--trp-border);
   color: var(--trp-text-bright);
   padding: 0 5px;
-  font-size: 13px;
+  font-size: var(--fs-13);
   height: 28px;
 }
 
@@ -256,7 +256,7 @@
 
 .section-title {
   font-family: var(--trp-font-header);
-  font-size: 13px;
+  font-size: var(--fs-13);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--trp-gold-bright);
@@ -287,7 +287,7 @@
 
 .field-item label {
   font-family: var(--trp-font-header);
-  font-size: 10px;
+  font-size: var(--fs-10);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--trp-gold);
@@ -301,7 +301,7 @@
   background: var(--trp-bg-input);
   border: 1px solid var(--trp-border);
   color: var(--trp-text-bright);
-  font-size: 13px;
+  font-size: var(--fs-13);
   min-width: 0;
   height: 30px;
   line-height: 30px;
@@ -344,12 +344,12 @@
 
 .applied-effects-section .section-title {
   text-align: left;
-  font-size: 14px;
+  font-size: var(--fs-14);
   margin-bottom: 4px;
 }
 
 .applied-effects-section .section-note {
-  font-size: 11px;
+  font-size: var(--fs-11);
   font-style: italic;
   color: var(--trp-text-dim);
   margin-bottom: 10px;
@@ -376,7 +376,7 @@
   border-radius: 4px;
   padding: 4px 6px;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--fs-12);
   transition: border-color 0.1s;
 }
 
@@ -408,7 +408,7 @@
 }
 
 .effect-chip .intensity-box .label {
-  font-size: 9px;
+  font-size: var(--fs-9);
   color: var(--trp-text-dim);
   text-transform: uppercase;
 }
@@ -417,7 +417,7 @@
 .effect-chip .intensity-box input {
   font-weight: bold;
   color: var(--trp-gold-bright);
-  font-size: 11px;
+  font-size: var(--fs-11);
   background: transparent;
   border: none;
   width: 25px;
@@ -440,7 +440,7 @@
 
 .effect-chip .controls a {
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--fs-12);
   transition: color 0.1s;
 }
 
@@ -477,13 +477,13 @@
 
 .level-header .level-title {
   font-family: var(--trp-font-header);
-  font-size: 14px;
+  font-size: var(--fs-14);
   color: var(--trp-gold-bright);
   flex: 1;
 }
 
 .level-header .level-toggle {
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text-dim);
   transition: transform 0.2s;
 }
@@ -511,7 +511,7 @@
 }
 
 .prog-field label {
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim);
   white-space: nowrap;
   flex: 1;
@@ -528,7 +528,7 @@
   background: var(--trp-bg-input);
   border: 1px solid var(--trp-border);
   color: var(--trp-text-bright);
-  font-size: 12px;
+  font-size: var(--fs-12);
   padding: 2px 4px;
   flex: 0 0 auto;
 }

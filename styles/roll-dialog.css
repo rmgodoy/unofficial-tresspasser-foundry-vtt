@@ -31,20 +31,20 @@
 }
 
 .roll-dialog-content .dice-preview i {
-    font-size: 24px;
+    font-size: var(--fs-24);
     color: var(--dialog-gold);
 }
 
 .roll-dialog-content .dice-preview .formula {
     font-family: var(--trp-font-header);
-    font-size: 18px;
+    font-size: var(--fs-18);
     color: var(--trp-text-bright);
     letter-spacing: 0.05em;
 }
 
 .roll-dialog-content label {
     font-family: var(--trp-font-header);
-    font-size: 10px;
+    font-size: var(--fs-10);
     text-transform: uppercase;
     letter-spacing: 0.1em;
     color: var(--dialog-gold);
@@ -63,7 +63,7 @@
     display: flex;
     justify-content: space-between;
     padding: 4px 0;
-    font-size: 13px;
+    font-size: var(--fs-13);
     color: var(--trp-text);
     border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
@@ -91,7 +91,7 @@
     background: var(--trp-bg-input);
     border: 1px solid var(--dialog-border);
     color: var(--trp-text-bright);
-    font-size: 16px;
+    font-size: var(--fs-16);
     font-weight: bold;
     text-align: center;
     padding: 6px;
@@ -108,7 +108,7 @@
 
 .roll-dialog-content .trp-btn {
     font-family: var(--trp-font-header);
-    font-size: 11px;
+    font-size: var(--fs-11);
     padding: 8px;
     cursor: pointer;
     border-radius: 4px;

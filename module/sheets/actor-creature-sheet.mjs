@@ -222,10 +222,10 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
       <div class="trespasser-chat-card feature-card">
         <h3>Feature: ${item.name}</h3>
         <details>
-          <summary style="cursor: pointer; color: var(--trp-gold-bright); font-family: var(--trp-font-header); font-size: 11px; margin-bottom: 5px;">
+          <summary style="cursor: pointer; color: var(--trp-gold-bright); font-family: var(--trp-font-header); font-size: var(--fs-11); margin-bottom: 5px;">
             <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.DescriptionExpand")}
           </summary>
-          <div class="collapsible-content" style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; border: 1px solid var(--trp-border); margin-bottom: 10px; font-size: 12px;">
+          <div class="collapsible-content" style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; border: 1px solid var(--trp-border); margin-bottom: 10px; font-size: var(--fs-12);">
             ${enrichedRef}
           </div>
         </details>

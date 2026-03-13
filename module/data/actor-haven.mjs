@@ -400,11 +400,11 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       
       if (oldRank >= nextThreshold && increase > 0) {
         messages.push(`<p class="warning" style="color:#f39c12; font-weight:bold; margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Haven.Stagnant")}</p>`);
-        messages.push(`<p style="font-size:11px; font-style:italic;">Rank growth blocked by level. Rolling for Arrivals only.</p>`);
+        messages.push(`<p style="font-size:var(--fs-11); font-style:italic;">Rank growth blocked by level. Rolling for Arrivals only.</p>`);
         increase = 0;
       } else if (oldRank + increase > nextThreshold) {
         increase = nextThreshold - oldRank;
-        messages.push(`<p class="warning" style="font-size:11px; font-style:italic; color:#f39c12;">Growth capped at rank ${nextThreshold} until level up.</p>`);
+        messages.push(`<p class="warning" style="font-size:var(--fs-11); font-style:italic; color:#f39c12;">Growth capped at rank ${nextThreshold} until level up.</p>`);
       }
       
       newRank = oldRank + increase;
@@ -417,7 +417,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
         if (sparks > 0) {
           messages.push(`<p style="color:#64b5f6;"><i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Sparks", { count: sparks })}</p>`);
           messages.push(`<p style="color:#64b5f6; font-weight:bold;"><i class="fas fa-walking"></i> HAVEN ARRIVALS!</p>`);
-          messages.push(`<p style="font-size:11px; font-style:italic;">The Judge rolls on the Haven Arrivals table and fills the Arrivals tab.</p>`);
+          messages.push(`<p style="font-size:var(--fs-11); font-style:italic;">The Judge rolls on the Haven Arrivals table and fills the Arrivals tab.</p>`);
         }
       } else {
         messages.push(`<p class="failure" style="color:#e74c3c;font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Failure")}</p>`);
@@ -519,7 +519,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       
       if (starts) {
         content += `<p class="success" style="color:#2ecc71; font-weight:bold; margin-top:8px;">A NEW EVENT STARTS!</p>
-                   <p style="font-size:11px; font-style:italic;">The Judge should define the event in the Haven's Event tab.</p>`;
+                   <p style="font-size:var(--fs-11); font-style:italic;">The Judge should define the event in the Haven's Event tab.</p>`;
         await actor.update({ "system.event.current": 1 });
       } else {
         content += `<p class="failure" style="color:#95a5a6; font-style:italic; margin-top:8px;">All is quiet in the Haven this week.</p>`;

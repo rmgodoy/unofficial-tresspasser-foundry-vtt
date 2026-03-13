@@ -64,7 +64,7 @@
 }
 .header-identity .name-group input {
   font-family: var(--trp-font-header);
-  font-size: 15px;
+  font-size: var(--fs-15);
   font-weight: 600;
   color: var(--trp-text-bright);
   background: transparent;
@@ -111,7 +111,7 @@
 .resource-box label,
 .attribute-box .attribute-label {
   font-family: var(--trp-font-header);
-  font-size: 9px;
+  font-size: var(--fs-9);
   text-transform: uppercase;
   color: var(--trp-gold);
   margin-bottom: 2px;
@@ -121,7 +121,7 @@
 .attribute-box input {
   width: 100%;
   text-align: center;
-  font-size: 16px;
+  font-size: var(--fs-16);
   font-weight: 700;
   color: var(--trp-text-bright);
   background: transparent;
@@ -140,7 +140,7 @@
 
 .resource-values span {
   color: var(--trp-text-dim);
-  font-size: 12px;
+  font-size: var(--fs-12);
   font-weight: normal;
 }
 
@@ -158,7 +158,7 @@
 
 /* Specific attribute input sizing */
 .attribute-box input {
-  font-size: 18px;
+  font-size: var(--fs-18);
   line-height: 1;
 }
 
@@ -168,7 +168,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  font-size: 14px;
+  font-size: var(--fs-14);
   line-height: 1;
   cursor: pointer;
   color: var(--trp-text-dim);
@@ -205,7 +205,7 @@
 }
 .combat-stat-roll.rollable {
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -230,7 +230,7 @@
 /* ─── Attribute text in header (span, not label) ─── */
 .attribute-box .attribute-label {
   font-family: var(--trp-font-header);
-  font-size: 9px;
+  font-size: var(--fs-9);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--trp-gold);
@@ -258,7 +258,7 @@
 }
 
 .attr-total {
-  font-size: 0.9em;
+  font-size: var(--fs-13);
   color: var(--trp-gold-bright);
   font-weight: 700;
   margin-left: 2px;
@@ -279,7 +279,7 @@
 
 .trespasser-sheet .sheet-tabs .item {
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--trp-text-dim);
@@ -415,7 +415,7 @@
 
 .skill-label {
   font-family: var(--trp-font-body);
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--trp-text);
 }
 
@@ -474,7 +474,7 @@
   border-radius: 0 !important;
   text-align: center;
   font-family: var(--trp-font-body);
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--trp-text-bright);
   padding: 1px 4px !important;
 }
@@ -518,7 +518,7 @@
 .injury-card .injury-name {
   flex: 1;
   font-family: var(--trp-font-body);
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--trp-text-bright);
   white-space: nowrap;
   overflow: hidden;
@@ -537,7 +537,7 @@
   flex: 1;
   color: var(--trp-text-dim);
   font-style: italic;
-  font-size: 13px;
+  font-size: var(--fs-13);
 }
 
 /* Controls absolutely positioned inside .injury-name-area — never move the clock */
@@ -560,7 +560,7 @@
 .injury-card-controls a {
   color: var(--trp-text-dim);
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--fs-11);
   padding: 2px 3px;
   transition: color 0.12s;
 }
@@ -607,7 +607,7 @@
 /* Clock centre text */
 .clock-label-num {
   font-family: var(--trp-font-header);
-  font-size: 22px;
+  font-size: var(--fs-22);
   font-weight: 700;
   fill: var(--trp-text-bright);
   text-anchor: middle;
@@ -617,7 +617,7 @@
 
 .clock-label-total {
   font-family: var(--trp-font-header);
-  font-size: 18px;
+  font-size: var(--fs-18);
   fill: var(--trp-text-dim);
   text-anchor: middle;
   dominant-baseline: middle;
@@ -641,7 +641,7 @@
 
 .injury-sheet .clock-hint {
   font-family: var(--trp-font-body);
-  font-size: 11px;
+  font-size: var(--fs-11);
   font-style: italic;
   color: var(--trp-text-dim);
   text-align: center;
@@ -671,7 +671,7 @@
 
 .equip-table th {
   font-family: var(--trp-font-header);
-  font-size: 10px;
+  font-size: var(--fs-10);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--trp-gold);
@@ -683,7 +683,7 @@
 .equip-table th.col-icon {
   width: 28px;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--fs-14);
 }
 
 .equip-table td {
@@ -694,13 +694,13 @@
 
 .equip-table td.col-icon {
   text-align: center;
-  font-size: 16px;
+  font-size: var(--fs-16);
   color: var(--trp-text-dim);
 }
 
 .equip-table .slot-label {
   font-family: var(--trp-font-body);
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--trp-text);
   white-space: nowrap;
   display: inline;
@@ -722,7 +722,7 @@
 
 .inventory-cap {
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim);
   letter-spacing: 0.06em;
 }
@@ -759,7 +759,7 @@
 }
 
 .inventory-card .item-name {
-  font-size: 11px;
+  font-size: var(--fs-11);
   text-align: center;
   color: var(--trp-text);
   word-break: break-word;
@@ -787,7 +787,7 @@
   top: 4px;
   left: 4px;
   color: #ffcc00;
-  font-size: 10px;
+  font-size: var(--fs-10);
   text-shadow: 0 0 2px black;
 }
 
@@ -807,7 +807,7 @@
   background: var(--trp-bg-dark);
   padding: 0 10px;
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-gold-dim);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -868,7 +868,7 @@
 }
 
 .items-list .item-name {
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--trp-text-bright);
   flex: 1;
 }
@@ -887,7 +887,7 @@
 .empty-list {
   color: var(--trp-text-dim);
   font-style: italic;
-  font-size: 12px;
+  font-size: var(--fs-12);
   padding: 8px;
   text-align: center;
 }
@@ -916,14 +916,14 @@
 }
 
 .combat-stat label {
-  font-size: 9px;
+  font-size: var(--fs-9);
   text-align: center;
 }
 
 .combat-stat input {
   width: 54px;
   text-align: center;
-  font-size: 15px;
+  font-size: var(--fs-15);
   font-weight: 600;
   color: var(--trp-gold-bright);
 }
@@ -936,12 +936,12 @@
 .combat-equip-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: var(--fs-12);
 }
 
 .combat-equip-table th {
   font-family: var(--trp-font-header);
-  font-size: 9px;
+  font-size: var(--fs-9);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--trp-gold);
@@ -963,7 +963,7 @@
 
 .combat-equip-table td.slot-label {
   color: var(--trp-text);
-  font-size: 12px;
+  font-size: var(--fs-12);
   white-space: nowrap;
 }
 
@@ -996,7 +996,7 @@
 }
 
 .state-label {
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text-bright);
   flex: 1;
 }
@@ -1012,7 +1012,7 @@
 .state-val {
   width: 38px !important;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--fs-12);
 }
 
 /* Deeds Tired Categories Layout */
@@ -1038,7 +1038,7 @@
   transform: rotate(180deg);
   text-align: center;
   font-family: var(--trp-font-header);
-  font-size: 16px;
+  font-size: var(--fs-16);
   font-weight: bold;
   padding: 10px 6px;
   text-transform: uppercase;
@@ -1086,7 +1086,7 @@
 
 .deed-slot-title {
   font-family: var(--trp-font-header);
-  font-size: 15px;
+  font-size: var(--fs-15);
   font-weight: 600;
   color: var(--trp-gold-bright);
 }
@@ -1097,13 +1097,13 @@
 
 .deed-slot-skill {
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-gold-dim);
 }
 
 .deed-slot-subheader {
   font-family: var(--trp-font-header);
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text-dim);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1116,7 +1116,7 @@
 
 .deed-slot-effects {
   font-family: var(--trp-font-body);
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text);
   line-height: 1.3;
 }
@@ -1136,7 +1136,7 @@
   font-family: var(--trp-font-header);
   font-weight: normal;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-gold-dim);
   min-width: 38px;
   padding-top: 2px;
@@ -1155,7 +1155,7 @@
 
 .deed-applied {
   font-style: italic;
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim);
 }
 
@@ -1164,7 +1164,7 @@
   top: 4px;
   right: 8px;
   font-family: var(--trp-font-body);
-  font-size: 14px;
+  font-size: var(--fs-14);
   color: #000;
   display: flex;
   align-items: center;
@@ -1202,7 +1202,7 @@
 
 .deed-slot-controls a {
   color: var(--trp-text-dim);
-  font-size: 12px;
+  font-size: var(--fs-12);
   transition: color 0.1s;
 }
 
@@ -1237,14 +1237,14 @@
 .combat-effects-list .effect-name {
   flex: 1;
   font-family: var(--trp-font-header);
-  font-size: 12px;
+  font-size: var(--fs-12);
   font-weight: 600;
   color: var(--trp-text-bright);
 }
 
 .combat-effects-list .effect-mod {
   width: 120px;
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-gold-dim);
 }
 
@@ -1255,7 +1255,7 @@
 }
 
 .combat-effects-list .effect-intensity-control label {
-  font-size: 10px;
+  font-size: var(--fs-10);
   color: var(--trp-text-dim);
   margin: 0;
 }
@@ -1264,7 +1264,7 @@
   width: 40px !important;
   height: 22px !important;
   text-align: center;
-  font-size: 12px !important;
+  font-size: var(--fs-12) !important;
 }
 
 .prevail-btn {
@@ -1272,7 +1272,7 @@
   color: var(--trp-bg-dark) !important;
   border: 1px solid var(--trp-gold) !important;
   font-family: var(--trp-font-header);
-  font-size: 10px !important;
+  font-size: var(--fs-10) !important;
   font-weight: 700 !important;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1325,7 +1325,7 @@
 
 .skill-label {
   flex: 1;
-  font-size: 12px;
+  font-size: var(--fs-12);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1347,7 +1347,7 @@
 .alignment-name {
   flex: 1;
   min-width: 0;
-  font-size: 11px !important;
+  font-size: var(--fs-11) !important;
 }
 
 .injury-card {
@@ -1373,7 +1373,7 @@
 }
 
 .injury-name {
-  font-size: 12px;
+  font-size: var(--fs-12);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1399,5 +1399,5 @@
 .injury-empty-slot {
   color: var(--trp-text-dim);
   font-style: italic;
-  font-size: 11px;
+  font-size: var(--fs-11);
 }

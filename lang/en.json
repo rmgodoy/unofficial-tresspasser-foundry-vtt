@@ -32,6 +32,8 @@
       "RestrictHavenEditToLeaderHint": "Only the party leader can add or remove buildings and projects in Haven.",
       "ClockSize": "Clock Size (px)",
       "ClockSizeHint": "The width and height of all clocks in the system (Projects, Events, and Injuries).",
+      "FontSizeBase": "Base Font Size (px)",
+      "FontSizeBaseHint": "The base font size for the entire system. All other font sizes will scale proportionally.",
       "BypassHavenBuildingLimits": "Bypass Haven Building Limits",
       "BypassHavenBuildingLimitsHint": "If enabled, Havens will not be restricted by the Building Limit or Build Slots defined in the progression table.",
       "Save": "Save",

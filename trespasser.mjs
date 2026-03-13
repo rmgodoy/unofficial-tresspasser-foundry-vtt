@@ -186,6 +186,15 @@ Hooks.once("init", async () => {
     default: 50
   });
 
+  game.settings.register("trespasser", "fontSizeBase", {
+    name: "TRESPASSER.Config.FontSizeBase",
+    hint: "TRESPASSER.Config.FontSizeBaseHint",
+    scope: "client",
+    config: false,
+    type: Number,
+    default: 14
+  });
+
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
@@ -396,12 +405,29 @@ Hooks.once("ready", () => {
   // Initialize Token Action HUD
   game.trespasser.tokenHUD = new TrespasserTokenHUD();
 
-  // Apply clock size setting
-  const clockSize = game.settings.get("trespasser", "clockSize") || 50;
-  document.documentElement.style.setProperty('--trp-clock-size', `${clockSize}px`);
+  // Function to apply settings to CSS variables
+  const applySystemSettings = () => {
+    const clockSize = game.settings.get("trespasser", "clockSize") || 50;
+    document.documentElement.style.setProperty('--trp-clock-size', `${clockSize}px`);
+
+    const fontSize = game.settings.get("trespasser", "fontSizeBase") || 14;
+    document.documentElement.style.setProperty('--trp-font-size-base', `${fontSize}px`);
+  };
+
+  // Initial application
+  applySystemSettings();
+
+  // Listen for changes
+  Hooks.on("closeSettingsConfig", () => {
+    applySystemSettings();
+  });
+
+  // Also listen for specific setting changes if they happen via API
+  // Foundry 12+ has a more specific way, but closeSettingsConfig is safe for most cases.
+  // We can also use the refresh event if needed.
 
   // Prevent default turn marker from being added to tokens, since we are implementing our own turn marker system
-  if (foundry.canvas.placeables.tokens.TokenTurnMarker) {
+  if (foundry.canvas.placeables.tokens?.TokenTurnMarker) {
     foundry.canvas.placeables.tokens.TokenTurnMarker.prototype.draw = async function() {
       return; 
     };

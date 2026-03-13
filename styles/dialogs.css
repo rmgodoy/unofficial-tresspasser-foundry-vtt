@@ -1,10 +1,30 @@
 /* ═══════════════════════════════════════════════════
    DIALOGS
 ═══════════════════════════════════════════════════ */
-.trespasser.dialog .window-content {
+/* Unified Dialog Styling */
+.trespasser.dialog .window-content,
+.application.trespasser.dialog .window-content {
   background: var(--trp-bg-dark);
   color: var(--trp-text);
   font-family: var(--trp-font-body);
+}
+
+.trespasser.dialog .window-header,
+.application.trespasser.dialog .window-header {
+  background: #111;
+  border-bottom: 2px solid var(--trp-gold-dim);
+  height: 32px;
+  line-height: 32px;
+}
+
+.trespasser.dialog .window-title,
+.application.trespasser.dialog .window-header .window-title {
+  color: var(--trp-gold);
+  font-family: var(--trp-font-header);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: var(--fs-12);
+  padding-top: 2px;
 }
 
 .trespasser.dialog .dialog-content {
@@ -18,29 +38,37 @@
   border-top: 1px solid var(--trp-border);
 }
 
-.trespasser.dialog .dialog-button {
+.trespasser.dialog .dialog-button,
+.application.trespasser.dialog button {
   background: var(--trp-bg-panel);
-  border: 1px solid var(--trp-gold-dim);
-  color: var(--trp-gold);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-dim);
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: all 0.2s;
-  height: 32px;
+  min-height: 32px;
+  height: auto;
+  padding: 6px 12px;
   line-height: normal;
+  cursor: pointer;
 }
 
-.trespasser.dialog .dialog-button:hover {
+.trespasser.dialog .dialog-button:hover,
+.application.trespasser.dialog button:hover {
   background: var(--trp-gold-dim);
   color: #fff;
   border-color: #fff;
   box-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
 }
 
-.trespasser.dialog .dialog-button.default {
-  border-width: 2px;
-  border-color: var(--trp-gold);
+.trespasser.dialog .dialog-button.default,
+.application.trespasser.dialog button.default,
+.application.trespasser.dialog .dialog-buttons [data-action="cancel"] {
+  border: 2px solid var(--trp-gold) !important;
+  color: var(--trp-gold) !important;
+  font-weight: bold;
 }
 
 .trespasser.dialog .form-group {
@@ -51,7 +79,7 @@
   font-family: var(--trp-font-header);
   color: var(--trp-gold);
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--fs-11);
   margin-bottom: 4px;
   display: block;
 }
@@ -75,7 +103,7 @@
 }
 
 .trespasser.dialog .notes {
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim);
   margin-top: 4px;
 }
@@ -89,14 +117,15 @@
 }
 
 .trp-attr-btn {
-  background: var(--trp-bg-panel);
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--trp-border);
-  color: var(--trp-text);
+  color: var(--trp-gold);
   font-family: var(--trp-font-header);
-  font-size: 12px;
-  padding: 8px;
+  font-size: var(--fs-12);
+  padding: 10px;
   cursor: pointer;
   transition: all 0.15s;
+  text-align: center;
 }
 
 .trp-attr-btn:hover {
@@ -105,15 +134,12 @@
   border-color: var(--trp-gold-bright);
 }
 
-/* Haven Attribute Picker Grid */
-.haven-attr-picker .dialog-buttons {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  padding: 10px;
+/* Haven Attribute Picker */
+.haven-attr-picker {
+  min-width: 460px;
 }
 
-.haven-attr-picker .dialog-button[data-action="cancel"] {
-  grid-column: span 2;
-  margin-top: 4px;
+.haven-attr-picker .dialog-buttons {
+  background: var(--trp-bg-header);
+  padding: 12px;
 }

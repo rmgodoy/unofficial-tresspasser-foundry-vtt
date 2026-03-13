@@ -3,7 +3,7 @@
 ═══════════════════════════════════════════════════ */
 .trespasser-chat-card {
   font-family: var(--trp-font-body);
-  font-size: 14px;
+  font-size: var(--fs-14);
   color: var(--trp-text);
   background: var(--trp-bg-dark);
   border: 1px solid var(--trp-border);
@@ -16,7 +16,7 @@
   font-family: var(--trp-font-header);
   color: var(--trp-gold-bright);
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: var(--fs-14);
   border-bottom: 1px solid var(--trp-border);
   margin-bottom: 6px;
   padding-bottom: 2px;
@@ -28,7 +28,7 @@
 
 .trespasser-chat-card p.hit-text {
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--fs-14);
   margin-top: 4px;
   margin-bottom: 4px;
   color: var(--trp-green-bright);
@@ -36,7 +36,7 @@
 
 .trespasser-chat-card p.miss-text {
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--fs-14);
   margin-top: 4px;
   margin-bottom: 4px;
   color: var(--trp-red);
@@ -44,7 +44,7 @@
 
 .trespasser-chat-card .cost-note {
   font-style: italic;
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim);
 }
 
@@ -55,7 +55,7 @@
 
 .trespasser-chat-card .applied-effects strong {
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   text-transform: uppercase;
   color: var(--trp-text-dim);
 }
@@ -88,7 +88,7 @@
 .trespasser-chat-card .apply-effect-btn span {
   font-family: var(--trp-font-body);
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--fs-14);
   color: var(--trp-text-bright);
 }
 

@@ -603,7 +603,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
           <strong>VS CD ${dc}</strong>
           <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}</span>
         </div>
-        <div style="display:flex;gap:10px;font-size:11px;">
+        <div style="display:flex;gap:10px;font-size:var(--fs-11);">
           <span style="color:#64b5f6;">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
           <span style="color:#9575cd;">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
         </div>
@@ -613,7 +613,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const flavor = `
       <div class="trespasser-chat-card">
         <h3>${this.document.name}: ${label}</h3>
-        <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${roll.total} <span style="font-size:10px;color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
+        <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${roll.total} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
         ${resultsHtml}
       </div>
     `;
@@ -642,23 +642,39 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       { key: "appeal", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Appeal") }
     ];
 
-    const chosenAttr = await foundry.applications.api.DialogV2.wait({
-      window: { title: `${skillLabel} Check`, classes: ["trespasser", "dialog", "haven-attr-picker"] },
-      content: `
-        <div class="dialog-content">
-          <p style="margin-bottom:12px;">
-            ${game.i18n.localize("TRESPASSER.Dialog.SkillCheckQ")}
-            ${trained ? `<em>${game.i18n.format("TRESPASSER.Dialog.SkillCheckBonus", { skill: system.skillBonus })}</em>` : ""}
-          </p>
-        </div>`,
-      buttons: [
-        ...attributes.map(attr => ({
-          action: attr.key,
-          label: `${attr.label} (${totals[attr.key] ?? 0})`,
-          classes: ["trp-attr-btn"]
-        })),
-        { action: "cancel", label: game.i18n.localize("TRESPASSER.Dialog.Cancel"), default: true }
-      ]
+    const chosenAttr = await new Promise(resolve => {
+      const dialog = new foundry.applications.api.DialogV2({
+        window: { 
+          title: game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", { skill: skillLabel }),
+          classes: ["trespasser", "dialog", "haven-attr-picker"] 
+        },
+        content: `
+          <div class="dialog-content">
+            <p style="margin-bottom:12px;">
+              ${game.i18n.localize("TRESPASSER.Dialog.SkillCheckQ")}
+              ${trained ? `<em>${game.i18n.format("TRESPASSER.Dialog.SkillCheckBonus", { skill: system.skillBonus })}</em>` : ""}
+            </p>
+            <div class="trp-attr-pick">
+              ${attributes.map(attr => `
+                <button class="trp-attr-btn" data-attr="${attr.key}">
+                  ${attr.label} (${totals[attr.key] ?? 0})
+                </button>
+              `).join('')}
+            </div>
+          </div>`,
+        buttons: [{ action: "cancel", label: game.i18n.localize("TRESPASSER.Dialog.Cancel"), default: true }],
+        submit: (result) => { if ( result === "cancel" ) resolve(null); },
+        close: () => resolve(null),
+        render: (html) => {
+          html.querySelectorAll(".trp-attr-btn").forEach(btn => {
+            btn.addEventListener("click", ev => {
+              resolve(ev.currentTarget.dataset.attr);
+              dialog.close();
+            });
+          });
+        }
+      });
+      dialog.render(true);
     });
 
     if ( !chosenAttr || chosenAttr === "cancel" ) return;
@@ -695,7 +711,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
           <strong>VS CD ${dc}</strong>
           <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}</span>
         </div>
-        <div style="display:flex;gap:10px;font-size:11px;">
+        <div style="display:flex;gap:10px;font-size:var(--fs-11);">
           <span style="color:#64b5f6;">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
           <span style="color:#9575cd;">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
         </div>
@@ -705,7 +721,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const flavor = `
       <div class="trespasser-chat-card">
         <h3>${actor.name}: ${skillLabel} (${label})</h3>
-        <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${roll.total} <span style="font-size:10px;color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
+        <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${roll.total} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
         ${resultsHtml}
       </div>
     `;
