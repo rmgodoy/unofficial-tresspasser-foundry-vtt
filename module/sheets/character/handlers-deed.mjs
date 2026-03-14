@@ -9,6 +9,8 @@
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../../documents/combat.mjs";
 import { askAPDialog }             from "../../dialogs/ap-dialog.mjs";
+import { TargetingHelper }         from "../../helpers/targeting-helper.mjs";
+import { askSparkDialog }          from "../../dialogs/spark-dialog.mjs";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main orchestrator
@@ -48,6 +50,17 @@ export async function onDeedRoll(event, sheet) {
           break;
         }
       }
+    }
+  }
+
+  // ── 1b. Weapon compatibility check (characters only) ──────────────────────
+  if (!isCreature) {
+    const wpnCheck = TargetingHelper.validateWeaponCompatibility(
+      item.system, sheet._getActiveWeapons(), sheet.actor
+    );
+    if (!wpnCheck.valid) {
+      ui.notifications.warn(wpnCheck.message);
+      return;
     }
   }
 
@@ -91,11 +104,54 @@ export async function onDeedRoll(event, sheet) {
     }
   }
 
-  // ── 3. Target check (attack deeds only) ───────────────────────────────────
-  const targets = Array.from(game.user.targets);
-  if (isAttack && targets.length === 0) {
-    ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsDefault"));
-    return;
+  // ── 3. Target resolution (AOE-aware) ──────────────────────────────────────
+  const deed = item.system;
+  let targets;
+  let templateDoc = null;
+
+  // Resolve the caster's token for AOE placement
+  const sourceToken = canvas.tokens.placeables.find(t => t.actor?.id === sheet.actor.id);
+
+  if (deed.targetType === "personal") {
+    // Personal: auto-target self
+    targets = sourceToken ? [sourceToken] : [];
+  } else if (["blast", "close_blast", "burst", "melee_burst", "path", "close_path", "aura"]
+             .includes(deed.targetType)) {
+    // AOE: place template and resolve targets from grid squares
+    if (!sourceToken) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTokenOnCanvas"));
+      return;
+    }
+
+    const aoeResult = await TargetingHelper.placeTemplate(sheet.actor, sourceToken, deed);
+    if (!aoeResult) return; // cancelled
+    templateDoc = aoeResult.templateDoc;
+    const gridPx = canvas.grid.size;
+    targets = TargetingHelper.getTokensInSquares(aoeResult.squares, gridPx, {
+      excludeTokenId: isAttack ? sourceToken.id : null
+    });
+  } else {
+    // "creature" type — use manual targeting with validation
+    targets = Array.from(game.user.targets);
+    const validation = TargetingHelper.validateTargets(targets, deed, sourceToken);
+    if (!validation.valid) {
+      ui.notifications.warn(validation.message);
+      return;
+    }
+    if (isAttack && targets.length === 0) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsDefault"));
+      return;
+    }
+
+    // Range validation for creature-targeted deeds (characters only)
+    if (!isCreature && sourceToken) {
+      const activeWeapons = sheet._getActiveWeapons();
+      const rangeCheck = TargetingHelper.validateRange(targets, sourceToken, deed, activeWeapons);
+      if (!rangeCheck.valid) {
+        ui.notifications.warn(rangeCheck.message);
+        return;
+      }
+    }
   }
 
   // ── 4. Resolve AP ─────────────────────────────────────────────────────────
@@ -140,12 +196,12 @@ export async function onDeedRoll(event, sheet) {
   }
 
   // ── 8. Roll (dispatch to actor-type specific handler) ─────────────────────
-  let anyHit = false, maxSparks = 0;
+  let anyHit = false, maxSparks = 0, results = [];
 
   if (isCreature) {
-    ({ anyHit, maxSparks } = await rollCreatureDeed(item, sheet, targets, apBonus));
+    ({ anyHit, maxSparks, results } = await rollCreatureDeed(item, sheet, targets, apBonus));
   } else {
-    ({ anyHit, maxSparks } = await rollCharacterDeed(item, sheet, targets, apBonus, totalCost));
+    ({ anyHit, maxSparks, results } = await rollCharacterDeed(item, sheet, targets, apBonus, totalCost));
   }
 
   // ── 9. Hit/miss effects ────────────────────────────────────────────────────
@@ -160,6 +216,26 @@ export async function onDeedRoll(event, sheet) {
     }
   }
 
+  // ── 9b. Focus refund on total miss (heavy/mighty attack deeds) ────────
+  if (!anyHit && isAttack && totalCost > 0) {
+    const refund = Math.floor(totalCost / 2);
+    if (refund > 0) {
+      const currentFocus = sheet.actor.system.combat.focus || 0;
+      await sheet.actor.update({ "system.combat.focus": currentFocus + refund });
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+        content: `<div class="trespasser-chat-card"><p><strong>${sheet.actor.name}</strong> ${game.i18n.format("TRESPASSER.Chat.FocusRefund", { count: refund })}</p></div>`
+      });
+    }
+  }
+
+  // ── 9c. Spark selection dialog ────────────────────────────────────────────
+  let sparkChoices = null;
+  if (maxSparks > 0 && anyHit) {
+    sparkChoices = await askSparkDialog(results);
+    // null = cancelled or no sparks; proceed without spark effects
+  }
+
   // ── 10. Spend AP + record action ──────────────────────────────────────────
   if (combatant) {
     const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
@@ -170,24 +246,40 @@ export async function onDeedRoll(event, sheet) {
     await TrespasserCombat.recordHUDAction(sheet.actor, "attempt-deed");
   }
 
-  // ── 11. After/End phases + depletion ──────────────────────────────────────
+  // ── 11. Base/Hit/Spark/After/End phases + depletion ──────────────────────
+  const commonOptions = { ...phaseOptions, anyHit, maxSparks, results, sparkChoices };
+
+  // Base always fires (miss AND hit) for attack deeds
+  await sheet._postDeedPhase("Base", effects.base, sheet.actor, item, commonOptions);
+
+  // Hit and Spark only on success (or for support deeds / no targets)
   if (anyHit || !isAttack || targets.length === 0) {
-    const commonOptions = { ...phaseOptions, anyHit, maxSparks };
-    await sheet._postDeedPhase("Base", effects.base, sheet.actor, item, commonOptions);
-    await sheet._postDeedPhase("Hit",  effects.hit,  sheet.actor, item, commonOptions);
-    if (maxSparks > 0) {
+    await sheet._postDeedPhase("Hit",  effects.hit,  sheet.actor, item, {
+      ...commonOptions, targetIds: results.filter(r => r.isHit).map(r => r.tokenId)
+    });
+
+    // Spark phase: only fire if deed spark was chosen, or if no dialog was shown
+    const showSpark = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark);
+    if (showSpark) {
+      const sparkTargets = results.filter(r => r.sparks > 0);
       await sheet._postDeedPhase("Spark", effects.spark, sheet.actor, item, {
-        ...commonOptions, title: maxSparks > 1 ? `Spark (x${maxSparks})` : "Spark"
+        ...commonOptions,
+        title: maxSparks > 1 ? `Spark (x${maxSparks})` : "Spark",
+        targetIds: sparkTargets.map(r => r.tokenId)
       });
     }
   }
 
-  const finalOptions = { ...phaseOptions, anyHit, maxSparks };
-  await sheet._postDeedPhase("After", effects.after, sheet.actor, item, finalOptions);
-  await sheet._postDeedPhase("End",   effects.end,   sheet.actor, item, finalOptions);
+  await sheet._postDeedPhase("After", effects.after, sheet.actor, item, commonOptions);
+  await sheet._postDeedPhase("End",   effects.end,   sheet.actor, item, commonOptions);
 
   if (!isCreature) {
     for (const weapon of fragileItems) await sheet._runDepletionCheck(weapon);
+  }
+
+  // ── 12. Cleanup AOE template (unless aura, which persists) ──────────────
+  if (templateDoc && deed.targetType !== "aura") {
+    await templateDoc.delete();
   }
 }
 
@@ -201,7 +293,7 @@ export async function onDeedRoll(event, sheet) {
  * @param {Token[]} targets
  * @param {number} apBonus
  * @param {number} totalFocusCost  - for display only
- * @returns {{ anyHit: boolean, maxSparks: number }}
+ * @returns {{ anyHit: boolean, maxSparks: number, results: Array }}
  */
 async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost = 0) {
   const isAttack    = item.system.actionType !== "support";
@@ -209,9 +301,20 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
   const effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, "accuracy", "use");
   const accuracy    = sheet.actor.system.combat.accuracy ?? 0;
 
+  // Engagement penalty: -2 accuracy for missile/spell deeds when engaged and not targeting adjacent
+  let engagementPenalty = 0;
+  if (isAttack && ["missile", "spell"].includes(item.system.type)) {
+    const sourceToken = canvas.tokens.placeables.find(t => t.actor?.id === sheet.actor.id);
+    if (TargetingHelper.isEngaged(sourceToken) &&
+        !TargetingHelper.isExemptFromEngagement(item.system, targets, sourceToken)) {
+      engagementPenalty = -2;
+    }
+  }
+
   let formula = isAdv ? `2d20kh + ${accuracy}` : `1d20 + ${accuracy}`;
   if (effectBonus !== 0) formula += ` + ${effectBonus}`;
   if (apBonus     !== 0) formula += ` + ${apBonus}`;
+  if (engagementPenalty !== 0) formula += ` + ${engagementPenalty}`;
 
   const accRoll  = new foundry.dice.Roll(formula);
   await accRoll.evaluate();
@@ -222,6 +325,7 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
   await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: "accuracy" });
 
   let anyHit = false, maxSparks = 0, resultsHtml = "";
+  const results = [];
 
   const targetList = isAttack ? targets : [null]; // support: always one pseudo-result vs CD 10
 
@@ -237,7 +341,8 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
       dc = baseVal + effBonus;
     }
 
-    const isHit = rollTotal >= dc;
+    let isHit = rollTotal >= dc;
+    if (diceResult === 20) isHit = true; // Nat 20 auto-success
     if (isHit) anyHit = true;
 
     const diff    = rollTotal - dc;
@@ -252,6 +357,17 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
     shadows = Math.max(0, -net);
 
     if (sparks > maxSparks) maxSparks = sparks;
+
+    // Track per-target results
+    results.push({
+      tokenId: targetToken?.id ?? null,
+      tokenName: targetToken?.name ?? null,
+      actorId: targetActor?.id ?? null,
+      isHit,
+      sparks,
+      shadows,
+      dc
+    });
 
     if (targetActor) {
       resultsHtml += `
@@ -281,11 +397,12 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
     ${resultsHtml}`;
   if (totalFocusCost > 0) flavor += `<p class="cost-note" style="margin-top:5px;">${game.i18n.format("TRESPASSER.Chat.SpentFocus", { count: totalFocusCost })}</p>`;
   if (apBonus > 0)        flavor += `<p class="cost-note" style="margin-top:2px;color:#2ecc71;">+${apBonus} ${game.i18n.localize("TRESPASSER.Chat.AccuracyFromAP")}</p>`;
+  if (engagementPenalty !== 0) flavor += `<p class="cost-note" style="margin-top:2px;color:#e74c3c;">${game.i18n.localize("TRESPASSER.Chat.EngagementPenalty")}</p>`;
   flavor += `</div>`;
 
   await accRoll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor });
 
-  return { anyHit, maxSparks };
+  return { anyHit, maxSparks, results };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -297,14 +414,14 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
  * @param {ActorSheet} sheet
  * @param {Token[]} targets
  * @param {number} apBonus
- * @returns {{ anyHit: boolean, maxSparks: number }}
+ * @returns {{ anyHit: boolean, maxSparks: number, results: Array }}
  */
 async function rollCreatureDeed(item, sheet, targets, apBonus) {
   const isAttack = item.system.actionType !== "support";
 
   // Support deeds: just post phases, no roll
   if (!isAttack) {
-    return { anyHit: true, maxSparks: 0 };
+    return { anyHit: true, maxSparks: 0, results: [] };
   }
 
   // Creature's accuracy DC
@@ -313,6 +430,7 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
   const creatureDC       = creatureAccuracy + creatureEffBonus + apBonus;
 
   let anyHit = false, maxSparks = 0, resultsHtml = "";
+  const results = [];
 
   await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: "accuracy" });
 
@@ -354,6 +472,17 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
 
     if (sparks > maxSparks) maxSparks = sparks;
 
+    // Track per-target results
+    results.push({
+      tokenId: targetToken.id,
+      tokenName: targetToken.name,
+      actorId: targetActor.id,
+      isHit,
+      sparks,
+      shadows,
+      dc: creatureDC
+    });
+
     resultsHtml += `
       <div class="target-result" style="border-top:1px solid var(--trp-border-light);padding-top:5px;margin-top:5px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
@@ -382,9 +511,90 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
 
     // Reset resultsHtml — it was already embedded in the message above
     resultsHtml = "";
+
+    // Counter reaction: if creature missed, defender may counter-attack
+    if (!isHit && shadows > 0) {
+      const creatureToken = canvas.tokens.placeables.find(t => t.actor?.id === sheet.actor.id);
+      const { canCounter, weapon } = TargetingHelper.checkCounterEligibility(targetToken, creatureToken);
+
+      if (canCounter) {
+        const counterAccepted = await _askCounterReaction(
+          targetToken, creatureToken, weapon, shadows
+        );
+        if (counterAccepted) {
+          // Roll counter damage: shadows × weapon die
+          const wDie = weapon.system.weaponDie || "d4";
+          const counterFormula = `${shadows}${wDie}`;
+          const counterRoll = new foundry.dice.Roll(counterFormula);
+          await counterRoll.evaluate();
+
+          const counterFlavor = `<div class="trespasser-chat-card">
+            <h3>${game.i18n.format("TRESPASSER.Chat.CounterReaction", { name: targetToken.name })}</h3>
+            <p>${game.i18n.format("TRESPASSER.Chat.CounterDamageDesc", { count: shadows, die: wDie, weapon: weapon.name })}</p>
+            <div class="trp-damage-actions" data-damage="${counterRoll.total}" data-target-ids="${creatureToken?.id ?? ""}" style="display:flex;gap:6px;margin-top:8px;">
+              <button class="apply-damage-btn" data-damage="${counterRoll.total}" data-target-ids="${creatureToken?.id ?? ""}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+                <i class="fas fa-heart-broken"></i> ${game.i18n.localize("TRESPASSER.Chat.Apply")} ${game.i18n.localize("TRESPASSER.Chat.DamageMessage")}
+              </button>
+            </div>
+          </div>`;
+          await counterRoll.toMessage({
+            speaker: ChatMessage.getSpeaker({ actor: targetActor }),
+            flavor: counterFlavor
+          });
+        }
+      }
+    }
   }
 
-  return { anyHit, maxSparks };
+  return { anyHit, maxSparks, results };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Counter reaction prompt
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Prompt the defender to use their counter reaction.
+ * @param {Token} defenderToken
+ * @param {Token} creatureToken
+ * @param {Item} weapon  The defender's melee weapon
+ * @param {number} shadows  Number of shadows (= counter dice)
+ * @returns {Promise<boolean>}
+ */
+function _askCounterReaction(defenderToken, creatureToken, weapon, shadows) {
+  const wDie = weapon.system.weaponDie || "d4";
+  const content = `<div class="trespasser-dialog">
+    <p>${game.i18n.format("TRESPASSER.Chat.CounterPrompt", {
+      defender: defenderToken.name,
+      count: shadows,
+      die: wDie,
+      weapon: weapon.name,
+      creature: creatureToken?.name ?? "?"
+    })}</p>
+  </div>`;
+
+  return new Promise((resolve) => {
+    new Dialog({
+      title: game.i18n.localize("TRESPASSER.Chat.CounterTitle"),
+      content,
+      buttons: {
+        counter: {
+          icon: '<i class="fas fa-shield-alt"></i>',
+          label: game.i18n.localize("TRESPASSER.Chat.CounterAccept"),
+          callback: () => resolve(true)
+        },
+        pass: {
+          icon: '<i class="fas fa-times"></i>',
+          label: game.i18n.localize("TRESPASSER.Chat.CounterPass"),
+          callback: () => resolve(false)
+        }
+      },
+      default: "counter"
+    }, {
+      classes: ["trespasser", "dialog"],
+      width: 380
+    }).render(true);
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -466,6 +676,13 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
     const damageBonus = await TrespasserEffectsHelper.evaluateDamageBonus(actor, "damage_dealt", weaponDie);
     if (damageBonus !== 0) parsedDamage = `(${parsedDamage}) + ${damageBonus}`;
 
+    // Spark Power: add extra skill dice to damage
+    const powerDice = options.sparkChoices?.powerBonusDice ?? 0;
+    if (powerDice > 0) {
+      const sd = actor.system.skill_die || "d6";
+      parsedDamage = `(${parsedDamage}) + ${powerDice}${sd}`;
+    }
+
     let rollObj;
     try {
       rollObj = new foundry.dice.Roll(parsedDamage);
@@ -473,11 +690,14 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
     } catch (e) { console.error("Trespasser | Deed Damage Roll Error", e); }
 
     if (rollObj) {
-      const applyHealBtns = `<div class="trp-damage-actions" data-damage="${rollObj.total}" style="display:flex;gap:6px;margin-top:8px;">
-        <button class="apply-damage-btn" data-damage="${rollObj.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+      const targetIdAttr = options.targetIds?.length
+        ? ` data-target-ids="${options.targetIds.join(",")}"`
+        : "";
+      const applyHealBtns = `<div class="trp-damage-actions" data-damage="${rollObj.total}"${targetIdAttr} style="display:flex;gap:6px;margin-top:8px;">
+        <button class="apply-damage-btn" data-damage="${rollObj.total}"${targetIdAttr} style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
           <i class="fas fa-heart-broken"></i> Apply Damage
         </button>
-        <button class="heal-damage-btn" data-damage="${rollObj.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+        <button class="heal-damage-btn" data-damage="${rollObj.total}"${targetIdAttr} style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
           <i class="fas fa-heart"></i> Heal
         </button>
       </div>`;
