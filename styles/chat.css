@@ -12,6 +12,13 @@
   margin: -2px; /* Pull to edge of Foundry standard chat box */
 }
 
+/* Deed card in chat — let the inner .deed-card handle its own styling */
+.trespasser-chat-card.deed-chat-card {
+  padding: 0;
+  border: none;
+  background: none;
+}
+
 .trespasser-chat-card h3 {
   font-family: var(--trp-font-header);
   color: var(--trp-gold-bright);

@@ -549,6 +549,12 @@
       "Talents": "Talentos",
       "Incantations": "Encantamentos",
       "DeedEffects": "Efeitos da Habilidade",
+      "DeedTabs": {
+        "Card": "Cartão",
+        "Details": "Detalhes",
+        "Effects": "Efeitos"
+      },
+      "DeedCardEmpty": "Nenhum efeito de fase configurado ainda. Use a aba Efeitos para adicioná-los.",
       "Start": "Início",
       "Before": "Antes",
       "Base": "Base",

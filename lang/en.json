@@ -551,6 +551,12 @@
       "Talents": "Talents",
       "Incantations": "Incantations",
       "DeedEffects": "Deed Effects",
+      "DeedTabs": {
+        "Card": "Card",
+        "Details": "Details",
+        "Effects": "Effects"
+      },
+      "DeedCardEmpty": "No phase effects configured yet. Use the Effects tab to add them.",
       "Start": "Start",
       "Before": "Before",
       "Base": "Base",

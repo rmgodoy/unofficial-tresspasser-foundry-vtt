@@ -452,10 +452,213 @@
 }
 
 /* ── Deed Sheet (AppV2) ──────────────────────────────── */
-.deed-properties {
+
+/* Make the deed sheet's window-content and form a flex column */
+.trespasser.sheet.deed .window-content {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden !important;
+}
+
+.trespasser.sheet.deed .window-content > form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+}
+
+/* Header stays fixed at top */
+.trespasser.sheet.deed .window-content > form > .sheet-header {
+  flex: 0 0 auto;
+}
+
+/* Tab navigation bar */
+.deed-tabs {
+  display: flex;
+  flex: 0 0 auto;
+  border-bottom: 2px solid var(--trp-gold-dim);
+  background: var(--trp-bg-panel);
+  margin: 0;
+  padding: 0;
+}
+
+.deed-tabs .item {
+  flex: 1;
+  text-align: center;
+  padding: 8px 12px;
+  font-family: var(--trp-font-header);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--trp-text-dim);
+  cursor: pointer;
+  border-right: 1px solid var(--trp-border);
+  transition: color 0.15s, background 0.15s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-decoration: none;
+}
+
+.deed-tabs .item:last-child {
+  border-right: none;
+}
+
+.deed-tabs .item:hover {
+  color: var(--trp-text-bright);
+  background: rgba(201, 168, 76, 0.08);
+}
+
+.deed-tabs .item.active {
+  color: var(--trp-gold-bright);
+  background: rgba(201, 168, 76, 0.12);
+  border-bottom: 2px solid var(--trp-gold-bright);
+  margin-bottom: -2px;
+}
+
+.deed-tabs .item i {
+  font-size: 12px;
+}
+
+/* Tab content panels — hidden unless active */
+.trespasser.sheet.deed .tab {
+  display: none;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.trespasser.sheet.deed .tab.active {
+  display: flex;
+  flex-direction: column;
+}
+
+.trespasser.sheet.deed .tab::-webkit-scrollbar {
+  width: 6px;
+}
+.trespasser.sheet.deed .tab::-webkit-scrollbar-thumb {
+  background: var(--color-scrollbar);
+  border-radius: 3px;
+}
+.trespasser.sheet.deed .tab::-webkit-scrollbar-track {
+  background: var(--color-scrollbar-track);
+}
+
+/* ── Card Tab ──────────────────────────────── */
+.deed-card-preview {
+  padding: 24px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.deed-card {
+  display: flex;
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  overflow: hidden;
+  background: var(--trp-bg-dark);
+  width: 100%;
+  max-width: 480px;
+}
+
+.deed-card-tier-label {
+  background: var(--trp-bg-dark);
+  color: var(--trp-text-dim);
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+  text-align: center;
+  font-family: var(--trp-font-header);
+  font-size: 16px;
+  font-weight: bold;
+  padding: 10px 6px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  letter-spacing: 0.1em;
+  border-right: 1px solid var(--trp-border);
+  flex: 0 0 auto;
+}
+
+.deed-card-body {
+  flex: 1;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.deed-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.3);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+}
+
+.deed-card-name {
+  font-family: var(--trp-font-header);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--trp-gold-bright);
+  text-transform: uppercase;
+}
+
+.deed-card-cost {
+  font-family: var(--trp-font-header);
+  font-size: 11px;
+  color: var(--trp-gold-dim);
+}
+
+.deed-card-subheader {
+  font-family: var(--trp-font-header);
+  font-size: 12px;
+  color: var(--trp-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+  padding-bottom: 4px;
+  margin-bottom: 6px;
+}
+
+.deed-card-phases {
+  font-size: 15px;
+  color: var(--trp-text-dim);
+  border-top: 1px dotted rgba(200, 200, 200, 0.1);
+  padding-top: 2px;
+}
+
+.deed-card-phase {
+  margin-bottom: 2px;
+}
+
+.deed-card-phase-label {
+  color: var(--trp-gold-dim);
+  font-size: 15px;
+  text-transform: uppercase;
+}
+
+.deed-card-damage {
+  font-weight: bold;
+  color: #ffdda1;
+}
+
+.deed-card-empty {
+  color: var(--trp-text-dim);
+  font-style: italic;
+  font-size: 12px;
+  padding: 8px 0;
+}
+
+/* ── Details Tab ──────────────────────────────── */
+.deed-details {
   padding: 16px;
 }
 
+/* ── Effects Tab ──────────────────────────────── */
 .deed-effects {
   padding: 0 16px 16px;
 }
