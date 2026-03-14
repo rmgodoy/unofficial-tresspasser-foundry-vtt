@@ -63,6 +63,7 @@ import { TrespasserBuildData } from "./module/data/item-build.mjs";
 import { TrespasserBuildSheet } from "./module/sheets/item-build-sheet.mjs";
 import { TrespasserStrongholdData } from "./module/data/item-stronghold.mjs";
 import { TrespasserStrongholdSheet } from "./module/sheets/item-stronghold-sheet.mjs";
+import { registerHavenTrackerHooks } from "./module/exploration/haven-tracker.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -85,6 +86,7 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/dungeon/dungeon-log.hbs",
     "systems/trespasser/templates/dungeon/dungeon-notes.hbs",
     "systems/trespasser/templates/exploration/dungeon-tracker.hbs",
+    "systems/trespasser/templates/exploration/haven-tracker.hbs",
     "systems/trespasser/templates/item/room-sheet.hbs"
   ]);
 
@@ -434,6 +436,9 @@ Hooks.once("init", async () => {
 
   // Dungeon tracker scene control button
   registerDungeonTrackerHooks();
+
+  // Haven tracker scene control button
+  registerHavenTrackerHooks();
 
   console.log("Trespasser | System ready");
 

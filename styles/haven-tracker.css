@@ -1,0 +1,88 @@
+/* Haven Tracker Styles - Matching Dungeon Tracker Aesthetic */
+
+.haven-tracker .window-content {
+  padding: 0;
+  background: var(--trp-bg-dark);
+}
+
+.haven-tracker-content {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--fs-12);
+}
+
+/* --- Idle State: Haven Picker --- */
+.haven-tracker .tracker-idle {
+  padding: 10px;
+}
+
+.tracker-haven-picker h3 {
+  font-size: var(--fs-11);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--trp-gold);
+  margin: 0 0 6px;
+}
+
+.tracker-haven-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 300px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--trp-scrollbar) var(--trp-bg-input);
+}
+
+.tracker-haven-list::-webkit-scrollbar {
+  width: 5px;
+}
+.tracker-haven-list::-webkit-scrollbar-thumb {
+  background: var(--trp-scrollbar);
+  border-radius: 3px;
+}
+
+.tracker-haven-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  border-radius: 3px;
+  color: var(--trp-text);
+  cursor: pointer;
+  font-size: var(--fs-12);
+  text-decoration: none;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.tracker-haven-option:hover {
+  background: var(--trp-bg-panel);
+  color: var(--trp-text-bright);
+}
+
+.tracker-haven-thumb {
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 1px solid var(--trp-border-light);
+}
+
+.tracker-haven-option-name {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-family: var(--trp-font-body);
+}
+
+.tracker-no-havens {
+  padding: 20px 10px;
+  text-align: center;
+  color: var(--trp-text-dim);
+  font-style: italic;
+  font-size: var(--fs-11);
+}

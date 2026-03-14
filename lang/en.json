@@ -1366,7 +1366,13 @@
       "DropFeaturesHint": "Drop Features here to provide to owner upon completion",
       "Completed": "Completed",
       "GeneratedIncome": "generated income",
-      "TotalStrongholdIncome": "Total Stronghold Income"
+      "TotalStrongholdIncome": "Total Stronghold Income",
+      "Tracker": {
+        "Title": "Haven Tracker",
+        "Button": "Haven Tracker",
+        "NoHavens": "No Haven actors found in the world.",
+        "SelectHaven": "Select Haven"
+      }
     }
   },
   "TYPES": {

@@ -1323,7 +1323,13 @@
       "DropFeaturesHint": "Solte Características aqui para conceder ao dono ao concluir",
       "Completed": "Concluído",
       "GeneratedIncome": "renda gerada",
-      "TotalStrongholdIncome": "Total de Renda das Fortalezas"
+      "TotalStrongholdIncome": "Total de Renda das Fortalezas",
+      "Tracker": {
+        "Title": "Rastreador de Refúgio",
+        "Button": "Rastreador de Refúgio",
+        "NoHavens": "Nenhum ator de Refúgio encontrado no mundo.",
+        "SelectHaven": "Selecionar Refúgio"
+      }
     }
   },
   "TYPES": {
