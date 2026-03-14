@@ -1,0 +1,58 @@
+<section class="deed-effects effects-body">
+  <h3 class="effects-heading">{{localize "TRESPASSER.Item.DeedEffects"}}</h3>
+
+  {{#each phases as |phase|}}
+  <div class="effect-block {{#if @last}}effect-block--last{{/if}}">
+    <h4 class="effect-block__label">{{phase.label}}</h4>
+
+    {{!-- Description --}}
+    <div class="field-row full-width">
+      <input type="text"
+             name="system.effects.{{phase.key}}.description"
+             value="{{phase.data.description}}"
+             placeholder="{{localize (concat 'TRESPASSER.Item.DeedDescription' (capitalize phase.key))}}" />
+    </div>
+
+    <div class="effect-block__row">
+      {{!-- Damage formula --}}
+      <div class="field-row effect-block__damage">
+        <input type="text"
+               name="system.effects.{{phase.key}}.damage"
+               value="{{phase.data.damage}}"
+               placeholder="{{localize 'TRESPASSER.Item.Damage'}}" />
+      </div>
+
+      {{!-- Weapon effects checkbox --}}
+      <label class="effect-block__weapon-toggle">
+        <input type="checkbox"
+               name="system.effects.{{phase.key}}.appliesWeaponEffects"
+               {{checked phase.data.appliesWeaponEffects}} />
+        {{localize "TRESPASSER.Item.WeaponEffects"}}
+      </label>
+
+      {{!-- Drop zone --}}
+      <div class="applied-effects-list" data-phase="{{phase.key}}">
+        {{#each phase.effects as |effect|}}
+          <div class="effect-chip" data-index="{{effect.index}}" data-uuid="{{effect.uuid}}">
+            <img src="{{effect.img}}" title="{{effect.name}}" />
+            <span class="name">{{effect.name}}</span>
+            <div class="intensity-box">
+              <span class="label">{{localize "TRESPASSER.Item.IntShort"}}</span>
+              <input type="number"
+                     class="effect-intensity-input"
+                     name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.intensity"
+                     value="{{effect.intensity}}" />
+            </div>
+            <div class="controls">
+              <a data-action="editEffect" title="{{localize 'TRESPASSER.General.Edit'}}"><i class="fas fa-edit"></i></a>
+              <a data-action="removeEffect" title="{{localize 'TRESPASSER.Item.RemoveEffect'}}"><i class="fas fa-times"></i></a>
+            </div>
+          </div>
+        {{else}}
+          <span class="drop-placeholder">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  {{/each}}
+</section>

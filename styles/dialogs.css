@@ -104,3 +104,78 @@
   color: #fff;
   border-color: var(--trp-gold-bright);
 }
+
+/* ═══════════════════════════════════════════════════
+   SPARK DIALOG
+═══════════════════════════════════════════════════ */
+.spark-dialog {
+  padding: 4px 0;
+}
+
+.spark-dialog > p {
+  margin: 0 0 10px;
+  font-size: 12px;
+  color: var(--trp-text-dim);
+}
+
+.spark-layer {
+  margin-bottom: 12px;
+  padding: 8px;
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+}
+
+.spark-layer h4 {
+  margin: 0 0 6px;
+  font-family: var(--trp-font-header);
+  font-size: 12px;
+  color: var(--trp-gold);
+  text-transform: uppercase;
+}
+
+.spark-layer-targets {
+  font-size: 10px;
+  color: var(--trp-text-dim);
+  text-transform: none;
+  font-family: var(--trp-font-body);
+}
+
+.spark-choice {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  margin: 2px 0;
+  border-radius: var(--trp-radius-sm);
+  cursor: pointer;
+  transition: background 0.15s;
+  text-transform: none;
+  font-family: var(--trp-font-body);
+}
+
+.spark-choice:hover {
+  background: rgba(201, 168, 76, 0.1);
+}
+
+.spark-choice input[type="radio"] {
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.spark-choice-label {
+  font-weight: bold;
+  font-size: 12px;
+  color: var(--trp-text-bright);
+  min-width: 80px;
+}
+
+.spark-choice-desc {
+  font-size: 11px;
+  color: var(--trp-text-dim);
+}
+
+.spark-choice.disabled {
+  opacity: 0.4;
+  pointer-events: none;
+}
