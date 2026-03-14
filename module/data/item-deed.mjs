@@ -25,7 +25,6 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
     });
 
     return {
-      description: new fields.HTMLField({ initial: "" }),
       tier: new fields.StringField({
         initial: "light",
         choices: ["light", "heavy", "mighty", "special"]

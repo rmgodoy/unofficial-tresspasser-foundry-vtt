@@ -1,9 +1,9 @@
 /**
  * AppV2 Item Sheet for Deeds in the Trespasser TTRPG system.
  *
- * Split into three template PARTS:
- *   - header:     image, name, description
- *   - properties: tier, type, target, accuracy, focus costs
+ * Three-tab layout:
+ *   - card:       auto-generated deed card preview
+ *   - details:    tier, type, target, accuracy, focus costs
  *   - effects:    7 phase blocks with drop zones and effect chips
  */
 const { api, sheets } = foundry.applications;
@@ -14,6 +14,7 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
     classes: ["trespasser", "sheet", "item", "deed", "item-sheet"],
     position: { width: 560, height: 640 },
     actions: {
+      switchTab:    TrespasserDeedSheet.#onSwitchTab,
       removeEffect: TrespasserDeedSheet.#onRemoveEffect,
       editEffect:   TrespasserDeedSheet.#onEditEffect,
     },
@@ -25,14 +26,64 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
     header: {
       template: "systems/trespasser/templates/item/deed/header.hbs"
     },
-    properties: {
-      template: "systems/trespasser/templates/item/deed/properties.hbs"
+    tabs: {
+      template: "systems/trespasser/templates/item/deed/tabs.hbs"
+    },
+    card: {
+      template: "systems/trespasser/templates/item/deed/card.hbs"
+    },
+    details: {
+      template: "systems/trespasser/templates/item/deed/details.hbs"
     },
     effects: {
       template: "systems/trespasser/templates/item/deed/effects.hbs",
       scrollable: [".effects-body"]
     }
   };
+
+  static TABS = {
+    card:    { id: "card",    group: "primary", label: "TRESPASSER.Item.DeedTabs.Card",    icon: "id-card" },
+    details: { id: "details", group: "primary", label: "TRESPASSER.Item.DeedTabs.Details", icon: "list" },
+    effects: { id: "effects", group: "primary", label: "TRESPASSER.Item.DeedTabs.Effects", icon: "bolt" }
+  };
+
+  tabGroups = { primary: "card" };
+
+  /* -------------------------------------------- */
+  /* Tab Management                                */
+  /* -------------------------------------------- */
+
+  _prepareTabs(parts) {
+    const tabs = {};
+    for (const [id, config] of Object.entries(this.constructor.TABS)) {
+      tabs[id] = {
+        ...config,
+        active: this.tabGroups[config.group] === id,
+        cssClass: this.tabGroups[config.group] === id ? "active" : "",
+        label: game.i18n.localize(config.label)
+      };
+    }
+    return Object.values(tabs);
+  }
+
+  _getTabs() {
+    const tabs = {};
+    for (const [id, config] of Object.entries(this.constructor.TABS)) {
+      tabs[id] = {
+        ...config,
+        active: this.tabGroups[config.group] === id,
+        cssClass: this.tabGroups[config.group] === id ? "active" : "",
+        label: game.i18n.localize(config.label)
+      };
+    }
+    return tabs;
+  }
+
+  async _preparePartContext(partId, context) {
+    context.partId = `${this.id}-${partId}`;
+    context.tab = context.tabs[partId] ?? { active: partId === this.tabGroups.primary };
+    return context;
+  }
 
   /* -------------------------------------------- */
   /* Context                                       */
@@ -44,12 +95,7 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
     context.item = item;
     context.system = item.system;
     context.editable = this.isEditable;
-
-    // Enrich the description HTML
-    context.enrichedDescription = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
-      item.system.description ?? "",
-      { async: true, relativeTo: item }
-    );
+    context.tabs = this._getTabs();
 
     context.config = {
       tiers: {
@@ -99,6 +145,23 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
         ...e, index: i
       }))
     }));
+
+    // Build card preview data — only phases that have content
+    context.cardPhases = context.phases.filter(p =>
+      p.data.description || (p.effects && p.effects.length > 0)
+    );
+
+    // Compute display cost for card
+    const tier = item.system.tier;
+    let baseCost = item.system.focusCost;
+    if (baseCost === null || baseCost === undefined) {
+      if (tier === "heavy") baseCost = 2;
+      else if (tier === "mighty") baseCost = 4;
+      else baseCost = 0;
+    }
+    const bonusCost = item.system.bonusCost || 0;
+    context.displayCost = baseCost + bonusCost;
+    context.showCost = context.displayCost > 0;
 
     return context;
   }
@@ -166,6 +229,15 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
   /* -------------------------------------------- */
   /* Action Handlers                               */
   /* -------------------------------------------- */
+
+  static #onSwitchTab(event, target) {
+    event.preventDefault();
+    const tab = target.dataset.tab;
+    if (tab && this.constructor.TABS[tab]) {
+      this.tabGroups.primary = tab;
+      this.render();
+    }
+  }
 
   /**
    * Remove an effect from a phase's appliedEffects array.

@@ -13,6 +13,50 @@ import { TargetingHelper }         from "../../helpers/targeting-helper.mjs";
 import { askSparkDialog }          from "../../dialogs/spark-dialog.mjs";
 
 // ─────────────────────────────────────────────────────────────────────────────
+// Deed card chat message
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function postDeedCard(actor, item) {
+  const sys = item.system;
+  const phases = ["start", "before", "base", "hit", "spark", "after", "end"];
+  const allPhases = phases.map(key => ({
+    key,
+    label: game.i18n.localize(`TRESPASSER.Item.${key.charAt(0).toUpperCase() + key.slice(1)}`),
+    data: sys.effects?.[key] ?? {}
+  }));
+  const cardPhases = allPhases.filter(p => p.data.description);
+
+  const tier = sys.tier;
+  let baseCost = sys.focusCost;
+  if (baseCost === null || baseCost === undefined) {
+    if (tier === "heavy") baseCost = 2;
+    else if (tier === "mighty") baseCost = 4;
+    else baseCost = 0;
+  }
+  const displayCost = baseCost + (sys.bonusCost || 0);
+
+  const content = await foundry.applications.handlebars.renderTemplate(
+    "systems/trespasser/templates/chat/deed-card.hbs",
+    {
+      name: item.name,
+      tierLabel: game.i18n.localize(`TRESPASSER.Item.DeedTierChoices.${tier.charAt(0).toUpperCase() + tier.slice(1)}`),
+      type: sys.type,
+      actionType: sys.actionType,
+      accuracyTest: sys.accuracyTest,
+      target: sys.target,
+      displayCost,
+      showCost: displayCost > 0,
+      cardPhases
+    }
+  );
+
+  await ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
 // Main orchestrator
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -178,7 +222,9 @@ export async function onDeedRoll(event, sheet) {
   }
   await item.update({ "system.uses": currentUses + 1, "system.bonusCost": currentBonusCost + costIncrease });
 
-  // ── 6. Start/Before phases + on-use-deed ──────────────────────────────────
+  // ── 6. Post deed card to chat, then Start/Before phases + on-use-deed ─────
+  await postDeedCard(sheet.actor, item);
+
   const effects      = item.system.effects || {};
   const fragileItems = new Set();
   const phaseOptions = { fragileItems };
