@@ -33,8 +33,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
       tabs: [
         { id: "mechanics", label: "TRESPASSER.Config.Tabs.Mechanics", icon: "fas fa-cog" },
         { id: "exploration", label: "TRESPASSER.Config.Tabs.Exploration", icon: "fas fa-map" },
-        { id: "visuals", label: "TRESPASSER.Config.Tabs.Visuals", icon: "fas fa-eye" },
-        { id: "colors", label: "TRESPASSER.Config.Tabs.Colors", icon: "fas fa-palette" }
+        { id: "visuals", label: "TRESPASSER.Config.Tabs.Visuals", icon: "fas fa-eye" }
       ],
       initial: "mechanics"
     }

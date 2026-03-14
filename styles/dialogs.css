@@ -9,23 +9,7 @@
   font-family: var(--trp-font-body);
 }
 
-.trespasser.dialog .window-header,
-.application.trespasser.dialog .window-header {
-  background: var(--trp-bg-header);
-  border-bottom: 2px solid var(--trp-gold-dim);
-  height: 32px;
-  line-height: 32px;
-}
 
-.trespasser.dialog .window-title,
-.application.trespasser.dialog .window-header .window-title {
-  color: var(--trp-gold);
-  font-family: var(--trp-font-header);
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  font-size: var(--fs-12);
-  padding-top: 2px;
-}
 
 .trespasser.dialog .dialog-content {
   padding: 12px;
@@ -39,7 +23,7 @@
 }
 
 .trespasser.dialog .dialog-button,
-.application.trespasser.dialog button {
+.application.trespasser.dialog button:not(.header-control) {
   background: var(--trp-bg-panel);
   border: 1px solid var(--trp-border);
   color: var(--trp-text-dim);
@@ -56,7 +40,7 @@
 }
 
 .trespasser.dialog .dialog-button:hover,
-.application.trespasser.dialog button:hover {
+.application.trespasser.dialog button:not(.header-control):hover {
   background: var(--trp-gold-dim);
   color: var(--trp-text-bright);
   border-color: var(--trp-text-bright);
@@ -64,7 +48,7 @@
 }
 
 .trespasser.dialog .dialog-button.default,
-.application.trespasser.dialog button.default,
+.application.trespasser.dialog button.default:not(.header-control),
 .application.trespasser.dialog .dialog-buttons [data-action="cancel"] {
   border: 2px solid var(--trp-gold) !important;
   color: var(--trp-gold) !important;
