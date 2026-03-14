@@ -6,25 +6,29 @@ const { api, sheets } = foundry.applications;
 export class TrespasserBuildSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
 
   static DEFAULT_OPTIONS = {
-    classes: ["trespasser", "sheet", "item", "build-sheet"],
+    classes: ["trespasser", "sheet", "item", "item-sheet", "build-sheet"],
     position: { width: 500, height: 500 },
     actions: {
       addBonus: TrespasserBuildSheet.#onAddBonus,
       removeBonus: TrespasserBuildSheet.#onRemoveBonus,
       addSkill: TrespasserBuildSheet.#onAddSkill,
-      removeSkill: TrespasserBuildSheet.#onRemoveSkill
+      removeSkill: TrespasserBuildSheet.#onRemoveSkill,
+      addAction: TrespasserBuildSheet.#onAddHavenAction,
+      removeAction: TrespasserBuildSheet.#onRemoveHavenAction
     },
     form: { 
       handler: TrespasserBuildSheet.#onSubmit,
       submitOnChange: true,
       closeOnSubmit: false 
     },
+
     window: { resizable: true }
   };
 
   static PARTS = {
     main: {
-      template: "systems/trespasser/templates/item/build-sheet.hbs"
+      template: "systems/trespasser/templates/item/build-sheet.hbs",
+      scrollable: [".scrollable", ".sheet-content", "[data-scrollable='true']"]
     }
   };
 
@@ -103,6 +107,23 @@ export class TrespasserBuildSheet extends api.HandlebarsApplicationMixin(sheets.
             return obj;
         }, {}) : null;
 
+    // Enrich haven actions descriptions
+    const enrichedActions = [];
+    for (const action of (system.havenActions || [])) {
+        enrichedActions.push({
+            ...action,
+            enrichedDescription: await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+                action.description ?? "",
+                { 
+                    async: true,
+                    secrets: item.isOwner,
+                    relativeTo: item
+                }
+            )
+        });
+    }
+    context.enrichedHavenActions = enrichedActions;
+
     return context;
   }
 
@@ -171,9 +192,21 @@ export class TrespasserBuildSheet extends api.HandlebarsApplicationMixin(sheets.
     skills.splice(index, 1);
     await this.document.update({ "system.skills": skills });
   }
+  
+  static async #onAddHavenAction(event, target) {
+    const actions = [...(this.document.system.havenActions || [])];
+    actions.push({ title: "New Haven Action", description: "" });
+    await this.document.update({ "system.havenActions": actions });
+  }
+
+  static async #onRemoveHavenAction(event, target) {
+    const index = parseInt(target.dataset.index);
+    const actions = [...(this.document.system.havenActions || [])];
+    actions.splice(index, 1);
+    await this.document.update({ "system.havenActions": actions });
+  }
 
   static async #onSubmit(event, form, formData) {
-    const data = foundry.utils.expandObject(formData.object);
-    await this.document.update(data);
+    await this.document.update(formData.object);
   }
 }

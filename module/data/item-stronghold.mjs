@@ -34,8 +34,11 @@ export class TrespasserStrongholdData extends foundry.abstract.TypeDataModel {
         img: new fields.StringField({ required: true })
       }), { initial: [] }),
 
-      // List of Haven Actions (strings)
-      havenActions: new fields.ArrayField(new fields.StringField(), { initial: [] })
+      // List of Haven Actions
+      havenActions: new fields.ArrayField(new fields.SchemaField({
+        title: new fields.StringField({ initial: "" }),
+        description: new fields.StringField({ initial: "" })
+      }), { initial: [] })
     };
   }
 

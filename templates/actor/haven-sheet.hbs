@@ -116,19 +116,19 @@
 
   {{!-- Tabs --}}
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="skills">{{localize "TRESPASSER.Haven.SkillsLabel"}}</a>
-    <a class="item" data-tab="buildings">{{localize "TRESPASSER.Haven.BuildingsLabel"}}</a>
-    <a class="item" data-tab="hirelings">{{localize "TRESPASSER.Haven.ProductionChains"}}</a>
-    <a class="item" data-tab="event">{{localize "TRESPASSER.Haven.Event"}}</a>
-    <a class="item" data-tab="strongholds">{{localize "TRESPASSER.Haven.Strongholds"}}</a>
-    <a class="item" data-tab="notes">{{localize "TRESPASSER.Haven.Notes"}}</a>
+    <a class="item {{#if (eq tabs.primary 'skills')}}active{{/if}}" data-tab="skills">{{localize "TRESPASSER.Haven.SkillsLabel"}}</a>
+    <a class="item {{#if (eq tabs.primary 'buildings')}}active{{/if}}" data-tab="buildings">{{localize "TRESPASSER.Haven.BuildingsLabel"}}</a>
+    <a class="item {{#if (eq tabs.primary 'hirelings')}}active{{/if}}" data-tab="hirelings">{{localize "TRESPASSER.Haven.ProductionChains"}}</a>
+    <a class="item {{#if (eq tabs.primary 'event')}}active{{/if}}" data-tab="event">{{localize "TRESPASSER.Haven.Event"}}</a>
+    <a class="item {{#if (eq tabs.primary 'strongholds')}}active{{/if}}" data-tab="strongholds">{{localize "TRESPASSER.Haven.Strongholds"}}</a>
+    <a class="item {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-tab="notes">{{localize "TRESPASSER.Haven.Notes"}}</a>
   </nav>
 
   <section class="sheet-content" data-scrollable="true">
     
     {{!-- Production Chains Tab --}}
     {{!-- Buildings Tab --}}
-    <div class="tab" data-group="primary" data-tab="buildings">
+    <div class="tab {{#if (eq tabs.primary 'buildings')}}active{{/if}}" data-group="primary" data-tab="buildings">
       <div class="buildings-layout drop-zone" data-action="dropItem">
         
         {{!-- Under Construction --}}
@@ -220,6 +220,17 @@
                       {{/each}}
                     </div>
                   {{/if}}
+                  
+                  {{#if b.system.havenActions.length}}
+                    <div class="haven-actions-display">
+                      <span class="section-label">{{localize "TRESPASSER.Haven.HavenActions"}}</span>
+                      {{#each b.system.havenActions as |action|}}
+                        <div class="haven-action-item">
+                          <span class="action-title">{{action.title}}</span>
+                        </div>
+                      {{/each}}
+                    </div>
+                  {{/if}}
                 </div>
               </div>
             {{else}}
@@ -234,7 +245,7 @@
     </div>
 
     {{!-- Hirelings Tab --}}
-    <div class="tab" data-group="primary" data-tab="hirelings">
+    <div class="tab {{#if (eq tabs.primary 'hirelings')}}active{{/if}}" data-group="primary" data-tab="hirelings">
       <div class="hirelings-grid">
         {{#each hirelings as |h|}}
           <div class="hireling-card {{#if h.system.active}}active{{else}}inactive{{/if}}" data-item-id="{{h.id}}">
@@ -270,7 +281,7 @@
             <div class="production-chain {{#if chain.active}}active{{else}}inactive{{/if}}" data-chain-id="{{chain.id}}">
               <div class="chain-header flex-row">
                 <input type="checkbox" class="chain-active-toggle" data-action="toggleChain" data-chain-index="{{chainIndex}}" {{checked chain.active}} {{disabled (not ../editable)}} />
-                <input type="text" class="chain-name-input" data-action="updateChainName" data-chain-index="{{chainIndex}}" value="{{chain.name}}" {{disabled (not ../editable)}} />
+                <input type="text" class="chain-name-input" name="system.productionChains.{{chainIndex}}.name" value="{{chain.name}}" {{disabled (not ../editable)}} />
                 {{#if ../editable}}
                 <div class="chain-controls">
                   <button type="button" class="remove-chain-btn" data-action="removeChain" data-chain-index="{{chainIndex}}"><i class="fas fa-trash"></i></button>
@@ -283,7 +294,7 @@
                     <span class="name">{{h.name}}</span>
                     {{#if ../../editable}}
                     <div class="entry-controls">
-                      <a class="remove-from-chain" data-action="removeHirelingFromChain" data-chain-index="{{../chainIndex}}" data-hireling-index="{{../hIndex}}"><i class="fas fa-times"></i></a>
+                      <a class="remove-from-chain" data-action="removeHirelingFromChain" data-chain-index="{{chainIndex}}" data-item-id="{{h.id}}"><i class="fas fa-times"></i></a>
                     </div>
                     {{/if}}
                   </div>
@@ -291,7 +302,7 @@
                 
                 {{#if (and ../editable ../availableHirelings.length)}}
                   <div class="add-hireling-to-chain-container flex-row">
-                    <select class="available-hirelings-select">
+                    <select class="available-hirelings-select" data-form-no-save>
                       <option value="">-- {{localize "TRESPASSER.Haven.AddHireling"}} --</option>
                       {{#each ../availableHirelings as |avail|}}
                         <option value="{{avail.id}}">{{avail.name}}</option>
@@ -310,7 +321,7 @@
 
 
     {{!-- Attributes & Skills Tab --}}
-    <div class="tab" data-group="primary" data-tab="skills">
+    <div class="tab {{#if (eq tabs.primary 'skills')}}active{{/if}}" data-group="primary" data-tab="skills">
       <div class="haven-skills-projects-layout">
         <div class="haven-skills-section">
           <h3 class="section-title">{{localize "TRESPASSER.Haven.SkillsLabel"}}</h3>
@@ -341,7 +352,7 @@
           <div class="projects-list">
             {{#each projects as |p pIndex|}}
               <div class="project-item" data-project-id="{{p.id}}">
-                <input type="text" name="system.projects.{{pIndex}}.name" value="{{p.name}}" class="project-name-input" {{disabled (not ../editable)}} />
+                <input type="text" value="{{p.name}}" class="project-name-input" name="system.projects.{{pIndex}}.name" {{disabled (not ../editable)}} />
 
                 <div class="project-clock-mini">
                   {{> "systems/trespasser/templates/actor/parts/clock.hbs" 
@@ -356,7 +367,7 @@
                 
                 <div class="project-clock-config">
                     <label>{{localize "TRESPASSER.Haven.ClockMax"}}</label>
-                    <input type="number" name="system.projects.{{pIndex}}.clock" value="{{p.clock}}" min="2" max="12" {{disabled (not ../editable)}} />
+                    <input type="number" value="{{p.clock}}" min="2" max="12" name="system.projects.{{pIndex}}.clock" {{disabled (not ../editable)}} />
                 </div>
 
                 {{#if ../editable}}
@@ -401,7 +412,7 @@
       </div>
     </div>
 
-    <div class="tab" data-group="primary" data-tab="event">
+    <div class="tab {{#if (eq tabs.primary 'event')}}active{{/if}}" data-group="primary" data-tab="event">
       <div class="haven-event-layout">
         <div class="event-left-panel">
            <div class="event-title-group">
@@ -446,7 +457,7 @@
     </div>
 
     {{!-- Strongholds Tab --}}
-    <div class="tab" data-group="primary" data-tab="strongholds">
+    <div class="tab {{#if (eq tabs.primary 'strongholds')}}active{{/if}}" data-group="primary" data-tab="strongholds">
       <div class="stronghold-list drop-zone {{#if editable}}editable{{/if}}" data-action="dropStronghold">
 
         {{!-- Under Construction --}}
@@ -523,6 +534,17 @@
                        <i class="fas fa-crown"></i> {{s.ownerName}}
                     </div>
                    {{/if}}
+
+                   {{#if s.system.havenActions.length}}
+                    <div class="haven-actions-display">
+                      <span class="section-label">{{localize "TRESPASSER.Haven.HavenActions"}}</span>
+                      {{#each s.system.havenActions as |action|}}
+                        <div class="haven-action-item">
+                          <span class="action-title">{{action.title}}</span>
+                        </div>
+                      {{/each}}
+                    </div>
+                  {{/if}}
                 </div>
               </div>
             {{else}}
@@ -537,7 +559,7 @@
     </div>
 
     {{!-- Notes Tab --}}
-    <div class="tab" data-group="primary" data-tab="notes">
+    <div class="tab {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-group="primary" data-tab="notes">
       <prose-mirror name="system.notes" value="{{system.notes}}" toggled="false" compact="false" {{#if (not editable)}}readonly{{/if}}>{{{enrichedNotes}}}</prose-mirror>
     </div>
 

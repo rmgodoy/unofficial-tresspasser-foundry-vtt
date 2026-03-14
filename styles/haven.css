@@ -1727,3 +1727,37 @@
     flex: 1;
 }
 
+
+/* ── Haven Action Display in Cards ─────────────────────── */
+.haven-actions-display {
+  margin-top: 10px;
+  border-top: 1px solid var(--trp-border-light);
+  padding-top: 8px;
+}
+
+.haven-actions-display .section-label {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-9);
+  color: var(--trp-gold-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.haven-action-item {
+  background: var(--trp-bg-overlay);
+  border-left: 2px solid var(--trp-gold-dim);
+  margin-bottom: 2px;
+  border-radius: 0 2px 2px 0;
+}
+
+.haven-action-item .action-title {
+  display: block;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-9);
+  color: var(--trp-text-dim);
+  text-transform: uppercase;
+  padding: 2px 8px;
+  letter-spacing: 0.05em;
+}

@@ -13,7 +13,7 @@
     </div>
   </header>
 
-  <section class="sheet-body scrollable">
+  <section class="sheet-body scrollable" data-scrollable="true">
     <div class="custom-attributes-area">
       {{!-- Build Status --}}
       <div class="attribute-fields">
@@ -72,20 +72,24 @@
         </div>
       </div>
 
-      {{!-- Haven Actions --}}
       <div class="attribute-list-section">
         <div class="section-header">
-            <label>{{localize "TRESPASSER.Haven.StrongholdActions"}}</label>
+            <label>{{localize "TRESPASSER.Haven.HavenActions"}}</label>
             {{#if editable}}
               <a data-action="addAction" title="{{localize 'TRESPASSER.Haven.AddAction'}}"><i class="fas fa-plus"></i></a>
             {{/if}}
         </div>
         <div class="actions-list">
-            {{#each system.havenActions as |action idx|}}
-                <div class="action-row">
-                    <input type="text" name="system.havenActions.{{idx}}" value="{{action}}"/>
+            {{#each enrichedHavenActions as |action idx|}}
+                <div class="haven-action-edit-row">
+                    <div class="action-inputs">
+                      <input type="text" name="system.havenActions.{{idx}}.title" value="{{action.title}}" placeholder="{{localize 'TRESPASSER.General.Title'}}"/>
+                      <div class="haven-action-editor">
+                        <prose-mirror name="system.havenActions.{{idx}}.description" value="{{action.description}}" toggled="false" compact="false" editable="{{../editable}}">{{{action.enrichedDescription}}}</prose-mirror>
+                      </div>
+                    </div>
                     {{#if ../editable}}
-                      <a data-action="removeAction" data-index="{{idx}}"><i class="fas fa-trash"></i></a>
+                      <a class="remove-action-btn" data-action="removeAction" data-index="{{idx}}"><i class="fas fa-trash"></i></a>
                     {{/if}}
                 </div>
             {{/each}}

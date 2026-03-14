@@ -7,7 +7,7 @@ const { api, sheets } = foundry.applications;
 export class TrespasserHirelingSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
 
   static DEFAULT_OPTIONS = {
-    classes: ["trespasser", "sheet", "item", "hireling-sheet"],
+    classes: ["trespasser", "sheet", "item", "item-sheet", "hireling-sheet"],
     position: { width: 520, height: 600 },
     actions: {
       removeHirelingItem: TrespasserHirelingSheet.#onRemoveHirelingItem
@@ -17,12 +17,14 @@ export class TrespasserHirelingSheet extends api.HandlebarsApplicationMixin(shee
       submitOnChange: true,
       closeOnSubmit: false 
     },
+
     window: { resizable: true }
   };
 
   static PARTS = {
     main: {
-      template: "systems/trespasser/templates/item/hireling-sheet.hbs"
+      template: "systems/trespasser/templates/item/hireling-sheet.hbs",
+      scrollable: [".scrollable", ".sheet-content", "[data-scrollable='true']"]
     }
   };
 
@@ -98,6 +100,10 @@ export class TrespasserHirelingSheet extends api.HandlebarsApplicationMixin(shee
     await this.document.update({ [`system.${list}`]: currentArray });
   }
 
+  /* -------------------------------------------- */
+  /* Drag & Drop                                  */
+  /* -------------------------------------------- */
+
   /**
    * Update quantity of a specific item in the list.
    */
@@ -148,7 +154,6 @@ export class TrespasserHirelingSheet extends api.HandlebarsApplicationMixin(shee
    * Manual form submission handler for AppV2.
    */
   static async #onSubmit(event, form, formData) {
-    const data = foundry.utils.expandObject(formData.object);
-    await this.document.update(data);
+    await this.document.update(formData.object);
   }
 }

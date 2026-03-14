@@ -1239,6 +1239,7 @@
       "Growth": "Crescimento",
       "Decline": "Declínio",
       "Arrivals": "Chegadas",
+      "Progress": "Progresso",
       "Level": "Nível",
       "SkillBonus": "Bônus de Perícia",
       "Skills": {
@@ -1317,6 +1318,7 @@
       "AttributeBonuses": "Bônus de Atributo",
       "AddBonus": "Adicionar Bônus",
       "StrongholdActions": "Ações de Abrigo",
+      "HavenActions": "Ações de Abrigo",
       "AddAction": "Adicionar Ação",
       "DropFeaturesHint": "Solte Características aqui para conceder ao dono ao concluir",
       "Completed": "Concluído",

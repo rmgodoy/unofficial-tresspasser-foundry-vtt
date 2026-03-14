@@ -12,7 +12,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "actor", "haven-sheet"],
     position: { width: 700, height: 800 },
-    scrollable: ['[data-scrollable="true"]'],
+
     actions: {
       processWeek: TrespasserHavenSheet.#onProcessWeek,
       removeLeader: TrespasserHavenSheet.#onRemoveLeader,
@@ -20,7 +20,6 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       addChain: TrespasserHavenSheet.#onAddChain,
       removeChain: TrespasserHavenSheet.#onRemoveChain,
       toggleChain: TrespasserHavenSheet.#onToggleChain,
-      updateChainName: TrespasserHavenSheet.#onUpdateChainName,
       removeHirelingFromChain: TrespasserHavenSheet.#onRemoveHirelingFromChain,
       toggleHirelingActive: TrespasserHavenSheet.#onToggleHirelingActive,
       openItemSheet: TrespasserHavenSheet.#onOpenItemSheet,
@@ -52,7 +51,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
 
   static PARTS = {
     main: {
-      template: "systems/trespasser/templates/actor/haven-sheet.hbs"
+      template: "systems/trespasser/templates/actor/haven-sheet.hbs",
+      scrollable: [".scrollable", ".sheet-content", "[data-scrollable='true']"]
     }
   };
 
@@ -177,10 +177,19 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       index,
       name: entry.item.name,
       img: entry.item.img,
-      id: entry.item._id || index // Just for keys
+      id: entry.item._id || index,
+      system: entry.item.system
     }));
 
-    // Resolve Hirelings for Production Chains and track assignment
+    // Group projects with indexes for name attributes
+    context.projects = (system.projects || []).map((p, i) => ({
+      ...p,
+      index: i,
+      segments: buildClockSegments(Math.max(2, p.clock), Math.min(p.current, Math.max(2, p.clock)))
+    }));
+
+    // Tab state
+    context.tabs = this.tabGroups;
     const allAssignedIds = new Set();
     context.system.productionChains.forEach(chain => {
       chain.resolvedHirelings = chain.hirelings
@@ -261,11 +270,9 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     super._onRender(context, options);
     const html = this.element;
 
-    // Sync tabs (everyone can switch tabs)
+    // Sync tabs
     const tabs = html.querySelectorAll('.sheet-tabs .item');
     tabs.forEach(t => {
-      const isActive = t.dataset.tab === this.tabGroups.primary;
-      t.classList.toggle('active', isActive);
       t.addEventListener('click', (ev) => {
         this.tabGroups.primary = t.dataset.tab;
         this.render();
@@ -295,6 +302,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
 
     // From here, only for GMs/Leaders
     if (!this.isEditable) return;
+
+    // Stop dropdown from triggering form submission/re-render when selecting
+    html.querySelectorAll('.available-hirelings-select').forEach(s => {
+      s.addEventListener('change', ev => ev.stopPropagation());
+    });
   }
 
   /* -------------------------------------------- */
@@ -439,20 +451,13 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     }
   }
 
-  static async #onUpdateChainName(event, target) {
-    // Only update on change or blur if needed, here we might rely on submitOnChange
-    // But since it's an array field, we might need manual handling if we want it snappy
-    const index = parseInt(target.dataset.chainIndex);
-    const chains = foundry.utils.duplicate(this.document.system.productionChains);
-    chains[index].name = target.value;
-    await this.document.update({ "system.productionChains": chains });
-  }
-
   static async #onRemoveHirelingFromChain(event, target) {
     const chainIndex = parseInt(target.dataset.chainIndex);
-    const hirelingIndex = parseInt(target.dataset.hirelingIndex);
+    const itemId = target.dataset.itemId;
     const chains = foundry.utils.duplicate(this.document.system.productionChains);
-    chains[chainIndex].hirelings.splice(hirelingIndex, 1);
+    const chain = chains[chainIndex];
+    if ( !chain ) return;
+    chain.hirelings = chain.hirelings.filter(id => id !== itemId);
     await this.document.update({ "system.productionChains": chains });
   }
 
@@ -645,14 +650,14 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const chosenAttr = await new Promise(resolve => {
       const dialog = new foundry.applications.api.DialogV2({
         window: { 
-          title: game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", { skill: skillLabel }),
+          title: game.i18n.format("TRESPASSER.Sheet.Dialog.SkillCheckTitle", { skill: skillLabel }),
           classes: ["trespasser", "dialog", "haven-attr-picker"] 
         },
         content: `
           <div class="dialog-content">
             <p style="margin-bottom:12px;">
-              ${game.i18n.localize("TRESPASSER.Dialog.SkillCheckQ")}
-              ${trained ? `<em>${game.i18n.format("TRESPASSER.Dialog.SkillCheckBonus", { skill: system.skillBonus })}</em>` : ""}
+              ${game.i18n.localize("TRESPASSER.Sheet.Dialog.SkillCheckQ")}
+              ${trained ? `<em>${game.i18n.format("TRESPASSER.Sheet.Dialog.SkillCheckBonus", { skill: system.skillBonus })}</em>` : ""}
             </p>
             <div class="trp-attr-pick">
               ${attributes.map(attr => `
@@ -662,7 +667,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
               `).join('')}
             </div>
           </div>`,
-        buttons: [{ action: "cancel", label: game.i18n.localize("TRESPASSER.Dialog.Cancel"), default: true }],
+        buttons: [{ action: "cancel", label: game.i18n.localize("TRESPASSER.Sheet.Dialog.Cancel"), default: true }],
         submit: (result) => { if ( result === "cancel" ) resolve(null); },
         close: () => resolve(null),
         render: (html) => {
@@ -784,25 +789,6 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     ui.notifications.info(`Upgrading ${item.name} to ${template.name}. New construction has started.`);
   }
 
-  /**
-   * Manual form submission handler for AppV2.
-   */
-  static async #onSubmit(event, form, formData) {
-    // For AppV2 and documents, updates are often clearer as flat objects
-    await this.document.update(formData.object);
-  }
-
-  static async #onEventClockClick(event, target) {
-    const index = parseInt(target.dataset.index);
-    if ( isNaN(index) ) return;
-    
-    const total = Number(this.document.system.event.clock);
-    const current = Number(this.document.system.event.current);
-    const newValue = (current === index + 1) ? index : Math.min(index + 1, total);
-    
-    return this.document.update({ "system.event.current": newValue });
-  }
-
   static async #onAddProject(event, target) {
     const projects = [...this.document.system.projects];
     projects.push({
@@ -820,28 +806,73 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     await this.document.update({ "system.projects": projects });
   }
 
+  /**
+   * Manual form submission handler for AppV2.
+   */
+  static async #onSubmit(event, form, formData) {
+    const systemUpdate = {};
+    const projects = foundry.utils.duplicate(this.document.system.projects || []);
+    const chains = foundry.utils.duplicate(this.document.system.productionChains || []);
+    let arrayUpdated = false;
+
+    // Manual sync for project/chain names if they are in formData
+    for ( let [key, value] of Object.entries(formData.object) ) {
+      if ( key.startsWith("system.projects.") ) {
+        const parts = key.split(".");
+        const index = parseInt(parts[2]);
+        const field = parts[3];
+        if ( projects[index] ) {
+          projects[index][field] = field === "clock" ? (parseInt(value) || 4) : value;
+          arrayUpdated = true;
+        }
+      } else if ( key.startsWith("system.productionChains.") ) {
+        const parts = key.split(".");
+        const index = parseInt(parts[2]);
+        const field = parts[3];
+        if ( chains[index] ) {
+          chains[index][field] = value;
+          arrayUpdated = true;
+        }
+      } else {
+        systemUpdate[key] = value;
+      }
+    }
+
+    if ( arrayUpdated ) {
+      systemUpdate["system.projects"] = projects;
+      systemUpdate["system.productionChains"] = chains;
+    }
+
+    if ( Object.keys(systemUpdate).length ) {
+      await this.document.update(systemUpdate);
+    }
+  }
+
+  static async #onEventClockClick(event, target) {
+    const index = parseInt(target.dataset.index);
+    if ( isNaN(index) ) return;
+    
+    const total = Number(this.document.system.event.clock);
+    const current = Number(this.document.system.event.current);
+    const newValue = (current === index + 1) ? index : Math.min(index + 1, total);
+    
+    return this.document.update({ "system.event.current": newValue });
+  }
+
   static async #onProjectClockClick(event, target) {
     const clockWidget = target.closest(".trespasser-clock");
     const projectId = clockWidget?.dataset.id;
     const index = parseInt(target.dataset.index);
     if ( isNaN(index) || !projectId ) return;
 
-    const projects = this.document.system.toObject().projects;
+    const projects = foundry.utils.duplicate(this.document.system.projects || []);
     const project = projects.find(p => p.id === projectId);
     if (!project) return;
 
     const total = Number(project.clock);
     const newValue = (project.current === index + 1) ? index : Math.min(index + 1, total);
     project.current = newValue;
-    
-    // Clean projects array to ensure all numbers are actual Numbers (not strings)
-    const cleanedProjects = projects.map(p => ({
-      ...p,
-      clock: Number(p.clock),
-      current: Number(p.current)
-    }));
 
-    await this.document.update({ "system.projects": cleanedProjects });
+    await this.document.update({ "system.projects": projects });
   }
-  
 }

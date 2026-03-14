@@ -285,7 +285,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     }
 
     const messages = [];
-    messages.push(`<h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.ResolveHirelings")}</h3>`);
+    messages.push(`<h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.ResolveProduction")}</h3>`);
     messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.WeeklyExpenses")}:</strong> ${expenses}</p>`);
     messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.WeeklyIncome")}:</strong> ${income}</p>`);
     messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.WeeklyBalance")}:</strong> ${balance >= 0 ? "+" : ""}${balance}</p>`);

@@ -1282,6 +1282,7 @@
       "Growth": "Growth",
       "Decline": "Decline",
       "Arrivals": "Arrivals",
+      "Progress": "Progress",
       "Level": "Level",
       "SkillBonus": "Skill Bonus",
       "Skills": {
@@ -1360,6 +1361,7 @@
       "AttributeBonuses": "Attribute Bonuses",
       "AddBonus": "Add Bonus",
       "StrongholdActions": "Haven Actions",
+      "HavenActions": "Haven Actions",
       "AddAction": "Add Action",
       "DropFeaturesHint": "Drop Features here to provide to owner upon completion",
       "Completed": "Completed",

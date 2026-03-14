@@ -21,7 +21,11 @@ export class TrespasserBuildData extends foundry.abstract.TypeDataModel {
       buildClock: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
       progress: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
       upgradeTo: new fields.StringField({ initial: "", blank: true }), // UUID of another build template
-      replacesId: new fields.StringField({ initial: "", blank: true }) // ID of the building this one replaces upon completion
+      replacesId: new fields.StringField({ initial: "", blank: true }), // ID of the building this one replaces upon completion
+      havenActions: new fields.ArrayField(new fields.SchemaField({
+        title: new fields.StringField({ initial: "" }),
+        description: new fields.StringField({ initial: "" })
+      }), { initial: [] })
     };
   }
 }

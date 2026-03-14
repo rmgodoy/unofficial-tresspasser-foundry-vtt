@@ -10,7 +10,7 @@
     </div>
   </header>
 
-  <section class="sheet-body scrollable">
+  <section class="sheet-body scrollable" data-scrollable="true">
     <div class="custom-attributes-area">
       <div class="attribute-list-section">
         <div class="section-header">
@@ -70,6 +70,30 @@
           {{else}}
             <span class="placeholder">{{localize "TRESPASSER.Haven.Build.DropUpgradeHint"}}</span>
           {{/if}}
+        </div>
+      </div>
+
+      <div class="attribute-list-section">
+        <div class="section-header">
+            <label>{{localize "TRESPASSER.Haven.HavenActions"}}</label>
+            {{#if editable}}
+              <a data-action="addAction" title="{{localize 'TRESPASSER.Haven.AddAction'}}"><i class="fas fa-plus"></i></a>
+            {{/if}}
+        </div>
+        <div class="actions-list">
+            {{#each enrichedHavenActions as |action idx|}}
+                <div class="haven-action-edit-row">
+                    <div class="action-inputs">
+                      <input type="text" name="system.havenActions.{{idx}}.title" value="{{action.title}}" placeholder="{{localize 'TRESPASSER.General.Title'}}"/>
+                      <div class="haven-action-editor">
+                        <prose-mirror name="system.havenActions.{{idx}}.description" value="{{action.description}}" toggled="false" compact="false" editable="{{../editable}}">{{{action.enrichedDescription}}}</prose-mirror>
+                      </div>
+                    </div>
+                    {{#if ../editable}}
+                      <a class="remove-action-btn" data-action="removeAction" data-index="{{idx}}"><i class="fas fa-trash"></i></a>
+                    {{/if}}
+                </div>
+            {{/each}}
         </div>
       </div>
     </div>

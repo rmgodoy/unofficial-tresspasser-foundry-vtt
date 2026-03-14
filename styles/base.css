@@ -92,6 +92,25 @@
   flex: 1;
   overflow-y: auto !important;
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--trp-scrollbar) transparent;
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background: var(--trp-scrollbar);
+  border-radius: 3px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background: var(--trp-gold-dim);
 }
 
 /* ─── All Inputs / Selects / Textareas ─── */

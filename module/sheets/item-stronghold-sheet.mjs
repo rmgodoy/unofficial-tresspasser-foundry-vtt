@@ -6,7 +6,7 @@ const { api, sheets } = foundry.applications;
 export class TrespasserStrongholdSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
 
   static DEFAULT_OPTIONS = {
-    classes: ["trespasser", "sheet", "item", "stronghold-sheet"],
+    classes: ["trespasser", "sheet", "item", "item-sheet", "stronghold-sheet"],
     position: { width: 500, height: 750 },
     actions: {
       addBonus: TrespasserStrongholdSheet.#onAddBonus,
@@ -21,12 +21,14 @@ export class TrespasserStrongholdSheet extends api.HandlebarsApplicationMixin(sh
       submitOnChange: true,
       closeOnSubmit: false 
     },
+
     window: { resizable: true }
   };
 
   static PARTS = {
     main: {
-      template: "systems/trespasser/templates/item/stronghold-sheet.hbs"
+      template: "systems/trespasser/templates/item/stronghold-sheet.hbs",
+      scrollable: [".scrollable", ".sheet-content", "[data-scrollable='true']"]
     }
   };
 
@@ -64,6 +66,23 @@ export class TrespasserStrongholdSheet extends api.HandlebarsApplicationMixin(sh
         const owner = game.actors.get(system.ownerId);
         context.ownerName = owner?.name || "Unknown Character";
     }
+
+    // Enrich haven actions descriptions
+    const enrichedActions = [];
+    for (const action of (system.havenActions || [])) {
+        enrichedActions.push({
+            ...action,
+            enrichedDescription: await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+                action.description ?? "",
+                { 
+                    async: true,
+                    secrets: item.isOwner,
+                    relativeTo: item
+                }
+            )
+        });
+    }
+    context.enrichedHavenActions = enrichedActions;
 
     // Prep bonuses with localized labels
     context.preparedBonuses = (system.bonuses || []).map((b, i) => ({
@@ -156,7 +175,7 @@ export class TrespasserStrongholdSheet extends api.HandlebarsApplicationMixin(sh
 
   static async #onAddAction(event, target) {
     const actions = [...(this.document.system.havenActions || [])];
-    actions.push("New Haven Action");
+    actions.push({ title: "New Haven Action", description: "" });
     await this.document.update({ "system.havenActions": actions });
   }
 
@@ -172,8 +191,6 @@ export class TrespasserStrongholdSheet extends api.HandlebarsApplicationMixin(sh
   }
 
   static async #onSubmit(event, form, formData) {
-    const data = foundry.utils.expandObject(formData.object);
-    // Handle array updates from form if necessary, but expandObject should handle it
-    await this.document.update(data);
+    await this.document.update(formData.object);
   }
 }

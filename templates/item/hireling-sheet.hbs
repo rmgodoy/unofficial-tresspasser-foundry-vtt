@@ -17,7 +17,7 @@
     </div>
   </header>
 
-  <section class="sheet-body scrollable">
+  <section class="sheet-body scrollable" data-scrollable="true">
     <div class="attribute-group flex-row">
       <div class="field-item">
         <label>{{localize "TRESPASSER.Haven.CostPerWeek"}}</label>
@@ -39,7 +39,7 @@
             <div class="hireling-item-chip" data-index="{{index}}" data-list="consume">
               <span class="name">{{entry.name}}</span>
               <div class="quantity-box">
-                <input type="number" class="hireling-item-qty" value="{{#if entry.system.quantity}}{{entry.system.quantity}}{{else}}1{{/if}}" />
+                <input type="number" class="hireling-item-qty" value="{{#if entry.system.quantity}}{{entry.system.quantity}}{{else}}1{{/if}}" data-form-no-save />
               </div>
               <div class="controls">
                 <a class="remove-hireling-item" data-list="consume" data-index="{{index}}"><i class="fas fa-times"></i></a>
@@ -58,7 +58,7 @@
             <div class="hireling-item-chip" data-index="{{index}}" data-list="produce">
               <span class="name">{{entry.name}}</span>
               <div class="quantity-box">
-                <input type="number" class="hireling-item-qty" value="{{#if entry.system.quantity}}{{entry.system.quantity}}{{else}}1{{/if}}" />
+                <input type="number" class="hireling-item-qty" value="{{#if entry.system.quantity}}{{entry.system.quantity}}{{else}}1{{/if}}" data-form-no-save />
               </div>
               <div class="controls">
                 <a class="remove-hireling-item" data-list="produce" data-index="{{index}}"><i class="fas fa-times"></i></a>
