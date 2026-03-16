@@ -33,7 +33,7 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     return foundry.utils.mergeObject(super.defaultOptions, {
       classes:  ["trespasser", "sheet", "actor", "character"],
       template: "systems/trespasser/templates/actor/character-sheet.hbs",
-      width:    780,
+      width:    868,
       height:   720,
       resizable: true,
       scrollY:  [".tab-body"],
