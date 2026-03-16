@@ -319,7 +319,7 @@ export function buildClockSegments(total, filled) {
   for (let i = 0; i < total; i++) {
     const a1 = startOffset + i * angleStep;
     const a2 = startOffset + (i + 1) * angleStep;
-    const gap = 0.06;
+    const gap = 0;
     const x4 = (cx + r * Math.cos(a1 + gap)).toFixed(2);
     const y4 = (cy + r * Math.sin(a1 + gap)).toFixed(2);
     const x3 = (cx + r * Math.cos(a2 - gap)).toFixed(2);

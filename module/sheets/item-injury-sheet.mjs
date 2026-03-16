@@ -70,7 +70,7 @@ export class TrespasserInjurySheet extends foundry.appv1.sheets.ItemSheet {
       const y2 = cy + r * Math.sin(a2);
 
       // Inner point (a tiny gap makes each segment look discrete)
-      const gap = 0.06; // radians
+      const gap = 0; // radians
       const x3 = cx + r * Math.cos(a2 - gap);
       const y3 = cy + r * Math.sin(a2 - gap);
       const x4 = cx + r * Math.cos(a1 + gap);
