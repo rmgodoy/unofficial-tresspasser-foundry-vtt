@@ -303,6 +303,14 @@ export async function getCharacterData(sheet, options = {}) {
     }
   }
 
+  // Enrich Notes
+  context.enrichedNotes = await TextEditor.enrichHTML(actor.system.notes ?? "", {
+    async: true,
+    secrets: actor.isOwner,
+    relativeTo: actor,
+    rollData: actor.getRollData()
+  });
+
   return context;
 }
 

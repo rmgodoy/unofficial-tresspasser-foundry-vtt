@@ -205,7 +205,8 @@
         "Equipments": "Equipamentos",
         "Inventory": "Inventário",
         "Features": "Características",
-        "Combat": "Combate"
+        "Combat": "Combate",
+        "Notes": "Notas"
       },
       "Inventory": {
         "EmptyInventory": "Nenhum item não equipado.",

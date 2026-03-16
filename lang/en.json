@@ -205,7 +205,8 @@
         "Equipments": "Equipments",
         "Inventory": "Inventory",
         "Features": "Features",
-        "Combat": "Combat"
+        "Combat": "Combat",
+        "Notes": "Notes"
       },
       "Inventory": {
         "EmptyInventory": "No unequipped items.",

@@ -163,6 +163,8 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
       }),
       attribute_points_spent: new fields.NumberField({ integer: true, initial: 0 }),
       attribute_points_max:   new fields.NumberField({ integer: true, initial: 0 }),
+
+      notes: new fields.HTMLField({ initial: "" }),
     };
   }
 

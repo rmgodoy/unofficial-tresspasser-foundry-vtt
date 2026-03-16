@@ -1401,3 +1401,31 @@
   font-style: italic;
   font-size: var(--fs-11);
 }
+/* ───────────────────────────────────────────────────────
+   TAB 6 — NOTES
+─────────────────────────────────────────────────────── */
+.trespasser-sheet .tab.notes.active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  flex: 1;
+}
+
+.trespasser-sheet .tab.notes .editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.trespasser-sheet .tab.notes .prosemirror {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.trespasser-sheet .tab.notes .prosemirror .editor-container {
+  flex: 1;
+  overflow-y: auto;
+}
