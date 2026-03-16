@@ -14,7 +14,8 @@
       "None": "None",
       "Active": "Active",
       "Disabled": "Disabled",
-      "Description": "Description"
+      "Description": "Description",
+      "Title": "Title"
     },
     "Config": {
       "Title": "Trespasser Configuration",
@@ -227,7 +228,8 @@
         "NoNonCombatEffects": "No active non-combat effects.",
         "NoFeatures": "No features yet.",
         "NoTalents": "No talents yet.",
-        "NoIncantations": "No incantations yet."
+        "NoIncantations": "No incantations yet.",
+        "DeleteCalling": "Delete Calling"
       },
       "Equipments": {
         "Weapon": "Weapon",
@@ -259,7 +261,10 @@
         "LightSource": "Light Source",
         "ConsumeUse": "Consume / Use",
         "EmptyNamePlaceholder": "Item name...",
-        "EmptyEffectPlaceholder": "effect..."
+        "EmptyEffectPlaceholder": "effect...",
+        "Delete": "Delete",
+        "Edit": "Edit",
+        "Info": "Info"
       },
       "Combat": {
         "Initiative": "Initiative",
@@ -373,7 +378,8 @@
           "Paragon": "Paragon",
           "Tyrant": "Tyrant"
         }
-      }
+      },
+      "Name": "Name"
     },
     "Notifications": {
       "DropDeedsOnly": "Only Deeds can be dropped here.",
@@ -404,7 +410,11 @@
       "MovementLimitExceeded": "You have exceeded your movement limit for this turn.",
       "NotYourPhase": "It is not this token's phase!",
       "VaultStraightLine": "Vault must be in a straight line (orthogonal or diagonal).",
-      "APModified": "{name} now has {ap} Action Points."
+      "APModified": "{name} now has {ap} Action Points.",
+      "DropEffectsOnly": "Only effects can be dropped here.",
+      "FuelConsumed": "Consumed {name} for fuel.",
+      "ItemNotFound": "Item not found.",
+      "NoFuelAvailable": "No fuel sources available!"
     },
     "Chat": {
       "SkillCheck": "{name} - {skill} Check",
@@ -1207,7 +1217,8 @@
       "WaitingForGM": "Waiting for the GM to start exploration.",
       "OpenDungeonSheet": "Open Dungeon Sheet",
       "ExplorationPaused": "Exploration Paused",
-      "RecentActivity": "Recent Activity"
+      "RecentActivity": "Recent Activity",
+      "DropRoomsOnly": "Only Room items can be dropped here."
     },
     "Character": "Character",
     "Creature": "Creature",
@@ -1372,7 +1383,12 @@
         "Button": "Haven Tracker",
         "NoHavens": "No Haven actors found in the world.",
         "SelectHaven": "Select Haven"
-      }
+      },
+      "BuildClock": "Build Clock"
+    },
+    "Remove": "Remove",
+    "Combat": {
+      "States": "States"
     }
   },
   "TYPES": {

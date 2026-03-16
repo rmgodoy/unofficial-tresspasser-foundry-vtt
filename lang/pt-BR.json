@@ -14,7 +14,8 @@
       "None": "Nenhum",
       "Active": "Ativo",
       "Disabled": "Desativado",
-      "Description": "Descrição"
+      "Description": "Descrição",
+      "Title": "Título"
     },
     "Config": {
       "Title": "Configuração do Trespasser",
@@ -70,6 +71,8 @@
       "colorBlue": "Recursos/Pontos de Ação (Azul)",
       "colorLightGreen": "Tema de Cura/Natureza (Verde Claro)",
       "colorCyan": "Foco/Mira do Sistema (Ciano)",
+      "colorSpark": "Spark Highlight Color",
+      "colorShadow": "Shadow Highlight Color",
       "colorShadowGold": "Efeito de Brilho/Sombra Dourada",
       "colorShadowDark": "Sombras de Caixa Profundas",
       "colorBgOverlay": "Sobreposição de Fundo Transparente",
@@ -80,7 +83,10 @@
     },
     "ActorTypes": {
       "character": "Personagem",
-      "creature": "Criatura"
+      "creature": "Criatura",
+      "dungeon": "Dungeon",
+      "party": "Party",
+      "haven": "Haven"
     },
     "ItemTypes": {
       "weapon": "Arma",
@@ -96,7 +102,9 @@
       "injury": "Ferimento",
       "calling": "Vocação",
       "craft": "Ofício",
-      "past_life": "Vida Passada"
+      "past_life": "Vida Passada",
+      "hireling": "Hireling",
+      "build": "Building"
     },
     "Sheet": {
       "Items": {
@@ -220,7 +228,8 @@
         "NoNonCombatEffects": "Sem efeitos não-combate ativos.",
         "NoFeatures": "Nenhuma característica ainda.",
         "NoTalents": "Nenhum talento ainda.",
-        "NoIncantations": "Nenhum encantamento ainda."
+        "NoIncantations": "Nenhum encantamento ainda.",
+        "DeleteCalling": "Excluir Vocação"
       },
       "Equipments": {
         "Weapon": "Arma",
@@ -252,7 +261,10 @@
         "LightSource": "Fonte de Luz",
         "ConsumeUse": "Consumir / Usar",
         "EmptyNamePlaceholder": "Nome do item...",
-        "EmptyEffectPlaceholder": "efeito..."
+        "EmptyEffectPlaceholder": "efeito...",
+        "Delete": "Excluir",
+        "Edit": "Editar",
+        "Info": "Info"
       },
       "Combat": {
         "Initiative": "Iniciativa",
@@ -366,7 +378,8 @@
           "Paragon": "Exemplar",
           "Tyrant": "Tirano"
         }
-      }
+      },
+      "Name": "Nome"
     },
     "Notifications": {
       "DropDeedsOnly": "Apenas Habilidades podem ser soltas aqui.",
@@ -397,7 +410,11 @@
       "MovementLimitExceeded": "Você excedeu seu limite de movimento para este turno.",
       "NotYourPhase": "Não é a fase deste token!",
       "VaultStraightLine": "O Salto deve ser em uma linha reta (ortogonal ou diagonal).",
-      "APModified": "{name} agora tem {ap} Pontos de Ação."
+      "APModified": "{name} agora tem {ap} Pontos de Ação.",
+      "DropEffectsOnly": "Apenas efeitos podem ser soltos aqui.",
+      "FuelConsumed": "Consumiu {name} como combustível.",
+      "ItemNotFound": "Item não encontrado.",
+      "NoFuelAvailable": "Nenhuma fonte de combustível disponível!"
     },
     "Chat": {
       "SkillCheck": "{name} — Teste de {skill}",
@@ -468,6 +485,9 @@
       "HealthRecovered": "Recuperou {value} PV.",
       "HealthLost": "Perdeu {value} PV.",
       "HealthUnaffected": "PV não foram afetados.",
+      "EnduranceRecovered": "Recovered {value} Endurance.",
+      "EnduranceLost": "Lost {value} Endurance.",
+      "EnduranceUnaffected": "Endurance was unaffected.",
       "FocusRecovered": "Foco Recuperado.",
       "FocusLost": "Foco Perdido.",
       "FocusUnaffected": "Foco não foi afetado.",
@@ -781,11 +801,11 @@
         "Intensity": "Intensidade",
         "TargetAttr": "Atributo Alvo",
         "Modifier": "Modificador",
-        "ModifierPlaceholder": "+1 ou 1d6 ou <Int>",
         "isOnlyReminder": "Apenas Lembrete?",
         "gmOnly": "Somente Mestre?",
         "reminderDescription": "Descrição (Texto do Lembrete)",
         "IntensityNote": "Use <Int> para intensidade dinâmica.",
+        "ModifierPlaceholder": "+1 ou 1d6 ou <Int>",
         "TriggerWhen": "Gatilho (Quando)"
       },
       "Fuel": {
@@ -880,9 +900,15 @@
       "AddAP": "Adicionar Ponto de Ação",
       "RemoveAP": "Remover Ponto de Ação"
     },
+    "Cancel": "Cancel",
+    "ItemName": "Nome do Item",
     "NewItem": "Novo {type}",
     "DeleteItemTitle": "Excluir Item",
     "DeleteItemContent": "Tem certeza que deseja excluir <strong>{name}</strong>?",
+    "Tabs": {
+      "Description": "Description",
+      "Details": "Details"
+    },
     "Party": {
       "NamePlaceholder": "A Companhia da Estrela de Cinza",
       "Members": "Membros do Grupo",
@@ -916,50 +942,67 @@
         "Rations": "Rações",
         "Injuries": "Ferimentos",
         "Light": "Fontes de Luz"
-      }
+      },
+      "Label": "Party"
     },
-    "Character": "Personagem",
-    "Creature": "Criatura",
     "Dungeon": {
-      "Label": "Masmorra",
-      "Tabs": {
-        "Overview": "Visão Geral",
-        "Rooms": "Salas",
-        "Log": "Log",
-        "Notes": "Notas"
+      "Tracker": {
+        "Title": "Dungeon Tracker",
+        "SelectDungeon": "Selecionar Masmorra"
       },
       "Name": "Nome da Masmorra",
       "NamePlaceholder": "Nome da Masmorra",
       "Location": "Localização",
       "LocationPlaceholder": "Região ou Local",
-      "HostilityTier": "Nível de Hostilidade",
-      "SizeCategory": "Categoria de Tamanho",
       "FormLabel": "Forma",
-      "Description": "Descrição",
-      "Notes": "Notas do GM",
       "Traits": "Traços da Masmorra",
       "TraitsPlaceholder": "Adicionar traço...",
-      "EncounterTable": "Tabela de Encontros",
-      "EncounterTableHint": "Arraste uma Tabela de Rolagem aqui para configurar os encontros.",
-      "RollTable": "Rolar Tabela",
-      "CreateTable": "Criar Nova Tabela",
-      "RemoveTable": "Remover Tabela",
-      "Encounters": "Encontros",
-      "UnknownTable": "Tabela Desconhecida",
-      "MapImage": "Imagem do Mapa",
-      "Rooms": "Salas",
-      "AddRoom": "Adicionar Sala",
-      "NoRooms": "Nenhuma sala criada para esta masmorra.",
-      "RoundLog": "Log de Rodadas",
-      "NoLogEntries": "Nenhuma ação registrada nesta sessão.",
-      "DC": "DC",
-      "ActionsRemaining": "Ações Restantes",
+      "HostilityTier": "Nível de Hostilidade",
+      "SizeCategory": "Categoria de Tamanho",
       "Alarm": "Alarme",
       "AlarmValue": "Alarme: {value}",
       "Round": "Rodada",
-      "RoundAbbr": "R",
-      "Action": "Ação",
-      "Detail": "Detalhe",
+      "ActionsRemaining": "Ações Restantes",
+      "EncounterTable": "Tabela de Encontros",
+      "EncounterTableHint": "Arraste uma Tabela de Rolagem aqui para configurar os encontros.",
+      "MapImage": "Imagem do Mapa",
+      "Description": "Descrição",
+      "Notes": "Notas do GM",
+      "NotesPlaceholder": "GM notes about this dungeon...",
+      "Rooms": "Salas",
+      "AddRoom": "Adicionar Sala",
+      "NoRooms": "Nenhuma sala criada para esta masmorra.",
+      "CurrentRoom": "Current Room",
+      "RoundLog": "Log de Rodadas",
+      "NoLogEntries": "Nenhuma ação registrada nesta sessão.",
+      "DC": "DC",
+      "Hostility": {
+        "FirstDay": "0 - Primeiro Dia",
+        "Bleak": "I - Sombrio",
+        "Sinister": "II - Sinistro",
+        "Frightening": "III - Assustador",
+        "Harrowing": "IV - Angustiante",
+        "Nightmarish": "V - Pesadelo"
+      },
+      "Size": {
+        "Tiny": "Minúscula (2d4 salas, ~5)",
+        "Small": "Pequena (4d4 salas, ~10)",
+        "Medium": "Média (6d4 salas, ~15)",
+        "Large": "Grande (8d4 salas, ~20)",
+        "Huge": "Enorme (10d4 salas, ~25)"
+      },
+      "Form": {
+        "Cave": "Caverna",
+        "Ruin": "Ruína",
+        "Tower": "Torre",
+        "Crypt": "Cripta",
+        "Fortress": "Fortaleza",
+        "Temple": "Templo",
+        "Mine": "Mina",
+        "Lair": "Covil",
+        "Sewer": "Esgoto",
+        "Other": "Outro"
+      },
       "Actions": {
         "Explore": "Explorar",
         "ExploreDesc": "Mova-se cautelosamente para uma sala adjacente e inexplorada ou explore a sala atual.",
@@ -984,82 +1027,27 @@
         "Incant": "Encantar",
         "IncantDesc": "Conconjure um encantamento enquanto o grupo vigia."
       },
-      "Room": {
-        "Name": "Nome da Sala",
-        "NamePlaceholder": "O Salão Submerso",
-        "Description": "Descrição",
-        "DescriptionPlaceholder": "Descreva a aparência da sala, os conteúdos e a atmosfera...",
-        "Discovered": "Descoberta",
-        "Connections": "Conexões",
-        "ConnectionsHint": "Arraste um item Sala aqui para criar uma conexão",
-        "Features": "Características",
-        "FeaturesPlaceholder": "Características notáveis para investigar...",
-        "AddFeature": "Adicionar Característica",
-        "Hazards": "Perigos",
-        "HazardsPlaceholder": "Armadilhas, perigos ambientais, etc.",
-        "Loot": "Saque",
-        "LootPlaceholder": "Tesouro e itens encontrados aqui...",
-        "SortOrder": "Ordem de Classificação",
-        "UnexploredConnections": "Conexões Inexploradas",
-        "ExploredConnections": "Conexões Exploradas",
-        "NoConnections": "Não há conexões conhecidas desta sala.",
-        "AllExplored": "Todas as salas conectadas já foram exploradas.",
-        "RoomTrap": "Armadilha de Sala",
-        "RoomTrapPresent": "Armadilha de Sala Presente",
-        "RoomTrapHiddenValue": "Valor Oculto (DC de Detecção)",
-        "RoomTrapTrigger": "Gatilho",
-        "RoomTrapTriggerPlaceholder": "ex: Pisar na terceira laje...",
-        "RoomTrapEffect": "Efeito",
-        "RoomTrapEffectPlaceholder": "ex: 2d6 de dano, poço se abre...",
-        "RoomTrapMagical": "Armadilha Mágica",
-        "RoomTrapDisarmed": "Desarmada",
-        "DetailTraps": "Detalhe de Armadilhas",
-        "AddDetailTrap": "Adicionar Detalhe de Armadilha",
-        "DetailTrapFeature": "Característica #",
-        "TrapWarning": "<strong>AVISO DO GM:</strong> {label}!",
-        "DetailTrapsWarning": "<strong>AVISO DO GM:</strong> Existem {count} {label} ativas nesta sala!",
-        "OpenRoom": "Abrir Ficha da Sala"
+      "Sparks": {
+        "Canny": "Astuto",
+        "CannyDesc": "Você realiza a tarefa com cuidado. Você retém algo que seria perdido ou evita pagar um custo necessário. Bane 'Caro'.",
+        "Quick": "Rápido",
+        "QuickDesc": "Você realiza a tarefa em pouco tempo, economizando tempo precioso. Bane 'Lento'.",
+        "Quiet": "Silencioso",
+        "QuietDesc": "Você passa despercebido. Nenhuma atenção indesejada é atraída. Bane 'Barulhento'.",
+        "Safe": "Seguro",
+        "SafeDesc": "Você não sofre nenhum dano ao fazê-lo, mesmo que a lesão parecesse certa. Bane 'Prejudicial'.",
+        "Striking": "Impressionante",
+        "StrikingDesc": "Sua habilidade impressionante influencia aqueles ao seu redor, inspirando aliados ou ganhando favor. Bane 'Desanimador'."
       },
-      "Connection": {
-        "Doorway": "Porta",
-        "Hallway": "Corredor",
-        "Passage": "Passagem",
-        "Stairway": "Escadaria",
-        "Ladder": "Escada",
-        "Secret": "Secreta",
-        "Chasm": "Abismo",
-        "Portal": "Portal",
-        "Other": "Outro",
-        "Locked": "Trancada",
-        "Hidden": "Oculta",
-        "Remove": "Remover Conexão",
-        "OpenRoom": "Abrir Sala",
-        "DescPlaceholder": "ex: Corredor estreito, portão de barras de ferro...",
-        "SelectRoom": "— Selecionar uma sala —",
-        "AddConnection": "Adicionar Conexão",
-        "DropHint": "Solte um item Sala aqui para conectar",
-        "DropRoomsOnly": "Apenas itens do tipo Sala podem ser soltos aqui.",
-        "NeedsDungeon": "Esta sala deve pertencer a uma masmorra para criar conexões.",
-        "SameDungeon": "A sala solta deve pertencer à mesma masmorra.",
-        "AlreadyConnected": "Já conectada a {name}.",
-        "RoomAdded": "Adicionado {room} a {dungeon}.",
-        "Created": "Conectada {from} a {to}."
-      },
-      "SimultaneousAction": "Ação Simultânea",
-      "SimultaneousActionDesc": "O grupo tenta duas ou mais ações ao mesmo tempo. O alarme aumenta em +1 para cada, e a GM faz um teste de alarme imediato.",
-      "Log": {
-        "UnexploredCount": "{count} salas inexploradas conectadas",
-        "AlarmChange": "Alarme subiu para {value}"
-      },
-      "Result": {
-        "Success": "Sucesso",
-        "SuccessDesc": "Você consegue o que pretendia sem complicações imprevistas.",
-        "Shadow": "Sombra",
-        "ShadowDesc": "Seu sucesso tem um custo. Você consegue o que deseja, mas algo dá errado.",
-        "Failure": "Falha",
-        "FailureDesc": "Você falha. O progresso é interrompido e você deve encontrar outra maneira ou enfrentar as consequências.",
+      "Shadows": {
+        "Costly": "Caro",
+        "CostlyDesc": "Você perde algo de valor material - tesouro, uma ferramenta forçada demais, suprimentos deixados para trás na pressa.",
+        "Slow": "Lento",
+        "SlowDesc": "A tarefa demorou muito mais do que o esperado. Tempo precioso é perdido. Tochas tremeluzem. Estômagos roncam.",
+        "Loud": "Barulhento",
+        "LoudDesc": "Você chama a atenção com um ruído alto ou grande interrupção. Aqueles próximos agora sabem o que você está fazendo.",
         "Harmful": "Prejudicial",
-        "HarmfulDesc": "Você se machuca — desde arranhões até um ferimento persistente, dependendo da tarefa.",
+        "HarmfulDesc": "Você se machucou - qualquer coisa, desde arranhões até um ferimento persistente, dependendo da tarefa.",
         "Daunting": "Desanimador",
         "DauntingDesc": "Seu esforço foi humilhante. Observadores questionam se você pertence a este lugar. O moral fraqueja."
       },
@@ -1103,7 +1091,6 @@
           "Complication": "Complicação"
         }
       },
-      "DepletionRollHint": "Role cada dado de esgotamento. Em um 1-2, a fonte de luz é esgotada.",
       "LightSources": "Fontes de Luz",
       "LightDepletion": "Esgotamento de Luz",
       "DepletionPrompt": "Faça testes de esgotamento para fontes de luz ativas.",
@@ -1114,20 +1101,111 @@
       "Session": {
         "Started": "A exploração de {name} começou!",
         "Round1": "Rodada 1 — 3 ações disponíveis.",
+        "Ended": "A exploração de {name} foi encerrada.",
+        "Summary": "Resumo: {rounds} rodadas, {actions} ações.",
+        "EndTitle": "Encerrar Exploração",
         "EndConfirm": "Tem certeza que deseja encerrar esta sessão de exploração?",
         "EndYes": "Encerrar Sessão",
         "Pause": "Pausar Sessão",
         "Resume": "Retomar Sessão",
         "BeginExploration": "Iniciar Exploração",
-        "EndExploration": "Finalizar Exploração",
-        "EndTitle": "Encerrar Exploração",
-        "Ended": "A exploração de {name} foi encerrada.",
-        "Summary": "Resumo: {rounds} rodadas, {actions} ações."
+        "EndExploration": "Finalizar Exploração"
       },
-      "Tracker": {
-        "Title": "Dungeon Tracker",
-        "SelectDungeon": "Selecionar Masmorra"
+      "Room": {
+        "Name": "Nome da Sala",
+        "NamePlaceholder": "O Salão Submerso",
+        "Description": "Descrição",
+        "DescriptionPlaceholder": "Descreva a aparência da sala, os conteúdos e a atmosfera...",
+        "Features": "Características",
+        "FeaturesPlaceholder": "Características notáveis para investigar...",
+        "AddFeature": "Adicionar Característica",
+        "Connections": "Conexões",
+        "ConnectionsHint": "Arraste um item Sala aqui para criar uma conexão",
+        "Discovered": "Descoberta",
+        "RoomTrap": "Armadilha de Sala",
+        "RoomTrapPresent": "Armadilha de Sala Presente",
+        "RoomTrapHiddenValue": "Valor Oculto (DC de Detecção)",
+        "RoomTrapTrigger": "Gatilho",
+        "RoomTrapTriggerPlaceholder": "ex: Pisar na terceira laje...",
+        "RoomTrapEffect": "Efeito",
+        "RoomTrapEffectPlaceholder": "ex: 2d6 de dano, poço se abre...",
+        "RoomTrapMagical": "Armadilha Mágica",
+        "RoomTrapDisarmed": "Desarmada",
+        "DetailTraps": "Detalhe de Armadilhas",
+        "AddDetailTrap": "Adicionar Detalhe de Armadilha",
+        "DetailTrapFeature": "Característica #",
+        "Hazards": "Perigos",
+        "HazardsPlaceholder": "Armadilhas, perigos ambientais, etc.",
+        "Loot": "Saque",
+        "LootPlaceholder": "Tesouro e itens encontrados aqui...",
+        "SortOrder": "Ordem de Classificação",
+        "UnexploredConnections": "Conexões Inexploradas",
+        "ExploredConnections": "Conexões Exploradas",
+        "NoConnections": "Não há conexões conhecidas desta sala.",
+        "AllExplored": "Todas as salas conectadas já foram exploradas.",
+        "TrapWarning": "<strong>AVISO DO GM:</strong> {label}!",
+        "DetailTrapsWarning": "<strong>AVISO DO GM:</strong> Existem {count} {label} ativas nesta sala!",
+        "OpenRoom": "Abrir Ficha da Sala"
       },
+      "Connection": {
+        "Doorway": "Porta",
+        "Hallway": "Corredor",
+        "Passage": "Passagem",
+        "Stairway": "Escadaria",
+        "Ladder": "Escada",
+        "Secret": "Secreta",
+        "Chasm": "Abismo",
+        "Portal": "Portal",
+        "Other": "Outro",
+        "Locked": "Trancada",
+        "Hidden": "Oculta",
+        "Remove": "Remover Conexão",
+        "OpenRoom": "Abrir Sala",
+        "DescPlaceholder": "ex: Corredor estreito, portão de barras de ferro...",
+        "SelectRoom": "— Selecionar uma sala —",
+        "AddConnection": "Adicionar Conexão",
+        "DropHint": "Solte um item Sala aqui para conectar",
+        "DropRoomsOnly": "Apenas itens do tipo Sala podem ser soltos aqui.",
+        "NeedsDungeon": "Esta sala deve pertencer a uma masmorra para criar conexões.",
+        "SameDungeon": "A sala solta deve pertencer à mesma masmorra.",
+        "AlreadyConnected": "Já conectada a {name}.",
+        "RoomAdded": "Adicionado {room} a {dungeon}.",
+        "Created": "Conectada {from} a {to}."
+      },
+      "SimultaneousAction": "Ação Simultânea",
+      "SimultaneousActionDesc": "O grupo tenta duas ou mais ações ao mesmo tempo. O alarme aumenta em +1 para cada, e a GM faz um teste de alarme imediato.",
+      "Tabs": {
+        "Overview": "Visão Geral",
+        "Rooms": "Salas",
+        "Log": "Log",
+        "Notes": "Notas"
+      },
+      "Label": "Masmorra",
+      "RollTable": "Rolar Tabela",
+      "CreateTable": "Criar Nova Tabela",
+      "RemoveTable": "Remover Tabela",
+      "Encounters": "Encontros",
+      "UnknownTable": "Tabela Desconhecida",
+      "RoundAbbr": "R",
+      "Action": "Ação",
+      "Detail": "Detalhe",
+      "Log": {
+        "UnexploredCount": "{count} salas inexploradas conectadas",
+        "AlarmChange": "Alarme subiu para {value}"
+      },
+      "Result": {
+        "Success": "Sucesso",
+        "SuccessDesc": "Você consegue o que pretendia sem complicações imprevistas.",
+        "Shadow": "Sombra",
+        "ShadowDesc": "Seu sucesso tem um custo. Você consegue o que deseja, mas algo dá errado.",
+        "Failure": "Falha",
+        "FailureDesc": "Você falha. O progresso é interrompido e você deve encontrar outra maneira ou enfrentar as consequências.",
+        "Harmful": "Prejudicial",
+        "HarmfulDesc": "Você se machuca — desde arranhões até um ferimento persistente, dependendo da tarefa.",
+        "Daunting": "Desanimador",
+        "DauntingDesc": "Seu esforço foi humilhante. Observadores questionam se você pertence a este lugar. O moral fraqueja."
+      },
+      "DepletionRollHint": "Role cada dado de esgotamento. Em um 1-2, a fonte de luz é esgotada.",
       "DungeonActions": "Ações na Masmorra",
       "ConnectedRooms": "Salas Conectadas",
       "NoConnectedRooms": "Nenhuma sala conectada.",
@@ -1140,34 +1218,10 @@
       "OpenDungeonSheet": "Abrir Ficha da Masmorra",
       "ExplorationPaused": "Exploração Pausada",
       "RecentActivity": "Atividade Recente",
-      "Hostility": {
-        "FirstDay": "0 - Primeiro Dia",
-        "Bleak": "I - Sombrio",
-        "Sinister": "II - Sinistro",
-        "Frightening": "III - Assustador",
-        "Harrowing": "IV - Angustiante",
-        "Nightmarish": "V - Pesadelo"
-      },
-      "Size": {
-        "Tiny": "Minúscula (2d4 salas, ~5)",
-        "Small": "Pequena (4d4 salas, ~10)",
-        "Medium": "Média (6d4 salas, ~15)",
-        "Large": "Grande (8d4 salas, ~20)",
-        "Huge": "Enorme (10d4 salas, ~25)"
-      },
-      "Form": {
-        "Cave": "Caverna",
-        "Ruin": "Ruína",
-        "Tower": "Torre",
-        "Crypt": "Cripta",
-        "Fortress": "Fortaleza",
-        "Temple": "Templo",
-        "Mine": "Mina",
-        "Lair": "Covil",
-        "Sewer": "Esgoto",
-        "Other": "Outro"
-      }
+      "DropRoomsOnly": "Apenas itens do tipo Sala podem ser soltos aqui."
     },
+    "Character": "Personagem",
+    "Creature": "Criatura",
     "Tracker": {
       "Title": "Rastreador de Masmorra"
     },
@@ -1329,7 +1383,12 @@
         "Button": "Rastreador de Refúgio",
         "NoHavens": "Nenhum ator de Refúgio encontrado no mundo.",
         "SelectHaven": "Selecionar Refúgio"
-      }
+      },
+      "BuildClock": "Relógio de Obra"
+    },
+    "Remove": "Remover",
+    "Combat": {
+      "States": "Estados"
     }
   },
   "TYPES": {
