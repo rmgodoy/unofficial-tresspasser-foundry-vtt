@@ -182,7 +182,7 @@ Hooks.once("init", async () => {
   game.settings.register("trespasser", "clockSize", {
     name: "TRESPASSER.Config.ClockSize",
     hint: "TRESPASSER.Config.ClockSizeHint",
-    scope: "world",
+    scope: "client",
     config: false,
     type: Number,
     default: 50
@@ -1250,7 +1250,6 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
  * Add Trespasser Configuration button to the settings sidebar.
  */
 Hooks.on("renderSettings", (app, html, data) => {
-  if (!game.user.isGM) return;
 
   const $html = $(html);
   const configBtn = $(`<button type="button" class="trespasser-config-btn">

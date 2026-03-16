@@ -41,7 +41,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
 
   /** @override */
   tabGroups = {
-    primary: "mechanics"
+    primary: game.user.isGM ? "mechanics" : "visuals"
   };
 
   /** @override */
@@ -78,13 +78,17 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
       label: `TRESPASSER.Config.${key}`
     }));
 
+    context.isGM = game.user.isGM;
+
     // Prepare tabs context
     context.tabs = Object.entries(this.constructor.TABS).reduce((obj, [name, group]) => {
-      obj[name] = group.tabs.map(tab => {
-        tab.active = this.tabGroups[name] === tab.id;
-        tab.cssClass = tab.active ? "active" : "";
-        return tab;
-      });
+      obj[name] = group.tabs
+        .filter(tab => context.isGM || tab.id === "visuals")
+        .map(tab => {
+          tab.active = this.tabGroups[name] === tab.id;
+          tab.cssClass = tab.active ? "active" : "";
+          return tab;
+        });
       return obj;
     }, {});
 
@@ -132,8 +136,12 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
         // Skip the _text inputs used for display
         if ( key.endsWith("_text") ) continue;
         
-        if ( game.settings.settings.has(`trespasser.${key}`) ) {
-            await game.settings.set("trespasser", key, val);
+        const setting = game.settings.settings.get(`trespasser.${key}`);
+        if ( setting ) {
+            // Only allow GMs to save world-scoped settings; everyone can save client-scoped
+            if ( setting.scope !== "world" || game.user.isGM ) {
+                await game.settings.set("trespasser", key, val);
+            }
         }
     }
 
@@ -168,8 +176,14 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     ];
 
     for ( const key of settingsToReset ) {
-        const def = game.settings.settings.get(`trespasser.${key}`).default;
-        await game.settings.set("trespasser", key, def);
+        const setting = game.settings.settings.get(`trespasser.${key}`);
+        if ( !setting ) continue;
+        
+        // Only reset if it's client-scoped OR the user is a GM
+        if ( setting.scope !== "world" || game.user.isGM ) {
+            const def = setting.default;
+            await game.settings.set("trespasser", key, def);
+        }
     }
 
     app.render(true);

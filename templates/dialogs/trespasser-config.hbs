@@ -8,6 +8,7 @@
     </nav>
 
     <section class="content">
+        {{#if isGM}}
         <!-- Mechanics Tab -->
         <div class="tab {{#if (eq tabGroups.primary 'mechanics')}}active{{/if}}" data-group="primary" data-tab="mechanics">
             <div class="form-group">
@@ -69,6 +70,7 @@
                 <p class="notes">{{localize "TRESPASSER.Config.BypassHavenBuildingLimitsHint"}}</p>
             </div>
         </div>
+        {{/if}}
 
         <!-- Visuals Tab -->
         <div class="tab {{#if (eq tabGroups.primary 'visuals')}}active{{/if}}" data-group="primary" data-tab="visuals">
