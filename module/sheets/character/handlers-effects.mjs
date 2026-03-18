@@ -7,6 +7,7 @@ import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { askAPDialog }             from "../../dialogs/ap-dialog.mjs";
 import { TrespasserCombat }        from "../../documents/combat.mjs";
 import { showItemInfoDialog }      from "../../dialogs/item-info-dialog.mjs";
+import { TrespasserRollDialog }    from "../../dialogs/roll-dialog.mjs";
 
 export async function onPrevailRoll(event, sheet) {
   event.preventDefault();
@@ -18,8 +19,9 @@ export async function onPrevailRoll(event, sheet) {
   const combatant = TrespasserCombat.getPhaseCombatant(sheet.actor);
   
   if (combatant && sheet.actor.type === "character") {
+    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
     const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-    if (availableAP < 1) {
+    if (restrictAPF && availableAP < 1) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
       return;
     }
@@ -31,10 +33,36 @@ export async function onPrevailRoll(event, sheet) {
     }
     
     extraAP = apSpent - 1;
-    await combatant.setFlag("trespasser", "actionPoints", availableAP - apSpent);
+    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - apSpent));
   }
 
-  await sheet.actor.rollPrevail(effectItem.id, extraAP);
+  const intensity = effectItem.system.intensity || 0;
+  const defaultCD = Math.min(20, 10 + intensity);
+  const prevailStat = sheet.actor.type === "creature" 
+    ? (sheet.actor.system.combat?.roll_bonus || 0) 
+    : (sheet.actor.system.combat?.prevail || 0);
+  const apBonus = extraAP * 2;
+
+  const isAdv = TrespasserEffectsHelper.hasAdvantage(sheet.actor, "prevail");
+  
+  const diceFormula = isAdv ? "2d20kh" : "1d20";
+
+  const result = await TrespasserRollDialog.wait({
+    dice: diceFormula,
+    showCD: true,
+    cd: defaultCD,
+    bonuses: [
+      { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Prevail"), value: prevailStat },
+      { label: game.i18n.localize("TRESPASSER.HUD.ExtraAP"), value: apBonus }
+    ]
+  }, { title: game.i18n.format("TRESPASSER.Chat.PrevailCheck", { name: effectItem.name }) });
+
+  if (!result) return;
+
+  await sheet.actor.rollPrevail(effectItem.id, extraAP, {
+    modifier: result.modifier,
+    cd: result.cd
+  });
   await TrespasserCombat.recordHUDAction(sheet.actor, "prevail");
 }
 

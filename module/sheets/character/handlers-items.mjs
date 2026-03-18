@@ -67,3 +67,57 @@ export async function runDepletionCheck(item, sheet) {
 
   return isDepleted;
 }
+
+export async function onItemTransfer(event, sheet) {
+  event.preventDefault();
+  const li = event.currentTarget.closest("[data-item-id]");
+  const itemId = li.dataset.itemId;
+  const item = sheet.actor.items.get(itemId);
+  if (!item) return;
+
+  const targetId = event.currentTarget.dataset.targetId;
+  const targetType = event.currentTarget.dataset.targetType;
+  const targetActor = game.actors.get(targetId);
+
+  if (!targetActor) {
+    ui.notifications.error(game.i18n.localize("TRESPASSER.Haven.TransferTargetNotFound"));
+    return;
+  }
+
+  const itemData = item.toObject();
+  
+  if (targetType === "haven") {
+    // Deposit into Haven inventory
+    const inventory = foundry.utils.duplicate(targetActor.system.inventory);
+    const qty = itemData.system.quantity || 1;
+
+    // Haven actors use TrespasserHavenData model which has _isItemMatch
+    // We can use it directly if it's the right model
+    const isMatch = (item1, item2) => {
+        if (item1.name !== item2.name || item1.type !== item2.type) return false;
+        const s1 = item1.system || {};
+        const s2 = item2.system || {};
+        if (s1.subType !== s2.subType) return false;
+        if (s1.tier !== s2.tier) return false;
+        return true;
+    };
+
+    const matchIndex = inventory.findIndex(entry => isMatch(entry.item, itemData));
+
+    if (matchIndex !== -1) {
+      inventory[matchIndex].quantity += qty;
+    } else {
+      inventory.push({ item: itemData, quantity: qty });
+    }
+
+    await targetActor.update({ "system.inventory": inventory });
+    await item.delete();
+    ui.notifications.info(game.i18n.format("TRESPASSER.Haven.DepositedToHaven", { item: item.name, haven: targetActor.name }));
+  } else if (targetType === "character") {
+    // Transfer to another character
+    // Check inventory cap on target? (Maybe later)
+    await targetActor.createEmbeddedDocuments("Item", [itemData]);
+    await item.delete();
+    ui.notifications.info(game.i18n.format("TRESPASSER.Haven.TransferredToCharacter", { item: item.name, character: targetActor.name }));
+  }
+}

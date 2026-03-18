@@ -41,7 +41,7 @@ import { TrespasserPastLifeData }  from "./module/data/item-past-life.mjs";
 import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mjs";
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
-import { showTrespasserConfigDialog } from "./module/dialogs/trespasser-config-dialog.mjs";
+import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
 import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
@@ -55,6 +55,15 @@ import { DUNGEON_CONFIG, ensureDungeonHelpers } from "./module/config/dungeon-co
 import { TrespasserDungeonSheet }  from "./module/sheets/actor-dungeon-sheet.mjs";
 import { TrespasserRoomSheet }     from "./module/sheets/item-room-sheet.mjs";
 import { registerDungeonTrackerHooks } from "./module/exploration/dungeon-tracker.mjs";
+import { TrespasserHavenData }   from "./module/data/actor-haven.mjs";
+import { TrespasserHirelingData } from "./module/data/item-hireling.mjs";
+import { TrespasserHavenSheet }   from "./module/sheets/actor-haven-sheet.mjs";
+import { TrespasserHirelingSheet } from "./module/sheets/item-hireling-sheet.mjs";
+import { TrespasserBuildData } from "./module/data/item-build.mjs";
+import { TrespasserBuildSheet } from "./module/sheets/item-build-sheet.mjs";
+import { TrespasserStrongholdData } from "./module/data/item-stronghold.mjs";
+import { TrespasserStrongholdSheet } from "./module/sheets/item-stronghold-sheet.mjs";
+import { registerHavenTrackerHooks } from "./module/exploration/haven-tracker.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -63,9 +72,11 @@ Hooks.once("init", async () => {
   await foundry.applications.handlebars.loadTemplates([
     "systems/trespasser/templates/actor/parts/deed-list.hbs",
     "systems/trespasser/templates/actor/parts/combat-effects.hbs",
+    "systems/trespasser/templates/actor/parts/clock.hbs",
     "systems/trespasser/templates/item/parts/effect-chip.hbs",
     "systems/trespasser/templates/item/parts/effects-list.hbs",
     "systems/trespasser/templates/item/parts/deeds-list.hbs",
+    "systems/trespasser/templates/chat/deed-card.hbs",
     "systems/trespasser/templates/combat/combat-tracker.hbs",
     // Party template
     "systems/trespasser/templates/actor/party-sheet.hbs",
@@ -76,6 +87,7 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/dungeon/dungeon-log.hbs",
     "systems/trespasser/templates/dungeon/dungeon-notes.hbs",
     "systems/trespasser/templates/exploration/dungeon-tracker.hbs",
+    "systems/trespasser/templates/exploration/haven-tracker.hbs",
     "systems/trespasser/templates/item/room-sheet.hbs"
   ]);
 
@@ -150,11 +162,92 @@ Hooks.once("init", async () => {
     default: true
   });
 
+  game.settings.register("trespasser", "restrictHavenEditToLeader", {
+    name: "TRESPASSER.Config.RestrictHavenEditToLeader",
+    hint: "TRESPASSER.Config.RestrictHavenEditToLeaderHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
+  game.settings.register("trespasser", "bypassHavenBuildingLimits", {
+    name: "TRESPASSER.Config.BypassHavenBuildingLimits",
+    hint: "TRESPASSER.Config.BypassHavenBuildingLimitsHint",
+    scope: "world",
+    config: true,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register("trespasser", "clockSize", {
+    name: "TRESPASSER.Config.ClockSize",
+    hint: "TRESPASSER.Config.ClockSizeHint",
+    scope: "client",
+    config: false,
+    type: Number,
+    default: 50
+  });
+
+  game.settings.register("trespasser", "fontSizeBase", {
+    name: "TRESPASSER.Config.FontSizeBase",
+    hint: "TRESPASSER.Config.FontSizeBaseHint",
+    scope: "client",
+    config: false,
+    type: Number,
+    default: 14
+  });
+
+  // ── Color Theme Settings ──
+  const colorSettings = [
+    { key: "colorBgDark", default: "#1a1714" },
+    { key: "colorBgPanel", default: "#23201c" },
+    { key: "colorBgInput", default: "#2e2a24" },
+    { key: "colorBgHeader", default: "#1e1b17" },
+    { key: "colorBgSelect", default: "#3a3228" },
+    { key: "colorBorder", default: "#4a3f2f" },
+    { key: "colorBorderLight", default: "#5c4f3a" },
+    { key: "colorGold", default: "#c9a84c" },
+    { key: "colorGoldDim", default: "#a88840" },
+    { key: "colorGoldBright", default: "#e8c96b" },
+    { key: "colorRed", default: "#ff5252" },
+    { key: "colorRedDim", default: "#922c2c" },
+    { key: "colorText", default: "#ddd0aa" },
+    { key: "colorTextDim", default: "#a09070" },
+    { key: "colorTextBright", default: "#f5eccc" },
+    { key: "colorGreen", default: "#2d5a2d" },
+    { key: "colorGreenBright", default: "#4a8a4a" },
+    { key: "colorPurple", default: "#9575cd" },
+    { key: "colorBlue", default: "#3f51b5" },
+    { key: "colorLightGreen", default: "#8bc34a" },
+    { key: "colorCyan", default: "#4fc3f7" },
+    { key: "colorSpark", default: "#4fc3f7" },
+    { key: "colorShadow", default: "#9575cd" },
+    { key: "colorShadowGold", default: "#c9a84c" },
+    { key: "colorShadowDark", default: "#000000" },
+    { key: "colorBgOverlay", default: "#000000" },
+    { key: "colorGoldOverlay", default: "#c9a84c" },
+    { key: "colorRedOverlay", default: "#ff5252" },
+    { key: "colorGreenOverlay", default: "#2d5a2d" },
+    { key: "colorScrollbar", default: "#782e22" }
+  ];
+
+  for ( const color of colorSettings ) {
+    game.settings.register("trespasser", color.key, {
+      name: `TRESPASSER.Config.${color.key}`,
+      scope: "client",
+      config: false,
+      type: String,
+      default: color.default
+    });
+  }
+
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
   CONFIG.Actor.dataModels.dungeon  = TrespasserDungeonData;
   CONFIG.Actor.dataModels.party    = TrespasserPartyData;
+  CONFIG.Actor.dataModels.haven    = TrespasserHavenData;
 
   CONFIG.Item.dataModels.armor = TrespasserArmorData;
   CONFIG.Item.dataModels.weapon = TrespasserWeaponData;
@@ -171,6 +264,9 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.craft   = TrespasserCraftData;
   CONFIG.Item.dataModels.past_life = TrespasserPastLifeData;
   CONFIG.Item.dataModels.room    = TrespasserRoomData;
+  CONFIG.Item.dataModels.hireling = TrespasserHirelingData;
+  CONFIG.Item.dataModels.build = TrespasserBuildData;
+  CONFIG.Item.dataModels.stronghold = TrespasserStrongholdData;
 
   // Sheets
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
@@ -195,6 +291,12 @@ Hooks.once("init", async () => {
     types: ["party"],
     makeDefault: true,
     label: "Trespasser Party Sheet",
+  });
+  // Haven sheet (AppV2)
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserHavenSheet, {
+    types: ["haven"],
+    makeDefault: true,
+    label: "Trespasser Haven Sheet",
   });
 
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
@@ -275,6 +377,25 @@ Hooks.once("init", async () => {
     makeDefault: true,
     label: "Trespasser Room Sheet",
   });
+  // Hireling sheet (AppV2)
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserHirelingSheet, {
+    types: ["hireling"],
+    makeDefault: true,
+    label: "Trespasser Hireling Sheet",
+  });
+  // Building sheet (AppV2)
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserBuildSheet, {
+    types: ["build"],
+    makeDefault: true,
+    label: "Trespasser Building Sheet",
+  });
+  // Stronghold sheet (AppV2)
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserStrongholdSheet, {
+    types: ["stronghold"],
+    makeDefault: true,
+    label: "Trespasser Stronghold Sheet",
+  });
+
 
   // Handlebars helpers
   Handlebars.registerHelper("trespasserChecked", (value) => (value ? "checked" : ""));
@@ -317,11 +438,15 @@ Hooks.once("init", async () => {
   // Dungeon tracker scene control button
   registerDungeonTrackerHooks();
 
+  // Haven tracker scene control button
+  registerHavenTrackerHooks();
+
   console.log("Trespasser | System ready");
 
-  // Expose ItemExporter globally for convenience and debugging
+  // Expose system namespace
   game.trespasser = game.trespasser || {};
   game.trespasser.ItemExporter = ItemExporter;
+  game.trespasser.Config = TrespasserConfigV2;
 });
 
 /**
@@ -331,8 +456,81 @@ Hooks.once("ready", () => {
   // Initialize Token Action HUD
   game.trespasser.tokenHUD = new TrespasserTokenHUD();
 
+  // Function to apply settings to CSS variables
+  game.trespasser.applySystemSettings = () => {
+    const clockSize = game.settings.get("trespasser", "clockSize") || 50;
+    document.documentElement.style.setProperty('--trp-clock-size', `${clockSize}px`);
+
+    const fontSize = game.settings.get("trespasser", "fontSizeBase") || 16;
+    document.documentElement.style.setProperty('--trp-font-size-base', `${fontSize}px`);
+
+    // Apply colors
+    const colors = [
+      { key: "colorBgDark", var: "--trp-bg-dark" },
+      { key: "colorBgPanel", var: "--trp-bg-panel" },
+      { key: "colorBgInput", var: "--trp-bg-input" },
+      { key: "colorBgHeader", var: "--trp-bg-header" },
+      { key: "colorBgSelect", var: "--trp-bg-select" },
+      { key: "colorBorder", var: "--trp-border" },
+      { key: "colorBorderLight", var: "--trp-border-light" },
+      { key: "colorGold", var: "--trp-gold" },
+      { key: "colorGoldDim", var: "--trp-gold-dim" },
+      { key: "colorGoldBright", var: "--trp-gold-bright" },
+      { key: "colorRed", var: "--trp-red" },
+      { key: "colorRedDim", var: "--trp-red-dim" },
+      { key: "colorText", var: "--trp-text" },
+      { key: "colorTextDim", var: "--trp-text-dim" },
+      { key: "colorTextBright", var: "--trp-text-bright" },
+      { key: "colorGreen", var: "--trp-green" },
+      { key: "colorGreenBright", var: "--trp-green-bright" },
+      { key: "colorPurple", var: "--trp-purple" },
+      { key: "colorBlue", var: "--trp-blue" },
+      { key: "colorLightGreen", var: "--trp-light-green" },
+      { key: "colorCyan", var: "--trp-cyan" },
+      { key: "colorSpark", var: "--trp-spark" },
+      { key: "colorShadow", var: "--trp-shadow" },
+      { key: "colorShadowGold", var: "--trp-shadow-gold" },
+      { key: "colorShadowDark", var: "--trp-shadow-dark" },
+      { key: "colorBgOverlay", var: "--trp-bg-overlay" },
+      { key: "colorGoldOverlay", var: "--trp-gold-overlay" },
+      { key: "colorRedOverlay", var: "--trp-red-overlay" },
+      { key: "colorGreenOverlay", var: "--trp-green-overlay" },
+      { key: "colorScrollbar", var: "--trp-scrollbar" }
+    ];
+
+    for ( const c of colors ) {
+      const val = game.settings.get("trespasser", c.key);
+      document.documentElement.style.setProperty(c.var, val);
+      
+      // Update variables that need alpha (hex to rgba conversion would be better here, 
+      // but for now we'll just append hex alpha).
+      if ( c.key === "colorShadowGold" ) {
+        document.documentElement.style.setProperty('--trp-shadow-gold', `${val}66`);
+      } else if ( c.key === "colorShadowDark" ) {
+        document.documentElement.style.setProperty('--trp-shadow-dark', `${val}80`);
+      } else if ( c.key.endsWith("Overlay") ) {
+        // Overlay colors get ~10% opacity (1a in hex)
+        // Background overlay gets ~25% opacity (40 in hex)
+        const alpha = c.key === "colorBgOverlay" ? "40" : "1a";
+        document.documentElement.style.setProperty(c.var, `${val}${alpha}`);
+      }
+    }
+  };
+
+  // Initial application
+  game.trespasser.applySystemSettings();
+
+  // Listen for changes
+  Hooks.on("closeSettingsConfig", () => {
+    game.trespasser.applySystemSettings();
+  });
+
+  // Also listen for specific setting changes if they happen via API
+  // Foundry 12+ has a more specific way, but closeSettingsConfig is safe for most cases.
+  // We can also use the refresh event if needed.
+
   // Prevent default turn marker from being added to tokens, since we are implementing our own turn marker system
-  if (foundry.canvas.placeables.tokens.TokenTurnMarker) {
+  if (foundry.canvas.placeables.tokens?.TokenTurnMarker) {
     foundry.canvas.placeables.tokens.TokenTurnMarker.prototype.draw = async function() {
       return; 
     };
@@ -343,11 +541,70 @@ Hooks.once("ready", () => {
   }
 });
 
+/**
+ * Prevent players from controlling Haven tokens, even if they have ownership.
+ */
+// Variable to track the last valid (non-Haven) selection
+let _lastValidControlledTokens = [];
+
+/**
+ * Prevent players from controlling Haven tokens, even if they have ownership.
+ * If they try to select it, we immediately release it and restore their previous character selection.
+ */
+Hooks.on("controlToken", (token, controlled) => {
+  if (controlled) {
+    if (token.actor?.type === "haven" && !game.user.isGM) {
+      token.release();
+      // Restore the previous valid selection
+      if (_lastValidControlledTokens.length) {
+        _lastValidControlledTokens.forEach(t => {
+          if (!t._destroyed) t.control({ releaseOthers: false });
+        });
+      }
+    } else {
+      // Capture the current selection after this control cycle finishes
+      setTimeout(() => {
+        const current = canvas.tokens?.controlled || [];
+        if (current.length > 0 && !current.some(t => t.actor?.type === "haven")) {
+          _lastValidControlledTokens = [...current];
+        } else if (current.length === 0) {
+          _lastValidControlledTokens = [];
+        }
+      }, 0);
+    }
+  }
+});
+
 Hooks.on("preUpdateActor", (actor, updateData, options, userId) => {
   // Sync prototype token name for base actors if name changes
   if (updateData.name && !actor.isToken) {
     updateData.prototypeToken = updateData.prototypeToken || {};
     updateData.prototypeToken.name = updateData.name;
+  }
+});
+
+/* ─── Stronghold Benefit Syncing ─── */
+Hooks.on("createItem", (item, options, userId) => {
+  if (game.user.id !== userId) return;
+  if (item.parent?.type === "haven" && item.type === "stronghold") {
+    console.log("Trespasser | Global Hook - createItem (Stronghold)");
+    item.parent.system.syncStrongholdBenefit(item);
+  }
+});
+
+Hooks.on("updateItem", (item, delta, options, userId) => {
+  if (game.user.id !== userId) return;
+  if (item.parent?.type === "haven" && item.type === "stronghold") {
+     console.log("Trespasser | Global Hook - updateItem (Stronghold)");
+     item.parent.system.syncStrongholdBenefit(item, delta);
+  }
+});
+
+Hooks.on("deleteItem", (item, options, userId) => {
+  if (game.user.id !== userId) return;
+  if (item.parent?.type === "haven" && item.type === "stronghold") {
+     console.log("Trespasser | Global Hook - deleteItem (Stronghold)");
+     item.parent.system.syncStrongholdBenefit(item, { deleted: true });
   }
 });
 
@@ -888,19 +1145,15 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
         break;
       case "item":
         iconPath = "systems/trespasser/assets/icons/item.webp"
-        // const subType = item.system.subType;
-        // if (subType === "tool") iconPath = "systems/trespasser/assets/icons/tool.png";
-        // else if (subType === "resource") iconPath = "systems/trespasser/assets/icons/resources.png";
-        // else if (subType === "light_source") iconPath = "systems/trespasser/assets/icons/ligth_sources.png";
-        // else if (subType === "bombs") iconPath = "systems/trespasser/assets/icons/bombs.png";
-        // else if (subType === "oils") iconPath = "systems/trespasser/assets/icons/oils.png";
-        // else if (subType === "powders") iconPath = "systems/trespasser/assets/icons/powders.png";
-        // else if (subType === "potions") iconPath = "systems/trespasser/assets/icons/potions.png";
-        // else if (subType === "scrolls") iconPath = "systems/trespasser/assets/icons/scrolls.png";
-        // else if (subType === "esoteric") iconPath = "systems/trespasser/assets/icons/esoteric.png";
-        // else if (subType === "artifacts") iconPath = "systems/trespasser/assets/icons/artifacts.png";
-        // else if (subType === "miscellaneous") iconPath = "systems/trespasser/assets/icons/misellaneous.png";
-        // else iconPath = "systems/trespasser/assets/icons/item.webp";
+        break;
+      case "hireling":
+        iconPath = "systems/trespasser/assets/icons/pesant.webp";
+        break;
+      case "build":
+        iconPath = "systems/trespasser/assets/icons/building.webp";
+        break;
+      case "stronghold":
+        iconPath = "systems/trespasser/assets/icons/stronghold.webp";
         break;
     }
     item.updateSource({ img: iconPath });
@@ -998,7 +1251,6 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
  * Add Trespasser Configuration button to the settings sidebar.
  */
 Hooks.on("renderSettings", (app, html, data) => {
-  if (!game.user.isGM) return;
 
   const $html = $(html);
   const configBtn = $(`<button type="button" class="trespasser-config-btn">
@@ -1007,7 +1259,7 @@ Hooks.on("renderSettings", (app, html, data) => {
 
   configBtn.on("click", ev => {
     ev.preventDefault();
-    showTrespasserConfigDialog();
+    new game.trespasser.Config().render(true);
   });
 
   const setupBtn = $html.find('button[data-app="configure"]');

@@ -4,8 +4,8 @@
  * (Dialog itself lives in module/dialogs/rest-dialog.mjs)
  */
 
-export async function handleRestAction(type, data, sheet) {
-  const actor     = sheet.actor;
+export async function handleRestAction(type, data, actorOrSheet, { chat = true } = {}) {
+  const actor     = actorOrSheet.actor || actorOrSheet;
   const updates   = {};
   const chatMessages = [];
 
@@ -48,7 +48,8 @@ export async function handleRestAction(type, data, sheet) {
       const dieSize    = parseInt(skillDieStr.replace("d", "")) || 6;
       const recovery   = rdToSpend * dieSize;
 
-      updates["system.health"]        = Math.min(actor.system.max_health, actor.system.health + recovery);
+      const maxH = actor.system.max_health || 0;
+      updates["system.health"]        = Math.min(maxH, actor.system.health + recovery);
       updates["system.recovery_dice"] = currentRD - rdToSpend;
       chatMessages.push(game.i18n.format("TRESPASSER.Sheet.Rest.SpentRDRecovery", { count: rdToSpend, recovery }));
     }
@@ -58,7 +59,8 @@ export async function handleRestAction(type, data, sheet) {
   }
   else if (type === "night") {
     const postEndurance = (updates["system.endurance"] !== undefined) ? updates["system.endurance"] : actor.system.endurance;
-    updates["system.health"]        = actor.system.max_health;
+    const maxH = actor.system.max_health || 0;
+    updates["system.health"]        = maxH;
     updates["system.recovery_dice"] = postEndurance;
     chatMessages.push(game.i18n.format("TRESPASSER.Sheet.Rest.NightRestHP", { endurance: postEndurance }));
 
@@ -71,8 +73,9 @@ export async function handleRestAction(type, data, sheet) {
     chatMessages.push(game.i18n.localize("TRESPASSER.Sheet.Rest.ResetCosts"));
   }
   else if (type === "week") {
+    const maxH = actor.system.max_health || 0;
     updates["system.endurance"]      = actor.system.max_endurance;
-    updates["system.health"]         = actor.system.max_health;
+    updates["system.health"]         = maxH;
     updates["system.recovery_dice"]  = actor.system.max_recovery_dice;
     chatMessages.push(game.i18n.localize("TRESPASSER.Sheet.Rest.WeekRestAll"));
   }
@@ -88,11 +91,16 @@ export async function handleRestAction(type, data, sheet) {
 
   if (Object.keys(updates).length > 0) await actor.update(updates);
 
-  if (chatMessages.length > 0) {
+  if (chat && chatMessages.length > 0) {
+    const icon = type === "night" ? "fa-moon" : (type === "week" ? "fa-calendar-week" : "fa-hourglass-start");
     await foundry.documents.BaseChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor }),
-      content: `<h3>${game.i18n.format("TRESPASSER.Sheet.Rest.RestingTitle", { type: type.charAt(0).toUpperCase() + type.slice(1) })}</h3>` +
-               chatMessages.map(m => `<p>${m}</p>`).join("")
+      content: `<div class="trespasser-chat-card rest-card">
+        <h3><i class="fas ${icon}"></i> ${game.i18n.format("TRESPASSER.Sheet.Rest.RestingTitle", { type: type.charAt(0).toUpperCase() + type.slice(1) })}</h3>
+        <div class="rest-details">
+          ${chatMessages.map(m => `<div class="detail-row"><i class="fas fa-check-circle"></i> ${m}</div>`).join("")}
+        </div>
+      </div>`
     });
   }
 }
@@ -123,14 +131,15 @@ export async function recoverItemCost(itemId, chatMessages, actor) {
   }
 }
 
-export async function spendRDAndRoll(count, sheet) {
-  const actor   = sheet.actor;
+export async function spendRDAndRoll(count, actorOrSheet) {
+  const actor   = actorOrSheet.actor || actorOrSheet;
   const skillDie = actor.system.skill_die || "d6";
   const formula  = `${count}${skillDie}`;
   const roll     = new foundry.dice.Roll(formula);
   await roll.evaluate();
 
-  const newHP = Math.min(actor.system.max_health, actor.system.health + roll.total);
+  const maxH = (actor.system.max_health || 0) + (actor.system.bonuses?.max_health || 0);
+  const newHP = Math.min(maxH, actor.system.health + roll.total);
   const newRD = Math.max(0, actor.system.recovery_dice - count);
 
   await actor.update({ "system.health": newHP, "system.recovery_dice": newRD });

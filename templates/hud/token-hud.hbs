@@ -4,9 +4,15 @@
         <header>
             <div class="hud-title">{{localize "TRESPASSER.HUD.Title"}}</div>
             <div class="ap-indicator" title="{{localize "TRESPASSER.Sheet.Combat.ActionPoints"}}">
+                {{#if isGM}}
+                <button class="gm-ap-btn" data-action="modify-ap" data-delta="-1" title="{{localize "TRESPASSER.HUD.RemoveAP"}}">-</button>
+                {{/if}}
                 {{#each apDots}}
                 <div class="ap-icon {{#if active}}active{{/if}}" title="{{localize "TRESPASSER.Sheet.Combat.ActionPoints"}}"></div>
                 {{/each}}
+                {{#if isGM}}
+                <button class="gm-ap-btn" data-action="modify-ap" data-delta="1" title="{{localize "TRESPASSER.HUD.AddAP"}}">+</button>
+                {{/if}}
             </div>
         </header>
 

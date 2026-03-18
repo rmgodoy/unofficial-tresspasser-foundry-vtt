@@ -23,7 +23,7 @@
   border: 2px solid var(--trp-border-light);
   border-radius: var(--trp-radius);
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(0,0,0,0.5);
+  box-shadow: 0 0 10px var(--trp-shadow-dark);
 }
 
 .rest-btn {
@@ -64,7 +64,7 @@
 }
 .header-identity .name-group input {
   font-family: var(--trp-font-header);
-  font-size: 15px;
+  font-size: var(--fs-15);
   font-weight: 600;
   color: var(--trp-text-bright);
   background: transparent;
@@ -100,7 +100,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border);
   border-radius: var(--trp-radius-sm);
   padding: 4px;
@@ -111,7 +111,7 @@
 .resource-box label,
 .attribute-box .attribute-label {
   font-family: var(--trp-font-header);
-  font-size: 9px;
+  font-size: var(--fs-9);
   text-transform: uppercase;
   color: var(--trp-gold);
   margin-bottom: 2px;
@@ -121,7 +121,7 @@
 .attribute-box input {
   width: 100%;
   text-align: center;
-  font-size: 16px;
+  font-size: var(--fs-16);
   font-weight: 700;
   color: var(--trp-text-bright);
   background: transparent;
@@ -140,7 +140,7 @@
 
 .resource-values span {
   color: var(--trp-text-dim);
-  font-size: 12px;
+  font-size: var(--fs-12);
   font-weight: normal;
 }
 
@@ -158,7 +158,7 @@
 
 /* Specific attribute input sizing */
 .attribute-box input {
-  font-size: 18px;
+  font-size: var(--fs-18);
   line-height: 1;
 }
 
@@ -168,7 +168,7 @@
   border: none;
   padding: 0;
   margin: 0;
-  font-size: 14px;
+  font-size: var(--fs-14);
   line-height: 1;
   cursor: pointer;
   color: var(--trp-text-dim);
@@ -185,25 +185,27 @@
 }
 .key-attr-btn.is-key {
   color: var(--trp-gold-bright);
-  text-shadow: 0 0 6px rgba(232, 201, 107, 0.6);
+  text-shadow: 0 0 6px var(--trp-shadow-gold);
 }
 
 /* ─── Rollable spans (attributes, combat stats, skills) ─── */
 .attribute-roll.rollable,
 .combat-stat-roll.rollable,
-.skill-label.rollable {
+.skill-label.rollable,
+.resource-box .rollable {
   cursor: pointer;
   transition: color 0.15s;
   user-select: none;
   white-space: nowrap;
 }
-.attribute-roll.rollable:hover {
+.attribute-roll.rollable:hover,
+.resource-box .rollable:hover {
   color: var(--trp-gold-bright);
   text-decoration: underline dotted;
 }
 .combat-stat-roll.rollable {
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.08em;
@@ -211,24 +213,24 @@
   display: block;
   text-align: center;
   padding: 2px 4px;
-  background: rgba(201, 168, 76, 0.1);
+  background: var(--trp-gold-overlay);
   border-radius: var(--trp-radius-sm);
   margin-bottom: 2px;
 }
 .combat-stat-roll.rollable:hover {
-  color: #fff;
-  background: rgba(201, 168, 76, 0.3);
-  box-shadow: 0 0 5px var(--trp-gold-dim);
+  color: var(--trp-text-bright);
+  background: var(--trp-gold-overlay);
+  box-shadow: 0 0 5px var(--trp-shadow-gold);
 }
 .skill-label.rollable:hover {
   color: var(--trp-gold-bright);
-  text-shadow: 0 0 4px rgba(232, 201, 107, 0.3);
+  text-shadow: 0 0 4px var(--trp-shadow-gold);
 }
 
 /* ─── Attribute text in header (span, not label) ─── */
 .attribute-box .attribute-label {
   font-family: var(--trp-font-header);
-  font-size: 9px;
+  font-size: var(--fs-9);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--trp-gold);
@@ -256,12 +258,12 @@
 }
 
 .attr-total {
-  font-size: 0.9em;
+  font-size: var(--fs-13);
   color: var(--trp-gold-bright);
   font-weight: 700;
   margin-left: 2px;
   vertical-align: middle;
-  text-shadow: 0 0 3px rgba(0,0,0,0.5);
+  text-shadow: 0 0 3px var(--trp-shadow-dark);
 }
 
 /* ═══════════════════════════════════════════════════
@@ -277,7 +279,7 @@
 
 .trespasser-sheet .sheet-tabs .item {
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--trp-text-dim);
@@ -408,12 +410,12 @@
   transition: background 0.1s;
 }
 .skill-row:hover {
-  background: rgba(201, 168, 76, 0.06);
+  background: var(--trp-gold-overlay);
 }
 
 .skill-label {
   font-family: var(--trp-font-body);
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--trp-text);
 }
 
@@ -443,7 +445,7 @@
   /* unchecked appearance */
   -webkit-appearance: none;
   appearance: none;
-  background: rgba(44, 35, 25, 0.7);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border-light) !important;
   border-radius: 2px;
   transition: background 0.12s, border-color 0.12s;
@@ -472,7 +474,7 @@
   border-radius: 0 !important;
   text-align: center;
   font-family: var(--trp-font-body);
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--trp-text-bright);
   padding: 1px 4px !important;
 }
@@ -516,7 +518,7 @@
 .injury-card .injury-name {
   flex: 1;
   font-family: var(--trp-font-body);
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--trp-text-bright);
   white-space: nowrap;
   overflow: hidden;
@@ -535,7 +537,7 @@
   flex: 1;
   color: var(--trp-text-dim);
   font-style: italic;
-  font-size: 13px;
+  font-size: var(--fs-13);
 }
 
 /* Controls absolutely positioned inside .injury-name-area — never move the clock */
@@ -546,7 +548,7 @@
   right: 0;
   top: 50%;
   transform: translateY(-50%);
-  background: rgba(26, 23, 20, 0.82);  /* slight bg so they're readable */
+  background: var(--trp-bg-overlay);  /* slight bg so they're readable */
   border-radius: var(--trp-radius-sm);
   padding: 2px 4px;
 }
@@ -558,7 +560,7 @@
 .injury-card-controls a {
   color: var(--trp-text-dim);
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--fs-11);
   padding: 2px 3px;
   transition: color 0.12s;
 }
@@ -570,52 +572,42 @@
 /* Mini clock in character sheet cards — bigger for readability */
 .injury-clock-widget {
   flex-shrink: 0;
-  width: 72px;
-  height: 72px;
-}
-
-.injury-clock-mini {
-  width: 72px;
-  height: 72px;
-  display: block;
+  width: 50px;
+  height: 50px;
 }
 
 /* ─── SVG Clock Segments ─── */
 /* Shared by both the mini (character sheet) and full (injury sheet) clocks */
 
 /* Unfilled segment */
-.clock-segment,
-.clock-segment-mini {
-  fill: rgba(44, 35, 25, 0.55);
+.clock-segment {
+  fill: var(--trp-bg-overlay);
   stroke: var(--trp-border-light);
   stroke-width: 1.5;
   cursor: pointer;
   transition: fill 0.12s, stroke 0.12s;
 }
 
-/* Filled segment — red injury colour */
-.clock-segment.filled,
-.clock-segment-mini.filled {
+/* Filled segment — injury context override */
+.char-injuries .clock-segment.filled {
   fill: var(--trp-red-dim);
   stroke: var(--trp-red);
 }
 
-.clock-segment:hover,
-.clock-segment-mini:hover {
-  fill: rgba(146, 44, 44, 0.55);
+.char-injuries .clock-segment:hover {
+  fill: var(--trp-red-overlay);
   stroke: var(--trp-red);
 }
 
-.clock-segment.filled:hover,
-.clock-segment-mini.filled:hover {
-  fill: #c0393980;
-  stroke: #ff5252;
+.char-injuries .clock-segment.filled:hover {
+  fill: var(--trp-red-overlay);
+  stroke: var(--trp-red);
 }
 
 /* Clock centre text */
 .clock-label-num {
   font-family: var(--trp-font-header);
-  font-size: 22px;
+  font-size: var(--fs-22);
   font-weight: 700;
   fill: var(--trp-text-bright);
   text-anchor: middle;
@@ -625,7 +617,7 @@
 
 .clock-label-total {
   font-family: var(--trp-font-header);
-  font-size: 18px;
+  font-size: var(--fs-18);
   fill: var(--trp-text-dim);
   text-anchor: middle;
   dominant-baseline: middle;
@@ -649,7 +641,7 @@
 
 .injury-sheet .clock-hint {
   font-family: var(--trp-font-body);
-  font-size: 11px;
+  font-size: var(--fs-11);
   font-style: italic;
   color: var(--trp-text-dim);
   text-align: center;
@@ -669,7 +661,7 @@
 }
 
 .equip-table thead tr {
-  background: rgba(201, 168, 76, 0.10);
+  background: var(--trp-gold-overlay);
 }
 
 /* No alternating / zebra rows — uniform background for readability */
@@ -679,7 +671,7 @@
 
 .equip-table th {
   font-family: var(--trp-font-header);
-  font-size: 10px;
+  font-size: var(--fs-10);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--trp-gold);
@@ -691,24 +683,24 @@
 .equip-table th.col-icon {
   width: 28px;
   text-align: center;
-  font-size: 14px;
+  font-size: var(--fs-14);
 }
 
 .equip-table td {
   padding: 3px 6px;
   vertical-align: middle;
-  border-bottom: 1px solid rgba(74, 63, 47, 0.5);
+  border-bottom: 1px solid var(--trp-border);
 }
 
 .equip-table td.col-icon {
   text-align: center;
-  font-size: 16px;
+  font-size: var(--fs-16);
   color: var(--trp-text-dim);
 }
 
 .equip-table .slot-label {
   font-family: var(--trp-font-body);
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--trp-text);
   white-space: nowrap;
   display: inline;
@@ -730,7 +722,7 @@
 
 .inventory-cap {
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim);
   letter-spacing: 0.06em;
 }
@@ -767,7 +759,7 @@
 }
 
 .inventory-card .item-name {
-  font-size: 11px;
+  font-size: var(--fs-11);
   text-align: center;
   color: var(--trp-text);
   word-break: break-word;
@@ -786,7 +778,7 @@
 }
 
 .inventory-card.is-broken {
-  box-shadow: inset 0 0 10px rgba(139, 26, 26, 0.4);
+  box-shadow: inset 0 0 10px var(--trp-red-overlay);
   border-color: var(--trp-red-dim);
 }
 
@@ -794,8 +786,8 @@
   position: absolute;
   top: 4px;
   left: 4px;
-  color: #ffcc00;
-  font-size: 10px;
+  color: var(--trp-gold);
+  font-size: var(--fs-10);
   text-shadow: 0 0 2px black;
 }
 
@@ -815,7 +807,7 @@
   background: var(--trp-bg-dark);
   padding: 0 10px;
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-gold-dim);
   text-transform: uppercase;
   letter-spacing: 0.1em;
@@ -867,16 +859,16 @@
   justify-content: space-between;
   align-items: center;
   padding: 4px 6px;
-  border-bottom: 1px solid rgba(74, 63, 47, 0.35);
+  border-bottom: 1px solid var(--trp-border);
   transition: background 0.1s;
 }
 
 .items-list .item:hover {
-  background: rgba(201, 168, 76, 0.06);
+  background: var(--trp-gold-overlay);
 }
 
 .items-list .item-name {
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--trp-text-bright);
   flex: 1;
 }
@@ -895,7 +887,7 @@
 .empty-list {
   color: var(--trp-text-dim);
   font-style: italic;
-  font-size: 12px;
+  font-size: var(--fs-12);
   padding: 8px;
   text-align: center;
 }
@@ -924,14 +916,14 @@
 }
 
 .combat-stat label {
-  font-size: 9px;
+  font-size: var(--fs-9);
   text-align: center;
 }
 
 .combat-stat input {
   width: 54px;
   text-align: center;
-  font-size: 15px;
+  font-size: var(--fs-15);
   font-weight: 600;
   color: var(--trp-gold-bright);
 }
@@ -944,12 +936,12 @@
 .combat-equip-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 12px;
+  font-size: var(--fs-12);
 }
 
 .combat-equip-table th {
   font-family: var(--trp-font-header);
-  font-size: 9px;
+  font-size: var(--fs-9);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--trp-gold);
@@ -965,13 +957,13 @@
 
 .combat-equip-table td {
   padding: 2px 4px;
-  border-bottom: 1px solid rgba(74, 63, 47, 0.4);
+  border-bottom: 1px solid var(--trp-border);
   vertical-align: middle;
 }
 
 .combat-equip-table td.slot-label {
   color: var(--trp-text);
-  font-size: 12px;
+  font-size: var(--fs-12);
   white-space: nowrap;
 }
 
@@ -1004,7 +996,7 @@
 }
 
 .state-label {
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text-bright);
   flex: 1;
 }
@@ -1014,13 +1006,13 @@
 }
 
 .state-label.negative {
-  color: #e08888;
+  color: var(--trp-red);
 }
 
 .state-val {
   width: 38px !important;
   text-align: center;
-  font-size: 12px;
+  font-size: var(--fs-12);
 }
 
 /* Deeds Tired Categories Layout */
@@ -1046,7 +1038,7 @@
   transform: rotate(180deg);
   text-align: center;
   font-family: var(--trp-font-header);
-  font-size: 16px;
+  font-size: var(--fs-16);
   font-weight: bold;
   padding: 10px 6px;
   text-transform: uppercase;
@@ -1080,13 +1072,13 @@
 }
 
 .deed-slot.empty {
-  background: rgba(0, 0, 0, 0.2);
+  background: var(--trp-bg-overlay);
 }
 
 .deed-slot-header {
   display: flex;
   justify-content: space-between;
-  border-bottom: 1px solid rgba(201, 168, 76, 0.3);
+  border-bottom: 1px solid var(--trp-gold-overlay);
   margin-bottom: 6px;
   padding-bottom: 4px;
   padding-right: 40px;
@@ -1094,28 +1086,28 @@
 
 .deed-slot-title {
   font-family: var(--trp-font-header);
-  font-size: 15px;
+  font-size: var(--fs-15);
   font-weight: 600;
   color: var(--trp-gold-bright);
 }
 
 .deed-slot-title.rollable:hover {
-  text-shadow: 0 0 5px rgba(232, 201, 107, 0.4);
+  text-shadow: 0 0 5px var(--trp-shadow-gold);
 }
 
 .deed-slot-skill {
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-gold-dim);
 }
 
 .deed-slot-subheader {
   font-family: var(--trp-font-header);
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text-dim);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  border-bottom: 1px solid rgba(201, 168, 76, 0.15);
+  border-bottom: 1px solid var(--trp-gold-overlay);
   padding-bottom: 4px;
   margin-bottom: 6px;
   display: flex;
@@ -1124,7 +1116,7 @@
 
 .deed-slot-effects {
   font-family: var(--trp-font-body);
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text);
   line-height: 1.3;
 }
@@ -1132,7 +1124,7 @@
 .deed-effect-row {
   display: flex;
   gap: 8px;
-  border-bottom: 1px solid rgba(74, 63, 47, 0.3);
+  border-bottom: 1px solid var(--trp-border);
   padding: 3px 0;
 }
 
@@ -1144,7 +1136,7 @@
   font-family: var(--trp-font-header);
   font-weight: normal;
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-gold-dim);
   min-width: 38px;
   padding-top: 2px;
@@ -1158,12 +1150,12 @@
 
 .deed-damage {
   font-weight: bold;
-  color: #ffdda1;
+  color: var(--trp-gold-bright);
 }
 
 .deed-applied {
   font-style: italic;
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim);
 }
 
@@ -1172,8 +1164,8 @@
   top: 4px;
   right: 8px;
   font-family: var(--trp-font-body);
-  font-size: 14px;
-  color: #000;
+  font-size: var(--fs-14);
+  color: var(--trp-bg-dark);
   display: flex;
   align-items: center;
   gap: 4px;
@@ -1187,13 +1179,13 @@
 .deed-use-box {
   width: 12px;
   height: 12px;
-  border: 1px solid #000;
+  border: 1px solid var(--trp-bg-dark);
   cursor: pointer;
-  background: #fff;
+  background: var(--trp-text-bright);
 }
 
 .deed-use-box.filled {
-  background: #000;
+  background: var(--trp-bg-dark);
 }
 
 .deed-slot-controls {
@@ -1210,7 +1202,7 @@
 
 .deed-slot-controls a {
   color: var(--trp-text-dim);
-  font-size: 12px;
+  font-size: var(--fs-12);
   transition: color 0.1s;
 }
 
@@ -1230,7 +1222,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  background: rgba(0, 0, 0, 0.25);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border);
   margin-bottom: 2px;
   padding: 6px 8px;
@@ -1239,20 +1231,20 @@
 }
 
 .combat-effects-list .effect-row:hover {
-  background: rgba(0, 0, 0, 0.4);
+  background: var(--trp-bg-overlay);
 }
 
 .combat-effects-list .effect-name {
   flex: 1;
   font-family: var(--trp-font-header);
-  font-size: 12px;
+  font-size: var(--fs-12);
   font-weight: 600;
   color: var(--trp-text-bright);
 }
 
 .combat-effects-list .effect-mod {
   width: 120px;
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-gold-dim);
 }
 
@@ -1263,7 +1255,7 @@
 }
 
 .combat-effects-list .effect-intensity-control label {
-  font-size: 10px;
+  font-size: var(--fs-10);
   color: var(--trp-text-dim);
   margin: 0;
 }
@@ -1272,7 +1264,7 @@
   width: 40px !important;
   height: 22px !important;
   text-align: center;
-  font-size: 12px !important;
+  font-size: var(--fs-12) !important;
 }
 
 .prevail-btn {
@@ -1280,7 +1272,7 @@
   color: var(--trp-bg-dark) !important;
   border: 1px solid var(--trp-gold) !important;
   font-family: var(--trp-font-header);
-  font-size: 10px !important;
+  font-size: var(--fs-10) !important;
   font-weight: 700 !important;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -1289,14 +1281,14 @@
   width: auto !important;
   border-radius: var(--trp-radius-sm);
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+  box-shadow: 0 1px 3px var(--trp-shadow-dark);
   transition: all 0.1s !important;
 }
 
 .prevail-btn:hover {
   background: var(--trp-gold-bright) !important;
-  border-color: #fff !important;
-  box-shadow: 0 0 10px rgba(232, 201, 107, 0.4);
+  border-color: var(--trp-text-bright) !important;
+  box-shadow: 0 0 10px var(--trp-shadow-gold);
   transform: translateY(-1px);
 }
 
@@ -1313,7 +1305,7 @@
 }
 
 .effect-remove:hover {
-  color: #e05050 !important;
+  color: var(--trp-red) !important;
 }
 
 /* ─── Tab-specific component rules (cleanup/supplementary) ─── */
@@ -1328,12 +1320,12 @@
   justify-content: space-between;
   gap: 6px;
   padding: 2px 0;
-  border-bottom: 1px dotted rgba(100,80,40,0.2);
+  border-bottom: 1px dotted var(--trp-border);
 }
 
 .skill-label {
   flex: 1;
-  font-size: 12px;
+  font-size: var(--fs-12);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1355,19 +1347,19 @@
 .alignment-name {
   flex: 1;
   min-width: 0;
-  font-size: 11px !important;
+  font-size: var(--fs-11) !important;
 }
 
 .injury-card {
   display: flex;
   align-items: center;
   gap: 6px;
-  background: rgba(0,0,0,0.25);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border);
   border-radius: 4px;
   padding: 4px 6px;
   margin-bottom: 5px;
-  min-height: 32px;
+  min-height: calc(var(--trp-clock-size, 50px) + 8px);
   position: relative;
 }
 
@@ -1381,7 +1373,7 @@
 }
 
 .injury-name {
-  font-size: 12px;
+  font-size: var(--fs-12);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1400,17 +1392,40 @@
 
 .injury-clock-widget {
   flex-shrink: 0;
-  width: 36px;
-  height: 36px;
-}
-
-.injury-clock-mini {
-  width: 100%;
-  height: 100%;
+  width: var(--trp-clock-size, 50px);
+  height: var(--trp-clock-size, 50px);
 }
 
 .injury-empty-slot {
   color: var(--trp-text-dim);
   font-style: italic;
-  font-size: 11px;
+  font-size: var(--fs-11);
+}
+/* ───────────────────────────────────────────────────────
+   TAB 6 — NOTES
+─────────────────────────────────────────────────────── */
+.trespasser-sheet .tab.notes.active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 0;
+  overflow: hidden;
+  flex: 1;
+}
+
+.trespasser-sheet .tab.notes .editor {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.trespasser-sheet .tab.notes .prosemirror {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.trespasser-sheet .tab.notes .prosemirror .editor-container {
+  flex: 1;
+  overflow-y: auto;
 }

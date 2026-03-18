@@ -58,10 +58,10 @@
           </div>
         </div>
 
-        <div class="attribute-group flex-row" style="margin-top: 10px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 4px;">
+        <div class="attribute-group flex-row" style="margin-top: 10px; padding: 10px; background: var(--trp-bg-overlay); border-radius: 4px;">
           <div class="field-item checkbox-item" style="flex: 0 0 100%;">
             <input type="checkbox" name="system.isLightSource" {{checked system.isLightSource}} id="item-is-light-{{item.id}}"/>
-            <label for="item-is-light-{{item.id}}" style="font-family: var(--trp-font-header); font-size: 11px; text-transform: uppercase; color: var(--trp-gold-bright);">{{localize "TRESPASSER.Item.IsLightSource"}}</label>
+            <label for="item-is-light-{{item.id}}" style="font-family: var(--trp-font-header); font-size: var(--fs-11); text-transform: uppercase; color: var(--trp-gold-bright);">{{localize "TRESPASSER.Item.IsLightSource"}}</label>
           </div>
           
           {{#if system.isLightSource}}
@@ -84,9 +84,9 @@
           <div class="field-item">
             <label>{{localize "TRESPASSER.Item.Properties"}}</label>
             <div style="display: flex; gap: 15px; flex: 1;">
-              <label style="font-size: 11px; display: flex; align-items: center; gap: 4px;"><input type="checkbox" name="system.properties.twoHanded" {{checked system.properties.twoHanded}} /> {{localize "TRESPASSER.Item.WeaponProp.TwoHanded"}}</label>
-              <label style="font-size: 11px; display: flex; align-items: center; gap: 4px;"><input type="checkbox" name="system.properties.thrown" {{checked system.properties.thrown}} /> {{localize "TRESPASSER.Item.WeaponProp.Thrown"}}</label>
-              <label style="font-size: 11px; display: flex; align-items: center; gap: 4px;"><input type="checkbox" name="system.properties.fragile" {{checked system.properties.fragile}} /> {{localize "TRESPASSER.Item.WeaponProp.Fragile"}}</label>
+              <label style="font-size: var(--fs-11); display: flex; align-items: center; gap: 4px;"><input type="checkbox" name="system.properties.twoHanded" {{checked system.properties.twoHanded}} /> {{localize "TRESPASSER.Item.WeaponProp.TwoHanded"}}</label>
+              <label style="font-size: var(--fs-11); display: flex; align-items: center; gap: 4px;"><input type="checkbox" name="system.properties.thrown" {{checked system.properties.thrown}} /> {{localize "TRESPASSER.Item.WeaponProp.Thrown"}}</label>
+              <label style="font-size: var(--fs-11); display: flex; align-items: center; gap: 4px;"><input type="checkbox" name="system.properties.fragile" {{checked system.properties.fragile}} /> {{localize "TRESPASSER.Item.WeaponProp.Fragile"}}</label>
             </div>
           </div>
         </div>

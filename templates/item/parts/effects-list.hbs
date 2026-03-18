@@ -1,10 +1,10 @@
 <div class="effects-section">
-  <h3 style="font-family: var(--trp-font-header); font-size: 13px; color: var(--trp-gold-bright); margin-bottom: 5px;">{{title}}</h3>
-  <div class="applied-effects-list drop-zone" data-type="{{property}}" style="min-height: 48px; padding: 4px; border: 1px dashed #4a3f2f; border-radius: 4px; background: rgba(0,0,0,0.15);">
+  <h3 style="font-family: var(--trp-font-header); font-size: var(--fs-13); color: var(--trp-gold-bright); margin-bottom: 5px;">{{title}}</h3>
+  <div class="applied-effects-list drop-zone" data-type="{{property}}" style="min-height: 48px; padding: 4px; border: 1px dashed var(--trp-border); border-radius: 4px; background: var(--trp-bg-overlay);">
     {{#each items as |effect index|}}
       {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass=../deleteClass editable=true editableIntensity=true }}
     {{else}}
-    <span style="color: #666; font-style: italic; font-size: 11px; margin-left: 8px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+    <span style="color: var(--trp-text-dim); font-style: italic; font-size: var(--fs-11); margin-left: 8px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
     {{/each}}
   </div>
 </div>

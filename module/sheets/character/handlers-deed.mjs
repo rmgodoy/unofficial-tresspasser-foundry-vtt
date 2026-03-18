@@ -8,7 +8,53 @@
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../../documents/combat.mjs";
-import { askAPDialog }             from "../../dialogs/ap-dialog.mjs";
+import { TrespasserRollDialog }    from "../../dialogs/roll-dialog.mjs";
+import { TargetingHelper }         from "../../helpers/targeting-helper.mjs";
+import { askSparkDialog }          from "../../dialogs/spark-dialog.mjs";
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Deed card chat message
+// ─────────────────────────────────────────────────────────────────────────────
+
+async function postDeedCard(actor, item) {
+  const sys = item.system;
+  const phases = ["start", "before", "base", "hit", "spark", "after", "end"];
+  const allPhases = phases.map(key => ({
+    key,
+    label: game.i18n.localize(`TRESPASSER.Item.${key.charAt(0).toUpperCase() + key.slice(1)}`),
+    data: sys.effects?.[key] ?? {}
+  }));
+  const cardPhases = allPhases.filter(p => p.data.description);
+
+  const tier = sys.tier;
+  let baseCost = sys.focusCost;
+  if (baseCost === null || baseCost === undefined) {
+    if (tier === "heavy") baseCost = 2;
+    else if (tier === "mighty") baseCost = 4;
+    else baseCost = 0;
+  }
+  const displayCost = baseCost + (sys.bonusCost || 0);
+
+  const content = await foundry.applications.handlebars.renderTemplate(
+    "systems/trespasser/templates/chat/deed-card.hbs",
+    {
+      name: item.name,
+      tierLabel: game.i18n.localize(`TRESPASSER.Item.DeedTierChoices.${tier.charAt(0).toUpperCase() + tier.slice(1)}`),
+      type: sys.type,
+      actionType: sys.actionType,
+      accuracyTest: sys.accuracyTest,
+      target: sys.target,
+      displayCost,
+      showCost: displayCost > 0,
+      cardPhases
+    }
+  );
+
+  await ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content
+  });
+}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main orchestrator
@@ -25,6 +71,7 @@ export async function onDeedRoll(event, sheet) {
   const isCreature = sheet.actor.type === "creature";
 
   // ── 1. Ammo check (characters only) ───────────────────────────────────────
+  let ammoToConsumeId = null;
   if (!isCreature) {
     const activeWeapons = sheet._getActiveWeapons();
     const isMissileDeed = item.system.type === "missile" ||
@@ -38,16 +85,22 @@ export async function onDeedRoll(event, sheet) {
             ui.notifications.error(game.i18n.localize("TRESPASSER.Notifications.NoAmmo"));
             return;
           }
-          const selectedAmmoId = await sheet._selectAmmoDialog(ammoItems, w);
-          if (!selectedAmmoId) return;
-          const ammoItem   = sheet.actor.items.get(selectedAmmoId);
-          const currentQty = ammoItem.system.quantity ?? 1;
-          if (currentQty > 1) await ammoItem.update({ "system.quantity": currentQty - 1 });
-          else await ammoItem.delete();
-          ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.AmmoConsumed", { name: ammoItem.name }));
+          ammoToConsumeId = await sheet._selectAmmoDialog(ammoItems, w);
+          if (!ammoToConsumeId) return;
           break;
         }
       }
+    }
+  }
+
+  // ── 1b. Weapon compatibility check (characters only) ──────────────────────
+  if (!isCreature) {
+    const wpnCheck = TargetingHelper.validateWeaponCompatibility(
+      item.system, sheet._getActiveWeapons(), sheet.actor
+    );
+    if (!wpnCheck.valid) {
+      ui.notifications.warn(wpnCheck.message);
+      return;
     }
   }
 
@@ -71,31 +124,64 @@ export async function onDeedRoll(event, sheet) {
   const currentUses      = item.system.uses || 0;
   const totalCost        = baseCost + currentBonusCost + surcharge;
 
+  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
   if (totalCost > 0) {
     const currentFocus = sheet.actor.system.combat.focus || 0;
-    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
     if (restrictAPF && currentFocus < totalCost) {
       ui.notifications.error(game.i18n.format("TRESPASSER.Notifications.NotEnoughFocus",
         { name: item.name, cost: totalCost, current: currentFocus }));
       return;
     }
-    if (restrictAPF) {
-      await sheet.actor.update({ "system.combat.focus": Math.max(0, currentFocus - totalCost) });
-      
-      if (surcharge > 0) {
-          ChatMessage.create({
-              speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-              content: `<strong>${sheet.actor.name}</strong> ${game.i18n.format("TRESPASSER.Chat.DeedSurcharge", { count: 2 })}`
-          });
-      }
-    }
   }
 
-  // ── 3. Target check (attack deeds only) ───────────────────────────────────
-  const targets = Array.from(game.user.targets);
-  if (isAttack && targets.length === 0) {
-    ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsDefault"));
-    return;
+  // ── 3. Target resolution (AOE-aware) ──────────────────────────────────────
+  const deed = item.system;
+  let targets;
+  let templateDoc = null;
+
+  // Resolve the caster's token for AOE placement
+  const sourceToken = canvas.tokens.placeables.find(t => t.actor?.id === sheet.actor.id);
+
+  if (deed.targetType === "personal") {
+    // Personal: auto-target self
+    targets = sourceToken ? [sourceToken] : [];
+  } else if (["blast", "close_blast", "burst", "melee_burst", "path", "close_path", "aura"]
+             .includes(deed.targetType)) {
+    // AOE: place template and resolve targets from grid squares
+    if (!sourceToken) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTokenOnCanvas"));
+      return;
+    }
+
+    const aoeResult = await TargetingHelper.placeTemplate(sheet.actor, sourceToken, deed);
+    if (!aoeResult) return; // cancelled
+    templateDoc = aoeResult.templateDoc;
+    const gridPx = canvas.grid.size;
+    targets = TargetingHelper.getTokensInSquares(aoeResult.squares, gridPx, {
+      excludeTokenId: isAttack ? sourceToken.id : null
+    });
+  } else {
+    // "creature" type — use manual targeting with validation
+    targets = Array.from(game.user.targets);
+    const validation = TargetingHelper.validateTargets(targets, deed, sourceToken);
+    if (!validation.valid) {
+      ui.notifications.warn(validation.message);
+      return;
+    }
+    if (isAttack && targets.length === 0) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsDefault"));
+      return;
+    }
+
+    // Range validation for creature-targeted deeds (characters only)
+    if (!isCreature && sourceToken) {
+      const activeWeapons = sheet._getActiveWeapons();
+      const rangeCheck = TargetingHelper.validateRange(targets, sourceToken, deed, activeWeapons);
+      if (!rangeCheck.valid) {
+        ui.notifications.warn(rangeCheck.message);
+        return;
+      }
+    }
   }
 
   // ── 4. Resolve AP ─────────────────────────────────────────────────────────
@@ -104,7 +190,6 @@ export async function onDeedRoll(event, sheet) {
 
   if (combatant) {
     const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
     if (restrictAPF && availableAP < 1) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
       return;
@@ -116,13 +201,65 @@ export async function onDeedRoll(event, sheet) {
     apBonus = (apSpent - 1) * 2;
   }
 
+  // ── 4.5. Roll Dialog (Characters only) ────────────────────────────────────
+  let userModifier = 0;
+  if (!isCreature) {
+    const isAdv          = TrespasserEffectsHelper.hasAdvantage(sheet.actor, "accuracy");
+    const effectBonus    = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, "accuracy", "use");
+    const totalAccuracy  = sheet.actor.system.combat.accuracy ?? 0;
+    const baseAccuracy   = totalAccuracy - effectBonus;
+    const diceFormula    = isAdv ? "2d20kh" : "1d20";
+
+    const rollData = {
+      dice: diceFormula,
+      bonuses: [
+        { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Accuracy"), value: baseAccuracy },
+        { label: game.i18n.localize("TRESPASSER.Dialog.EffectBonus"), value: effectBonus }
+      ]
+    };
+    if (apBonus > 0) rollData.bonuses.push({ label: game.i18n.localize("TRESPASSER.Chat.AccuracyFromAP"), value: apBonus });
+
+    const result = await TrespasserRollDialog.wait({
+      ...rollData,
+      showCD: false
+    }, { title: `${item.name} Roll` });
+    if (!result) return;
+    userModifier = result.modifier;
+  }
+
+  // ── 4.6. Final side-effects (Focus, Ammo) ─────────────────────────────────
+  if (!isCreature && restrictAPF) {
+    if (totalCost > 0) {
+      const currentFocus = sheet.actor.system.combat.focus || 0;
+      await sheet.actor.update({ "system.combat.focus": Math.max(0, currentFocus - totalCost) });
+      if (surcharge > 0) {
+        ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+          content: `<strong>${sheet.actor.name}</strong> ${game.i18n.format("TRESPASSER.Chat.DeedSurcharge", { count: 2 })}`
+        });
+      }
+    }
+    // Ammo consumption
+    if (ammoToConsumeId) {
+      const ammoItem = sheet.actor.items.get(ammoToConsumeId);
+      if (ammoItem) {
+        const currentQty = ammoItem.system.quantity ?? 1;
+        if (currentQty > 1) await ammoItem.update({ "system.quantity": currentQty - 1 });
+        else await ammoItem.delete();
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.AmmoConsumed", { name: ammoItem.name }));
+      }
+    }
+  }
+
   // ── 5. Item bookkeeping ────────────────────────────────────────────────────
   if (["heavy", "mighty", "special"].includes(tier) && combatant) {
     await combatant.setFlag("trespasser", "usedExpensiveDeed", true);
   }
   await item.update({ "system.uses": currentUses + 1, "system.bonusCost": currentBonusCost + costIncrease });
 
-  // ── 6. Start/Before phases + on-use-deed ──────────────────────────────────
+  // ── 6. Post deed card to chat, then Start/Before phases + on-use-deed ─────
+  await postDeedCard(sheet.actor, item);
+
   const effects      = item.system.effects || {};
   const fragileItems = new Set();
   const phaseOptions = { fragileItems };
@@ -140,12 +277,12 @@ export async function onDeedRoll(event, sheet) {
   }
 
   // ── 8. Roll (dispatch to actor-type specific handler) ─────────────────────
-  let anyHit = false, maxSparks = 0;
+  let anyHit = false, maxSparks = 0, results = [];
 
   if (isCreature) {
-    ({ anyHit, maxSparks } = await rollCreatureDeed(item, sheet, targets, apBonus));
+    ({ anyHit, maxSparks, results } = await rollCreatureDeed(item, sheet, targets, apBonus));
   } else {
-    ({ anyHit, maxSparks } = await rollCharacterDeed(item, sheet, targets, apBonus, totalCost));
+    ({ anyHit, maxSparks, results } = await rollCharacterDeed(item, sheet, targets, apBonus, totalCost, userModifier));
   }
 
   // ── 9. Hit/miss effects ────────────────────────────────────────────────────
@@ -160,34 +297,67 @@ export async function onDeedRoll(event, sheet) {
     }
   }
 
-  // ── 10. Spend AP + record action ──────────────────────────────────────────
-  if (combatant) {
-    const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
-    if (restrictAPF) {
-      await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - apSpent));
-    }
-    await TrespasserCombat.recordHUDAction(sheet.actor, "attempt-deed");
-  }
-
-  // ── 11. After/End phases + depletion ──────────────────────────────────────
-  if (anyHit || !isAttack || targets.length === 0) {
-    const commonOptions = { ...phaseOptions, anyHit, maxSparks };
-    await sheet._postDeedPhase("Base", effects.base, sheet.actor, item, commonOptions);
-    await sheet._postDeedPhase("Hit",  effects.hit,  sheet.actor, item, commonOptions);
-    if (maxSparks > 0) {
-      await sheet._postDeedPhase("Spark", effects.spark, sheet.actor, item, {
-        ...commonOptions, title: maxSparks > 1 ? `Spark (x${maxSparks})` : "Spark"
+  // ── 9b. Focus refund on total miss (heavy/mighty attack deeds) ────────
+  if (!anyHit && isAttack && totalCost > 0) {
+    const refund = Math.floor(totalCost / 2);
+    if (refund > 0) {
+      const currentFocus = sheet.actor.system.combat.focus || 0;
+      await sheet.actor.update({ "system.combat.focus": currentFocus + refund });
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+        content: `<div class="trespasser-chat-card"><p><strong>${sheet.actor.name}</strong> ${game.i18n.format("TRESPASSER.Chat.FocusRefund", { count: refund })}</p></div>`
       });
     }
   }
 
-  const finalOptions = { ...phaseOptions, anyHit, maxSparks };
-  await sheet._postDeedPhase("After", effects.after, sheet.actor, item, finalOptions);
-  await sheet._postDeedPhase("End",   effects.end,   sheet.actor, item, finalOptions);
+  // ── 9c. Spark selection dialog ────────────────────────────────────────────
+  let sparkChoices = null;
+  if (maxSparks > 0 && anyHit) {
+    sparkChoices = await askSparkDialog(results);
+    // null = cancelled or no sparks; proceed without spark effects
+  }
+
+  // ── 10. Spend AP + record action ──────────────────────────────────────────
+  if (combatant) {
+    const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - apSpent));
+    await TrespasserCombat.recordHUDAction(sheet.actor, "attempt-deed");
+  }
+
+  // ── 11. Base/Hit/Spark/After/End phases + depletion ──────────────────────
+  const commonOptions = { ...phaseOptions, anyHit, maxSparks, results, sparkChoices };
+
+  // Base always fires (miss AND hit) for attack deeds
+  await sheet._postDeedPhase("Base", effects.base, sheet.actor, item, commonOptions);
+
+  // Hit and Spark only on success (or for support deeds / no targets)
+  if (anyHit || !isAttack || targets.length === 0) {
+    await sheet._postDeedPhase("Hit",  effects.hit,  sheet.actor, item, {
+      ...commonOptions, targetIds: results.filter(r => r.isHit).map(r => r.tokenId)
+    });
+
+    // Spark phase: only fire if deed spark was chosen, or if no dialog was shown
+    const showSpark = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark);
+    if (showSpark) {
+      const sparkTargets = results.filter(r => r.sparks > 0);
+      await sheet._postDeedPhase("Spark", effects.spark, sheet.actor, item, {
+        ...commonOptions,
+        title: maxSparks > 1 ? `Spark (x${maxSparks})` : "Spark",
+        targetIds: sparkTargets.map(r => r.tokenId)
+      });
+    }
+  }
+
+  await sheet._postDeedPhase("After", effects.after, sheet.actor, item, commonOptions);
+  await sheet._postDeedPhase("End",   effects.end,   sheet.actor, item, commonOptions);
 
   if (!isCreature) {
     for (const weapon of fragileItems) await sheet._runDepletionCheck(weapon);
+  }
+
+  // ── 12. Cleanup AOE template (unless aura, which persists) ──────────────
+  if (templateDoc && deed.targetType !== "aura") {
+    await templateDoc.delete();
   }
 }
 
@@ -201,17 +371,29 @@ export async function onDeedRoll(event, sheet) {
  * @param {Token[]} targets
  * @param {number} apBonus
  * @param {number} totalFocusCost  - for display only
- * @returns {{ anyHit: boolean, maxSparks: number }}
+ * @param {number} userModifier
+ * @returns {{ anyHit: boolean, maxSparks: number, results: Array }}
  */
-async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost = 0) {
+async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost = 0, userModifier = 0) {
   const isAttack    = item.system.actionType !== "support";
   const isAdv       = TrespasserEffectsHelper.hasAdvantage(sheet.actor, "accuracy");
-  const effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, "accuracy", "use");
-  const accuracy    = sheet.actor.system.combat.accuracy ?? 0;
+  const effectBonus   = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, "accuracy", "use");
+  const totalAccuracy = sheet.actor.system.combat.accuracy ?? 0;
+  const baseAccuracy  = totalAccuracy - effectBonus;
+  const totalBonuses = `${baseAccuracy} + ${effectBonus} + ${apBonus} + ${userModifier}`;
 
-  let formula = isAdv ? `2d20kh + ${accuracy}` : `1d20 + ${accuracy}`;
-  if (effectBonus !== 0) formula += ` + ${effectBonus}`;
-  if (apBonus     !== 0) formula += ` + ${apBonus}`;
+  // Engagement penalty: -2 accuracy for missile/spell deeds when engaged and not targeting adjacent
+  let engagementPenalty = 0;
+  if (isAttack && ["missile", "spell"].includes(item.system.type)) {
+    const sourceToken = canvas.tokens.placeables.find(t => t.actor?.id === sheet.actor.id);
+    if (TargetingHelper.isEngaged(sourceToken) &&
+        !TargetingHelper.isExemptFromEngagement(item.system, targets, sourceToken)) {
+      engagementPenalty = -2;
+    }
+  }
+
+  let formula = isAdv ? `2d20kh + ${totalBonuses}` : `1d20 + ${totalBonuses}`;
+  if (engagementPenalty !== 0) formula += ` + ${engagementPenalty}`;
 
   const accRoll  = new foundry.dice.Roll(formula);
   await accRoll.evaluate();
@@ -222,6 +404,7 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
   await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: "accuracy" });
 
   let anyHit = false, maxSparks = 0, resultsHtml = "";
+  const results = [];
 
   const targetList = isAttack ? targets : [null]; // support: always one pseudo-result vs CD 10
 
@@ -229,15 +412,18 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
     const targetActor = targetToken?.actor ?? null;
 
     // Determine Defense Class (DC)
-    let dc = 10; // default for support deeds
+    let dc = 10; // Default 10
     if (isAttack && targetActor) {
-      const statKey = item.system.accuracyTest?.toLowerCase() || "guard";
-      const baseVal = targetActor.system.combat[statKey] ?? 10;
+      const statKey  = item.system.accuracyTest?.toLowerCase() || "guard";
+      const totalDef = targetActor.system.combat[statKey] ?? 10;
       const effBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");
-      dc = baseVal + effBonus;
+      const targetCD = totalDef + effBonus;
+      // Characters aggregate bonuses in combat.stat, creatures keep them separate.
+      dc = (targetActor.type === "character") ? (targetCD + 10) : targetCD;
     }
 
-    const isHit = rollTotal >= dc;
+    let isHit = rollTotal >= dc;
+    if (diceResult === 20) isHit = true; // Nat 20 auto-success
     if (isHit) anyHit = true;
 
     const diff    = rollTotal - dc;
@@ -253,39 +439,51 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
 
     if (sparks > maxSparks) maxSparks = sparks;
 
+    // Track per-target results
+    results.push({
+      tokenId: targetToken?.id ?? null,
+      tokenName: targetToken?.name ?? null,
+      actorId: targetActor?.id ?? null,
+      isHit,
+      sparks,
+      shadows,
+      dc
+    });
+
     if (targetActor) {
       resultsHtml += `
         <div class="target-result" style="border-top:1px solid var(--trp-border-light);padding-top:5px;margin-top:5px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
-            <strong>${targetToken.name} <span style="font-size:10px;color:var(--trp-text-dim);">(${game.i18n.localize("TRESPASSER.Sheet.Combat." + (item.system.accuracyTest || "Guard"))}: ${dc})</span></strong>
+            <strong>${targetToken.name} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(${game.i18n.localize("TRESPASSER.Sheet.Combat." + (item.system.accuracyTest || "Guard"))}: ${dc})</span></strong>
             <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Hit") : game.i18n.localize("TRESPASSER.Chat.Miss")}</span>
           </div>
-          <div style="display:flex;gap:10px;font-size:11px;">
-            <span style="color:#64b5f6;">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
-            <span style="color:#9575cd;">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+          <div style="display:flex;gap:10px;font-size:var(--fs-11);">
+            <span style="color:var(--trp-spark);">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
+            <span style="color:var(--trp-shadow);">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
           </div>
         </div>`;
     } else {
       // Support deed (no target)
       resultsHtml += `
         <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
-          <div style="color:#64b5f6;"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
-          <div style="color:#9575cd;"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
+          <div style="color:var(--trp-spark);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
+          <div style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
         </div>`;
     }
   }
 
   let flavor = `<div class="trespasser-chat-card">
     <h3>${game.i18n.format("TRESPASSER.Chat.AccuracyRoll", { name: item.name })}${isAdv ? " (Adv)" : ""}</h3>
-    <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${rollTotal} <span style="font-size:10px;color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
+    <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${rollTotal} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
     ${resultsHtml}`;
   if (totalFocusCost > 0) flavor += `<p class="cost-note" style="margin-top:5px;">${game.i18n.format("TRESPASSER.Chat.SpentFocus", { count: totalFocusCost })}</p>`;
   if (apBonus > 0)        flavor += `<p class="cost-note" style="margin-top:2px;color:#2ecc71;">+${apBonus} ${game.i18n.localize("TRESPASSER.Chat.AccuracyFromAP")}</p>`;
+  if (engagementPenalty !== 0) flavor += `<p class="cost-note" style="margin-top:2px;color:#e74c3c;">${game.i18n.localize("TRESPASSER.Chat.EngagementPenalty")}</p>`;
   flavor += `</div>`;
 
   await accRoll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor });
 
-  return { anyHit, maxSparks };
+  return { anyHit, maxSparks, results };
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -297,14 +495,14 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
  * @param {ActorSheet} sheet
  * @param {Token[]} targets
  * @param {number} apBonus
- * @returns {{ anyHit: boolean, maxSparks: number }}
+ * @returns {{ anyHit: boolean, maxSparks: number, results: Array }}
  */
 async function rollCreatureDeed(item, sheet, targets, apBonus) {
   const isAttack = item.system.actionType !== "support";
 
   // Support deeds: just post phases, no roll
   if (!isAttack) {
-    return { anyHit: true, maxSparks: 0 };
+    return { anyHit: true, maxSparks: 0, results: [] };
   }
 
   // Creature's accuracy DC
@@ -313,6 +511,7 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
   const creatureDC       = creatureAccuracy + creatureEffBonus + apBonus;
 
   let anyHit = false, maxSparks = 0, resultsHtml = "";
+  const results = [];
 
   await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: "accuracy" });
 
@@ -320,32 +519,61 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
     const targetActor = targetToken?.actor ?? null;
     if (!targetActor) continue;
 
-    // Character rolls their defense stat
     const statKey     = item.system.accuracyTest?.toLowerCase() || "guard";
-    const baseDefense = targetActor.system.combat[statKey] ?? 10;
+    const totalDef    = targetActor.system.combat[statKey] ?? 10;
     const defEffBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");
+    
+    let defTotal, diceResult = null, finalDC = creatureDC, isHit;
+    const label = statKey.charAt(0).toUpperCase() + statKey.slice(1);
 
-    const defFormula = `1d20 + ${baseDefense + defEffBonus}`;
-    const defRoll    = new foundry.dice.Roll(defFormula);
-    await defRoll.evaluate();
+    if (targetActor.type === "creature") {
+      // NPC vs NPC: No rolls, just compare values
+      defTotal = totalDef + defEffBonus;
+      isHit    = finalDC >= defTotal;
+    } else {
+      // Character rolls their defense stat
+      const baseDefense = totalDef - defEffBonus;
+      const isAdv       = TrespasserEffectsHelper.hasAdvantage(targetActor, statKey);
+      const diceFormula = isAdv ? "2d20kh" : "1d20";
 
-    await TrespasserEffectsHelper.triggerEffects(targetActor, "use", { filterTarget: statKey });
+      const result = await TrespasserRollDialog.wait({
+        dice: diceFormula,
+        showCD: true,
+        cd: creatureDC,
+        bonuses: [
+          { label: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`), value: baseDefense },
+          { label: game.i18n.localize("TRESPASSER.Dialog.EffectBonus"), value: defEffBonus }
+        ]
+      }, { title: `${label} Check` });
 
-    const defTotal   = defRoll.total;
-    const diceResult = defRoll.dice[0].results[0].result;
+      if (!result) continue; // Skip this target if canceled
 
-    // Creature hits if its DC >= character's defense roll
-    const isHit = creatureDC >= defTotal;
+      const userModifier = result?.modifier ?? 0;
+      finalDC      = result?.cd ?? creatureDC;
+
+      let formula = `${diceFormula} + ${baseDefense} + ${defEffBonus}`;
+      if (userModifier !== 0) formula += ` + ${userModifier}`;
+
+      const defRoll = new foundry.dice.Roll(formula);
+      await defRoll.evaluate();
+
+      defTotal   = defRoll.total;
+      diceResult = defRoll.dice?.[0]?.results?.[0]?.result ?? null;
+      isHit      = finalDC >= defTotal;
+
+      await TrespasserEffectsHelper.triggerEffects(targetActor, "use", { filterTarget: statKey });
+    }
+
     if (isHit) anyHit = true;
 
-    const diff = creatureDC - defTotal;
+    const diff = finalDC - defTotal;
     let sparks = 0, shadows = 0;
     if (isHit) {
       sparks  = Math.floor(diff / 5);
-      if (diceResult === 1)  sparks  += 1; // defender nat 1 = good for attacker
+      if (diceResult === 1)  sparks  += 1; 
     } else {
       shadows = Math.floor(Math.abs(diff) / 5);
-      if (diceResult === 20) shadows += 1; // defender nat 20 = heroic dodge
+      if (diceResult === 20) shadows += 1;
     }
     // Sparks cancel Shadows
     const net = sparks - shadows;
@@ -354,37 +582,148 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
 
     if (sparks > maxSparks) maxSparks = sparks;
 
+    // Track per-target results
+    results.push({
+      tokenId: targetToken.id,
+      tokenName: targetToken.name,
+      actorId: targetActor.id,
+      isHit,
+      sparks,
+      shadows,
+      dc: finalDC
+    });
+
     resultsHtml += `
       <div class="target-result" style="border-top:1px solid var(--trp-border-light);padding-top:5px;margin-top:5px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong>${targetToken.name} <span style="font-size:10px;color:var(--trp-text-dim);">(${game.i18n.localize("TRESPASSER.Chat.Defense")}: ${defTotal})</span></strong>
+          <strong>${targetToken.name} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(${game.i18n.localize("TRESPASSER.Chat.Defense")}: ${defTotal})</span></strong>
           <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Hit") : game.i18n.localize("TRESPASSER.Chat.Miss")}</span>
         </div>
-        <div style="display:flex;gap:10px;font-size:11px;">
-          <span style="color:#64b5f6;">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
-          <span style="color:#9575cd;">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+        <div style="display:flex;gap:10px;font-size:var(--fs-11);">
+          <span style="color:var(--trp-spark);">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
+          <span style="color:var(--trp-shadow);">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
         </div>
       </div>`;
 
-    // Post the defense roll to chat
-    const defFlavor = `<div class="trespasser-chat-card">
-      <h3>${item.name} — ${game.i18n.localize("TRESPASSER.Chat.DefenseRoll")}</h3>
-      <p><strong>${targetToken.name}</strong> ${game.i18n.localize("TRESPASSER.Chat.Rolls")} ${game.i18n.localize("TRESPASSER.Sheet.Combat." + statKey.charAt(0).toUpperCase() + statKey.slice(1))}: <strong>${defTotal}</strong> <span style="font-size:10px;color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
-      <p>${game.i18n.localize("TRESPASSER.Chat.CreatureAccuracy")}: <strong>${creatureDC}</strong></p>
-      <p class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;font-size:14px;text-align:center;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Hit") : game.i18n.localize("TRESPASSER.Chat.Miss")}</p>
-      ${resultsHtml}
+    // Post to chat
+    let flavor = "";
+    if (targetActor.type === "creature") {
+      flavor = `<div class="trespasser-chat-card">
+        <h3>${item.name} — ${game.i18n.localize("TRESPASSER.Chat.Defense")}</h3>
+        <p><strong>${targetToken.name}</strong> ${game.i18n.localize("TRESPASSER.Chat.Defense")}: <strong>${defTotal}</strong></p>
+        <p>${game.i18n.localize("TRESPASSER.Chat.CreatureAccuracy")}: <strong>${finalDC}</strong></p>
+        <p class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;font-size:var(--fs-14);text-align:center;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Hit") : game.i18n.localize("TRESPASSER.Chat.Miss")}</p>
+        ${resultsHtml}
       </div>`;
-
-    await defRoll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-      flavor: defFlavor
-    });
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+        content: flavor
+      });
+    } else {
+      flavor = `<div class="trespasser-chat-card">
+        <h3>${item.name} — ${game.i18n.localize("TRESPASSER.Chat.DefenseRoll")}</h3>
+        <p><strong>${targetToken.name}</strong> ${game.i18n.localize("TRESPASSER.Chat.Rolls")} ${game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`)}: <strong>${defTotal}</strong> <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
+        <p>${game.i18n.localize("TRESPASSER.Chat.CreatureAccuracy")}: <strong>${finalDC}</strong></p>
+        <p class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;font-size:var(--fs-14);text-align:center;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Hit") : game.i18n.localize("TRESPASSER.Chat.Miss")}</p>
+        ${resultsHtml}
+        </div>`;
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+        content: flavor
+      });
+    }
 
     // Reset resultsHtml — it was already embedded in the message above
     resultsHtml = "";
+
+    // Counter reaction: if creature missed, defender may counter-attack
+    if (!isHit && shadows > 0) {
+      const creatureToken = canvas.tokens.placeables.find(t => t.actor?.id === sheet.actor.id);
+      const { canCounter, weapon } = TargetingHelper.checkCounterEligibility(targetToken, creatureToken);
+
+      if (canCounter) {
+        // If both are creatures, we don't prompt for counter-reaction yet (or maybe automate?)
+        // The rule says "no rolls", and counter damage is a roll. 
+        // For now, we only prompt if the counter-attacker is a character.
+        if (targetActor.type === "character") {
+          const counterAccepted = await _askCounterReaction(
+            targetToken, creatureToken, weapon, shadows
+          );
+          if (counterAccepted) {
+            // Roll counter damage: shadows × weapon die
+            const wDie = weapon.system.weaponDie || "d4";
+            const counterFormula = `${shadows}${wDie}`;
+            const counterRoll = new foundry.dice.Roll(counterFormula);
+            await counterRoll.evaluate();
+
+            const counterFlavor = `<div class="trespasser-chat-card">
+              <h3>${game.i18n.format("TRESPASSER.Chat.CounterReaction", { name: targetToken.name })}</h3>
+              <p>${game.i18n.format("TRESPASSER.Chat.CounterDamageDesc", { count: shadows, die: wDie, weapon: weapon.name })}</p>
+              <div class="trp-damage-actions" data-damage="${counterRoll.total}" data-target-ids="${creatureToken?.id ?? ""}" style="display:flex;gap:6px;margin-top:8px;">
+                <button class="apply-damage-btn" data-damage="${counterRoll.total}" data-target-ids="${creatureToken?.id ?? ""}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+                  <i class="fas fa-heart-broken"></i> ${game.i18n.localize("TRESPASSER.Chat.Apply")} ${game.i18n.localize("TRESPASSER.Chat.DamageMessage")}
+                </button>
+              </div>
+            </div>`;
+            await counterRoll.toMessage({
+              speaker: ChatMessage.getSpeaker({ actor: targetActor }),
+              flavor: counterFlavor
+            });
+          }
+        }
+      }
+    }
   }
 
-  return { anyHit, maxSparks };
+  return { anyHit, maxSparks, results };
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Counter reaction prompt
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Prompt the defender to use their counter reaction.
+ * @param {Token} defenderToken
+ * @param {Token} creatureToken
+ * @param {Item} weapon  The defender's melee weapon
+ * @param {number} shadows  Number of shadows (= counter dice)
+ * @returns {Promise<boolean>}
+ */
+function _askCounterReaction(defenderToken, creatureToken, weapon, shadows) {
+  const wDie = weapon.system.weaponDie || "d4";
+  const content = `<div class="trespasser-dialog">
+    <p>${game.i18n.format("TRESPASSER.Chat.CounterPrompt", {
+      defender: defenderToken.name,
+      count: shadows,
+      die: wDie,
+      weapon: weapon.name,
+      creature: creatureToken?.name ?? "?"
+    })}</p>
+  </div>`;
+
+  return new Promise((resolve) => {
+    new Dialog({
+      title: game.i18n.localize("TRESPASSER.Chat.CounterTitle"),
+      content,
+      buttons: {
+        counter: {
+          icon: '<i class="fas fa-shield-alt"></i>',
+          label: game.i18n.localize("TRESPASSER.Chat.CounterAccept"),
+          callback: () => resolve(true)
+        },
+        pass: {
+          icon: '<i class="fas fa-times"></i>',
+          label: game.i18n.localize("TRESPASSER.Chat.CounterPass"),
+          callback: () => resolve(false)
+        }
+      },
+      default: "counter"
+    }, {
+      classes: ["trespasser", "dialog"],
+      width: 380
+    }).render(true);
+  });
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -466,6 +805,13 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
     const damageBonus = await TrespasserEffectsHelper.evaluateDamageBonus(actor, "damage_dealt", weaponDie);
     if (damageBonus !== 0) parsedDamage = `(${parsedDamage}) + ${damageBonus}`;
 
+    // Spark Power: add extra skill dice to damage
+    const powerDice = options.sparkChoices?.powerBonusDice ?? 0;
+    if (powerDice > 0) {
+      const sd = actor.system.skill_die || "d6";
+      parsedDamage = `(${parsedDamage}) + ${powerDice}${sd}`;
+    }
+
     let rollObj;
     try {
       rollObj = new foundry.dice.Roll(parsedDamage);
@@ -473,11 +819,14 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
     } catch (e) { console.error("Trespasser | Deed Damage Roll Error", e); }
 
     if (rollObj) {
-      const applyHealBtns = `<div class="trp-damage-actions" data-damage="${rollObj.total}" style="display:flex;gap:6px;margin-top:8px;">
-        <button class="apply-damage-btn" data-damage="${rollObj.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+      const targetIdAttr = options.targetIds?.length
+        ? ` data-target-ids="${options.targetIds.join(",")}"`
+        : "";
+      const applyHealBtns = `<div class="trp-damage-actions" data-damage="${rollObj.total}"${targetIdAttr} style="display:flex;gap:6px;margin-top:8px;">
+        <button class="apply-damage-btn" data-damage="${rollObj.total}"${targetIdAttr} style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
           <i class="fas fa-heart-broken"></i> Apply Damage
         </button>
-        <button class="heal-damage-btn" data-damage="${rollObj.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+        <button class="heal-damage-btn" data-damage="${rollObj.total}"${targetIdAttr} style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
           <i class="fas fa-heart"></i> Heal
         </button>
       </div>`;
@@ -538,8 +887,8 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet) {
 
   const metrics = `
     <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
-      <div class="metric spark"  style="color:#64b5f6;"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
-      <div class="metric shadow" style="color:#9575cd;"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
+      <div class="metric spark"  style="color:var(--trp-spark);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
+      <div class="metric shadow" style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
     </div>`;
 
   await roll.toMessage({

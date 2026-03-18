@@ -1,0 +1,29 @@
+<section class="tab card {{tab.cssClass}}" data-group="primary" data-tab="card">
+  <div class="deed-card-preview">
+    <div class="deed-card">
+      <div class="deed-card-tier-label">{{localize (concat "TRESPASSER.Item.DeedTierChoices." (capitalize system.tier))}}</div>
+      <div class="deed-card-body">
+        <div class="deed-card-header">
+          <span class="deed-card-name">{{item.name}}</span>
+          {{#if showCost}}
+            <span class="deed-card-cost">{{displayCost}}</span>
+          {{/if}}
+        </div>
+        <div class="deed-card-subheader">
+          {{capitalize system.type}} {{capitalize system.actionType}} {{localize "TRESPASSER.Sheet.Combat.Vs"}} {{system.accuracyTest}} | {{system.target}}
+        </div>
+        <div class="deed-card-phases">
+          {{#each cardPhases as |phase|}}
+            <div class="deed-card-phase">
+              <em class="deed-card-phase-label">{{phase.label}}</em>:
+              {{#if phase.data.description}}{{phase.data.description}}{{/if}}
+            </div>
+          {{/each}}
+          {{#unless cardPhases.length}}
+            <div class="deed-card-empty">{{localize "TRESPASSER.Item.DeedCardEmpty"}}</div>
+          {{/unless}}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

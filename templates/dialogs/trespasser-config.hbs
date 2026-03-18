@@ -1,0 +1,120 @@
+<div class="trespasser-config-v2">
+    <nav class="sheet-tabs tabs" data-group="primary">
+        {{#each tabs.primary}}
+        <a class="item {{this.cssClass}}" data-action="tab" data-group="primary" data-tab="{{this.id}}">
+            <i class="{{this.icon}}"></i> {{localize this.label}}
+        </a>
+        {{/each}}
+    </nav>
+
+    <section class="content">
+        {{#if isGM}}
+        <!-- Mechanics Tab -->
+        <div class="tab {{#if (eq tabGroups.primary 'mechanics')}}active{{/if}}" data-group="primary" data-tab="mechanics">
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.ShowInitiativeInChat"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="showInitiativeInChat" {{checked settings.showInitiativeInChat}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.ShowInitiativeInChatHint"}}</p>
+            </div>
+
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.RestrictMovementAction"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="restrictMovementAction" {{checked settings.restrictMovementAction}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.RestrictMovementActionHint"}}</p>
+            </div>
+
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.RestrictHUDActions"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="restrictHUDActions" {{checked settings.restrictHUDActions}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.RestrictHUDActionsHint"}}</p>
+            </div>
+
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.RestrictAPFocusUsage"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="restrictAPFocusUsage" {{checked settings.restrictAPFocusUsage}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.RestrictAPFocusUsageHint"}}</p>
+            </div>
+        </div>
+
+        <!-- Exploration Tab -->
+        <div class="tab {{#if (eq tabGroups.primary 'exploration')}}active{{/if}}" data-group="primary" data-tab="exploration">
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.GroupCheckFullParty"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="groupCheckFullParty" {{checked settings.groupCheckFullParty}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.GroupCheckFullPartyHint"}}</p>
+            </div>
+
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.RestrictHavenEditToLeader"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="restrictHavenEditToLeader" {{checked settings.restrictHavenEditToLeader}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.RestrictHavenEditToLeaderHint"}}</p>
+            </div>
+
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.BypassHavenBuildingLimits"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="bypassHavenBuildingLimits" {{checked settings.bypassHavenBuildingLimits}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.BypassHavenBuildingLimitsHint"}}</p>
+            </div>
+        </div>
+        {{/if}}
+
+        <!-- Visuals Tab -->
+        <div class="tab {{#if (eq tabGroups.primary 'visuals')}}active{{/if}}" data-group="primary" data-tab="visuals">
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.ClockSize"}}</label>
+                <div class="form-fields">
+                    <input type="number" name="clockSize" value="{{settings.clockSize}}" min="20" max="200">
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.ClockSizeHint"}}</p>
+            </div>
+
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.FontSizeBase"}}</label>
+                <div class="form-fields">
+                    <input type="number" name="fontSizeBase" value="{{settings.fontSizeBase}}" min="10" max="30">
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.FontSizeBaseHint"}}</p>
+            </div>
+            
+            <h3 style="font-family: var(--trp-font-header); color: var(--trp-gold); text-transform: uppercase; border-bottom: 1px solid var(--trp-border); padding-bottom: 5px; margin: 20px 0 10px 0;">
+                <i class="fas fa-palette"></i> {{localize "TRESPASSER.Config.Tabs.Colors"}}
+            </h3>
+            
+            
+            <div class="color-grid">
+                {{#each colors}}
+                <div class="form-group color-picker-group">
+                    <label>{{localize this.label}}</label>
+                    <div class="form-fields">
+                        <input type="color" name="{{this.key}}" value="{{this.value}}">
+                        <input type="text" name="{{this.key}}_text" value="{{this.value}}" class="color-text">
+                    </div>
+                </div>
+                {{/each}}
+            </div>
+        </div>
+    </section>
+
+    <footer class="sheet-footer">
+        <button type="submit" name="submit">
+            <i class="fas fa-save"></i> {{localize "TRESPASSER.Config.Save"}}
+        </button>
+        <button type="button" data-action="reset">
+            <i class="fas fa-undo"></i> {{localize "TRESPASSER.Config.ResetDefault"}}
+        </button>
+    </footer>
+</div>

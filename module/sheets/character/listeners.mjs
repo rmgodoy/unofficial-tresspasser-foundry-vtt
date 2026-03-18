@@ -41,6 +41,7 @@ export function activateCharacterListeners(html, sheet) {
 
   html.find(".item-deplete").on("click",      sheet._onDepletionRoll.bind(sheet));
   html.find(".item-consume").on("click",      sheet._onItemConsume.bind(sheet));
+  html.find(".item-transfer").on("click",     sheet._onItemTransfer.bind(sheet));
   html.find(".item-toggle-light").on("click", sheet._onToggleLight.bind(sheet));
 
   html.find(".weapon-mode-select").on("change", async (ev) => {
@@ -51,7 +52,7 @@ export function activateCharacterListeners(html, sheet) {
   if (!sheet.isEditable) return;
 
   // Injury clock mini segments
-  html.find(".clock-segment-mini").on("click", sheet._onInjuryClockClick.bind(sheet));
+  html.find(".clock-segment").on("click", sheet._onInjuryClockClick.bind(sheet));
 
   // Key attribute star
   html.find(".key-attr-btn").on("click", (ev) => {

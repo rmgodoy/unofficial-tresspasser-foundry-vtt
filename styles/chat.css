@@ -3,7 +3,7 @@
 ═══════════════════════════════════════════════════ */
 .trespasser-chat-card {
   font-family: var(--trp-font-body);
-  font-size: 14px;
+  font-size: var(--fs-14);
   color: var(--trp-text);
   background: var(--trp-bg-dark);
   border: 1px solid var(--trp-border);
@@ -12,11 +12,18 @@
   margin: -2px; /* Pull to edge of Foundry standard chat box */
 }
 
+/* Deed card in chat — let the inner .deed-card handle its own styling */
+.trespasser-chat-card.deed-chat-card {
+  padding: 0;
+  border: none;
+  background: none;
+}
+
 .trespasser-chat-card h3 {
   font-family: var(--trp-font-header);
   color: var(--trp-gold-bright);
   text-transform: uppercase;
-  font-size: 14px;
+  font-size: var(--fs-14);
   border-bottom: 1px solid var(--trp-border);
   margin-bottom: 6px;
   padding-bottom: 2px;
@@ -28,7 +35,7 @@
 
 .trespasser-chat-card p.hit-text {
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--fs-14);
   margin-top: 4px;
   margin-bottom: 4px;
   color: var(--trp-green-bright);
@@ -36,7 +43,7 @@
 
 .trespasser-chat-card p.miss-text {
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--fs-14);
   margin-top: 4px;
   margin-bottom: 4px;
   color: var(--trp-red);
@@ -44,7 +51,7 @@
 
 .trespasser-chat-card .cost-note {
   font-style: italic;
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim);
 }
 
@@ -55,7 +62,7 @@
 
 .trespasser-chat-card .applied-effects strong {
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   text-transform: uppercase;
   color: var(--trp-text-dim);
 }
@@ -76,7 +83,7 @@
 .trespasser-chat-card .apply-effect-btn:hover {
   background: var(--trp-bg-panel);
   border-color: var(--trp-gold-bright);
-  box-shadow: 0 0 4px rgba(232, 201, 107, 0.3);
+  box-shadow: 0 0 4px var(--trp-shadow-gold);
 }
 
 .trespasser-chat-card .apply-effect-btn img {
@@ -88,7 +95,7 @@
 .trespasser-chat-card .apply-effect-btn span {
   font-family: var(--trp-font-body);
   font-weight: bold;
-  font-size: 14px;
+  font-size: var(--fs-14);
   color: var(--trp-text-bright);
 }
 
@@ -116,7 +123,7 @@
 }
 
 .prosemirror menu button.active {
-  background-color: #5d5d5d;
+  background-color: var(--trp-border-light);
 }
 
 /* ─── Talents & Incantations Rollables ─── */
@@ -141,7 +148,7 @@
 
 .incantation-card h3 {
   border-bottom: 2px solid var(--trp-gold);
-  color: #9575cd;
+  color: var(--trp-purple);
 }
 
 .incantation-metrics {
