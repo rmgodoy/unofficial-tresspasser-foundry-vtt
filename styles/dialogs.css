@@ -1,11 +1,15 @@
 /* ═══════════════════════════════════════════════════
    DIALOGS
 ═══════════════════════════════════════════════════ */
-.trespasser.dialog .window-content {
+/* Unified Dialog Styling */
+.trespasser.dialog .window-content,
+.application.trespasser.dialog .window-content {
   background: var(--trp-bg-dark);
   color: var(--trp-text);
   font-family: var(--trp-font-body);
 }
+
+
 
 .trespasser.dialog .dialog-content {
   padding: 12px;
@@ -18,29 +22,37 @@
   border-top: 1px solid var(--trp-border);
 }
 
-.trespasser.dialog .dialog-button {
+.trespasser.dialog .dialog-button,
+.application.trespasser.dialog button:not(.header-control) {
   background: var(--trp-bg-panel);
-  border: 1px solid var(--trp-gold-dim);
-  color: var(--trp-gold);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-dim);
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: all 0.2s;
-  height: 32px;
+  min-height: 32px;
+  height: auto;
+  padding: 6px 12px;
   line-height: normal;
+  cursor: pointer;
 }
 
-.trespasser.dialog .dialog-button:hover {
+.trespasser.dialog .dialog-button:hover,
+.application.trespasser.dialog button:not(.header-control):hover {
   background: var(--trp-gold-dim);
-  color: #fff;
-  border-color: #fff;
-  box-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
+  color: var(--trp-text-bright);
+  border-color: var(--trp-text-bright);
+  box-shadow: 0 0 8px var(--trp-shadow-gold);
 }
 
-.trespasser.dialog .dialog-button.default {
-  border-width: 2px;
-  border-color: var(--trp-gold);
+.trespasser.dialog .dialog-button.default,
+.application.trespasser.dialog button.default:not(.header-control),
+.application.trespasser.dialog .dialog-buttons [data-action="cancel"] {
+  border: 2px solid var(--trp-gold) !important;
+  color: var(--trp-gold) !important;
+  font-weight: bold;
 }
 
 .trespasser.dialog .form-group {
@@ -51,7 +63,7 @@
   font-family: var(--trp-font-header);
   color: var(--trp-gold);
   text-transform: uppercase;
-  font-size: 11px;
+  font-size: var(--fs-11);
   margin-bottom: 4px;
   display: block;
 }
@@ -75,7 +87,7 @@
 }
 
 .trespasser.dialog .notes {
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim);
   margin-top: 4px;
 }
@@ -89,19 +101,20 @@
 }
 
 .trp-attr-btn {
-  background: var(--trp-bg-panel);
+  background: var(--trp-bg-overlay);
   border: 1px solid var(--trp-border);
-  color: var(--trp-text);
+  color: var(--trp-gold);
   font-family: var(--trp-font-header);
-  font-size: 12px;
-  padding: 8px;
+  font-size: var(--fs-12);
+  padding: 10px;
   cursor: pointer;
   transition: all 0.15s;
+  text-align: center;
 }
 
 .trp-attr-btn:hover {
   background: var(--trp-gold-dim);
-  color: #fff;
+  color: var(--trp-text-bright);
   border-color: var(--trp-gold-bright);
 }
 
@@ -178,4 +191,141 @@
 .spark-choice.disabled {
   opacity: 0.4;
   pointer-events: none;
+}
+/* Haven Attribute Picker */
+.haven-attr-picker {
+  min-width: 460px;
+}
+
+.haven-attr-picker .dialog-buttons {
+  background: var(--trp-bg-header);
+  padding: 12px;
+}
+
+/* ─── Config V2 Styling ─── */
+.config-v2, .config-v2 form {
+  height: 100%;
+}
+
+.config-v2 .trespasser-config-v2 {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+.config-v2 .sheet-tabs {
+  flex: 0 0 32px;
+  border-bottom: 2px solid var(--trp-gold-dim);
+  display: flex;
+  background: var(--trp-bg-header);
+}
+
+.config-v2 .sheet-tabs .item {
+  line-height: 32px;
+  padding: 0 12px;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  text-transform: uppercase;
+  color: var(--trp-text-dim);
+  border-right: 1px solid var(--trp-border);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.config-v2 .sheet-tabs .item:hover {
+  background: var(--trp-border);
+  color: var(--trp-text-bright);
+}
+
+.config-v2 .sheet-tabs .item.active {
+  color: var(--trp-gold);
+  background: var(--trp-bg-panel);
+  border-bottom: 2px solid var(--trp-gold);
+  margin-bottom: -2px;
+}
+
+.config-v2 section.content {
+  flex: 1;
+  padding: 16px;
+  background: var(--trp-bg-dark);
+  overflow-y: auto;
+}
+
+.config-v2 .tab[data-tab] {
+  display: none;
+}
+
+.config-v2 .tab[data-tab].active {
+  display: block;
+}
+
+.config-v2 .color-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 24px;
+}
+
+.config-v2 .color-picker-group {
+  margin-bottom: 0 !important;
+}
+
+.config-v2 .color-picker-group .form-fields {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.config-v2 .color-picker-group input[type="color"] {
+  width: 40px;
+  height: 30px;
+  padding: 0;
+  border: 1px solid var(--trp-border);
+  cursor: pointer;
+  background: transparent;
+}
+
+.config-v2 .color-picker-group .color-text {
+  flex: 1;
+  font-family: monospace;
+  text-transform: uppercase;
+}
+
+.config-v2 .sheet-footer {
+  padding: 12px;
+  background: var(--trp-bg-header);
+  border-top: 1px solid var(--trp-border);
+  display: flex;
+  gap: 12px;
+}
+
+.config-v2 .sheet-footer button {
+  flex: 1;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  text-transform: uppercase;
+  height: 36px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.config-v2 .sheet-footer button[type="submit"] {
+  background: var(--trp-gold);
+  color: var(--trp-bg-dark);
+  border: none;
+}
+
+.config-v2 .sheet-footer button[type="submit"]:hover {
+  background: var(--trp-gold-bright);
+  box-shadow: 0 0 10px var(--trp-shadow-gold);
+}
+
+.config-v2 .sheet-footer button[data-action="reset"] {
+  background: transparent;
+  color: var(--trp-text-dim);
+  border: 1px solid var(--trp-border);
+}
+
+.config-v2 .sheet-footer button[data-action="reset"]:hover {
+  color: var(--trp-red);
+  border-color: var(--trp-red-dim);
 }

@@ -43,7 +43,7 @@ export async function showCraftDialog(craftItem, actor) {
          <input type="checkbox" id="craft-attr-check" checked disabled
                 style="accent-color:var(--trp-gold);flex-shrink:0;cursor:default;" />
          <span class="craft-dlg-name" style="margin-left:8px;">${keyAttrLabel}</span>
-         <span style="margin-left:6px;font-size:10px;color:var(--trp-text-dim);font-style:italic;">
+         <span style="margin-left:6px;font-size:var(--fs-10);color:var(--trp-text-dim);font-style:italic;">
            ${game.i18n.localize("TRESPASSER.CraftDialog.AttrFirstTooltip")}
          </span>
        </label>`
@@ -59,7 +59,7 @@ export async function showCraftDialog(craftItem, actor) {
 
   const infoBtn = uuid =>
     `<a class="dlg-info-btn" data-uuid="${uuid}" title="${game.i18n.localize("TRESPASSER.Dialog.ViewItem")}"
-        style="flex-shrink:0;color:var(--trp-text-dim);margin-left:4px;font-size:12px;cursor:pointer;">
+        style="flex-shrink:0;color:var(--trp-text-dim);margin-left:4px;font-size:var(--fs-12);cursor:pointer;">
        <i class="fas fa-info-circle"></i>
      </a>`;
 
@@ -111,7 +111,7 @@ export async function showCraftDialog(craftItem, actor) {
 
   const tabBtn = (id, label, first = false) =>
     `<a class="craft-dlg-tab-btn item${first ? " active" : ""}" data-tab="${id}"
-        style="font-family:var(--trp-font-header);font-size:11px;text-transform:uppercase;
+        style="font-family:var(--trp-font-header);font-size:var(--fs-11);text-transform:uppercase;
                letter-spacing:.08em;padding:5px 12px;cursor:pointer;
                color:${first ? "var(--trp-gold-bright)" : "var(--trp-text-dim)"};
                border-bottom:2px solid ${first ? "var(--trp-gold)" : "transparent"};">${label}</a>`;
@@ -145,18 +145,18 @@ export async function showCraftDialog(craftItem, actor) {
       </div>
     </div>
     <style>
-      .craft-dialog .craft-dlg-desc{font-size:13px;color:var(--trp-text-dim);font-style:italic;margin-top:4px;}
-      .craft-dialog .craft-dlg-search{width:100%;box-sizing:border-box;margin-bottom:8px;padding:4px 8px;background:var(--trp-bg-input);border:1px solid var(--trp-border);color:var(--trp-text-bright);font-family:var(--trp-font-body);font-size:13px;border-radius:3px;}
+      .craft-dialog .craft-dlg-desc{font-size:var(--fs-13);color:var(--trp-text-dim);font-style:italic;margin-top:4px;}
+      .craft-dialog .craft-dlg-search{width:100%;box-sizing:border-box;margin-bottom:8px;padding:4px 8px;background:var(--trp-bg-input);border:1px solid var(--trp-border);color:var(--trp-text-bright);font-family:var(--trp-font-body);font-size:var(--fs-13);border-radius:3px;}
       .craft-dialog .craft-dlg-filter-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
-      .craft-dialog .craft-dlg-tier-filter{background:var(--trp-bg-input);border:1px solid var(--trp-border);color:var(--trp-text-bright);font-family:var(--trp-font-body);font-size:12px;border-radius:3px;cursor:pointer;}
+      .craft-dialog .craft-dlg-tier-filter{background:var(--trp-bg-input);border:1px solid var(--trp-border);color:var(--trp-text-bright);font-family:var(--trp-font-body);font-size:var(--fs-12);border-radius:3px;cursor:pointer;}
       .craft-dialog .craft-dlg-list{display:flex;flex-direction:column;gap:3px;overflow-y:auto;max-height:270px;padding-right:2px;}
       .craft-dialog .craft-dlg-chip-row{display:flex;align-items:center;gap:4px;}
-      .craft-dialog .craft-dlg-chip{display:flex;align-items:center;gap:8px;padding:4px 8px;background:rgba(0,0,0,0.2);border:1px solid var(--trp-border);border-radius:4px;cursor:pointer;transition:background 0.1s;}
-      .craft-dialog .craft-dlg-chip:hover{background:rgba(201,168,76,0.08);border-color:var(--trp-gold-dim);}
-      .craft-dialog .craft-dlg-name{font-size:13px;color:var(--trp-text-bright);flex:1;}
+      .craft-dialog .craft-dlg-chip{display:flex;align-items:center;gap:8px;padding:4px 8px;background:var(--trp-bg-overlay);border:1px solid var(--trp-border);border-radius:4px;cursor:pointer;transition:background 0.1s;}
+      .craft-dialog .craft-dlg-chip:hover{background:var(--trp-gold-overlay);border-color:var(--trp-gold-dim);}
+      .craft-dialog .craft-dlg-name{font-size:var(--fs-13);color:var(--trp-text-bright);flex:1;}
       .craft-dialog .craft-dlg-empty{color:var(--trp-text-dim);font-style:italic;padding:12px 0;text-align:center;}
       .craft-dialog input[type="checkbox"]{accent-color:var(--trp-gold);}
-      .craft-dialog .dlg-info-btn{flex-shrink:0;color:var(--trp-text-dim);font-size:12px;cursor:pointer;padding:2px 4px;}
+      .craft-dialog .dlg-info-btn{flex-shrink:0;color:var(--trp-text-dim);font-size:var(--fs-12);cursor:pointer;padding:2px 4px;}
       .craft-dialog .dlg-info-btn:hover{color:var(--trp-gold-bright);}
     </style>`;
 

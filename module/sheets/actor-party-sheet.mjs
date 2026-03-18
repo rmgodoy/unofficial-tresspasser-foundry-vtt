@@ -310,9 +310,9 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
             <p>${game.i18n.localize("TRESPASSER.Party.SelectParticipantsHint")}</p>
             <div class="participant-selection" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
               ${allMembers.map(m => `
-                <div class="form-group" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px; border-bottom: 1px solid #444; padding: 4px;">
+                <div class="form-group" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px; border-bottom: 1px solid var(--trp-border); padding: 4px;">
                   <input type="checkbox" name="participant" value="${m.id}" checked>
-                  <img src="${m.img}" width="24" height="24" style="border-radius: 4px; border: 1px solid #666;">
+                  <img src="${m.img}" width="24" height="24" style="border-radius: 4px; border: 1px solid var(--trp-text-dim);">
                   <label style="flex: 1;">${m.name}</label>
                 </div>
               `).join('')}

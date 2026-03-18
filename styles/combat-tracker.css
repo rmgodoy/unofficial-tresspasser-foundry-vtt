@@ -1,26 +1,23 @@
 /* Combat Tracker Styles - Refined for Mockup */
 #combat-tracker {
-  background: #121212;
-  color: #eee;
-  font-family: 'Signika', 'Roboto', sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
+  background: var(--trp-bg-dark);
+  color: var(--trp-text);
+  font-family: var(--trp-font-body);
 }
 
 .combat-tracker-header {
   padding: 8px 12px;
-  background: #000;
-  border-bottom: 2px solid #333;
+  background: var(--trp-bg-header);
+  border-bottom: 2px solid var(--trp-border);
 }
 
 .combat-tracker-header h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--fs-14);
   text-align: center;
-  color: #ffcc00;
+  color: var(--trp-gold);
   letter-spacing: 1px;
-  font-family: 'Signika', sans-serif;
+  font-family: var(--trp-font-header);
   font-weight: 600;
 }
 
@@ -30,7 +27,7 @@
 
 .phase-header {
   padding: 6px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid var(--trp-border-light);
   display: flex !important;
   justify-content: space-between;
   align-items: center;
@@ -38,11 +35,11 @@
 
 .phase-header h4 {
   margin: 0;
-  font-size: 13px;
+  font-size: var(--fs-13);
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  font-family: 'Signika', sans-serif;
+  font-family: var(--trp-font-header);
 }
 
 /* Phase specific colors - Solid backgrounds from mockup */
@@ -62,36 +59,36 @@
 .phase-group.end .phase-header h4 { color: var(--trp-gold); }
 
 .next-phase-btn {
-  background: #333;
-  color: #eee;
-  border: 1px solid #555;
+  background: var(--trp-bg-panel);
+  color: var(--trp-text);
+  border: 1px solid var(--trp-border);
   border-radius: 4px;
   padding: 1px 8px;
-  font-size: 11px;
+  font-size: var(--fs-11);
   cursor: pointer;
   transition: all 0.2s;
-  font-family: sans-serif;
+  font-family: var(--trp-font-header);
 }
 
 .next-phase-btn:hover {
-  background: #444;
-  border-color: #ffcc00;
-  color: #ffcc00;
+  background: var(--trp-bg-input);
+  border-color: var(--trp-gold);
+  color: var(--trp-gold);
 }
 
 .combatant {
-  background: rgba(255, 255, 255, 0.02);
+  background: var(--trp-bg-panel);
   margin: 0;
   padding: 6px 12px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  border-bottom: 1px solid var(--trp-border);
   display: flex !important;
   align-items: center;
   gap: 10px;
 }
 
 .combatant.active {
-  background: rgba(255, 204, 0, 0.04);
-  box-shadow: inset 2px 0 0 #ffcc00;
+  background: var(--trp-bg-input);
+  box-shadow: inset 2px 0 0 var(--trp-gold);
 }
 
 .combatant.finished {
@@ -108,8 +105,8 @@
   width: 100%;
   height: 100%;
   border-radius: 50%;
-  border: 2px solid #444;
-  background: #222;
+  border: 2px solid var(--trp-border);
+  background: var(--trp-bg-dark);
   object-fit: cover;
 }
 
@@ -119,24 +116,24 @@
 
 .token-name h4 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--fs-14);
   font-weight: 600;
-  color: #ddd;
-  font-family: 'Signika', sans-serif;
+  color: var(--trp-text-bright);
+  font-family: var(--trp-font-header);
 }
 
 .combatant-status {
   margin-top: 3px;
   gap: 8px;
-  font-size: 11px;
-  color: #666;
+  font-size: var(--fs-11);
+  color: var(--trp-text-dim);
   display: flex !important;
   align-items: center;
 }
 
 .combatant-control {
   cursor: pointer;
-  color: #666;
+  color: var(--trp-text-dim);
   transition: all 0.2s;
   display: flex !important;
   align-items: center;
@@ -157,7 +154,7 @@
 }
 
 .combatant-control[data-action="toggleTarget"].active {
-  color: #4fc3f7 !important;
+  color: var(--trp-cyan) !important;
 }
 
 .stats-area {
@@ -174,7 +171,7 @@
 }
 
 .focus-number {
-  font-size: 16px;
+  font-size: var(--fs-16);
   font-weight: 700;
   color: var(--trp-gold);
   font-family: var(--trp-font-header);
@@ -207,28 +204,28 @@
 }
 
 .ap-icon.active {
-  background-color: #3f51b5;
+  background-color: var(--trp-blue);
   opacity: 1;
-  filter: drop-shadow(0 0 3px rgba(63, 81, 181, 0.7));
+  filter: drop-shadow(0 0 3px var(--trp-blue));
   cursor: pointer;
 }
 
 .ap-icon.active:hover {
   transform: scale(1.15);
-  filter: drop-shadow(0 0 5px rgba(63, 81, 181, 1));
+  filter: drop-shadow(0 0 5px var(--trp-blue));
 }
 
 .combat-info-footer {
   padding: 10px 12px;
-  background: #000;
-  border-top: 2px solid #333;
+  background: var(--trp-bg-header);
+  border-top: 2px solid var(--trp-border);
 }
 
 .info-row {
   display: flex !important;
   justify-content: space-between;
   align-items: center;
-  font-size: 12px;
+  font-size: var(--fs-12);
 }
 
 .left-info {
@@ -238,29 +235,29 @@
 }
 
 .peril-text {
-  color: #8bc34a;
+  color: var(--trp-light-green);
   font-weight: bold;
 }
 
 .peril-label {
-    font-size: 10px;
+    font-size: var(--fs-10);
     font-weight: normal;
 }
 
 .deeds-usage {
-  color: #ddd;
+  color: var(--trp-text);
 }
 
 .right-info {
   display: flex;
   gap: 15px;
-  color: #aaa;
+  color: var(--trp-text-dim);
 }
 
 /* Scrollbar adjustment */
 #combat-log {
   scrollbar-width: thin;
-  scrollbar-color: #444 #121212;
+  scrollbar-color: var(--trp-scrollbar) var(--trp-bg-dark);
 }
 
 /* Hide default navigation arrow buttons - keep only Begin/End combat */

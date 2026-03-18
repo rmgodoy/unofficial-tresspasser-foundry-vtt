@@ -1,0 +1,22 @@
+{{!-- Haven Tracker - Singleton sheet for Haven actors --}}
+<div class="haven-tracker-content">
+  <div class="tracker-idle">
+    <div class="tracker-haven-picker">
+      <h3>{{localize "TRESPASSER.Haven.Tracker.SelectHaven"}}</h3>
+      <div class="tracker-haven-list">
+        {{#if hasHavens}}
+          {{#each havens}}
+          <a class="tracker-haven-option" data-action="openHavenSheet" data-haven-id="{{id}}">
+            <img class="tracker-haven-thumb" src="{{img}}" alt="" />
+            <span class="tracker-haven-option-name">{{name}}</span>
+          </a>
+          {{/each}}
+        {{else}}
+          <div class="tracker-no-havens">
+            <p>{{localize "TRESPASSER.Haven.Tracker.NoHavens"}}</p>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+</div>

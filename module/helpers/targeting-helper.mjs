@@ -694,14 +694,9 @@ export class TargetingHelper {
         return { valid: false, message: game.i18n.localize("TRESPASSER.Notifications.NeedFreeHand") };
       }
     }
-    // Versatile: requires any melee or missile weapon
+    // Versatile: does not require any weapon
     else if (deedType === "versatile") {
-      const hasCompatible = activeWeapons.some(w =>
-        ["melee", "missile"].includes(w.system.type)
-      );
-      if (!hasCompatible) {
-        return { valid: false, message: game.i18n.localize("TRESPASSER.Notifications.NeedWeapon") };
-      }
+      return { valid: true };
     }
 
     return { valid: true };

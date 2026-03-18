@@ -27,7 +27,7 @@
           <label>{{localize "TRESPASSER.Item.RollExpression"}}</label>
           <input type="text" name="system.rollDice" value="{{system.rollDice}}" placeholder="{{localize 'TRESPASSER.Item.RollExpressionPlaceholder'}}" />
         </div>
-        <p class="notes" style="font-size: 11px; color: var(--trp-text-dim); margin-top: -5px; grid-column: span 2;">{{localize "TRESPASSER.Item.SkillWeaponDieNote"}}</p>
+        <p class="notes" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: -5px; grid-column: span 2;">{{localize "TRESPASSER.Item.SkillWeaponDieNote"}}</p>
 
         <div class="field-row">
           <label>{{localize "TRESPASSER.Item.FocusCost"}}</label>
@@ -66,12 +66,12 @@
     <div class="links-section">
       <div class="effects-section" style="margin-top: 10px;">
         <h3 style="margin-bottom: 5px; color: var(--trp-gold-bright);">{{localize "TRESPASSER.Item.LinkedEffects"}}</h3>
-        <p style="font-size: 11px; font-style: italic; color: var(--trp-text-dim); margin-bottom: 5px;">{{localize "TRESPASSER.Item.LinkedEffectsNote"}}</p>
-        <div class="applied-effects-list drop-zone" data-type="effects" style="min-height: 48px; padding: 4px; border: 1px dashed #555; border-radius: 4px; background: rgba(0,0,0,0.2);">
+        <p style="font-size: var(--fs-11); font-style: italic; color: var(--trp-text-dim); margin-bottom: 5px;">{{localize "TRESPASSER.Item.LinkedEffectsNote"}}</p>
+        <div class="applied-effects-list drop-zone" data-type="effects" style="min-height: 48px; padding: 4px; border: 1px dashed var(--trp-border); border-radius: 4px; background: var(--trp-bg-overlay);">
           {{#each system.effects as |effect index|}}
             {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index editable=true editableIntensity=true deleteClass="effect-remove"}}
           {{else}}
-          <span style="color: #666; font-style: italic; line-height: 30px; margin-left: 8px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+          <span style="color: var(--trp-text-dim); font-style: italic; line-height: 30px; margin-left: 8px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
           {{/each}}
         </div>
       </div>

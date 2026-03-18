@@ -143,6 +143,8 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
         armor:     new fields.NumberField({ integer: true, initial: 0 }),
         health:    new fields.NumberField({ integer: true, initial: 0 }),
         max_health:new fields.NumberField({ integer: true, initial: 0 }),
+        endurance: new fields.NumberField({ integer: true, initial: 0 }),
+        max_endurance: new fields.NumberField({ integer: true, initial: 0 }),
         damage:    new fields.NumberField({ integer: true, initial: 0 }),
       }),
 
@@ -161,6 +163,8 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
       }),
       attribute_points_spent: new fields.NumberField({ integer: true, initial: 0 }),
       attribute_points_max:   new fields.NumberField({ integer: true, initial: 0 }),
+
+      notes: new fields.HTMLField({ initial: "" }),
     };
   }
 
@@ -171,29 +175,31 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     const actor  = this.parent;
     const level  = this.level;
 
-    // 0. Fetch and store Effect Bonuses in the document field
-    const allTrackedKeys = [
-      "mighty", "agility", "intellect", "spirit",
-      "initiative", "accuracy", "guard", "resist", "prevail", "tenacity", "speed",
-      "armor", "health", "max_health", "damage"
-    ];
-    for (const key of allTrackedKeys) {
-      this.bonuses[key] = TrespasserEffectsHelper.getAttributeBonus(actor, key);
-    }
-
     // --- Progression Table Access ---
     const callingItem = actor.items.find(i => i.type === "calling");
     const progression = callingItem?.system?.progression || DEFAULT_PROGRESSION_TABLE;
     const currentTableData = progression[Math.min(level, progression.length - 1)];
 
-    // 1. Progression Advancement
+    // 1. Progression Advancement (Needs to happen before bonuses if effects use <sb>)
     this.xp_to_next_level = currentTableData.xp || (level * 10);
     this.skill = currentTableData.skillBonus || (2 + Math.floor(level / 3));
-    // 2. Resources
+
+    // 2. Fetch and store Effect Bonuses in the document field
+    const allTrackedKeys = [
+      "mighty", "agility", "intellect", "spirit",
+      "initiative", "accuracy", "guard", "resist", "prevail", "tenacity", "speed",
+      "armor", "health", "max_health", "endurance", "max_endurance", "damage", "focus"
+    ];
+    for (const key of allTrackedKeys) {
+      this.bonuses[key] = TrespasserEffectsHelper.getAttributeBonus(actor, key);
+    }
+    // 2. Resources (using total attributes including bonuses)
     const baseHP = currentTableData.hp || ((level + 1) * 5);
-    // Use base attributes for derived resources
-    this.max_health = baseHP + (level + 1) * this.attributes.mighty;
-    this.max_endurance = 10 + this.attributes.spirit;
+    const totalMighty = this.attributes.mighty + this.bonuses.mighty;
+    const totalSpirit = this.attributes.spirit + this.bonuses.spirit;
+
+    this.max_health = baseHP + (level + 1) * totalMighty + this.bonuses.max_health;
+    this.max_endurance = 10 + totalSpirit + this.bonuses.max_endurance;
     this.max_recovery_dice = this.max_endurance;
 
     // 3. Armor Calculation from items (base only)
@@ -204,19 +210,22 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
       totalArmor = equippedArmor.reduce((acc, item) => acc + (item.system.armorRating || 0), 0);
       armorDieAmmount = equippedArmor.filter(i => !i.system.broken).length;
     }
-    this.armor = totalArmor;
+    this.armor = totalArmor + this.bonuses.armor;
     this.armorDieAmmount = armorDieAmmount;
 
-    // 4. Combat Derived Stats (pure base values)
-    const keyAttrValue = this.attributes[this.key_attribute] ?? this.attributes.mighty;
+    // 4. Combat Derived Stats (Totals including bonuses)
+    const keyAttrValue = (this.attributes[this.key_attribute] ?? this.attributes.mighty) + this.bonuses[this.key_attribute];
+    const totalAgility = this.attributes.agility + this.bonuses.agility;
+    const totalIntellect = this.attributes.intellect + this.bonuses.intellect;
 
-    this.combat.initiative = this.attributes.agility + this.skill;
-    this.combat.accuracy   = keyAttrValue + this.skill;
-    this.combat.guard      = this.attributes.agility + this.armor;
-    this.combat.resist     = this.attributes.spirit  + this.skill;
-    this.combat.prevail    = this.attributes.intellect + this.skill;
-    this.combat.tenacity   = this.attributes.mighty  + this.attributes.spirit;
-    this.combat.speed      = 5;
+    this.combat.initiative = totalAgility + this.skill + this.bonuses.initiative;
+    this.combat.accuracy   = keyAttrValue + this.skill + this.bonuses.accuracy;
+    this.combat.guard      = totalAgility + this.armor + this.bonuses.guard;
+    this.combat.resist     = totalSpirit  + this.skill + this.bonuses.resist;
+    this.combat.prevail    = totalIntellect + this.skill + this.bonuses.prevail;
+    this.combat.tenacity   = totalMighty  + totalSpirit + this.bonuses.tenacity;
+    this.combat.speed      = 5 + this.bonuses.speed;
+    this.combat.focus      = this.bonuses.focus; // Base focus usually starts at 0
 
     // 6. Deeds Capacity
     this.deed_slots.light = 0;

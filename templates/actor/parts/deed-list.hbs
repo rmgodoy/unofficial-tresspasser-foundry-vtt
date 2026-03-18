@@ -7,7 +7,7 @@
               {{#each (lookup ../deedsGrouped tier)}}
               <div class="deed-slot" data-item-id="{{this.id}}">
                 <div class="deed-slot-header">
-                  <span class="deed-slot-title deed-rollable rollable" title="{{localize 'TRESPASSER.Sheet.Combat.UseDeed'}}">{{this.name}}{{#if this.sourceName}} <span style="font-size: 11px; font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}</span>
+                  <span class="deed-slot-title deed-rollable rollable" title="{{localize 'TRESPASSER.Sheet.Combat.UseDeed'}}">{{this.name}}{{#if this.sourceName}} <span style="font-size: var(--fs-11); font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}</span>
                   <div style="display: flex; gap: 6px; align-items: center;">
                     {{#if this.showCost}}
                       <span class="deed-slot-skill">{{this.displayCost}}</span>
@@ -19,12 +19,12 @@
                 </div>
                 
                 {{!-- Render specific effect descriptions if they exist --}}
-                <div class="deed-slot-descriptions" style="font-size: 15px; color: var(--trp-text-dim); margin-top: 4px; border-top: 1px dotted rgba(200,200,200,0.1); padding-top: 2px;">
+                <div class="deed-slot-descriptions" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: 4px; border-top: 1px dotted var(--trp-border-light); padding-top: 2px;">
                   {{#each (array "start" "before" "base" "hit" "spark" "after" "end") as |phase|}}
                     {{#with (lookup ../system.effects phase) as |pData|}}
                       {{#if (or pData.description pData.appliedEffects.length)}}
                         <div style="margin-bottom: 2px;">
-                          <em style="color: var(--trp-gold-dim); font-size: 15px; text-transform: uppercase;">{{localize (concat "TRESPASSER.Item." (capitalize phase))}}</em>: 
+                          <em style="color: var(--trp-gold-dim); font-size: var(--fs-11); text-transform: uppercase;">{{localize (concat "TRESPASSER.Item." (capitalize phase))}}</em>: 
                           {{#if pData.description}}{{pData.description}}{{/if}}
                         </div>
                       {{/if}}
