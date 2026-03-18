@@ -48,7 +48,7 @@ export async function handleRestAction(type, data, actorOrSheet, { chat = true }
       const dieSize    = parseInt(skillDieStr.replace("d", "")) || 6;
       const recovery   = rdToSpend * dieSize;
 
-      const maxH = (actor.system.max_health || 0) + (actor.system.bonuses?.max_health || 0);
+      const maxH = actor.system.max_health || 0;
       updates["system.health"]        = Math.min(maxH, actor.system.health + recovery);
       updates["system.recovery_dice"] = currentRD - rdToSpend;
       chatMessages.push(game.i18n.format("TRESPASSER.Sheet.Rest.SpentRDRecovery", { count: rdToSpend, recovery }));
@@ -59,7 +59,7 @@ export async function handleRestAction(type, data, actorOrSheet, { chat = true }
   }
   else if (type === "night") {
     const postEndurance = (updates["system.endurance"] !== undefined) ? updates["system.endurance"] : actor.system.endurance;
-    const maxH = (actor.system.max_health || 0) + (actor.system.bonuses?.max_health || 0);
+    const maxH = actor.system.max_health || 0;
     updates["system.health"]        = maxH;
     updates["system.recovery_dice"] = postEndurance;
     chatMessages.push(game.i18n.format("TRESPASSER.Sheet.Rest.NightRestHP", { endurance: postEndurance }));
@@ -73,7 +73,7 @@ export async function handleRestAction(type, data, actorOrSheet, { chat = true }
     chatMessages.push(game.i18n.localize("TRESPASSER.Sheet.Rest.ResetCosts"));
   }
   else if (type === "week") {
-    const maxH = (actor.system.max_health || 0) + (actor.system.bonuses?.max_health || 0);
+    const maxH = actor.system.max_health || 0;
     updates["system.endurance"]      = actor.system.max_endurance;
     updates["system.health"]         = maxH;
     updates["system.recovery_dice"]  = actor.system.max_recovery_dice;
