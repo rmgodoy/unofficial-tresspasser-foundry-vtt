@@ -175,7 +175,7 @@ Hooks.once("init", async () => {
     name: "TRESPASSER.Config.BypassHavenBuildingLimits",
     hint: "TRESPASSER.Config.BypassHavenBuildingLimitsHint",
     scope: "world",
-    config: true,
+    config: false,
     type: Boolean,
     default: false
   });
