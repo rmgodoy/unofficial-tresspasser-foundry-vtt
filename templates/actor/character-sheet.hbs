@@ -416,15 +416,17 @@
           <thead>
             <tr>
               <th>{{localize "TRESPASSER.Sheet.Equipments.Accessory"}}</th>
-              <th style="width: 150px;">{{localize "TRESPASSER.Sheet.Equipments.Name"}}</th>
-              <th style="width: 60px;">{{localize "TRESPASSER.Sheet.Equipments.Die"}}</th>
+              <th>{{localize "TRESPASSER.Sheet.Equipments.Name"}}</th>
+              <th>{{localize "TRESPASSER.Sheet.Equipments.Die"}}</th>
               <th>{{localize "TRESPASSER.Sheet.Equipments.Effect"}}</th>
             </tr>
           </thead>
           <tbody>
             {{#each equippedAccessories as |item slot|}}
             <tr>
-              <td class="slot-label">{{localize (concat "TRESPASSER.Sheet.Equipments." (capitalize slot))}}</td>
+              <td>
+                <label class="slot-label">{{localize (concat "TRESPASSER.Sheet.Equipments." (capitalize slot))}}</label>
+              </td>
               {{#if (eq item.type "item")}}
                 <td colspan="2">
                   <span class="item-name">{{item.name}}</span>
