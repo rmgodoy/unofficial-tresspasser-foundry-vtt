@@ -225,7 +225,7 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     this.combat.prevail    = totalIntellect + this.skill + this.bonuses.prevail;
     this.combat.tenacity   = totalMighty  + totalSpirit + this.bonuses.tenacity;
     this.combat.speed      = 5 + this.bonuses.speed;
-    this.combat.focus      = this.bonuses.focus; // Base focus usually starts at 0
+    this.combat.focus      = this.combat.focus + this.bonuses.focus;
 
     // 6. Deeds Capacity
     this.deed_slots.light = 0;

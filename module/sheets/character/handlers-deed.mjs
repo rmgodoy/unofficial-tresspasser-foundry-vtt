@@ -228,11 +228,11 @@ export async function onDeedRoll(event, sheet) {
   }
 
   // ── 4.6. Final side-effects (Focus, Ammo) ─────────────────────────────────
-  if (!isCreature && restrictAPF) {
+  if (!isCreature) {
     if (totalCost > 0) {
       const currentFocus = sheet.actor.system.combat.focus || 0;
       await sheet.actor.update({ "system.combat.focus": Math.max(0, currentFocus - totalCost) });
-      if (surcharge > 0) {
+      if (surcharge > 0 && restrictAPF) {
         ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
           content: `<strong>${sheet.actor.name}</strong> ${game.i18n.format("TRESPASSER.Chat.DeedSurcharge", { count: 2 })}`
