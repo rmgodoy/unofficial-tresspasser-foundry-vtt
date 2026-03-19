@@ -3,6 +3,8 @@
  */
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
+import { TrespasserCombat }        from "../../documents/combat.mjs";
+
 
 export async function onTalentRoll(event, sheet) {
   event.preventDefault();
@@ -20,16 +22,35 @@ export async function onTalentRoll(event, sheet) {
     const currentBonusCost = item.system.bonusCost || 0;
     const costIncrease  = item.system.focusIncrease || 0;
     totalCost = baseCost + currentBonusCost;
-    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
 
+    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+    const isAction    = item.system.type === "action";
+    const combatant   = TrespasserCombat.getPhaseCombatant(sheet.actor);
+
+    let availableAP = 0;
+    let currentFocus = 0;
+
+    // 1. AP check
+    if (isAction && combatant) {
+      availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+      if (restrictAPF && availableAP < 1) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+        return;
+      }
+    }
+
+    // 2. Focus check
     if (totalCost > 0) {
-      const currentFocus = sheet.actor.system.combat.focus || 0;
+      currentFocus = sheet.actor.system.combat.focus || 0;
       if (currentFocus < totalCost && restrictAPF) {
         ui.notifications.error(game.i18n.format("TRESPASSER.Notifications.NotEnoughFocus", { name: item.name, cost: totalCost, current: currentFocus }));
         return;
       }
-      await sheet.actor.update({ "system.combat.focus": Math.max(0, currentFocus - totalCost) });
     }
+
+    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - 1));
+    await sheet.actor.update({ "system.combat.focus": Math.max(0, currentFocus - totalCost) });
+
 
     await item.update({
       "system.uses":      (item.system.uses || 0) + 1,
