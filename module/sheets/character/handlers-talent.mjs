@@ -130,6 +130,20 @@ export async function onFeatureRoll(event, sheet) {
   const item = sheet.actor.items.get(li.dataset.itemId);
   if (!item) return;
 
+  const combatant   = TrespasserCombat.getPhaseCombatant(sheet.actor);
+  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const isAction    = item.system.type === "action";
+
+  // 1. AP check and deduction
+  if (isAction && combatant) {
+    const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+    if (restrictAPF && availableAP < 1) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+      return;
+    }
+    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - 1));
+  }
+
   const enrichedRef = await TextEditor.enrichHTML(item.system.description, {
     async: true, secrets: item.isOwner, relativeTo: item
   });
