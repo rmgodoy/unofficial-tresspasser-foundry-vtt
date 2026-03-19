@@ -590,7 +590,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                    data-modifier="+${bonus}"
                    data-source-name="${this._token.name}"
                    title="${game.i18n.localize("TRESPASSER.Chat.Apply")}">
-                  <img src="systems/trespasser/assets/icons/effects.png" style="width:32px;height:32px;border:none;margin-right:12px;" />
+                  <img src="systems/trespasser/assets/icons/effect.webp" style="width:32px;height:32px;border:none;margin-right:12px;" />
                   <div style="flex:1;">
                     <div style="color:var(--trp-gold-light);font-weight:bold;font-size:var(--fs-16);">+${bonus} ${attrLabel}</div>
                     <div style="font-size:var(--fs-11);color:var(--trp-text-dim);line-height:1.2;">Duration: Next check this round</div>

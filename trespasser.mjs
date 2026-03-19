@@ -679,7 +679,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       const effectData = {
         name: game.i18n.format("TRESPASSER.Chat.HelpFrom", { name: sourceName }),
         type: "effect",
-        img: "system/trespasser/assets/icons/effects.png",
+        img: "system/trespasser/assets/icons/effect.webp",
         system: {
           targetAttribute: attr,
           modifier: mod,
@@ -697,7 +697,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         }
       };
 
-      await targetActor.createEmbeddedDocuments("Item", [effectData]);
+      const res = await targetActor.createEmbeddedDocuments("Item", [effectData]);
       ui.notifications.info(game.i18n.format("TRESPASSER.Chat.AppliedHelp", { name: targetActor.name }));
     });
   });
@@ -1164,41 +1164,7 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
  * Update placeholder icon when subType changes.
  */
 Hooks.on("preUpdateItem", (item, changed, options, userId) => {
-  if (changed.system?.subType && item.type === "item") {
-    const isDefault = [
-        "systems/trespasser/assets/icons/item.png",
-        "systems/trespasser/assets/icons/tool.png",
-        "systems/trespasser/assets/icons/resources.png",
-        "systems/trespasser/assets/icons/ligth_sources.png",
-        "systems/trespasser/assets/icons/bombs.png",
-        "systems/trespasser/assets/icons/oils.png",
-        "systems/trespasser/assets/icons/powders.png",
-        "systems/trespasser/assets/icons/potions.png",
-        "systems/trespasser/assets/icons/scrolls.png",
-        "systems/trespasser/assets/icons/esoteric.png",
-        "systems/trespasser/assets/icons/artifacts.png",
-        "systems/trespasser/assets/icons/misellaneous.png",
-        "icons/svg/item-bag.svg"
-    ].includes(item.img);
-
-    if (isDefault) {
-        const subType = changed.system.subType;
-        let iconPath = "systems/trespasser/assets/icons/item.png";
-        if (subType === "tool") iconPath = "systems/trespasser/assets/icons/tool.png";
-        else if (subType === "resource") iconPath = "systems/trespasser/assets/icons/resources.png";
-        else if (subType === "light_source") iconPath = "systems/trespasser/assets/icons/ligth_sources.png";
-        else if (subType === "bombs") iconPath = "systems/trespasser/assets/icons/bombs.png";
-        else if (subType === "oils") iconPath = "systems/trespasser/assets/icons/oils.png";
-        else if (subType === "powders") iconPath = "systems/trespasser/assets/icons/powders.png";
-        else if (subType === "potions") iconPath = "systems/trespasser/assets/icons/potions.png";
-        else if (subType === "scrolls") iconPath = "systems/trespasser/assets/icons/scrolls.png";
-        else if (subType === "esoteric") iconPath = "systems/trespasser/assets/icons/esoteric.png";
-        else if (subType === "artifacts") iconPath = "systems/trespasser/assets/icons/artifacts.png";
-        else if (subType === "miscellaneous") iconPath = "systems/trespasser/assets/icons/misellaneous.png";
-
-        changed.img = iconPath;
-    }
-  }
+  // TODO: update to use the new icons for sub types
 });
 
 /**
