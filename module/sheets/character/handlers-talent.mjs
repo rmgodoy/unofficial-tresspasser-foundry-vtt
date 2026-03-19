@@ -20,14 +20,15 @@ export async function onTalentRoll(event, sheet) {
     const currentBonusCost = item.system.bonusCost || 0;
     const costIncrease  = item.system.focusIncrease || 0;
     totalCost = baseCost + currentBonusCost;
+    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
 
     if (totalCost > 0) {
       const currentFocus = sheet.actor.system.combat.focus || 0;
-      if (currentFocus < totalCost) {
+      if (currentFocus < totalCost && restrictAPF) {
         ui.notifications.error(game.i18n.format("TRESPASSER.Notifications.NotEnoughFocus", { name: item.name, cost: totalCost, current: currentFocus }));
         return;
       }
-      await sheet.actor.update({ "system.combat.focus": currentFocus - totalCost });
+      await sheet.actor.update({ "system.combat.focus": Math.max(0, currentFocus - totalCost) });
     }
 
     await item.update({
