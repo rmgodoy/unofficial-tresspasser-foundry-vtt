@@ -3,6 +3,7 @@ import { showItemInfoDialog }  from "../dialogs/item-info-dialog.mjs";
 import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 import { onDeedRoll, postDeedPhase } from "./character/handlers-deed.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
+import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 
 /**
  * Extend the basic ActorSheet with some very simple logic.
@@ -221,10 +222,10 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
       <div class="trespasser-chat-card feature-card">
         <h3>Feature: ${item.name}</h3>
         <details>
-          <summary style="cursor: pointer; color: var(--trp-gold-bright); font-family: var(--trp-font-header); font-size: 11px; margin-bottom: 5px;">
+          <summary style="cursor: pointer; color: var(--trp-gold-bright); font-family: var(--trp-font-header); font-size: var(--fs-11); margin-bottom: 5px;">
             <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.DescriptionExpand")}
           </summary>
-          <div class="collapsible-content" style="background: rgba(0,0,0,0.3); padding: 8px; border-radius: 4px; border: 1px solid var(--trp-border); margin-bottom: 10px; font-size: 12px;">
+          <div class="collapsible-content" style="background: var(--trp-bg-overlay); padding: 8px; border-radius: 4px; border: 1px solid var(--trp-border); margin-bottom: 10px; font-size: var(--fs-12);">
             ${enrichedRef}
           </div>
         </details>
@@ -253,8 +254,9 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
     const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
     
     if (combatant && this.actor.type === "creature") {
+      const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
       const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-      if (availableAP < 1) {
+      if (restrictAPF && availableAP < 1) {
         ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
         return;
       }
@@ -266,10 +268,36 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
       }
       
       extraAP = apSpent - 1;
-      await combatant.setFlag("trespasser", "actionPoints", availableAP - apSpent);
+      await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - apSpent));
     }
 
-    await this.actor.rollPrevail(effectItem.id, extraAP);
+    const intensity = effectItem.system.intensity || 0;
+    const defaultCD = Math.min(20, 10 + intensity);
+    const prevailStat = this.actor.type === "creature" 
+      ? (this.actor.system.combat?.roll_bonus || 0) 
+      : (this.actor.system.combat?.prevail || 0);
+    const apBonus = extraAP * 2;
+
+    const isAdv = TrespasserEffectsHelper.hasAdvantage(this.actor, "prevail");
+    
+    const diceFormula = isAdv ? "2d20kh" : "1d20";
+
+    const result = await TrespasserRollDialog.wait({
+      dice: diceFormula,
+      showCD: true,
+      cd: defaultCD,
+      bonuses: [
+        { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Prevail"), value: prevailStat },
+        { label: game.i18n.localize("TRESPASSER.HUD.ExtraAP"), value: apBonus }
+      ]
+    }, { title: game.i18n.format("TRESPASSER.Chat.PrevailCheck", { name: effectItem.name }) });
+
+    if (!result) return;
+
+    await this.actor.rollPrevail(effectItem.id, extraAP, {
+      modifier: result.modifier,
+      cd: result.cd
+    });
     await TrespasserCombat.recordHUDAction(this.actor, "prevail");
   }
 

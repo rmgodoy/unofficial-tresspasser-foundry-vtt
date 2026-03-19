@@ -1,0 +1,108 @@
+<section class="{{cssClass}} trespasser-sheet item-sheet build" autocomplete="off">
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    </div>
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemName'}}"/>
+      </h1>
+    </div>
+  </header>
+
+  <section class="sheet-body scrollable" data-scrollable="true">
+    <div class="custom-attributes-area">
+      <div class="attribute-list-section">
+        <div class="section-header">
+            <label>{{localize "TRESPASSER.Haven.Build.Attribute"}}</label>
+            <a data-action="addBonus" title="Add Attribute Bonus"><i class="fas fa-plus"></i></a>
+        </div>
+        <div class="bonus-entries">
+            {{#each preparedBonuses as |b|}}
+                <div class="bonus-row">
+                    <select name="system.bonuses.{{b.index}}.attribute">
+                        {{selectOptions ../attributes selected=b.attribute localize=true}}
+                    </select>
+                    <input type="number" name="system.bonuses.{{b.index}}.value" value="{{b.value}}" data-dtype="Number" />
+                    <a data-action="removeBonus" data-index="{{b.index}}"><i class="fas fa-times"></i></a>
+                </div>
+            {{/each}}
+        </div>
+      </div>
+
+      <div class="attribute-fields">
+        <div class="section-header">
+            <label>{{localize "TRESPASSER.Haven.Build.Skill"}}</label>
+        </div>
+        <div class="skill-entries">
+            {{#each preparedSkills as |s|}}
+                <div class="skill-chip">
+                    <span>{{localize s.label}}</span>
+                    <a data-action="removeSkill" data-index="{{s.index}}"><i class="fas fa-times"></i></a>
+                </div>
+            {{/each}}
+            {{#if availableSkills}}
+                <div class="skill-adder">
+                    <select>
+                        {{selectOptions availableSkills localize=true}}
+                    </select>
+                    <a data-action="addSkill"><i class="fas fa-plus"></i></a>
+                </div>
+            {{/if}}
+        </div>
+      </div>
+
+      <div class="attribute-fields">
+        <label>{{localize "TRESPASSER.Haven.Build.BuildClock"}}</label>
+        <div class="form-fields">
+          <input type="number" name="system.progress" value="{{system.progress}}" data-dtype="Number" placeholder="Current" title="Current Progress" />
+          <span>/</span>
+          <input type="number" name="system.buildClock" value="{{system.buildClock}}" data-dtype="Number" placeholder="Total" title="Total Required" />
+        </div>
+      </div>
+
+      <div class="attribute-fields">
+        <label>{{localize "TRESPASSER.Haven.Build.UpgradeTo"}}</label>
+        <div class="upgrade-drop-zone {{#if system.upgradeTo}}has-upgrade{{/if}}">
+          {{#if system.upgradeTo}}
+            <span class="upgrade-name">{{upgradeName}}</span>
+            <a class="remove-upgrade"><i class="fas fa-times"></i></a>
+          {{else}}
+            <span class="placeholder">{{localize "TRESPASSER.Haven.Build.DropUpgradeHint"}}</span>
+          {{/if}}
+        </div>
+      </div>
+
+      <div class="attribute-list-section">
+        <div class="section-header">
+            <label>{{localize "TRESPASSER.Haven.HavenActions"}}</label>
+            {{#if editable}}
+              <a data-action="addAction" title="{{localize 'TRESPASSER.Haven.AddAction'}}"><i class="fas fa-plus"></i></a>
+            {{/if}}
+        </div>
+        <div class="actions-list">
+            {{#each enrichedHavenActions as |action idx|}}
+                <div class="haven-action-edit-row">
+                    <div class="action-inputs">
+                      <input type="text" name="system.havenActions.{{idx}}.title" value="{{action.title}}" placeholder="{{localize 'TRESPASSER.General.Title'}}"/>
+                      <div class="haven-action-editor">
+                        <prose-mirror name="system.havenActions.{{idx}}.description" value="{{action.description}}" toggled="false" compact="false" editable="{{../editable}}">{{{action.enrichedDescription}}}</prose-mirror>
+                      </div>
+                    </div>
+                    {{#if ../editable}}
+                      <a class="remove-action-btn" data-action="removeAction" data-index="{{idx}}"><i class="fas fa-trash"></i></a>
+                    {{/if}}
+                </div>
+            {{/each}}
+        </div>
+      </div>
+    </div>
+
+    <div class="attribute-fields description-column">
+      <label>{{localize "TRESPASSER.General.Description"}}</label>
+      <div class="trp-editor-container">
+        <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false">{{{descriptionHTML}}}</prose-mirror>
+      </div>
+    </div>
+  </section>
+</section>

@@ -15,13 +15,13 @@
 
       <!-- Row 2: Level, Role, Template -->
       <div class="header-row header-identity" style="margin-bottom: 8px; justify-content: flex-start; gap: 15px;">
-        <div class="level-group" style="flex: 0 0 100px;">
+        <div class="level-group">
           <label>{{localize "TRESPASSER.Sheet.Header.Level"}}</label>
           <input type="number" name="system.level" value="{{system.level}}" min="0" max="20" />
         </div>
-        <div class="level-group" style="flex: 0 0 150px;">
+        <div class="level-group">
           <label>{{localize "TRESPASSER.Sheet.Header.Role"}}</label>
-          <select name="system.role" style="flex: 1; background: transparent; color: var(--trp-text-light); border: none; font-family: var(--trp-font-primary); font-size: 14px; text-transform: uppercase;">
+          <select name="system.role" style="flex: 1; background: transparent; color: var(--trp-text-light); border: none; font-family: var(--trp-font-primary); font-size: var(--fs-14); text-transform: uppercase;">
             <option value="archer" {{#if (eq system.role "archer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Archer"}}</option>
             <option value="enchanter" {{#if (eq system.role "enchanter")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Enchanter"}}</option>
             <option value="enforcer" {{#if (eq system.role "enforcer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Enforcer"}}</option>
@@ -32,9 +32,9 @@
             <option value="sorcerer" {{#if (eq system.role "sorcerer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Sorcerer"}}</option>
           </select>
         </div>
-        <div class="level-group" style="flex: 0 0 150px;">
+        <div class="level-group">
           <label>{{localize "TRESPASSER.Sheet.Header.Template"}}</label>
-          <select name="system.template" style="flex: 1; background: transparent; color: var(--trp-text-light); border: none; font-family: var(--trp-font-primary); font-size: 14px; text-transform: uppercase;">
+          <select name="system.template" style="flex: 1; background: transparent; color: var(--trp-text-light); border: none; font-family: var(--trp-font-primary); font-size: var(--fs-14); text-transform: uppercase;">
             <option value="underling" {{#if (eq system.template "underling")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Underling"}}</option>
             <option value="normal" {{#if (eq system.template "normal")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Normal"}}</option>
             <option value="paragon" {{#if (eq system.template "paragon")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Paragon"}}</option>
@@ -95,7 +95,7 @@
       </h3>
       <div class="items-list">
         {{#each features}}
-        <div class="item" data-item-id="{{this.id}}" style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); margin-bottom: 5px; padding: 5px; border-radius: 4px;">
+        <div class="item" data-item-id="{{this.id}}" style="display: flex; justify-content: space-between; align-items: center; background: var(--trp-bg-overlay); margin-bottom: 5px; padding: 5px; border-radius: 4px;">
            <span class="item-name feature-name rollable" style="flex: 1; cursor: pointer; color: var(--trp-gold-bright);">{{this.name}}</span>
            <div class="item-controls" style="display: flex; gap: 8px;">
              <a class="feature-info" title="{{localize 'TRESPASSER.Sheet.Equipments.Info'}}"><i class="fas fa-info-circle"></i></a>

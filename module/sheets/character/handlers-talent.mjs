@@ -3,6 +3,8 @@
  */
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
+import { TrespasserCombat }        from "../../documents/combat.mjs";
+
 
 export async function onTalentRoll(event, sheet) {
   event.preventDefault();
@@ -21,14 +23,34 @@ export async function onTalentRoll(event, sheet) {
     const costIncrease  = item.system.focusIncrease || 0;
     totalCost = baseCost + currentBonusCost;
 
+    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+    const isAction    = item.system.type === "action";
+    const combatant   = TrespasserCombat.getPhaseCombatant(sheet.actor);
+
+    let availableAP = 0;
+    let currentFocus = 0;
+
+    // 1. AP check
+    if (isAction && combatant) {
+      availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+      if (restrictAPF && availableAP < 1) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+        return;
+      }
+    }
+
+    // 2. Focus check
     if (totalCost > 0) {
-      const currentFocus = sheet.actor.system.combat.focus || 0;
-      if (currentFocus < totalCost) {
+      currentFocus = sheet.actor.system.combat.focus || 0;
+      if (currentFocus < totalCost && restrictAPF) {
         ui.notifications.error(game.i18n.format("TRESPASSER.Notifications.NotEnoughFocus", { name: item.name, cost: totalCost, current: currentFocus }));
         return;
       }
-      await sheet.actor.update({ "system.combat.focus": currentFocus - totalCost });
     }
+
+    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - 1));
+    await sheet.actor.update({ "system.combat.focus": Math.max(0, currentFocus - totalCost) });
+
 
     await item.update({
       "system.uses":      (item.system.uses || 0) + 1,
@@ -44,10 +66,10 @@ export async function onTalentRoll(event, sheet) {
     <h3>Talent: ${item.name}</h3>
     ${totalCost > 0 ? `<p class="cost-note">${game.i18n.format("TRESPASSER.Chat.SpentFocus", { count: totalCost })}</p>` : ""}
     <details>
-      <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:11px;margin-bottom:5px;">
+      <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:var(--fs-11);margin-bottom:5px;">
         <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.DescriptionExpand")}
       </summary>
-      <div class="collapsible-content" style="background:rgba(0,0,0,0.3);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:12px;">
+        <div class="collapsible-content" style="background:var(--trp-bg-overlay);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:var(--fs-12);">
         ${enrichedDescription}
       </div>
     </details>`;
@@ -78,10 +100,10 @@ export async function onTalentRoll(event, sheet) {
     await roll.evaluate();
 
     const applyHealBtns = `<div class="trp-damage-actions" style="display:flex;gap:6px;margin-top:8px;">
-      <button class="apply-damage-btn" data-damage="${roll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+      <button class="apply-damage-btn" data-damage="${roll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid var(--trp-red-dim);color:var(--trp-red);border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
         <i class="fas fa-heart-broken"></i> Apply Damage
       </button>
-      <button class="heal-damage-btn" data-damage="${roll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:11px;">
+      <button class="heal-damage-btn" data-damage="${roll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid var(--trp-green);color:var(--trp-green-bright);border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
         <i class="fas fa-heart"></i> Heal
       </button>
     </div>`;
@@ -108,6 +130,20 @@ export async function onFeatureRoll(event, sheet) {
   const item = sheet.actor.items.get(li.dataset.itemId);
   if (!item) return;
 
+  const combatant   = TrespasserCombat.getPhaseCombatant(sheet.actor);
+  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const isAction    = item.system.type === "action";
+
+  // 1. AP check and deduction
+  if (isAction && combatant) {
+    const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+    if (restrictAPF && availableAP < 1) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+      return;
+    }
+    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - 1));
+  }
+
   const enrichedRef = await TextEditor.enrichHTML(item.system.description, {
     async: true, secrets: item.isOwner, relativeTo: item
   });
@@ -116,10 +152,10 @@ export async function onFeatureRoll(event, sheet) {
     <div class="trespasser-chat-card feature-card">
       <h3>Feature: ${item.name}</h3>
       <details>
-        <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:11px;margin-bottom:5px;">
+        <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:var(--fs-11);margin-bottom:5px;">
           <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.DescriptionExpand")}
         </summary>
-        <div class="collapsible-content" style="background:rgba(0,0,0,0.3);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:12px;">
+          <div class="collapsible-content" style="background:var(--trp-bg-overlay);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:var(--fs-12);">
           ${enrichedRef}
         </div>
       </details>
@@ -174,22 +210,22 @@ export async function onIncantationRoll(event, sheet) {
   });
 
   const resultText = isSuccess
-    ? `<span class="hit-text"  style="font-weight:bold;color:#4caf50;">${game.i18n.localize("TRESPASSER.Chat.Success")}</span>`
-    : `<span class="miss-text" style="font-weight:bold;color:#f44336;">${game.i18n.localize("TRESPASSER.Chat.Failure")}</span>`;
+    ? `<span class="hit-text"  style="font-weight:bold;color:var(--trp-green-bright);">${game.i18n.localize("TRESPASSER.Chat.Success")}</span>`
+    : `<span class="miss-text" style="font-weight:bold;color:var(--trp-red);">${game.i18n.localize("TRESPASSER.Chat.Failure")}</span>`;
 
   const flavor = `
     <div class="trespasser-chat-card incantation-card">
       <h3>Incantation: ${item.name}</h3>
       <p><strong>${game.i18n.localize("TRESPASSER.Chat.ResultVs").split(" ")[0]}:</strong> ${roll.total} vs ${target} — ${resultText}</p>
       <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
-        <div class="metric spark"  style="color:#64b5f6;"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
-        <div class="metric shadow" style="color:#9575cd;"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
+        <div class="metric spark"  style="color:var(--trp-cyan);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
+        <div class="metric shadow" style="color:var(--trp-purple);"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
       </div>
       <details>
-        <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:11px;margin-bottom:5px;">
+        <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:var(--fs-11);margin-bottom:5px;">
           <i class="fas fa-info-circle"></i> Description (Click to Expand)
         </summary>
-        <div class="collapsible-content" style="background:rgba(0,0,0,0.3);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:12px;">
+          <div class="collapsible-content" style="background:var(--trp-bg-overlay);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:var(--fs-12);">
           ${enrichedDescription}
         </div>
       </details>

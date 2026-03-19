@@ -17,7 +17,7 @@
     border: 1px solid var(--trp-border);
     border-radius: var(--trp-radius);
     padding: 8px 12px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.6);
+    box-shadow: 0 4px 15px var(--trp-shadow-dark);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -37,7 +37,7 @@
 
 .trespasser-token-hud .hud-title {
     font-family: var(--trp-font-header);
-    font-size: 10px;
+    font-size: var(--fs-10);
     text-transform: uppercase;
     color: var(--trp-gold);
     letter-spacing: 0.1em;
@@ -66,9 +66,9 @@
 }
 
 .trespasser-token-hud .ap-icon.active {
-    background-color: #3f51b5;
+    background-color: var(--trp-blue);
     opacity: 1;
-    filter: drop-shadow(0 0 3px rgba(63, 81, 181, 0.8));
+    filter: drop-shadow(0 0 3px var(--trp-blue));
     transform: scale(1.1) rotate(5deg);
 }
 
@@ -88,7 +88,7 @@
     border: 1px solid var(--trp-border);
     color: var(--trp-text-bright);
     font-family: var(--trp-font-header);
-    font-size: 10px;
+    font-size: var(--fs-10);
     padding: 4px 8px;
     min-height: 32px;
     cursor: pointer;
@@ -155,7 +155,7 @@
 }
 
 .trespasser-token-hud .hud-action-btn .cost {
-    font-size: 9px;
+    font-size: var(--fs-9);
     color: var(--trp-gold);
     margin-top: 2px;
     font-family: var(--trp-font-body);
@@ -178,7 +178,7 @@
     border-radius: var(--trp-radius);
     z-index: 101;
     min-width: 210px;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+    box-shadow: 0 8px 20px var(--trp-shadow-dark);
     pointer-events: all;
 }
 
@@ -211,7 +211,7 @@
 
 .trespasser-token-hud .field-row label {
     font-family: var(--trp-font-header);
-    font-size: 10px;
+    font-size: var(--fs-10);
     text-transform: uppercase;
     color: var(--trp-gold);
     display: block;
@@ -225,7 +225,7 @@
     color: var(--trp-text-bright) !important;
     border: 1px solid var(--trp-border) !important;
     font-family: var(--trp-font-body) !important;
-    font-size: 13px !important;
+    font-size: var(--fs-13) !important;
     padding: 2px 4px;
     border-radius: var(--trp-radius-sm);
 }
@@ -236,7 +236,7 @@
     border: 1px solid var(--trp-border);
     color: var(--trp-text-bright);
     font-family: var(--trp-font-header);
-    font-size: 11px;
+    font-size: var(--fs-11);
     text-transform: uppercase;
     padding: 6px;
     cursor: pointer;
@@ -265,11 +265,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 10px;
+    font-size: var(--fs-10);
     transition: all 0.2s;
     z-index: 5;
     pointer-events: all;
-    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    box-shadow: 0 2px 5px var(--trp-shadow-dark);
 }
 
 .trespasser-token-hud .undo-btn:hover {
@@ -286,14 +286,46 @@
 /* Chips for focus costs */
 .trespasser-token-hud .focus-cost-chip {
     display: inline-block;
-    background: #c62828;
+    background: var(--trp-red);
     color: white;
-    font-size: 8px;
+    font-size: var(--fs-8);
     padding: 1px 3px;
     border-radius: 3px;
     margin-top: 2px;
     vertical-align: middle;
     text-transform: uppercase;
     font-weight: bold;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+    box-shadow: 0 1px 3px var(--trp-shadow-dark);
+}
+
+/* GM Action Point Controls */
+.trespasser-token-hud .gm-ap-controls {
+    display: flex;
+    gap: 4px;
+    margin-left: 8px;
+    align-items: center;
+}
+
+.trespasser-token-hud .gm-ap-btn {
+    background: var(--trp-bg-panel);
+    border: 1px solid var(--trp-border);
+    color: var(--trp-gold);
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: var(--fs-11);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    line-height: 1;
+    padding: 0;
+    transition: all 0.2s;
+}
+
+.trespasser-token-hud .gm-ap-btn:hover {
+    background: var(--trp-gold-dim);
+    color: var(--trp-bg-dark);
+    border-color: var(--trp-gold-bright);
+    transform: scale(1.1);
 }

@@ -26,7 +26,7 @@ const INFO_STYLE = `<style>
   }
   .info-dlg-title {
     font-family: var(--trp-font-header);
-    font-size: 18px;
+    font-size: var(--fs-18);
     font-weight: bold;
     color: var(--trp-gold-bright);
     text-transform: uppercase;
@@ -35,14 +35,14 @@ const INFO_STYLE = `<style>
     margin-bottom: 4px;
   }
   .info-dlg-subtitle {
-    font-size: 10px;
+    font-size: var(--fs-10);
     color: var(--trp-text-dim);
     text-transform: uppercase;
     letter-spacing: .08em;
     margin-bottom: 6px;
   }
   .info-dlg-meta {
-    font-size: 11px;
+    font-size: var(--fs-11);
     color: var(--trp-text-dim);
     margin-bottom: 6px;
   }
@@ -53,30 +53,30 @@ const INFO_STYLE = `<style>
     margin-top: 6px;
   }
   .info-dlg-phase {
-    font-size: 13px;
+    font-size: var(--fs-13);
     line-height: 1.4;
   }
   .info-dlg-phase-label {
     font-weight: bold;
     color: var(--trp-gold-dim);
     text-transform: uppercase;
-    font-size: 11px;
+    font-size: var(--fs-11);
   }
   .info-dlg-desc {
     color: var(--trp-text-bright);
   }
   .info-dlg-sub {
     color: var(--trp-text-dim);
-    font-size: 12px;
+    font-size: var(--fs-12);
   }
   .info-dlg-html {
-    font-size: 13px;
+    font-size: var(--fs-13);
     color: var(--trp-text);
     line-height: 1.5;
     margin-top: 6px;
   }
   .info-dlg-empty {
-    font-size: 12px;
+    font-size: var(--fs-12);
     font-style: italic;
     color: var(--trp-text-dim);
     margin-top: 8px;

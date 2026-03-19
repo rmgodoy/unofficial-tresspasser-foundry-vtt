@@ -1,0 +1,103 @@
+<section class="deed-properties">
+  <div class="details-grid">
+    {{!-- Description --}}
+    <div class="field-row full-width">
+      <label>{{localize "TRESPASSER.Item.Description"}}</label>
+      <div class="trp-editor-container">
+        <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="true">{{{enrichedDescription}}}</prose-mirror>
+      </div>
+    </div>
+
+    {{!-- Tier --}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Item.tier"}}</label>
+      <select name="system.tier">
+        {{#each config.tiers as |label key|}}
+          <option value="{{key}}" {{#if (eq key ../system.tier)}}selected{{/if}}>{{label}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    {{!-- Action Type --}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Item.actionType"}}</label>
+      <select name="system.actionType">
+        {{#each config.actionTypes as |label key|}}
+          <option value="{{key}}" {{#if (eq key ../system.actionType)}}selected{{/if}}>{{label}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    {{!-- Deed Type --}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Item.deedType"}}</label>
+      <select name="system.type">
+        {{#each config.types as |label key|}}
+          <option value="{{key}}" {{#if (eq key ../system.type)}}selected{{/if}}>{{label}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    {{!-- Target Type --}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Item.Target"}}</label>
+      <select name="system.targetType">
+        {{#each config.targetTypes as |label key|}}
+          <option value="{{key}}" {{#if (eq key ../system.targetType)}}selected{{/if}}>{{label}}</option>
+        {{/each}}
+      </select>
+    </div>
+
+    {{!-- Target Count (creature type only) --}}
+    {{#if showTargetCount}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Item.TargetCount"}}</label>
+      <input type="number" name="system.targetCount" value="{{system.targetCount}}" min="1" />
+    </div>
+    {{/if}}
+
+    {{!-- Target Size (AOE types only) --}}
+    {{#if showTargetSize}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Item.TargetSize"}}</label>
+      <input type="number" name="system.targetSize" value="{{system.targetSize}}" min="1" />
+    </div>
+    {{/if}}
+
+    {{!-- Computed target label (read-only) --}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Item.TargetLabel"}}</label>
+      <input type="text" value="{{system.target}}" readonly disabled />
+
+    {{!-- Accuracy Test --}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Item.AccuracyVs"}}</label>
+      {{#if (eq system.actionType "support")}}
+        <input type="text" name="system.accuracyTest" value="10" readonly />
+      {{else}}
+        <select name="system.accuracyTest">
+          <option value="Guard" {{#if (eq system.accuracyTest "Guard")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Guard"}}</option>
+          <option value="Resist" {{#if (eq system.accuracyTest "Resist")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Resist"}}</option>
+        </select>
+      {{/if}}
+    </div>
+
+    {{!-- Focus Cost --}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Item.FocusCost"}}</label>
+      <input type="number" name="system.focusCost" value="{{system.focusCost}}" min="0" placeholder="{{localize 'TRESPASSER.Item.Auto'}}" />
+    </div>
+
+    {{!-- Focus Increase --}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Item.FocusIncrease"}}</label>
+      <input type="number" name="system.focusIncrease" value="{{system.focusIncrease}}" min="0" placeholder="{{localize 'TRESPASSER.Item.Auto'}}" />
+    </div>
+
+    {{!-- Bonus Cost --}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Item.BonusCost"}}</label>
+      <input type="number" name="system.bonusCost" value="{{system.bonusCost}}" min="0" placeholder="0" />
+    </div>
+  </div>
+</section>

@@ -1,0 +1,7 @@
+<nav class="sheet-tabs deed-tabs" data-group="primary">
+  {{#each tabs}}
+  <a class="item {{cssClass}}" data-action="switchTab" data-tab="{{id}}" title="{{label}}">
+    <i class="fas fa-{{icon}}"></i> {{label}}
+  </a>
+  {{/each}}
+</nav>

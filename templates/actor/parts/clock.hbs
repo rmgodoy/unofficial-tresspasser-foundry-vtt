@@ -1,0 +1,14 @@
+<div class="trespasser-clock" data-id="{{id}}">
+  <div class="clock-svg-wrapper" title="{{current}} / {{max}}">
+    <svg class="clock-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="44" fill="var(--trp-bg-panel)" stroke="var(--trp-border-light)" stroke-width="1.5"/>
+      {{#each segments as |seg i|}}
+        <path class="clock-segment {{#if seg.filled}}filled{{/if}}" 
+              data-index="{{i}}" 
+              d="{{seg.path}}" 
+              data-action="{{../action}}" />
+      {{/each}}
+      <text x="50" y="55" class="clock-label-num">{{current}}</text>
+    </svg>
+  </div>
+</div>

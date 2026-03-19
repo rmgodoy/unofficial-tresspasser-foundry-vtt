@@ -4,36 +4,78 @@
   --trp-bg-panel:     #23201c;
   --trp-bg-input:     #2e2a24;
   --trp-bg-header:    #1e1b17;
+  --trp-bg-select:    #3a3228;
   --trp-border:       #4a3f2f;
   --trp-border-light: #5c4f3a;
   --trp-gold:         #c9a84c;
-  --trp-gold-dim:     #a88840;   /* lifted for better contrast */
+  --trp-gold-dim:     #a88840;
   --trp-gold-bright:  #e8c96b;
   --trp-red:          #ff5252;
   --trp-red-dim:      #922c2c;
-  --trp-text:         #ddd0aa;   /* slightly brighter base text */
-  --trp-text-dim:     #a09070;   /* lifted: was too dark on dark bg */
+  --trp-text:         #ddd0aa;
+  --trp-text-dim:     #a09070;
   --trp-text-bright:  #f5eccc;
   --trp-green:        #2d5a2d;
   --trp-green-bright: #4a8a4a;
+  
+  /* Additional Functional Colors */
+  --trp-purple:       #9575cd;
+  --trp-blue:         #3f51b5;
+  --trp-light-green:  #8bc34a;
+  --trp-cyan:         #4fc3f7;
+  --trp-spark:        #4fc3f7;
+  --trp-shadow:       #9575cd;
+  --trp-shadow-dark:  #00000080;
+  --trp-scrollbar:    #782e22;
+
+  /* Overlay / Glassmorphism Colors (Hex-Alpha for config mapping) */
+  --trp-bg-overlay:   #00000040;
+  --trp-gold-overlay: #c9a84c1a;
+  --trp-red-overlay:  #ff52521a;
+  --trp-green-overlay:#2d5a2d1a;
 
   --trp-font-header:  'Cinzel', 'Palatino Linotype', serif;
   --trp-font-body:    'Crimson Text', 'Palatino Linotype', serif;
 
   --trp-radius:       4px;
   --trp-radius-sm:    2px;
+
+  /* Font Sizes - Relative to Base */
+  --trp-font-size-base: 14px; /* Fallback */
+  --fs-8:  calc(var(--trp-font-size-base) * 0.571); /* ~8px */
+  --fs-9:  calc(var(--trp-font-size-base) * 0.643); /* ~9px */
+  --fs-10: calc(var(--trp-font-size-base) * 0.714); /* ~10px */
+  --fs-11: calc(var(--trp-font-size-base) * 0.786); /* ~11px */
+  --fs-12: calc(var(--trp-font-size-base) * 0.857); /* ~12px */
+  --fs-13: calc(var(--trp-font-size-base) * 0.929); /* ~13px */
+  --fs-14: var(--trp-font-size-base);               /* 14px */
+  --fs-15: calc(var(--trp-font-size-base) * 1.071); /* ~15px */
+  --fs-16: calc(var(--trp-font-size-base) * 1.143); /* ~16px */
+  --fs-18: calc(var(--trp-font-size-base) * 1.286); /* ~18px */
+  --fs-20: calc(var(--trp-font-size-base) * 1.429); /* ~20px */
+  --fs-22: calc(var(--trp-font-size-base) * 1.571); /* ~22px */
+  --fs-24: calc(var(--trp-font-size-base) * 1.714); /* ~24px */
+  --fs-28: calc(var(--trp-font-size-base) * 2.000); /* ~28px */
+  --fs-32: calc(var(--trp-font-size-base) * 2.286); /* ~32px */
+  --fs-42: calc(var(--trp-font-size-base) * 3.000); /* ~42px */
+  --fs-48: calc(var(--trp-font-size-base) * 3.429); /* ~48px */
 }
 
 /* ─── Sheet Root ─── */
+.window-content {
+  background: var(--trp-bg-dark);
+  padding: 4px;
+}
+
 .trespasser-sheet,
 .trespasser.dungeon-tracker,
 .trespasser.sheet.party {
   /* Fallbacks for V2 sheets missing Foundry V1 variables */
-  --color-scrollbar: #782e22;
+  --color-scrollbar: var(--trp-scrollbar);
   --color-scrollbar-track: transparent;
   
   font-family: var(--trp-font-body);
-  font-size: 14px;
+  font-size: var(--fs-14);
   color: var(--trp-text);
   background: var(--trp-bg-dark);
 }
@@ -50,6 +92,25 @@
   flex: 1;
   overflow-y: auto !important;
   min-height: 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--trp-scrollbar) transparent;
+}
+
+.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background: var(--trp-scrollbar);
+  border-radius: 3px;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background: var(--trp-gold-dim);
 }
 
 /* ─── All Inputs / Selects / Textareas ─── */
@@ -61,7 +122,7 @@
   border: 1px solid var(--trp-border);
   color: var(--trp-text-bright);
   font-family: var(--trp-font-body);
-  font-size: 13px;
+  font-size: var(--fs-13);
   border-radius: var(--trp-radius-sm);
   padding: 2px 4px;
   width: 100%;
@@ -74,7 +135,7 @@
 .trespasser-sheet textarea:focus {
   border-color: var(--trp-gold-dim);
   outline: none;
-  box-shadow: 0 0 4px rgba(201, 168, 76, 0.3);
+  box-shadow: 0 0 4px var(--trp-shadow-gold);
 }
 
 .trespasser-sheet input[readonly] {
@@ -91,11 +152,11 @@
 .trespasser-sheet .skill-die-select,
 .trespasser-sheet select,
 .trespasser select {
-  background-color: #3a3228 !important;
-  color: #f5eccc !important;
+  background-color: var(--trp-bg-select) !important;
+  color: var(--trp-text-bright) !important;
   border: 1px solid var(--trp-border-light) !important;
   font-family: var(--trp-font-body) !important;
-  font-size: 13px !important;
+  font-size: var(--fs-13) !important;
   border-radius: var(--trp-radius-sm);
   padding: 2px 4px;
   width: 100%;
@@ -106,17 +167,17 @@
 }
 
 .trespasser-sheet .weapon-mode-select {
-  font-size: 11px;
+  font-size: var(--fs-11);
   height: 20px;
   margin-top: 2px;
   border-color: var(--trp-border-light);
-  background-color: rgba(0,0,0,0.3) !important;
+  background-color: var(--trp-bg-overlay) !important;
 }
 
 .trespasser-sheet select option,
 .trespasser select option {
-  background-color: #1a1714 !important;
-  color: #f5eccc !important;
+  background-color: var(--trp-bg-dark) !important;
+  color: var(--trp-text-bright) !important;
   padding: 4px;
 }
 
@@ -134,7 +195,7 @@
 .trespasser-sheet input[type="checkbox"]:not(:checked) {
   -webkit-appearance: none;
   appearance: none;
-  background-color: #2d2a24;
+  background-color: var(--trp-bg-input);
   border: 1px solid var(--trp-border);
   border-radius: var(--trp-radius-sm);
 }
@@ -142,7 +203,7 @@
 /* ─── Labels ─── */
 .trespasser-sheet label {
   font-family: var(--trp-font-header);
-  font-size: 10px;
+  font-size: var(--fs-10);
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--trp-gold);
@@ -152,7 +213,7 @@
 
 .trespasser-sheet h4 {
   font-family: var(--trp-font-header);
-  font-size: 11px;
+  font-size: var(--fs-11);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--trp-gold);
@@ -163,7 +224,7 @@
 
 .trespasser-sheet h3.section-title {
   font-family: var(--trp-font-header);
-  font-size: 13px;
+  font-size: var(--fs-13);
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--trp-gold-bright);
@@ -176,7 +237,7 @@
 /* ─── Shared Utilities ─── */
 .button {
   font-family: var(--trp-font-header);
-  font-size: 10px;
+  font-size: var(--fs-10);
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--trp-gold-dim);
@@ -197,7 +258,7 @@
 .item-controls a {
   color: var(--trp-text-dim);
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--fs-11);
   transition: color 0.15s;
   text-decoration: none;
 }
@@ -207,7 +268,7 @@
 }
 
 .item-controls a.item-delete:hover {
-  color: #e05050;
+  color: var(--trp-red);
 }
 
 body.game .app.window-app .window-content {
@@ -225,7 +286,7 @@ body.game .app input[type="checkbox"] {
 .directory .header-actions button.import-all-items {
   flex: 1;
   font-family: var(--trp-font-header);
-  font-size: 10px;
+  font-size: var(--fs-10);
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--trp-gold-dim);
@@ -241,7 +302,7 @@ body.game .app input[type="checkbox"] {
   color: var(--trp-gold-bright);
   border-color: var(--trp-gold-dim);
   background: var(--trp-bg-input);
-  box-shadow: 0 0 5px rgba(201, 168, 76, 0.2);
+  box-shadow: 0 0 5px var(--trp-shadow-gold);
 }
 
 .directory .header-actions button i {

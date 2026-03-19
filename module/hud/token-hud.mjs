@@ -1,5 +1,6 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../documents/combat.mjs";
+import { TrespasserRollDialog }    from "../dialogs/roll-dialog.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -94,6 +95,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         const context = {
             inCombat: true,
+            isGM: game.user.isGM,
             token: this._token,
             actor: this._token.actor,
             availableAP: ap,
@@ -231,10 +233,11 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const options = [];
         const max = Math.max(3, ap);
         for (let i = 1; i <= max; i++) {
-            options.push({
-                cost: i,
-                label: i === 1 ? "1 AP (Base)" : `${i} AP (+${i - 1} Acc)`
-            });
+            const bonus = (i - 1) * 2;
+            const label = i === 1 
+                ? game.i18n.format("TRESPASSER.HUD.DeedBaseOption", { cost: i })
+                : game.i18n.format("TRESPASSER.HUD.DeedOption", { cost: i, bonus });
+            options.push({ cost: i, label });
         }
         return options;
     }
@@ -422,6 +425,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 case "execute-wait":
                     this._executeWait();
                     break;
+                case "modify-ap":
+                    this._modifyAP(ev);
+                    break;
             }
         });
 
@@ -528,9 +534,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         };
 
         await this._token.actor.createEmbeddedDocuments("Item", [effectData]);
-        if (restrictAPF) {
-            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
-        }
+        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
         await TrespasserCombat.recordHUDAction(this._token.actor, "defend");
         
         ChatMessage.create({
@@ -565,9 +569,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const bonus = cost; 
 
         // Deduct AP from current actor
-        if (restrictAPF) {
-            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
-        }
+        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
 
         // Format attribute name for better display
         const attrLabel = game.i18n.localize(`TRESPASSER.Sheet.Combat.${attr.charAt(0).toUpperCase() + attr.slice(1)}`) || attr;
@@ -588,15 +590,15 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                    data-modifier="+${bonus}"
                    data-source-name="${this._token.name}"
                    title="${game.i18n.localize("TRESPASSER.Chat.Apply")}">
-                  <img src="systems/trespasser/assets/icons/effects.png" style="width:32px;height:32px;border:none;margin-right:12px;" />
+                  <img src="systems/trespasser/assets/icons/effect.webp" style="width:32px;height:32px;border:none;margin-right:12px;" />
                   <div style="flex:1;">
-                    <div style="color:var(--trp-gold-light);font-weight:bold;font-size:16px;">+${bonus} ${attrLabel}</div>
-                    <div style="font-size:11px;color:var(--trp-text-dim);line-height:1.2;">Duration: Next check this round</div>
+                    <div style="color:var(--trp-gold-light);font-weight:bold;font-size:var(--fs-16);">+${bonus} ${attrLabel}</div>
+                    <div style="font-size:var(--fs-11);color:var(--trp-text-dim);line-height:1.2;">Duration: Next check this round</div>
                   </div>
                   <i class="fas fa-hand-holding-heart"></i>
                 </a>
 
-                <p style="font-size:10px;margin-top:8px;text-align:right;color:var(--trp-text-dim);border-top:1px solid rgba(255,255,255,0.05);padding-top:4px;">
+                <p style="font-size:var(--fs-10);margin-top:8px;text-align:right;color:var(--trp-text-dim);border-top:1px solid var(--trp-border);padding-top:4px;">
                   AP Spent: ${cost}
                 </p>
               </div>`
@@ -628,20 +630,12 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const speed = baseSpeed + bonusSpeed;
         const dist = speed + (cost - 1) * 2;
 
-        if (restrictAPF) {
-            await combatant.update({
-                "flags.trespasser.actionPoints": Math.max(0, currentAP - cost),
-                "flags.trespasser.moveActionTaken": true,
-                "flags.trespasser.movementAllowed": dist,
-                "flags.trespasser.movementUsed": 0
-            });
-        } else {
-            await combatant.update({
-                "flags.trespasser.moveActionTaken": true,
-                "flags.trespasser.movementAllowed": dist,
-                "flags.trespasser.movementUsed": 0
-            });
-        }
+        await combatant.update({
+            "flags.trespasser.actionPoints": Math.max(0, currentAP - cost),
+            "flags.trespasser.moveActionTaken": true,
+            "flags.trespasser.movementAllowed": dist,
+            "flags.trespasser.movementUsed": 0
+        });
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
@@ -692,6 +686,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!stateSelect || !extraApSelect) return;
 
         const stateId = stateSelect.value;
+        const stateItem = this._token.actor.items.get(stateId);
+        if (!stateItem) return;
+
         const extraAP = parseInt(extraApSelect.value) || 0;
         const totalCost = 1 + extraAP;
 
@@ -706,10 +703,34 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             return;
         }
 
-        await this._token.actor.rollPrevail(stateId, extraAP);
-        if (restrictAPF) {
-            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - totalCost));
-        }
+        const intensity = stateItem.system.intensity || 0;
+        const defaultCD = Math.min(20, 10 + intensity);
+        const prevailStat = this._token.actor.type === "creature" 
+            ? (this._token.actor.system.combat?.roll_bonus || 0) 
+            : (this._token.actor.system.combat?.prevail || 0);
+        const apBonus = extraAP * 2;
+
+        const isAdv = TrespasserEffectsHelper.hasAdvantage(this._token.actor, "prevail");
+        
+        const diceFormula = isAdv ? "2d20kh" : "1d20";
+
+        const result = await TrespasserRollDialog.wait({
+            dice: diceFormula,
+            showCD: true,
+            cd: defaultCD,
+            bonuses: [
+                { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Prevail"), value: prevailStat },
+                { label: game.i18n.localize("TRESPASSER.HUD.ExtraAP"), value: apBonus }
+            ]
+        }, { title: game.i18n.format("TRESPASSER.Chat.PrevailCheck", { name: stateItem.name }) });
+
+        if (!result) return;
+
+        await this._token.actor.rollPrevail(stateId, extraAP, {
+            modifier: result.modifier,
+            cd: result.cd
+        });
+        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - totalCost));
 
         this._activePanel = null;
         this.render();
@@ -840,9 +861,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         const rangeBonus = cost === 1 ? 4 : 8;
 
-        if (restrictAPF) {
-            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
-        }
+        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
         await TrespasserCombat.recordHUDAction(this._token.actor, "take-aim");
 
         ChatMessage.create({
@@ -877,9 +896,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const bonus = (cost - 1) * 2;
         const bonusText = bonus > 0 ? game.i18n.format("TRESPASSER.HUD.WithBonus", { bonus }) : "";
 
-        if (restrictAPF) {
-            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
-        }
+        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
         await TrespasserCombat.recordHUDAction(this._token.actor, "interact");
 
         ChatMessage.create({
@@ -932,11 +949,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const bonus = (cost - 1) * 2;
         const focusText = focusCost > 0 ? game.i18n.format("TRESPASSER.HUD.SpentFocusMsg", { count: focusCost }) : "";
 
-        if (restrictAPF) {
-            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
-            if (focusCost > 0) {
-                await actor.update({ "system.combat.focus": Math.max(0, currentFocus - focusCost) });
-            }
+        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+        if (focusCost > 0) {
+            await actor.update({ "system.combat.focus": Math.max(0, currentFocus - focusCost) });
         }
         await TrespasserCombat.recordHUDAction(this._token.actor, "maneuver");
 
@@ -983,9 +998,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         const materialStr = game.i18n.localize(`TRESPASSER.HUD.SmashMaterial${materialIdx}`);
 
-        if (restrictAPF) {
-            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
-        }
+        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
         await TrespasserCombat.recordHUDAction(actor, "smash");
 
         ChatMessage.create({
@@ -1014,9 +1027,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             return;
         }
 
-        if (restrictAPF) {
-            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
-        }
+        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
         await TrespasserCombat.recordHUDAction(this._token.actor, "rummage");
 
         ChatMessage.create({
@@ -1053,9 +1064,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const agility = baseAgility + bonusAgility;
         const range = 5 + agility + (cost - 1) * 2;
 
-        if (restrictAPF) {
-            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
-        }
+        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
         await TrespasserCombat.recordHUDAction(actor, "throw");
 
         ChatMessage.create({
@@ -1086,24 +1095,14 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         const range = this._getVaultRange();
 
-        if (restrictAPF) {
-            await combatant.update({
-                "flags.trespasser.actionPoints": Math.max(0, currentAP - 1),
-                "flags.trespasser.moveActionTaken": true,
-                "flags.trespasser.movementAllowed": range,
-                "flags.trespasser.movementUsed": 0,
-                "flags.trespasser.isVaulting": true,
-                "flags.trespasser.vaultStartPos": { x: this._token.document.x, y: this._token.document.y }
-            });
-        } else {
-            await combatant.update({
-                "flags.trespasser.moveActionTaken": true,
-                "flags.trespasser.movementAllowed": range,
-                "flags.trespasser.movementUsed": 0,
-                "flags.trespasser.isVaulting": true,
-                "flags.trespasser.vaultStartPos": { x: this._token.document.x, y: this._token.document.y }
-            });
-        }
+        await combatant.update({
+            "flags.trespasser.actionPoints": Math.max(0, currentAP - 1),
+            "flags.trespasser.moveActionTaken": true,
+            "flags.trespasser.movementAllowed": range,
+            "flags.trespasser.movementUsed": 0,
+            "flags.trespasser.isVaulting": true,
+            "flags.trespasser.vaultStartPos": { x: this._token.document.x, y: this._token.document.y }
+        });
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
@@ -1155,6 +1154,23 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         });
 
         this._activePanel = null;
+        this.render();
+    }
+    async _modifyAP(ev) {
+        if (!game.user.isGM) return;
+        const btn = ev.target.closest("[data-delta]");
+        const delta = parseInt(btn.dataset.delta) || 0;
+        const combatant = this._getCombatant();
+        if (!combatant) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+        const newAP = Math.max(0, currentAP + delta);
+        await combatant.setFlag("trespasser", "actionPoints", newAP);
+        
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.APModified", { 
+            name: this._token.name, 
+            ap: newAP 
+        }));
         this.render();
     }
 }

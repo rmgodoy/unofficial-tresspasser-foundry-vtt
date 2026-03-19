@@ -31,13 +31,13 @@ export async function getCharacterData(sheet, options = {}) {
     context.totalAttributes[attr] = base + bonus;
   }
 
-  context.totalCombat = {};
-  const combatStats = ["initiative", "accuracy", "guard", "resist", "prevail", "tenacity", "focus", "speed", "armor", "max_health"];
-  for (const stat of combatStats) {
-    const base = context.system[stat] ?? context.system.combat[stat] ?? 0;
-    const bonus = TrespasserEffectsHelper.getAttributeBonus(actor, stat, "use");
-    context.totalCombat[stat] = base + bonus;
-  }
+  // Combat and Resource totals (already derived in the DataModel)
+  context.totalCombat = {
+    ...context.system.combat,
+    armor: context.system.armor,
+    max_health: context.system.max_health,
+    max_endurance: context.system.max_endurance
+  };
 
   // Fixed 3-slot craft array
   const crafts = context.system.crafts ?? [];
@@ -281,6 +281,36 @@ export async function getCharacterData(sheet, options = {}) {
 
   context.keyAttribute = context.system.key_attribute ?? "mighty";
 
+  // Transfer Target check
+  const targets = game.user.targets;
+  if (targets.size === 1) {
+    const targetToken = targets.first();
+    const targetActor = targetToken.actor;
+    if (targetActor) {
+      if (targetActor.type === "haven") {
+        context.transferTarget = {
+          id: targetActor.id,
+          name: targetActor.name,
+          type: "haven"
+        };
+      } else if (targetActor.type === "character" && targetActor.id !== actor.id) {
+        context.transferTarget = {
+          id: targetActor.id,
+          name: targetActor.name,
+          type: "character"
+        };
+      }
+    }
+  }
+
+  // Enrich Notes
+  context.enrichedNotes = await TextEditor.enrichHTML(actor.system.notes ?? "", {
+    async: true,
+    secrets: actor.isOwner,
+    relativeTo: actor,
+    rollData: actor.getRollData()
+  });
+
   return context;
 }
 
@@ -297,7 +327,7 @@ export function buildClockSegments(total, filled) {
   for (let i = 0; i < total; i++) {
     const a1 = startOffset + i * angleStep;
     const a2 = startOffset + (i + 1) * angleStep;
-    const gap = 0.06;
+    const gap = 0;
     const x4 = (cx + r * Math.cos(a1 + gap)).toFixed(2);
     const y4 = (cy + r * Math.sin(a1 + gap)).toFixed(2);
     const x3 = (cx + r * Math.cos(a2 - gap)).toFixed(2);

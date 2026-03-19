@@ -1,0 +1,134 @@
+<section class="{{cssClass}} trespasser-sheet item-sheet stronghold" autocomplete="off">
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
+    </div>
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemName'}}"/>
+      </h1>
+      <div class="item-subtitle">
+        {{localize "TYPES.Item.stronghold"}}
+      </div>
+    </div>
+  </header>
+
+  <section class="sheet-body scrollable" data-scrollable="true">
+    <div class="custom-attributes-area">
+      {{!-- Build Status --}}
+      <div class="attribute-fields">
+        <label>{{localize "TRESPASSER.Haven.BuildClock"}}</label>
+        <div class="form-fields">
+          <input type="number" name="system.progress" value="{{system.progress}}" data-dtype="Number" placeholder="Current" title="Current Progress" />
+          <span>/</span>
+          <input type="number" name="system.buildClock" value="{{system.buildClock}}" data-dtype="Number" placeholder="Total" title="Total Required" />
+        </div>
+      </div>
+
+      {{!-- Income & Owner --}}
+      <div class="attribute-fields">
+        <label>{{localize "TRESPASSER.Haven.WeeklyIncome"}}</label>
+        <input type="number" name="system.income" value="{{system.income}}" data-dtype="Number"/>
+      </div>
+      <div class="attribute-fields">
+        <label>{{localize "TRESPASSER.Haven.WeeklyStableCost"}}</label>
+        <input type="number" name="system.weeklyCost" value="{{system.weeklyCost}}" data-dtype="Number"/>
+      </div>
+
+      <div class="attribute-fields">
+        <label>{{localize "TRESPASSER.Haven.StrongholdOwner"}}</label>
+        <div class="owner-drop-zone {{#unless system.ownerId}}empty{{/unless}}">
+          {{#if system.ownerId}}
+            <span class="owner-name">{{ownerName}}</span>
+            {{#if editable}}
+              <a class="remove-owner" data-action="removeOwner"><i class="fas fa-times"></i></a>
+            {{/if}}
+          {{else}}
+            <span class="placeholder">{{localize "TRESPASSER.Haven.DropCharacterHere"}}</span>
+          {{/if}}
+        </div>
+      </div>
+
+      {{!-- Attribute Bonuses --}}
+      <div class="attribute-list-section">
+        <div class="section-header">
+            <label>{{localize "TRESPASSER.Haven.AttributeBonuses"}}</label>
+            {{#if editable}}
+              <a data-action="addBonus" title="{{localize 'TRESPASSER.Haven.AddBonus'}}"><i class="fas fa-plus"></i></a>
+            {{/if}}
+        </div>
+        <div class="bonus-entries">
+            {{#each preparedBonuses as |b|}}
+                <div class="bonus-row">
+                    <select name="system.bonuses.{{b.index}}.attribute">
+                        {{selectOptions ../attributes selected=b.attribute localize=true}}
+                    </select>
+                    <input type="number" name="system.bonuses.{{b.index}}.value" value="{{b.value}}" data-dtype="Number" />
+                    {{#if ../editable}}
+                      <a data-action="removeBonus" data-index="{{b.index}}"><i class="fas fa-times"></i></a>
+                    {{/if}}
+                </div>
+            {{/each}}
+        </div>
+      </div>
+
+      <div class="attribute-list-section">
+        <div class="section-header">
+            <label>{{localize "TRESPASSER.Haven.HavenActions"}}</label>
+            {{#if editable}}
+              <a data-action="addAction" title="{{localize 'TRESPASSER.Haven.AddAction'}}"><i class="fas fa-plus"></i></a>
+            {{/if}}
+        </div>
+        <div class="actions-list">
+            {{#each enrichedHavenActions as |action idx|}}
+                <div class="haven-action-edit-row">
+                    <div class="action-inputs">
+                      <input type="text" name="system.havenActions.{{idx}}.title" value="{{action.title}}" placeholder="{{localize 'TRESPASSER.General.Title'}}"/>
+                      <div class="haven-action-editor">
+                        <prose-mirror name="system.havenActions.{{idx}}.description" value="{{action.description}}" toggled="false" compact="false" editable="{{../editable}}">{{{action.enrichedDescription}}}</prose-mirror>
+                      </div>
+                    </div>
+                    {{#if ../editable}}
+                      <a class="remove-action-btn" data-action="removeAction" data-index="{{idx}}"><i class="fas fa-trash"></i></a>
+                    {{/if}}
+                </div>
+            {{/each}}
+        </div>
+      </div>
+
+      {{!-- Features --}}
+      <div class="attribute-list-section">
+        <div class="section-header">
+            <label>{{localize "TRESPASSER.Sheet.Tabs.Features"}}</label>
+        </div>
+        <div class="features-drop-zone">
+          {{#if (not system.features.length)}}
+            <p class="hint">{{localize "TRESPASSER.Haven.DropFeaturesHint"}}</p>
+          {{/if}}
+          <div class="feature-list">
+            {{#each system.features as |f idx|}}
+              <div class="feature-item" data-index="{{idx}}">
+                <img src="{{f.img}}" width="24" height="24"/>
+                <span class="name">{{f.name}}</span>
+                {{#if ../editable}}
+                  <a class="remove-feature" data-action="removeFeature" data-index="{{idx}}">
+                    <i class="fas fa-times"></i>
+                  </a>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    {{!-- Description Column --}}
+    <div class="attribute-fields description-column">
+      <label>{{localize "TRESPASSER.General.Description"}}</label>
+      <div class="trp-editor-container">
+        <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false" {{#if (not editable)}}readonly{{/if}}>{{{descriptionHTML}}}</prose-mirror>
+      </div>
+    </div>
+  </section>
+</section>

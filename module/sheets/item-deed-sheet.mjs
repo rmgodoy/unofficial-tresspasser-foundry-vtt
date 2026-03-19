@@ -1,168 +1,285 @@
 /**
- * Item Sheet for Deeds in the Trespasser TTRPG system.
+ * AppV2 Item Sheet for Deeds in the Trespasser TTRPG system.
+ *
+ * Three-tab layout:
+ *   - card:       auto-generated deed card preview
+ *   - details:    tier, type, target, accuracy, focus costs
+ *   - effects:    7 phase blocks with drop zones and effect chips
  */
-export class TrespasserDeedSheet extends foundry.appv1.sheets.ItemSheet {
+const { api, sheets } = foundry.applications;
 
-  /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["trespasser", "sheet", "item", "deed", "item-sheet"],
-      template: "systems/trespasser/templates/item/deed-sheet.hbs",
-      width: 520,
-      height: 600,
-      scrollY: [".sheet-body"],
-    });
+export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+
+  static DEFAULT_OPTIONS = {
+    classes: ["trespasser", "sheet", "item", "deed", "item-sheet"],
+    position: { width: 560, height: 640 },
+    actions: {
+      switchTab:    TrespasserDeedSheet.#onSwitchTab,
+      removeEffect: TrespasserDeedSheet.#onRemoveEffect,
+      editEffect:   TrespasserDeedSheet.#onEditEffect,
+    },
+    form: { submitOnChange: true },
+    window: { resizable: true }
+  };
+
+  static PARTS = {
+    header: {
+      template: "systems/trespasser/templates/item/deed/header.hbs"
+    },
+    tabs: {
+      template: "systems/trespasser/templates/item/deed/tabs.hbs"
+    },
+    card: {
+      template: "systems/trespasser/templates/item/deed/card.hbs"
+    },
+    details: {
+      template: "systems/trespasser/templates/item/deed/details.hbs"
+    },
+    effects: {
+      template: "systems/trespasser/templates/item/deed/effects.hbs",
+      scrollable: [".effects-body"]
+    }
+  };
+
+  static TABS = {
+    card:    { id: "card",    group: "primary", label: "TRESPASSER.Item.DeedTabs.Card",    icon: "id-card" },
+    details: { id: "details", group: "primary", label: "TRESPASSER.Item.DeedTabs.Details", icon: "list" },
+    effects: { id: "effects", group: "primary", label: "TRESPASSER.Item.DeedTabs.Effects", icon: "bolt" }
+  };
+
+  tabGroups = { primary: "card" };
+
+  /* -------------------------------------------- */
+  /* Tab Management                                */
+  /* -------------------------------------------- */
+
+  _prepareTabs(parts) {
+    const tabs = {};
+    for (const [id, config] of Object.entries(this.constructor.TABS)) {
+      tabs[id] = {
+        ...config,
+        active: this.tabGroups[config.group] === id,
+        cssClass: this.tabGroups[config.group] === id ? "active" : "",
+        label: game.i18n.localize(config.label)
+      };
+    }
+    return Object.values(tabs);
   }
 
-  /** @override */
-  async getData(options = {}) {
-    const context = await super.getData(options);
-    context.system = this.item.system;
-    
+  _getTabs() {
+    const tabs = {};
+    for (const [id, config] of Object.entries(this.constructor.TABS)) {
+      tabs[id] = {
+        ...config,
+        active: this.tabGroups[config.group] === id,
+        cssClass: this.tabGroups[config.group] === id ? "active" : "",
+        label: game.i18n.localize(config.label)
+      };
+    }
+    return tabs;
+  }
+
+  async _preparePartContext(partId, context) {
+    context.partId = `${this.id}-${partId}`;
+    context.tab = context.tabs[partId] ?? { active: partId === this.tabGroups.primary };
+    return context;
+  }
+
+  /* -------------------------------------------- */
+  /* Context                                       */
+  /* -------------------------------------------- */
+
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const item = this.document;
+    context.item = item;
+    context.system = item.system;
+    context.editable = this.isEditable;
+    context.tabs = this._getTabs();
+
     context.config = {
       tiers: {
-        "light": "Light",
-        "heavy": "Heavy",
-        "mighty": "Mighty",
-        "special": "Special"
+        light:   game.i18n.localize("TRESPASSER.Item.DeedTierChoices.Light"),
+        heavy:   game.i18n.localize("TRESPASSER.Item.DeedTierChoices.Heavy"),
+        mighty:  game.i18n.localize("TRESPASSER.Item.DeedTierChoices.Mighty"),
+        special: game.i18n.localize("TRESPASSER.Item.DeedTierChoices.Special")
       },
       actionTypes: {
-        "attack": "Attack",
-        "support": "Support"
+        attack:  game.i18n.localize("TRESPASSER.Item.DeedActionTypeChoices.Attack"),
+        support: game.i18n.localize("TRESPASSER.Item.DeedActionTypeChoices.Support")
       },
       types: {
-         "innate": "Innate",
-         "melee": "Melee",
-         "missile": "Missile",
-         "spell": "Spell",
-         "tool": "Tool",
-         "unarmed": "Unarmed",
-         "versatile": "Versatile"
+        innate:    game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Innate"),
+        melee:     game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Melee"),
+        missile:   game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Missile"),
+        spell:     game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Spell"),
+        tool:      game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Tool"),
+        unarmed:   game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Unarmed"),
+        versatile: game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Versatile")
       },
-      targets: {
-        "1 Creature": "1 Creature",
-        "Personal": "Personal",
-        "Area": "Area"
+      targetTypes: {
+        creature:    game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Creature"),
+        personal:    game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Personal"),
+        blast:       game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Blast"),
+        close_blast: game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.CloseBlast"),
+        burst:       game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Burst"),
+        melee_burst: game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.MeleeBurst"),
+        path:        game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Path"),
+        close_path:  game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.ClosePath"),
+        aura:        game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Aura")
       }
     };
+
+    // Flags for conditional target fields in the template
+    const tt = item.system.targetType;
+    context.showTargetCount = (tt === "creature");
+    context.showTargetSize  = ["blast", "close_blast", "burst", "path", "close_path", "aura"].includes(tt);
+
+    // Build per-phase context for the effects template
+    const phases = ["start", "before", "base", "hit", "spark", "after", "end"];
+    context.phases = phases.map(key => ({
+      key,
+      label: game.i18n.localize(`TRESPASSER.Item.${key.charAt(0).toUpperCase() + key.slice(1)}`),
+      data: item.system.effects?.[key] ?? {},
+      effects: (item.system.effects?.[key]?.appliedEffects ?? []).map((e, i) => ({
+        ...e, index: i
+      }))
+    }));
+
+    // Build card preview data — only phases that have content
+    context.cardPhases = context.phases.filter(p =>
+      p.data.description || (p.effects && p.effects.length > 0)
+    );
+
+    // Compute display cost for card
+    const tier = item.system.tier;
+    let baseCost = item.system.focusCost;
+    if (baseCost === null || baseCost === undefined) {
+      if (tier === "heavy") baseCost = 2;
+      else if (tier === "mighty") baseCost = 4;
+      else baseCost = 0;
+    }
+    const bonusCost = item.system.bonusCost || 0;
+    context.displayCost = baseCost + bonusCost;
+    context.showCost = context.displayCost > 0;
 
     return context;
   }
 
-  /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
+  /* -------------------------------------------- */
+  /* Lifecycle                                     */
+  /* -------------------------------------------- */
 
+  _onRender(context, options) {
+    super._onRender(context, options);
     if (!this.isEditable) return;
 
-    // Make effects drop zones droppable
-    html.find(".applied-effects-list").on("drop", this._onDropEffect.bind(this));
-    
-    // Prevent default dragover to allow dropping
-    html.find(".applied-effects-list").on("dragover", ev => ev.preventDefault());
-
-    // Delete effect chip
-    html.find(".effect-delete").on("click", this._onRemoveEffect.bind(this));
-
-    // Intensity change
-    html.find('.effect-intensity-input').change(this._onIntensityChange.bind(this));
-
-    // Edit button
-    html.find('.effect-edit').click(this._onEffectEdit.bind(this));
+    // Register native drag-drop on effect drop zones
+    const dropZones = this.element.querySelectorAll(".applied-effects-list");
+    for (const zone of dropZones) {
+      zone.addEventListener("dragover", (ev) => ev.preventDefault());
+      zone.addEventListener("drop", this.#onDropEffect.bind(this));
+    }
   }
 
-  async _onDropEffect(event) {
+  /* -------------------------------------------- */
+  /* Drop Handler (native events, not actions)     */
+  /* -------------------------------------------- */
+
+  async #onDropEffect(event) {
     event.preventDefault();
     const phase = event.currentTarget.dataset.phase;
     if (!phase) return;
 
     let data;
     try {
-      data = JSON.parse(event.originalEvent.dataTransfer.getData("text/plain"));
-    } catch (err) {
+      data = JSON.parse(event.dataTransfer.getData("text/plain"));
+    } catch {
       return;
     }
 
     if (data.type !== "Item") return;
 
-    const item = await fromUuid(data.uuid);
-    if (!item) return;
-    
-    // Only allow Effect or State items
-    if (item.type !== "effect" && item.type !== "state") {
+    const droppedItem = await fromUuid(data.uuid);
+    if (!droppedItem) return;
+
+    // Only allow Effect items
+    if (droppedItem.type !== "effect" && droppedItem.type !== "state") {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropDeedsOnlyEffects"));
       return;
     }
 
-    const currentEffects = foundry.utils.deepClone(this.item.system.effects[phase].appliedEffects) || [];
-    
+    const currentEffects = foundry.utils.deepClone(
+      this.document.system.effects[phase].appliedEffects
+    ) || [];
+
     currentEffects.push({
-      uuid: item.uuid,
-      type: item.type,
-      name: item.name,
-      img: item.img,
-      intensity: item.system.intensity || 0
+      uuid: droppedItem.uuid,
+      type: droppedItem.type,
+      name: droppedItem.name,
+      img: droppedItem.img,
+      intensity: droppedItem.system.intensity || 0
     });
 
-    await this.item.update({
+    await this.document.update({
       [`system.effects.${phase}.appliedEffects`]: currentEffects
     });
   }
 
-  async _onRemoveEffect(event) {
+  /* -------------------------------------------- */
+  /* Action Handlers                               */
+  /* -------------------------------------------- */
+
+  static #onSwitchTab(event, target) {
     event.preventDefault();
-    const el = event.currentTarget.closest(".effect-chip");
-    const phaseEl = event.currentTarget.closest(".applied-effects-list");
-    if (!el || !phaseEl) return;
-    
-    const index = parseInt(el.dataset.index);
-    const phase = phaseEl.dataset.phase;
-    
-    if (isNaN(index) || !phase) return;
-
-    const currentEffects = foundry.utils.deepClone(this.item.system.effects[phase].appliedEffects) || [];
-    currentEffects.splice(index, 1);
-
-    await this.item.update({
-      [`system.effects.${phase}.appliedEffects`]: currentEffects
-    });
-  }
-
-  async _onIntensityChange(event) {
-    event.preventDefault();
-    const input = event.currentTarget;
-    const el = input.closest('.effect-chip');
-    const phaseEl = input.closest('.applied-effects-list');
-    if (!el || !phaseEl) return;
-
-    const index = Number(el.dataset.index);
-    const phase = phaseEl.dataset.phase;
-    const value = parseInt(input.value) || 0;
-
-    const currentEffects = foundry.utils.deepClone(this.item.system.effects[phase].appliedEffects) || [];
-    if (currentEffects[index]) {
-      currentEffects[index].intensity = value;
-      await this.item.update({
-        [`system.effects.${phase}.appliedEffects`]: currentEffects
-      });
+    const tab = target.dataset.tab;
+    if (tab && this.constructor.TABS[tab]) {
+      this.tabGroups.primary = tab;
+      this.render();
     }
   }
 
-  async _onEffectEdit(event) {
-    event.preventDefault();
-    const el = event.currentTarget.closest('.effect-chip');
-    const phaseEl = event.currentTarget.closest('.applied-effects-list');
-    if (!el || !phaseEl) return;
+  /**
+   * Remove an effect from a phase's appliedEffects array.
+   */
+  static async #onRemoveEffect(event, target) {
+    const chip = target.closest(".effect-chip");
+    const list = target.closest(".applied-effects-list");
+    if (!chip || !list) return;
 
-    const index = Number(el.dataset.index);
-    const phase = phaseEl.dataset.phase;
+    const index = parseInt(chip.dataset.index);
+    const phase = list.dataset.phase;
     if (isNaN(index) || !phase) return;
 
-    const currentEffects = foundry.utils.deepClone(this.item.system.effects[phase].appliedEffects) || [];
+    const currentEffects = foundry.utils.deepClone(
+      this.document.system.effects[phase].appliedEffects
+    ) || [];
+    currentEffects.splice(index, 1);
+
+    await this.document.update({
+      [`system.effects.${phase}.appliedEffects`]: currentEffects
+    });
+  }
+
+  /**
+   * Open a temporary effect item sheet for editing an embedded effect reference.
+   */
+  static async #onEditEffect(event, target) {
+    const chip = target.closest(".effect-chip");
+    const list = target.closest(".applied-effects-list");
+    if (!chip || !list) return;
+
+    const index = Number(chip.dataset.index);
+    const phase = list.dataset.phase;
+    if (isNaN(index) || !phase) return;
+
+    const currentEffects = foundry.utils.deepClone(
+      this.document.system.effects[phase].appliedEffects
+    ) || [];
     const effectData = currentEffects[index];
     if (!effectData) return;
 
-    // Rename/Remove conflicting fields before passing to Item.implementation
+    // Build a temporary Item for the effect sheet to operate on
     const docType = effectData.type || "effect";
     const clonedData = foundry.utils.deepClone(effectData);
     delete clonedData.type;
@@ -175,12 +292,16 @@ export class TrespasserDeedSheet extends foundry.appv1.sheets.ItemSheet {
       type: docType,
       img: effectData.img,
       system: clonedData
-    }, { parent: this.item.parent });
+    }, { parent: this.document.parent });
 
+    // Override update to write back into the deed's effect array
+    const sheet = this;
     tempItem.update = async (updateData) => {
-      const arr = foundry.utils.deepClone(this.item.system.effects[phase].appliedEffects) || [];
+      const arr = foundry.utils.deepClone(
+        sheet.document.system.effects[phase].appliedEffects
+      ) || [];
       arr[index] = foundry.utils.mergeObject(arr[index], updateData.system || updateData);
-      await this.item.update({
+      await sheet.document.update({
         [`system.effects.${phase}.appliedEffects`]: arr
       });
       return tempItem;

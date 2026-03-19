@@ -1,0 +1,143 @@
+
+.roll-dialog {
+    --dialog-bg: var(--trp-bg-dark);
+    --dialog-border: var(--trp-border);
+    --dialog-gold: var(--trp-gold);
+    --dialog-text: var(--trp-text);
+}
+
+.roll-dialog .window-content {
+    background: var(--dialog-bg);
+    padding: 0;
+}
+
+.roll-dialog-content {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    font-family: var(--trp-font-body);
+}
+
+.roll-dialog-content .dice-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 12px;
+    background: var(--trp-bg-panel);
+    border: 1px solid var(--dialog-border);
+    border-radius: 4px;
+}
+
+.roll-dialog-content .dice-preview i {
+    font-size: var(--fs-24);
+    color: var(--dialog-gold);
+}
+
+.roll-dialog-content .dice-preview .formula {
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-18);
+    color: var(--trp-text-bright);
+    letter-spacing: 0.05em;
+}
+
+.roll-dialog-content label {
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-10);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--dialog-gold);
+    display: block;
+    margin-bottom: 6px;
+}
+
+.roll-dialog-content .bonuses-list {
+    background: var(--trp-bg-panel);
+    border: 1px solid var(--trp-border-light);
+    border-radius: 4px;
+    padding: 4px 8px;
+}
+
+.roll-dialog-content .bonus-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: var(--fs-13);
+    color: var(--trp-text);
+    border-bottom: 1px solid var(--trp-border-light);
+}
+
+.roll-dialog-content .bonus-row:last-child {
+    border-bottom: none;
+}
+
+.roll-dialog-content .bonus-row .bonus-value {
+    color: var(--dialog-gold);
+    font-weight: bold;
+}
+
+.roll-dialog-content .modifier-row {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.roll-dialog-content .modifier-input {
+    flex: 1;
+}
+
+.roll-dialog-content .modifier-input input {
+    background: var(--trp-bg-input);
+    border: 1px solid var(--dialog-border);
+    color: var(--trp-text-bright);
+    font-size: var(--fs-16);
+    font-weight: bold;
+    text-align: center;
+    padding: 6px;
+    border-radius: 4px;
+    width: 100%;
+}
+
+.roll-dialog-content .dialog-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 8px;
+}
+
+.roll-dialog-content .trp-btn {
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-11);
+    padding: 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+}
+
+.roll-dialog-content .trp-btn.roll {
+    background: var(--dialog-gold);
+    color: var(--trp-bg-dark);
+    border: 1px solid transparent;
+}
+
+.roll-dialog-content .trp-btn.roll:hover {
+    background: var(--trp-gold-bright);
+    box-shadow: 0 0 10px var(--trp-shadow-gold);
+}
+
+.roll-dialog-content .trp-btn.cancel {
+    background: transparent;
+    color: var(--trp-text-dim);
+    border: 1px solid var(--dialog-border);
+}
+
+.roll-dialog-content .trp-btn.cancel:hover {
+    color: var(--trp-text);
+    border-color: var(--dialog-gold);
+}

@@ -19,7 +19,7 @@ export async function askAPDialog(availableAP) {
           }).join("")}
         </select>
       </div>
-      <p id="ap-bonus-preview" style="margin-top: 5px; font-style: italic; font-size: 0.9em; color: var(--trp-gold-bright);">
+      <p id="ap-bonus-preview" style="margin-top: 5px; font-style: italic; font-size: var(--fs-13); color: var(--trp-gold-bright);">
         ${game.i18n.format("TRESPASSER.Dialog.SpendAP.Bonus", { bonus: 0 })}
       </p>
     </div>
