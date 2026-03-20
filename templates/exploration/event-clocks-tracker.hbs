@@ -1,0 +1,59 @@
+<div class="dungeon-tracker-content event-clocks-content">
+    <header class="tracker-header">
+        <div class="tracker-header-info">
+            <h2 class="tracker-dungeon-name">{{localize "EventClocks.TrackerTitle"}}</h2>
+        </div>
+    </header>
+
+    <div class="tracker-idle">
+        <div class="tracker-dungeon-picker">
+            <div class="tracker-dungeon-list">
+                {{#if hasClocks}}
+                    {{#each clocks as |clock|}}
+                    <div class="tracker-dungeon-option clock-list-item {{#if clock.gmOnly}}gm-only{{/if}}" data-clock-id="{{clock.id}}">
+                        <div class="tracker-dungeon-thumb clock-list-widget {{#if @root.isGM}}actionable{{/if}}" 
+                             style="width: var(--trp-clock-size); height: var(--trp-clock-size);">
+                            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="50" cy="50" r="44" fill="var(--trp-bg-panel)" stroke="var(--trp-border-light)" stroke-width="2"/>
+                                {{#each clock.clockSegments as |seg i|}}
+                                <path class="clock-segment {{#if seg.filled}}filled{{/if}}" 
+                                      d="{{seg.path}}" 
+                                      {{#if @root.isGM}}data-action="toggleClock" data-clock-id="{{clock.id}}" data-index="{{i}}"{{/if}} />
+                                {{/each}}
+                            </svg>
+                        </div>
+
+                        <span class="tracker-dungeon-option-name clock-list-name" title="{{#if @root.isGM}}{{clock.name}}{{else}}{{clock.displayName}}{{/if}}">
+                            {{#if clock.gmOnly}}<i class="fas fa-eye-slash"></i> {{/if}}
+                            {{clock.displayName}}
+                        </span>
+
+                        {{#if @root.isGM}}
+                        <div class="clock-list-actions">
+                            <a data-action="editClock" data-clock-id="{{clock.id}}" data-tooltip="{{localize 'TRESPASSER.General.Edit'}}">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a data-action="deleteClock" data-clock-id="{{clock.id}}" data-tooltip="{{localize 'TRESPASSER.General.Delete'}}">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                        {{/if}}
+                    </div>
+                    {{/each}}
+                {{else}}
+                    <div class="tracker-no-dungeon">
+                        <p>{{localize "EventClocks.NoClocks"}}</p>
+                    </div>
+                {{/if}}
+            </div>
+        </div>
+
+        {{#if isGM}}
+        <div class="tracker-session-controls">
+            <button type="button" class="tracker-start-btn" data-action="addClock">
+                <i class="fas fa-plus"></i> {{localize 'EventClocks.AddClock'}}
+            </button>
+        </div>
+        {{/if}}
+    </div>
+</div>

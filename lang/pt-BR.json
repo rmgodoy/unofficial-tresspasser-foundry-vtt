@@ -1481,6 +1481,42 @@
       "hireling": "Servo",
       "build": "Construção",
       "stronghold": "Fortaleza"
+    },
+    "EventClocks": {
+      "TrackerTitle": "Relógios de Evento",
+      "Button": "Relógios de Evento",
+      "AddClock": "Adicionar Relógio",
+      "NoClocks": "Nenhum relógio de evento ainda.",
+      "EditTitle": "Editar Relógio",
+      "Name": "Nome do Relógio",
+      "PlayerName": "Nome para Jogadores",
+      "PlayerNameHint": "Se diferente do nome real, este nome é mostrado aos jogadores.",
+      "Description": "Descrição",
+      "Target": "Alvo (segmentos máx)",
+      "Current": "Atual (segmentos preenchidos)",
+      "GmOnly": "Apenas Mestre",
+      "GmOnlyHint": "Se marcado, os jogadores não verão este relógio.",
+      "DeleteConfirmTitle": "Excluir Relógio?",
+      "DeleteConfirmContent": "Tem certeza que deseja excluir este relógio? Isso não pode ser desfeito.",
+      "ClockHint": "Clique em um segmento para avançar / retroceder o relógio."
     }
+  },
+  "EventClocks": {
+    "TrackerTitle": "Relógios de Evento",
+    "Button": "Relógios de Evento",
+    "AddClock": "Adicionar Relógio",
+    "NoClocks": "Nenhum relógio de evento ainda.",
+    "EditTitle": "Editar Relógio",
+    "Name": "Nome do Relógio",
+    "PlayerName": "Nome para Jogadores",
+    "PlayerNameHint": "Se diferente do nome real, este nome é mostrado aos jogadores.",
+    "Description": "Descrição",
+    "Target": "Alvo (segmentos máx)",
+    "Current": "Atual (segmentos preenchidos)",
+    "GmOnly": "Apenas Mestre",
+    "GmOnlyHint": "Se marcado, os jogadores não verão este relógio.",
+    "DeleteConfirmTitle": "Excluir Relógio?",
+    "DeleteConfirmContent": "Tem certeza que deseja excluir este relógio? Isso não pode ser desfeito.",
+    "ClockHint": "Clique em um segmento para avançar / retroceder o relógio."
   }
 }

@@ -1,0 +1,48 @@
+<div class="{{cssClass}} trespasser-sheet event-clock-sheet">
+  <input type="hidden" name="id" value="{{clock.id}}"/>
+  <!-- ─── HEADER ─── -->
+  <header class="sheet-header item-header-layout" style="margin-bottom: 12px;">
+    <div class="header-column image-column">
+      <img class="profile-img" src="systems/trespasser/assets/icons/clockwork.webp" title="{{clock.name}}"/>
+    </div>
+    <div class="header-column details-column">
+      <h1 class="item-title">
+        <input name="name" type="text" value="{{clock.name}}" placeholder="{{localize 'EventClocks.Name'}}"/>
+      </h1>
+    </div>
+  </header>
+
+  <!-- ─── BODY ─── -->
+  <section class="sheet-body scrollable">
+    <div class="attribute-fields event-clock-fields">
+        <div class="field-row checkbox-item">
+          <input type="checkbox" name="gmOnly" id="clock-gm-only" {{checked clock.gmOnly}} />
+          <label for="clock-gm-only">{{localize "EventClocks.GmOnly"}}</label>
+        </div>
+
+        <div class="field-row">
+            <label>{{localize "EventClocks.PlayerName"}}</label>
+            <input type="text" name="playerName" value="{{clock.playerName}}" placeholder="{{localize 'EventClocks.Name'}}"/>
+            <p class="hint">{{localize "EventClocks.PlayerNameHint"}}</p>
+        </div>
+        
+        <div class="field-row">
+          <label>{{localize "EventClocks.Target"}}</label>
+          <input type="number" name="target" value="{{clock.target}}" min="2" max="24" />
+        </div>
+
+        <div class="field-row">
+          <label>{{localize "EventClocks.Current"}}</label>
+          <input type="number" name="current" value="{{clock.current}}" min="0" max="{{clock.target}}" />
+        </div>
+
+        <div class="field-row description-column">
+          <label>{{localize "EventClocks.Description"}}</label>
+          <div class="trp-editor-container">
+            <prose-mirror name="description" value="{{clock.description}}" toggled="false" compact="false">{{{descriptionHTML}}}</prose-mirror>
+          </div>
+        </div>
+
+    </div>
+  </section>
+</div>

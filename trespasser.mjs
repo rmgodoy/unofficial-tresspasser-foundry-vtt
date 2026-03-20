@@ -64,6 +64,7 @@ import { TrespasserBuildSheet } from "./module/sheets/item-build-sheet.mjs";
 import { TrespasserStrongholdData } from "./module/data/item-stronghold.mjs";
 import { TrespasserStrongholdSheet } from "./module/sheets/item-stronghold-sheet.mjs";
 import { registerHavenTrackerHooks } from "./module/exploration/haven-tracker.mjs";
+import { EventClocksTracker, registerEventClocksHooks } from "./module/exploration/event-clocks-tracker.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -241,6 +242,14 @@ Hooks.once("init", async () => {
       default: color.default
     });
   }
+
+  game.settings.register("trespasser", "eventClocks", {
+    name: "TRESPASSER.EventClocks.TrackerTitle",
+    scope: "world",
+    config: false,
+    type: String,
+    default: "[]"
+  });
 
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
@@ -439,7 +448,11 @@ Hooks.once("init", async () => {
   registerDungeonTrackerHooks();
 
   // Haven tracker scene control button
-  registerHavenTrackerHooks();
+  // registerHavenTrackerHooks();
+  // TODO: implement Haven tracker scene control button
+
+  // Event clocks tracker scene control button
+  registerEventClocksHooks();
 
   console.log("Trespasser | System ready");
 
@@ -447,6 +460,7 @@ Hooks.once("init", async () => {
   game.trespasser = game.trespasser || {};
   game.trespasser.ItemExporter = ItemExporter;
   game.trespasser.Config = TrespasserConfigV2;
+  game.trespasser.EventClocks = EventClocksTracker;
 });
 
 /**

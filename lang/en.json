@@ -1481,6 +1481,42 @@
       "hireling": "Hireling",
       "build": "Building",
       "stronghold": "Stronghold"
+    },
+    "EventClocks": {
+      "TrackerTitle": "Event Clocks",
+      "Button": "Event Clocks",
+      "AddClock": "Add Clock",
+      "NoClocks": "No event clocks yet.",
+      "EditTitle": "Edit Clock",
+      "Name": "Clock Name",
+      "PlayerName": "Player-facing Name",
+      "PlayerNameHint": "If different from the real name, this is shown to players.",
+      "Description": "Description",
+      "Target": "Target (max segments)",
+      "Current": "Current (filled segments)",
+      "GmOnly": "GM Only",
+      "GmOnlyHint": "If checked, players cannot see this clock.",
+      "DeleteConfirmTitle": "Delete Clock?",
+      "DeleteConfirmContent": "Are you sure you want to delete this clock? This cannot be undone.",
+      "ClockHint": "Click a segment to advance / retreat the clock."
     }
+  },
+  "EventClocks": {
+    "TrackerTitle": "Event Clocks",
+    "Button": "Event Clocks",
+    "AddClock": "Add Clock",
+    "NoClocks": "No event clocks yet.",
+    "EditTitle": "Edit Clock",
+    "Name": "Clock Name",
+    "PlayerName": "Player-facing Name",
+    "PlayerNameHint": "If different from the real name, this is shown to players.",
+    "Description": "Description",
+    "Target": "Target (max segments)",
+    "Current": "Current (filled segments)",
+    "GmOnly": "GM Only",
+    "GmOnlyHint": "If checked, players cannot see this clock.",
+    "DeleteConfirmTitle": "Delete Clock?",
+    "DeleteConfirmContent": "Are you sure you want to delete this clock? This cannot be undone.",
+    "ClockHint": "Click a segment to advance / retreat the clock."
   }
 }
