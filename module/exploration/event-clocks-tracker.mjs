@@ -11,7 +11,7 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
   static DEFAULT_OPTIONS = {
     id: "event-clocks-tracker",
     classes: ["trespasser", "event-clocks-tracker"],
-    position: { width: 350, height: "auto", top: 120, left: 150 },
+    position: { width: 350, height: 400, top: 120, left: 150 },
     window: {
       title: "EventClocks.TrackerTitle",
       resizable: true,
@@ -27,7 +27,8 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
 
   static PARTS = {
     tracker: {
-      template: "systems/trespasser/templates/exploration/event-clocks-tracker.hbs"
+      template: "systems/trespasser/templates/exploration/event-clocks-tracker.hbs",
+      scrollable: [".event-clocks-content"]
     }
   };
 
@@ -203,6 +204,23 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
   /* -------------------------------------------- */
   /* Lifecycle                                    */
   /* -------------------------------------------- */
+
+  async render(options, _options) {
+      // Capture the current scroll position before the render logic destroys the content
+      const scrollEl = this.element ? this.element.querySelector(".event-clocks-content") : null;
+      const scrollTop = scrollEl ? scrollEl.scrollTop : 0;
+      
+      // Perform the actual render
+      await super.render(options, _options);
+      
+      // Restore the scroll position on the newly rendered content
+      const newEl = this.element ? this.element.querySelector(".event-clocks-content") : null;
+      if (newEl) {
+          newEl.scrollTop = Math.min(scrollTop, newEl.scrollHeight - newEl.clientHeight);
+      }
+      
+      return this;
+  }
 
   _onRender(context, options) {
     super._onRender(context, options);
