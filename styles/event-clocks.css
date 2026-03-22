@@ -14,7 +14,7 @@
   display: flex;
   flex-direction: column;
   padding: 8px;
-  overflow-y: scroll;
+  overflow-y: auto;
 }
 
 .event-clocks-content .tracker-dungeon-list {
@@ -212,4 +212,11 @@ button[data-tool="eventClocks"]:hover {
   display: flex;
   flex-direction: column;
   gap: 3px;
+}
+
+.event-clocks-session-controls {
+    position: sticky;
+    bottom: -10px;
+    background: var(--trp-bg-dark);
+    padding: 10px;
 }

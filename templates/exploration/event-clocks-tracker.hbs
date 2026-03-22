@@ -48,12 +48,12 @@
             </div>
         </div>
 
-        {{#if isGM}}
-        <div class="tracker-session-controls">
-            <button type="button" class="tracker-start-btn" data-action="addClock">
-                <i class="fas fa-plus"></i> {{localize 'EventClocks.AddClock'}}
-            </button>
-        </div>
-        {{/if}}
     </div>
+    {{#if isGM}}
+    <div class="tracker-session-controls event-clocks-session-controls">
+        <button type="button" class="tracker-start-btn" data-action="addClock">
+            <i class="fas fa-plus"></i> {{localize 'EventClocks.AddClock'}}
+        </button>
+    </div>
+    {{/if}}
 </div>
