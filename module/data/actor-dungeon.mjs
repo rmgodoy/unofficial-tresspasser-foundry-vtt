@@ -27,6 +27,14 @@ export class TrespasserDungeonData extends foundry.abstract.TypeDataModel {
       actionsRemaining: new fields.NumberField({
         required: true, initial: 3, min: 0, integer: true
       }),
+      // Per-dungeon exploration session state. The Dungeon Tracker UI
+      // adopts whichever dungeon is "active" on launch (or the most-recent
+      // "paused" if none are active), letting the GM pause one delve and
+      // pick up another without losing logs.
+      sessionState: new fields.StringField({
+        initial: "idle",
+        choices: ["idle", "active", "paused"]
+      }),
       currentRoomId: new fields.StringField({ initial: "" }),
       roundLog: new fields.ArrayField(new fields.SchemaField({
         round: new fields.NumberField({ integer: true }),

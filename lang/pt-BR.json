@@ -1167,12 +1167,18 @@
         "Ended": "A exploração de {name} foi encerrada.",
         "Summary": "Resumo: {rounds} rodadas, {actions} ações.",
         "EndTitle": "Encerrar Exploração",
-        "EndConfirm": "Tem certeza que deseja encerrar esta sessão de exploração?",
+        "EndConfirm": "Tem certeza que deseja encerrar esta sessão? O registro da rodada será preservado na masmorra.",
         "EndYes": "Encerrar Sessão",
         "Pause": "Pausar Sessão",
         "Resume": "Retomar Sessão",
         "BeginExploration": "Iniciar Exploração",
-        "EndExploration": "Finalizar Exploração"
+        "BeginWipeWarn": "Apaga o registro de rodadas e reinicia alarme/rodada/ações para um novo mergulho.",
+        "EndExploration": "Finalizar Exploração",
+        "SwitchTip": "Trocar para outra masmorra sem encerrar esta sessão.",
+        "State": {
+          "active": "Ativa",
+          "paused": "Pausada"
+        }
       },
       "Room": {
         "Name": "Nome da Sala",
@@ -1281,7 +1287,30 @@
       "OpenDungeonSheet": "Abrir Ficha da Masmorra",
       "ExplorationPaused": "Exploração Pausada",
       "RecentActivity": "Atividade Recente",
-      "DropRoomsOnly": "Apenas itens do tipo Sala podem ser soltos aqui."
+      "DropRoomsOnly": "Apenas itens do tipo Sala podem ser soltos aqui.",
+      "ActionShort": "Ação",
+      "Reset": {
+        "Title": "Redefinir Masmorra",
+        "Button": "Redefinir Masmorra",
+        "Tip": "Apaga o registro de rodadas, alarme e contador. Devolve a masmorra ao estado de nunca visitada.",
+        "Confirm": "Isso apagará o registro de rodadas e redefinirá alarme, rodada, ações e sala atual de <strong>{name}</strong>. A masmorra voltará ao estado de nunca visitada. Esta ação não pode ser desfeita.",
+        "Yes": "Redefinir Masmorra"
+      },
+      "Nudge": {
+        "GMAdjust": "Ajuste do Mestre",
+        "AlarmDownTip": "Diminuir o alarme em 1 (ex.: centelha Silencioso).",
+        "AlarmUpTip": "Aumentar o alarme em 1 (ex.: sombra Barulhento, ação ruidosa).",
+        "ActionDownTip": "Consumir uma ação extra (ex.: sombra Lento).",
+        "ActionUpTip": "Conceder uma ação extra.",
+        "Refund": "Reembolsar",
+        "RefundTip": "Restaura uma ação e remove a última entrada do registro desta rodada (ex.: centelha Rápido).",
+        "AlarmCheck": "Rolar Verificação de Alarme",
+        "AlarmCheckTip": "Rola imediatamente um d10 sem aumentar o alarme (ações simultâneas, barulhos, decisões do Mestre).",
+        "AlarmLog": "Alarme definido como {value}",
+        "ActionsLog": "Ações restantes definidas como {value}",
+        "ActionRefunded": "Reembolsada: {action}",
+        "ActionRefundedNone": "Ação reembolsada"
+      }
     },
     "Character": "Personagem",
     "Creature": "Criatura",
