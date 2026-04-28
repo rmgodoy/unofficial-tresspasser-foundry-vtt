@@ -1167,12 +1167,18 @@
         "Ended": "Exploration of {name} has ended.",
         "Summary": "{rounds} rounds, {actions} actions taken.",
         "EndTitle": "End Exploration",
-        "EndConfirm": "Are you sure you want to end this exploration session?",
+        "EndConfirm": "Are you sure you want to end this exploration session? The round log will be preserved on the dungeon.",
         "EndYes": "End Session",
         "Pause": "Pause Session",
         "Resume": "Resume Session",
         "BeginExploration": "Begin Exploration",
-        "EndExploration": "End Exploration"
+        "BeginWipeWarn": "Wipes the round log and resets alarm/round/actions for a fresh delve.",
+        "EndExploration": "End Exploration",
+        "SwitchTip": "Switch to another dungeon without ending this session.",
+        "State": {
+          "active": "Active",
+          "paused": "Paused"
+        }
       },
       "Room": {
         "Name": "Room Name",
@@ -1281,7 +1287,30 @@
       "OpenDungeonSheet": "Open Dungeon Sheet",
       "ExplorationPaused": "Exploration Paused",
       "RecentActivity": "Recent Activity",
-      "DropRoomsOnly": "Only Room items can be dropped here."
+      "DropRoomsOnly": "Only Room items can be dropped here.",
+      "ActionShort": "Action",
+      "Reset": {
+        "Title": "Reset Dungeon",
+        "Button": "Reset Dungeon",
+        "Tip": "Wipe the round log, alarm, and round counter. Resets the dungeon to a never-visited state.",
+        "Confirm": "This will erase the round log and reset alarm, round, actions, and current room for <strong>{name}</strong>. The dungeon will be returned to a never-visited state. This cannot be undone.",
+        "Yes": "Reset Dungeon"
+      },
+      "Nudge": {
+        "GMAdjust": "GM Adjustment",
+        "AlarmDownTip": "Decrease alarm by 1 (e.g. Quiet spark).",
+        "AlarmUpTip": "Increase alarm by 1 (e.g. Loud shadow, noisy action).",
+        "ActionDownTip": "Spend one extra action (e.g. Slow shadow).",
+        "ActionUpTip": "Grant one extra action.",
+        "Refund": "Refund",
+        "RefundTip": "Restore one action and remove the last log entry from this round (e.g. Quick spark).",
+        "AlarmCheck": "Roll Alarm Check",
+        "AlarmCheckTip": "Immediately roll a d10 alarm check without bumping alarm (simultaneous actions, loud noises, ad-hoc GM calls).",
+        "AlarmLog": "Alarm set to {value}",
+        "ActionsLog": "Actions remaining set to {value}",
+        "ActionRefunded": "Refunded: {action}",
+        "ActionRefundedNone": "Action refunded"
+      }
     },
     "Character": "Character",
     "Creature": "Creature",

@@ -4,8 +4,8 @@
     <div class="dungeon-log-header">
       <h2>{{localize "TRESPASSER.Dungeon.RoundLog"}}</h2>
       {{#if editable}}
-      <a class="dungeon-btn" data-action="clearLog">
-        <i class="fas fa-eraser"></i> {{localize "TRESPASSER.General.Clear"}}
+      <a class="dungeon-btn" data-action="resetDungeon" data-tooltip="{{localize 'TRESPASSER.Dungeon.Reset.Tip'}}">
+        <i class="fas fa-trash"></i> {{localize "TRESPASSER.Dungeon.Reset.Button"}}
       </a>
       {{/if}}
     </div>
