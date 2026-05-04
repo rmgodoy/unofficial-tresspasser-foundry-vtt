@@ -16,6 +16,7 @@
           <a class="tracker-dungeon-option {{#if selected}}selected{{/if}}" data-action="chooseDungeon" data-dungeon-id="{{_id}}">
             <img class="tracker-dungeon-thumb" src="{{img}}" alt="" />
             <span class="tracker-dungeon-option-name">{{name}}</span>
+            {{#if stateLabel}}<span class="tracker-dungeon-state state-{{state}}">{{stateLabel}}{{#if round}} · R{{round}}{{/if}}</span>{{/if}}
             {{#if selected}}<i class="fas fa-check"></i>{{/if}}
           </a>
           {{/each}}
@@ -27,9 +28,15 @@
         <span class="tracker-hostility">{{hostilityLabel}} (DC {{hostilityDC}})</span>
       </div>
       <div class="tracker-session-controls">
-        <button type="button" class="tracker-start-btn" data-action="startSession">
+        {{#if selectedIsResumable}}
+        <button type="button" class="tracker-start-btn resume" data-action="resumeSession">
+          <i class="fas fa-play"></i> {{localize "TRESPASSER.Dungeon.Session.Resume"}}
+        </button>
+        {{else}}
+        <button type="button" class="tracker-start-btn" data-action="startSession" data-tooltip="{{localize 'TRESPASSER.Dungeon.Session.BeginWipeWarn'}}">
           <i class="fas fa-play"></i> {{localize "TRESPASSER.Dungeon.Session.BeginExploration"}}
         </button>
+        {{/if}}
       </div>
       {{/if}}
 
@@ -63,6 +70,7 @@
     </div>
     {{#if isGM}}
     <div class="tracker-header-controls">
+      <a data-action="switchDungeon" data-tooltip="{{localize 'TRESPASSER.Dungeon.Session.SwitchTip'}}"><i class="fas fa-arrows-left-right"></i></a>
       <a data-action="openDungeonSheet" data-tooltip="{{localize 'TRESPASSER.Dungeon.OpenDungeonSheet'}}"><i class="fas fa-pen"></i></a>
     </div>
     {{/if}}
@@ -94,6 +102,30 @@
       <span class="tracker-stat-value alarm">{{alarm}}</span>
     </div>
   </div>
+
+  {{!-- GM Nudgers: manual overrides for alarm / actions / ad-hoc alarm check --}}
+  {{#if isGM}}{{#if isActive}}
+  <div class="tracker-nudgers">
+    <button type="button" class="tracker-nudger" data-action="adjustAlarm" data-delta="-1" {{#if alarmAtMin}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.AlarmDownTip'}}">
+      <i class="fas fa-minus"></i> {{localize "TRESPASSER.Dungeon.Alarm"}}
+    </button>
+    <button type="button" class="tracker-nudger" data-action="adjustAlarm" data-delta="1" data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.AlarmUpTip'}}">
+      <i class="fas fa-plus"></i> {{localize "TRESPASSER.Dungeon.Alarm"}}
+    </button>
+    <button type="button" class="tracker-nudger" data-action="adjustActions" data-delta="-1" {{#if actionsAtMin}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.ActionDownTip'}}">
+      <i class="fas fa-minus"></i> {{localize "TRESPASSER.Dungeon.ActionShort"}}
+    </button>
+    <button type="button" class="tracker-nudger" data-action="adjustActions" data-delta="1" {{#if actionsAtMax}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.ActionUpTip'}}">
+      <i class="fas fa-plus"></i> {{localize "TRESPASSER.Dungeon.ActionShort"}}
+    </button>
+    <button type="button" class="tracker-nudger" data-action="refundLastAction" {{#if actionsAtMax}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.RefundTip'}}">
+      <i class="fas fa-rotate-left"></i> {{localize "TRESPASSER.Dungeon.Nudge.Refund"}}
+    </button>
+    <button type="button" class="tracker-nudger alarm-check" data-action="alarmCheck" data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.AlarmCheckTip'}}">
+      <i class="fas fa-dice-d10"></i> {{localize "TRESPASSER.Dungeon.Nudge.AlarmCheck"}}
+    </button>
+  </div>
+  {{/if}}{{/if}}
 
   {{!-- Current Room --}}
   <div class="tracker-current-room">
@@ -150,11 +182,14 @@
   </div>
   {{/if}} {{!-- end isActive --}}
 
-  {{!-- Session Controls (visible when active or paused) --}}
+  {{!-- Session Controls --}}
+  {{!-- Active: single End button. Paused: Resume button (Switch in header --}}
+  {{!-- handles "leave without resuming"). To wipe a dungeon back to       --}}
+  {{!-- never-visited use the Reset button on the dungeon sheet.           --}}
   <div class="tracker-session-controls">
     {{#if isActive}}
-    <button type="button" class="tracker-session-btn pause" data-action="pauseSession">
-      <i class="fas fa-pause"></i> {{localize "TRESPASSER.Dungeon.Session.Pause"}}
+    <button type="button" class="tracker-session-btn end" data-action="endSession">
+      <i class="fas fa-stop"></i> {{localize "TRESPASSER.Dungeon.Session.EndExploration"}}
     </button>
     {{/if}}
     {{#if isPaused}}
@@ -162,9 +197,6 @@
       <i class="fas fa-play"></i> {{localize "TRESPASSER.Dungeon.Session.Resume"}}
     </button>
     {{/if}}
-    <button type="button" class="tracker-session-btn end" data-action="endSession">
-      <i class="fas fa-stop"></i> {{localize "TRESPASSER.Dungeon.Session.EndExploration"}}
-    </button>
   </div>
 
   {{/if}} {{!-- end isGM --}}

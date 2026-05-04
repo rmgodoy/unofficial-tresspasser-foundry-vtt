@@ -23,7 +23,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
       addTrait: TrespasserDungeonSheet.#onAddTrait,
       removeTrait: TrespasserDungeonSheet.#onRemoveTrait,
       resetAlarm: TrespasserDungeonSheet.#onResetAlarm,
-      clearLog: TrespasserDungeonSheet.#onClearLog,
+      resetDungeon: TrespasserDungeonSheet.#onResetDungeon,
       removeEncounterTable: TrespasserDungeonSheet.#onRemoveEncounterTable,
       createEncounterTable: TrespasserDungeonSheet.#onCreateEncounterTable,
       rollEncounterTable: TrespasserDungeonSheet.#onRollEncounterTable
@@ -255,8 +255,29 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
     await this.actor.update({ "system.alarm": 0 });
   }
 
-  static async #onClearLog(event, target) {
-    await this.actor.update({ "system.roundLog": [] });
+  /**
+   * Reset the dungeon to a never-visited state. Wipes the round log and
+   * all per-session counters, sets sessionState back to "idle". Requires
+   * confirmation since the data loss is irreversible.
+   */
+  static async #onResetDungeon(event, target) {
+    const confirmed = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("TRESPASSER.Dungeon.Reset.Title") },
+      content: `<p>${game.i18n.format("TRESPASSER.Dungeon.Reset.Confirm", { name: this.actor.name })}</p>`,
+      yes: { label: game.i18n.localize("TRESPASSER.Dungeon.Reset.Yes"), icon: "fa-solid fa-trash" },
+      no: { label: game.i18n.localize("TRESPASSER.Cancel") }
+    });
+    if (!confirmed) return;
+
+    const actionsPerRound = CONFIG.TRESPASSER.dungeon.actionsPerRound;
+    await this.actor.update({
+      "system.roundLog": [],
+      "system.currentRound": 0,
+      "system.actionsRemaining": actionsPerRound,
+      "system.alarm": 0,
+      "system.currentRoomId": "",
+      "system.sessionState": "idle"
+    });
   }
 
   static async #onRemoveEncounterTable(event, target) {

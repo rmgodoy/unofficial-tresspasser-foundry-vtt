@@ -14,7 +14,7 @@
  */
 
 import { executeDungeonAction } from "./dungeon-actions.mjs";
-import { resolveEndOfRound } from "./encounter-resolution.mjs";
+import { resolveEndOfRound, runEncounterCheck } from "./encounter-resolution.mjs";
 
 const { api } = foundry.applications;
 
@@ -34,8 +34,8 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     actions: {
       // Session lifecycle
       chooseDungeon: DungeonTracker.#onChooseDungeon,
+      switchDungeon: DungeonTracker.#onSwitchDungeon,
       startSession: DungeonTracker.#onStartSession,
-      pauseSession: DungeonTracker.#onPauseSession,
       resumeSession: DungeonTracker.#onResumeSession,
       endSession: DungeonTracker.#onEndSession,
       // Exploration
@@ -43,7 +43,12 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
       nextRound: DungeonTracker.#onNextRound,
       setCurrentRoom: DungeonTracker.#onSetCurrentRoom,
       openDungeonSheet: DungeonTracker.#onOpenDungeonSheet,
-      openRoomSheet: DungeonTracker.#onOpenRoomSheet
+      openRoomSheet: DungeonTracker.#onOpenRoomSheet,
+      // GM manual overrides
+      adjustAlarm: DungeonTracker.#onAdjustAlarm,
+      adjustActions: DungeonTracker.#onAdjustActions,
+      alarmCheck: DungeonTracker.#onAlarmCheck,
+      refundLastAction: DungeonTracker.#onRefundLastAction
     }
   };
 
@@ -84,11 +89,58 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
   /* Instance State                               */
   /* -------------------------------------------- */
 
-  /** @type {Actor|null} The selected dungeon actor */
+  /** @type {Actor|null} The dungeon currently in focus (UI pointer only). */
   dungeon = null;
 
-  /** @type {SessionState} Current session state */
-  sessionState = "idle";
+  constructor(...args) {
+    super(...args);
+    this._adoptCurrentSession();
+  }
+
+  /**
+   * Session state is the source-of-truth on the dungeon actor itself, so
+   * each dungeon remembers its own status across reloads and the tracker
+   * can switch between paused delves without losing logs.
+   * @type {SessionState}
+   */
+  get sessionState() {
+    return this.dungeon?.system?.sessionState ?? "idle";
+  }
+
+  /**
+   * On construction, find the most relevant dungeon to focus on:
+   *   - any dungeon with state="active" (only one is allowed at a time)
+   *   - else the most-recently-modified dungeon with state="paused"
+   *   - else null (show the picker)
+   */
+  _adoptCurrentSession() {
+    const dungeons = game.actors?.filter(a => a.type === "dungeon") ?? [];
+    const active = dungeons.find(d => d.system.sessionState === "active");
+    if (active) {
+      this.dungeon = active;
+      return;
+    }
+    const paused = dungeons
+      .filter(d => d.system.sessionState === "paused")
+      .sort((a, b) => (b._stats?.modifiedTime ?? 0) - (a._stats?.modifiedTime ?? 0));
+    this.dungeon = paused[0] ?? null;
+  }
+
+  /**
+   * Pause any other dungeons currently flagged active so only one delve is
+   * "live" at a time. Called before activating or resuming a session.
+   */
+  async _pauseOtherActiveSessions() {
+    if (!game.user.isGM) return;
+    const others = game.actors.filter(a =>
+      a.type === "dungeon" &&
+      a.id !== this.dungeon?.id &&
+      a.system.sessionState === "active"
+    );
+    for (const other of others) {
+      await other.update({ "system.sessionState": "paused" });
+    }
+  }
 
   /* -------------------------------------------- */
   /* Dungeon Selection                            */
@@ -139,13 +191,23 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     // Available dungeons (for the picker in idle state)
     if (context.isIdle && isGM) {
       const available = this._getAvailableDungeons();
-      context.availableDungeons = available.map(d => ({
-        _id: d.id,
-        name: d.name,
-        img: d.img,
-        selected: this.dungeon?.id === d.id
-      }));
+      context.availableDungeons = available.map(d => {
+        const state = d.system.sessionState ?? "idle";
+        return {
+          _id: d.id,
+          name: d.name,
+          img: d.img,
+          selected: this.dungeon?.id === d.id,
+          state,
+          stateLabel: state === "idle" ? "" : game.i18n.localize(`TRESPASSER.Dungeon.Session.State.${state}`),
+          round: d.system.currentRound ?? 0
+        };
+      });
       context.hasAvailableDungeons = available.length > 0;
+      // What button to show when a dungeon is selected: Begin (fresh delve,
+      // wipes log) for idle dungeons, Resume for paused ones.
+      const selectedState = this.dungeon?.system?.sessionState ?? "idle";
+      context.selectedIsResumable = selectedState === "paused";
     }
 
     if (!this.dungeon) return context;
@@ -166,7 +228,10 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     const actionsMax = dungeonConfig.actionsPerRound;
     const actionsRemaining = system.actionsRemaining ?? actionsMax;
     context.actionsRemaining = actionsRemaining;
+    context.actionsAtMax = actionsRemaining >= actionsMax;
+    context.actionsAtMin = actionsRemaining <= 0;
     context.alarm = system.alarm ?? 0;
+    context.alarmAtMin = (system.alarm ?? 0) <= 0;
 
     // Action pips (filled = remaining, empty = spent)
     context.actionPips = Array.from({ length: actionsMax }, (_, i) => ({
@@ -372,7 +437,9 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
   /* -------------------------------------------- */
 
   /**
-   * Select a dungeon from the available list (idle state).
+   * Select a dungeon from the available list (idle state). The pick is just
+   * a UI focus change — the actor's own sessionState determines whether the
+   * tracker stays on the picker or jumps into an active/paused session view.
    */
   static #onChooseDungeon(event, target) {
     const dungeonId = target.dataset.dungeonId;
@@ -380,6 +447,17 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     const actor = game.actors.get(dungeonId);
     if (!actor || actor.type !== "dungeon") return;
     this.dungeon = actor;
+    this.render();
+  }
+
+  /**
+   * Clear the tracker's focus to return to the picker without ending the
+   * focused dungeon's session. The actor's state is untouched, so the
+   * session stays paused/active and can be resumed later.
+   */
+  static #onSwitchDungeon(event, target) {
+    if (!game.user.isGM) return;
+    this.dungeon = null;
     this.render();
   }
 
@@ -392,16 +470,18 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
 
     const dungeonConfig = CONFIG.TRESPASSER.dungeon;
 
-    // Reset exploration state on the dungeon actor
+    // Pause any other dungeon currently flagged active before starting fresh.
+    await this._pauseOtherActiveSessions();
+
+    // Reset exploration state on the dungeon actor and flag it active.
     await this.dungeon.update({
       "system.currentRound": 1,
       "system.actionsRemaining": dungeonConfig.actionsPerRound,
       "system.alarm": 0,
       "system.currentRoomId": "",
-      "system.roundLog": []
+      "system.roundLog": [],
+      "system.sessionState": "active"
     });
-
-    this.sessionState = "active";
 
     // Announce in chat
     await ChatMessage.create({
@@ -416,54 +496,28 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
   }
 
   /**
-   * Pause the current exploration session.
+   * Resume a paused session — pauses any other active dungeon first to
+   * preserve the one-active-at-a-time invariant.
    */
-  static #onPauseSession(event, target) {
-    if (!game.user.isGM) return;
-    this.sessionState = "paused";
+  static async #onResumeSession(event, target) {
+    if (!game.user.isGM || !this.dungeon) return;
+    await this._pauseOtherActiveSessions();
+    await this.dungeon.update({ "system.sessionState": "active" });
     this.render();
   }
 
   /**
-   * Resume a paused exploration session.
-   */
-  static #onResumeSession(event, target) {
-    if (!game.user.isGM) return;
-    this.sessionState = "active";
-    this.render();
-  }
-
-  /**
-   * End the current exploration session. Confirm before resetting.
+   * End the focused exploration session. Non-destructive: the dungeon's
+   * state is set to "paused" so the log/round/alarm survive and the GM
+   * can resume it later from the picker. Drops focus so the picker reopens.
+   *
+   * To reset a dungeon to a never-visited state (wiping log + counters),
+   * use the Reset button on the dungeon sheet itself.
    */
   static async #onEndSession(event, target) {
-    if (!game.user.isGM) return;
-
-    const confirmed = await foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.localize("TRESPASSER.Dungeon.Session.EndTitle") },
-      content: `<p>${game.i18n.localize("TRESPASSER.Dungeon.Session.EndConfirm")}</p>`,
-      yes: { label: game.i18n.localize("TRESPASSER.Dungeon.Session.EndYes") },
-      no: { label: game.i18n.localize("TRESPASSER.Cancel") }
-    });
-    if (!confirmed) return;
-
-    // Post summary to chat
-    if (this.dungeon) {
-      const system = this.dungeon.system;
-      await ChatMessage.create({
-        content: `<div class="trespasser-dungeon-round">
-          <strong>${game.i18n.format("TRESPASSER.Dungeon.Session.Ended", { name: this.dungeon.name })}</strong>
-          <div>${game.i18n.format("TRESPASSER.Dungeon.Session.Summary", {
-            rounds: system.currentRound ?? 0,
-            actions: (system.roundLog ?? []).length
-          })}</div>
-        </div>`,
-        speaker: ChatMessage.getSpeaker({ alias: this.dungeon.name })
-      });
-    }
-
+    if (!game.user.isGM || !this.dungeon) return;
+    await this.dungeon.update({ "system.sessionState": "paused" });
     this.dungeon = null;
-    this.sessionState = "idle";
     this.render();
   }
 
@@ -491,45 +545,54 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
 
   /**
    * Advance to the next round.
+   *
+   * End-of-round sequence (Rules, p.54):
+   *   1. Party makes depletion checks for active light sources.
+   *   2. Alarm value increases by +1.
+   *   3. Judge rolls a d10; if equal or less than alarm, resolve a random
+   *      encounter and reset alarm to 0.
+   *
+   * The alarm must be bumped BEFORE the d10 check so the roll is made
+   * against the current (post-increment) value.
    */
   static async #onNextRound(event, target) {
     if (!this.dungeon || !game.user.isGM || this.sessionState !== "active") return;
 
-    const system = this.dungeon.system;
     const dungeonConfig = CONFIG.TRESPASSER.dungeon;
-    const currentRound = system.currentRound ?? 0;
+    const currentRound = this.dungeon.system.currentRound ?? 0;
+    const newRound = currentRound + 1;
 
-    // Step 1: Encounter check
-    const encounterResult = await resolveEndOfRound(this.dungeon);
-
-    // Step 2: Prompt light depletion
+    // Step 1: Light depletion
     await DungeonTracker._promptLightDepletion(this.dungeon);
 
-    // Step 3: Advance round state
-    const freshSystem = this.dungeon.system;
-    const newRound = currentRound + 1;
-    const newAlarm = (freshSystem.alarm ?? 0) + 1;
+    // Step 2: Alarm +1 (written first so step 3 sees the new value)
+    const bumpedAlarm = (this.dungeon.system.alarm ?? 0) + 1;
+    await this.dungeon.update({ "system.alarm": bumpedAlarm });
 
-    const roundLog = [...(freshSystem.roundLog ?? [])];
+    // Step 3: Alarm check — resolveEndOfRound resets alarm to 0 on encounter
+    const encounterResult = await resolveEndOfRound(this.dungeon);
+
+    // Advance round state
+    const resultAlarm = this.dungeon.system.alarm ?? 0;
+    const roundLog = [...(this.dungeon.system.roundLog ?? [])];
     roundLog.push({
       round: newRound,
       action: game.i18n.localize("TRESPASSER.Dungeon.NewRound"),
       detail: encounterResult.encountered
-        ? "Encounter resolved. " + game.i18n.format("TRESPASSER.Dungeon.AlarmValue", { value: newAlarm })
-        : game.i18n.format("TRESPASSER.Dungeon.AlarmValue", { value: newAlarm })
+        ? "Encounter resolved. " + game.i18n.format("TRESPASSER.Dungeon.AlarmValue", { value: resultAlarm })
+        : game.i18n.format("TRESPASSER.Dungeon.AlarmValue", { value: resultAlarm })
     });
 
     await this.dungeon.update({
       "system.currentRound": newRound,
       "system.actionsRemaining": dungeonConfig.actionsPerRound,
-      "system.alarm": newAlarm,
       "system.roundLog": roundLog
     });
 
     await ChatMessage.create({
       content: `<div class="trespasser-dungeon-round">
         <strong>${game.i18n.format("TRESPASSER.Dungeon.RoundEnd", { round: newRound })}</strong>
-        <div>${game.i18n.localize("TRESPASSER.Dungeon.Alarm")}: ${newAlarm}</div>
+        <div>${game.i18n.localize("TRESPASSER.Dungeon.Alarm")}: ${resultAlarm}</div>
       </div>`,
       speaker: ChatMessage.getSpeaker({ alias: this.dungeon.name })
     });
@@ -554,6 +617,101 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
 
     await this.dungeon.update({ "system.currentRoomId": roomId });
     this.render();
+  }
+
+  /* -------------------------------------------- */
+  /* GM Manual Overrides                          */
+  /* -------------------------------------------- */
+
+  /**
+   * Adjust the dungeon's alarm value by a signed delta.
+   * Clamped at 0; no upper bound (alarm naturally caps via d10 checks).
+   */
+  static async #onAdjustAlarm(event, target) {
+    if (!this.dungeon || !game.user.isGM) return;
+    const delta = parseInt(target.dataset.delta, 10) || 0;
+    const current = this.dungeon.system.alarm ?? 0;
+    const newAlarm = Math.max(0, current + delta);
+    if (newAlarm === current) return;
+
+    const roundLog = [...(this.dungeon.system.roundLog ?? [])];
+    roundLog.push({
+      round: this.dungeon.system.currentRound ?? 0,
+      action: game.i18n.localize("TRESPASSER.Dungeon.Nudge.GMAdjust"),
+      detail: game.i18n.format("TRESPASSER.Dungeon.Nudge.AlarmLog", { value: newAlarm })
+    });
+
+    await this.dungeon.update({
+      "system.alarm": newAlarm,
+      "system.roundLog": roundLog
+    });
+  }
+
+  /**
+   * Adjust actions remaining by a signed delta. Clamped to [0, actionsPerRound].
+   */
+  static async #onAdjustActions(event, target) {
+    if (!this.dungeon || !game.user.isGM) return;
+    const delta = parseInt(target.dataset.delta, 10) || 0;
+    const max = CONFIG.TRESPASSER.dungeon.actionsPerRound;
+    const current = this.dungeon.system.actionsRemaining ?? max;
+    const newActions = Math.max(0, Math.min(max, current + delta));
+    if (newActions === current) return;
+
+    const roundLog = [...(this.dungeon.system.roundLog ?? [])];
+    roundLog.push({
+      round: this.dungeon.system.currentRound ?? 0,
+      action: game.i18n.localize("TRESPASSER.Dungeon.Nudge.GMAdjust"),
+      detail: game.i18n.format("TRESPASSER.Dungeon.Nudge.ActionsLog", { value: newActions })
+    });
+
+    await this.dungeon.update({
+      "system.actionsRemaining": newActions,
+      "system.roundLog": roundLog
+    });
+  }
+
+  /**
+   * Run an immediate d10 alarm check without incrementing alarm first.
+   * Used for simultaneous actions (p.55), loud noises, or ad-hoc GM calls.
+   */
+  static async #onAlarmCheck(event, target) {
+    if (!this.dungeon || !game.user.isGM || this.sessionState !== "active") return;
+    await runEncounterCheck(this.dungeon);
+    this.render();
+  }
+
+  /**
+   * Refund one action and pop the last log entry from the current round.
+   * Useful when an action was resolved incorrectly or a spark (Quick) makes
+   * it free after the fact.
+   */
+  static async #onRefundLastAction(event, target) {
+    if (!this.dungeon || !game.user.isGM) return;
+    const max = CONFIG.TRESPASSER.dungeon.actionsPerRound;
+    const currentActions = this.dungeon.system.actionsRemaining ?? max;
+    if (currentActions >= max) return;
+
+    const currentRound = this.dungeon.system.currentRound ?? 0;
+    const roundLog = [...(this.dungeon.system.roundLog ?? [])];
+    let popped = null;
+    const lastIndex = roundLog.length - 1;
+    if (lastIndex >= 0 && roundLog[lastIndex].round === currentRound) {
+      popped = roundLog.pop();
+    }
+
+    roundLog.push({
+      round: currentRound,
+      action: game.i18n.localize("TRESPASSER.Dungeon.Nudge.GMAdjust"),
+      detail: popped
+        ? game.i18n.format("TRESPASSER.Dungeon.Nudge.ActionRefunded", { action: popped.action })
+        : game.i18n.localize("TRESPASSER.Dungeon.Nudge.ActionRefundedNone")
+    });
+
+    await this.dungeon.update({
+      "system.actionsRemaining": currentActions + 1,
+      "system.roundLog": roundLog
+    });
   }
 
   /**
@@ -608,7 +766,6 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
         if (actor.type === "dungeon") {
           if (this.dungeon?.id === actor.id) {
             this.dungeon = null;
-            this.sessionState = "idle";
           }
           this.render({ force: true });
         }

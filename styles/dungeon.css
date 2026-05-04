@@ -860,6 +860,29 @@ select.dungeon-field-input option {
   text-overflow: ellipsis;
 }
 
+.tracker-dungeon-state {
+  font-size: var(--fs-9);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 2px 6px;
+  border-radius: 3px;
+  background: var(--bg-tertiary);
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.tracker-dungeon-state.state-active {
+  color: var(--accent-red-bright);
+  border: 1px solid var(--accent-red-bright);
+  background: transparent;
+}
+
+.tracker-dungeon-state.state-paused {
+  color: var(--accent-gold);
+  border: 1px solid var(--accent-gold);
+  background: transparent;
+}
+
 .tracker-selected-info {
   text-align: center;
   padding: 6px 0 0;
@@ -1038,6 +1061,48 @@ select.dungeon-field-input option {
 }
 
 .tracker-stat-value.alarm {
+  color: var(--accent-red-bright);
+}
+
+/* --- GM Nudger Row --- */
+.tracker-nudgers {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.tracker-nudger {
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 3px 6px;
+  font-size: var(--fs-11);
+  line-height: 1.2;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  color: var(--text-primary);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tracker-nudger:hover:not(:disabled) {
+  background: var(--trp-border-light);
+}
+
+.tracker-nudger:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tracker-nudger i {
+  margin-right: 2px;
+}
+
+.tracker-nudger.alarm-check {
+  flex-basis: 100%;
   color: var(--accent-red-bright);
 }
 
