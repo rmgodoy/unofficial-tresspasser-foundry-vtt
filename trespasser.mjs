@@ -492,6 +492,7 @@ Hooks.once("ready", () => {
 
   // Socket handling
   game.socket.on("system.trespasser", async (data) => {
+    console.log("Trespasser | Socket received:", data);
     switch (data.type) {
       case "requestDefenseRoll":
         await handleDefenseRollRequest(data);
