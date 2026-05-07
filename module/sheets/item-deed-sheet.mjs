@@ -30,14 +30,16 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
       template: "systems/trespasser/templates/item/deed/tabs.hbs"
     },
     card: {
-      template: "systems/trespasser/templates/item/deed/card.hbs"
+      template: "systems/trespasser/templates/item/deed/card.hbs",
+      scrollable: ["", ".deed-card-preview"]
     },
     details: {
-      template: "systems/trespasser/templates/item/deed/details.hbs"
+      template: "systems/trespasser/templates/item/deed/details.hbs",
+      scrollable: ["", ".deed-details"]
     },
     effects: {
       template: "systems/trespasser/templates/item/deed/effects.hbs",
-      scrollable: [".effects-body"]
+      scrollable: ["", ".deed-effects"]
     }
   };
 
