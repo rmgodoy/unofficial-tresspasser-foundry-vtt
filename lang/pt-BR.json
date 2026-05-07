@@ -1,4 +1,9 @@
 {
+  "COMBAT": {
+    "ToggleVis": "Alternar Visibilidade",
+    "ToggleDead": "Alternar Derrotado",
+    "ToggleTarget": "Alternar Alvo"
+  },
   "TRESPASSER": {
     "General": {
       "New": "Novo",

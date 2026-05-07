@@ -1,4 +1,9 @@
 {
+  "COMBAT": {
+    "ToggleVis": "Toggle Visibility",
+    "ToggleDead": "Toggle Defeated",
+    "ToggleTarget": "Toggle Target"
+  },
   "TRESPASSER": {
     "General": {
       "New": "New",
