@@ -483,6 +483,7 @@ Hooks.once("init", async () => {
   game.trespasser.EventClocks = EventClocksTracker;
 
   // Socket handling
+  console.log("Trespasser | Registering socket handler for system.trespasser");
   game.socket.on("system.trespasser", async (data) => {
     console.log("Trespasser | Socket received:", data);
     switch (data.type) {
