@@ -1348,7 +1348,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
 
       let statsHTML = "";
       if (isPending) {
-        statsHTML = `<button class="roll-initiative-btn trp-roll-init" style="background:var(--trp-gold-dim); color:var(--trp-bg-dark); border:none; border-radius:3px; padding:4px 8px; cursor:pointer; font-family:var(--trp-font-primary); font-size:11px; font-weight:bold; width:100%;"><i class="fas fa-dice-d20"></i> ${game.i18n.localize("TRESPASSER.Sheet.Combat.RollInitiative")}</button>`;
+        statsHTML = `<button class="roll-initiative-btn trp-roll-init" style="background:var(--trp-gold-dim); color:var(--trp-bg-dark); border:none; border-radius:3px; padding:4px 8px; cursor:pointer; font-family:var(--trp-font-primary); font-size:var(--fs-18); font-weight:bold; width:100%;"><i style="height:16px;" class="fas fa-dice-d20"></i> </button>`;
       } else {
         statsHTML = (focus > 0 ? `<div class="focus-display flexrow"><span class="focus-number">${focus}</span></div>` : "")
                   + `<div class="ap-display flexrow"><div class="ap-indicator flexrow">${buildIcons(ap, "ap")}</div></div>`;
@@ -1394,7 +1394,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
   }
 
   const waitingBanner = isWaiting ? `
-    <div class="initiative-waiting-banner" style="background:var(--trp-bg-header); border:1px solid var(--trp-gold-dim); border-radius:4px; padding:8px 12px; margin-bottom:8px; text-align:center; color:var(--trp-gold-bright); font-family:var(--trp-font-header); font-size:13px;">
+    <div class="initiative-waiting-banner" style="background:var(--trp-bg-header); border:1px solid var(--trp-gold-dim); border-radius:4px; padding:8px 12px; margin:8px; text-align:center; color:var(--trp-gold-bright); font-family:var(--trp-font-header); font-size:13px;">
       <i class="fas fa-hourglass-half"></i> ${game.i18n.localize("TRESPASSER.Sheet.Combat.WaitingForInitiatives")}
     </div>
   ` : "";

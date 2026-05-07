@@ -246,6 +246,7 @@
 
 .deeds-usage {
   color: var(--trp-text);
+  width: 100%;
 }
 
 .right-info {
