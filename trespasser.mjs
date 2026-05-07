@@ -481,14 +481,6 @@ Hooks.once("init", async () => {
   game.trespasser.ItemExporter = ItemExporter;
   game.trespasser.Config = TrespasserConfigV2;
   game.trespasser.EventClocks = EventClocksTracker;
-});
-
-/**
- * Socket handling for Token Action HUD / Help action
- */
-Hooks.once("ready", () => {
-  // Initialize Token Action HUD
-  game.trespasser.tokenHUD = new TrespasserTokenHUD();
 
   // Socket handling
   game.socket.on("system.trespasser", async (data) => {
@@ -502,6 +494,14 @@ Hooks.once("ready", () => {
         break;
     }
   });
+});
+
+/**
+ * Socket handling for Token Action HUD / Help action
+ */
+Hooks.once("ready", () => {
+  // Initialize Token Action HUD
+  game.trespasser.tokenHUD = new TrespasserTokenHUD();
 
   // Function to apply settings to CSS variables
   game.trespasser.applySystemSettings = () => {
