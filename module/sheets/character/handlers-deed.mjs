@@ -519,14 +519,14 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
   const creatureAccuracy = sheet.actor.system.combat.accuracy ?? 0;
   const creatureDC       = creatureAccuracy + creatureEffBonus + apBonus;
 
-  let anyHit = false, maxSparks = 0, resultsHtml = "";
+  let anyHit = false, maxSparks = 0;
   const results = [];
 
   await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: "accuracy" });
 
-  for (const targetToken of targets) {
+  const targetPromises = targets.map(async (targetToken) => {
     const targetActor = targetToken?.actor ?? null;
-    if (!targetActor) continue;
+    if (!targetActor) return null;
 
     const statKey     = item.system.accuracyTest?.toLowerCase() || "guard";
     const totalDef    = targetActor.system.combat[statKey] ?? 10;
@@ -540,7 +540,7 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
       defTotal = totalDef + defEffBonus;
       isHit    = finalDC >= defTotal;
     } else {
-      // Character: prompt the OWNING PLAYER to roll defense via socket
+      // Character: prompt the OWNING PLAYER to roll defense via socket/flag
       const defenseResult = await requestPlayerDefenseRoll({
         targetActorId: targetActor.id,
         targetTokenId: targetToken.id,
@@ -550,16 +550,13 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
         creatureName: sheet.actor.name
       });
 
-      if (!defenseResult) continue; // Player cancelled or timed out
+      if (!defenseResult) return null; // Player cancelled or timed out
 
       defTotal = defenseResult.total;
       diceResult = defenseResult.diceResult;
       finalDC = defenseResult.cd;
       isHit = finalDC >= defTotal;
     }
-
-
-    if (isHit) anyHit = true;
 
     const diff = finalDC - defTotal;
     let sparks = 0, shadows = 0;
@@ -575,10 +572,7 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
     sparks  = Math.max(0, net);
     shadows = Math.max(0, -net);
 
-    if (sparks > maxSparks) maxSparks = sparks;
-
-    // Track per-target results
-    results.push({
+    const resultObj = {
       tokenId: targetToken.id,
       tokenName: targetToken.name,
       actorId: targetActor.id,
@@ -586,9 +580,9 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
       sparks,
       shadows,
       dc: finalDC
-    });
+    };
 
-    resultsHtml += `
+    const resultsHtml = `
       <div class="target-result" style="border-top:1px solid var(--trp-border-light);padding-top:5px;margin-top:5px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <strong>${targetToken.name} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(${game.i18n.localize("TRESPASSER.Chat.Defense")}: ${defTotal})</span></strong>
@@ -600,7 +594,7 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
         </div>
       </div>`;
 
-    // Post to chat
+    // Post to chat immediately
     let flavor = "";
     if (targetActor.type === "creature") {
       flavor = `<div class="trespasser-chat-card">
@@ -610,10 +604,6 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
         <p class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;font-size:var(--fs-14);text-align:center;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Hit") : game.i18n.localize("TRESPASSER.Chat.Miss")}</p>
         ${resultsHtml}
       </div>`;
-      await ChatMessage.create({
-        speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-        content: flavor
-      });
     } else {
       flavor = `<div class="trespasser-chat-card">
         <h3>${item.name} — ${game.i18n.localize("TRESPASSER.Chat.DefenseRoll")}</h3>
@@ -622,28 +612,21 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
         <p class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;font-size:var(--fs-14);text-align:center;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Hit") : game.i18n.localize("TRESPASSER.Chat.Miss")}</p>
         ${resultsHtml}
         </div>`;
-      await ChatMessage.create({
-        speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-        content: flavor
-      });
     }
-
-    // Reset resultsHtml — it was already embedded in the message above
-    resultsHtml = "";
+    
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+      content: flavor
+    });
 
     // Counter reaction: if creature missed, defender may counter-attack
     if (!isHit && shadows > 0) {
       const creatureToken = canvas.tokens.placeables.find(t => t.actor?.id === sheet.actor.id);
       const { canCounter, weapon } = TargetingHelper.checkCounterEligibility(targetToken, creatureToken);
 
-      if (canCounter) {
-        // If both are creatures, we don't prompt for counter-reaction yet (or maybe automate?)
-        // The rule says "no rolls", and counter damage is a roll. 
-        // For now, we only prompt if the counter-attacker is a character.
-        if (targetActor.type === "character") {
-          const counterAccepted = await _askCounterReaction(
-            targetToken, creatureToken, weapon, shadows
-          );
+      if (canCounter && targetActor.type === "character") {
+        // Floating promise so it doesn't block the Promise.all resolution for other targets
+        _askCounterReaction(targetToken, creatureToken, weapon, shadows).then(async (counterAccepted) => {
           if (counterAccepted) {
             // Roll counter damage: shadows × weapon die
             const wDie = weapon.system.weaponDie || "d4";
@@ -665,9 +648,20 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
               flavor: counterFlavor
             });
           }
-        }
+        });
       }
     }
+
+    return resultObj;
+  });
+
+  const resolvedResults = await Promise.all(targetPromises);
+
+  for (const res of resolvedResults) {
+    if (!res) continue;
+    results.push(res);
+    if (res.isHit) anyHit = true;
+    if (res.sparks > maxSparks) maxSparks = res.sparks;
   }
 
   return { anyHit, maxSparks, results };

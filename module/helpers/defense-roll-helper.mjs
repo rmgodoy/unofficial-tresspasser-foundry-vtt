@@ -35,7 +35,7 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
 
   const requestId = foundry.utils.randomID();
 
-  // Wait for response with a timeout (60 seconds)
+  // Wait for response with a timeout (5 minutes)
   const promise = new Promise((resolve) => {
     const timeout = setTimeout(async () => {
       _pendingDefenseRolls.delete(requestId);
@@ -46,7 +46,7 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
         await targetActor.unsetFlag("trespasser", "pendingDefenseRoll");
       }
       resolve(null); // Timeout — skip this target
-    }, 60000);
+    }, 300000);
 
     _pendingDefenseRolls.set(requestId, { resolve, timeout });
   });
