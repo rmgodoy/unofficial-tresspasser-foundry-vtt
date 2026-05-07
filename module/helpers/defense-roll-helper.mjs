@@ -46,7 +46,7 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
         await targetActor.unsetFlag("trespasser", "pendingDefenseRoll");
       }
       resolve(null); // Timeout — skip this target
-    }, 300000);
+    }, 900000);
 
     _pendingDefenseRolls.set(requestId, { resolve, timeout });
   });
