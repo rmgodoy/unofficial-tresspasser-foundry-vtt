@@ -844,6 +844,9 @@ Hooks.on("updateCombatant", (combatant, changed, options, userId) => {
 });
 
 Hooks.on("deleteCombat", async (combat) => {
+  // Clear turn markers
+  combat.updateTurnMarkers(null);
+
   for (const c of combat.combatants) {
     if (c.actor) {
       await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");

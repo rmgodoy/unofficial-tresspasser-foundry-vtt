@@ -644,6 +644,83 @@ export class TrespasserCombat extends Combat {
       }
     };
   }
+
+  /**
+   * Update turn markers on all tokens in the scene based on the active phase.
+   * @param {number} activePhase 
+   */
+  async updateTurnMarkers(activePhase) {
+    if (!canvas.ready || !canvas.tokens) return;
+    
+    const hasActivePhase = (activePhase !== null) && (activePhase !== undefined);
+
+    for (const token of canvas.tokens.placeables) {
+      // Find a combatant for this token in this combat
+      const combatant = this.combatants.find(c => c.tokenId === token.id);
+      
+      // Determine if this token should have a marker
+      // It should have a marker if it's the active phase and not defeated
+      const isMyPhase = hasActivePhase && combatant && (Number(combatant.initiative) === Number(activePhase)) && !combatant.defeated;
+      
+      this._updateTokenMarker(token, isMyPhase, activePhase);
+    }
+  }
+
+  /**
+   * Internal helper to add/remove/update the marker sprite on a token.
+   * @private
+   */
+  _updateTokenMarker(token, active, phase) {
+    // Look for existing marker
+    let marker = token.children.find(c => c.isTrespasserMarker);
+
+    if (!active) {
+      if (marker) marker.visible = false;
+      return;
+    }
+
+    const texturePath = this._getMarkerTexture(phase);
+    if (!texturePath) return;
+
+    if (!marker) {
+      marker = new PIXI.Sprite(PIXI.Texture.from(texturePath));
+      marker.isTrespasserMarker = true;
+      marker.anchor.set(0.5, 0.5);
+      
+      // Position at center
+      marker.position.set(token.w / 2, token.h / 2);
+      
+      // Scale slightly larger than token
+      const scale = 1.4;
+      marker.width = token.w * scale;
+      marker.height = token.h * scale;
+      
+      marker.zIndex = -1; // Under the token
+      token.addChildAt(marker, 0);
+    } else {
+      marker.texture = PIXI.Texture.from(texturePath);
+      marker.visible = true;
+      // Re-center and re-scale in case token size changed
+      marker.position.set(token.w / 2, token.h / 2);
+      marker.width = token.w * 1.4;
+      marker.height = token.h * 1.4;
+    }
+  }
+
+  /**
+   * Determine the correct ring texture for a given phase.
+   * @private
+   */
+  _getMarkerTexture(phase) {
+    const PHASES = TrespasserCombat.PHASES;
+    switch(Number(phase)) {
+      case PHASES.EARLY: return "systems/trespasser/assets/icons/ring_early.svg";
+      case PHASES.ENEMY: return "systems/trespasser/assets/icons/ring_enemy.svg";
+      case PHASES.LATE:  return "systems/trespasser/assets/icons/ring.svg";
+      case PHASES.EXTRA: return "systems/trespasser/assets/icons/ring.svg";
+      default:           return "systems/trespasser/assets/icons/ring.svg";
+    }
+  }
 }
 
 /**
