@@ -37,6 +37,8 @@
       "FontSizeBaseHint": "O tamanho de fonte base para todo o sistema. Todos os outros tamanhos de fonte serão escalonados proporcionalmente.",
       "BypassHavenBuildingLimits": "Ignorar Limites de Construção do Abrigo",
       "BypassHavenBuildingLimitsHint": "Se habilitado, os Abrigos não serão restringidos pelo Limite de Construção ou Espaços de Construção definidos na tabela de progressão.",
+      "DisregardRangeOnAttack": "Ignorar Alcance no Ataque",
+      "DisregardRangeOnAttackHint": "Se habilitado, atacar alvos fora de alcance mostrará um aviso, mas permitirá que o ataque prossiga.",
       "Save": "Salvar",
       "Cancel": "Cancelar",
       "SavedNotice": "Configuração do Trespasser salva.",

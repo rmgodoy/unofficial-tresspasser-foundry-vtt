@@ -37,6 +37,8 @@
       "FontSizeBaseHint": "The base font size for the entire system. All other font sizes will scale proportionally.",
       "BypassHavenBuildingLimits": "Bypass Haven Building Limits",
       "BypassHavenBuildingLimitsHint": "If enabled, Havens will not be restricted by the Building Limit or Build Slots defined in the progression table.",
+      "DisregardRangeOnAttack": "Disregard Range on Attack",
+      "DisregardRangeOnAttackHint": "When enabled, attacking out-of-range targets will show a warning but still allow the attack to proceed.",
       "Save": "Save",
       "Cancel": "Cancel",
       "SavedNotice": "Trespasser Configuration saved.",

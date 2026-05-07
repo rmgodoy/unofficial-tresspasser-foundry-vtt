@@ -178,8 +178,15 @@ export async function onDeedRoll(event, sheet) {
       const activeWeapons = sheet._getActiveWeapons();
       const rangeCheck = TargetingHelper.validateRange(targets, sourceToken, deed, activeWeapons);
       if (!rangeCheck.valid) {
-        ui.notifications.warn(rangeCheck.message);
-        return;
+        const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
+        if (disregardRange) {
+          // Warn but allow the attack to proceed
+          ui.notifications.warn(rangeCheck.message);
+        } else {
+          // Block the attack (default behavior)
+          ui.notifications.warn(rangeCheck.message);
+          return;
+        }
       }
     }
   }

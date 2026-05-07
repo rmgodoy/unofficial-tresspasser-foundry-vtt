@@ -181,6 +181,15 @@ Hooks.once("init", async () => {
     default: false
   });
 
+  game.settings.register("trespasser", "disregardRangeOnAttack", {
+    name: "TRESPASSER.Config.DisregardRangeOnAttack",
+    hint: "TRESPASSER.Config.DisregardRangeOnAttackHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
   game.settings.register("trespasser", "clockSize", {
     name: "TRESPASSER.Config.ClockSize",
     hint: "TRESPASSER.Config.ClockSizeHint",

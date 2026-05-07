@@ -58,6 +58,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
       groupCheckFullParty: game.settings.get("trespasser", "groupCheckFullParty"),
       restrictHavenEditToLeader: game.settings.get("trespasser", "restrictHavenEditToLeader"),
       bypassHavenBuildingLimits: game.settings.get("trespasser", "bypassHavenBuildingLimits"),
+      disregardRangeOnAttack: game.settings.get("trespasser", "disregardRangeOnAttack"),
       clockSize: game.settings.get("trespasser", "clockSize"),
       fontSizeBase: game.settings.get("trespasser", "fontSizeBase")
     };
@@ -166,7 +167,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     const settingsToReset = [
         "showInitiativeInChat", "restrictMovementAction", "restrictHUDActions", 
         "restrictAPFocusUsage", "groupCheckFullParty", "restrictHavenEditToLeader",
-        "bypassHavenBuildingLimits", "clockSize", "fontSizeBase",
+        "bypassHavenBuildingLimits", "disregardRangeOnAttack", "clockSize", "fontSizeBase",
         "colorBgDark", "colorBgPanel", "colorBgInput", "colorBgHeader", "colorBgSelect",
         "colorBorder", "colorBorderLight", "colorGold", "colorGoldDim", "colorGoldBright",
         "colorRed", "colorRedDim", "colorText", "colorTextDim", "colorTextBright",
