@@ -190,6 +190,15 @@ Hooks.once("init", async () => {
     default: false
   });
 
+  game.settings.register("trespasser", "allowOutOfTurnMovement", {
+    name: "TRESPASSER.Config.AllowOutOfTurnMovement",
+    hint: "TRESPASSER.Config.AllowOutOfTurnMovementHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
   game.settings.register("trespasser", "clockSize", {
     name: "TRESPASSER.Config.ClockSize",
     hint: "TRESPASSER.Config.ClockSizeHint",
@@ -880,11 +889,12 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
   
   // If it's not this token's phase, block non-GMs; GM repositioning is allowed but not tracked
   if (combatant.initiative !== activePhase) {
-      if (!game.user.isGM) {
-          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotYourPhase"));
-          return false;
-      }
-      return; // GM reposition out of phase — don't track
+    const allowOutOfTurn = game.settings.get("trespasser", "allowOutOfTurnMovement");
+    if (!game.user.isGM && !allowOutOfTurn) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotYourPhase"));
+        return false;
+    }
+    return; // Out-of-phase movement — don't track distance
   }
 
   // GMs bypass the action/limit checks but their in-phase moves are tracked

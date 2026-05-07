@@ -39,6 +39,8 @@
       "BypassHavenBuildingLimitsHint": "If enabled, Havens will not be restricted by the Building Limit or Build Slots defined in the progression table.",
       "DisregardRangeOnAttack": "Disregard Range on Attack",
       "DisregardRangeOnAttackHint": "When enabled, attacking out-of-range targets will show a warning but still allow the attack to proceed.",
+      "AllowOutOfTurnMovement": "Allow Movement Out of Turn",
+      "AllowOutOfTurnMovementHint": "When enabled, players can move their tokens even when it's not their combat phase. Movement out of turn is not tracked against their movement budget.",
       "Save": "Save",
       "Cancel": "Cancel",
       "SavedNotice": "Trespasser Configuration saved.",

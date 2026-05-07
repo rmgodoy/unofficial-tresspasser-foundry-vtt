@@ -39,6 +39,8 @@
       "BypassHavenBuildingLimitsHint": "Se habilitado, os Abrigos não serão restringidos pelo Limite de Construção ou Espaços de Construção definidos na tabela de progressão.",
       "DisregardRangeOnAttack": "Ignorar Alcance no Ataque",
       "DisregardRangeOnAttackHint": "Se habilitado, atacar alvos fora de alcance mostrará um aviso, mas permitirá que o ataque prossiga.",
+      "AllowOutOfTurnMovement": "Permitir Movimento Fora de Turno",
+      "AllowOutOfTurnMovementHint": "Quando habilitado, os jogadores podem mover seus tokens mesmo quando não for sua fase de combate. O movimento fora de turno não é contabilizado no orçamento de movimento.",
       "Save": "Salvar",
       "Cancel": "Cancelar",
       "SavedNotice": "Configuração do Trespasser salva.",
