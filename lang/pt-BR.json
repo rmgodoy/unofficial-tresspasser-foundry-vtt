@@ -510,7 +510,10 @@
       "CounterPrompt": "<strong>{defender}</strong> pode contra-atacar <strong>{creature}</strong> com {weapon}! Causar {count}{die} de dano?",
       "CounterTitle": "Contra-ataque",
       "CounterAccept": "Contra-atacar!",
-      "CounterPass": "Passar"
+      "CounterPass": "Passar",
+      "DefensePrompt": "{creature} ataca {target} com {deed}! Role sua {stat}!",
+      "DefenseTimeout": "A rolagem de defesa de {name} expirou.",
+      "WaitingForDefense": "Aguardando {name} rolar {stat}..."
     },
     "Spark": {
       "DialogTitle": "Escolher Fagulhas",

@@ -11,6 +11,8 @@ import { TrespasserCombat }        from "../../documents/combat.mjs";
 import { TrespasserRollDialog }    from "../../dialogs/roll-dialog.mjs";
 import { TargetingHelper }         from "../../helpers/targeting-helper.mjs";
 import { askSparkDialog }          from "../../dialogs/spark-dialog.mjs";
+import { requestPlayerDefenseRoll } from "../../helpers/defense-roll-helper.mjs";
+
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Deed card chat message
@@ -538,38 +540,24 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
       defTotal = totalDef + defEffBonus;
       isHit    = finalDC >= defTotal;
     } else {
-      // Character rolls their defense stat
-      const baseDefense = totalDef - defEffBonus;
-      const isAdv       = TrespasserEffectsHelper.hasAdvantage(targetActor, statKey);
-      const diceFormula = isAdv ? "2d20kh" : "1d20";
+      // Character: prompt the OWNING PLAYER to roll defense via socket
+      const defenseResult = await requestPlayerDefenseRoll({
+        targetActorId: targetActor.id,
+        targetTokenId: targetToken.id,
+        statKey,
+        creatureDC,
+        deedName: item.name,
+        creatureName: sheet.actor.name
+      });
 
-      const result = await TrespasserRollDialog.wait({
-        dice: diceFormula,
-        showCD: true,
-        cd: creatureDC,
-        bonuses: [
-          { label: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`), value: baseDefense },
-          { label: game.i18n.localize("TRESPASSER.Dialog.EffectBonus"), value: defEffBonus }
-        ]
-      }, { title: `${label} Check` });
+      if (!defenseResult) continue; // Player cancelled or timed out
 
-      if (!result) continue; // Skip this target if canceled
-
-      const userModifier = result?.modifier ?? 0;
-      finalDC      = result?.cd ?? creatureDC;
-
-      let formula = `${diceFormula} + ${baseDefense} + ${defEffBonus}`;
-      if (userModifier !== 0) formula += ` + ${userModifier}`;
-
-      const defRoll = new foundry.dice.Roll(formula);
-      await defRoll.evaluate();
-
-      defTotal   = defRoll.total;
-      diceResult = defRoll.dice?.[0]?.results?.[0]?.result ?? null;
-      isHit      = finalDC >= defTotal;
-
-      await TrespasserEffectsHelper.triggerEffects(targetActor, "use", { filterTarget: statKey });
+      defTotal = defenseResult.total;
+      diceResult = defenseResult.diceResult;
+      finalDC = defenseResult.cd;
+      isHit = finalDC >= defTotal;
     }
+
 
     if (isHit) anyHit = true;
 

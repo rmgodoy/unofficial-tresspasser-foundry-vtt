@@ -510,7 +510,10 @@
       "CounterPrompt": "<strong>{defender}</strong> can counter-attack <strong>{creature}</strong> with {weapon}! Deal {count}{die} damage?",
       "CounterTitle": "Counter Reaction",
       "CounterAccept": "Counter!",
-      "CounterPass": "Pass"
+      "CounterPass": "Pass",
+      "DefensePrompt": "{creature} attacks {target} with {deed}! Roll your {stat}!",
+      "DefenseTimeout": "{name}'s defense roll timed out.",
+      "WaitingForDefense": "Waiting for {name} to roll {stat}..."
     },
     "Spark": {
       "DialogTitle": "Choose Sparks",

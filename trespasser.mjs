@@ -43,6 +43,8 @@ import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
 import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
+import { handleDefenseRollRequest, resolveDefenseRoll } from "./module/helpers/defense-roll-helper.mjs";
+
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -487,6 +489,18 @@ Hooks.once("init", async () => {
 Hooks.once("ready", () => {
   // Initialize Token Action HUD
   game.trespasser.tokenHUD = new TrespasserTokenHUD();
+
+  // Socket handling
+  game.socket.on("system.trespasser", async (data) => {
+    switch (data.type) {
+      case "requestDefenseRoll":
+        await handleDefenseRollRequest(data);
+        break;
+      case "defenseRollResult":
+        resolveDefenseRoll(data);
+        break;
+    }
+  });
 
   // Function to apply settings to CSS variables
   game.trespasser.applySystemSettings = () => {
