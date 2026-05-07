@@ -44,6 +44,7 @@ import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
 import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
 
+
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
 import { TrespasserPartySheet }   from "./module/sheets/actor-party-sheet.mjs";
@@ -135,6 +136,33 @@ Hooks.once("init", async () => {
     type: Boolean,
     default: false
   });
+  
+  game.settings.register("trespasser", "enableRetreatDialog", {
+    name: "TRESPASSER.Config.EnableRetreatDialog",
+    hint: "TRESPASSER.Config.EnableRetreatDialogHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register("trespasser", "showPerilInChat", {
+    name: "TRESPASSER.Config.ShowPerilInChat",
+    hint: "TRESPASSER.Config.ShowPerilInChatHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
+  game.settings.register("trespasser", "autoEndCombatOnRetreat", {
+    name: "TRESPASSER.Config.AutoEndCombatOnRetreat",
+    hint: "TRESPASSER.Config.AutoEndCombatOnRetreatHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
 
   game.settings.register("trespasser", "restrictHUDActions", {
     name: "TRESPASSER.Config.RestrictHUDActions",
@@ -179,6 +207,33 @@ Hooks.once("init", async () => {
     config: false,
     type: Boolean,
     default: false
+  });
+
+  game.settings.register("trespasser", "disregardRangeOnAttack", {
+    name: "TRESPASSER.Config.DisregardRangeOnAttack",
+    hint: "TRESPASSER.Config.DisregardRangeOnAttackHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
+  game.settings.register("trespasser", "allowOutOfTurnMovement", {
+    name: "TRESPASSER.Config.AllowOutOfTurnMovement",
+    hint: "TRESPASSER.Config.AllowOutOfTurnMovementHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
+  game.settings.register("trespasser", "playerFacingInitiative", {
+    name: "TRESPASSER.Config.PlayerFacingInitiative",
+    hint: "TRESPASSER.Config.PlayerFacingInitiativeHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
   });
 
   game.settings.register("trespasser", "clockSize", {
@@ -816,6 +871,9 @@ Hooks.on("updateCombatant", (combatant, changed, options, userId) => {
 });
 
 Hooks.on("deleteCombat", async (combat) => {
+  // Clear turn markers
+  combat.updateTurnMarkers(null);
+
   for (const c of combat.combatants) {
     if (c.actor) {
       await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");
@@ -871,11 +929,12 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
   
   // If it's not this token's phase, block non-GMs; GM repositioning is allowed but not tracked
   if (combatant.initiative !== activePhase) {
-      if (!game.user.isGM) {
-          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotYourPhase"));
-          return false;
-      }
-      return; // GM reposition out of phase — don't track
+    const allowOutOfTurn = game.settings.get("trespasser", "allowOutOfTurnMovement");
+    if (!game.user.isGM && !allowOutOfTurn) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotYourPhase"));
+        return false;
+    }
+    return; // Out-of-phase movement — don't track distance
   }
 
   // GMs bypass the action/limit checks but their in-phase moves are tracked
@@ -1257,13 +1316,12 @@ Hooks.on("renderSettings", (app, html, data) => {
 
 /**
  * Hook into the Combat Tracker render to inject the phased initiative UI.
- * This is needed because Foundry V13 CombatTracker (ApplicationV2) doesn't
- * allow template override via defaultOptions.
  */
 Hooks.on("renderCombatTracker", async (app, html, data) => {
   const combat = game.combat;
   if (!combat) return;
 
+  const isWaiting = combat.getFlag("trespasser", "waitingForInitiatives") ?? false;
   const activePhase = combat.getFlag("trespasser", "activePhase");
   const combatInfo  = combat.getFlag("trespasser", "combatInfo") || {};
 
@@ -1280,15 +1338,15 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
     const phaseId = combatant.initiative ?? 0;
     const phase   = PHASES.find(p => p.id === phaseId);
     if (phase) {
-      const ap      = combatant.getFlag("trespasser", "actionPoints") ?? 3;
-      const focus   = combatant.actor?.system.combat?.focus ?? 0;
-      phase.combatants.push({ combatant, ap, focus, activePhase });
+      const ap        = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+      const focus     = combatant.actor?.system.combat?.focus ?? 0;
+      const isPending = combatant.getFlag("trespasser", "initiativePending") ?? false;
+      phase.combatants.push({ combatant, ap, focus, isPending });
     }
   }
 
   const activePhasesData = PHASES.filter(p => p.combatants.length > 0);
 
-  // Build the HTML for the phased tracker
   function buildIcons(filled, cssClass) {
     const totalSlots = Math.max(3, filled);
     return Array.from({ length: totalSlots }, (_, i) => {
@@ -1299,11 +1357,11 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
 
   function buildPhaseHTML(phaseData) {
     const isActive = phaseData.id === activePhase;
-    const nextBtn  = (isActive && game.user.isGM)
+    const nextBtn  = (isActive && game.user.isGM && !isWaiting)
       ? `<button class="next-phase-btn trp-next-phase" title="${game.i18n.localize("TRESPASSER.Phase.Next")}">${game.i18n.localize("TRESPASSER.Phase.NextPhase")}</button>`
       : "";
 
-    const combatantsHTML = phaseData.combatants.map(({ combatant, ap, focus }) => {
+    const combatantsHTML = phaseData.combatants.map(({ combatant, ap, focus, isPending }) => {
       const isDefeated = combatant.defeated;
       const isHidden   = combatant.token?.hidden ?? combatant.hidden;
       const isTargeted = game.user.targets.has(combatant.token?.object);
@@ -1314,6 +1372,14 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
       const img        = combatant.token?.texture?.src ?? combatant.img;
       const owner      = combatant.testUserPermission(game.user, "OWNER");
       const cls        = [isActv ? "active" : "", isFinished ? "finished" : ""].filter(Boolean).join(" ");
+
+      let statsHTML = "";
+      if (isPending) {
+        statsHTML = `<button class="roll-initiative-btn trp-roll-init" style="background:var(--trp-gold-dim); color:var(--trp-bg-dark); border:none; border-radius:3px; padding:4px 8px; cursor:pointer; font-family:var(--trp-font-primary); font-size:var(--fs-18); font-weight:bold; width:100%;"><i style="height:16px;" class="fas fa-dice-d20"></i> </button>`;
+      } else {
+        statsHTML = (focus > 0 ? `<div class="focus-display flexrow"><span class="focus-number">${focus}</span></div>` : "")
+                  + `<div class="ap-display flexrow"><div class="ap-indicator flexrow">${buildIcons(ap, "ap")}</div></div>`;
+      }
 
       return `
         <li class="combatant ${cls}" data-combatant-id="${combatant.id}">
@@ -1334,12 +1400,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
               </a>
             </div>
           </div>
-          <div class="stats-area flexcol">`
-             + (focus > 0 ? `<div class="focus-display flexrow"><span class="focus-number">${focus}</span></div>` : "")
-            + `<div class="ap-display flexrow">
-              <div class="ap-indicator flexrow">${buildIcons(ap, "ap")}</div>
-            </div>
-          </div>
+          <div class="stats-area flexcol">${statsHTML}</div>
         </li>
       `.trim();
     }).join("");
@@ -1359,13 +1420,19 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
     `.trim();
   }
 
+  const waitingBanner = isWaiting ? `
+    <div class="initiative-waiting-banner" style="background:var(--trp-bg-header); border:1px solid var(--trp-gold-dim); border-radius:4px; padding:8px 12px; margin:8px; text-align:center; color:var(--trp-gold-bright); font-family:var(--trp-font-header); font-size:13px;">
+      <i class="fas fa-hourglass-half"></i> ${game.i18n.localize("TRESPASSER.Sheet.Combat.WaitingForInitiatives")}
+    </div>
+  ` : "";
+
   const footerHTML = `
     <footer class="combat-info-footer">
       <div class="info-row">
         <div class="left-info">
           <span class="peril-text">
             ${game.i18n.localize("TRESPASSER.Peril")}: ${combatInfo.perilTotal ?? 0}
-            <span class="peril-label">(${combatInfo.perilLabel ?? "Low"})</span>
+            <span class="peril-label">(${game.i18n.localize(combatInfo.perilLabel ?? "TRESPASSER.PanicLabels.Low")})</span>
           </span>
           <span class="deeds-usage">${combatInfo.heavy ?? 0}H / ${combatInfo.mighty ?? 0}M</span>
         </div>
@@ -1377,23 +1444,14 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
     </footer>
   `.trim();
 
-  // Get the root element - in V13 html may be the element itself
   const root = (html instanceof HTMLElement) ? html : (html[0] ?? html);
-
-  // Try multiple selectors to find the combat log ol element
-  const log = root.querySelector("#combat-log")
-    ?? root.querySelector("ol.directory-list")
-    ?? root.querySelector("ol");
+  const log = root.querySelector("#combat-log") ?? root.querySelector("ol.directory-list") ?? root.querySelector("ol");
 
   if (log) {
-    log.innerHTML = activePhasesData.map(buildPhaseHTML).join("");
-  } else {
-    console.warn("Trespasser | Could not find combat log element to inject phases. Root:", root);
+    log.innerHTML = waitingBanner + activePhasesData.map(buildPhaseHTML).join("");
   }
 
-  // Replace default navigation controls (|< < X > >|) with a single "Next Phase" button
   if (game.user.isGM) {
-    // Remove existing footer if present, then append new one
     root.querySelector(".combat-info-footer")?.remove();
     const section = root.closest("section") ?? root.querySelector("section") ?? root;
     const footerEl = document.createElement("div");
@@ -1401,12 +1459,23 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
     section.appendChild(footerEl.firstElementChild);
   }
 
-
-  // Wire up event listeners using native DOM
+  // Event Listeners
   root.querySelectorAll(".trp-next-phase").forEach(btn => {
     btn.addEventListener("click", ev => {
       ev.preventDefault();
       game.combat?.nextPhase();
+    });
+  });
+
+  root.querySelectorAll(".trp-roll-init").forEach(btn => {
+    btn.addEventListener("click", async ev => {
+      ev.preventDefault();
+      const li = ev.currentTarget.closest(".combatant");
+      const combatantId = li?.dataset.combatantId;
+      const combatant = game.combat?.combatants.get(combatantId);
+      if (!combatant) return;
+      if (!combatant.testUserPermission(game.user, "OWNER") && !game.user.isGM) return;
+      await game.combat.rollPlayerInitiative(combatantId);
     });
   });
 
@@ -1417,10 +1486,8 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
       const li = ev.currentTarget.closest(".combatant");
       const combatant = game.combat?.combatants.get(li?.dataset.combatantId);
       if (!combatant || !combatant.testUserPermission(game.user, "OWNER")) return;
-
       const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 3;
-      const newAP = Math.max(0, currentAP - 1);
-      await combatant.setFlag("trespasser", "actionPoints", newAP);
+      await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
     });
   });
 
@@ -1431,21 +1498,18 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
       const li = el.closest(".combatant");
       const combatant = game.combat?.combatants.get(li?.dataset.combatantId);
       if (!combatant) return;
-
       const action = el.dataset.action;
-      switch (action) {
-        case "toggleHidden":
-          if (!game.user.isGM && !combatant.testUserPermission(game.user, "OWNER")) return;
-          const t = combatant.token;
-          if (t) return t.update({ hidden: !t.hidden });
-          return combatant.update({ hidden: !combatant.hidden });
-        case "toggleDefeated":
-          if (!game.user.isGM && !combatant.testUserPermission(game.user, "OWNER")) return;
-          return app._onToggleDefeatedStatus(combatant);
-        case "toggleTarget":
-          const token = combatant.token?.object;
-          if (!token) return;
-          return token.setTarget(!token.isTargeted, { releaseOthers: false });
+      if (action === "toggleHidden") {
+        if (!game.user.isGM && !combatant.testUserPermission(game.user, "OWNER")) return;
+        const t = combatant.token;
+        if (t) await t.update({ hidden: !t.hidden });
+        else await combatant.update({ hidden: !combatant.hidden });
+      } else if (action === "toggleDefeated") {
+        if (!game.user.isGM && !combatant.testUserPermission(game.user, "OWNER")) return;
+        await combatant.update({ defeated: !combatant.defeated });
+      } else if (action === "toggleTarget") {
+        const token = combatant.token?.object;
+        if (token) token.setTarget(!token.isTargeted, { releaseOthers: false });
       }
     });
   });

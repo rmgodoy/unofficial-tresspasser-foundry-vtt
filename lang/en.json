@@ -1,4 +1,9 @@
 {
+  "COMBAT": {
+    "ToggleVis": "Toggle Visibility",
+    "ToggleDead": "Toggle Defeated",
+    "ToggleTarget": "Toggle Target"
+  },
   "TRESPASSER": {
     "General": {
       "New": "New",
@@ -21,6 +26,8 @@
       "Title": "Trespasser Configuration",
       "ShowInitiativeInChat": "Show initiative roll in chat",
       "ShowInitiativeInChatHint": "If enabled, initiative rolls will be posted to the chat log.",
+      "PlayerFacingInitiative": "Player-Facing Initiative Rolls",
+      "PlayerFacingInitiativeHint": "When enabled, players roll their own initiative at the start of each round instead of it being automatic.",
       "RestrictMovementAction": "Restrict Movement Action",
       "RestrictMovementActionHint": "If enabled, movement is only allowed after taking a Move or Vault action. If disabled, tokens can move freely.",
       "RestrictHUDActions": "Restrict Actions per Turn",
@@ -37,6 +44,10 @@
       "FontSizeBaseHint": "The base font size for the entire system. All other font sizes will scale proportionally.",
       "BypassHavenBuildingLimits": "Bypass Haven Building Limits",
       "BypassHavenBuildingLimitsHint": "If enabled, Havens will not be restricted by the Building Limit or Build Slots defined in the progression table.",
+      "DisregardRangeOnAttack": "Disregard Range on Attack",
+      "DisregardRangeOnAttackHint": "When enabled, attacking out-of-range targets will show a warning but still allow the attack to proceed.",
+      "AllowOutOfTurnMovement": "Allow Movement Out of Turn",
+      "AllowOutOfTurnMovementHint": "When enabled, players can move their tokens even when it's not their combat phase. Movement out of turn is not tracked against their movement budget.",
       "Save": "Save",
       "Cancel": "Cancel",
       "SavedNotice": "Trespasser Configuration saved.",
@@ -50,6 +61,12 @@
         "Visuals": "Appearance",
         "Colors": "Theme Colors"
       },
+      "EnableRetreatDialog": "Enable Retreat Dialog",
+      "EnableRetreatDialogHint": "If enabled, the GM will be prompted to Continue or Retreat at the start of each new round after the Peril roll. If disabled, rounds proceed normally.",
+      "ShowPerilInChat": "Show Peril roll in chat",
+      "ShowPerilInChatHint": "If enabled, the Peril roll at the start of each round will be posted to the chat log for all players to see.",
+      "AutoEndCombatOnRetreat": "Auto-end combat on successful retreat",
+      "AutoEndCombatOnRetreatHint": "If enabled, combat will automatically end when the party successfully retreats. If disabled, only a message is posted and the GM must end combat manually.",
       "colorBgDark": "Main Application Background",
       "colorBgPanel": "Sidebar & Panel Background",
       "colorBgInput": "Input & Textarea Background",
@@ -270,6 +287,9 @@
       },
       "Combat": {
         "Initiative": "Initiative",
+        "RollInitiative": "Roll Initiative",
+        "WaitingForInitiatives": "Waiting for Initiative rolls...",
+        "RollPending": "Pending",
         "Accuracy": "Accuracy",
         "Guard": "Guard",
         "Resist": "Resist",
@@ -506,7 +526,10 @@
       "CounterPrompt": "<strong>{defender}</strong> can counter-attack <strong>{creature}</strong> with {weapon}! Deal {count}{die} damage?",
       "CounterTitle": "Counter Reaction",
       "CounterAccept": "Counter!",
-      "CounterPass": "Pass"
+      "CounterPass": "Pass",
+      "DefensePrompt": "{creature} attacks {target} with {deed}! Roll your {stat}!",
+      "DefenseTimeout": "{name}'s defense roll timed out.",
+      "WaitingForDefense": "Waiting for {name} to roll {stat}..."
     },
     "Spark": {
       "DialogTitle": "Choose Sparks",
@@ -916,6 +939,24 @@
     },
     "Peril": "Peril",
     "Panic": "Panic",
+    "PanicLabels": {
+      "Low": "Low",
+      "Medium": "Medium",
+      "High": "High"
+    },
+    "Retreat": {
+      "DialogTitle": "Continue or Retreat?",
+      "DialogPrompt": "The Peril for this round has been rolled. Do you want to continue the round or attempt a retreat?",
+      "PerilDisplay": "Peril: {total} ({label}) — Heavy: {heavy} / Mighty: {mighty}",
+      "Continue": "Continue",
+      "Retreat": "Retreat",
+      "AttemptChat": "The party attempts to retreat!",
+      "SuccessRoll": "{name} rolled {total} vs {dc} — Success!",
+      "FailRoll": "{name} rolled {total} vs {dc} — Failure!",
+      "PartyEscaped": "The party has successfully retreated! ({successes}/{total} succeeded)",
+      "PartyFailed": "The retreat failed! ({successes}/{total} succeeded — needed {needed}). Combat continues using the rolled initiatives.",
+      "PerilChat": "Peril: {total} ({label}) — Heavy: {heavy}, Mighty: {mighty}"
+    },
     "InitDC": "Init DC",
     "HUD": {
       "Title": "Token Actions",
@@ -1478,10 +1519,7 @@
       },
       "BuildClock": "Build Clock"
     },
-    "Remove": "Remove",
-    "Combat": {
-      "States": "States"
-    }
+    "Remove": "Remove"
   },
   "TYPES": {
     "Actor": {

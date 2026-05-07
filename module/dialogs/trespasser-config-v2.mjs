@@ -58,6 +58,12 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
       groupCheckFullParty: game.settings.get("trespasser", "groupCheckFullParty"),
       restrictHavenEditToLeader: game.settings.get("trespasser", "restrictHavenEditToLeader"),
       bypassHavenBuildingLimits: game.settings.get("trespasser", "bypassHavenBuildingLimits"),
+      disregardRangeOnAttack: game.settings.get("trespasser", "disregardRangeOnAttack"),
+      allowOutOfTurnMovement: game.settings.get("trespasser", "allowOutOfTurnMovement"),
+      playerFacingInitiative: game.settings.get("trespasser", "playerFacingInitiative"),
+      enableRetreatDialog: game.settings.get("trespasser", "enableRetreatDialog"),
+      showPerilInChat: game.settings.get("trespasser", "showPerilInChat"),
+      autoEndCombatOnRetreat: game.settings.get("trespasser", "autoEndCombatOnRetreat"),
       clockSize: game.settings.get("trespasser", "clockSize"),
       fontSizeBase: game.settings.get("trespasser", "fontSizeBase")
     };
@@ -166,7 +172,9 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     const settingsToReset = [
         "showInitiativeInChat", "restrictMovementAction", "restrictHUDActions", 
         "restrictAPFocusUsage", "groupCheckFullParty", "restrictHavenEditToLeader",
-        "bypassHavenBuildingLimits", "clockSize", "fontSizeBase",
+        "bypassHavenBuildingLimits", "disregardRangeOnAttack", "allowOutOfTurnMovement", "playerFacingInitiative", 
+        "enableRetreatDialog", "showPerilInChat", "autoEndCombatOnRetreat",
+        "clockSize", "fontSizeBase",
         "colorBgDark", "colorBgPanel", "colorBgInput", "colorBgHeader", "colorBgSelect",
         "colorBorder", "colorBorderLight", "colorGold", "colorGoldDim", "colorGoldBright",
         "colorRed", "colorRedDim", "colorText", "colorTextDim", "colorTextBright",

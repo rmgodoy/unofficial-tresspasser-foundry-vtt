@@ -53,7 +53,7 @@
       {{#if showTargetSize}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Item.TargetSize"}}</label>
-        <input type="number" name="system.targetSize" value="{{system.targetSize}}" min="1" />
+        <input type="number" name="system.targetSize" value="{{system.targetSize}}" min="1" class="select-on-focus" />
       </div>
       {{/if}}
 
@@ -79,19 +79,19 @@
       {{!-- Focus Cost --}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Item.FocusCost"}}</label>
-        <input type="number" name="system.focusCost" value="{{system.focusCost}}" min="0" placeholder="{{localize 'TRESPASSER.Item.Auto'}}" />
+        <input type="number" name="system.focusCost" value="{{system.focusCost}}" min="0" placeholder="{{localize 'TRESPASSER.Item.Auto'}}" class="select-on-focus" />
       </div>
 
       {{!-- Focus Increase --}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Item.FocusIncrease"}}</label>
-        <input type="number" name="system.focusIncrease" value="{{system.focusIncrease}}" min="0" placeholder="{{localize 'TRESPASSER.Item.Auto'}}" />
+        <input type="number" name="system.focusIncrease" value="{{system.focusIncrease}}" min="0" placeholder="{{localize 'TRESPASSER.Item.Auto'}}" class="select-on-focus" />
       </div>
 
       {{!-- Bonus Cost --}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Item.BonusCost"}}</label>
-        <input type="number" name="system.bonusCost" value="{{system.bonusCost}}" min="0" placeholder="0" />
+        <input type="number" name="system.bonusCost" value="{{system.bonusCost}}" min="0" placeholder="0" class="select-on-focus" />
       </div>
     </div>
   </div>

@@ -684,7 +684,7 @@ export class TrespasserActor extends Actor {
 
     if (item.system.effects?.length > 0) {
       flavorHtml += `<div style="margin-top:8px;">`;
-      flavorHtml += `<div style="font-size:var(--fs-11);color:var(--trp-text-dim);text-transform:uppercase;margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Combat.States")}</div>`;
+      flavorHtml += `<div style="font-size:var(--fs-11);color:var(--trp-text-dim);text-transform:uppercase;margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Sheet.Combat.States")}</div>`;
       for (const eff of item.system.effects) {
         const isApplied = item.system.subType === "potions";
         flavorHtml += `

@@ -1,4 +1,9 @@
 {
+  "COMBAT": {
+    "ToggleVis": "Alternar Visibilidade",
+    "ToggleDead": "Alternar Derrotado",
+    "ToggleTarget": "Alternar Alvo"
+  },
   "TRESPASSER": {
     "General": {
       "New": "Novo",
@@ -21,6 +26,8 @@
       "Title": "Configuração do Trespasser",
       "ShowInitiativeInChat": "Mostrar rolagem de iniciativa no chat",
       "ShowInitiativeInChatHint": "Se habilitado, as rolagens de iniciativa serão postadas no log do chat.",
+      "PlayerFacingInitiative": "Rolagens de Iniciativa pelos Jogadores",
+      "PlayerFacingInitiativeHint": "Se habilitado, os jogadores rolam sua própria iniciativa no início de cada rodada em vez de ser automático.",
       "RestrictMovementAction": "Restringir Ação de Movimento",
       "RestrictMovementActionHint": "Se habilitado, o movimento só é permitido após realizar uma ação de Mover ou Salto. Se desabilitado, os tokens podem se mover livremente.",
       "RestrictHUDActions": "Restringir Ações por Turno",
@@ -37,6 +44,10 @@
       "FontSizeBaseHint": "O tamanho de fonte base para todo o sistema. Todos os outros tamanhos de fonte serão escalonados proporcionalmente.",
       "BypassHavenBuildingLimits": "Ignorar Limites de Construção do Abrigo",
       "BypassHavenBuildingLimitsHint": "Se habilitado, os Abrigos não serão restringidos pelo Limite de Construção ou Espaços de Construção definidos na tabela de progressão.",
+      "DisregardRangeOnAttack": "Ignorar Alcance no Ataque",
+      "DisregardRangeOnAttackHint": "Se habilitado, atacar alvos fora de alcance mostrará um aviso, mas permitirá que o ataque prossiga.",
+      "AllowOutOfTurnMovement": "Permitir Movimento Fora de Turno",
+      "AllowOutOfTurnMovementHint": "Quando habilitado, os jogadores podem mover seus tokens mesmo quando não for sua fase de combate. O movimento fora de turno não é contabilizado no orçamento de movimento.",
       "Save": "Salvar",
       "Cancel": "Cancelar",
       "SavedNotice": "Configuração do Trespasser salva.",
@@ -50,6 +61,12 @@
         "Visuals": "Aparência",
         "Colors": "Cores do Tema"
       },
+      "EnableRetreatDialog": "Habilitar Diálogo de Retirada",
+      "EnableRetreatDialogHint": "Se habilitado, o Mestre será solicitado a Continuar ou Recuar no início de cada nova rodada após a rolagem de Perigo. Se desabilitado, as rodadas prosseguem normalmente.",
+      "ShowPerilInChat": "Mostrar rolagem de Perigo no chat",
+      "ShowPerilInChatHint": "Se habilitado, a rolagem de Perigo no início de cada rodada será postada no chat para todos os jogadores verem.",
+      "AutoEndCombatOnRetreat": "Encerrar combate automaticamente ao recuar",
+      "AutoEndCombatOnRetreatHint": "Se habilitado, o combate será encerrado automaticamente quando o grupo recuar com sucesso. Se desabilitado, apenas uma mensagem é postada e o Mestre deve encerrar o combate manualmente.",
       "colorBgDark": "Fundo Principal da Aplicação",
       "colorBgPanel": "Fundo da Barra Lateral e Painéis",
       "colorBgInput": "Fundo de Entradas e Áreas de Texto",
@@ -270,6 +287,9 @@
       },
       "Combat": {
         "Initiative": "Iniciativa",
+        "RollInitiative": "Rolar Iniciativa",
+        "WaitingForInitiatives": "Aguardando rolagens de Iniciativa...",
+        "RollPending": "Pendente",
         "Accuracy": "Acurácia",
         "Guard": "Guarda",
         "Resist": "Resistência",
@@ -318,6 +338,19 @@
             "Medium": "Médio",
             "High": "Alto"
           }
+        },
+        "Retreat": {
+          "DialogTitle": "Continuar ou Recuar?",
+          "DialogPrompt": "O Perigo desta rodada foi rolado. Deseja continuar a rodada ou tentar recuar?",
+          "PerilDisplay": "Perigo: {total} ({label}) — Pesadas: {heavy} / Pujantes: {mighty}",
+          "Continue": "Continuar",
+          "Retreat": "Recuar",
+          "AttemptChat": "O grupo tenta recuar!",
+          "SuccessRoll": "{name} rolou {total} vs {dc} — Sucesso!",
+          "FailRoll": "{name} rolou {total} vs {dc} — Falha!",
+          "PartyEscaped": "O grupo recuou com sucesso! ({successes}/{total} tiveram sucesso)",
+          "PartyFailed": "A retirada falhou! ({successes}/{total} tiveram sucesso — necessário {needed}). O combate continua usando as iniciativas roladas.",
+          "PerilChat": "Perigo: {total} ({label}) — Pesadas: {heavy}, Pujantes: {mighty}"
         }
       },
       "Rest": {
@@ -506,7 +539,10 @@
       "CounterPrompt": "<strong>{defender}</strong> pode contra-atacar <strong>{creature}</strong> com {weapon}! Causar {count}{die} de dano?",
       "CounterTitle": "Contra-ataque",
       "CounterAccept": "Contra-atacar!",
-      "CounterPass": "Passar"
+      "CounterPass": "Passar",
+      "DefensePrompt": "{creature} ataca {target} com {deed}! Role sua {stat}!",
+      "DefenseTimeout": "A rolagem de defesa de {name} expirou.",
+      "WaitingForDefense": "Aguardando {name} rolar {stat}..."
     },
     "Spark": {
       "DialogTitle": "Escolher Fagulhas",
@@ -911,11 +947,16 @@
       "Late": "Fase Final",
       "Extra": "Fase Extra",
       "End": "Fase de Fim de Turno",
-      "Next": "Próxima Fase",
+        "Next": "Próxima Fase",
       "NextPhase": "Próxima Fase"
     },
     "Peril": "Perigo",
     "Panic": "Pânico",
+    "PanicLabels": {
+      "Low": "Baixo",
+      "Medium": "Médio",
+      "High": "Alto"
+    },
     "InitDC": "DC de Iniciativa",
     "HUD": {
       "Title": "Ações de Token",
@@ -1478,10 +1519,7 @@
       },
       "BuildClock": "Relógio de Obra"
     },
-    "Remove": "Remover",
-    "Combat": {
-      "States": "Estados"
-    }
+    "Remove": "Remover"
   },
   "TYPES": {
     "Actor": {
