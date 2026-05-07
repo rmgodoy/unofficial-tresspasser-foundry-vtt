@@ -188,7 +188,7 @@ Hooks.once("init", async () => {
     scope: "world",
     config: false,
     type: Boolean,
-    default: false
+    default: true
   });
 
   game.settings.register("trespasser", "allowOutOfTurnMovement", {
@@ -197,7 +197,7 @@ Hooks.once("init", async () => {
     scope: "world",
     config: false,
     type: Boolean,
-    default: false
+    default: true
   });
 
   game.settings.register("trespasser", "playerFacingInitiative", {
@@ -206,7 +206,7 @@ Hooks.once("init", async () => {
     scope: "world",
     config: false,
     type: Boolean,
-    default: false
+    default: true
   });
 
   game.settings.register("trespasser", "clockSize", {
