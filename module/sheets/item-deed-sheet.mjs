@@ -182,6 +182,12 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
       zone.addEventListener("dragover", (ev) => ev.preventDefault());
       zone.addEventListener("drop", this.#onDropEffect.bind(this));
     }
+
+    // Auto-select text on focus for specific inputs
+    const selectOnFocus = this.element.querySelectorAll(".select-on-focus");
+    for (const input of selectOnFocus) {
+      input.addEventListener("focus", (ev) => ev.currentTarget.select());
+    }
   }
 
   /* -------------------------------------------- */
