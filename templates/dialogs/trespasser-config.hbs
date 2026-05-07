@@ -66,6 +66,30 @@
                 </div>
                 <p class="notes">{{localize "TRESPASSER.Config.AllowOutOfTurnMovementHint"}}</p>
             </div>
+
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.EnableRetreatDialog"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="enableRetreatDialog" {{checked settings.enableRetreatDialog}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.EnableRetreatDialogHint"}}</p>
+            </div>
+
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.ShowPerilInChat"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="showPerilInChat" {{checked settings.showPerilInChat}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.ShowPerilInChatHint"}}</p>
+            </div>
+
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.AutoEndCombatOnRetreat"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="autoEndCombatOnRetreat" {{checked settings.autoEndCombatOnRetreat}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.AutoEndCombatOnRetreatHint"}}</p>
+            </div>
         </div>
 
         <!-- Exploration Tab -->

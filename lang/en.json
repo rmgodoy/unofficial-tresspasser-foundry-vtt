@@ -61,6 +61,12 @@
         "Visuals": "Appearance",
         "Colors": "Theme Colors"
       },
+      "EnableRetreatDialog": "Enable Retreat Dialog",
+      "EnableRetreatDialogHint": "If enabled, the GM will be prompted to Continue or Retreat at the start of each new round after the Peril roll. If disabled, rounds proceed normally.",
+      "ShowPerilInChat": "Show Peril roll in chat",
+      "ShowPerilInChatHint": "If enabled, the Peril roll at the start of each round will be posted to the chat log for all players to see.",
+      "AutoEndCombatOnRetreat": "Auto-end combat on successful retreat",
+      "AutoEndCombatOnRetreatHint": "If enabled, combat will automatically end when the party successfully retreats. If disabled, only a message is posted and the GM must end combat manually.",
       "colorBgDark": "Main Application Background",
       "colorBgPanel": "Sidebar & Panel Background",
       "colorBgInput": "Input & Textarea Background",
@@ -937,6 +943,19 @@
       "Low": "Low",
       "Medium": "Medium",
       "High": "High"
+    },
+    "Retreat": {
+      "DialogTitle": "Continue or Retreat?",
+      "DialogPrompt": "The Peril for this round has been rolled. Do you want to continue the round or attempt a retreat?",
+      "PerilDisplay": "Peril: {total} ({label}) — Heavy: {heavy} / Mighty: {mighty}",
+      "Continue": "Continue",
+      "Retreat": "Retreat",
+      "AttemptChat": "The party attempts to retreat!",
+      "SuccessRoll": "{name} rolled {total} vs {dc} — Success!",
+      "FailRoll": "{name} rolled {total} vs {dc} — Failure!",
+      "PartyEscaped": "The party has successfully retreated! ({successes}/{total} succeeded)",
+      "PartyFailed": "The retreat failed! ({successes}/{total} succeeded — needed {needed}). Combat continues using the rolled initiatives.",
+      "PerilChat": "Peril: {total} ({label}) — Heavy: {heavy}, Mighty: {mighty}"
     },
     "InitDC": "Init DC",
     "HUD": {

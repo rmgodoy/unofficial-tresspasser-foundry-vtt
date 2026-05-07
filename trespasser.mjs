@@ -136,6 +136,33 @@ Hooks.once("init", async () => {
     type: Boolean,
     default: false
   });
+  
+  game.settings.register("trespasser", "enableRetreatDialog", {
+    name: "TRESPASSER.Config.EnableRetreatDialog",
+    hint: "TRESPASSER.Config.EnableRetreatDialogHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register("trespasser", "showPerilInChat", {
+    name: "TRESPASSER.Config.ShowPerilInChat",
+    hint: "TRESPASSER.Config.ShowPerilInChatHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
+  game.settings.register("trespasser", "autoEndCombatOnRetreat", {
+    name: "TRESPASSER.Config.AutoEndCombatOnRetreat",
+    hint: "TRESPASSER.Config.AutoEndCombatOnRetreatHint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
 
   game.settings.register("trespasser", "restrictHUDActions", {
     name: "TRESPASSER.Config.RestrictHUDActions",

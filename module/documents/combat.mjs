@@ -1,4 +1,5 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { showRetreatDialog } from "../dialogs/retreat-dialog.mjs";
 
 /**
  * Custom Combat class for Trespasser TTRPG.
@@ -186,6 +187,20 @@ export class TrespasserCombat extends Combat {
 
       if (initResults.newCombatants.length > 0) {
         await this.createEmbeddedDocuments("Combatant", initResults.newCombatants);
+      }
+
+      // Check if we should show retreat dialog
+      const enableRetreat = game.settings.get("trespasser", "enableRetreatDialog");
+      if (enableRetreat) {
+        const combatInfo = this.getFlag("trespasser", "combatInfo");
+        const choice = await showRetreatDialog(combatInfo);
+        
+        if (choice === "retreat") {
+          await this._attemptRetreat(combatInfo.enemyMaxInit);
+          // If retreat succeeded and combat ended, we don't need to advance round
+          if (!game.combats.has(this.id)) return this; 
+          return super.nextRound();
+        }
       }
 
       const playerFacingInit = game.settings.get("trespasser", "playerFacingInitiative");
@@ -406,15 +421,21 @@ export class TrespasserCombat extends Combat {
     
     const updates = { "flags.trespasser.initiativePending": false };
     const newCombatants = [];
+    const isRetreat = this.getFlag("trespasser", "retreatPending");
 
-    if (isNat20) {
-      updates.initiative = TrespasserCombat.PHASES.EARLY;
-      const extraData = this.createExtraCombatant(combatant, TrespasserCombat.PHASES.LATE);
-      newCombatants.push(extraData);
-    } else if (total >= enemyMaxInit) {
-      updates.initiative = TrespasserCombat.PHASES.EARLY;
+    if (isRetreat) {
+      // During retreat, we store the raw total to evaluate success later
+      updates.initiative = total;
     } else {
-      updates.initiative = TrespasserCombat.PHASES.LATE;
+      if (isNat20) {
+        updates.initiative = TrespasserCombat.PHASES.EARLY;
+        const extraData = this.createExtraCombatant(combatant, TrespasserCombat.PHASES.LATE);
+        newCombatants.push(extraData);
+      } else if (total >= enemyMaxInit) {
+        updates.initiative = TrespasserCombat.PHASES.EARLY;
+      } else {
+        updates.initiative = TrespasserCombat.PHASES.LATE;
+      }
     }
 
     // Apply updates
@@ -447,9 +468,145 @@ export class TrespasserCombat extends Combat {
       
       // If we're GM, we can definitely do this
       if (game.user.isGM) {
-        await this._onStartOfTurn(initialPhase);
+        const isRetreat = this.getFlag("trespasser", "retreatPending");
+        if (isRetreat) {
+          await this._evaluateRetreat();
+        } else {
+          await this._onStartOfTurn(initialPhase);
+        }
       }
     }
+  }
+
+  /**
+   * Post Peril roll to chat.
+   * @param {object} combatInfo 
+   */
+  async _postPerilToChat(combatInfo) {
+    if (!game.settings.get("trespasser", "showPerilInChat")) return;
+    
+    const label = game.i18n.localize(combatInfo.perilLabel);
+    const content = await renderTemplate("systems/trespasser/templates/chat/peril-card.hbs", {
+      total: combatInfo.perilTotal,
+      label: label,
+      heavy: combatInfo.heavy,
+      mighty: combatInfo.mighty,
+      panicLevel: combatInfo.panicLevel
+    });
+
+    await ChatMessage.create({
+      user: game.user.id,
+      content: content,
+      flavor: game.i18n.localize("TRESPASSER.Peril"),
+      type: CONST.CHAT_MESSAGE_TYPES.OTHER
+    });
+  }
+
+  /**
+   * Handle the retreat attempt flow.
+   * @param {number} enemyMaxInit 
+   */
+  async _attemptRetreat(enemyMaxInit) {
+    const playerFacingInit = game.settings.get("trespasser", "playerFacingInitiative");
+    
+    // Post attempt to chat
+    await ChatMessage.create({
+      content: `<h3 style="color:var(--trp-gold-bright)">${game.i18n.localize("TRESPASSER.Retreat.AttemptChat")}</h3>`,
+      type: CONST.CHAT_MESSAGE_TYPES.OTHER
+    });
+
+    if (playerFacingInit) {
+      await this.setFlag("trespasser", "retreatPending", true);
+      await this.setFlag("trespasser", "waitingForInitiatives", true);
+      // Players already have pending flag from rollAllTrespasserInitiatives
+      return;
+    }
+
+    // GM rolls for everyone
+    for (const c of this.combatants) {
+      if (c.actor?.type === "character" && !c.defeated) {
+        const initBonus = c.actor.system.combat?.initiative || 0;
+        const roll = new foundry.dice.Roll(`1d20 + ${initBonus}`);
+        await roll.evaluate();
+        
+        if (game.settings.get("trespasser", "showInitiativeInChat")) {
+          await roll.toMessage({
+            speaker: ChatMessage.getSpeaker({ actor: c.actor }),
+            flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
+          });
+        }
+        
+        await c.setFlag("trespasser", "initiativePending", false);
+        await c.update({ initiative: roll.total }); // Store roll result temporarily in initiative
+      }
+    }
+
+    await this._evaluateRetreat();
+  }
+
+  /**
+   * Evaluate if the retreat succeeded.
+   */
+  async _evaluateRetreat() {
+    const combatInfo = this.getFlag("trespasser", "combatInfo");
+    const enemyMaxInit = combatInfo.enemyMaxInit;
+    
+    const pcs = this.combatants.filter(c => c.actor?.type === "character" && !c.defeated);
+    let successes = 0;
+
+    for (const c of pcs) {
+      const rollTotal = c.initiative;
+      if (rollTotal >= enemyMaxInit) {
+        successes++;
+      }
+    }
+
+    const needed = Math.ceil(pcs.length / 2);
+    const success = successes >= needed;
+
+    if (success) {
+      await ChatMessage.create({
+        content: `<h2 style="color:var(--trp-green-bright)">${game.i18n.format("TRESPASSER.Retreat.PartyEscaped", { successes, total: pcs.length })}</h2>`,
+        type: CONST.CHAT_MESSAGE_TYPES.OTHER
+      });
+      
+      if (game.settings.get("trespasser", "autoEndCombatOnRetreat")) {
+        await this.endCombat();
+        return;
+      }
+    } else {
+      await ChatMessage.create({
+        content: `<h2 style="color:var(--trp-red)">${game.i18n.format("TRESPASSER.Retreat.PartyFailed", { successes, total: pcs.length, needed })}</h2>`,
+        type: CONST.CHAT_MESSAGE_TYPES.OTHER
+      });
+    }
+
+    // Clean up flags and finalize initiatives
+    await this.setFlag("trespasser", "retreatPending", false);
+    
+    const updates = [];
+    for (const c of pcs) {
+      const total = c.initiative;
+      const isNat20 = false; // We don't track nat 20 for retreat usually, or do we? 
+      // Plan said: If they fail, the rolled initiative is used and the combat continues as normal.
+      
+      let initValue;
+      if (total >= enemyMaxInit) {
+        initValue = TrespasserCombat.PHASES.EARLY;
+      } else {
+        initValue = TrespasserCombat.PHASES.LATE;
+      }
+      updates.push({ _id: c.id, initiative: initValue });
+    }
+    
+    if (updates.length > 0) {
+      await this.updateEmbeddedDocuments("Combatant", updates);
+    }
+
+    const initialPhase = this._firstNonEmptyPhase();
+    await this.setFlag("trespasser", "activePhase", initialPhase);
+    await this._onStartOfRound();
+    await this._onStartOfTurn(initialPhase);
   }
 
   /**
@@ -603,14 +760,19 @@ export class TrespasserCombat extends Combat {
     }
 
     // Store combat state in flags for the tracker
-    await this.setFlag("trespasser", "combatInfo", {
+    const combatInfo = {
       perilTotal,
       perilLabel,
       heavy,
       mighty,
       panicLevel,
       enemyMaxInit
-    });
+    };
+    
+    await this.setFlag("trespasser", "combatInfo", combatInfo);
+
+    // 6. Post Peril to Chat
+    await this._postPerilToChat(combatInfo);
 
     // 5. Store whether we're waiting for player initiatives
     if (playerFacingInit) {
