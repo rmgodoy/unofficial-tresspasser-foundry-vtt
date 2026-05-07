@@ -1,6 +1,6 @@
 /**
  * defense-roll-helper.mjs
- * Handles socket-based defense roll prompts for player-facing rolls.
+ * Handles defense roll prompts for player-facing rolls using Document Flags.
  */
 import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
@@ -35,12 +35,25 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
 
   const requestId = foundry.utils.randomID();
 
-  // Send socket message to the owning player
-  game.socket.emit("system.trespasser", {
-    type: "requestDefenseRoll",
+  // Wait for response with a timeout (60 seconds)
+  const promise = new Promise((resolve) => {
+    const timeout = setTimeout(async () => {
+      _pendingDefenseRolls.delete(requestId);
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Chat.DefenseTimeout", { name: targetActor.name }));
+      
+      // Cleanup flag on timeout
+      if (targetActor) {
+        await targetActor.unsetFlag("trespasser", "pendingDefenseRoll");
+      }
+      resolve(null); // Timeout — skip this target
+    }, 60000);
+
+    _pendingDefenseRolls.set(requestId, { resolve, timeout });
+  });
+
+  // Set the flag natively. This triggers updateActor on all connected clients.
+  await targetActor.setFlag("trespasser", "pendingDefenseRoll", {
     requestId,
-    targetActorId,
-    targetTokenId,
     statKey,
     creatureDC,
     deedName,
@@ -55,48 +68,7 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
     stat: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`) 
   }));
 
-  // Wait for response with a timeout (60 seconds)
-  return new Promise((resolve) => {
-    const timeout = setTimeout(() => {
-      _pendingDefenseRolls.delete(requestId);
-      ui.notifications.warn(game.i18n.format("TRESPASSER.Chat.DefenseTimeout", { name: targetActor.name }));
-      resolve(null); // Timeout — skip this target
-    }, 60000);
-
-    _pendingDefenseRolls.set(requestId, { resolve, timeout });
-  });
-}
-
-/**
- * Called on the PLAYER's client when they receive a defense roll request.
- */
-export async function handleDefenseRollRequest(data) {
-  // Only process if this message is for this user
-  if (data.targetUserId !== game.user.id) return;
-
-  const actor = game.actors.get(data.targetActorId);
-  if (!actor) return;
-
-  const result = await _rollDefenseLocally(actor, data.statKey, data.creatureDC, data.deedName);
-
-  // Send result back to GM via socket
-  game.socket.emit("system.trespasser", {
-    type: "defenseRollResult",
-    requestId: data.requestId,
-    result
-  });
-}
-
-/**
- * Called on the GM's client when a player sends back their defense roll result.
- */
-export function resolveDefenseRoll(data) {
-  const pending = _pendingDefenseRolls.get(data.requestId);
-  if (!pending) return;
-  
-  clearTimeout(pending.timeout);
-  _pendingDefenseRolls.delete(data.requestId);
-  pending.resolve(data.result);
+  return promise;
 }
 
 /**
@@ -150,3 +122,37 @@ async function _rollDefenseLocally(actor, statKey, creatureDC, deedName) {
     formula
   };
 }
+
+/**
+ * Handle document flags to replace socket logic
+ */
+Hooks.on("updateActor", async (actor, updates, options, userId) => {
+  // --- PLAYER SIDE: Detect new roll request ---
+  const pendingRequest = foundry.utils.getProperty(updates, "flags.trespasser.pendingDefenseRoll");
+  if (pendingRequest && pendingRequest.targetUserId === game.user.id) {
+    const result = await _rollDefenseLocally(actor, pendingRequest.statKey, pendingRequest.creatureDC, pendingRequest.deedName);
+    
+    // Clear pending flag and set result flag in a single update
+    await actor.update({
+      "flags.trespasser.-=pendingDefenseRoll": null,
+      "flags.trespasser.defenseRollResult": {
+        requestId: pendingRequest.requestId,
+        result: result || null
+      }
+    });
+  }
+
+  // --- GM SIDE: Detect roll result ---
+  const rollResult = foundry.utils.getProperty(updates, "flags.trespasser.defenseRollResult");
+  if (rollResult && game.user.isGM) {
+    const pending = _pendingDefenseRolls.get(rollResult.requestId);
+    if (pending) {
+      clearTimeout(pending.timeout);
+      _pendingDefenseRolls.delete(rollResult.requestId);
+      pending.resolve(rollResult.result);
+      
+      // Cleanup result flag
+      await actor.unsetFlag("trespasser", "defenseRollResult");
+    }
+  }
+});

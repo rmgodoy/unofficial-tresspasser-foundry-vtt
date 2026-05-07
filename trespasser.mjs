@@ -43,7 +43,6 @@ import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
 import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
-import { handleDefenseRollRequest, resolveDefenseRoll } from "./module/helpers/defense-roll-helper.mjs";
 
 
 // ── Party imports ────────────────────────────────────────────────────────────
@@ -481,20 +480,6 @@ Hooks.once("init", async () => {
   game.trespasser.ItemExporter = ItemExporter;
   game.trespasser.Config = TrespasserConfigV2;
   game.trespasser.EventClocks = EventClocksTracker;
-
-  // Socket handling
-  console.log("Trespasser | Registering socket handler for system.trespasser");
-  game.socket.on("system.trespasser", async (data) => {
-    console.log("Trespasser | Socket received:", data);
-    switch (data.type) {
-      case "requestDefenseRoll":
-        await handleDefenseRollRequest(data);
-        break;
-      case "defenseRollResult":
-        resolveDefenseRoll(data);
-        break;
-    }
-  });
 });
 
 /**
