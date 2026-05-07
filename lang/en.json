@@ -21,6 +21,8 @@
       "Title": "Trespasser Configuration",
       "ShowInitiativeInChat": "Show initiative roll in chat",
       "ShowInitiativeInChatHint": "If enabled, initiative rolls will be posted to the chat log.",
+      "PlayerFacingInitiative": "Player-Facing Initiative Rolls",
+      "PlayerFacingInitiativeHint": "When enabled, players roll their own initiative at the start of each round instead of it being automatic.",
       "RestrictMovementAction": "Restrict Movement Action",
       "RestrictMovementActionHint": "If enabled, movement is only allowed after taking a Move or Vault action. If disabled, tokens can move freely.",
       "RestrictHUDActions": "Restrict Actions per Turn",
@@ -274,6 +276,9 @@
       },
       "Combat": {
         "Initiative": "Initiative",
+        "RollInitiative": "Roll Initiative",
+        "WaitingForInitiatives": "Waiting for Initiative rolls...",
+        "RollPending": "Pending",
         "Accuracy": "Accuracy",
         "Guard": "Guard",
         "Resist": "Resist",
@@ -923,6 +928,11 @@
     },
     "Peril": "Peril",
     "Panic": "Panic",
+    "PanicLabels": {
+      "Low": "Low",
+      "Medium": "Medium",
+      "High": "High"
+    },
     "InitDC": "Init DC",
     "HUD": {
       "Title": "Token Actions",
@@ -1485,10 +1495,7 @@
       },
       "BuildClock": "Build Clock"
     },
-    "Remove": "Remove",
-    "Combat": {
-      "States": "States"
-    }
+    "Remove": "Remove"
   },
   "TYPES": {
     "Actor": {

@@ -12,6 +12,14 @@
         <!-- Mechanics Tab -->
         <div class="tab {{#if (eq tabGroups.primary 'mechanics')}}active{{/if}}" data-group="primary" data-tab="mechanics">
             <div class="form-group">
+                <label>{{localize "TRESPASSER.Config.PlayerFacingInitiative"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="playerFacingInitiative" {{checked settings.playerFacingInitiative}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Config.PlayerFacingInitiativeHint"}}</p>
+            </div>
+
+            <div class="form-group">
                 <label>{{localize "TRESPASSER.Config.ShowInitiativeInChat"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="showInitiativeInChat" {{checked settings.showInitiativeInChat}}>

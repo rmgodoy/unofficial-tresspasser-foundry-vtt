@@ -21,6 +21,8 @@
       "Title": "Configuração do Trespasser",
       "ShowInitiativeInChat": "Mostrar rolagem de iniciativa no chat",
       "ShowInitiativeInChatHint": "Se habilitado, as rolagens de iniciativa serão postadas no log do chat.",
+      "PlayerFacingInitiative": "Rolagens de Iniciativa pelos Jogadores",
+      "PlayerFacingInitiativeHint": "Se habilitado, os jogadores rolam sua própria iniciativa no início de cada rodada em vez de ser automático.",
       "RestrictMovementAction": "Restringir Ação de Movimento",
       "RestrictMovementActionHint": "Se habilitado, o movimento só é permitido após realizar uma ação de Mover ou Salto. Se desabilitado, os tokens podem se mover livremente.",
       "RestrictHUDActions": "Restringir Ações por Turno",
@@ -274,6 +276,9 @@
       },
       "Combat": {
         "Initiative": "Iniciativa",
+        "RollInitiative": "Rolar Iniciativa",
+        "WaitingForInitiatives": "Aguardando rolagens de Iniciativa...",
+        "RollPending": "Pendente",
         "Accuracy": "Acurácia",
         "Guard": "Guarda",
         "Resist": "Resistência",
@@ -918,11 +923,16 @@
       "Late": "Fase Final",
       "Extra": "Fase Extra",
       "End": "Fase de Fim de Turno",
-      "Next": "Próxima Fase",
+        "Next": "Próxima Fase",
       "NextPhase": "Próxima Fase"
     },
     "Peril": "Perigo",
     "Panic": "Pânico",
+    "PanicLabels": {
+      "Low": "Baixo",
+      "Medium": "Médio",
+      "High": "Alto"
+    },
     "InitDC": "DC de Iniciativa",
     "HUD": {
       "Title": "Ações de Token",
@@ -1485,10 +1495,7 @@
       },
       "BuildClock": "Relógio de Obra"
     },
-    "Remove": "Remover",
-    "Combat": {
-      "States": "Estados"
-    }
+    "Remove": "Remover"
   },
   "TYPES": {
     "Actor": {

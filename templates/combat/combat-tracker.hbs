@@ -3,6 +3,23 @@
     <h3>{{localize "COMBAT.Encounter"}} ({{localize "COMBAT.Round"}} {{round}})</h3>
   </header>
 
+  {{#if waitingForInitiatives}}
+  <div class="initiative-waiting-banner" style="
+    background: var(--trp-bg-header);
+    border: 1px solid var(--trp-gold-dim);
+    border-radius: 4px;
+    padding: 8px 12px;
+    margin-bottom: 8px;
+    text-align: center;
+    color: var(--trp-gold-bright);
+    font-family: var(--trp-font-header);
+    font-size: 13px;
+  ">
+    <i class="fas fa-hourglass-half"></i>
+    {{localize "TRESPASSER.Sheet.Combat.WaitingForInitiatives"}}
+  </div>
+  {{/if}}
+
   <ol id="combat-log" class="directory-list">
     {{#each phases as |phase|}}
     <li class="phase-group {{phase.css}} {{#if (eq phase.id ../activePhase)}}active{{/if}}">
@@ -47,6 +64,22 @@
           </div>
 
           <div class="stats-area flexcol">
+             {{#if turn.isPending}}
+             <button class="roll-initiative-btn" style="
+               background: var(--trp-gold-dim);
+               color: var(--trp-bg-dark);
+               border: none;
+               border-radius: 3px;
+               padding: 4px 8px;
+               cursor: pointer;
+               font-family: var(--trp-font-primary);
+               font-size: 11px;
+               font-weight: bold;
+               white-space: nowrap;
+             ">
+               <i class="fas fa-dice-d20"></i> {{localize "TRESPASSER.Sheet.Combat.RollInitiative"}}
+             </button>
+             {{else}}
              <div class="focus-display flexrow" title="{{localize "TRESPASSER.Sheet.Combat.Focus"}}">
                 <span class="focus-number">{{turn.focus}}</span>
              </div>
@@ -57,8 +90,14 @@
                   {{/each}}
                 </div>
              </div>
+             {{/if}}
           </div>
         </li>
+        {{#each turn.extraTurns as |extra|}}
+        <li class="combatant extra-turn {{#if extra.isActive}}active{{/if}}" data-combatant-id="{{extra.id}}">
+           <!-- Extra turn placeholder if needed -->
+        </li>
+        {{/each}}
         {{/each}}
       </ol>
     </li>

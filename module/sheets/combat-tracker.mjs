@@ -57,6 +57,7 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
       if (phase) {
         turn.focus      = combatant.actor?.system.combat?.focus ?? 0;
         turn.ap         = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+        turn.isPending  = combatant.getFlag("trespasser", "initiativePending") ?? false;
         
         // Status updates
         turn.hidden     = combatant.token?.hidden ?? combatant.hidden;
@@ -79,6 +80,7 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
     data.combatInfo = combatInfo;
     data.activePhase = activePhase;
     data.isGM       = game.user.isGM;
+    data.waitingForInitiatives = combat.getFlag("trespasser", "waitingForInitiatives") ?? false;
 
     return data;
   }
@@ -92,6 +94,16 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
       game.combat?.nextPhase();
     });
     html.find(".finish-turn-btn").click(this._onFinishTurnClick.bind(this));
+
+    html.find(".roll-initiative-btn").click(async (ev) => {
+      ev.preventDefault();
+      const li = ev.currentTarget.closest(".combatant");
+      const combatantId = li?.dataset.combatantId;
+      const combatant = game.combat?.combatants.get(combatantId);
+      if (!combatant) return;
+      if (!combatant.testUserPermission(game.user, "OWNER") && !game.user.isGM) return;
+      if (combatantId) await game.combat.rollPlayerInitiative(combatantId);
+    });
 
     // Custom controls
     html.find(".combatant-control[data-action]").click(this._onCombatantControl.bind(this));
@@ -112,6 +124,18 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
       el.addEventListener("click", ev => {
         ev.preventDefault();
         game.combat?.nextPhase();
+      });
+    });
+
+    html.querySelectorAll(".roll-initiative-btn").forEach(el => {
+      el.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        const li = el.closest(".combatant");
+        const combatantId = li?.dataset.combatantId;
+        const combatant = game.combat?.combatants.get(combatantId);
+        if (!combatant) return;
+        if (!combatant.testUserPermission(game.user, "OWNER") && !game.user.isGM) return;
+        if (combatantId) await game.combat.rollPlayerInitiative(combatantId);
       });
     });
 

@@ -113,28 +113,53 @@ export class TrespasserCombat extends Combat {
   /** @override */
   async startCombat() {
     if ( game.user.isGM ) {
-      await this.rollAllTrespasserInitiatives();
+      // 1. Roll initiatives (this now returns updates but doesn't apply them yet)
+      const initResults = await this.rollAllTrespasserInitiatives();
       
-      // Initialize Focus and AP for Player Characters
-      const updates = [];
+      // 2. Initialize Focus and AP for Player Characters, merging with initiative updates
+      const combatantUpdates = initResults.updates;
       for (const combatant of this.combatants) {
         if (combatant.actor?.type === "character") {
           const skillBonus = combatant.actor.system.skill || 2;
           await combatant.actor.update({ "system.combat.focus": skillBonus });
         }
-        // Every actor starts with 3 AP and a clean action history
-        updates.push({ _id: combatant.id, "flags.trespasser.actionPoints": 3, "flags.trespasser.usedHUDActions": [] });
+        
+        // Find existing update for this combatant or create a new one
+        let up = combatantUpdates.find(u => u._id === combatant.id);
+        if (!up) {
+          up = { _id: combatant.id };
+          combatantUpdates.push(up);
+        }
+        
+        // Ensure AP and history are reset
+        up["flags.trespasser.actionPoints"] = 3;
+        up["flags.trespasser.usedHUDActions"] = [];
       }
-      if (updates.length > 0) await this.updateEmbeddedDocuments("Combatant", updates);
+      
+      // 3. Apply ALL combatant updates in one go
+      if (combatantUpdates.length > 0) {
+        await this.updateEmbeddedDocuments("Combatant", combatantUpdates);
+      }
+      
+      // 4. Create any extra proxy combatants
+      if (initResults.newCombatants.length > 0) {
+        await this.createEmbeddedDocuments("Combatant", initResults.newCombatants);
+      }
 
-      // Set initial phase to the first non-empty phase
-      const initialPhase = this._firstNonEmptyPhase();
-      await this.setFlag("trespasser", "activePhase", initialPhase);
+      // 5. Determine if we should start the first phase or wait
+      const playerFacingInit = game.settings.get("trespasser", "playerFacingInitiative");
+      const isWaiting = this.getFlag("trespasser", "waitingForInitiatives");
 
-      // Trigger start-of-combat, start-of-round, and start-of-turn for the first phase
-      await this._onStartOfCombat();
-      await this._onStartOfRound();
-      await this._onStartOfTurn(initialPhase);
+      if (!playerFacingInit || !isWaiting) {
+        const initialPhase = this._firstNonEmptyPhase();
+        await this.setFlag("trespasser", "activePhase", initialPhase);
+        await this._onStartOfCombat();
+        await this._onStartOfRound();
+        await this._onStartOfTurn(initialPhase);
+      } else {
+        await this._onStartOfCombat();
+        await this._onStartOfRound();
+      }
     }
     return super.startCombat();
   }
@@ -142,21 +167,38 @@ export class TrespasserCombat extends Combat {
   /** @override */
   async nextRound() {
     if ( game.user.isGM ) {
-      await this.rollAllTrespasserInitiatives();
-      // Reset AP and used-action history for everyone
-      const updates = this.combatants.map(c => ({
-        _id: c.id,
-        "flags.trespasser.actionPoints": 3,
-        "flags.trespasser.usedHUDActions": []
-      }));
-      await this.updateEmbeddedDocuments("Combatant", updates);
-      // Reset phase to first non-empty phase
-      const initialPhase = this._firstNonEmptyPhase();
-      await this.setFlag("trespasser", "activePhase", initialPhase);
+      const initResults = await this.rollAllTrespasserInitiatives();
+      
+      const combatantUpdates = initResults.updates;
+      for (const combatant of this.combatants) {
+        let up = combatantUpdates.find(u => u._id === combatant.id);
+        if (!up) {
+          up = { _id: combatant.id };
+          combatantUpdates.push(up);
+        }
+        up["flags.trespasser.actionPoints"] = 3;
+        up["flags.trespasser.usedHUDActions"] = [];
+      }
+      
+      if (combatantUpdates.length > 0) {
+        await this.updateEmbeddedDocuments("Combatant", combatantUpdates);
+      }
 
-      // Trigger start-of-round and start-of-turn for the first phase
-      await this._onStartOfRound();
-      await this._onStartOfTurn(initialPhase);
+      if (initResults.newCombatants.length > 0) {
+        await this.createEmbeddedDocuments("Combatant", initResults.newCombatants);
+      }
+
+      const playerFacingInit = game.settings.get("trespasser", "playerFacingInitiative");
+      const isWaiting = this.getFlag("trespasser", "waitingForInitiatives");
+
+      if (!playerFacingInit || !isWaiting) {
+        const initialPhase = this._firstNonEmptyPhase();
+        await this.setFlag("trespasser", "activePhase", initialPhase);
+        await this._onStartOfRound();
+        await this._onStartOfTurn(initialPhase);
+      } else {
+        await this._onStartOfRound();
+      }
     }
     return super.nextRound();
   }
@@ -304,10 +346,119 @@ export class TrespasserCombat extends Combat {
   setupTokenHighlight() {}
 
   /**
+   * Roll initiative for a single player character combatant.
+   * Called when the player clicks their initiative button.
+   * If a player rolls, it communicates the result to the GM via Actor Flags.
+   * @param {string} combatantId
+   */
+  async rollPlayerInitiative(combatantId) {
+    const combatant = this.combatants.get(combatantId);
+    if (!combatant?.actor || combatant.actor.type !== "character") return;
+
+    // Verify this combatant is pending
+    if (!combatant.getFlag("trespasser", "initiativePending")) return;
+
+    // 1. Roll locally
+    const initBonus = combatant.actor.system.combat?.initiative || 0;
+    const isAdv = combatant.actor.getFlag("trespasser", "initiativeAdvantage") || false;
+    const formula = isAdv ? "2d20kh" : "1d20";
+    const roll = new foundry.dice.Roll(`${formula} + ${initBonus}`);
+    await roll.evaluate();
+
+    // 2. Post to chat
+    const combatInfo = this.getFlag("trespasser", "combatInfo") || {};
+    const enemyMaxInit = combatInfo.enemyMaxInit || 0;
+    if (game.settings.get("trespasser", "showInitiativeInChat")) {
+      await roll.toMessage({
+        speaker: ChatMessage.getSpeaker({ actor: combatant.actor }),
+        flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
+      });
+    }
+
+    const total = roll.total;
+    const isNat20 = roll.dice[0].results[0].result === 20;
+
+    // 3. Handle Update (GM updates directly, Players use Flags)
+    if (game.user.isGM) {
+      await this._processInitiativeResult(combatantId, total, isNat20);
+    } else {
+      // Set flag on Actor (which the player owns) for the GM to process
+      await combatant.actor.setFlag("trespasser", "initiativeRollResult", {
+        combatId: this.id,
+        combatantId: combatantId,
+        total: total,
+        isNat20: isNat20
+      });
+    }
+  }
+
+  /**
+   * Internal method to actually apply the initiative result.
+   * Only called by GM.
+   * @private
+   */
+  async _processInitiativeResult(combatantId, total, isNat20) {
+    const combatant = this.combatants.get(combatantId);
+    if (!combatant) return;
+
+    const combatInfo = this.getFlag("trespasser", "combatInfo") || {};
+    const enemyMaxInit = combatInfo.enemyMaxInit || 0;
+    
+    const updates = { "flags.trespasser.initiativePending": false };
+    const newCombatants = [];
+
+    if (isNat20) {
+      updates.initiative = TrespasserCombat.PHASES.EARLY;
+      const extraData = this.createExtraCombatant(combatant, TrespasserCombat.PHASES.LATE);
+      newCombatants.push(extraData);
+    } else if (total >= enemyMaxInit) {
+      updates.initiative = TrespasserCombat.PHASES.EARLY;
+    } else {
+      updates.initiative = TrespasserCombat.PHASES.LATE;
+    }
+
+    // Apply updates
+    await this.updateEmbeddedDocuments("Combatant", [{ _id: combatantId, ...updates }]);
+    if (newCombatants.length > 0) {
+      await this.createEmbeddedDocuments("Combatant", newCombatants);
+    }
+
+    // Check if all players have rolled
+    await this._checkAllInitiativesRolled();
+  }
+
+  /**
+   * Check if all player combatants have rolled initiative.
+   * If so, clear the waiting flag and start the round normally.
+   */
+  async _checkAllInitiativesRolled() {
+    const pending = this.combatants.filter(c =>
+      c.actor?.type === "character" &&
+      !c.defeated &&
+      c.getFlag("trespasser", "initiativePending")
+    );
+
+    if (pending.length === 0) {
+      await this.setFlag("trespasser", "waitingForInitiatives", false);
+
+      // Now start the round: set phase, trigger effects
+      const initialPhase = this._firstNonEmptyPhase();
+      await this.setFlag("trespasser", "activePhase", initialPhase);
+      
+      // If we're GM, we can definitely do this
+      if (game.user.isGM) {
+        await this._onStartOfTurn(initialPhase);
+      }
+    }
+  }
+
+  /**
    * Custom method to resolve Trespasser initiatives.
    * Cleans up proxy combatants, calculates extra turns, assigns phases, and rolls Peril.
    */
   async rollAllTrespasserInitiatives() {
+    const playerFacingInit = game.settings.get("trespasser", "playerFacingInitiative");
+    
     // 1. Remove dynamically generated extra combatants
     const extras = this.combatants.filter(c => c.getFlag("trespasser", "isExtraTurn"));
     if ( extras.length > 0 ) {
@@ -332,6 +483,7 @@ export class TrespasserCombat extends Combat {
     // 3. Process combatants
     const updates = [];
     const newCombatants = [];
+    let hasPending = false;
 
     // To prevent infinite loop with new proxy combatants, snapshot current base combatants
     const baseCombatants = this.combatants.filter(c => !c.getFlag("trespasser", "isExtraTurn"));
@@ -342,7 +494,7 @@ export class TrespasserCombat extends Combat {
 
       if ( actor.type === "creature" ) {
         // Enemies are set to base 30 (Enemy Phase)
-        updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.ENEMY });
+        updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.ENEMY, "flags.trespasser.initiativePending": false });
 
         // Paragon or Tyrant gets an extra turn at End of Round (0)
         const template = actor.system.template;
@@ -351,48 +503,48 @@ export class TrespasserCombat extends Combat {
           newCombatants.push(extraData);
         }
       } else if ( actor.type === "character" ) {
-        // Player rolls 1d20 + Initiative
-        const initBonus = actor.system.combat?.initiative || 0;
-        const roll = new foundry.dice.Roll(`1d20 + ${initBonus}`);
-        await roll.evaluate();
-        
-        // Broadcast the roll so everyone sees it (if setting is enabled)
-        if (game.settings.get("trespasser", "showInitiativeInChat")) {
-          await roll.toMessage({
-            speaker: ChatMessage.getSpeaker({ actor: actor }),
-            flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
+        if (playerFacingInit) {
+          // ── NEW: Mark as pending, set initiative to null ──
+          updates.push({
+            _id: c.id,
+            initiative: null,
+            "flags.trespasser.initiativePending": true
           });
-        }
-
-        const total = roll.total;
-        const isNat20 = roll.dice[0].results[0].result === 20;
-
-        if ( isNat20 ) {
-          // Nat 20: acts in Extra phase (10)
-          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY });
-          const extraData = this.createExtraCombatant(c, TrespasserCombat.PHASES.LATE);
-          newCombatants.push(extraData);
-        } else if ( total >= enemyMaxInit ) {
-          // >= enemy max: Early (40)
-          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY });
+          hasPending = true;
         } else {
-          // < enemy max: Late (20)
-          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE });
+          // Player rolls 1d20 + Initiative
+          const initBonus = actor.system.combat?.initiative || 0;
+          const roll = new foundry.dice.Roll(`1d20 + ${initBonus}`);
+          await roll.evaluate();
+          
+          // Broadcast the roll so everyone sees it (if setting is enabled)
+          if (game.settings.get("trespasser", "showInitiativeInChat")) {
+            await roll.toMessage({
+              speaker: ChatMessage.getSpeaker({ actor: actor }),
+              flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
+            });
+          }
+
+          const total = roll.total;
+          const isNat20 = roll.dice[0].results[0].result === 20;
+
+          if ( isNat20 ) {
+            // Nat 20: acts in Extra phase (10)
+            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, "flags.trespasser.initiativePending": false });
+            const extraData = this.createExtraCombatant(c, TrespasserCombat.PHASES.LATE);
+            newCombatants.push(extraData);
+          } else if ( total >= enemyMaxInit ) {
+            // >= enemy max: Early (40)
+            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, "flags.trespasser.initiativePending": false });
+          } else {
+            // < enemy max: Late (20)
+            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, "flags.trespasser.initiativePending": false });
+          }
         }
       } else {
         // Fallback for non-character/creature (e.g. traps/hazards)
-        updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.END });
+        updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.END, "flags.trespasser.initiativePending": false });
       }
-    }
-
-    // Apply updates
-    if ( updates.length > 0 ) {
-      await this.updateEmbeddedDocuments("Combatant", updates);
-    }
-    
-    // Create extra proxy combatants
-    if ( newCombatants.length > 0 ) {
-      await this.createEmbeddedDocuments("Combatant", newCombatants);
     }
 
     // 4. Calculate Panic Level
@@ -407,16 +559,12 @@ export class TrespasserCombat extends Combat {
     const deadPlayers = players.filter(c => c.defeated);
     const deadEnemies = enemies.filter(c => c.defeated);
 
-    const reasons = [];
-
     if ( livingPlayers.length > livingEnemies.length ) {
       panicLevel += 2;
-      reasons.push(game.i18n.localize("TRESPASSER.Sheet.Combat.Panic.EnemiesOutnumbered"));
     }
 
     if ( enemies.length > 0 && deadEnemies.length >= (enemies.length / 2) ) {
       panicLevel += 2;
-      reasons.push(game.i18n.localize("TRESPASSER.Sheet.Combat.Panic.HalfEnemiesDefeated"));
     }
 
     const deadParagon = enemies.some(c => {
@@ -425,12 +573,10 @@ export class TrespasserCombat extends Combat {
     });
     if ( deadParagon ) {
       panicLevel += 2;
-      reasons.push(game.i18n.localize("TRESPASSER.Sheet.Combat.Panic.ParagonDefeated"));
     }
 
     if ( deadPlayers.length > 0 ) {
       panicLevel -= 2;
-      reasons.push(game.i18n.localize("TRESPASSER.Sheet.Combat.Panic.CharacterDefeated"));
     }
 
     // 5. Roll Peril (2d6) and store in flags
@@ -443,15 +589,15 @@ export class TrespasserCombat extends Combat {
     let mighty = 0;
 
     if ( perilTotal <= 6 ) {
-      perilLabel = game.i18n.localize("TRESPASSER.Sheet.Combat.Panic.Labels.Low");
+      perilLabel = "TRESPASSER.PanicLabels.Low";
       heavy = 1;
       mighty = 0;
     } else if ( perilTotal >= 7 && perilTotal <= 9 ) {
-      perilLabel = game.i18n.localize("TRESPASSER.Sheet.Combat.Panic.Labels.Medium");
+      perilLabel = "TRESPASSER.PanicLabels.Medium";
       heavy = 1;
       mighty = 1;
     } else {
-      perilLabel = game.i18n.localize("TRESPASSER.Sheet.Combat.Panic.Labels.High");
+      perilLabel = "TRESPASSER.PanicLabels.High";
       heavy = 2;
       mighty = 1;
     }
@@ -465,204 +611,52 @@ export class TrespasserCombat extends Combat {
       panicLevel,
       enemyMaxInit
     });
-  }
 
-  /** @override */
-  _onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId) {
-    super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
-    if (collection !== "combatants") return;
-
-    // Check if any initiative or defeated state was changed
-    const needsCheck = changes.some(c => c.initiative !== undefined || c.defeated !== undefined);
-    if (needsCheck) this.verifyPhaseAdvancement();
-  }
-
-  /** @override */
-  _onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId) {
-    super._onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId);
-    if (collection !== "combatants") return;
-    this.verifyPhaseAdvancement();
-  }
-
-  /**
-   * Checks if the current phase is empty and advances if necessary.
-   */
-  async verifyPhaseAdvancement() {
-    if (!this.started || !game.user.isGM) return;
-    const currentPhase = this.getFlag("trespasser", "activePhase");
-    const activeCombatants = this.combatants.filter(c => c.initiative === currentPhase && !c.defeated);
-    
-    if (activeCombatants.length === 0) {
-      console.log(`Trespasser | Phase ${currentPhase} is now empty. Advancing...`);
-      return this.nextPhase();
-    }
-  }
-
-  /**
-   * Trigger end-of-combat effects for all combatants and clean up.
-   */
-  async _onEndOfCombat() {
-    const uniqueActors = new Set();
-    for (const c of this.combatants) {
-      if (c.actor) uniqueActors.add(c.actor);
-      const token = canvas.tokens.placeables.find(t => t.id === c.tokenId)
-      if (token) this.clearTurnIndicator(token);
-    }
-
-    for (const actor of uniqueActors) {
-      // 1. Trigger end-of-combat effects
-      await TrespasserEffectsHelper.triggerEffects(actor, "end-of-combat");
-
-      // 2. Clean up "isCombat" effects
-      const combatEffects = actor.items.filter(i => i.type === "effect" && i.system.isCombat === true);
-      if (combatEffects.length > 0) {
-        await actor.deleteEmbeddedDocuments("Item", combatEffects.map(i => i.id));
-      }
-
-      // 3. Reset focus
-      await actor.update({ "system.combat.focus": 0 });
-    }
-  }
-
-  /** @override */
-  async _preDelete(options, user) {
-    if ( game.user.id === user.id ) {
-      await this._onEndOfCombat();
-    }
-    return super._preDelete(options, user);
-  }
-
-  /**
-   * Creates an extra combatant for a given actor and phase.
-   * @param {Actor} actor The actor to create an extra combatant for.
-   * @param {number} phase The phase to create the extra combatant for.
-   * @returns {Object} The extra combatant data.
-   */
-  createExtraCombatant(actor, phase) {
-    const extraData = actor.toObject();
-    delete extraData._id;
-    extraData.initiative = phase;
-    extraData.flags = extraData.flags || {};
-    extraData.flags.trespasser = extraData.flags.trespasser || {};
-    extraData.flags.trespasser.isExtraTurn = true;
-    extraData.flags.trespasser.actionPoints = 3;
-    extraData.name = game.i18n.format("TRESPASSER.Sheet.Combat.Panic.Phase2", { name: actor.name });
-    return extraData;
-  }
-
-  /**
-   * Update turn markers on all tokens for a given phase.
-   * Removes any existing marker and draws a new one on the first combatant in the phase.
-   * @param {number} phase
-   */
-  updateTurnMarkers(phase) {
-    for(const token of canvas.tokens.placeables) {
-      if (token._trespasserTurnMarker) {
-        token._trespasserTurnMarker.destroy();
-        token._trespasserTurnMarker = undefined;
-      }
-
-      const combatants = game.combat.combatants.filter(c => c.tokenId === token.id);
-      for (const combatant of combatants) {
-        const ap = combatant.getFlag("trespasser", "actionPoints") ?? 3;
-        const isDefeated = combatant.defeated;
-        const hasAP = ap > 0;
-
-        if (combatant.initiative === phase && !isDefeated && hasAP) {
-          game.combat.drawTurnIndicator(token, phase);
-          break; // Only one marker per token
-        }
-      }
-    }
-  }
-
-  /**
- * Draw an animated turn indicator arrow above a token (similar to Foundry's native marker)
- * @param {Token} token - The token to draw the indicator for
- * @param {string} phase - The current combat phase (early/enemy/late)
- */
-  drawTurnIndicator(token, phase) {
-    // IMPORTANT: Prevent duplicate markers - check if one already exists
-    if (token._trespasserTurnMarker) {
-      return; // Already has a marker, don't add another
-    }
-
-    const isHostile = token.document.disposition === CONST.TOKEN_DISPOSITIONS.HOSTILE;
-    let markerPath = "systems/trespasser/assets/icons/ring.svg";
-    if (isHostile) {
-      markerPath = "systems/trespasser/assets/icons/ring_enemy.svg";
+    // 5. Store whether we're waiting for player initiatives
+    if (playerFacingInit) {
+      await this.setFlag("trespasser", "waitingForInitiatives", hasPending);
     } else {
-      markerPath = "systems/trespasser/assets/icons/ring_early.svg";
+      await this.setFlag("trespasser", "waitingForInitiatives", false);
     }
 
-    // Calculate token dimensions
-    const gridSize = canvas.grid.size;
-    const tokenSize = token.document.width * gridSize;
-
-    // Create a container for the turn marker
-    const container = new PIXI.Container();
-
-    // Mark this token as having a marker IMMEDIATELY (before async load)
-    // This prevents race conditions with multiple calls
-    token._trespasserTurnMarker = container;
-
-    // Add the container to the token right away
-    token.addChild(container);
-
-    // Load the texture and create sprite asynchronously
-    foundry.canvas.loadTexture(markerPath).then(texture => {
-      // Check if the marker was removed while we were loading
-      if (token._trespasserTurnMarker !== container || container.destroyed) {
-        return;
-      }
-
-      const sprite = new PIXI.Sprite(texture);
-
-      // Size the sprite (about 40% of token size)
-      const markerSize = tokenSize * 1.5;
-      sprite.width = markerSize;
-      sprite.height = markerSize;
-
-      // Center the sprite's anchor
-      sprite.anchor.set(0.5, 0.5);
-
-      // Position at top center of token, slightly above
-      sprite.x = tokenSize / 2;
-      sprite.y = tokenSize / 2;
-      sprite._zIndex = 1000; // Ensure it's on top
-      container.addChild(sprite);
-
-      // Clean up function to remove the ticker when destroyed
-      const originalDestroy = container.destroy.bind(container);
-      container.destroy = function(options) {
-        if (container._animationTicker) {
-          canvas.app.ticker.remove(container._animationTicker);
-        }
-        originalDestroy(options);
-      };
-
-    }).catch(error => {
-      console.warn("Trespasser | Failed to load turn marker texture:", error);
-      // Check if the marker was removed while we were loading
-      if (token._trespasserTurnMarker !== container) {
-        return;
-      }
-      // Remove the empty container and use fallback
-      container.destroy();
-      token._trespasserTurnMarker = null;
-      drawFallbackTurnIndicator(token, phase);
-    });
+    return { updates, newCombatants };
   }
 
   /**
-   * Clear the turn indicator from a token.
-   * @param {Token} token - The token to clear the indicator from
+   * Helper to create an extra combatant for Paragon/Tyrant.
+   * @param {Combatant} baseCombatant 
+   * @param {number} initiative 
+   * @returns {object}
    */
-  clearTurnIndicator(token) {
-    if (token._trespasserTurnMarker) {
-      token._trespasserTurnMarker.destroy();
-      token._trespasserTurnMarker = null;
-    }
+  createExtraCombatant(baseCombatant, initiative) {
+    return {
+      actorId: baseCombatant.actorId,
+      tokenId: baseCombatant.tokenId,
+      sceneId: baseCombatant.sceneId,
+      initiative: initiative,
+      hidden: baseCombatant.hidden,
+      flags: {
+        trespasser: {
+          isExtraTurn: true,
+          baseCombatantId: baseCombatant.id,
+          actionPoints: 3
+        }
+      }
+    };
   }
 }
 
+/**
+ * GM-side listener for initiative roll results from players.
+ */
+Hooks.on("updateActor", async (actor, updates, options, userId) => {
+  const result = foundry.utils.getProperty(updates, "flags.trespasser.initiativeRollResult");
+  if (result && game.user.isGM) {
+    const combat = game.combats.get(result.combatId);
+    if (combat) {
+      await combat._processInitiativeResult(result.combatantId, result.total, result.isNat20);
+    }
+    // Cleanup flag
+    await actor.unsetFlag("trespasser", "initiativeRollResult");
+  }
+});
