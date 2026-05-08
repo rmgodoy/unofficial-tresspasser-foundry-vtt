@@ -6,10 +6,10 @@
 import { showItemInfoDialog } from "./item-info-dialog.mjs";
 
 const ATTRIBUTE_LABELS = {
-  mighty:    "TRESPASSER.Sheet.Attributes.Mighty",
-  agility:   "TRESPASSER.Sheet.Attributes.Agility",
-  intellect: "TRESPASSER.Sheet.Attributes.Intellect",
-  spirit:    "TRESPASSER.Sheet.Attributes.Spirit",
+  mighty:    "TRESPASSER.Terms.Attribute.Mighty",
+  agility:   "TRESPASSER.Terms.Attribute.Agility",
+  intellect: "TRESPASSER.Terms.Attribute.Intellect",
+  spirit:    "TRESPASSER.Terms.Attribute.Spirit",
 };
 
 export async function showCraftDialog(craftItem, actor) {
@@ -39,12 +39,12 @@ export async function showCraftDialog(craftItem, actor) {
   // Later crafts → unchecked + enabled (user may optionally change)
   const keyAttrHTML = isFirstCraft
     ? `<label class="craft-dlg-chip" style="justify-content:flex-start;cursor:default;"
-              title="${game.i18n.localize("TRESPASSER.CraftDialog.AttrFirstTooltip")}">
+              title="${game.i18n.localize("TRESPASSER.Dialog.Craft.AttrFirstTooltip")}">
          <input type="checkbox" id="craft-attr-check" checked disabled
                 style="accent-color:var(--trp-gold);flex-shrink:0;cursor:default;" />
          <span class="craft-dlg-name" style="margin-left:8px;">${keyAttrLabel}</span>
          <span style="margin-left:6px;font-size:var(--fs-10);color:var(--trp-text-dim);font-style:italic;">
-           ${game.i18n.localize("TRESPASSER.CraftDialog.AttrFirstTooltip")}
+           ${game.i18n.localize("TRESPASSER.Dialog.Craft.AttrFirstTooltip")}
          </span>
        </label>`
     : `<label class="craft-dlg-chip" style="justify-content:flex-start;">
@@ -55,10 +55,10 @@ export async function showCraftDialog(craftItem, actor) {
 
   // ── Item chip helpers ─────────────────────────────────────────
   const noItems = () =>
-    `<div class="craft-dlg-empty">${game.i18n.localize("TRESPASSER.CraftDialog.NoItems")}</div>`;
+    `<div class="craft-dlg-empty">${game.i18n.localize("TRESPASSER.Dialog.Calling.NoItems")}</div>`;
 
   const infoBtn = uuid =>
-    `<a class="dlg-info-btn" data-uuid="${uuid}" title="${game.i18n.localize("TRESPASSER.Dialog.ViewItem")}"
+    `<a class="dlg-info-btn" data-uuid="${uuid}" title="${game.i18n.localize("TRESPASSER.Dialog.Item.ViewDetails")}"
         style="flex-shrink:0;color:var(--trp-text-dim);margin-left:4px;font-size:var(--fs-12);cursor:pointer;">
        <i class="fas fa-info-circle"></i>
      </a>`;
@@ -82,12 +82,12 @@ export async function showCraftDialog(craftItem, actor) {
   const searchBar = tabId => {
     if (tabId !== "deeds") {
       return `<input type="text" class="craft-dlg-search" data-tab="${tabId}"
-              placeholder="${game.i18n.localize("TRESPASSER.CraftDialog.SearchPlaceholder")}" />`;
+              placeholder="${game.i18n.localize("TRESPASSER.Dialog.Common.SearchPlaceholder")}" />`;
     }
     
     // For DEEDS, add a tier filter
     const tiers = {
-      all:    "TRESPASSER.CraftDialog.AllTiers",
+      all:    "TRESPASSER.Dialog.Craft.AllTiers",
       light:  "TRESPASSER.Item.DeedTierChoices.Light",
       heavy:  "TRESPASSER.Item.DeedTierChoices.Heavy",
       mighty: "TRESPASSER.Item.DeedTierChoices.Mighty",
@@ -102,7 +102,7 @@ export async function showCraftDialog(craftItem, actor) {
       <div class="craft-dlg-filter-row">
         <input type="text" class="craft-dlg-search" data-tab="deeds"
                style="flex:1;margin-bottom:0;"
-               placeholder="${game.i18n.localize("TRESPASSER.CraftDialog.SearchPlaceholder")}" />
+               placeholder="${game.i18n.localize("TRESPASSER.Dialog.Common.SearchPlaceholder")}" />
         <select class="craft-dlg-tier-filter" style="width:120px;height:28px;">
           ${tierOptions}
         </select>
@@ -126,9 +126,9 @@ export async function showCraftDialog(craftItem, actor) {
       </div>
       <nav class="craft-dlg-tabs sheet-tabs"
            style="display:flex;border-bottom:2px solid var(--trp-border);margin-bottom:8px;">
-        ${tabBtn("attribute", game.i18n.localize("TRESPASSER.CraftDialog.TabAttribute"), true)}
-        ${tabBtn("deeds",     game.i18n.localize("TRESPASSER.CraftDialog.TabDeeds"))}
-        ${tabBtn("features",  game.i18n.localize("TRESPASSER.CraftDialog.TabFeatures"))}
+        ${tabBtn("attribute", game.i18n.localize("TRESPASSER.Terms.Attribute.Plural"), true)}
+        ${tabBtn("deeds",     game.i18n.localize("TRESPASSER.Terms.ItemType.Deeds"))}
+        ${tabBtn("features",  game.i18n.localize("TRESPASSER.Terms.ItemType.Features"))}
       </nav>
       <div class="craft-dlg-tab-content" style="min-height:200px;max-height:320px;">
         <div class="craft-dlg-pane" data-pane="attribute">
@@ -162,11 +162,11 @@ export async function showCraftDialog(craftItem, actor) {
 
   return new Promise(resolve => {
     const dialog = new Dialog({
-      title: game.i18n.format("TRESPASSER.CraftDialog.Title", { name: craftName }),
+      title: game.i18n.format("TRESPASSER.Dialog.Craft.Title", { name: craftName }),
       content,
       buttons: {
         apply: {
-          label: `<i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.CraftDialog.Apply")}`,
+          label: `<i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.Dialog.Calling.ApplySelections")}`,
           callback: async html => {
             const actorUpdates = {};
 
@@ -207,13 +207,13 @@ export async function showCraftDialog(craftItem, actor) {
             }
 
             ui.notifications.info(
-              game.i18n.format("TRESPASSER.CraftDialog.Applied", { name: craftName, actor: actor.name })
+              game.i18n.format("TRESPASSER.Notification.Apply.Craft", { name: craftName, actor: actor.name })
             );
             resolve(true);
           }
         },
         cancel: {
-          label: game.i18n.localize("TRESPASSER.CraftDialog.Cancel"),
+          label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
           callback: () => resolve(false)
         }
       },

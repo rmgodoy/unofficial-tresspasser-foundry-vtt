@@ -11,12 +11,12 @@
   <section class="sheet-body scrollable">
     <div class="details-grid">
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Equipments.Name"}}</label>
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Equipments.Name'}}" />
+        <label>{{localize "TRESPASSER.Sheet.Header.Name"}}</label>
+        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}" />
       </div>
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.Placement"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Placement"}}</label>
         <select name="system.placement">
           {{#each config.placements as |label key|}}
             <option value="{{key}}" {{#if (eq ../system.placement key)}}selected{{/if}}>{{localize label}}</option>
@@ -26,12 +26,12 @@
 
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.equipped" {{checked system.equipped}} id="accessory-equipped-{{item.id}}"/>
-        <label for="accessory-equipped-{{item.id}}">{{localize "TRESPASSER.Item.Equipped"}}</label>
+        <label for="accessory-equipped-{{item.id}}">{{localize "TRESPASSER.Sheet.Common.Equipped"}}</label>
       </div>
     </div>
 
     <div class="description-section" style="margin-top: 20px; border-top: 1px solid var(--trp-gold-dim); padding-top: 10px; margin-bottom: 20px;">
-        <h3 style="font-family: var(--trp-font-header); color: var(--trp-gold-bright); margin-bottom: 10px;">{{localize "TRESPASSER.Item.Description"}}</h3>
+        <h3 style="font-family: var(--trp-font-header); color: var(--trp-gold-bright); margin-bottom: 10px;">{{localize "TRESPASSER.Sheet.Common.Description"}}</h3>
         <div class="trp-editor-container">
           {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
         </div>
@@ -41,25 +41,25 @@
     <div class="lists-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; border-top: 1px solid var(--trp-border-light); padding-top: 10px;">
         
         {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
-            title=(localize "TRESPASSER.Item.Accessory.Talents") 
+            title=(localize "TRESPASSER.Sheet.Common.Talents") 
             items=system.talents 
             property="talents" 
             deleteClass="remove-link"}}
 
         {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
-            title=(localize "TRESPASSER.Item.Accessory.Features") 
+            title=(localize "TRESPASSER.Sheet.Common.Features") 
             items=system.features 
             property="features" 
             deleteClass="remove-link"}}
 
         {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
-            title=(localize "TRESPASSER.Item.Accessory.Deeds") 
+            title=(localize "TRESPASSER.Sheet.Common.Deeds") 
             items=system.deeds 
             property="deeds" 
             deleteClass="remove-link"}}
 
         {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
-            title=(localize "TRESPASSER.Item.Accessory.Effects") 
+            title=(localize "TRESPASSER.Sheet.Common.Effect") 
             items=system.effects 
             property="effects" 
             deleteClass="remove-link"}}

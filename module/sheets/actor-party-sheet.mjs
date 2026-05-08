@@ -65,10 +65,10 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
 
     // Attributes and skills for the group check dropdowns
     context.attributes = [
-      { key: "mighty", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Mighty") },
-      { key: "agility", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Agility") },
-      { key: "intellect", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Intellect") },
-      { key: "spirit", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Spirit") }
+      { key: "mighty", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Mighty.Singular") },
+      { key: "agility", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Agility.Singular") },
+      { key: "intellect", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Intellect.Singular") },
+      { key: "spirit", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Spirit.Singular") }
     ];
     context.skills = [
       "acrobatics", "alchemy", "athletics", "crafting", "folklore", "letters",
@@ -286,7 +286,7 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     const dc = parseInt(this.element.querySelector(".group-check-dc")?.value) || 12;
 
     if (!attribute) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Party.SelectAttribute"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Dialog.Party.SelectAttribute"));
       return;
     }
 
@@ -296,7 +296,7 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
       .filter(a => a?.type === "character");
 
     if (allMembers.length === 0) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Party.NoMembers"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Party.NoMembers"));
       return;
     }
 
@@ -305,9 +305,9 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     if (!alwaysFull) {
       const selection = await new Promise(resolve => {
         new Dialog({
-          title: game.i18n.localize("TRESPASSER.Party.SelectParticipants"),
+          title: game.i18n.localize("TRESPASSER.Dialog.Party.SelectParticipants"),
           content: `
-            <p>${game.i18n.localize("TRESPASSER.Party.SelectParticipantsHint")}</p>
+            <p>${game.i18n.localize("TRESPASSER.Dialog.Party.SelectParticipantsHint")}</p>
             <div class="participant-selection" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
               ${allMembers.map(m => `
                 <div class="form-group" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px; border-bottom: 1px solid var(--trp-border); padding: 4px;">
@@ -321,7 +321,7 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
           buttons: {
             run: {
               icon: '<i class="fas fa-dice"></i>',
-              label: game.i18n.localize("TRESPASSER.Party.RunCheck"),
+              label: game.i18n.localize("TRESPASSER.Global.Action.RunCheck"),
               callback: (html) => {
                 const selectedIds = html.find('input[name="participant"]:checked').map((i, el) => el.value).get();
                 resolve(allMembers.filter(m => selectedIds.includes(m.id)));
@@ -329,7 +329,7 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
             },
             cancel: {
               icon: '<i class="fas fa-times"></i>',
-              label: game.i18n.localize("TRESPASSER.General.Cancel"),
+              label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
               callback: () => resolve(null)
             }
           },
@@ -342,7 +342,13 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     }
 
     // Build the check label
-    const attrLabel = game.i18n.localize(`TRESPASSER.Sheet.Attributes.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
+    const attrLabels = {
+      mighty: "TRESPASSER.Terms.Attribute.Mighty.Singular",
+      agility: "TRESPASSER.Terms.Attribute.Agility.Singular",
+      intellect: "TRESPASSER.Terms.Attribute.Intellect.Singular",
+      spirit: "TRESPASSER.Terms.Attribute.Spirit.Singular"
+    };
+    const attrLabel = game.i18n.localize(attrLabels[attribute]);
     const skillLabel = skill
       ? game.i18n.localize(`TRESPASSER.Sheet.Skills.${skill.charAt(0).toUpperCase() + skill.slice(1)}`)
       : null;
@@ -384,8 +390,8 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     const allSucceed = successes === total;
 
     let content = `<div class="trespasser-group-check">`;
-    content += `<h3>${game.i18n.localize("TRESPASSER.Party.GroupCheck")}: ${checkLabel}</h3>`;
-    content += `<p class="group-check-dc-line">${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</p>`;
+    content += `<h3>${game.i18n.localize("TRESPASSER.Chat.Party.GroupCheck")}: ${checkLabel}</h3>`;
+    content += `<p class="group-check-dc-line">${game.i18n.localize("TRESPASSER.Terms.Combat.DC")} ${dc}</p>`;
     content += `<div class="group-check-results">`;
     for (const r of results) {
       const cls = r.success ? "success" : "failure";
@@ -398,13 +404,13 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     }
     content += `</div>`;
     content += `<div class="group-check-summary">`;
-    content += `<strong>${successes} / ${total}</strong> ${game.i18n.localize("TRESPASSER.Party.Succeeded")}`;
+    content += `<strong>${successes} / ${total}</strong> ${game.i18n.localize("TRESPASSER.Chat.Party.Succeeded")}`;
     if (allSucceed) {
-      content += ` — <span class="group-check-all">${game.i18n.localize("TRESPASSER.Party.AllSucceed")}</span>`;
+      content += ` — <span class="group-check-all">${game.i18n.localize("TRESPASSER.Chat.Party.AllSucceed")}</span>`;
     } else if (halfOrMore) {
-      content += ` — <span class="group-check-half">${game.i18n.localize("TRESPASSER.Party.HalfMoreSucceed")}</span>`;
+      content += ` — <span class="group-check-half">${game.i18n.localize("TRESPASSER.Chat.Party.HalfMoreSucceed")}</span>`;
     } else {
-      content += ` — <span class="group-check-fail">${game.i18n.localize("TRESPASSER.Party.FewerHalfSucceed")}</span>`;
+      content += ` — <span class="group-check-fail">${game.i18n.localize("TRESPASSER.Chat.Party.FewerHalfSucceed")}</span>`;
     }
     content += `</div></div>`;
 
@@ -423,19 +429,19 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     if (!this.isEditable) return false;
     const actor = await Actor.implementation.fromDropData(data);
     if (!actor || actor.type !== "character") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Party.DropCharactersOnly"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Party.DropCharactersOnly"));
       return false;
     }
 
     const members = [...(this.document.system.members ?? [])];
     if (members.includes(actor.id)) {
-      ui.notifications.info(game.i18n.format("TRESPASSER.Party.AlreadyMember", { name: actor.name }));
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Party.AlreadyMember", { name: actor.name }));
       return false;
     }
 
     members.push(actor.id);
     await this.document.update({ "system.members": members });
-    ui.notifications.info(game.i18n.format("TRESPASSER.Party.MemberAdded", { name: actor.name }));
+    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Party.MemberAdded", { name: actor.name }));
     return true;
   }
 }

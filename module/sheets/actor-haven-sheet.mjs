@@ -165,12 +165,12 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     });
 
     context.attributes = {
-      "military": "TRESPASSER.Haven.Attributes.Military",
-      "efficiency": "TRESPASSER.Haven.Attributes.Efficiency",
-      "resources": "TRESPASSER.Haven.Attributes.Resources",
-      "expertise": "TRESPASSER.Haven.Attributes.Expertise",
-      "allegiance": "TRESPASSER.Haven.Attributes.Allegiance",
-      "appeal": "TRESPASSER.Haven.Attributes.Appeal"
+      "military": "TRESPASSER.Terms.HavenAttribute.Military",
+      "efficiency": "TRESPASSER.Terms.HavenAttribute.Efficiency",
+      "resources": "TRESPASSER.Terms.HavenAttribute.Resources",
+      "expertise": "TRESPASSER.Terms.HavenAttribute.Expertise",
+      "allegiance": "TRESPASSER.Terms.HavenAttribute.Allegiance",
+      "appeal": "TRESPASSER.Terms.HavenAttribute.Appeal"
     };
 
     // Inventory is data-driven stacking list from system.inventory
@@ -333,7 +333,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       if (data.type !== "Actor") return;
       const leader = await fromUuid(data.uuid);
       if (leader?.type !== "character") {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Haven.CharactersOnly"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Haven.CharactersOnly"));
         return;
       }
       await this.document.update({ "system.leaderId": leader.id });
@@ -356,11 +356,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
           const numCompleted = allBuildings.filter(b => b.system.progress >= b.system.buildClock).length;
 
           if (numConstruction >= system.maxBuildSlots) {
-            ui.notifications.warn(game.i18n.format("TRESPASSER.Haven.Warning.NoBuildSlots", { max: system.maxBuildSlots }));
+            ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Haven.NoBuildSlots", { max: system.maxBuildSlots }));
             return;
           }
           if (numCompleted >= system.maxBuildingLimit) {
-            ui.notifications.warn(game.i18n.format("TRESPASSER.Haven.Warning.BuildingLimitReached", { max: system.maxBuildingLimit }));
+            ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Haven.BuildingLimitReached", { max: system.maxBuildingLimit }));
             return;
           }
         }
@@ -459,7 +459,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const chains = [...this.document.system.productionChains];
     chains.push({
       id: foundry.utils.randomID(),
-      name: game.i18n.localize("TRESPASSER.Haven.NewChain"),
+      name: game.i18n.localize("TRESPASSER.Global.Action.NewChain"),
       active: true,
       hirelings: []
     });
@@ -548,8 +548,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const inventory = foundry.utils.duplicate(this.document.system.inventory);
     
     foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.localize("TRESPASSER.DeleteItemTitle") },
-      content: `<p>${game.i18n.localize("TRESPASSER.DeleteItemContent")}</p>`,
+      window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.ItemTitle", { name: building.name }) },
+      content: `<p>${game.i18n.localize("TRESPASSER.Dialog.Delete.ItemConfirm")}</p>`,
       yes: {
         callback: async () => {
           inventory.splice(index, 1);
@@ -568,7 +568,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     // Get the character receiving the item
     const controlledTokens = canvas.tokens.controlled;
     if (controlledTokens.length === 0) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargetsAbort"));
       return;
     }
 
@@ -577,7 +577,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
 
     // Ensure it's a character
     if (receiverActor?.type !== "character") {
-      ui.notifications.error(game.i18n.localize("TRESPASSER.Haven.TransferToCharacterOnly"));
+      ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Haven.TransferToCharacterOnly"));
       return;
     }
 
@@ -596,9 +596,9 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
         transferAll: false
       });
       
-      ui.notifications.info(game.i18n.format("TRESPASSER.Haven.WithdrawnToActor", { 
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.WithdrawnToActor", { 
         name: itemData.name,
-        actor: receiverActor.name 
+        target: receiverActor.name 
       }));
     }
   }
@@ -621,8 +621,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     if (!item) return;
     
     foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.localize("TRESPASSER.DeleteItemTitle") },
-      content: `<p>${game.i18n.format("TRESPASSER.DeleteItemContent", { name: item.name })}</p>`,
+      window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.ItemTitle", { name: item.name }) },
+      content: `<p>${game.i18n.format("TRESPASSER.Dialog.Delete.ItemConfirm", { name: item.name })}</p>`,
       yes: { callback: () => item.delete() }
     });
   }
@@ -692,12 +692,12 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const skillLabel = game.i18n.localize(`TRESPASSER.Haven.Skills.${skillKey.charAt(0).toUpperCase() + skillKey.slice(1)}`);
 
     const attributes = [
-      { key: "military", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Military") },
-      { key: "efficiency", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Efficiency") },
-      { key: "resources", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Resources") },
-      { key: "expertise", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Expertise") },
-      { key: "allegiance", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Allegiance") },
-      { key: "appeal", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Appeal") }
+      { key: "military", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Military") },
+      { key: "efficiency", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Efficiency") },
+      { key: "resources", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Resources") },
+      { key: "expertise", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Expertise") },
+      { key: "allegiance", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Allegiance") },
+      { key: "appeal", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Appeal") }
     ];
 
     const chosenAttr = await new Promise(resolve => {
@@ -709,8 +709,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
         content: `
           <div class="dialog-content">
             <p style="margin-bottom:12px;">
-              ${game.i18n.localize("TRESPASSER.Sheet.Dialog.SkillCheckQ")}
-              ${trained ? `<em>${game.i18n.format("TRESPASSER.Sheet.Dialog.SkillCheckBonus", { skill: system.skillBonus })}</em>` : ""}
+              ${game.i18n.localize("TRESPASSER.Dialog.Roll.SkillCheckQuestion")}
+              ${trained ? `<em>${game.i18n.format("TRESPASSER.Dialog.Roll.SkillCheckBonus", { skill: system.skillBonus })}</em>` : ""}
             </p>
             <div class="trp-attr-pick">
               ${attributes.map(attr => `
@@ -720,7 +720,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
               `).join('')}
             </div>
           </div>`,
-        buttons: [{ action: "cancel", label: game.i18n.localize("TRESPASSER.Sheet.Dialog.Cancel"), default: true }],
+        buttons: [{ action: "cancel", label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"), default: true }],
         submit: (result) => { if ( result === "cancel" ) resolve(null); },
         close: () => resolve(null),
         render: (html) => {

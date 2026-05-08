@@ -155,15 +155,15 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     // Apply changes immediately
     game.trespasser.applySystemSettings?.();
 
-    ui.notifications.info(game.i18n.localize("TRESPASSER.Config.SavedNotice"));
+    ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Save.Config"));
   }
 
   static async _onReset(event, target) {
     // In ApplicationV2, 'this' in action handlers is bound to the instance
     const app = this;
     const confirm = await foundry.applications.api.DialogV2.confirm({
-        window: { title: game.i18n.localize("TRESPASSER.Config.ResetConfirmTitle") },
-        content: "<p>" + game.i18n.localize("TRESPASSER.Config.ResetConfirmContent") + "</p>",
+        window: { title: game.i18n.localize("TRESPASSER.Dialog.Reset.ConfigTitle") },
+        content: `<p>${game.i18n.localize("TRESPASSER.Dialog.Reset.ConfigContent")}</p>`,
         rejectClose: false
     });
 
@@ -197,6 +197,6 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
 
     app.render(true);
     game.trespasser.applySystemSettings?.();
-    ui.notifications.info(game.i18n.localize("TRESPASSER.Config.ResetNotice"));
+    ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Reset.Config"));
   }
 }

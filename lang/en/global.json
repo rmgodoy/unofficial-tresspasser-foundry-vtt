@@ -1,32 +1,47 @@
 {
-  "Global": {
-    "Action": {
-      "Save": "Save",
-      "Cancel": "Cancel",
-      "Ok": "Ok",
-      "Delete": "Delete",
-      "Edit": "Edit",
-      "Confirm": "Confirm",
-      "New": "New",
-      "Clear": "Clear",
-      "Close": "Close",
-      "Apply": "Apply",
-      "Select": "Select"
+  "TRESPASSER": {
+    "Global": {
+      "Action": {
+        "Cancel": "Cancel",
+        "Confirm": "Confirm",
+        "ToggleVisibility": "Toggle Visibility",
+        "ToggleDead": "Toggle Dead",
+        "ToggleTarget": "Toggle Target"
+      },
+      "Status": {
+        "None": "None"
+      },
+      "Completed": "Completed",
+      "Progress": "Progress"
     },
-    "Status": {
-      "Active": "Active",
-      "Disabled": "Disabled",
-      "Unknown": "Unknown",
-      "None": "None",
-      "Success": "Success",
-      "Failure": "Failure"
-    },
-    "UI": {
-      "Description": "Description",
-      "Title": "Title",
-      "Name": "Name",
-      "Info": "Info",
-      "Level": "Level"
+    "TYPES": {
+      "Actor": {
+        "character": "Character",
+        "creature": "Creature",
+        "dungeon": "Dungeon",
+        "party": "Party",
+        "haven": "Haven"
+      },
+      "Item": {
+        "armor": "Armor",
+        "rations": "Rations",
+        "effect": "Effect",
+        "deed": "Deed",
+        "feature": "Feature",
+        "talent": "Talent",
+        "weapon": "Weapon",
+        "incantation": "Incantation",
+        "accessory": "Accessory",
+        "item": "Item",
+        "injury": "Injury",
+        "calling": "Calling",
+        "craft": "Craft",
+        "past_life": "Past Life",
+        "room": "Room",
+        "hireling": "Hireling",
+        "build": "Building",
+        "stronghold": "Stronghold"
+      }
     }
   }
 }

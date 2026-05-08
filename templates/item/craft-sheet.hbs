@@ -6,7 +6,7 @@
          style="border:2px solid var(--trp-gold-border); border-radius:4px; object-fit:cover; cursor:pointer;" />
     <div style="flex:1;">
       <input type="text" name="name" value="{{item.name}}"
-             placeholder="{{localize 'TRESPASSER.ItemTypes.craft'}}"
+             placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"
              style="font-family:'Cinzel',serif; font-size:var(--fs-22); color:var(--trp-gold-bright); border:none; border-bottom:1px solid #555; background:transparent; width:100%;" />
     </div>
   </header>
@@ -15,7 +15,7 @@
 
     {{!-- ═══ DESCRIPTION ═══ --}}
     <div style="margin-bottom:16px; border-bottom:1px solid var(--trp-border); padding-bottom:12px;">
-      <h4>{{localize "TRESPASSER.Item.Description"}}</h4>
+      <h4>{{localize "TRESPASSER.Sheet.Common.Description"}}</h4>
       <div class="trp-editor-container">
         {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
       </div>
@@ -23,7 +23,7 @@
 
     {{!-- ═══ KEY ATTRIBUTE ═══ --}}
     <div style="margin-bottom:16px; border-bottom:1px solid var(--trp-border); padding-bottom:12px; display:flex; align-items:center; gap:12px;">
-      <label style="font-weight:bold; white-space:nowrap;">{{localize "TRESPASSER.Craft.KeyAttribute"}}</label>
+      <label style="font-weight:bold; white-space:nowrap;">{{localize "TRESPASSER.Sheet.Craft.KeyAttribute"}}</label>
       <select name="system.keyAttribute" style="flex:1; background:var(--trp-bg-input); border:1px solid var(--trp-border); color:var(--trp-text-bright); padding:3px 6px; border-radius:3px;">
         {{#each attrChoices}}
           <option value="{{this.value}}" {{#if (eq this.value ../system.keyAttribute)}}selected{{/if}}>{{this.label}}</option>
@@ -33,8 +33,8 @@
 
     {{!-- ═══ DEEDS ═══ --}}
     <div style="margin-bottom:16px; border-bottom:1px solid var(--trp-border); padding-bottom:12px;">
-      <h4>{{localize "TRESPASSER.Craft.Deeds"}}</h4>
-      <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">{{localize "TRESPASSER.Craft.DropDeedsNote"}}</p>
+      <h4>{{localize "TRESPASSER.Sheet.Common.Deeds"}}</h4>
+      <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">{{localize "TRESPASSER.Sheet.Craft.DropDeedsNote"}}</p>
       <div class="craft-drop-zone" data-list="deeds"
            style="min-height:40px; padding:4px; border:1px dashed var(--trp-border); border-radius:4px; background:var(--trp-bg-overlay); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
         {{#each craftDeeds as |entry index|}}
@@ -43,21 +43,21 @@
             <img src="{{entry.img}}" width="20" height="20" style="border:none; border-radius:10px; margin-right:6px;" />
             <span style="color:var(--trp-text-bright);">{{entry.name}}</span>
             {{#if @root.editable}}
-              <a class="craft-item-remove" data-list="deeds" style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Craft.Remove'}}">
+              <a class="craft-item-remove" data-list="deeds" style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}">
                 <i class="fas fa-times"></i>
               </a>
             {{/if}}
           </div>
         {{else}}
-          <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Deeds"}}</span>
+          <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropDeeds"}}</span>
         {{/each}}
       </div>
     </div>
 
     {{!-- ═══ FEATURES ═══ --}}
     <div style="margin-bottom:8px;">
-      <h4>{{localize "TRESPASSER.Craft.Features"}}</h4>
-      <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">{{localize "TRESPASSER.Craft.DropFeaturesNote"}}</p>
+      <h4>{{localize "TRESPASSER.Sheet.Common.Features"}}</h4>
+      <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">{{localize "TRESPASSER.Sheet.Craft.DropFeaturesNote"}}</p>
       <div class="craft-drop-zone" data-list="features"
            style="min-height:40px; padding:4px; border:1px dashed var(--trp-border); border-radius:4px; background:var(--trp-bg-overlay); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
         {{#each craftFeatures as |entry index|}}
@@ -66,13 +66,13 @@
             <img src="{{entry.img}}" width="20" height="20" style="border:none; border-radius:10px; margin-right:6px;" />
             <span style="color:var(--trp-text-bright);">{{entry.name}}</span>
             {{#if @root.editable}}
-              <a class="craft-item-remove" data-list="features" style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Craft.Remove'}}">
+              <a class="craft-item-remove" data-list="features" style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}">
                 <i class="fas fa-times"></i>
               </a>
             {{/if}}
           </div>
         {{else}}
-          <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.MagicTraits"}}</span>
+          <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropFeatures"}}</span>
         {{/each}}
       </div>
     </div>

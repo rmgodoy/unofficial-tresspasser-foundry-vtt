@@ -12,7 +12,7 @@
     <div class="header-column details-column">
       <h1 class="item-title">
         <input name="name" type="text" value="{{item.name}}"
-               placeholder="{{localize 'TRESPASSER.Item.Injury.Name'}}"/>
+               placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"/>
       </h1>
     </div>
   </header>
@@ -22,20 +22,20 @@
     <div class="attribute-fields">
         <div class="attribute-group flex-row">
           <div class="field-item">
-            <label>{{localize "TRESPASSER.Item.Injury.InjuryClock"}}</label>
+            <label>{{localize "TRESPASSER.Sheet.Item.Injury.InjuryClock"}}</label>
             <input type="number" name="system.injuryClock"
                     value="{{system.injuryClock}}" min="2" max="12" />
           </div>
 
           <div class="field-item">
-            <label>{{localize "TRESPASSER.Item.Injury.CurrentClock"}}</label>
+            <label>{{localize "TRESPASSER.Sheet.Item.Injury.CurrentClock"}}</label>
             <input type="number" name="system.currentClock"
                     value="{{system.currentClock}}" min="0"
                     max="{{system.injuryClock}}" />
           </div>
         </div>
         <div class="field-row description-column">
-          <label>{{localize "TRESPASSER.Item.Description"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
           <div class="trp-editor-container">
             {{editor descriptionHTML target="system.description" button=true
                      editable=editable engine="prosemirror" resizable=true}}
@@ -46,7 +46,7 @@
     <div class="custom-attributes-area">
 
       <!-- SVG Clock display -->
-      <h3 class="section-title">{{localize "TRESPASSER.Item.Injury.Clock"}}</h3>
+      <h3 class="section-title">{{localize "TRESPASSER.Sheet.Item.Injury.Clock"}}</h3>
       <div class="injury-clock-area">
         <svg class="injury-clock-svg" viewBox="0 0 100 100"
              xmlns="http://www.w3.org/2000/svg">
@@ -71,14 +71,14 @@
         </svg>
 
         <p class="clock-hint">
-          {{localize "TRESPASSER.Item.Injury.ClockHint"}}
+          {{localize "TRESPASSER.Sheet.Item.Injury.ClockHint"}}
         </p>
       </div>
 
       <!-- Effects drop zone -->
       <div style="margin-top: 15px; border-top: 1px solid var(--trp-border-light); padding-top: 10px;">
         {{> "systems/trespasser/templates/item/parts/effects-list.hbs"
-            title=(localize "TRESPASSER.Item.Injury.Effects")
+            title=(localize "TRESPASSER.Sheet.Item.Injury.Effects")
             items=system.effects
             property="effects"
             deleteClass="effect-remove"}}

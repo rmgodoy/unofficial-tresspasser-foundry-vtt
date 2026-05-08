@@ -38,11 +38,11 @@ export async function askAPDialog(availableAP) {
       content,
       buttons: {
         confirm: {
-          label: game.i18n.localize("TRESPASSER.Dialog.SpendAP.Confirm"),
+          label: game.i18n.localize("TRESPASSER.Global.Action.Confirm"),
           callback: (html) => resolve(parseInt(html.find("#ap-spent").val()))
         },
         cancel: {
-          label: game.i18n.localize("TRESPASSER.Dialog.Cancel"),
+          label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
           callback: () => resolve(null)
         }
       },

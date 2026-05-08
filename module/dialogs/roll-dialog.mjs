@@ -65,7 +65,7 @@ export class TrespasserRollDialog extends foundry.applications.api.HandlebarsApp
         data,
         resolve,
         window: {
-          title: options.title || game.i18n.localize("TRESPASSER.Dialog.RollTitle")
+          title: options.title || game.i18n.localize("TRESPASSER.Dialog.Roll.Title")
         }
       });
       dialog.render(true);

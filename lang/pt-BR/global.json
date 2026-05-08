@@ -1,32 +1,47 @@
 {
-  "Global": {
-    "Action": {
-      "Save": "Salvar",
-      "Cancel": "Cancelar",
-      "Ok": "Ok",
-      "Delete": "Excluir",
-      "Edit": "Editar",
-      "Confirm": "Confirmar",
-      "New": "Novo",
-      "Clear": "Limpar",
-      "Close": "Fechar",
-      "Apply": "Aplicar",
-      "Select": "Selecionar"
+  "TRESPASSER": {
+    "Global": {
+      "Action": {
+        "Cancel": "Cancelar",
+        "Confirm": "Confirmar",
+        "ToggleVisibility": "Alternar Visibilidade",
+        "ToggleDead": "Alternar Morto",
+        "ToggleTarget": "Alternar Alvo"
+      },
+      "Status": {
+        "None": "Nenhum"
+      },
+      "Completed": "Concluído",
+      "Progress": "Progresso"
     },
-    "Status": {
-      "Active": "Ativo",
-      "Disabled": "Desativado",
-      "Unknown": "Desconhecido",
-      "None": "Nenhum",
-      "Success": "Sucesso",
-      "Failure": "Falha"
-    },
-    "UI": {
-      "Description": "Descrição",
-      "Title": "Título",
-      "Name": "Nome",
-      "Info": "Info",
-      "Level": "Nível"
+    "TYPES": {
+      "Actor": {
+        "character": "Personagem",
+        "creature": "Criatura",
+        "dungeon": "Masmorra",
+        "party": "Grupo",
+        "haven": "Abrigo"
+      },
+      "Item": {
+        "armor": "Armadura",
+        "rations": "Rações",
+        "effect": "Efeito",
+        "deed": "Habilidade",
+        "feature": "Característica",
+        "talent": "Talento",
+        "weapon": "Arma",
+        "incantation": "Encantamento",
+        "accessory": "Acessório",
+        "item": "Item",
+        "injury": "Ferimento",
+        "calling": "Vocação",
+        "craft": "Ofício",
+        "past_life": "Vida Passada",
+        "room": "Sala",
+        "hireling": "Servo",
+        "build": "Construção",
+        "stronghold": "Fortaleza"
+      }
     }
   }
 }

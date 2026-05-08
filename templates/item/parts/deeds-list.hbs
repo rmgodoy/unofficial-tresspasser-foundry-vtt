@@ -5,10 +5,10 @@
       <div class="effect-chip" data-index="{{index}}" style="display: inline-flex; align-items: center; background: var(--trp-bg-overlay); border: 1px solid var(--trp-border); border-radius: 12px; padding: 2px 8px 2px 2px; margin: 2px; font-size: var(--fs-11);">
         <img src="{{deed.img}}" width="20" height="20" style="border: none; border-radius: 10px; margin-right: 6px;" />
         <span style="font-weight: bold; color: var(--trp-text-bright);">{{deed.name}}</span>
-        <a class="{{../deleteClass}}" title="{{localize 'TRESPASSER.Item.RemoveDeed'}}" style="margin-left: 6px; color: var(--trp-red); cursor: pointer;"><i class="fas fa-times"></i></a>
+        <a class="{{../deleteClass}}" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}" style="margin-left: 6px; color: var(--trp-red); cursor: pointer;"><i class="fas fa-times"></i></a>
       </div>
     {{else}}
-    <span style="color: var(--trp-text-dim); font-style: italic; font-size: var(--fs-11); margin-left: 8px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Deeds"}}</span>
+    <span style="color: var(--trp-text-dim); font-style: italic; font-size: var(--fs-11); margin-left: 8px;">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropDeeds"}}</span>
     {{/each}}
   </div>
 </div>

@@ -12,19 +12,19 @@ export function showOilDialog(weapons, oilItem) {
       title: game.i18n.localize("TRESPASSER.Dialog.ApplyOil.Title"),
       content: `
         <div class="trespasser-dialog-content">
-          <p>${game.i18n.format("TRESPASSER.Dialog.ApplyOil.ChooseRef", { name: oilItem.name })}</p>
+          <p>${game.i18n.format("TRESPASSER.Dialog.ApplyOil.Prompt", { name: oilItem.name })}</p>
           <div class="form-group" style="margin-top:10px;">
-            <label>${game.i18n.localize("TRESPASSER.Dialog.ApplyOil.Weapon")}</label>
+            <label>${game.i18n.localize("TRESPASSER.Terms.ItemType.Weapon")}:</label>
             <select id="weapon-select">${options}</select>
           </div>
         </div>`,
       buttons: {
         apply: {
-          label:    game.i18n.localize("TRESPASSER.Dialog.ApplyOil.Apply"),
+          label:    game.i18n.localize("TRESPASSER.Dialog.Common.Apply"),
           callback: (html) => resolve(html.find("#weapon-select").val())
         },
         cancel: {
-          label:    game.i18n.localize("TRESPASSER.Dialog.Cancel"),
+          label:    game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
           callback: () => resolve(null)
         }
       },

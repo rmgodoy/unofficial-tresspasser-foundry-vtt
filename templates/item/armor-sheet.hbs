@@ -6,22 +6,22 @@
 
     <div class="header-column details-column">
       <h1 class="item-title">
-        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Item.Name'}}"/>
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"/>
       </h1>
   </header>
 
   <section class="sheet-body scrollable">
     <div class="details-grid">
         <div class="field-row">
-          <label>{{localize "TRESPASSER.Item.Price"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Common.Price"}}</label>
           <input type="number" name="system.price" value="{{system.price}}" data-dtype="Number" />
         </div>
 
         <div class="field-row">
-          <label>{{localize "TRESPASSER.Item.Placement"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Common.Placement"}}</label>
           <select name="system.placement">
             {{#each config.placements as |label key|}}
-              <option value="{{key}}" {{#if (eq ../system.placement key)}}selected{{/if}}>{{localize (concat "TRESPASSER.Item.PlacementChoices." (capitalize key))}}</option>
+              <option value="{{key}}" {{#if (eq ../system.placement key)}}selected{{/if}}>{{localize (concat "TRESPASSER.Sheet.Item.Details." (capitalize key))}}</option>
             {{/each}}
           </select>
         </div>
@@ -33,26 +33,26 @@
         </div>
       </div>
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.ArmorRating"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.ArmorRating"}}</label>
         <input type="number" name="system.armorRating" value="{{system.armorRating}}" min="0" />
       </div>
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.Weight"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Weight"}}</label>
         <select name="system.weight">
-          <option value="L" {{#if (eq system.weight "L")}}selected{{/if}}>{{localize "TRESPASSER.Item.WeightChoices.Light"}}</option>
-          <option value="H" {{#if (eq system.weight "H")}}selected{{/if}}>{{localize "TRESPASSER.Item.WeightChoices.Heavy"}}</option>
+          <option value="L" {{#if (eq system.weight "L")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.WeightChoices.Light"}}</option>
+          <option value="H" {{#if (eq system.weight "H")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.WeightChoices.Heavy"}}</option>
         </select>
       </div>
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.ArmorDie"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.ArmorDie"}}</label>
         <input type="text" name="system.armorDie" value="{{system.armorDie}}" placeholder="d6" />
       </div>
 
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.DepletionDie"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.DepletionDie"}}</label>
         <select name="system.depletionDie">
           {{selectOptions config.depletionDieOptions selected=system.depletionDie localize=true}}
         </select>
@@ -61,12 +61,12 @@
 
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.broken" {{checked system.broken}} id="armor-broken-{{item.id}}"/>
-        <label for="armor-broken-{{item.id}}">{{localize "TRESPASSER.Item.UsedBroken"}}</label>
+        <label for="armor-broken-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.UsedBroken"}}</label>
       </div>
 
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.equipped" {{checked system.equipped}} id="armor-equipped-{{item.id}}"/>
-        <label for="armor-equipped-{{item.id}}">{{localize "TRESPASSER.Item.Equipped"}}</label>
+        <label for="armor-equipped-{{item.id}}">{{localize "TRESPASSER.Sheet.Common.Equipped"}}</label>
       </div>
     </div>
 
@@ -74,7 +74,7 @@
     <!-- Effects Sections -->
     <div style="grid-column: span 2; margin-top: 20px; border-top: 1px solid var(--trp-border-light); padding-top: 10px;">
         {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
-            title=(localize "TRESPASSER.Item.ArmorEffects") 
+            title=(localize "TRESPASSER.Sheet.Item.Sections.LinkedEffects") 
             items=system.effects 
             property="effects" 
             deleteClass="remove-effect"}}

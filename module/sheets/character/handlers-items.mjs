@@ -18,12 +18,12 @@ export async function onItemCreate(event, sheet) {
     const inventoryItems = sheet.actor.items.filter(i => inventoryTypes.includes(i.type) && !i.system.equipped);
     const maxSlots = sheet.actor.system.inventory_max ?? 5;
     if (inventoryItems.length >= maxSlots) {
-      ui.notifications.error(game.i18n.localize("TRESPASSER.Notifications.InventoryCapReached"));
+      ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Item.InventoryCapReached"));
       return;
     }
   }
 
-  const newLabel  = game.i18n.localize("TRESPASSER.General.New") || "New";
+  const newLabel  = game.i18n.localize("TRESPASSER.Global.Action.New") || "New";
   const name      = `${newLabel} ${type.charAt(0).toUpperCase() + type.slice(1)}`;
   const system    = {};
   if (event.currentTarget.dataset.tier) system.tier = event.currentTarget.dataset.tier;
@@ -54,15 +54,15 @@ export async function runDepletionCheck(item, sheet) {
 
   const isDepleted = roll.total <= 2;
   const flavor = isDepleted
-    ? game.i18n.format("TRESPASSER.Chat.ResultVs", { total: item.name, target: `Depletion Roll: ${roll.total}`, status: "(DEPLETED/FAILED!)" })
-    : game.i18n.format("TRESPASSER.Chat.ResultVs", { total: item.name, target: `Depletion Roll: ${roll.total}`, status: "(Safe)" });
+    ? game.i18n.format("TRESPASSER.Chat.Check.ResultVs", { total: item.name, target: `Depletion Roll: ${roll.total}`, status: "(DEPLETED/FAILED!)" })
+    : game.i18n.format("TRESPASSER.Chat.Check.ResultVs", { total: item.name, target: `Depletion Roll: ${roll.total}`, status: "(Safe)" });
 
   await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor });
 
   if (isDepleted) {
     if (item.type === "rations" || (item.type === "weapon" && item.system.properties?.fragile)) {
       await item.delete();
-      ui.notifications.warn(game.i18n.format("TRESPASSER.Chat.DestroyedConsumed", { name: item.name }));
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Chat.Action.DestroyedConsumed", { name: item.name }));
     } else {
       await item.update({ "system.broken": true });
     }
@@ -122,7 +122,7 @@ export async function onItemTransfer(event, sheet, options = {}) {
 
     await targetActor.update({ "system.inventory": inventory });
     await item.delete();
-    ui.notifications.info(game.i18n.format("TRESPASSER.Haven.DepositedToHaven", { item: item.name, haven: targetActor.name }));
+    ui.notifications.info(game.i18n.format("TRESPASSER.Chat.Haven.DepositedToHaven", { item: item.name, haven: targetActor.name }));
   } else {
     // Transfer to another actor (character or creature)
     await transferItem(item, targetActor);
@@ -149,7 +149,7 @@ export async function transferItem(item, targetActor) {
     if (success) {
       await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
       
-      ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.TransferComplete", {
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.TransferComplete", {
         item: item.name,
         target: targetActor.name
       }));
@@ -169,7 +169,7 @@ export async function transferItem(item, targetActor) {
     itemId: item.id
   });
 
-  ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.TransferPending", {
+  ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.TransferPending", {
     item: item.name,
     target: targetActor.name
   }));

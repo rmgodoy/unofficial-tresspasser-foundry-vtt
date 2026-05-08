@@ -18,9 +18,9 @@ export async function onEquipRoll(event, sheet) {
   await roll.evaluate();
   await roll.toMessage({
     speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-    flavor:  game.i18n.format("TRESPASSER.Chat.BlockUsage", {
+    flavor:  game.i18n.format("TRESPASSER.Chat.Action.BlockUsage", {
       name: sheet.actor.name,
-      slot: game.i18n.localize("TRESPASSER.Sheet.Equipments." + slot.charAt(0).toUpperCase() + slot.slice(1)),
+      slot: game.i18n.localize("TRESPASSER.Terms.EquipmentPlacement." + slot.charAt(0).toUpperCase() + slot.slice(1)),
       item: item.name
     })
   });
@@ -46,7 +46,7 @@ export async function onEquipRoll(event, sheet) {
         await sheet.actor.update({ "system.health": newHP });
         await foundry.documents.BaseChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-          content: game.i18n.format("TRESPASSER.Chat.EffectTriggeredHP", { name: item.name, value: (modValue > 0 ? "+" : "") + modValue })
+          content: game.i18n.format("TRESPASSER.Chat.Effect.TriggeredHP", { name: item.name, value: (modValue > 0 ? "+" : "") + modValue })
         });
       } else {
         const itemName = `${item.name}: ${eff.target}`;
@@ -58,7 +58,7 @@ export async function onEquipRoll(event, sheet) {
           }, { parent: sheet.actor });
           await foundry.documents.BaseChatMessage.create({
             speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-            content: game.i18n.format("TRESPASSER.Chat.EffectTriggeredAdded", { name: item.name, target: eff.target })
+            content: game.i18n.format("TRESPASSER.Chat.Effect.TriggeredAdded", { name: item.name, target: eff.target })
           });
         }
       }

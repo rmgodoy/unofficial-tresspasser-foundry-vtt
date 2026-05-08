@@ -19,8 +19,8 @@ export async function onAttributeRoll(event, sheet) {
   const result = await TrespasserRollDialog.wait({
     dice: diceFormula,
     bonuses: [
-      { label: game.i18n.localize("TRESPASSER.Dialog.BaseAttribute"), value: attrVal },
-      { label: game.i18n.localize("TRESPASSER.Dialog.EffectBonus"), value: effectBonus }
+      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.BaseAttribute"), value: attrVal },
+      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
     ],
     showCD: true,
     cd: 10
@@ -33,8 +33,8 @@ export async function onAttributeRoll(event, sheet) {
 
   const roll   = new foundry.dice.Roll(formula);
   const flavor = isAdv
-    ? game.i18n.format("TRESPASSER.Chat.SkillCheckAdv", { name: sheet.actor.name, skill: label })
-    : game.i18n.format("TRESPASSER.Chat.SkillCheck", { name: sheet.actor.name, skill: label });
+    ? game.i18n.format("TRESPASSER.Chat.Check.SkillCheckAdv", { name: sheet.actor.name, skill: label })
+    : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck", { name: sheet.actor.name, skill: label });
   
   const cd = result.cd ?? 10;
   const rollRes = await sheet._evaluateAndShowRoll(roll, flavor, cd);
@@ -57,8 +57,8 @@ export async function onCombatStatRoll(event, sheet) {
     showCD: true,
     cd: targetCD ?? 10,
     bonuses: [
-      { label: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`), value: baseVal },
-      { label: game.i18n.localize("TRESPASSER.Dialog.EffectBonus"), value: effectBonus }
+      { label: game.i18n.localize(`TRESPASSER.Terms.Combat.${label}`), value: baseVal },
+      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
     ]
   }, { title: `${label} Check` });
 
@@ -68,8 +68,8 @@ export async function onCombatStatRoll(event, sheet) {
 
   const roll   = new foundry.dice.Roll(formula);
   const flavor = isAdv
-    ? game.i18n.format("TRESPASSER.Chat.RollAdv", { name: sheet.actor.name, skill: label })
-    : game.i18n.format("TRESPASSER.Chat.Roll", { name: sheet.actor.name, skill: label });
+    ? game.i18n.format("TRESPASSER.Chat.Check.RollAdv", { name: sheet.actor.name, skill: label })
+    : game.i18n.format("TRESPASSER.Chat.Check.Roll", { name: sheet.actor.name, skill: label });
 
   const finalCD = result.cd ?? 10;
   const rollRes = await sheet._evaluateAndShowRoll(roll, flavor, finalCD);
@@ -83,7 +83,7 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
   const skill  = actor.system.skill;
   const label  = skillKey.charAt(0).toUpperCase() + skillKey.slice(1);
   const skillBonus   = isTrained ? skill : 0;
-  const trainedLabel = isTrained ? game.i18n.localize("TRESPASSER.Chat.Trained") : "";
+  const trainedLabel = isTrained ? game.i18n.localize("TRESPASSER.Chat.Common.Trained") : "";
 
   const formatAttrBtn = (key, lbl) => {
     const base  = attr[key]    ?? 0;
@@ -94,21 +94,21 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
   };
   return new Promise((resolve) => {
     const d = new Dialog({
-      title: game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", { skill: label }),
+      title: game.i18n.format("TRESPASSER.Dialog.Roll.SkillCheckTitle", { skill: label }),
       content: `
         <div class="dialog-content">
           <p style="margin-bottom:12px;">
-            ${game.i18n.localize("TRESPASSER.Dialog.SkillCheckQ")}
-            ${isTrained ? `<em>${game.i18n.format("TRESPASSER.Dialog.SkillCheckBonus", { skill })}</em>` : ""}
+            ${game.i18n.localize("TRESPASSER.Dialog.Roll.SkillCheckQuestion")}
+            ${isTrained ? `<em>${game.i18n.format("TRESPASSER.Dialog.Roll.SkillCheckBonus", { skill })}</em>` : ""}
           </p>
           <div class="trp-attr-pick">
-            ${formatAttrBtn("mighty",    game.i18n.localize("TRESPASSER.Sheet.Attributes.Mighty"))}
-            ${formatAttrBtn("agility",   game.i18n.localize("TRESPASSER.Sheet.Attributes.Agility"))}
-            ${formatAttrBtn("intellect", game.i18n.localize("TRESPASSER.Sheet.Attributes.Intellect"))}
-            ${formatAttrBtn("spirit",    game.i18n.localize("TRESPASSER.Sheet.Attributes.Spirit"))}
+            ${formatAttrBtn("mighty",    game.i18n.localize("TRESPASSER.Terms.Attribute.Mighty.Singular"))}
+            ${formatAttrBtn("agility",   game.i18n.localize("TRESPASSER.Terms.Attribute.Agility.Singular"))}
+            ${formatAttrBtn("intellect", game.i18n.localize("TRESPASSER.Terms.Attribute.Intellect.Singular"))}
+            ${formatAttrBtn("spirit",    game.i18n.localize("TRESPASSER.Terms.Attribute.Spirit.Singular"))}
           </div>
         </div>`,
-      buttons: { cancel: { label: game.i18n.localize("TRESPASSER.Dialog.Cancel"), callback: () => resolve(null) } },
+      buttons: { cancel: { label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"), callback: () => resolve(null) } },
       default: "cancel",
       render: (html) => {
         html.find(".trp-attr-btn").on("click", async (ev) => {
@@ -126,9 +126,9 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
           const rollData = {
             dice: diceFormula,
             bonuses: [
-              { label: game.i18n.localize(`TRESPASSER.Sheet.Attributes.${chosenAttr.charAt(0).toUpperCase() + chosenAttr.slice(1)}`), value: attrVal },
-              { label: game.i18n.localize("TRESPASSER.Dialog.SkillBonus"), value: skillBonus },
-              { label: game.i18n.localize("TRESPASSER.Dialog.EffectBonus"), value: effectBonus }
+              { label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.capitalize()}.Singular`), value: attrVal },
+              { label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus },
+              { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
             ]
           };
           if (attrBonus !== 0) rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
@@ -148,8 +148,8 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
 
           const roll = new foundry.dice.Roll(formula);
           const flavorFull = isAdv
-            ? game.i18n.format("TRESPASSER.Chat.SkillCheckAdv", { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`
-            : game.i18n.format("TRESPASSER.Chat.SkillCheck",    { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`;
+            ? game.i18n.format("TRESPASSER.Chat.Check.SkillCheckAdv", { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`
+            : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck",    { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`;
           
           const finalCD = result.cd ?? 10;
           const rollRes = await sheet._evaluateAndShowRoll(roll, flavorFull, finalCD);

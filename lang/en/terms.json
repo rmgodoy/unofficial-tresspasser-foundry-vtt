@@ -1,88 +1,124 @@
 {
-  "Terms": {
-    "Depletion": {
-      "None": "None",
-      "Crude": "Crude",
-      "Normal": "Normal",
-      "Fine": "Fine",
-      "Excellent": "Excellent",
-      "Enchanted": "Enchanted",
-      "Legendary": "Legendary"
-    },
-    "ActionTypes": {
-      "None": "None",
-      "Action": "Action",
-      "Reaction": "Reaction"
-    },
-    "Attribute": {
-      "Mighty": "Mighty",
-      "Agility": "Agility",
-      "Intellect": "Intellect",
-      "Spirit": "Spirit"
-    },
-    "Skill": {
-      "Acrobatics": "Acrobatics",
-      "Alchemy": "Alchemy",
-      "Athletics": "Athletics",
-      "Crafting": "Crafting",
-      "Folklore": "Folklore",
-      "Letters": "Letters",
-      "Magic": "Magic",
-      "Nature": "Nature",
-      "Perception": "Perception",
-      "Speech": "Speech",
-      "Stealth": "Stealth",
-      "Tinkering": "Tinkering"
-    },
-    "ItemType": {
-      "Weapon": "Weapon",
-      "Armor": "Armor",
-      "Accessory": "Accessory",
-      "Rations": "Rations",
-      "Deed": "Deed",
-      "Feature": "Feature",
-      "Talent": "Talent",
-      "Effect": "Effect",
-      "Incantation": "Incantation",
-      "Item": "Item",
-      "Injury": "Injury",
-      "Calling": "Calling",
-      "Craft": "Craft",
-      "PastLife": "Past Life",
-      "Hireling": "Hireling",
-      "Building": "Building"
-    },
-    "ActorType": {
-      "Character": "Character",
-      "Creature": "Creature",
-      "Dungeon": "Dungeon",
-      "Party": "Party",
-      "Haven": "Haven"
-    },
-    "Phase": {
-      "Start": "Start",
-      "Before": "Before",
-      "Base": "Base",
-      "Hit": "Hit",
-      "Spark": "Spark",
-      "After": "After",
-      "End": "End"
-    },
-    "Role": {
-      "Archer": "Archer",
-      "Enchanter": "Enchanter",
-      "Enforcer": "Enforcer",
-      "Guardian": "Guardian",
-      "Harrier": "Harrier",
-      "Hellion": "Hellion",
-      "Stalker": "Stalker",
-      "Sorcerer": "Sorcerer"
-    },
-    "Template": {
-      "Underling": "Underling",
-      "Normal": "Normal",
-      "Paragon": "Paragon",
-      "Tyrant": "Tyrant"
+  "TRESPASSER": {
+    "Terms": {
+      "Depletion": {
+        "None": "None",
+        "Crude": "Crude",
+        "Normal": "Normal",
+        "Fine": "Fine",
+        "Excellent": "Excellent",
+        "Enchanted": "Enchanted",
+        "Legendary": "Legendary"
+      },
+      "ActionTypes": {
+        "None": "None",
+        "Action": "Action",
+        "Reaction": "Reaction"
+      },
+      "Attribute": {
+        "Mighty": "Mighty",
+        "Agility": "Agility",
+        "Intellect": "Intellect",
+        "Spirit": "Spirit",
+        "Plural": "Attributes"
+      },
+      "Skill": {
+        "Acrobatics": "Acrobatics",
+        "Alchemy": "Alchemy",
+        "Athletics": "Athletics",
+        "Crafting": "Crafting",
+        "Folklore": "Folklore",
+        "Letters": "Letters",
+        "Magic": "Magic",
+        "Nature": "Nature",
+        "Perception": "Perception",
+        "Speech": "Speech",
+        "Stealth": "Stealth",
+        "Tinkering": "Tinkering",
+        "Plural": "Skills"
+      },
+      "ItemType": {
+        "Weapon": "Weapon",
+        "Armor": "Armor",
+        "Accessory": "Accessory",
+        "Rations": "Rations",
+        "Deed": "Deed",
+        "Deeds": "Deeds",
+        "Feature": "Feature",
+        "Features": "Features",
+        "Talent": "Talent",
+        "Talents": "Talents",
+        "Effect": "Effect",
+        "Incantation": "Incantation",
+        "Item": "Item",
+        "Injury": "Injury",
+        "Calling": "Calling",
+        "Craft": "Craft",
+        "PastLife": "Past Life",
+        "Hireling": "Hireling",
+        "Building": "Building"
+      },
+      "ActorType": {
+        "Character": "Character",
+        "Creature": "Creature",
+        "Dungeon": "Dungeon",
+        "Party": "Party",
+        "Haven": "Haven"
+      },
+      "Phase": {
+        "Start": "Start",
+        "Before": "Before",
+        "Base": "Base",
+        "Hit": "Hit",
+        "Spark": "Spark",
+        "After": "After",
+        "End": "End"
+      },
+      "Combat": {
+        "Phase": {
+          "Early": "Early Phase",
+          "Enemy": "Enemy Phase",
+          "Late": "Late Phase",
+          "Extra": "Extra Phase",
+          "End": "End of Turn",
+          "Next": "Next Phase",
+          "NextPhase": "Next Phase"
+        },
+        "Peril": "PERIL"
+      },
+      "Role": {
+        "Archer": "Archer",
+        "Enchanter": "Enchanter",
+        "Enforcer": "Enforcer",
+        "Guardian": "Guardian",
+        "Harrier": "Harrier",
+        "Hellion": "Hellion",
+        "Stalker": "Stalker",
+        "Sorcerer": "Sorcerer"
+      },
+      "Template": {
+        "Underling": "Underling",
+        "Normal": "Normal",
+        "Paragon": "Paragon",
+        "Tyrant": "Tyrant"
+      },
+      "HavenUpkeepWeeksRest": "Week's Rest",
+      "HavenUpkeepResolveProduction": "Resolve Production",
+      "HavenWeeklyExpenses": "Weekly Expenses",
+      "HavenWeeklyIncome": "Weekly Income",
+      "HavenWeeklyBalance": "Weekly Balance",
+      "HavenUnassignedHirelings": "Unassigned Hirelings",
+      "HavenStrongholds": "Strongholds",
+      "HavenUpkeepPopulationCheck": "Population Check",
+      "HavenUpkeepEventCheck": "Event Check",
+      "HavenStagnant": "STAGNANT",
+      "HavenPopulationIncrease": "Population Increase",
+      "PopulationRank": "Population Rank",
+      "ThreatClock": "Threat Clock",
+      "HavenDCSkillBonus": "DC (Skill Bonus)",
+      "CharactersRested": "Characters Rested",
+      "Enhancements": "Enhancements",
+      "Progression": "Progression"
     }
   }
 }

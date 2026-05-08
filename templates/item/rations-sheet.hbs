@@ -6,7 +6,7 @@
 
     <div class="header-column details-column">
       <h1 class="item-title">
-        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.rations'}}"/>
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"/>
       </h1>
     </div>
   </header>
@@ -14,12 +14,12 @@
   <section class="sheet-body scrollable">
     <div class="details-grid">
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.Price"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Price"}}</label>
         <input type="number" name="system.price" value="{{system.price}}" data-dtype="Number" />
       </div>
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.DepletionDie"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.DepletionDie"}}</label>
         <select name="system.depletionDie">
           {{selectOptions config.depletionDieOptions selected=system.depletionDie localize=true}}
         </select>
@@ -27,19 +27,19 @@
     </div>
 
     <div class="field-row description-section">
-      <label>{{localize "TRESPASSER.Item.Description"}}</label>
+      <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
       <div class="trp-editor-container">
         {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
       </div>
     </div>
 
     <div class="effects-section" style="margin-top: 20px; border-top: 1px solid var(--trp-gold-dim); padding-top: 10px;">
-        <h3 style="font-family: var(--trp-font-header); color: var(--trp-gold-bright); margin-bottom: 10px;">{{localize "TRESPASSER.Item.LinkedEffects"}}</h3>
+        <h3 style="font-family: var(--trp-font-header); color: var(--trp-gold-bright); margin-bottom: 10px;">{{localize "TRESPASSER.Sheet.Item.Sections.LinkedEffects"}}</h3>
         <div class="applied-effects-list" data-type="effects" style="min-height: 100px; border: 2px dashed var(--trp-gold-dim); border-radius: 6px; padding: 10px;">
           {{#each system.effects as |effect index|}}
             {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index editable=true editableIntensity=true deleteClass="effect-remove"}}
           {{else}}
-            <div class="effect-placeholder" style="text-align: center; color: var(--trp-text-dim); padding: 20px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</div>
+            <div class="effect-placeholder" style="text-align: center; color: var(--trp-text-dim); padding: 20px;">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</div>
           {{/each}}
         </div>
     </div>

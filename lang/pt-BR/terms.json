@@ -1,88 +1,124 @@
 {
-  "Terms": {
-    "Depletion": {
-      "None": "Nenhum",
-      "Crude": "Rústico",
-      "Normal": "Normal",
-      "Fine": "Fino",
-      "Excellent": "Excelente",
-      "Enchanted": "Encantado",
-      "Legendary": "Lendário"
-    },
-    "ActionTypes": {
-      "None": "Nenhum",
-      "Action": "Ação",
-      "Reaction": "Reação"
-    },
-    "Attribute": {
-      "Mighty": "Força",
-      "Agility": "Agilidade",
-      "Intellect": "Intelecto",
-      "Spirit": "Espírito"
-    },
-    "Skill": {
-      "Acrobatics": "Acrobacia",
-      "Alchemy": "Alquimia",
-      "Athletics": "Atletismo",
-      "Crafting": "Ofício",
-      "Folklore": "Folclore",
-      "Letters": "Letras",
-      "Magic": "Magia",
-      "Nature": "Natureza",
-      "Perception": "Percepção",
-      "Speech": "Lábia",
-      "Stealth": "Furtividade",
-      "Tinkering": "Engenhocaria"
-    },
-    "ItemType": {
-      "Weapon": "Arma",
-      "Armor": "Armadura",
-      "Accessory": "Acessório",
-      "Rations": "Rações",
-      "Deed": "Habilidade",
-      "Feature": "Característica",
-      "Talent": "Talento",
-      "Effect": "Efeito",
-      "Incantation": "Encantamento",
-      "Item": "Item",
-      "Injury": "Ferimento",
-      "Calling": "Vocação",
-      "Craft": "Ofício",
-      "PastLife": "Vida Passada",
-      "Hireling": "Hireling",
-      "Building": "Building"
-    },
-    "ActorType": {
-      "Character": "Personagem",
-      "Creature": "Criatura",
-      "Dungeon": "Masmorra",
-      "Party": "Grupo",
-      "Haven": "Abrigo"
-    },
-    "Phase": {
-      "Start": "Início",
-      "Before": "Antes",
-      "Base": "Base",
-      "Hit": "Acerto",
-      "Spark": "Fagulha",
-      "After": "Depois",
-      "End": "Fim"
-    },
-    "Role": {
-      "Archer": "Arqueiro",
-      "Enchanter": "Encantador",
-      "Enforcer": "Brutamontes",
-      "Guardian": "Guardião",
-      "Harrier": "Hostilizador",
-      "Hellion": "Turbulento",
-      "Stalker": "Espreitador",
-      "Sorcerer": "Feiticeiro"
-    },
-    "Template": {
-      "Underling": "Lacaio",
-      "Normal": "Normal",
-      "Paragon": "Exemplar",
-      "Tyrant": "Tirano"
+  "TRESPASSER": {
+    "Terms": {
+      "Depletion": {
+        "None": "Nenhuma",
+        "Crude": "Rústica",
+        "Normal": "Normal",
+        "Fine": "Fina",
+        "Excellent": "Excelente",
+        "Enchanted": "Encantada",
+        "Legendary": "Lendária"
+      },
+      "ActionTypes": {
+        "None": "Nenhuma",
+        "Action": "Ação",
+        "Reaction": "Reação"
+      },
+      "Attribute": {
+        "Mighty": "Pujança",
+        "Agility": "Agilidade",
+        "Intellect": "Intelecto",
+        "Spirit": "Espírito",
+        "Plural": "Atributos"
+      },
+      "Skill": {
+        "Acrobatics": "Acrobacia",
+        "Alchemy": "Alquimia",
+        "Athletics": "Atletismo",
+        "Crafting": "Ofício",
+        "Folklore": "Folclore",
+        "Letters": "Letras",
+        "Magic": "Magia",
+        "Nature": "Natureza",
+        "Perception": "Percepção",
+        "Speech": "Lábia",
+        "Stealth": "Furtividade",
+        "Tinkering": "Engenhosidade",
+        "Plural": "Perícias"
+      },
+      "ItemType": {
+        "Weapon": "Arma",
+        "Armor": "Armadura",
+        "Accessory": "Acessório",
+        "Rations": "Rações",
+        "Deed": "Habilidade",
+        "Deeds": "Habilidades",
+        "Feature": "Característica",
+        "Features": "Características",
+        "Talent": "Talento",
+        "Talents": "Talentos",
+        "Effect": "Efeito",
+        "Incantation": "Encantamento",
+        "Item": "Item",
+        "Injury": "Ferimento",
+        "Calling": "Vocação",
+        "Craft": "Ofício",
+        "PastLife": "Vida Passada",
+        "Hireling": "Servo",
+        "Building": "Construção"
+      },
+      "ActorType": {
+        "Character": "Personagem",
+        "Creature": "Criatura",
+        "Dungeon": "Masmorra",
+        "Party": "Grupo",
+        "Haven": "Abrigo"
+      },
+      "Phase": {
+        "Start": "Início",
+        "Before": "Antes",
+        "Base": "Base",
+        "Hit": "Acerto",
+        "Spark": "Fagulha",
+        "After": "Depois",
+        "End": "Fim"
+      },
+      "Combat": {
+        "Phase": {
+          "Early": "Fase Antecipada",
+          "Enemy": "Fase Inimiga",
+          "Late": "Fase Tardia",
+          "Extra": "Fase Extra",
+          "End": "Fim do Turno",
+          "Next": "Próxima Fase",
+          "NextPhase": "Próxima Fase"
+        },
+        "Peril": "PERIGO"
+      },
+      "Role": {
+        "Archer": "Arqueiro",
+        "Enchanter": "Encantador",
+        "Enforcer": "Executor",
+        "Guardian": "Guardião",
+        "Harrier": "Assolador",
+        "Hellion": "Turbulento",
+        "Stalker": "Espreitador",
+        "Sorcerer": "Feiticeiro"
+      },
+      "Template": {
+        "Underling": "Subalterno",
+        "Normal": "Normal",
+        "Paragon": "Exemplar",
+        "Tyrant": "Tirano"
+      },
+      "HavenUpkeepWeeksRest": "Descanso Semanal",
+      "HavenUpkeepResolveProduction": "Resolver Produção",
+      "HavenWeeklyExpenses": "Despesas Semanais",
+      "HavenWeeklyIncome": "Renda Semanal",
+      "HavenWeeklyBalance": "Balanço Semanal",
+      "HavenUnassignedHirelings": "Servos Não Atribuídos",
+      "HavenStrongholds": "Fortalezas",
+      "HavenUpkeepPopulationCheck": "Teste de População",
+      "HavenUpkeepEventCheck": "Teste de Evento",
+      "HavenStagnant": "ESTAGNADO",
+      "HavenPopulationIncrease": "Aumento de População",
+      "PopulationRank": "Rank de População",
+      "ThreatClock": "Relógio de Ameaça",
+      "HavenDCSkillBonus": "CD (Bônus de Perícia)",
+      "CharactersRested": "Personagens Descansados",
+      "Enhancements": "Aprimoramentos",
+      "Progression": "Progressão"
     }
   }
 }

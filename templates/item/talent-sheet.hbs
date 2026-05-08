@@ -6,7 +6,7 @@
 
     <div class="header-column details-column">
       <h1 class="item-title">
-        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Item.Name'}}"/>
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"/>
       </h1>
     </div>
   </header>
@@ -18,34 +18,34 @@
       <div class="details-grid">
 
         <div class="field-row">
-          <label>{{localize "TRESPASSER.Item.Usable"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Item.States.Usable"}}</label>
           <input type="checkbox" name="system.usable" {{checked system.usable}} />
         </div>
 
         {{#if system.usable}}
         <div class="field-row">
-          <label>{{localize "TRESPASSER.Item.RollExpression"}}</label>
-          <input type="text" name="system.rollDice" value="{{system.rollDice}}" placeholder="{{localize 'TRESPASSER.Item.RollExpressionPlaceholder'}}" />
+          <label>{{localize "TRESPASSER.Sheet.Item.Details.RollExpression"}}</label>
+          <input type="text" name="system.rollDice" value="{{system.rollDice}}" placeholder="{{localize 'TRESPASSER.Sheet.Item.Placeholder.RollExpression'}}" />
         </div>
-        <p class="notes" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: -5px; grid-column: span 2;">{{localize "TRESPASSER.Item.SkillWeaponDieNote"}}</p>
+        <p class="notes" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: -5px; grid-column: span 2;">{{localize "TRESPASSER.Sheet.Item.Note.SkillWeaponDie"}}</p>
 
         <div class="field-row">
-          <label>{{localize "TRESPASSER.Item.FocusCost"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Item.Details.FocusCost"}}</label>
           <input type="number" name="system.focusCost" value="{{system.focusCost}}" placeholder="0" />
         </div>
 
         <div class="field-row">
-          <label>{{localize "TRESPASSER.Item.FocusIncrease"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Item.Details.FocusIncrease"}}</label>
           <input type="number" name="system.focusIncrease" value="{{system.focusIncrease}}" placeholder="0" />
         </div>
 
         <div class="field-row">
-          <label>{{localize "TRESPASSER.Item.BonusCost"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Item.Details.BonusCost"}}</label>
           <input type="number" name="system.bonusCost" value="{{system.bonusCost}}" placeholder="0" />
         </div>
 
         <div class="field-row">
-          <label>{{localize "TRESPASSER.Item.actionType"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Item.Details.ActionType"}}</label>
           <select name="system.type">
             {{selectOptions config.actionTypeChoices selected=system.type localize=true}}
           </select>
@@ -53,7 +53,7 @@
         {{/if}}
 
         <div class="field-row description-column">
-          <label>{{localize "TRESPASSER.Item.Description"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
           <div class="trp-editor-container">
             {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
           </div>
@@ -65,13 +65,13 @@
     {{!-- Linked Effects --}}
     <div class="links-section">
       <div class="effects-section" style="margin-top: 10px;">
-        <h3 style="margin-bottom: 5px; color: var(--trp-gold-bright);">{{localize "TRESPASSER.Item.LinkedEffects"}}</h3>
-        <p style="font-size: var(--fs-11); font-style: italic; color: var(--trp-text-dim); margin-bottom: 5px;">{{localize "TRESPASSER.Item.LinkedEffectsNote"}}</p>
+        <h3 style="margin-bottom: 5px; color: var(--trp-gold-bright);">{{localize "TRESPASSER.Sheet.Item.Sections.LinkedEffects"}}</h3>
+        <p style="font-size: var(--fs-11); font-style: italic; color: var(--trp-text-dim); margin-bottom: 5px;">{{localize "TRESPASSER.Sheet.Item.Note.LinkedEffects"}}</p>
         <div class="applied-effects-list drop-zone" data-type="effects" style="min-height: 48px; padding: 4px; border: 1px dashed var(--trp-border); border-radius: 4px; background: var(--trp-bg-overlay);">
           {{#each system.effects as |effect index|}}
             {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index editable=true editableIntensity=true deleteClass="effect-remove"}}
           {{else}}
-          <span style="color: var(--trp-text-dim); font-style: italic; line-height: 30px; margin-left: 8px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+          <span style="color: var(--trp-text-dim); font-style: italic; line-height: 30px; margin-left: 8px;">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</span>
           {{/each}}
         </div>
       </div>

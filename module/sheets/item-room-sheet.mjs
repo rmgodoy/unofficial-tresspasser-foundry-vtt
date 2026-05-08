@@ -141,14 +141,14 @@ export class TrespasserRoomSheet extends foundry.appv1.sheets.ItemSheet {
 
     const droppedItem = await fromUuid(dropData.uuid);
     if (!droppedItem || droppedItem.type !== "room") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Dungeon.Connection.DropRoomsOnly"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Dungeon.DropRoomsOnly"));
       return;
     }
 
     // This room must belong to a dungeon actor
     const dungeon = this.item.parent;
     if (!dungeon || dungeon.type !== "dungeon") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Dungeon.Connection.NeedsDungeon"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Dungeon.NeedsDungeon"));
       return;
     }
 
@@ -167,10 +167,7 @@ export class TrespasserRoomSheet extends foundry.appv1.sheets.ItemSheet {
       targetRoom = created[0];
       if (!targetRoom) return;
 
-      ui.notifications.info(game.i18n.format("TRESPASSER.Dungeon.Connection.RoomAdded", {
-        room: targetRoom.name,
-        dungeon: dungeon.name
-      }));
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Dungeon.RoomAdded", { name: targetRoom.name }));
     }
 
     await this._createBidirectionalConnection(targetRoom);
@@ -295,7 +292,7 @@ export class TrespasserRoomSheet extends foundry.appv1.sheets.ItemSheet {
 
     const existingConnections = this.item.system.connections ?? [];
     if (existingConnections.some(c => c.roomId === targetRoom.id)) {
-      ui.notifications.info(game.i18n.format("TRESPASSER.Dungeon.Connection.AlreadyConnected", { name: targetRoom.name }));
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Dungeon.AlreadyConnected", { name: targetRoom.name }));
       return;
     }
 
@@ -321,10 +318,7 @@ export class TrespasserRoomSheet extends foundry.appv1.sheets.ItemSheet {
     await this.item.update({ "system.connections": myConnections });
     await targetRoom.update({ "system.connections": theirConnections });
 
-    ui.notifications.info(game.i18n.format("TRESPASSER.Dungeon.Connection.Created", {
-      from: this.item.name,
-      to: targetRoom.name
-    }));
+    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Dungeon.ConnectionCreated", { name: targetRoom.name }));
   }
 
   /* -------------------------------------------- */

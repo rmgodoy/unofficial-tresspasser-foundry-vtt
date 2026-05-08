@@ -117,15 +117,15 @@ export class TrespasserCallingSheet extends foundry.appv1.sheets.ItemSheet {
 
     // Validate allowed types per zone
     if (listKey === "talents" && sourceItem.type !== "talent") {
-      return ui.notifications.warn(game.i18n.localize("TRESPASSER.Calling.DropTalentsOnly"));
+      return ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropTalentsOnly"));
     }
     if ((listKey === "features" || listKey === "enhancements") && sourceItem.type !== "feature") {
-      return ui.notifications.warn(game.i18n.localize("TRESPASSER.Calling.DropFeaturesOnly"));
+      return ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropFeaturesOnly"));
     }
 
     const currentArr = [...(this.item.system[listKey] || [])];
     if (currentArr.some(e => e.uuid === sourceItem.uuid || e.name === sourceItem.name)) {
-      return ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.AlreadyAdded", { name: sourceItem.name }));
+      return ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name }));
     }
 
     currentArr.push({ uuid: sourceItem.uuid, name: sourceItem.name, img: sourceItem.img });

@@ -34,7 +34,7 @@ export async function onTalentRoll(event, sheet) {
     if (isAction && combatant) {
       availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
       if (restrictAPF && availableAP < 1) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Character.NoAP"));
         return;
       }
     }
@@ -43,7 +43,7 @@ export async function onTalentRoll(event, sheet) {
     if (totalCost > 0) {
       currentFocus = sheet.actor.system.combat.focus || 0;
       if (currentFocus < totalCost && restrictAPF) {
-        ui.notifications.error(game.i18n.format("TRESPASSER.Notifications.NotEnoughFocus", { name: item.name, cost: totalCost, current: currentFocus }));
+        ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Character.NotEnoughFocus", { name: item.name, count: totalCost }));
         return;
       }
     }
@@ -64,10 +64,10 @@ export async function onTalentRoll(event, sheet) {
 
   let cardHtml = `<div class="trespasser-chat-card talent-card">
     <h3>Talent: ${item.name}</h3>
-    ${totalCost > 0 ? `<p class="cost-note">${game.i18n.format("TRESPASSER.Chat.SpentFocus", { count: totalCost })}</p>` : ""}
+    ${totalCost > 0 ? `<p class="cost-note">${game.i18n.format("TRESPASSER.Chat.Action.SpentFocus", { count: totalCost })}</p>` : ""}
     <details>
       <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:var(--fs-11);margin-bottom:5px;">
-        <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.DescriptionExpand")}
+        <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.DescriptionExpand")}
       </summary>
         <div class="collapsible-content" style="background:var(--trp-bg-overlay);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:var(--fs-12);">
         ${enrichedDescription}
@@ -75,7 +75,7 @@ export async function onTalentRoll(event, sheet) {
     </details>`;
 
   if (item.system.effects?.length > 0) {
-    cardHtml += `<div class="applied-effects"><strong>${game.i18n.localize("TRESPASSER.Chat.EffectsStates")}</strong>`;
+    cardHtml += `<div class="applied-effects"><strong>${game.i18n.localize("TRESPASSER.Chat.Common.EffectsStates")}</strong>`;
     for (const eff of item.system.effects) {
       cardHtml += `<a class="apply-effect-btn" data-uuid="${eff.uuid}" data-intensity="${eff.intensity || 0}">
         <img src="${eff.img}" width="20" height="20" /><span>${eff.name}</span><i class="fas fa-hand-sparkles"></i>
@@ -138,7 +138,7 @@ export async function onFeatureRoll(event, sheet) {
   if (isAction && combatant) {
     const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
     if (restrictAPF && availableAP < 1) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Character.NoAP"));
       return;
     }
     await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - 1));
@@ -153,7 +153,7 @@ export async function onFeatureRoll(event, sheet) {
       <h3>Feature: ${item.name}</h3>
       <details>
         <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:var(--fs-11);margin-bottom:5px;">
-          <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.DescriptionExpand")}
+          <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.DescriptionExpand")}
         </summary>
           <div class="collapsible-content" style="background:var(--trp-bg-overlay);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:var(--fs-12);">
           ${enrichedRef}
@@ -176,7 +176,7 @@ export async function onIncantationRoll(event, sheet) {
   const currentEndurance = sheet.actor.system.endurance || 0;
 
   if (currentEndurance < cost) {
-    ui.notifications.error(game.i18n.format("TRESPASSER.Notifications.NotEnoughEndurance", { name: item.name, cost, current: currentEndurance }));
+    ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Character.NotEnoughEndurance", { name: item.name, count: cost }));
     return;
   }
 
@@ -210,20 +210,20 @@ export async function onIncantationRoll(event, sheet) {
   });
 
   const resultText = isSuccess
-    ? `<span class="hit-text"  style="font-weight:bold;color:var(--trp-green-bright);">${game.i18n.localize("TRESPASSER.Chat.Success")}</span>`
-    : `<span class="miss-text" style="font-weight:bold;color:var(--trp-red);">${game.i18n.localize("TRESPASSER.Chat.Failure")}</span>`;
+    ? `<span class="hit-text"  style="font-weight:bold;color:var(--trp-green-bright);">${game.i18n.localize("TRESPASSER.Chat.Common.Success")}</span>`
+    : `<span class="miss-text" style="font-weight:bold;color:var(--trp-red);">${game.i18n.localize("TRESPASSER.Chat.Common.Failure")}</span>`;
 
   const flavor = `
     <div class="trespasser-chat-card incantation-card">
       <h3>Incantation: ${item.name}</h3>
-      <p><strong>${game.i18n.localize("TRESPASSER.Chat.ResultVs").split(" ")[0]}:</strong> ${roll.total} vs ${target} — ${resultText}</p>
+      <p>${game.i18n.format("TRESPASSER.Chat.Check.ResultVs", { total: roll.total, target: target, status: resultText })}</p>
       <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
-        <div class="metric spark"  style="color:var(--trp-cyan);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</div>
-        <div class="metric shadow" style="color:var(--trp-purple);"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</div>
+        <div class="metric spark"  style="color:var(--trp-cyan);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks",  { count: sparks  })}</div>
+        <div class="metric shadow" style="color:var(--trp-purple);"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: shadows })}</div>
       </div>
       <details>
         <summary style="cursor:pointer;color:var(--trp-gold-bright);font-family:var(--trp-font-header);font-size:var(--fs-11);margin-bottom:5px;">
-          <i class="fas fa-info-circle"></i> Description (Click to Expand)
+          <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.DescriptionExpand")}
         </summary>
           <div class="collapsible-content" style="background:var(--trp-bg-overlay);padding:8px;border-radius:4px;border:1px solid var(--trp-border);margin-bottom:10px;font-size:var(--fs-12);">
           ${enrichedDescription}

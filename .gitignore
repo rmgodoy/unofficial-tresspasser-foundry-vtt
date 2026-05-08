@@ -2,3 +2,12 @@
 !/assets/icons
 
 .agents/
+
+./scripts/
+localization_reports/
+localization_TODO.md
+TASK*.md
+localization_plan.md
+socket-pattern-guideline.md
+
+*.py

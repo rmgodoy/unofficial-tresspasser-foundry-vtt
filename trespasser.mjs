@@ -721,7 +721,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
       const sourceItem = await fromUuid(uuid);
       if (!sourceItem) {
-        ui.notifications.error(game.i18n.localize("TRESPASSER.Dialog.ItemNotFound"));
+        ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Item.NotFound"));
         return;
       }
 
@@ -729,7 +729,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
       const tokens = canvas.tokens.controlled;
       if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
         return;
       }
 
@@ -742,7 +742,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         delete itemData._id;
 
         await foundry.documents.BaseItem.create(itemData, { parent: actor });
-        ui.notifications.info(game.i18n.format("TRESPASSER.Chat.AppliedEffect", { name: sourceItem.name, target: actor.name }));
+        ui.notifications.info(game.i18n.format("TRESPASSER.Chat.Effect.Applied", { effect: sourceItem.name, target: actor.name }));
       }
     });
   });
@@ -760,7 +760,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       if (!targetActor) return;
 
       const effectData = {
-        name: game.i18n.format("TRESPASSER.Chat.HelpFrom", { name: sourceName }),
+        name: game.i18n.format("TRESPASSER.Chat.Action.HelpFrom", { name: target.name, helper: sourceName }),
         type: "effect",
         img: "system/trespasser/assets/icons/effect.webp",
         system: {
@@ -781,7 +781,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       };
 
       const res = await targetActor.createEmbeddedDocuments("Item", [effectData]);
-      ui.notifications.info(game.i18n.format("TRESPASSER.Chat.AppliedHelp", { name: targetActor.name }));
+      ui.notifications.info(game.i18n.format("TRESPASSER.Chat.Action.AppliedHelp", { target: targetActor.name }));
     });
   });
 
@@ -796,7 +796,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       let tokens = canvas.tokens.controlled;
       if (tokens.length === 0) tokens = Array.from(game.user.targets);
       if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
         return;
       }
 
@@ -828,8 +828,8 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         }
 
         const msg = reduction !== 0
-          ? game.i18n.format("TRESPASSER.Chat.TookDamageReduction", { name: actor.name, damage: finalDamage, raw: rawDamage, reduction: Math.abs(reduction) })
-          : game.i18n.format("TRESPASSER.Chat.TookDamage", { name: actor.name, damage: finalDamage });
+          ? game.i18n.format("TRESPASSER.Chat.Combat.TookDamageReduction", { name: actor.name, total: finalDamage, reduced: Math.abs(reduction) })
+          : game.i18n.format("TRESPASSER.Chat.Combat.TookDamage", { name: actor.name, total: finalDamage });
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),
           content: `<div class="trespasser-chat-card"><p>${msg}</p></div>`
@@ -848,7 +848,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       let tokens = canvas.tokens.controlled;
       if (tokens.length === 0) tokens = Array.from(game.user.targets);
       if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
         return;
       }
 
@@ -861,7 +861,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),
-          content: `<div class="trespasser-chat-card"><p>${game.i18n.format("TRESPASSER.Chat.HealedAmount", { name: actor.name, amount: healAmount })}</p></div>`
+          content: `<div class="trespasser-chat-card"><p>${game.i18n.format("TRESPASSER.Chat.Combat.HealedAmount", { name: actor.name, amount: healAmount })}</p></div>`
         });
       }
     });
@@ -945,7 +945,7 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
   if (combatant.initiative !== activePhase) {
     const allowOutOfTurn = game.settings.get("trespasser", "allowOutOfTurnMovement");
     if (!game.user.isGM && !allowOutOfTurn) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotYourPhase"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotYourPhase"));
         return false;
     }
     return; // Out-of-phase movement — don't track distance
@@ -960,7 +960,7 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
 
   const moveActionTaken = combatant.getFlag("trespasser", "moveActionTaken") ?? false;
   if (!moveActionTaken) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.MoveActionRequired"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.MoveActionRequired"));
       return false;
   }
 
@@ -981,13 +981,13 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
       const isStraight = dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy);
       
       if (!isStraight) {
-          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.VaultStraightLine"));
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.VaultStraightLine"));
           return false;
       }
   }
 
   if ((movementUsed + dist) > movementAllowed) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.MovementLimitExceeded"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.MovementLimitExceeded"));
       return false;
   }
 
@@ -1340,11 +1340,11 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
   const combatInfo  = combat.getFlag("trespasser", "combatInfo") || {};
 
   const PHASES = [
-    { id: 40, label: game.i18n.localize("TRESPASSER.Phase.Early"), css: "early", combatants: [] },
-    { id: 30, label: game.i18n.localize("TRESPASSER.Phase.Enemy"), css: "enemy", combatants: [] },
-    { id: 20, label: game.i18n.localize("TRESPASSER.Phase.Late"), css: "late", combatants: [] },
-    { id: 10, label: game.i18n.localize("TRESPASSER.Phase.Extra"), css: "extra", combatants: [] },
-    { id: 0,  label: game.i18n.localize("TRESPASSER.Phase.End"), css: "end", combatants: [] }
+    { id: 40, label: game.i18n.localize("TRESPASSER.Terms.Combat.Phase.Early"), css: "early", combatants: [] },
+    { id: 30, label: game.i18n.localize("TRESPASSER.Terms.Combat.Phase.Enemy"), css: "enemy", combatants: [] },
+    { id: 20, label: game.i18n.localize("TRESPASSER.Terms.Combat.Phase.Late"), css: "late", combatants: [] },
+    { id: 10, label: game.i18n.localize("TRESPASSER.Terms.Combat.Phase.Extra"), css: "extra", combatants: [] },
+    { id: 0,  label: game.i18n.localize("TRESPASSER.Terms.Combat.Phase.End"), css: "end", combatants: [] }
   ];
 
   for (const combatant of combat.combatants) {
@@ -1372,7 +1372,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
   function buildPhaseHTML(phaseData) {
     const isActive = phaseData.id === activePhase;
     const nextBtn  = (isActive && game.user.isGM && !isWaiting)
-      ? `<button class="next-phase-btn trp-next-phase" title="${game.i18n.localize("TRESPASSER.Phase.Next")}">${game.i18n.localize("TRESPASSER.Phase.NextPhase")}</button>`
+      ? `<button class="next-phase-btn trp-next-phase" title="${game.i18n.localize("TRESPASSER.Terms.Combat.Phase.Next")}">${game.i18n.localize("TRESPASSER.Terms.Combat.Phase.NextPhase")}</button>`
       : "";
 
     const combatantsHTML = phaseData.combatants.map(({ combatant, ap, focus, isPending }) => {
@@ -1403,13 +1403,13 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
           <div class="combatant-info flexcol">
             <div class="token-name"><h4>${name}</h4></div>
             <div class="combatant-status flexrow">
-              <a class="combatant-control ${isHidden ? "active" : ""}" data-action="toggleHidden" title="${game.i18n.localize("COMBAT.ToggleVis")}">
+              <a class="combatant-control ${isHidden ? "active" : ""}" data-action="toggleHidden" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleVisibility")}">
                 <i class="fas ${isHidden ? "fa-eye-slash" : "fa-eye"}"></i>
               </a>
-              <a class="combatant-control ${isDefeated ? "active" : ""}" data-action="toggleDefeated" title="${game.i18n.localize("COMBAT.ToggleDead")}">
+              <a class="combatant-control ${isDefeated ? "active" : ""}" data-action="toggleDefeated" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleDead")}">
                 <i class="fas fa-skull"></i>
               </a>
-              <a class="combatant-control ${isTargeted ? "active" : ""}" data-action="toggleTarget" title="${game.i18n.localize("COMBAT.ToggleTarget")}">
+              <a class="combatant-control ${isTargeted ? "active" : ""}" data-action="toggleTarget" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleTarget")}">
                 <i class="fas fa-bullseye"></i>
               </a>
             </div>
@@ -1445,7 +1445,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
       <div class="info-row">
         <div class="left-info">
           <span class="peril-text">
-            ${game.i18n.localize("TRESPASSER.Peril")}: ${combatInfo.perilTotal ?? 0}
+            ${game.i18n.localize("TRESPASSER.Terms.Combat.Peril")}: ${combatInfo.perilTotal ?? 0}
             <span class="peril-label">(${game.i18n.localize(combatInfo.perilLabel ?? "TRESPASSER.PanicLabels.Low")})</span>
           </span>
           <span class="deeds-usage">${combatInfo.heavy ?? 0}H / ${combatInfo.mighty ?? 0}M</span>

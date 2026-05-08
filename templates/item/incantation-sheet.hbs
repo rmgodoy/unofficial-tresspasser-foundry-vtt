@@ -5,7 +5,7 @@
     </div>
     <div class="header-column details-column">
       <h1 class="item-title">
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.incantation'}}" />
+        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}" />
       </h1>
     </div>
   </header>
@@ -13,12 +13,12 @@
   <section class="sheet-body scrollable">
     <div class="details-grid">
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.EnduranceCost"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.EnduranceCost"}}</label>
         <input type="number" name="system.enduranceCost" value="{{system.enduranceCost}}" min="0" />
       </div>
 
       <div class="field-row description-column">
-        <label>{{localize "TRESPASSER.Item.Description"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
         <div class="trp-editor-container">
           {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
         </div>

@@ -244,11 +244,11 @@ export async function getCharacterData(sheet, options = {}) {
   const offWeapon  = context.equippedWeapon.off_hand?.type  === "weapon" ? context.equippedWeapon.off_hand  : null;
 
   if (mainWeapon && offWeapon && mainWeapon.id === offWeapon.id) {
-    weaponModes.push({ key: "main", label: `${game.i18n.localize("TRESPASSER.Sheet.Combat.TwoHanded")}: ${mainWeapon.name}` });
+    weaponModes.push({ key: "main", label: `${game.i18n.localize("TRESPASSER.Terms.Combat.TwoHanded")}: ${mainWeapon.name}` });
   } else {
-    if (mainWeapon) weaponModes.push({ key: "main", label: `${game.i18n.localize("TRESPASSER.Sheet.Combat.MainHand")}: ${mainWeapon.name}` });
-    if (offWeapon)  weaponModes.push({ key: "off",  label: `${game.i18n.localize("TRESPASSER.Sheet.Combat.OffHand")}: ${offWeapon.name}` });
-    if (mainWeapon && offWeapon) weaponModes.push({ key: "dual", label: game.i18n.localize("TRESPASSER.Sheet.Combat.DualWield") });
+    if (mainWeapon) weaponModes.push({ key: "main", label: `${game.i18n.localize("TRESPASSER.Terms.Combat.MainHand")}: ${mainWeapon.name}` });
+    if (offWeapon)  weaponModes.push({ key: "off",  label: `${game.i18n.localize("TRESPASSER.Terms.Combat.OffHand")}: ${offWeapon.name}` });
+    if (mainWeapon && offWeapon) weaponModes.push({ key: "dual", label: game.i18n.localize("TRESPASSER.Terms.Combat.DualWield") });
   }
   context.weaponModes = weaponModes;
 

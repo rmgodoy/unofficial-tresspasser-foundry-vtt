@@ -101,34 +101,34 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
 
     context.config = {
       tiers: {
-        light:   game.i18n.localize("TRESPASSER.Item.DeedTierChoices.Light"),
-        heavy:   game.i18n.localize("TRESPASSER.Item.DeedTierChoices.Heavy"),
-        mighty:  game.i18n.localize("TRESPASSER.Item.DeedTierChoices.Mighty"),
-        special: game.i18n.localize("TRESPASSER.Item.DeedTierChoices.Special")
+        light:   game.i18n.localize("TRESPASSER.Terms.Deed.Tier.Light"),
+        heavy:   game.i18n.localize("TRESPASSER.Terms.Deed.Tier.Heavy"),
+        mighty:  game.i18n.localize("TRESPASSER.Terms.Deed.Tier.Mighty"),
+        special: game.i18n.localize("TRESPASSER.Terms.Deed.Tier.Special")
       },
       actionTypes: {
-        attack:  game.i18n.localize("TRESPASSER.Item.DeedActionTypeChoices.Attack"),
-        support: game.i18n.localize("TRESPASSER.Item.DeedActionTypeChoices.Support")
+        attack:  game.i18n.localize("TRESPASSER.Terms.Deed.ActionType.Attack"),
+        support: game.i18n.localize("TRESPASSER.Terms.Deed.ActionType.Support")
       },
       types: {
-        innate:    game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Innate"),
-        melee:     game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Melee"),
-        missile:   game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Missile"),
-        spell:     game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Spell"),
-        tool:      game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Tool"),
-        unarmed:   game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Unarmed"),
-        versatile: game.i18n.localize("TRESPASSER.Item.DeedTypeChoices.Versatile")
+        innate:    game.i18n.localize("TRESPASSER.Terms.Deed.Type.Innate"),
+        melee:     game.i18n.localize("TRESPASSER.Terms.Deed.Type.Melee"),
+        missile:   game.i18n.localize("TRESPASSER.Terms.Deed.Type.Missile"),
+        spell:     game.i18n.localize("TRESPASSER.Terms.Deed.Type.Spell"),
+        tool:      game.i18n.localize("TRESPASSER.Terms.Deed.Type.Tool"),
+        unarmed:   game.i18n.localize("TRESPASSER.Terms.Deed.Type.Unarmed"),
+        versatile: game.i18n.localize("TRESPASSER.Terms.Deed.Type.Versatile")
       },
       targetTypes: {
-        creature:    game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Creature"),
-        personal:    game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Personal"),
-        blast:       game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Blast"),
-        close_blast: game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.CloseBlast"),
-        burst:       game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Burst"),
-        melee_burst: game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.MeleeBurst"),
-        path:        game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Path"),
-        close_path:  game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.ClosePath"),
-        aura:        game.i18n.localize("TRESPASSER.Item.DeedTargetTypes.Aura")
+        creature:    game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Creature"),
+        personal:    game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Personal"),
+        blast:       game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Blast"),
+        close_blast: game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.CloseBlast"),
+        burst:       game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Burst"),
+        melee_burst: game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.MeleeBurst"),
+        path:        game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Path"),
+        close_path:  game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.ClosePath"),
+        aura:        game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Aura")
       }
     };
 
@@ -213,7 +213,7 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
 
     // Only allow Effect items
     if (droppedItem.type !== "effect" && droppedItem.type !== "state") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropDeedsOnlyEffects"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnlyEffects"));
       return;
     }
 

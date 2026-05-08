@@ -26,17 +26,17 @@ export async function showCallingDialog(callingItem, actor) {
     .filter(k => callingSkills.has(k))
     .map(k => ({
       key: k,
-      label: game.i18n.localize(`TRESPASSER.Sheet.Skills.${k.charAt(0).toUpperCase() + k.slice(1)}`),
+      label: game.i18n.localize(`TRESPASSER.Terms.Skill.${k.charAt(0).toUpperCase() + k.slice(1)}`),
       alreadyTrained: !!currentSkills[k],
       isFromThisCalling: isCorrectCalling && !!currentSkills[k]
     }));
 
   // ── Shared helpers ────────────────────────────────────────────
   const noItems = () =>
-    `<div class="calling-dlg-empty">${game.i18n.localize("TRESPASSER.CallingDialog.NoItems")}</div>`;
+    `<div class="calling-dlg-empty">${game.i18n.localize("TRESPASSER.Dialog.Calling.NoItems")}</div>`;
 
   const infoBtn = uuid =>
-    `<a class="dlg-info-btn" data-uuid="${uuid}" title="${game.i18n.localize("TRESPASSER.Dialog.ViewItem")}"
+    `<a class="dlg-info-btn" data-uuid="${uuid}" title="${game.i18n.localize("TRESPASSER.Dialog.Item.ViewDetails")}"
         style="flex-shrink:0;color:var(--trp-text-dim);font-size:var(--fs-12);cursor:pointer;padding:2px 4px;">
        <i class="fas fa-info-circle"></i>
      </a>`;
@@ -65,14 +65,14 @@ export async function showCallingDialog(callingItem, actor) {
     : skillRows.map((row, i) => `
         <label class="calling-dlg-chip ${row.alreadyTrained && !row.isFromThisCalling ? "already-trained" : ""}" data-list="skills" data-index="${i}">
           <input type="checkbox" class="calling-dlg-check" data-list="skills" data-index="${i}" ${row.isFromThisCalling ? "checked" : ""} />
-          <span class="calling-dlg-name">${row.label}${row.alreadyTrained && !row.isFromThisCalling ? " <em>" + game.i18n.localize("TRESPASSER.CallingDialog.AlreadyTrained") + "</em>" : ""}</span>
+          <span class="calling-dlg-name">${row.label}${row.alreadyTrained && !row.isFromThisCalling ? " <em>" + game.i18n.localize("TRESPASSER.Dialog.Calling.AlreadyTrained") + "</em>" : ""}</span>
         </label>`).join("");
 
   const descHTML = sys.description
     ? `<div class="calling-dlg-desc">${sys.description}</div>` : "";
 
   const searchBar = tabId =>
-    `<input type="text" class="calling-dlg-search" data-tab="${tabId}" placeholder="${game.i18n.localize("TRESPASSER.CallingDialog.SearchPlaceholder")}" />`;
+    `<input type="text" class="calling-dlg-search" data-tab="${tabId}" placeholder="${game.i18n.localize("TRESPASSER.Dialog.Common.SearchPlaceholder")}" />`;
 
   const tabBtn = (id, label, first = false) =>
     `<a class="calling-dlg-tab-btn item${first ? " active" : ""}" data-tab="${id}"
@@ -96,11 +96,11 @@ export async function showCallingDialog(callingItem, actor) {
                   <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Header.Skill")} Bonus:</label> <span>${row.skillBonus}</span></div>
                   <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Header.SkillDie")}:</label> <span>${row.skillDie}</span></div>
                   <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Header.AttributeBonus")}:</label> <span>${row.attributePoints}</span></div>
-                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Combat.DEEDSLIGHT")}:</label> <span>${row.deedsLight}</span></div>
-                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Combat.DEEDSHEAVY")}:</label> <span>${row.deedsHeavy}</span></div>
-                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Combat.DEEDSMIGHTY")}:</label> <span>${row.deedsMighty}</span></div>
+                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Combat.DeedsLight")}:</label> <span>${row.deedsLight}</span></div>
+                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Combat.DeedsHeavy")}:</label> <span>${row.deedsHeavy}</span></div>
+                  <div class="prog-field"><label>${game.i18n.localize("TRESPASSER.Sheet.Combat.DeedsMighty")}:</label> <span>${row.deedsMighty}</span></div>
                   <div class="prog-field full-width">
-                    <label>${game.i18n.localize("TRESPASSER.Calling.GrantDescription")}:</label>
+                    <label>${game.i18n.localize("TRESPASSER.Sheet.CallingGrantDescription")}:</label>
                     <div style="font-size:var(--fs-11); color:var(--trp-text-bright); margin-top:4px;">${row.callingAbilities || "—"}</div>
                   </div>
                 </div>
@@ -108,11 +108,11 @@ export async function showCallingDialog(callingItem, actor) {
             `).join('')}
           </div>`;
 
-  const tabSkills       = tabBtn("skills", game.i18n.localize("TRESPASSER.Calling.Skills"), true);
-  const tabTalents      = tabBtn("talents", game.i18n.localize("TRESPASSER.Calling.Talents"));
-  const tabFeatures     = tabBtn("features", game.i18n.localize("TRESPASSER.Calling.Features"));
-  const tabEnhancements = tabBtn("enhancements", game.i18n.localize("TRESPASSER.Calling.Enhancements"));
-  const tabProgression  = tabBtn("progression", game.i18n.localize("TRESPASSER.Calling.Progression"));
+  const tabSkills       = tabBtn("skills", game.i18n.localize("TRESPASSER.Terms.Skill.Plural"), true);
+  const tabTalents      = tabBtn("talents", game.i18n.localize("TRESPASSER.Terms.ItemType.Talents"));
+  const tabFeatures     = tabBtn("features", game.i18n.localize("TRESPASSER.Terms.ItemType.Features"));
+  const tabEnhancements = tabBtn("enhancements", game.i18n.localize("TRESPASSER.Terms.Enhancements"));
+  const tabProgression  = tabBtn("progression", game.i18n.localize("TRESPASSER.Terms.Progression"));
 
   const content = `
     <div class="trespasser calling-dialog" style="font-family:var(--trp-font-body);color:var(--trp-text);background:var(--trp-bg-dark);">
@@ -183,11 +183,11 @@ export async function showCallingDialog(callingItem, actor) {
 
   return new Promise(resolve => {
     const dialog = new Dialog({
-      title: game.i18n.format("TRESPASSER.CallingDialog.Title", { name: callingName }),
+      title: game.i18n.format("TRESPASSER.Dialog.Calling.Title", { name: callingName }),
       content,
       buttons: {
         apply: {
-          label: `<i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.CallingDialog.Apply")}`,
+          label: `<i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.Dialog.Calling.ApplySelections")}`,
           callback: async html => {
             const callingName = callingItem.name;
             
@@ -266,13 +266,13 @@ export async function showCallingDialog(callingItem, actor) {
             }
 
             ui.notifications.info(
-              game.i18n.format("TRESPASSER.CallingDialog.Applied", { name: callingName, actor: actor.name })
+              game.i18n.format("TRESPASSER.Notification.Apply.Calling", { name: callingName, actor: actor.name })
             );
             resolve(true);
           }
         },
         cancel: {
-          label: game.i18n.localize("TRESPASSER.CallingDialog.Cancel"),
+          label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
           callback: () => resolve(false)
         }
       },

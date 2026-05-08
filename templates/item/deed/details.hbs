@@ -3,7 +3,7 @@
     <div class="details-grid">
       {{!-- Tier --}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.tier"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Tier"}}</label>
         <select name="system.tier">
           {{#each config.tiers as |label key|}}
             <option value="{{key}}" {{#if (eq key ../system.tier)}}selected{{/if}}>{{label}}</option>
@@ -13,7 +13,7 @@
 
       {{!-- Action Type --}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.actionType"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.ActionType"}}</label>
         <select name="system.actionType">
           {{#each config.actionTypes as |label key|}}
             <option value="{{key}}" {{#if (eq key ../system.actionType)}}selected{{/if}}>{{label}}</option>
@@ -23,7 +23,7 @@
 
       {{!-- Deed Type --}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.deedType"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.DeedType"}}</label>
         <select name="system.type">
           {{#each config.types as |label key|}}
             <option value="{{key}}" {{#if (eq key ../system.type)}}selected{{/if}}>{{label}}</option>
@@ -33,7 +33,7 @@
 
       {{!-- Target Type --}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.Target"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Target"}}</label>
         <select name="system.targetType">
           {{#each config.targetTypes as |label key|}}
             <option value="{{key}}" {{#if (eq key ../system.targetType)}}selected{{/if}}>{{label}}</option>
@@ -44,7 +44,7 @@
       {{!-- Target Count (creature type only) --}}
       {{#if showTargetCount}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.TargetCount"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.TargetCount"}}</label>
         <input type="number" name="system.targetCount" value="{{system.targetCount}}" min="1" />
       </div>
       {{/if}}
@@ -52,20 +52,20 @@
       {{!-- Target Size (AOE types only) --}}
       {{#if showTargetSize}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.TargetSize"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.TargetSize"}}</label>
         <input type="number" name="system.targetSize" value="{{system.targetSize}}" min="1" class="select-on-focus" />
       </div>
       {{/if}}
 
       {{!-- Computed target label (read-only) --}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.TargetLabel"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.TargetLabel"}}</label>
         <input type="text" value="{{system.target}}" readonly disabled />
       </div>
 
       {{!-- Accuracy Test --}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.AccuracyVs"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.AccuracyVs"}}</label>
         {{#if (eq system.actionType "support")}}
           <input type="text" name="system.accuracyTest" value="10" readonly />
         {{else}}
@@ -78,19 +78,19 @@
 
       {{!-- Focus Cost --}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.FocusCost"}}</label>
-        <input type="number" name="system.focusCost" value="{{system.focusCost}}" min="0" placeholder="{{localize 'TRESPASSER.Item.Auto'}}" class="select-on-focus" />
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.FocusCost"}}</label>
+        <input type="number" name="system.focusCost" value="{{system.focusCost}}" min="0" placeholder="{{localize 'TRESPASSER.Sheet.Common.Auto'}}" class="select-on-focus" />
       </div>
 
       {{!-- Focus Increase --}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.FocusIncrease"}}</label>
-        <input type="number" name="system.focusIncrease" value="{{system.focusIncrease}}" min="0" placeholder="{{localize 'TRESPASSER.Item.Auto'}}" class="select-on-focus" />
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.FocusIncrease"}}</label>
+        <input type="number" name="system.focusIncrease" value="{{system.focusIncrease}}" min="0" placeholder="{{localize 'TRESPASSER.Sheet.Common.Auto'}}" class="select-on-focus" />
       </div>
 
       {{!-- Bonus Cost --}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.BonusCost"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.BonusCost"}}</label>
         <input type="number" name="system.bonusCost" value="{{system.bonusCost}}" min="0" placeholder="0" class="select-on-focus" />
       </div>
     </div>

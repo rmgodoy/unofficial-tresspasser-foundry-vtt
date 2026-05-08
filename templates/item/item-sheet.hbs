@@ -6,7 +6,7 @@
 
     <div class="header-column details-column">
       <h1 class="item-title">
-        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Item.Name'}}"/>
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"/>
       </h1>
     </div>
   </header>
@@ -14,7 +14,7 @@
   <section class="sheet-body scrollable">
 
     <div class="field-item">
-      <label>{{localize "TRESPASSER.Item.Type"}}</label>
+      <label>{{localize "TRESPASSER.Sheet.Item.Details.ItemType"}}</label>
       <select name="system.subType">
         {{selectOptions subTypeOptions selected=system.subType localize=true}}
       </select>
@@ -27,7 +27,7 @@
         {{#if isResource}}
         <div class="attribute-group flex-row">
           <div class="field-item">
-            <label>{{localize "TRESPASSER.Item.ResourceType"}}</label>
+            <label>{{localize "TRESPASSER.Sheet.Item.Details.ResourceType"}}</label>
             <select name="system.resourceType">
               {{selectOptions resourceTypeOptions selected=system.resourceType localize=true}}
             </select>
@@ -38,12 +38,12 @@
         {{#if isLightSource}}
         <div class="attribute-group flex-row">
           <div class="field-item">
-            <label>{{localize "TRESPASSER.Item.Radius"}}</label>
+            <label>{{localize "TRESPASSER.Sheet.Common.Radius"}}</label>
             <input type="number" name="system.radius" value="{{system.radius}}"/>
           </div>
           
           <div class="field-item">
-            <label>{{localize "TRESPASSER.Item.DepletionDie"}}</label>
+            <label>{{localize "TRESPASSER.Sheet.Item.Details.DepletionDie"}}</label>
             <select name="system.depletionDie">
               {{selectOptions config.depletionDieOptions selected=system.depletionDie localize=true}}
             </select>
@@ -51,12 +51,12 @@
 
           <div class="field-item checkbox-item">
             <input type="checkbox" name="system.active" {{checked system.active}} id="item-active-{{item.id}}"/>
-            <label for="item-active-{{item.id}}">{{localize "TRESPASSER.Item.ActiveLit"}}</label>
+            <label for="item-active-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.ActiveLit"}}</label>
           </div>
 
           <div class="field-item checkbox-item">
             <input type="checkbox" name="system.usesFuel" {{checked system.usesFuel}} id="item-fuel-{{item.id}}"/>
-            <label for="item-fuel-{{item.id}}">{{localize "TRESPASSER.Item.UsesFuel"}}</label>
+            <label for="item-fuel-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.UsesFuel"}}</label>
           </div>
         </div>
         {{/if}}
@@ -66,7 +66,7 @@
         {{#if isConsumable}}
         <div class="attribute-group flex-row">
           <div class="field-item">
-            <label>{{localize "TRESPASSER.Item.tier"}}</label>
+            <label>{{localize "TRESPASSER.Sheet.Common.Tier"}}</label>
             <select name="system.tier">
               {{selectOptions tierOptions selected=system.tier localize=true}}
             </select>
@@ -74,7 +74,7 @@
           
           {{#if hasDamage}}
           <div class="field-item" style="flex: 2;">
-            <label>{{localize "TRESPASSER.Item.Damage"}}</label>
+            <label>{{localize "TRESPASSER.Sheet.Common.Damage"}}</label>
             <input type="text" name="system.damage" value="{{system.damage}}"/>
           </div>
           {{/if}}
@@ -87,7 +87,7 @@
         {{#if (or isConsumable isArtifact)}}
           <div class="nested-item-wrapper">
             {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
-                title=(localize "TRESPASSER.Item.EnhancementEffects") 
+                title=(localize "TRESPASSER.Sheet.Item.Sections.EnhancementEffects") 
                 items=system.effects 
                 property="effects" 
                 deleteClass="remove-effect"}}
@@ -107,7 +107,7 @@
         {{#if isEsoteric}}
           <div class="nested-item-wrapper">
             {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
-                title=(localize "TRESPASSER.Item.Incantations") 
+                title=(localize "TRESPASSER.Sheet.Item.Sections.Incantations") 
                 items=system.incantations 
                 property="incantations" 
                 deleteClass="remove-incantation"}}
@@ -117,14 +117,14 @@
         {{#if isArtifact}}
           <div class="nested-item-wrapper">
             {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
-                title=(localize "TRESPASSER.Item.Talents") 
+                title=(localize "TRESPASSER.Sheet.Item.Sections.Talents") 
                 items=system.talents 
                 property="talents" 
                 deleteClass="remove-talent"}}
           </div>
           <div class="nested-item-wrapper">
             {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
-                title=(localize "TRESPASSER.Item.MagicTraits") 
+                title=(localize "TRESPASSER.Sheet.Item.Sections.MagicTraits") 
                 items=system.features 
                 property="features" 
                 deleteClass="remove-feature"}}
@@ -135,29 +135,29 @@
     {{/if}}
 
     <div class="field-item">
-      <label>{{localize "TRESPASSER.Item.Price"}}</label>
+      <label>{{localize "TRESPASSER.Sheet.Common.Price"}}</label>
       <input type="number" name="system.price" value="{{system.price}}" data-dtype="Number" />
     </div>
 
     <div class="field-item">
-      <label>{{localize "TRESPASSER.Sheet.Items.Slot"}}</label>
+      <label>{{localize "TRESPASSER.Sheet.Common.Slot"}}</label>
       <input type="number" name="system.slotOccupancy" value="{{system.slotOccupancy}}" data-dtype="Number" />
     </div>
 
     <div class="field-item flex-row" style="gap: 10px; margin-top: 5px; flex-wrap: wrap;">
       <div class="field-item checkbox-item">
-        <label for="item-is-fuel-{{item.id}}">{{localize "TRESPASSER.Item.IsLightFuel"}}</label>
+        <label for="item-is-fuel-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.IsLightFuel"}}</label>
         <input type="checkbox" name="system.isLightFuel" {{checked system.isLightFuel}} id="item-is-fuel-{{item.id}}"/>
       </div>
       <div class="field-item checkbox-item">
-        <label for="item-is-ammo-{{item.id}}">{{localize "TRESPASSER.Item.IsAmmo"}}</label>
+        <label for="item-is-ammo-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.IsAmmo"}}</label>
         <input type="checkbox" name="system.isAmmo" {{checked system.isAmmo}} id="item-is-ammo-{{item.id}}"/>
       </div>
 
       {{#unless isLightSource}}
       <div class="field-item checkbox-item">
         <input type="checkbox" name="system.equippable" {{checked system.equippable}} id="item-equippable-{{item.id}}"/>
-        <label for="item-equippable-{{item.id}}">{{localize "TRESPASSER.Item.Equippable"}}</label>
+        <label for="item-equippable-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.Equippable"}}</label>
       </div>
       {{/unless}}
 
@@ -171,7 +171,7 @@
     </div>
 
     <div class="field-item description-column">
-      <label>{{localize "TRESPASSER.Item.Description"}}</label>
+      <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
       <div class="trp-editor-container">
         {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
       </div>

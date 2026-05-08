@@ -119,8 +119,8 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
           transferAll: !!data.transferAll
         });
         
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.TransferComplete", {
-          item: entry.item.name,
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.TransferComplete", {
+          name: entry.item.name,
           target: this.actor.name
         }));
       }
@@ -211,8 +211,8 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     const callingName = callingItem.name;
 
     const confirm = await Dialog.confirm({
-      title: game.i18n.format("TRESPASSER.CallingDialog.DeleteTitle", { name: callingName }),
-      content: `<p>${game.i18n.format("TRESPASSER.CallingDialog.DeleteConfirm", { name: callingName })}</p>`,
+      title: game.i18n.format("TRESPASSER.Dialog.Delete.CallingTitle", { name: callingName }),
+      content: `<p>${game.i18n.format("TRESPASSER.Dialog.Delete.CallingConfirm", { name: callingName })}</p>`,
       yes: () => true,
       no: () => false,
       defaultYes: false
@@ -240,7 +240,7 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
       "system.calling": ""
     });
 
-    ui.notifications.info(game.i18n.format("TRESPASSER.CallingDialog.Removed", { name: callingName, actor: this.actor.name }));
+    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Save.CallingRemoved", { name: callingName }));
   }
 
   /**
@@ -291,9 +291,8 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
       await actor.createEmbeddedDocuments("Item", itemsToCreate);
     }
 
-    ui.notifications.info(game.i18n.format("TRESPASSER.PastLife.Applied", {
-      name: pastLifeItem.name,
-      actor: actor.name
+    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Save.PastLifeApplied", {
+      name: pastLifeItem.name
     }));
   }
 }

@@ -33,7 +33,7 @@ export async function onToggleLight(event, sheet) {
     const fuels = sheet.actor.items.filter(i => i.system.isLightFuel);
 
     if (fuels.length === 0) {
-      ui.notifications.error(game.i18n.localize("TRESPASSER.Notifications.NoFuelAvailable") || "No light fuel available in inventory.");
+      ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Item.NoFuelAvailable"));
       return;
     }
 
@@ -54,7 +54,7 @@ export async function onToggleLight(event, sheet) {
             </div>`,
           buttons: {
             use:    { label: game.i18n.localize("TRESPASSER.Dialog.Fuel.Use"),    callback: (html) => resolve(html.find("#fuel-select").val()) },
-            cancel: { label: game.i18n.localize("TRESPASSER.Dialog.Cancel"),      callback: () => resolve(null) }
+            cancel: { label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),      callback: () => resolve(null) }
           },
           default: "use",
           close: () => resolve(null)
@@ -66,7 +66,7 @@ export async function onToggleLight(event, sheet) {
 
     const fuelItem = sheet.actor.items.get(selectedFuelId);
     if (fuelItem) {
-      ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.FuelConsumed", { name: fuelItem.name }) || `Consumed ${fuelItem.name} to light the source.`);
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.FuelConsumed", { fuel: fuelItem.name, item: item.name }));
       const currentQty = fuelItem.system.quantity ?? 1;
       if (currentQty > 1) await fuelItem.update({ "system.quantity": currentQty - 1 });
       else                 await fuelItem.delete();
@@ -86,9 +86,9 @@ export async function onSpendRDHeader(event, sheet) {
     title: "Spend Recovery Dice",
     content: `
       <div class="form-group">
-        <label>${game.i18n.localize("TRESPASSER.Sheet.Rest.RDHowMany")}</label>
+        <label>${game.i18n.localize("TRESPASSER.Dialog.Rest.RDHowMany")}</label>
         <input type="number" id="spend-rd-count" value="1" min="1" max="${currentRD}" />
-        <p class="notes">${game.i18n.localize("TRESPASSER.Sheet.Rest.RDDialogNote")}</p>
+        <p class="notes">${game.i18n.localize("TRESPASSER.Dialog.Rest.RDDialogNote")}</p>
       </div>`,
     buttons: {
       ok: {
@@ -97,7 +97,7 @@ export async function onSpendRDHeader(event, sheet) {
           const count     = parseInt(html.find("#spend-rd-count").val()) || 0;
           const available = sheet.actor.system.recovery_dice || 0;
           if (count > available) {
-            ui.notifications.error(game.i18n.format("TRESPASSER.Notifications.CannotSpendRD", { count, available }));
+            ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Character.CannotSpendRD", { count: available }));
             return;
           }
           if (count > 0) await sheet._spendRDAndRoll(count);

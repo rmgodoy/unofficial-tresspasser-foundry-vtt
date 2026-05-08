@@ -6,7 +6,7 @@
     <div class="header-info">
       <div class="name-group">
         <h1 class="item-title" style="margin: 0;">
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemTypes.effect'}}" style="font-family: 'Cinzel', serif; font-size: var(--fs-24); color: var(--trp-gold-bright); border: none; border-bottom: 1px solid #555; background: transparent; width: 100%;" />
+        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}" style="font-family: 'Cinzel', serif; font-size: var(--fs-24); color: var(--trp-gold-bright); border: none; border-bottom: 1px solid #555; background: transparent; width: 100%;" />
         </h1>
       </div>
     </div>
@@ -15,7 +15,7 @@
   <section class="sheet-body scrollable">
     <div class="details-grid">
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.Type"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.EffectType"}}</label>
         <select name="system.type">
           {{{selectOptions config.effectTypes selected=system.type localize=true}}}
         </select>
@@ -23,54 +23,54 @@
 
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.isCombat" {{checked system.isCombat}} id="effect-combat-{{item.id}}"/>
-        <label for="effect-combat-{{item.id}}">{{localize "TRESPASSER.Item.IsCombat"}}</label>
+        <label for="effect-combat-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.IsCombat"}}</label>
       </div>
 
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.isOnlyReminder" {{checked system.isOnlyReminder}} id="effect-reminder-{{item.id}}"/>
-        <label for="effect-reminder-{{item.id}}">{{localize "TRESPASSER.Item.isOnlyReminder"}}</label>
+        <label for="effect-reminder-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.IsReminder"}}</label>
       </div>
       
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.isPrevailable" {{checked system.isPrevailable}} id="effect-prevailable-{{item.id}}"/>
-        <label for="effect-prevailable-{{item.id}}">{{localize "TRESPASSER.Item.IsPrevailable"}}</label>
+        <label for="effect-prevailable-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.IsPrevailable"}}</label>
       </div>
 
       {{#if system.isOnlyReminder}}
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.gmOnly" {{checked system.gmOnly}} id="effect-gmonly-{{item.id}}"/>
-        <label for="effect-gmonly-{{item.id}}">{{localize "TRESPASSER.Item.gmOnly"}}</label>
+        <label for="effect-gmonly-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.GMOnly"}}</label>
       </div>
       {{/if}}
 
       <div class="field-group">
-        <label>{{localize "TRESPASSER.Item.intensity"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Intensity"}}</label>
         <input type="number" name="system.intensity" value="{{system.intensity}}" />
       </div>
 
       <div class="field-group">
-        <label>{{localize "TRESPASSER.Item.intensityIncrement"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.IntensityIncrement"}}</label>
         <input type="number" name="system.intensityIncrement" value="{{system.intensityIncrement}}" />
       </div>
 
       {{#unless system.isOnlyReminder}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.targetAttribute"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.TargetAttribute"}}</label>
         <select name="system.targetAttribute">
           {{{selectOptions config.targetAttributes selected=system.targetAttribute localize=true}}}
         </select>
       </div>
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.modifier"}}</label>
-        <input type="text" name="system.modifier" value="{{system.modifier}}" placeholder="{{localize 'TRESPASSER.Dialog.EffectEditor.ModifierPlaceholder'}}" />
-        <p class="notes" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: -5px;">{{localize "TRESPASSER.Dialog.EffectEditor.IntensityNote"}}</p>
+        <label>{{localize "TRESPASSER.Sheet.Common.Modifier"}}</label>
+        <input type="text" name="system.modifier" value="{{system.modifier}}" placeholder="{{localize 'TRESPASSER.Sheet.Item.Placeholder.Modifier'}}" />
+        <p class="notes" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: -5px;">{{localize "TRESPASSER.Sheet.Item.Details.IntensityNote"}}</p>
       </div>
       {{/unless}}
 
       {{#if (eq system.type 'on-trigger')}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.triggerWhen"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Trigger"}}</label>
         <select name="system.when">
           {{{selectOptions config.triggerWhen selected=system.when localize=true}}}
         </select>
@@ -78,15 +78,15 @@
 
       {{!-- Compound Duration --}}
       <div class="field-row" style="flex-direction:column;gap:4px;align-items:flex-start;">
-        <label>{{localize "TRESPASSER.Item.duration"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Duration"}}</label>
 
         {{!-- Operator selector — only meaningful when 2+ conditions are present --}}
         {{#if (gt system.durationConditions.length 1)}}
         <div class="dur-operator-wrap" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
-          <span style="font-size:var(--fs-11);color:var(--trp-text-dim);">{{localize "TRESPASSER.DurationLabels.Operator"}}</span>
+          <span style="font-size:var(--fs-11);color:var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Common.Operator"}}</span>
           <select name="system.durationOperator" style="width:70px;">
-            <option value="OR" {{#if (eq system.durationOperator "OR")}}selected{{/if}}>{{localize "TRESPASSER.DurationLabels.OR"}}</option>
-            <option value="AND" {{#if (eq system.durationOperator "AND")}}selected{{/if}}>{{localize "TRESPASSER.DurationLabels.AND"}}</option>
+            <option value="OR" {{#if (eq system.durationOperator "OR")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Common.OR"}}</option>
+            <option value="AND" {{#if (eq system.durationOperator "AND")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Common.AND"}}</option>
           </select>
         </div>
         {{/if}}
@@ -102,7 +102,7 @@
               value="{{cond.value}}"
               style="width:52px;text-align:center;{{#unless (or (eq cond.mode 'round') (eq cond.mode 'trigger'))}}display:none;{{/unless}}" />
             {{#if @root.editable}}
-            <a class="dur-remove-condition" data-index="{{idx}}" title="{{localize 'TRESPASSER.DurationLabels.RemoveCondition'}}"
+            <a class="dur-remove-condition" data-index="{{idx}}" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"
               style="color:var(--trp-red-dim,#c0392b);cursor:pointer;">
               <i class="fas fa-times"></i>
             </a>
@@ -120,15 +120,15 @@
 
         {{#if editable}}
         <a class="dur-add-condition" style="font-size:var(--fs-11);cursor:pointer;">
-          <i class="fas fa-plus"></i> {{localize "TRESPASSER.DurationLabels.AddCondition"}}
+          <i class="fas fa-plus"></i> {{localize "TRESPASSER.Sheet.Common.Add"}}
         </a>
         {{/if}}
       </div>
       {{/if}}
 
       <div class="applied-effects-section">
-        <h3 class="section-title">{{localize "TRESPASSER.Item.CounterEffects"}}</h3>
-        <span class="section-note">{{localize "TRESPASSER.Item.CounterEffectsNote"}}</span>
+        <h3 class="section-title">{{localize "TRESPASSER.Sheet.Item.Sections.CounterEffects"}}</h3>
+        <span class="section-note">{{localize "TRESPASSER.Sheet.Item.Note.CounterEffects"}}</span>
         
         <div class="drop-zone applied-effects-list" data-type="counterStates">
           {{#if system.counterStates.length}}
@@ -142,13 +142,13 @@
               }}
             {{/each}}
           {{else}}
-            <p class="notes">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</p>
+            <p class="notes">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</p>
           {{/if}}
         </div>
       </div>
 
       <div class="field-row editor-row" style="margin-top: 10px;">
-        <label>{{localize "TRESPASSER.Item.Description"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
         <div class="trp-editor-container">
           {{editor system.description target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
         </div>

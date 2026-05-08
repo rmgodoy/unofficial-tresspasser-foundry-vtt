@@ -151,7 +151,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
     context.encounterTableId = system.encounterTableId || "";
     if (system.encounterTableId) {
       const table = game.tables.get(system.encounterTableId);
-      context.encounterTableName = table?.name ?? game.i18n.localize("TRESPASSER.Dungeon.UnknownTable");
+      context.encounterTableName = table?.name ?? game.i18n.localize("TRESPASSER.Dungeon.Exploration.UnknownTable");
       if (table) {
         context.encounterTableFormula = table.formula ?? "";
         const tableData = table.toObject();
@@ -203,7 +203,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
   static async #onCreateRoom(event, target) {
     const rooms = this.actor.items.filter(i => i.type === "room");
     const nextOrder = rooms.length > 0 ? Math.max(...rooms.map(r => r.system.sortOrder ?? 0)) + 1 : 0;
-    const name = game.i18n.format("TRESPASSER.NewItem", { type: game.i18n.localize("TYPES.Item.room") });
+    const name = game.i18n.format("TRESPASSER.Global.Action.NewItem", { type: game.i18n.localize("TRESPASSER.Terms.ItemType.Room.Singular") });
     await this.actor.createEmbeddedDocuments("Item", [{
       name,
       type: "room",
@@ -222,8 +222,8 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
     const item = this.actor.items.get(itemId);
     if (!item) return;
     foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.localize("TRESPASSER.DeleteItemTitle") },
-      content: `<p>${game.i18n.format("TRESPASSER.DeleteItemContent", { name: item.name })}</p>`,
+      window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.ItemTitle", { name: item.name }) },
+      content: `<p>${game.i18n.format("TRESPASSER.Dialog.Delete.ItemConfirm", { name: item.name })}</p>`,
       yes: { callback: () => item.delete() }
     });
   }
@@ -262,10 +262,10 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
    */
   static async #onResetDungeon(event, target) {
     const confirmed = await foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.localize("TRESPASSER.Dungeon.Reset.Title") },
-      content: `<p>${game.i18n.format("TRESPASSER.Dungeon.Reset.Confirm", { name: this.actor.name })}</p>`,
-      yes: { label: game.i18n.localize("TRESPASSER.Dungeon.Reset.Yes"), icon: "fa-solid fa-trash" },
-      no: { label: game.i18n.localize("TRESPASSER.Cancel") }
+      window: { title: game.i18n.localize("TRESPASSER.Dialog.Reset.DungeonTitle") },
+      content: `<p>${game.i18n.format("TRESPASSER.Dialog.Reset.DungeonConfirm", { name: this.actor.name })}</p>`,
+      yes: { label: game.i18n.localize("TRESPASSER.Global.Action.Reset"), icon: "fa-solid fa-trash" },
+      no: { label: game.i18n.localize("TRESPASSER.Global.Action.Cancel") }
     });
     if (!confirmed) return;
 
@@ -294,7 +294,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
 
   static async #onCreateEncounterTable(event, target) {
     const table = await RollTable.create({
-      name: `${this.actor.name} ${game.i18n.localize("TRESPASSER.Dungeon.Encounters")}`,
+      name: `${this.actor.name} ${game.i18n.localize("TRESPASSER.Dungeon.Exploration.Encounters")}`,
       formula: "1d6"
     });
     await this.actor.update({ "system.encounterTableId": table.id });
@@ -324,7 +324,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
 
     // Only allow room items on dungeons
     if (item.type !== "room") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Dungeon.DropRoomsOnly"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Dungeon.DropRoomsOnly"));
       return false;
     }
 

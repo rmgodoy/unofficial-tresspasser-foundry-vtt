@@ -386,7 +386,7 @@ export class TrespasserCombat extends Combat {
     if (game.settings.get("trespasser", "showInitiativeInChat")) {
       await roll.toMessage({
         speaker: ChatMessage.getSpeaker({ actor: combatant.actor }),
-        flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
+        flavor: game.i18n.format("TRESPASSER.Chat.Action.Initiative", { max: enemyMaxInit })
       });
     }
 
@@ -497,7 +497,7 @@ export class TrespasserCombat extends Combat {
     await ChatMessage.create({
       user: game.user.id,
       content: content,
-      flavor: game.i18n.localize("TRESPASSER.Peril"),
+      flavor: game.i18n.localize("TRESPASSER.Terms.Combat.Peril"),
       type: CONST.CHAT_MESSAGE_TYPES.OTHER
     });
   }
@@ -511,7 +511,7 @@ export class TrespasserCombat extends Combat {
     
     // Post attempt to chat
     await ChatMessage.create({
-      content: `<h3 style="color:var(--trp-gold-bright)">${game.i18n.localize("TRESPASSER.Retreat.AttemptChat")}</h3>`,
+      content: `<h3 style="color:var(--trp-gold-bright)">${game.i18n.localize("TRESPASSER.Chat.Action.RetreatAttempt")}</h3>`,
       type: CONST.CHAT_MESSAGE_TYPES.OTHER
     });
 
@@ -532,7 +532,7 @@ export class TrespasserCombat extends Combat {
         if (game.settings.get("trespasser", "showInitiativeInChat")) {
           await roll.toMessage({
             speaker: ChatMessage.getSpeaker({ actor: c.actor }),
-            flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
+            flavor: game.i18n.format("TRESPASSER.Chat.Action.Initiative", { max: enemyMaxInit })
           });
         }
         
@@ -566,7 +566,7 @@ export class TrespasserCombat extends Combat {
 
     if (success) {
       await ChatMessage.create({
-        content: `<h2 style="color:var(--trp-green-bright)">${game.i18n.format("TRESPASSER.Retreat.PartyEscaped", { successes, total: pcs.length })}</h2>`,
+        content: `<h2 style="color:var(--trp-green-bright)">${game.i18n.format("TRESPASSER.Chat.Action.RetreatSuccess", { successes, total: pcs.length })}</h2>`,
         type: CONST.CHAT_MESSAGE_TYPES.OTHER
       });
       
@@ -576,7 +576,7 @@ export class TrespasserCombat extends Combat {
       }
     } else {
       await ChatMessage.create({
-        content: `<h2 style="color:var(--trp-red)">${game.i18n.format("TRESPASSER.Retreat.PartyFailed", { successes, total: pcs.length, needed })}</h2>`,
+        content: `<h2 style="color:var(--trp-red)">${game.i18n.format("TRESPASSER.Chat.Action.RetreatFailure", { successes, total: pcs.length, needed })}</h2>`,
         type: CONST.CHAT_MESSAGE_TYPES.OTHER
       });
     }
@@ -678,7 +678,7 @@ export class TrespasserCombat extends Combat {
           if (game.settings.get("trespasser", "showInitiativeInChat")) {
             await roll.toMessage({
               speaker: ChatMessage.getSpeaker({ actor: actor }),
-              flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
+              flavor: game.i18n.format("TRESPASSER.Chat.Action.Initiative", { max: enemyMaxInit })
             });
           }
 
