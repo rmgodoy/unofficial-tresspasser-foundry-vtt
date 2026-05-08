@@ -67,6 +67,9 @@
       "ShowPerilInChatHint": "If enabled, the Peril roll at the start of each round will be posted to the chat log for all players to see.",
       "AutoEndCombatOnRetreat": "Auto-end combat on successful retreat",
       "AutoEndCombatOnRetreatHint": "If enabled, combat will automatically end when the party successfully retreats. If disabled, only a message is posted and the GM must end combat manually.",
+      "ConfirmItemTransfer": "Confirm Item Transfers",
+      "ConfirmItemTransferHint": "If enabled, you will be prompted to accept or reject items transferred to you by other players."
+,
       "colorBgDark": "Main Application Background",
       "colorBgPanel": "Sidebar & Panel Background",
       "colorBgInput": "Input & Textarea Background",
@@ -98,13 +101,7 @@
       "colorGreenOverlay": "Transparent Green Highlight",
       "colorScrollbar": "Scrollbar Handle Color"
     },
-    "ActorTypes": {
-      "character": "Character",
-      "creature": "Creature",
-      "dungeon": "Dungeon",
-      "party": "Party",
-      "haven": "Haven"
-    },
+
     "ItemTypes": {
       "weapon": "Weapon",
       "armor": "Armor",
@@ -455,7 +452,30 @@
       "DropEffectsOnly": "Only effects can be dropped here.",
       "FuelConsumed": "Consumed {name} for fuel.",
       "ItemNotFound": "Item not found.",
-      "NoFuelAvailable": "No fuel sources available!"
+      "NoFuelAvailable": "No fuel sources available!",
+      "TransferAccepted": "{item} was accepted by {actor}.",
+      "TransferRejected": "{item} was rejected by {target}.",
+      "TransferComplete": "Transfer of {item} to {target} complete.",
+      "TransferPending": "Transfer request for {item} sent to {target}."
+    },
+    "Peril": "Peril",
+    "Dialog": {
+      "TransferTitle": "Item Transfer",
+      "TransferContent": "{user} wants to give {item} to {target}. Do you accept?",
+      "TransferSelectTargetHint": "Select a character to receive the item:"
+    },
+    "Retreat": {
+      "DialogTitle": "Continue or Retreat?",
+      "DialogPrompt": "The Peril for this round has been rolled. Do you want to continue the round or attempt a retreat?",
+      "PerilDisplay": "Peril: {total} ({label}) — Heavy: {heavy} / Mighty: {mighty}",
+      "Continue": "Continue",
+      "Retreat": "Retreat",
+      "AttemptChat": "The party attempts to retreat!",
+      "SuccessRoll": "{name} rolled {total} vs {dc} — Success!",
+      "FailRoll": "{name} rolled {total} vs {dc} — Failure!",
+      "PartyEscaped": "The party successfully retreated! ({successes}/{total} succeeded)",
+      "PartyFailed": "The retreat failed! ({successes}/{total} succeeded — {needed} needed). Combat continues using the rolled initiatives.",
+      "PerilChat": "Peril: {total} ({label}) — Heavy: {heavy}, Mighty: {mighty}"
     },
     "Chat": {
       "SkillCheck": "{name} - {skill} Check",
@@ -1492,7 +1512,6 @@
         "Attribute": "Core Attribute Bonus",
         "AttributeBonus": "Bonus Value",
         "Skill": "Provided Skill",
-        "BuildClock": "Build Clock",
         "UpgradeTo": "Upgrade Path",
         "DropUpgradeHint": "Drop a Building here to set as upgrade path"
       },
@@ -1504,7 +1523,7 @@
       "DropCharacterHere": "Drop a Character here",
       "AttributeBonuses": "Attribute Bonuses",
       "AddBonus": "Add Bonus",
-      "StrongholdActions": "Haven Actions",
+
       "HavenActions": "Haven Actions",
       "AddAction": "Add Action",
       "DropFeaturesHint": "Drop Features here to provide to owner upon completion",
@@ -1548,24 +1567,6 @@
       "hireling": "Hireling",
       "build": "Building",
       "stronghold": "Stronghold"
-    },
-    "EventClocks": {
-      "TrackerTitle": "Event Clocks",
-      "Button": "Event Clocks",
-      "AddClock": "Add Clock",
-      "NoClocks": "No event clocks yet.",
-      "EditTitle": "Edit Clock",
-      "Name": "Clock Name",
-      "PlayerName": "Player-facing Name",
-      "PlayerNameHint": "If different from the real name, this is shown to players.",
-      "Description": "Description",
-      "Target": "Target (max segments)",
-      "Current": "Current (filled segments)",
-      "GmOnly": "GM Only",
-      "GmOnlyHint": "If checked, players cannot see this clock.",
-      "DeleteConfirmTitle": "Delete Clock?",
-      "DeleteConfirmContent": "Are you sure you want to delete this clock? This cannot be undone.",
-      "ClockHint": "Click a segment to advance / retreat the clock."
     }
   },
   "EventClocks": {

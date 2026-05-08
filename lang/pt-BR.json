@@ -98,13 +98,7 @@
       "colorGreenOverlay": "Destaque Verde Transparente",
       "colorScrollbar": "Cor da Alça da Barra de Rolagem"
     },
-    "ActorTypes": {
-      "character": "Personagem",
-      "creature": "Criatura",
-      "dungeon": "Dungeon",
-      "party": "Party",
-      "haven": "Haven"
-    },
+
     "ItemTypes": {
       "weapon": "Arma",
       "armor": "Armadura",
@@ -338,19 +332,6 @@
             "Medium": "Médio",
             "High": "Alto"
           }
-        },
-        "Retreat": {
-          "DialogTitle": "Continuar ou Recuar?",
-          "DialogPrompt": "O Perigo desta rodada foi rolado. Deseja continuar a rodada ou tentar recuar?",
-          "PerilDisplay": "Perigo: {total} ({label}) — Pesadas: {heavy} / Pujantes: {mighty}",
-          "Continue": "Continuar",
-          "Retreat": "Recuar",
-          "AttemptChat": "O grupo tenta recuar!",
-          "SuccessRoll": "{name} rolou {total} vs {dc} — Sucesso!",
-          "FailRoll": "{name} rolou {total} vs {dc} — Falha!",
-          "PartyEscaped": "O grupo recuou com sucesso! ({successes}/{total} tiveram sucesso)",
-          "PartyFailed": "A retirada falhou! ({successes}/{total} tiveram sucesso — necessário {needed}). O combate continua usando as iniciativas roladas.",
-          "PerilChat": "Perigo: {total} ({label}) — Pesadas: {heavy}, Pujantes: {mighty}"
         }
       },
       "Rest": {
@@ -468,7 +449,30 @@
       "DropEffectsOnly": "Apenas efeitos podem ser soltos aqui.",
       "FuelConsumed": "Consumiu {name} como combustível.",
       "ItemNotFound": "Item não encontrado.",
-      "NoFuelAvailable": "Nenhuma fonte de combustível disponível!"
+      "NoFuelAvailable": "Nenhuma fonte de combustível disponível!",
+      "TransferAccepted": "{item} foi aceito por {actor}.",
+      "TransferRejected": "{item} foi rejeitado por {target}.",
+      "TransferComplete": "Transferência de {item} para {target} concluída.",
+      "TransferPending": "Solicitação de transferência de {item} enviada para {target}."
+    },
+    "Peril": "Perigo",
+    "Dialog": {
+      "TransferTitle": "Transferência de Item",
+      "TransferContent": "{user} deseja dar {item} para {target}. Você aceita?",
+      "TransferSelectTargetHint": "Selecione um personagem para receber o item:"
+    },
+    "Retreat": {
+      "DialogTitle": "Continuar ou Recuar?",
+      "DialogPrompt": "O Perigo desta rodada foi rolado. Deseja continuar a rodada ou tentar recuar?",
+      "PerilDisplay": "Perigo: {total} ({label}) — Pesadas: {heavy} / Pujantes: {mighty}",
+      "Continue": "Continuar",
+      "Retreat": "Recuar",
+      "AttemptChat": "O grupo tenta recuar!",
+      "SuccessRoll": "{name} rolou {total} vs {dc} — Sucesso!",
+      "FailRoll": "{name} rolou {total} vs {dc} — Falha!",
+      "PartyEscaped": "O grupo recuou com sucesso! ({successes}/{total} tiveram sucesso)",
+      "PartyFailed": "A retirada falhou! ({successes}/{total} tiveram sucesso — necessário {needed}). O combate continua usando as iniciativas roladas.",
+      "PerilChat": "Perigo: {total} ({label}) — Pesadas: {heavy}, Pujantes: {mighty}"
     },
     "Chat": {
       "SkillCheck": "{name} — Teste de {skill}",
@@ -1492,7 +1496,6 @@
         "Attribute": "Bônus de Atributo",
         "AttributeBonus": "Valor do Bônus",
         "Skill": "Perícia Fornecida",
-        "BuildClock": "Relógio de Obra",
         "UpgradeTo": "Caminho de Melhoria",
         "DropUpgradeHint": "Solte uma Construção aqui para definir o caminho de melhoria"
       },
@@ -1504,7 +1507,7 @@
       "DropCharacterHere": "Solte um Personagem aqui",
       "AttributeBonuses": "Bônus de Atributo",
       "AddBonus": "Adicionar Bônus",
-      "StrongholdActions": "Ações de Abrigo",
+
       "HavenActions": "Ações de Abrigo",
       "AddAction": "Adicionar Ação",
       "DropFeaturesHint": "Solte Características aqui para conceder ao dono ao concluir",
@@ -1548,24 +1551,6 @@
       "hireling": "Servo",
       "build": "Construção",
       "stronghold": "Fortaleza"
-    },
-    "EventClocks": {
-      "TrackerTitle": "Relógios de Evento",
-      "Button": "Relógios de Evento",
-      "AddClock": "Adicionar Relógio",
-      "NoClocks": "Nenhum relógio de evento ainda.",
-      "EditTitle": "Editar Relógio",
-      "Name": "Nome do Relógio",
-      "PlayerName": "Nome para Jogadores",
-      "PlayerNameHint": "Se diferente do nome real, este nome é mostrado aos jogadores.",
-      "Description": "Descrição",
-      "Target": "Alvo (segmentos máx)",
-      "Current": "Atual (segmentos preenchidos)",
-      "GmOnly": "Apenas Mestre",
-      "GmOnlyHint": "Se marcado, os jogadores não verão este relógio.",
-      "DeleteConfirmTitle": "Excluir Relógio?",
-      "DeleteConfirmContent": "Tem certeza que deseja excluir este relógio? Isso não pode ser desfeito.",
-      "ClockHint": "Clique em um segmento para avançar / retroceder o relógio."
     }
   },
   "EventClocks": {

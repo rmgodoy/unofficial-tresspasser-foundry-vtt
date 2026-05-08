@@ -5,6 +5,8 @@
  * This file only wires Foundry's lifecycle hooks to those modules.
  */
 
+import { addItemToActor } from "../helpers/item-transfer-helper.mjs";
+import { TrespasserSocket } from "../helpers/socket/socket.mjs";
 import { showCallingDialog }           from "../dialogs/calling-dialog.mjs";
 import { showCraftDialog }             from "../dialogs/craft-dialog.mjs";
 import { showRestDialog }              from "../dialogs/rest-dialog.mjs";
@@ -38,6 +40,7 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
       resizable: true,
       scrollY:  [".tab-body"],
       tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "character" }],
+      dragDrop: [{ dragSelector: ".inventory-card, .item, .deed-slot", dropSelector: null }]
     });
   }
 
@@ -48,6 +51,7 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
 
   /** @override */
   activateListeners(html) {
+    console.log(`Trespasser | TrespasserCharacterSheet.activateListeners for ${this.actor.name}`);
     super.activateListeners(html);
     activateCharacterListeners(html, this);
 
@@ -70,9 +74,63 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
 
   /** @override */
   async _onDropItem(event, data) {
-    if (!this.actor.isOwner) return false;
+    // Allow transfers from other actors even if the user doesn't own the target.
+    // Prevent cloning from sidebar/compendiums if the user doesn't own the target.
+    if ( !this.actor.isOwner && (data.type !== "Item" || !data.actorId) ) return false;
+
+    // Resolve the source item document
+    let sourceItem = data.uuid ? await fromUuid(data.uuid) : null;
+    if (!sourceItem && data.actorId && data.id) {
+       const sourceActor = game.actors.get(data.actorId) || canvas.tokens.get(data.actorId)?.actor;
+       sourceItem = sourceActor?.items.get(data.id);
+    }
+
+    // Determine if this is a cross-actor transfer
+    // We check if the item has a parent and that parent is NOT the current actor.
+    const isTransfer = sourceItem && sourceItem.parent && (sourceItem.parent !== this.actor);
+
+    if (isTransfer) {
+      // Trigger the unified transfer logic
+      await onItemTransfer(null, this, { item: sourceItem, targetActor: this.actor });
+      return false; // Prevent duplicate handling
+    }
+
+    // Special handling for Haven inventory transfers
+    if (data.isHavenTransfer) {
+      const sourceHaven = game.actors.get(data.actorId);
+      if (!sourceHaven) return false;
+      
+      const entry = sourceHaven.system.inventory[data.havenIndex];
+      if (!entry) return false;
+
+      const itemData = foundry.utils.duplicate(entry.item);
+      const qtyToTransfer = data.transferAll ? entry.quantity : 1;
+      
+      const success = await addItemToActor(this.actor, itemData, qtyToTransfer);
+      console.log(`Trespasser | _onDropItem (Haven Transfer): Item added to character: ${success}`);
+
+      if (success) {
+        console.log(`Trespasser | _onDropItem (Haven Transfer): Emitting HAVEN_WITHDRAWAL socket for index ${data.havenIndex}`);
+        // Notify through socket to update Haven (handles permissions)
+        TrespasserSocket.emit("HAVEN_WITHDRAWAL", {
+          havenUuid: sourceHaven.uuid,
+          index: data.havenIndex,
+          targetActorUuid: this.actor.uuid,
+          transferAll: !!data.transferAll
+        });
+        
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.TransferComplete", {
+          item: entry.item.name,
+          target: this.actor.name
+        }));
+      }
+      
+      return false;
+    }
+
     const item = await Item.implementation.fromDropData(data);
     if (!item) return super._onDropItem(event, data);
+
     if (item.type === "calling") return showCallingDialog(item, this.actor);
     if (item.type === "craft")   return showCraftDialog(item, this.actor);
     if (item.type === "past_life") return this._applyPastLife(item);

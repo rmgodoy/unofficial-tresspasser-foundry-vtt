@@ -423,7 +423,7 @@
           </thead>
           <tbody>
             {{#each equippedAccessories as |item slot|}}
-            <tr>
+            <tr class="item" data-item-id="{{item.id}}" {{#if item}}draggable="true"{{/if}}>
               <td>
                 <label class="slot-label">{{localize (concat "TRESPASSER.Sheet.Equipments." (capitalize slot))}}</label>
               </td>
@@ -467,7 +467,7 @@
       
       <div class="inventory-grid">
         {{#each unequippedItems}}
-        <div class="inventory-card {{#if this.system.broken}}is-broken{{/if}}" data-item-id="{{this.id}}">
+        <div class="inventory-card {{#if this.system.broken}}is-broken{{/if}}" data-item-id="{{this.id}}" draggable="true">
           {{#if this.system.broken}}<i class="fas fa-bolt broken-icon" title="{{localize "TRESPASSER.Item.BrokenUsed"}}"></i>{{/if}}
           <img src="{{this.img}}" class="item-icon" title="{{this.name}}" />
           <span class="item-name">{{this.name}}</span>
@@ -508,10 +508,10 @@
 
       <div class="inventory-grid">
         {{#each equippedItems}}
-        <div class="inventory-card {{#if this.system.broken}}is-broken{{/if}}" data-item-id="{{this.id}}">
+        <div class="inventory-card {{#if this.system.broken}}is-broken{{/if}}" data-item-id="{{this.id}}" draggable="true">
           {{#if this.system.broken}}<i class="fas fa-bolt broken-icon" title="{{localize 'TRESPASSER.Item.BrokenUsed'}}"></i>{{/if}}
           <img src="{{this.img}}" class="item-icon" title="{{this.name}}" />
-          <span class="item-name">{{this.name}}{{#if (eq this.system.subType "resource")}} <span style="font-size:var(--fs-11); color:var(--trp-text-dim);">(x{{this.system.quantity}})</span>{{/if}}</span>
+          <span class="item-name">{{this.name}}</span>
           <div class="item-controls">
             {{#if (or (eq this.type "armor") (eq this.type "weapon") (eq this.type "accessory") this.system.equippable)}}
             <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-dice-d6"></i></a>
@@ -650,7 +650,7 @@
               {{#each (array "head" "arms" "body" "legs" "outer" "shield") as |slot|}}
               {{#with (lookup ../equippedArmor slot) as |item|}}
               {{#unless (eq item.type "item")}}
-              <tr data-item-id="{{item.id}}">
+              <tr class="item" data-item-id="{{item.id}}" {{#if item}}draggable="true"{{/if}}>
                 <td class="slot-label {{#if item}}equip-rollable{{/if}}" data-slot="{{slot}}">{{capitalize slot}}</td>
                 <td>
                   {{#if item}}{{item.system.armorDie}}{{else}}—{{/if}}

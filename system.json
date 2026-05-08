@@ -60,7 +60,8 @@
       "stronghold": {}
     }
   },
-  "initiative": "1d6 + @system.combat.initiative",
+  "socket": true,
+  "initiative": "1d20 + @system.combat.initiative",
   "primaryTokenAttribute": "system.health",
   "secondaryTokenAttribute": "system.endurance",
   "url": "https://github.com/rmgodoy/unofficial-tresspasser-foundry-vtt",

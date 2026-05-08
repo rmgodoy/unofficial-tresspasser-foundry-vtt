@@ -23,6 +23,12 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /** @override */
+  async _onDropItem(event, data) {
+    if (!this.actor.isOwner) return false;
+    return super._onDropItem(event, data);
+  }
+
+  /** @override */
   get template() {
     return `systems/trespasser/templates/actor/creature-sheet.hbs`;
   }

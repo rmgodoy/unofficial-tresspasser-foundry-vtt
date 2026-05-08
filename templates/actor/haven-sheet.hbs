@@ -164,7 +164,7 @@
                     </div>
                   {{/if}}
                   <div class="clock-controls">
-                    <label>{{localize "TRESPASSER.Haven.Build.BuildClock"}}</label>
+                    <label>{{localize "TRESPASSER.Haven.BuildClock"}}</label>
                     <div class="controls-row">
                       <a data-action="adjustBuildClock" data-delta="-1"><i class="fas fa-minus"></i></a>
                       <span class="clock-value">{{b.system.progress}} / {{b.system.buildClock}}</span>
@@ -386,7 +386,7 @@
           </h3>
           <div class="inventory-list drop-zone" data-action="dropItem">
             {{#each inventory as |entry|}}
-              <div class="inventory-item" data-index="{{entry.index}}">
+              <div class="inventory-item item" data-index="{{entry.index}}" draggable="true">
                 <span class="name">{{entry.name}}</span>
                 <div class="quantity-controls">
                   {{#if ../editable}}<a data-action="adjustInventoryQty" data-delta="-1"><i class="fas fa-minus"></i></a>{{/if}}
@@ -483,7 +483,7 @@
                 </div>
                 <div class="card-body">
                   <div class="clock-controls">
-                    <label>{{localize "TRESPASSER.Haven.Build.BuildClock"}}</label>
+                    <label>{{localize "TRESPASSER.Haven.BuildClock"}}</label>
                     <div class="controls-row">
                       <a data-action="adjustBuildClock" data-delta="-1"><i class="fas fa-minus"></i></a>
                       <span class="clock-value">{{s.system.progress}} / {{s.system.buildClock}}</span>

@@ -1,5 +1,7 @@
 import { buildClockSegments } from "./character/get-data.mjs";
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
+import { addItemToActor } from "../helpers/item-transfer-helper.mjs";
+import { TrespasserSocket } from "../helpers/socket/socket.mjs";
 
 const { api, sheets } = foundry.applications;
 
@@ -300,6 +302,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       });
     });
 
+    // Handle dragging items from inventory
+    html.querySelectorAll('.inventory-item.item').forEach(li => {
+      li.addEventListener('dragstart', (ev) => this.#onDragStart(ev));
+    });
+
     // From here, only for GMs/Leaders
     if (!this.isEditable) return;
 
@@ -314,6 +321,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
   /* -------------------------------------------- */
 
   async #onDrop(event) {
+    console.log("Trespasser | TrespasserHavenSheet.#onDrop: Entry");
     event.preventDefault();
     event.stopPropagation();
     const zone = event.currentTarget;
@@ -357,7 +365,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
           }
         }
 
-        return Item.create(item.toObject(), { parent: this.document });
+        const created = await Item.create(item.toObject(), { parent: this.document });
+        if (created && item.parent && item.parent !== this.document) {
+          await item.delete();
+        }
+        return created;
       }
 
       const inventory = foundry.utils.duplicate(this.document.system.inventory);
@@ -375,11 +387,43 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
         inventory.push({ item: itemData, quantity: qty });
       }
 
-      await this.document.update({ "system.inventory": inventory });
+      const updated = await this.document.update({ "system.inventory": inventory });
       
-      // If the item was on this actor, delete the document
-      if (item.parent === this.document) await item.delete();
+      // If the item came from another actor (like a character), delete the source document
+      if (updated && item.parent && item.parent !== this.document) {
+        await item.delete();
+      }
     }
+  }
+
+  /**
+   * Handle dragging an item out of the Haven inventory.
+   * @param {DragEvent} event
+   * @private
+   */
+  #onDragStart(event) {
+    const li = event.currentTarget;
+    if (li.dataset.index === undefined) return;
+    
+    const index = parseInt(li.dataset.index);
+    const entry = this.document.system.inventory[index];
+    if (!entry) return;
+
+    // Build drag data
+    const dragData = {
+      type: "Item",
+      data: entry.item,
+      havenIndex: index,
+      actorId: this.document.id,
+      isHavenTransfer: true
+    };
+    
+    // Check for ALT key to transfer full stack
+    if (event.altKey) {
+      dragData.transferAll = true;
+    }
+
+    event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
   }
 
   /* -------------------------------------------- */
@@ -523,7 +567,10 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
 
     // Get the character receiving the item
     const controlledTokens = canvas.tokens.controlled;
-    if (controlledTokens.length === 0) return;
+    if (controlledTokens.length === 0) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
+      return;
+    }
 
     const receiverToken = controlledTokens[0];
     const receiverActor = receiverToken.actor;
@@ -536,18 +583,24 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
 
     // Transfer item
     const itemData = foundry.utils.duplicate(entry.item);
-    itemData.system.quantity = 1;
-    await receiverActor.createEmbeddedDocuments("Item", [itemData]);
+    const success = await addItemToActor(receiverActor, itemData, 1);
+    console.log(`Trespasser | #onWithdrawInventoryItem: Item added to character: ${success}`);
 
-    // Reduce quantity in internal inventory
-    entry.quantity -= 1;
-    if (entry.quantity <= 0) inventory.splice(index, 1);
-    await this.document.update({ "system.inventory": inventory });
-    
-    ui.notifications.info(game.i18n.format("TRESPASSER.Haven.WithdrawnToActor", { 
-      name: itemData.name,
-      actor: receiverActor.name 
-    }));
+    if (success) {
+      console.log(`Trespasser | #onWithdrawInventoryItem: Emitting HAVEN_WITHDRAWAL socket for index ${index}`);
+      // Notify through socket to update Haven (handles permissions)
+      TrespasserSocket.emit("HAVEN_WITHDRAWAL", {
+        havenUuid: this.document.uuid,
+        index: index,
+        targetActorUuid: receiverActor.uuid,
+        transferAll: false
+      });
+      
+      ui.notifications.info(game.i18n.format("TRESPASSER.Haven.WithdrawnToActor", { 
+        name: itemData.name,
+        actor: receiverActor.name 
+      }));
+    }
   }
 
   static async #onToggleHirelingActive(event, target) {

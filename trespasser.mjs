@@ -43,6 +43,8 @@ import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
 import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
+import { TrespasserSocket }        from "./module/helpers/socket/socket.mjs";
+
 
 
 // ── Party imports ────────────────────────────────────────────────────────────
@@ -213,6 +215,15 @@ Hooks.once("init", async () => {
     name: "TRESPASSER.Config.DisregardRangeOnAttack",
     hint: "TRESPASSER.Config.DisregardRangeOnAttackHint",
     scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
+  game.settings.register("trespasser", "confirmItemTransfer", {
+    name: "TRESPASSER.Config.ConfirmItemTransfer",
+    hint: "TRESPASSER.Config.ConfirmItemTransferHint",
+    scope: "client",
     config: false,
     type: Boolean,
     default: true
@@ -524,6 +535,9 @@ Hooks.once("init", async () => {
 Hooks.once("ready", () => {
   // Initialize Token Action HUD
   game.trespasser.tokenHUD = new TrespasserTokenHUD();
+
+  // Initialize Sockets
+  TrespasserSocket.init();
 
   // Function to apply settings to CSS variables
   game.trespasser.applySystemSettings = () => {
