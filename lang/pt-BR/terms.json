@@ -49,6 +49,8 @@
         "Talent": "Talento",
         "Talents": "Talentos",
         "Effect": "Efeito",
+        "State": "Estado",
+        "States": "Estados",
         "Incantation": "Encantamento",
         "Item": "Item",
         "Injury": "Ferimento",
@@ -118,7 +120,11 @@
       "HavenDCSkillBonus": "CD (Bônus de Perícia)",
       "CharactersRested": "Personagens Descansados",
       "Enhancements": "Aprimoramentos",
-      "Progression": "Progressão"
+      "Progression": "Progressão",
+      "Party": {
+        "Roll": "Rolagem do Grupo",
+        "GroupCheck": "Teste de Grupo"
+      }
     }
   }
 }

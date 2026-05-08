@@ -1,0 +1,50 @@
+{
+  "TRESPASSER": {
+    "Dungeon": {
+      "Round": "Round",
+      "ActionsRemaining": "Actions Remaining",
+      "DC": "DC",
+      "Alarm": "Alarm",
+      "Actions": {
+        "Explore": "Explore",
+        "ExploreDesc": "Move cautiously into an adjacent, unexplored room or explore the current room.",
+        "Traverse": "Traverse",
+        "TraverseDesc": "Move to any previously explored room or to the dungeon entrance.",
+        "Interact": "Interact",
+        "InteractDesc": "Engage with a complex feature of the current room.",
+        "Search": "Search",
+        "SearchDesc": "Linger in an explored room to investigate it further.",
+        "Hide": "Hide",
+        "HideDesc": "Wait in silent darkness for the dungeon to become still.",
+        "Vandalize": "Vandalize",
+        "VandalizeDesc": "Break open a locked door, chest, or other property.",
+        "PickLock": "Pick Lock",
+        "PickLockDesc": "Attempt to pick a locked door or chest.",
+        "Disarm": "Disarm",
+        "DisarmDesc": "Attempt to disarm a trap.",
+        "Converse": "Converse",
+        "ConverseDesc": "Spend a few minutes talking to a creature.",
+        "MomentsRest": "Moment's Rest",
+        "MomentsRestDesc": "Pause for 10 minutes to recover and eat.",
+        "Incant": "Incant",
+        "IncantDesc": "Cast an incantation while the party keeps watch."
+      },
+      "Room": {
+        "UnexploredConnections": "Unexplored Connections",
+        "ExploredConnections": "Explored Connections",
+        "NoConnections": "No connections found.",
+        "AllExplored": "All adjacent rooms have been explored.",
+        "RoomTrapPresent": "Room Trap Present!",
+        "TrapWarning": "<strong>GM Warning:</strong> {label}",
+        "Features": "Room Features",
+        "Loot": "Room Loot",
+        "DetailTraps": "Detail Traps",
+        "DetailTrapsWarning": "<strong>GM Warning:</strong> {count} {label} remain undiscovered!"
+      },
+      "Log": {
+        "UnexploredCount": "{count} unexplored rooms",
+        "AlarmChange": "Alarm rises to {value}"
+      }
+    }
+  }
+}

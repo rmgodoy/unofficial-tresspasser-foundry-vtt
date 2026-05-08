@@ -6,7 +6,8 @@
         "Confirm": "Confirmar",
         "ToggleVisibility": "Alternar Visibilidade",
         "ToggleDead": "Alternar Morto",
-        "ToggleTarget": "Alternar Alvo"
+        "ToggleTarget": "Alternar Alvo",
+        "Close": "Fechar"
       },
       "Status": {
         "None": "Nenhum"

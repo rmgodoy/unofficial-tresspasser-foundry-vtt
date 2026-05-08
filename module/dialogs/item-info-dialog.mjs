@@ -92,7 +92,7 @@ export async function showItemInfoDialog(uuid) {
   if (!uuid) return;
   const item = await fromUuid(uuid);
   if (!item) {
-    ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.ItemNotFound"));
+    ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.NotFound"));
     return;
   }
 

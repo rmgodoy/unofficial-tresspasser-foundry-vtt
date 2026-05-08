@@ -1,0 +1,50 @@
+{
+  "TRESPASSER": {
+    "Dungeon": {
+      "Round": "Rodada",
+      "ActionsRemaining": "Ações Restantes",
+      "DC": "CD",
+      "Alarm": "Alarme",
+      "Actions": {
+        "Explore": "Explorar",
+        "ExploreDesc": "Mova-se cautelosamente para uma sala adjacente não explorada ou explore a sala atual.",
+        "Traverse": "Atravessar",
+        "TraverseDesc": "Mova-se para qualquer sala previamente explorada ou para a entrada da masmorra.",
+        "Interact": "Interagir",
+        "InteractDesc": "Interaja com uma característica complexa da sala atual.",
+        "Search": "Procurar",
+        "SearchDesc": "Permaneça em uma sala explorada para investigá-la mais a fundo.",
+        "Hide": "Esconder",
+        "HideDesc": "Espere na escuridão silenciosa para que a masmorra fique quieta novamente.",
+        "Vandalize": "Vandalizar",
+        "VandalizeDesc": "Arrombe uma porta trancada, baú ou outro ato de destruição de propriedade.",
+        "PickLock": "Arrombar Fechadura",
+        "PickLockDesc": "Tente arrombar uma porta trancada ou baú.",
+        "Disarm": "Desarmar",
+        "DisarmDesc": "Tente desarmar uma armadilha.",
+        "Converse": "Conversar",
+        "ConverseDesc": "Passe alguns minutos conversando com uma criatura.",
+        "MomentsRest": "Descanso Breve",
+        "MomentsRestDesc": "Pausa por 10 minutos para se recuperar e comer.",
+        "Incant": "Encantar",
+        "IncantDesc": "Conconjure um encantamento enquanto o grupo vigia."
+      },
+      "Room": {
+        "UnexploredConnections": "Conexões Não Exploradas",
+        "ExploredConnections": "Conexões Exploradas",
+        "NoConnections": "Nenhuma conexão encontrada.",
+        "AllExplored": "Todas as salas adjacentes foram exploradas.",
+        "RoomTrapPresent": "Armadilha de Sala Presente!",
+        "TrapWarning": "<strong>Aviso do Mestre:</strong> {label}",
+        "Features": "Características da Sala",
+        "Loot": "Saque da Sala",
+        "DetailTraps": "Armadilhas de Detalhe",
+        "DetailTrapsWarning": "<strong>Aviso do Mestre:</strong> {count} {label} permanecem não descobertas!"
+      },
+      "Log": {
+        "UnexploredCount": "{count} salas não exploradas",
+        "AlarmChange": "Alarme sobe para {value}"
+      }
+    }
+  }
+}

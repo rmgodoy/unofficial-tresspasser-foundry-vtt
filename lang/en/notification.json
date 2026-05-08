@@ -86,6 +86,12 @@
         "CallingRemoved": "Calling '{name}' and associated items removed from {actor}.",
         "Craft": "Craft '{name}' applied to {actor}.",
         "PastLife": "Past Life '{name}' applied to {actor}."
+      },
+      "Save": {
+        "Config": "System Configuration saved successfully."
+      },
+      "Reset": {
+        "Config": "System Configuration reset to defaults."
       }
     }
   }

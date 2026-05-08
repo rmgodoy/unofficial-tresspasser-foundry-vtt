@@ -6,7 +6,8 @@
         "Confirm": "Confirm",
         "ToggleVisibility": "Toggle Visibility",
         "ToggleDead": "Toggle Dead",
-        "ToggleTarget": "Toggle Target"
+        "ToggleTarget": "Toggle Target",
+        "Close": "Close"
       },
       "Status": {
         "None": "None"

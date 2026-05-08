@@ -86,6 +86,12 @@
         "CallingRemoved": "Vocação '{name}' e itens associados removidos de {actor}.",
         "Craft": "Ofício '{name}' aplicado a {actor}.",
         "PastLife": "Vida Passada '{name}' aplicada a {actor}."
+      },
+      "Save": {
+        "Config": "Configuração do sistema salva com sucesso."
+      },
+      "Reset": {
+        "Config": "Configuração do sistema restaurada para os padrões."
       }
     }
   }

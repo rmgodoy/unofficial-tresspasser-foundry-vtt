@@ -49,6 +49,8 @@
         "Talent": "Talent",
         "Talents": "Talents",
         "Effect": "Effect",
+        "State": "State",
+        "States": "States",
         "Incantation": "Incantation",
         "Item": "Item",
         "Injury": "Injury",
@@ -118,7 +120,11 @@
       "HavenDCSkillBonus": "DC (Skill Bonus)",
       "CharactersRested": "Characters Rested",
       "Enhancements": "Enhancements",
-      "Progression": "Progression"
+      "Progression": "Progression",
+      "Party": {
+        "Roll": "Party Roll",
+        "GroupCheck": "Group Check"
+      }
     }
   }
 }
