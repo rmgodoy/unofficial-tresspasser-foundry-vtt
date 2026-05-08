@@ -1,0 +1,111 @@
+{
+  "Dialog": {
+    "Common": {
+      "Confirm": "Confirmar",
+      "Cancel": "Cancelar",
+      "Close": "Fechar",
+      "Save": "Salvar",
+      "Ok": "Ok",
+      "Apply": "Aplicar",
+      "SearchPlaceholder": "Buscar…"
+    },
+    "SkillCheck": {
+      "Title": "Teste de {skill}",
+      "Prompt": "Com qual atributo você gostaria de fazer o teste?",
+      "BonusHint": "<em>(Bônus de perícia +{skill} será adicionado)</em>",
+      "ChallengeTitle": "Teste de Desafio",
+      "Difficulty": "Dificuldade"
+    },
+    "Roll": {
+      "Title": "Teste de Rolagem",
+      "Dice": "Dados",
+      "Bonuses": "Bônus",
+      "AdditionalModifier": "Modificador Adicional",
+      "BaseAttribute": "Atributo Base",
+      "EffectBonus": "Bônus de Efeito",
+      "SkillBonus": "Bônus de Perícia",
+      "SkillCheck": "Teste de Perícia",
+      "AttributeCheck": "Teste de Atributo"
+    },
+    "Delete": {
+      "ItemTitle": "Excluir Item",
+      "ItemContent": "Tem certeza que deseja excluir <strong>{name}</strong>?",
+      "CallingTitle": "Remover Vocação: {name}",
+      "CallingConfirm": "Tem certeza que deseja remover a Vocação <strong>{name}</strong>? Isso também excluirá todos os Talentos e Características concedidos por esta Vocação."
+    },
+    "Reset": {
+      "ConfigTitle": "Redefinir Configuração?",
+      "ConfigContent": "Isso retornará TODAS as configurações do Trespasser para seus valores padrão. Esta ação não pode ser desfeita.",
+      "DungeonTitle": "Redefinir Masmorra",
+      "DungeonConfirm": "Isso apagará o registro de rodadas e redefinirá alarme, rodada, ações e sala atual de <strong>{name}</strong>. A masmorra voltará ao estado de nunca visitada. Esta ação não pode ser desfeita."
+    },
+    "Transfer": {
+      "Title": "Transferência de Item",
+      "Content": "{user} deseja dar {item} para {target}. Você aceita?",
+      "SelectTargetHint": "Selecione um personagem para receber o item:"
+    },
+    "Retreat": {
+      "Title": "Continuar ou Recuar?",
+      "Prompt": "O Perigo desta rodada foi rolado. Deseja continuar a rodada ou tentar recuar?",
+      "PerilDisplay": "Perigo: {total} ({label}) — Pesadas: {heavy} / Pujantes: {mighty}"
+    },
+    "Spark": {
+      "Title": "Escolher Fagulhas",
+      "Intro": "Você tem {count} fagulha(s) para atribuir. Cada camada se aplica a todos os alvos elegíveis.",
+      "Layer": "Fagulha {n}",
+      "DeedSpark": "Fagulha da Proeza",
+      "DeedSparkDesc": "Ativa os efeitos da fase Fagulha da proeza.",
+      "Impact": "Impacto",
+      "ImpactDesc": "+2 movimento forçado por impacto escolhido.",
+      "Potency": "Potência",
+      "PotencyDesc": "+1 intensidade nos efeitos aplicados.",
+      "Power": "Poder",
+      "PowerDesc": "+1 dado de perícia adicionado ao dano."
+    },
+    "Calling": {
+      "Title": "Aplicar Vocação: {name}",
+      "ApplySelections": "Aplicar Seleções",
+      "NoItems": "Nenhum item disponível.",
+      "AlreadyTrained": "(já treinado)"
+    },
+    "Craft": {
+      "Title": "Aplicar Ofício: {name}",
+      "AttrReadonlyTooltip": "O atributo chave é definido pelo primeiro Ofício aplicado; este Ofício não pode substituí-lo.",
+      "AttrFirstTooltip": "Seu primeiro Ofício determina o atributo chave (obrigatório).",
+      "AllTiers": "Todos os Graus"
+    },
+    "EffectEditor": {
+      "Title": "Editor de Efeitos",
+      "IntensityNote": "Use <Int> para intensidade dinâmica.",
+      "ModifierPlaceholder": "+1 ou 1d6 ou <Int>",
+      "ReminderDesc": "Descrição (Texto do Lembrete)"
+    },
+    "Fuel": {
+      "Title": "Selecionar Fonte de Combustível",
+      "Prompt": "Escolha um recurso para abastecer <b>{name}</b>:"
+    },
+    "Ammo": {
+      "Title": "Selecionar Munição",
+      "Prompt": "Escolha uma munição para usar com <b>{name}</b>:"
+    },
+    "SpendAP": {
+      "Title": "Gastar Pontos de Ação",
+      "Question": "Quantos Pontos de Ação você deseja gastar nesta habilidade?",
+      "Available": "Disponível: {count} PA",
+      "Bonus": "Bônus de Acurácia: +{bonus}",
+      "DefaultOption": "1 PA (Sem Bônus)",
+      "AdditionalOption": "{count} PA (+{bonus} de Acurácia)"
+    },
+    "ApplyOil": {
+      "Title": "Aplicar Óleo",
+      "Prompt": "Escolha uma arma para aplicar <strong>{name}</strong>:"
+    },
+    "Concoction": {
+      "Title": "Usar Concoção",
+      "Instruction": "Selecione uma concoção para usar:"
+    },
+    "Item": {
+      "ViewDetails": "Ver detalhes do item"
+    }
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "Global": {
+    "Action": {
+      "Save": "Save",
+      "Cancel": "Cancel",
+      "Ok": "Ok",
+      "Delete": "Delete",
+      "Edit": "Edit",
+      "Confirm": "Confirm",
+      "New": "New",
+      "Clear": "Clear",
+      "Close": "Close",
+      "Apply": "Apply",
+      "Select": "Select"
+    },
+    "Status": {
+      "Active": "Active",
+      "Disabled": "Disabled",
+      "Unknown": "Unknown",
+      "None": "None",
+      "Success": "Success",
+      "Failure": "Failure"
+    },
+    "UI": {
+      "Description": "Description",
+      "Title": "Title",
+      "Name": "Name",
+      "Info": "Info",
+      "Level": "Level"
+    }
+  }
+}

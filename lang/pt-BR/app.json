@@ -1,0 +1,110 @@
+{
+  "App": {
+    "DungeonTracker": {
+      "Title": "Rastreador de Masmorra",
+      "SelectDungeon": "Selecionar Masmorra"
+    },
+    "HavenTracker": {
+      "Title": "Rastreador de Refúgio",
+      "SelectHaven": "Selecionar Refúgio",
+      "NoHavens": "Nenhum ator de Refúgio encontrado no mundo."
+    },
+    "EventClocks": {
+      "Title": "Relógios de Evento",
+      "AddClock": "Adicionar Relógio",
+      "NoClocks": "Nenhum relógio de evento ainda.",
+      "EditTitle": "Editar Relógio",
+      "Name": "Nome do Relógio",
+      "PlayerName": "Nome para Jogadores",
+      "PlayerNameHint": "Se diferente do nome real, este nome é mostrado aos jogadores.",
+      "Description": "Descrição",
+      "Target": "Alvo (segmentos máx)",
+      "Current": "Atual (segmentos preenchidos)",
+      "GmOnly": "Apenas Mestre",
+      "GmOnlyHint": "Se marcado, os jogadores não verão este relógio.",
+      "DeleteConfirmTitle": "Excluir Relógio?",
+      "DeleteConfirmContent": "Tem certeza que deseja excluir este relógio? Isso não pode ser desfeito.",
+      "ClockHint": "Clique em um segmento para avançar / retroceder o relógio."
+    },
+    "System": {
+      "Peril": "Perigo",
+      "Panic": "Pânico",
+      "Types": {
+        "Actor": {
+          "character": "Personagem",
+          "creature": "Criatura",
+          "dungeon": "Masmorra",
+          "party": "Grupo",
+          "haven": "Abrigo"
+        },
+        "Item": {
+          "armor": "Armadura",
+          "rations": "Rações",
+          "effect": "Efeito",
+          "deed": "Habilidade",
+          "feature": "Característica",
+          "talent": "Talento",
+          "weapon": "Arma",
+          "incantation": "Encantamento",
+          "accessory": "Acessório",
+          "item": "Item",
+          "injury": "Ferimento",
+          "calling": "Vocação",
+          "craft": "Ofício",
+          "past_life": "Vida Passada",
+          "room": "Sala",
+          "hireling": "Servo",
+          "build": "Construção",
+          "stronghold": "Fortaleza"
+        }
+      },
+      "Trigger": {
+        "StartOfRound": "Início da Rodada",
+        "StartOfTurn": "Início do Turno",
+        "EndOfTurn": "Fim do Turno",
+        "EndOfRound": "Fim da Rodada",
+        "OnFirstMove": "No Primeiro Movimento",
+        "OnMove": "Ao Mover",
+        "Use": "Uso",
+        "Targeted": "Alvejado",
+        "Immediate": "Imediato",
+        "DamageDealt": "Dano Causado",
+        "DamageReceived": "Dano Recebido",
+        "OnPrevail": "Ao Prevalecer",
+        "OnUseDeed": "Ao Usar Habilidade",
+        "OnTargetedDeed": "Ao ser Alvejado por Habilidade",
+        "OnDeedHitReceived": "Ao Receber Acerto de Habilidade",
+        "OnDeedMissReceived": "Ao Receber Erro de Habilidade",
+        "OnDeedHit": "Ao Acertar Habilidade",
+        "OnDeedMiss": "Ao Errar Habilidade",
+        "StartOfCombat": "Início do Combate",
+        "EndOfCombat": "Fim do Combate",
+        "Continuous": "Contínuo"
+      },
+      "Duration": {
+        "Indefinite": "Indefinido",
+        "Combat": "Combate Inteiro",
+        "Round": "Rodada",
+        "Trigger": "Gatilho",
+        "OR": "OU",
+        "AND": "E",
+        "Operator": "Operador",
+        "AddCondition": "Adicionar Condição",
+        "RemoveCondition": "Remover Condição"
+      },
+      "Phase": {
+        "Early": "Fase Inicial",
+        "Enemy": "Fase dos Inimigos",
+        "Late": "Fase Final",
+        "Extra": "Fase Extra",
+        "End": "Fase de Fim de Turno",
+        "Next": "Próxima Fase"
+      },
+      "PanicLevel": {
+        "Low": "Baixo",
+        "Medium": "Médio",
+        "High": "Alto"
+      }
+    }
+  }
+}

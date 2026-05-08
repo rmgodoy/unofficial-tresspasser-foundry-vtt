@@ -1,0 +1,80 @@
+{
+  "Notification": {
+    "Item": {
+      "DropDeedsOnly": "Apenas Habilidades podem ser soltas aqui.",
+      "DropEffectsStatesOnly": "Apenas Efeitos ou Estados podem ser soltos aqui.",
+      "AlreadyAdded": "{name} já foi adicionado.",
+      "DropArmorOnly": "Apenas Efeitos e Estados podem ser aplicados em Armaduras.",
+      "DropDeedsOnlyEffects": "Apenas Efeitos e Estados podem ser aplicados em Habilidades.",
+      "DropTalentsOnly": "Apenas Efeitos e Estados podem ser aplicados em Talentos.",
+      "DropRationsOnly": "Apenas Efeitos e Estados podem ser aplicados em Rações.",
+      "DropEffectsOnly": "Apenas efeitos podem ser soltos aqui.",
+      "ItemNotFound": "Item não encontrado."
+    },
+    "Inventory": {
+      "SlotOccupied": "O espaço {placement} já está ocupado por {name}. Desequipe-o primeiro.",
+      "InventoryFull": "Inventário cheio! Você precisa soltar um item antes de poder desequipar {name}.",
+      "InventoryFullSwap": "Inventário cheio! Não é possível trocar {name} por {occupant}.",
+      "InventoryCapReached": "Capacidade do inventário atingida. Você não pode adicionar mais itens não equipados.",
+      "HandsFull": "Ambas as mãos estão ocupadas. Desequipe uma arma primeiro.",
+      "TwoHandedEquip": "Você deve desequipar ambas as mãos para equipar uma arma de Duas Mãos.",
+      "HeavyArmorLimit": "Você só pode ter uma armadura Pesada equipada."
+    },
+    "Combat": {
+      "NoTargetsAbort": "Nenhum alvo selecionado! Rolagem abortada, exibindo Acurácia básica para referência.",
+      "NoTargetsDefault": "Nenhum alvo selecionado! Rolando contra CD 10 padrão.",
+      "NotEnoughFocus": "Foco insuficiente para usar {name}. (Necessário {cost}, possui {current})",
+      "NotEnoughEndurance": "Vigor insuficiente para usar {name}. (Necessário {cost}, possui {current})",
+      "NotEnoughAP": "Você não tem Pontos de Ação suficientes!",
+      "NotYourPhase": "Não é a fase deste token!",
+      "NoAmmo": "Você não tem munição disponível!",
+      "AmmoConsumed": "Consumiu {name} para o ataque.",
+      "FuelConsumed": "Consumiu {name} como combustível.",
+      "NoFuelAvailable": "Nenhuma fonte de combustível disponível!",
+      "NoWeaponEquipped": "Nenhuma arma equipada! Esta habilidade requer uma arma.",
+      "NeedMeleeWeapon": "Esta habilidade requer uma arma de combate corpo a corpo equipada.",
+      "NeedMissileWeapon": "Esta habilidade requer uma arma de projétil ou arremesso equipada.",
+      "NeedSpellWeapon": "Esta habilidade requer uma arma mágica ou uma mão livre.",
+      "NeedFreeHand": "Esta habilidade requer uma mão livre.",
+      "NeedWeapon": "Esta habilidade requer uma arma equipada.",
+      "TargetOutOfRange": "{name} está fora de alcance ({distance} quadrados, máx {range}).",
+      "APModified": "{name} agora possui {ap} Pontos de Ação.",
+      "MoveActionRequired": "Você deve realizar a ação Mover (gastar PA) antes de mover seu token.",
+      "MovementLimitExceeded": "Você excedeu seu limite de movimento para este turno.",
+      "VaultStraightLine": "O Salto deve ser em linha reta (ortogonal ou diagonal).",
+      "TooManyTargets": "Muitos alvos selecionados ({count}). Esta habilidade afeta no máximo {max}.",
+      "NoTokenOnCanvas": "Nenhum token encontrado no canvas para este ator.",
+      "TemplateTooFar": "O modelo está muito longe do conjurador.",
+      "PathMustStartAdjacent": "O caminho deve começar adjacente ao seu token.",
+      "PathMustShareEdge": "Cada quadrado deve compartilhar uma borda com o anterior.",
+      "PathNo2x2": "O caminho não pode formar um bloco 2×2.",
+      "PathNoRoute": "Nenhum caminho válido para esse quadrado dentro dos quadrados restantes.",
+      "BlastMustBeAdjacent": "Explosão Próxima deve ser adjacente ao seu token.",
+      "PlaceBlast": "Posicionar Explosão {size}: clique para posicionar, botão direito para cancelar.",
+      "PlaceCloseBlast": "Posicionar Explosão Próxima {size}: clique adjacente ao seu token, botão direito para cancelar.",
+      "PlacePath": "Posicionar Caminho {size}: clique nos quadrados para desenhar o caminho, clique duplo para confirmar, botão direito para desfazer.",
+      "PlaceClosePath": "Posicionar Caminho Próximo {size}: comece adjacente ao seu token, clique duplo para confirmar, botão direito para desfazer."
+    },
+    "Rest": {
+      "SpendRDLimited": "Você tentou gastar {spent} DR mas possui apenas {current}. Gastando {current} em vez disso.",
+      "NoRD": "Nenhum Dado de Recuperação disponível.",
+      "CannotSpendRD": "Não é possível gastar {count} DR (apenas {available} disponíveis)."
+    },
+    "Transfer": {
+      "Accepted": "{item} foi aceito por {actor}.",
+      "Rejected": "{item} foi rejeitado por {target}.",
+      "Complete": "Transferência de {item} para {target} concluída.",
+      "Pending": "Pedido de transferência de {item} enviado para {target}."
+    },
+    "Haven": {
+      "NoBuildSlots": "Você não tem espaços de construção disponíveis (Limite: {max}).",
+      "BuildingLimitReached": "Você atingiu o limite máximo de construções (Limite: {max})."
+    },
+    "Apply": {
+      "Calling": "Vocação '{name}' aplicada a {actor}.",
+      "CallingRemoved": "Vocação '{name}' e itens associados removidos de {actor}.",
+      "Craft": "Ofício '{name}' aplicado a {actor}.",
+      "PastLife": "Vida Passada '{name}' aplicada a {actor}."
+    }
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "Notification": {
+    "Item": {
+      "DropDeedsOnly": "Only Deeds can be dropped here.",
+      "DropEffectsStatesOnly": "Only Effects or States can be dropped here.",
+      "AlreadyAdded": "{name} is already added.",
+      "DropArmorOnly": "Only Effects and States can be applied to Armor.",
+      "DropDeedsOnlyEffects": "Only Effects and States can be applied to Deeds.",
+      "DropTalentsOnly": "Only Effects and States can be applied to Talents.",
+      "DropRationsOnly": "Only Effects and States can be applied to Rations.",
+      "DropEffectsOnly": "Only effects can be dropped here.",
+      "ItemNotFound": "Item not found."
+    },
+    "Inventory": {
+      "SlotOccupied": "Slot {placement} is already occupied by {name}. Unequip it first.",
+      "InventoryFull": "Inventory full! You need to drop an item before you can unequip {name}.",
+      "InventoryFullSwap": "Inventory full! Cannot swap {name} for {occupant}.",
+      "InventoryCapReached": "Inventory cap reached. You cannot add more unequiped items.",
+      "HandsFull": "Both hands are full. Unequip a weapon first.",
+      "TwoHandedEquip": "You must unequip both hands to equip a Two-Handed weapon.",
+      "HeavyArmorLimit": "You can only have one Heavy armor equipped."
+    },
+    "Combat": {
+      "NoTargetsAbort": "No targets selected! Roll aborted, printing basic Accuracy for reference.",
+      "NoTargetsDefault": "No targets selected! Rolling against default CD 10.",
+      "NotEnoughFocus": "Not enough Focus to use {name}. (Needs {cost}, has {current})",
+      "NotEnoughEndurance": "Not enough Endurance to use {name}. (Needs {cost}, has {current})",
+      "NotEnoughAP": "You don't have enough Action Points!",
+      "NotYourPhase": "It is not this token's phase!",
+      "NoAmmo": "You have no ammo available!",
+      "AmmoConsumed": "Consumed {name} for the attack.",
+      "FuelConsumed": "Consumed {name} for fuel.",
+      "NoFuelAvailable": "No fuel sources available!",
+      "NoWeaponEquipped": "No weapon equipped! This deed requires a weapon.",
+      "NeedMeleeWeapon": "This deed requires a melee weapon equipped.",
+      "NeedMissileWeapon": "This deed requires a missile or thrown weapon equipped.",
+      "NeedSpellWeapon": "This deed requires a spell weapon or free hand.",
+      "NeedFreeHand": "This deed requires a free hand.",
+      "NeedWeapon": "This deed requires a weapon equipped.",
+      "TargetOutOfRange": "{name} is out of range ({distance} squares, max {range}).",
+      "APModified": "{name} now has {ap} Action Points.",
+      "MoveActionRequired": "You must take the Move action (spend AP) before moving your token.",
+      "MovementLimitExceeded": "You have exceeded your movement limit for this turn.",
+      "VaultStraightLine": "Vault must be in a straight line (orthogonal or diagonal).",
+      "TooManyTargets": "Too many targets selected ({count}). This deed targets at most {max}.",
+      "NoTokenOnCanvas": "No token found on the canvas for this actor.",
+      "TemplateTooFar": "Template is too far from the caster.",
+      "PathMustStartAdjacent": "Path must start adjacent to your token.",
+      "PathMustShareEdge": "Each square must share an edge with the previous one.",
+      "PathNo2x2": "Path cannot form a 2×2 block.",
+      "PathNoRoute": "No valid path to that square within remaining squares.",
+      "BlastMustBeAdjacent": "Close Blast must be adjacent to your token.",
+      "PlaceBlast": "Place Blast {size}: click to place, right-click to cancel.",
+      "PlaceCloseBlast": "Place Close Blast {size}: click adjacent to your token, right-click to cancel.",
+      "PlacePath": "Place Path {size}: click squares to draw path, double-click to confirm, right-click to undo.",
+      "PlaceClosePath": "Place Close Path {size}: start adjacent to your token, double-click to confirm, right-click to undo."
+    },
+    "Rest": {
+      "SpendRDLimited": "You tried to spend {spent} RD but only have {current}. Spending {current} instead.",
+      "NoRD": "No Recovery Dice available.",
+      "CannotSpendRD": "Cannot spend {count} RD (only {available} available)."
+    },
+    "Transfer": {
+      "Accepted": "{item} was accepted by {actor}.",
+      "Rejected": "{item} was rejected by {target}.",
+      "Complete": "Transfer of {item} to {target} complete.",
+      "Pending": "Transfer request for {item} sent to {target}."
+    },
+    "Haven": {
+      "NoBuildSlots": "You have no available building slots (Limit: {max}).",
+      "BuildingLimitReached": "You have reached the maximum building limit (Limit: {max})."
+    },
+    "Apply": {
+      "Calling": "Calling '{name}' applied to {actor}.",
+      "CallingRemoved": "Calling '{name}' and associated items removed from {actor}.",
+      "Craft": "Craft '{name}' applied to {actor}.",
+      "PastLife": "Past Life '{name}' applied to {actor}."
+    }
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "Settings": {
+    "Title": "Trespasser Configuration",
+    "Common": {
+      "Save": "Save",
+      "Cancel": "Cancel",
+      "SavedNotice": "Trespasser Configuration saved.",
+      "ResetDefault": "Reset to Default",
+      "ResetNotice": "Configuration reset to default values."
+    },
+    "Tabs": {
+      "Mechanics": "Mechanics",
+      "Exploration": "Haven & Exploration",
+      "Visuals": "Appearance",
+      "Colors": "Theme Colors"
+    },
+    "Mechanics": {
+      "InitiativeChat": {
+        "Name": "Show initiative roll in chat",
+        "Hint": "If enabled, initiative rolls will be posted to the chat log."
+      },
+      "PlayerFacingInitiative": {
+        "Name": "Player-Facing Initiative Rolls",
+        "Hint": "When enabled, players roll their own initiative at the start of each round instead of it being automatic."
+      },
+      "RestrictMovementAction": {
+        "Name": "Restrict Movement Action",
+        "Hint": "If enabled, movement is only allowed after taking a Move or Vault action. If disabled, tokens can move freely."
+      },
+      "RestrictHUDActions": {
+        "Name": "Restrict Actions per Turn",
+        "Hint": "If enabled, HUD actions (Defend, Help, etc.) can only be used once per turn unless otherwise specified."
+      },
+      "RestrictAPFocusUsage": {
+        "Name": "Restrict AP and Focus action usage",
+        "Hint": "If enabled, the system enforces AP and Focus costs. If disabled, actions can be used without sufficient points."
+      },
+      "DisregardRangeOnAttack": {
+        "Name": "Disregard Range on Attack",
+        "Hint": "When enabled, attacking out-of-range targets will show a warning but still allow the attack to proceed."
+      },
+      "AllowOutOfTurnMovement": {
+        "Name": "Allow Movement Out of Turn",
+        "Hint": "When enabled, players can move their tokens even when it's not their combat phase. Movement out of turn is not tracked against their movement budget."
+      },
+      "ConfirmItemTransfer": {
+        "Name": "Confirm Item Transfers",
+        "Hint": "If enabled, you will be prompted to accept or reject items transferred to you by other players."
+      }
+    },
+    "Exploration": {
+      "GroupCheckFullParty": {
+        "Name": "Group Check always use full party",
+        "Hint": "If enabled, group checks will always include all party members without showing a selection popup."
+      },
+      "RestrictHavenEditToLeader": {
+        "Name": "Restrict Haven Edit to Leader",
+        "Hint": "Only the party leader can add or remove buildings and projects in Haven."
+      },
+      "BypassHavenBuildingLimits": {
+        "Name": "Bypass Haven Building Limits",
+        "Hint": "If enabled, Havens will not be restricted by the Building Limit or Build Slots defined in the progression table."
+      },
+      "EnableRetreatDialog": {
+        "Name": "Enable Retreat Dialog",
+        "Hint": "If enabled, the GM will be prompted to Continue or Retreat at the start of each new round after the Peril roll. If disabled, rounds proceed normally."
+      },
+      "ShowPerilInChat": {
+        "Name": "Show Peril roll in chat",
+        "Hint": "If enabled, the Peril roll at the start of each round will be posted to the chat log for all players to see."
+      },
+      "AutoEndCombatOnRetreat": {
+        "Name": "Auto-end combat on successful retreat",
+        "Hint": "If enabled, combat will automatically end when the party successfully retreats. If disabled, only a message is posted and the GM must end combat manually."
+      }
+    },
+    "Visuals": {
+      "ClockSize": {
+        "Name": "Clock Size (px)",
+        "Hint": "The width and height of all clocks in the system (Projects, Events, and Injuries)."
+      },
+      "FontSizeBase": {
+        "Name": "Base Font Size (px)",
+        "Hint": "The base font size for the entire system. All other font sizes will scale proportionally."
+      }
+    },
+    "Colors": {
+      "colorBgDark": { "Name": "Main Application Background" },
+      "colorBgPanel": { "Name": "Sidebar & Panel Background" },
+      "colorBgInput": { "Name": "Input & Textarea Background" },
+      "colorBgHeader": { "Name": "Sheet Header Background" },
+      "colorBgSelect": { "Name": "Dropdown & Select Background" },
+      "colorBorder": { "Name": "Standard Border Color" },
+      "colorBorderLight": { "Name": "Subtle/Light Border Color" },
+      "colorGold": { "Name": "System Accent Color (Gold)" },
+      "colorGoldDim": { "Name": "Dimmed Accent Color" },
+      "colorGoldBright": { "Name": "Highlight Accent Color" },
+      "colorRed": { "Name": "Alert/Negative Color (Red)" },
+      "colorRedDim": { "Name": "Dimmed Alert Color" },
+      "colorText": { "Name": "Standard Body Text" },
+      "colorTextDim": { "Name": "Muted/Secondary Text" },
+      "colorTextBright": { "Name": "Emphasis/Title Text" },
+      "colorGreen": { "Name": "Success/Positive Color (Green)" },
+      "colorGreenBright": { "Name": "Bright Success Color" },
+      "colorPurple": { "Name": "Magic/Incantation Theme (Purple)" },
+      "colorBlue": { "Name": "Resource/Resource Points (Blue)" },
+      "colorLightGreen": { "Name": "Healing/Nature Theme (Light Green)" },
+      "colorCyan": { "Name": "System Focus/Targeting (Cyan)" },
+      "colorSpark": { "Name": "Spark Highlight Color" },
+      "colorShadow": { "Name": "Shadow Highlight Color" },
+      "colorShadowGold": { "Name": "Gold Glow/Shadow Effect" },
+      "colorShadowDark": { "Name": "Deep Box Shadows" },
+      "colorBgOverlay": { "Name": "Transparent Background Overlay" },
+      "colorGoldOverlay": { "Name": "Transparent Gold Highlight" },
+      "colorRedOverlay": { "Name": "Transparent Red Highlight" },
+      "colorGreenOverlay": { "Name": "Transparent Green Highlight" },
+      "colorScrollbar": { "Name": "Scrollbar Handle Color" }
+    }
+  }
+}

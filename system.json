@@ -22,13 +22,93 @@
   "languages": [
     {
       "lang": "en",
-      "name": "English",
-      "path": "lang/en.json"
+      "name": "English (app)",
+      "path": "lang/en/app.json"
     },
     {
-      "lang": "pt-BR",
-      "name": "Português (Brasil)",
-      "path": "lang/pt-BR.json"
+      "lang": "en",
+      "name": "English (chat)",
+      "path": "lang/en/chat.json"
+    },
+    {
+      "lang": "en",
+      "name": "English (dialog)",
+      "path": "lang/en/dialog.json"
+    },
+    {
+      "lang": "en",
+      "name": "English (hud)",
+      "path": "lang/en/hud.json"
+    },
+    {
+      "lang": "en",
+      "name": "English (notification)",
+      "path": "lang/en/notification.json"
+    },
+    {
+      "lang": "en",
+      "name": "English (settings)",
+      "path": "lang/en/settings.json"
+    },
+    {
+      "lang": "en",
+      "name": "English (sheet)",
+      "path": "lang/en/sheet.json"
+    },
+    {
+      "lang": "en",
+      "name": "English (terms)",
+      "path": "lang/en/terms.json"
+    },
+    {
+      "lang": "en",
+      "name": "English (global)",
+      "path": "lang/en/global.json"
+    },
+    {
+      "lang": "pt-br",
+      "name": "Portuguese (Brazil) (app)",
+      "path": "lang/pt-br/app.json"
+    },
+    {
+      "lang": "pt-br",
+      "name": "Portuguese (Brazil) (chat)",
+      "path": "lang/pt-br/chat.json"
+    },
+    {
+      "lang": "pt-br",
+      "name": "Portuguese (Brazil) (dialog)",
+      "path": "lang/pt-br/dialog.json"
+    },
+    {
+      "lang": "pt-br",
+      "name": "Portuguese (Brazil) (hud)",
+      "path": "lang/pt-br/hud.json"
+    },
+    {
+      "lang": "pt-br",
+      "name": "Portuguese (Brazil) (notification)",
+      "path": "lang/pt-br/notification.json"
+    },
+    {
+      "lang": "pt-br",
+      "name": "Portuguese (Brazil) (settings)",
+      "path": "lang/pt-br/settings.json"
+    },
+    {
+      "lang": "pt-br",
+      "name": "Portuguese (Brazil) (sheet)",
+      "path": "lang/pt-br/sheet.json"
+    },
+    {
+      "lang": "pt-br",
+      "name": "Portuguese (Brazil) (terms)",
+      "path": "lang/pt-br/terms.json"
+    },
+    {
+      "lang": "pt-br",
+      "name": "Portuguese (Brazil) (global)",
+      "path": "lang/pt-br/global.json"
     }
   ],
   "documentTypes": {

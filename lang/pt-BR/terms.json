@@ -1,0 +1,88 @@
+{
+  "Terms": {
+    "Depletion": {
+      "None": "Nenhum",
+      "Crude": "Rústico",
+      "Normal": "Normal",
+      "Fine": "Fino",
+      "Excellent": "Excelente",
+      "Enchanted": "Encantado",
+      "Legendary": "Lendário"
+    },
+    "ActionTypes": {
+      "None": "Nenhum",
+      "Action": "Ação",
+      "Reaction": "Reação"
+    },
+    "Attribute": {
+      "Mighty": "Força",
+      "Agility": "Agilidade",
+      "Intellect": "Intelecto",
+      "Spirit": "Espírito"
+    },
+    "Skill": {
+      "Acrobatics": "Acrobacia",
+      "Alchemy": "Alquimia",
+      "Athletics": "Atletismo",
+      "Crafting": "Ofício",
+      "Folklore": "Folclore",
+      "Letters": "Letras",
+      "Magic": "Magia",
+      "Nature": "Natureza",
+      "Perception": "Percepção",
+      "Speech": "Lábia",
+      "Stealth": "Furtividade",
+      "Tinkering": "Engenhocaria"
+    },
+    "ItemType": {
+      "Weapon": "Arma",
+      "Armor": "Armadura",
+      "Accessory": "Acessório",
+      "Rations": "Rações",
+      "Deed": "Habilidade",
+      "Feature": "Característica",
+      "Talent": "Talento",
+      "Effect": "Efeito",
+      "Incantation": "Encantamento",
+      "Item": "Item",
+      "Injury": "Ferimento",
+      "Calling": "Vocação",
+      "Craft": "Ofício",
+      "PastLife": "Vida Passada",
+      "Hireling": "Hireling",
+      "Building": "Building"
+    },
+    "ActorType": {
+      "Character": "Personagem",
+      "Creature": "Criatura",
+      "Dungeon": "Masmorra",
+      "Party": "Grupo",
+      "Haven": "Abrigo"
+    },
+    "Phase": {
+      "Start": "Início",
+      "Before": "Antes",
+      "Base": "Base",
+      "Hit": "Acerto",
+      "Spark": "Fagulha",
+      "After": "Depois",
+      "End": "Fim"
+    },
+    "Role": {
+      "Archer": "Arqueiro",
+      "Enchanter": "Encantador",
+      "Enforcer": "Brutamontes",
+      "Guardian": "Guardião",
+      "Harrier": "Hostilizador",
+      "Hellion": "Turbulento",
+      "Stalker": "Espreitador",
+      "Sorcerer": "Feiticeiro"
+    },
+    "Template": {
+      "Underling": "Lacaio",
+      "Normal": "Normal",
+      "Paragon": "Exemplar",
+      "Tyrant": "Tirano"
+    }
+  }
+}
