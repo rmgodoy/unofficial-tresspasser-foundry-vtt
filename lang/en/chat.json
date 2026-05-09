@@ -160,6 +160,10 @@
           "DistanceRollHint": "Roll 3d6 × 2 for distance (in squares).",
           "Approach": "Approach",
           "AlarmReset": "The dungeon alarm has reset to 0."
+        },
+        "Log": {
+          "UnexploredCount": "{count} unexplored rooms found",
+          "AlarmChange": "Alarm: {value}"
         }
       },
       "Deed": {

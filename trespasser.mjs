@@ -103,18 +103,18 @@ Hooks.once("init", async () => {
   CONFIG.TRESPASSER = {
     targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
     depletionDieOptions: {
-      "": "TRESPASSER.Item.DepletionChoices.None",
-      "d4": "TRESPASSER.Item.DepletionChoices.Crude",
-      "d6": "TRESPASSER.Item.DepletionChoices.Normal",
-      "d8": "TRESPASSER.Item.DepletionChoices.Fine",
-      "d10": "TRESPASSER.Item.DepletionChoices.Excellent",
-      "d12": "TRESPASSER.Item.DepletionChoices.Enchanted",
-      "d20": "TRESPASSER.Item.DepletionChoices.Legendary"
+      "": "TRESPASSER.Terms.Depletion.None",
+      "d4": "TRESPASSER.Terms.Depletion.Crude",
+      "d6": "TRESPASSER.Terms.Depletion.Normal",
+      "d8": "TRESPASSER.Terms.Depletion.Fine",
+      "d10": "TRESPASSER.Terms.Depletion.Excellent",
+      "d12": "TRESPASSER.Terms.Depletion.Enchanted",
+      "d20": "TRESPASSER.Terms.Depletion.Legendary"
     },
     actionTypeChoices: {
-      "none": "TRESPASSER.Item.ActionTypeChoices.none",
-      "action": "TRESPASSER.Item.ActionTypeChoices.action",
-      "reaction": "TRESPASSER.Item.ActionTypeChoices.reaction"
+      "none": "TRESPASSER.Terms.ActionTypes.None",
+      "action": "TRESPASSER.Terms.ActionTypes.Action",
+      "reaction": "TRESPASSER.Terms.ActionTypes.Reaction"
     },
     // Dungeon exploration config
     dungeon: DUNGEON_CONFIG
@@ -140,8 +140,8 @@ Hooks.once("init", async () => {
   });
   
   game.settings.register("trespasser", "enableRetreatDialog", {
-    name: "TRESPASSER.Settings.Mechanics.EnableRetreatDialog.Name",
-    hint: "TRESPASSER.Settings.Mechanics.EnableRetreatDialog.Hint",
+    name: "TRESPASSER.Settings.Exploration.EnableRetreatDialog.Name",
+    hint: "TRESPASSER.Settings.Exploration.EnableRetreatDialog.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -149,8 +149,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "showPerilInChat", {
-    name: "TRESPASSER.Settings.Mechanics.ShowPerilInChat.Name",
-    hint: "TRESPASSER.Settings.Mechanics.ShowPerilInChat.Hint",
+    name: "TRESPASSER.Settings.Exploration.ShowPerilInChat.Name",
+    hint: "TRESPASSER.Settings.Exploration.ShowPerilInChat.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -158,8 +158,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "autoEndCombatOnRetreat", {
-    name: "TRESPASSER.Settings.Mechanics.AutoEndCombatOnRetreat.Name",
-    hint: "TRESPASSER.Settings.Mechanics.AutoEndCombatOnRetreat.Hint",
+    name: "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Name",
+    hint: "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -185,8 +185,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "groupCheckFullParty", {
-    name: "TRESPASSER.Settings.Mechanics.GroupCheckFullParty.Name",
-    hint: "TRESPASSER.Settings.Mechanics.GroupCheckFullParty.Hint",
+    name: "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Name",
+    hint: "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -194,8 +194,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "restrictHavenEditToLeader", {
-    name: "TRESPASSER.Settings.Mechanics.RestrictHavenEditToLeader.Name",
-    hint: "TRESPASSER.Settings.Mechanics.RestrictHavenEditToLeader.Hint",
+    name: "TRESPASSER.Settings.Exploration.RestrictHavenEditToLeader.Name",
+    hint: "TRESPASSER.Settings.Exploration.RestrictHavenEditToLeader.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -221,8 +221,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "confirmItemTransfer", {
-    name: "TRESPASSER.Settings.Exploration.ConfirmItemTransfer.Name",
-    hint: "TRESPASSER.Settings.Exploration.ConfirmItemTransfer.Hint",
+    name: "TRESPASSER.Settings.Mechanics.ConfirmItemTransfer.Name",
+    hint: "TRESPASSER.Settings.Mechanics.ConfirmItemTransfer.Hint",
     scope: "client",
     config: false,
     type: Boolean,
@@ -310,7 +310,7 @@ Hooks.once("init", async () => {
   }
 
   game.settings.register("trespasser", "eventClocks", {
-    name: "TRESPASSER.EventClocks.TrackerTitle",
+    name: "TRESPASSER.App.EventClocks.Title",
     scope: "world",
     config: false,
     type: String,
@@ -1446,7 +1446,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
         <div class="left-info">
           <span class="peril-text">
             ${game.i18n.localize("TRESPASSER.Terms.Combat.Peril")}: ${combatInfo.perilTotal ?? 0}
-            <span class="peril-label">(${game.i18n.localize(combatInfo.perilLabel ?? "TRESPASSER.PanicLabels.Low")})</span>
+            <span class="peril-label">(${game.i18n.localize(combatInfo.perilLabel ?? "TRESPASSER.Terms.Combat.PanicLabels.Low")})</span>
           </span>
           <span class="deeds-usage">${combatInfo.heavy ?? 0}H / ${combatInfo.mighty ?? 0}M</span>
         </div>

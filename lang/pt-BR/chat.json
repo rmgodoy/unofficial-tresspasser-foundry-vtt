@@ -159,7 +159,11 @@
           "Distance": "Distância",
           "DistanceRollHint": "Role 3d6 × 2 para a distância (em quadrados).",
           "Approach": "Abordagem",
-          "AlarmReset": "O alarme da masmorra voltou a 0."
+          "AlarmReset": "O alarme da masmorra foi resetado para 0."
+        },
+        "Log": {
+          "UnexploredCount": "{count} salas não exploradas encontradas",
+          "AlarmChange": "Alarme: {value}"
         }
       },
       "Deed": {

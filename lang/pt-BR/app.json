@@ -11,6 +11,12 @@
           "ActionsLog": "Ações ajustadas para {value}",
           "ActionRefunded": "Ação '{action}' reembolsada",
           "ActionRefundedNone": "Ação reembolsada"
+        },
+        "Session": {
+          "State": {
+            "active": "Ativo",
+            "paused": "Pausado"
+          }
         }
       },
       "HavenTracker": {

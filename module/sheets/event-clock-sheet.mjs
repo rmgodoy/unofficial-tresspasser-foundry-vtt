@@ -20,7 +20,7 @@ export class EventClockSheet extends api.HandlebarsApplicationMixin(api.Applicat
     window: {
       resizable: true,
       minimizable: true,
-      title: "EventClocks.EditTitle"
+      title: "TRESPASSER.App.EventClocks.EditTitle"
     },
     actions: {
         clickSegment: "onClockSegmentClick"

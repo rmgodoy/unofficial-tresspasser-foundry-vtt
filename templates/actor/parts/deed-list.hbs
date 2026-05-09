@@ -2,7 +2,7 @@
           {{#each (array "light" "heavy" "mighty" "special") as |tier|}}
           {{#if (lookup ../deedsGrouped tier)}}
           <div class="deed-tier-group">
-            <div class="deed-tier-label">{{localize (concat "TRESPASSER.Item.DeedTierChoices." (capitalize tier))}}</div>
+            <div class="deed-tier-label">{{localize (concat "TRESPASSER.Sheet.Item.Details.Tiers." (capitalize tier))}}</div>
             <div class="deed-tier-grid">
               {{#each (lookup ../deedsGrouped tier)}}
               <div class="deed-slot" data-item-id="{{this.id}}" draggable="true">
@@ -24,7 +24,7 @@
                     {{#with (lookup ../system.effects phase) as |pData|}}
                       {{#if (or pData.description pData.appliedEffects.length)}}
                         <div style="margin-bottom: 2px;">
-                          <em style="color: var(--trp-gold-dim); font-size: var(--fs-11); text-transform: uppercase;">{{localize (concat "TRESPASSER.Item." (capitalize phase))}}</em>: 
+                          <em style="color: var(--trp-gold-dim); font-size: var(--fs-11); text-transform: uppercase;">{{localize (concat "TRESPASSER.Terms.DeedPhases." (capitalize phase))}}</em>: 
                           {{#if pData.description}}{{pData.description}}{{/if}}
                         </div>
                       {{/if}}

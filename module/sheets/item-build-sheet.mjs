@@ -43,29 +43,29 @@ export class TrespasserBuildSheet extends api.HandlebarsApplicationMixin(sheets.
 
     // Attributes list for dropdown
     context.attributes = {
-      "military": "TRESPASSER.Haven.Attributes.Military",
-      "efficiency": "TRESPASSER.Haven.Attributes.Efficiency",
-      "resources": "TRESPASSER.Haven.Attributes.Resources",
-      "expertise": "TRESPASSER.Haven.Attributes.Expertise",
-      "allegiance": "TRESPASSER.Haven.Attributes.Allegiance",
-      "appeal": "TRESPASSER.Haven.Attributes.Appeal"
+      "military": "TRESPASSER.Terms.HavenAttribute.Military",
+      "efficiency": "TRESPASSER.Terms.HavenAttribute.Efficiency",
+      "resources": "TRESPASSER.Terms.HavenAttribute.Resources",
+      "expertise": "TRESPASSER.Terms.HavenAttribute.Expertise",
+      "allegiance": "TRESPASSER.Terms.HavenAttribute.Allegiance",
+      "appeal": "TRESPASSER.Terms.HavenAttribute.Appeal"
     };
 
     // Skills list for dropdown
     context.skills = {
-      "": "TRESPASSER.General.None",
-      "agriculture": "TRESPASSER.Haven.Skills.Agriculture",
-      "construction": "TRESPASSER.Haven.Skills.Construction",
-      "commerce": "TRESPASSER.Haven.Skills.Commerce",
-      "cuisine": "TRESPASSER.Haven.Skills.Cuisine",
-      "entertainment": "TRESPASSER.Haven.Skills.Entertainment",
-      "espionage": "TRESPASSER.Haven.Skills.Espionage",
-      "faith": "TRESPASSER.Haven.Skills.Faith",
-      "hospitality": "TRESPASSER.Haven.Skills.Hospitality",
-      "research": "TRESPASSER.Haven.Skills.Research",
-      "seafaring": "TRESPASSER.Haven.Skills.Seafaring",
-      "statecraft": "TRESPASSER.Haven.Skills.Statecraft",
-      "warfare": "TRESPASSER.Haven.Skills.Warfare"
+      "": "TRESPASSER.Global.General.None",
+      "agriculture": "TRESPASSER.Terms.HavenSkill.Agriculture",
+      "construction": "TRESPASSER.Terms.HavenSkill.Construction",
+      "commerce": "TRESPASSER.Terms.HavenSkill.Commerce",
+      "cuisine": "TRESPASSER.Terms.HavenSkill.Cuisine",
+      "entertainment": "TRESPASSER.Terms.HavenSkill.Entertainment",
+      "espionage": "TRESPASSER.Terms.HavenSkill.Espionage",
+      "faith": "TRESPASSER.Terms.HavenSkill.Faith",
+      "hospitality": "TRESPASSER.Terms.HavenSkill.Hospitality",
+      "research": "TRESPASSER.Terms.HavenSkill.Research",
+      "seafaring": "TRESPASSER.Terms.HavenSkill.Seafaring",
+      "statecraft": "TRESPASSER.Terms.HavenSkill.Statecraft",
+      "warfare": "TRESPASSER.Terms.HavenSkill.Warfare"
     };
 
     context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(

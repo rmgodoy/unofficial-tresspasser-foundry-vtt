@@ -11,6 +11,12 @@
           "ActionsLog": "Actions adjusted to {value}",
           "ActionRefunded": "Action '{action}' refunded",
           "ActionRefundedNone": "Action refunded"
+        },
+        "Session": {
+          "State": {
+            "active": "Active",
+            "paused": "Paused"
+          }
         }
       },
       "HavenTracker": {
@@ -21,10 +27,10 @@
       },
       "EventClocks": {
         "Title": "Event Clocks",
+        "EditTitle": "Edit Event Clock",
         "ButtonLabel": "Event Clocks",
         "AddClock": "Add Clock",
         "NoClocks": "No event clocks yet.",
-        "EditTitle": "Edit Clock",
         "Name": "Clock Name",
         "PlayerName": "Player-Facing Name",
         "PlayerNameHint": "If different from the real name, this name is shown to players.",

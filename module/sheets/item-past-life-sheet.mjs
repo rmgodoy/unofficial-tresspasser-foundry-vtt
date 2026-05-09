@@ -45,7 +45,7 @@ export class TrespasserPastLifeSheet extends foundry.appv1.sheets.ItemSheet {
     // Skills context
     context.skillRows = ALL_SKILL_KEYS.map(key => ({
       key,
-      label: game.i18n.localize(`TRESPASSER.Sheet.Skills.${key.charAt(0).toUpperCase() + key.slice(1)}`),
+      label: game.i18n.localize(`TRESPASSER.Terms.Skill.${key.charAt(0).toUpperCase() + key.slice(1)}`),
       selected: !!system.skills[key],
     }));
 

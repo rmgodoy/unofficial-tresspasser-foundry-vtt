@@ -14,7 +14,7 @@ export class TransferDialog extends foundry.applications.api.HandlebarsApplicati
     classes: ["trespasser", "dialog", "transfer-dialog"],
     position: { width: 400, height: "auto" },
     window: {
-      title: "TRESPASSER.Dialog.TransferTitle",
+      title: "TRESPASSER.Dialog.Transfer.Title",
     },
     actions: {
       select: TransferDialog._onSelect

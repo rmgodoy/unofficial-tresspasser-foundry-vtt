@@ -21,7 +21,10 @@
         "None": "None"
       },
       "Completed": "Completed",
-      "Progress": "Progress"
+      "Progress": "Progress",
+      "General": {
+        "None": "None"
+      }
     },
     "TYPES": {
       "Actor": {

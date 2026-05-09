@@ -43,12 +43,12 @@ export class TrespasserStrongholdSheet extends api.HandlebarsApplicationMixin(sh
 
     // Attributes list for dropdown
     context.attributes = {
-      "military": "TRESPASSER.Haven.Attributes.Military",
-      "efficiency": "TRESPASSER.Haven.Attributes.Efficiency",
-      "resources": "TRESPASSER.Haven.Attributes.Resources",
-      "expertise": "TRESPASSER.Haven.Attributes.Expertise",
-      "allegiance": "TRESPASSER.Haven.Attributes.Allegiance",
-      "appeal": "TRESPASSER.Haven.Attributes.Appeal"
+      "military": "TRESPASSER.Terms.HavenAttribute.Military",
+      "efficiency": "TRESPASSER.Terms.HavenAttribute.Efficiency",
+      "resources": "TRESPASSER.Terms.HavenAttribute.Resources",
+      "expertise": "TRESPASSER.Terms.HavenAttribute.Expertise",
+      "allegiance": "TRESPASSER.Terms.HavenAttribute.Allegiance",
+      "appeal": "TRESPASSER.Terms.HavenAttribute.Appeal"
     };
 
     context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(

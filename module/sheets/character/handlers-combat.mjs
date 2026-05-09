@@ -20,7 +20,7 @@ export async function onEquipRoll(event, sheet) {
     speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
     flavor:  game.i18n.format("TRESPASSER.Chat.Action.BlockUsage", {
       name: sheet.actor.name,
-      slot: game.i18n.localize("TRESPASSER.Terms.EquipmentPlacement." + slot.charAt(0).toUpperCase() + slot.slice(1)),
+      slot: game.i18n.localize("TRESPASSER.Sheet.Character.Equipments." + slot.split('_').map(s => s.capitalize()).join('')),
       item: item.name
     })
   });

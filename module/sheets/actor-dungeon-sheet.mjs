@@ -41,10 +41,10 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
   };
 
   static TABS = {
-    overview: { id: "overview", group: "primary", label: "TRESPASSER.Dungeon.Tabs.Overview", icon: "dungeon" },
-    rooms: { id: "rooms", group: "primary", label: "TRESPASSER.Dungeon.Tabs.Rooms", icon: "door-open" },
-    log: { id: "log", group: "primary", label: "TRESPASSER.Dungeon.Tabs.Log", icon: "scroll" },
-    notes: { id: "notes", group: "primary", label: "TRESPASSER.Dungeon.Tabs.Notes", icon: "book" }
+    overview: { id: "overview", group: "primary", label: "TRESPASSER.Sheet.Tabs.Overview", icon: "dungeon" },
+    rooms: { id: "rooms", group: "primary", label: "TRESPASSER.Sheet.Tabs.Rooms", icon: "door-open" },
+    log: { id: "log", group: "primary", label: "TRESPASSER.Sheet.Tabs.Log", icon: "scroll" },
+    notes: { id: "notes", group: "primary", label: "TRESPASSER.Sheet.Tabs.Notes", icon: "book" }
   };
 
   tabGroups = { primary: "overview" };

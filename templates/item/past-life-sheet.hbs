@@ -36,7 +36,7 @@
         <div class="attributes-grid">
           {{#each system.attributes as |bonus key|}}
           <div class="attribute-row flexrow">
-            <label>{{localize (concat "TRESPASSER.Sheet.Attributes." (capitalize key))}}</label>
+            <label>{{localize (concat "TRESPASSER.Terms.Attribute." (capitalize key))}}</label>
             <input type="number" name="system.attributes.{{key}}" value="{{bonus}}" data-dtype="Number" />
           </div>
           {{/each}}

@@ -296,13 +296,15 @@
           "RollExpression": "1d20 + <sd>",
           "GrantDescription": "Description of what is granted at this level...",
           "DeedEmpty": "This deed has no effects or description yet.",
-          "DeedDescriptionStart": "Effect at the start of the action...",
-          "DeedDescriptionBefore": "Effect before the action...",
-          "DeedDescriptionBase": "Base effect of the action...",
-          "DeedDescriptionHit": "Effect on a hit...",
-          "DeedDescriptionSpark": "Effect on a spark...",
-          "DeedDescriptionAfter": "Effect after the action...",
-          "DeedDescriptionEnd": "Effect at the end of the action...",
+          "DeedDescription": {
+            "Start": "Effect at the start of the action...",
+            "Before": "Effect before the action...",
+            "Base": "Base effect of the action...",
+            "Hit": "Effect on a hit...",
+            "Spark": "Effect on a spark...",
+            "After": "Effect after the action...",
+            "End": "Effect at the end of the action..."
+          },
           "DeedDamage": "Damage formula (e.g. 1d6+@str)",
           "Modifier": "e.g. +1 Focus"
         },

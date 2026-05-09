@@ -23,7 +23,7 @@ async function postDeedCard(actor, item) {
   const phases = ["start", "before", "base", "hit", "spark", "after", "end"];
   const allPhases = phases.map(key => ({
     key,
-    label: game.i18n.localize(`TRESPASSER.Item.${key.charAt(0).toUpperCase() + key.slice(1)}`),
+    label: game.i18n.localize(`TRESPASSER.Terms.DeedPhases.${key.charAt(0).toUpperCase() + key.slice(1)}`),
     data: sys.effects?.[key] ?? {}
   }));
   const cardPhases = allPhases.filter(p => p.data.description);
@@ -41,7 +41,7 @@ async function postDeedCard(actor, item) {
     "systems/trespasser/templates/chat/deed-card.hbs",
     {
       name: item.name,
-      tierLabel: game.i18n.localize(`TRESPASSER.Item.DeedTierChoices.${tier.charAt(0).toUpperCase() + tier.slice(1)}`),
+      tierLabel: game.i18n.localize(`TRESPASSER.Sheet.Item.Details.Tiers.${tier.charAt(0).toUpperCase() + tier.slice(1)}`),
       type: sys.type,
       actionType: sys.actionType,
       accuracyTest: sys.accuracyTest,

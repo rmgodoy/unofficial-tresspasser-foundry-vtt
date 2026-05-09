@@ -41,19 +41,19 @@
     <div class="lists-container" style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 20px; border-top: 1px solid var(--trp-border-light); padding-top: 10px;">
         
         {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
-            title=(localize "TRESPASSER.Sheet.Common.Talents") 
+            title=(localize "TRESPASSER.Sheet.Item.Sections.Talents") 
             items=system.talents 
             property="talents" 
             deleteClass="remove-link"}}
 
         {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
-            title=(localize "TRESPASSER.Sheet.Common.Features") 
+            title=(localize "TRESPASSER.Sheet.Item.Sections.Features") 
             items=system.features 
             property="features" 
             deleteClass="remove-link"}}
 
         {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
-            title=(localize "TRESPASSER.Sheet.Common.Deeds") 
+            title=(localize "TRESPASSER.Sheet.Item.Sections.LinkedDeeds") 
             items=system.deeds 
             property="deeds" 
             deleteClass="remove-link"}}

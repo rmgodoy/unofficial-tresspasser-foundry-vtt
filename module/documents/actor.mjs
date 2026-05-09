@@ -54,7 +54,7 @@ export class TrespasserActor extends Actor {
     const formula = `1${skillDie} + ${attrValue} + ${bonus}`;
 
     const roll = new foundry.dice.Roll(formula);
-    const attrLabel = game.i18n.localize(`TRESPASSER.Attributes.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
+    const attrLabel = game.i18n.localize(`TRESPASSER.Terms.Attribute.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
     
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this }),

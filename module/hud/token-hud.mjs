@@ -996,7 +996,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (materialIdx < 1) materialIdx = 1;
         if (materialIdx > 5) materialIdx = 5;
 
-        const materialStr = game.i18n.localize(`TRESPASSER.HUD.SmashMaterial${materialIdx}`);
+        const materialStr = game.i18n.localize(`TRESPASSER.HUD.SmashMaterial.${materialIdx}`);
 
         await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
         await TrespasserCombat.recordHUDAction(actor, "smash");

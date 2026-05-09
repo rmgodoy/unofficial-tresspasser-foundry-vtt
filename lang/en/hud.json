@@ -58,13 +58,12 @@
         "WithBonus": "(Bonus: +{bonus})"
       },
       "SmashMaterial": {
-        "PlantCeramic": "plant matter, ceramic",
-        "Wood": "wood",
-        "StoneFragile": "fragile or cracked stone",
-        "StoneSolid": "solid stone",
-        "MetalWeak": "weak metal"
+        "1": "plant matter, ceramic",
+        "2": "wood",
+        "3": "fragile or cracked stone",
+        "4": "solid stone",
+        "5": "metal"
       }
     }
   }
 }
-

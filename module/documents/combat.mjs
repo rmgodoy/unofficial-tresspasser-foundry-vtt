@@ -21,11 +21,11 @@ export class TrespasserCombat extends Combat {
    * Mapping of phase values to localized labels.
    */
   static PHASE_LABELS = {
-    [TrespasserCombat.PHASES.EARLY]: "TRESPASSER.Phase.Early",
-    [TrespasserCombat.PHASES.ENEMY]: "TRESPASSER.Phase.Enemy",
-    [TrespasserCombat.PHASES.LATE]: "TRESPASSER.Phase.Late",
-    [TrespasserCombat.PHASES.EXTRA]: "TRESPASSER.Phase.Extra",
-    [TrespasserCombat.PHASES.END]: "TRESPASSER.Phase.End"
+    [TrespasserCombat.PHASES.EARLY]: "TRESPASSER.Terms.Combat.Phase.Early",
+    [TrespasserCombat.PHASES.ENEMY]: "TRESPASSER.Terms.Combat.Phase.Enemy",
+    [TrespasserCombat.PHASES.LATE]: "TRESPASSER.Terms.Combat.Phase.Late",
+    [TrespasserCombat.PHASES.EXTRA]: "TRESPASSER.Terms.Combat.Phase.Extra",
+    [TrespasserCombat.PHASES.END]: "TRESPASSER.Terms.Combat.Phase.End"
   };
 
   /**
@@ -746,15 +746,15 @@ export class TrespasserCombat extends Combat {
     let mighty = 0;
 
     if ( perilTotal <= 6 ) {
-      perilLabel = "TRESPASSER.PanicLabels.Low";
+      perilLabel = "TRESPASSER.Terms.Combat.PanicLabels.Low";
       heavy = 1;
       mighty = 0;
     } else if ( perilTotal >= 7 && perilTotal <= 9 ) {
-      perilLabel = "TRESPASSER.PanicLabels.Medium";
+      perilLabel = "TRESPASSER.Terms.Combat.PanicLabels.Medium";
       heavy = 1;
       mighty = 1;
     } else {
-      perilLabel = "TRESPASSER.PanicLabels.High";
+      perilLabel = "TRESPASSER.Terms.Combat.PanicLabels.High";
       heavy = 2;
       mighty = 1;
     }

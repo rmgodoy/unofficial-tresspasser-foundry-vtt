@@ -296,13 +296,15 @@
           "RollExpression": "1d20 + <sd>",
           "GrantDescription": "Descrição do que é concedido neste nível...",
           "DeedEmpty": "Esta habilidade ainda não tem efeitos ou descrição.",
-          "DeedDescriptionStart": "Efeito no início da ação...",
-          "DeedDescriptionBefore": "Efeito antes da ação...",
-          "DeedDescriptionBase": "Efeito base da ação...",
-          "DeedDescriptionHit": "Efeito se acertar...",
-          "DeedDescriptionSpark": "Efeito se disparar Faísca...",
-          "DeedDescriptionAfter": "Efeito após a ação...",
-          "DeedDescriptionEnd": "Efeito no final da ação...",
+          "DeedDescription": {
+            "Start": "Efeito no início da ação...",
+            "Before": "Efeito antes da ação...",
+            "Base": "Efeito base da ação...",
+            "Hit": "Efeito no acerto...",
+            "Spark": "Efeito na centelha...",
+            "After": "Efeito depois da ação...",
+            "End": "Efeito no fim da ação..."
+          },
           "DeedDamage": "Fórmula de dano (ex: 1d6+@for)",
           "Modifier": "ex: +1 Foco"
         },

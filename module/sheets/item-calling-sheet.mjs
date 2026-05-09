@@ -36,7 +36,7 @@ export class TrespasserCallingSheet extends foundry.appv1.sheets.ItemSheet {
     const selectedSkills = new Set(this.item.system.skills || []);
     context.skillRows = ALL_SKILL_KEYS.map(key => ({
       key,
-      label: game.i18n.localize(`TRESPASSER.Sheet.Skills.${key.charAt(0).toUpperCase() + key.slice(1)}`),
+      label: game.i18n.localize(`TRESPASSER.Terms.Skill.${key.charAt(0).toUpperCase() + key.slice(1)}`),
       selected: selectedSkills.has(key),
     }));
 

@@ -199,7 +199,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
           img: d.img,
           selected: this.dungeon?.id === d.id,
           state,
-          stateLabel: state === "idle" ? "" : game.i18n.localize(`TRESPASSER.Dungeon.Session.State.${state}`),
+          stateLabel: state === "idle" ? "" : game.i18n.localize(`TRESPASSER.App.DungeonTracker.Session.State.${state}`),
           round: d.system.currentRound ?? 0
         };
       });

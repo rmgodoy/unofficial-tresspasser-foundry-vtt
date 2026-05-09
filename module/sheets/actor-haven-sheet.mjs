@@ -214,7 +214,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       key,
       trained: trainedSet.has(key),
       inherited: !system.skills[key] && trainedSet.has(key), // Flag if trained via building
-      label: game.i18n.localize(`TRESPASSER.Haven.Skills.${key.charAt(0).toUpperCase() + key.slice(1)}`)
+      label: game.i18n.localize(`TRESPASSER.Terms.HavenSkill.${key.charAt(0).toUpperCase() + key.slice(1)}`)
     }));
     
     context.skillColumns = [
@@ -631,7 +631,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const attrKey = target.dataset.attribute;
     const totals = this.document.system.totalAttributes;
     const attrVal = totals[attrKey] ?? 0;
-    const label = game.i18n.localize(`TRESPASSER.Haven.Attributes.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
+    const label = game.i18n.localize(`TRESPASSER.Terms.HavenAttribute.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
     
     const result = await TrespasserRollDialog.wait({
       dice: "1d20",
@@ -689,7 +689,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const system = actor.system;
     const totals = system.totalAttributes;
     const skillBonusValue = trained ? system.skillBonus : 0;
-    const skillLabel = game.i18n.localize(`TRESPASSER.Haven.Skills.${skillKey.charAt(0).toUpperCase() + skillKey.slice(1)}`);
+    const skillLabel = game.i18n.localize(`TRESPASSER.Terms.HavenSkill.${skillKey.charAt(0).toUpperCase() + skillKey.slice(1)}`);
 
     const attributes = [
       { key: "military", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Military") },
@@ -738,7 +738,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     if ( !chosenAttr || chosenAttr === "cancel" ) return;
 
     const attrVal = totals[chosenAttr] ?? 0;
-    const label = game.i18n.localize(`TRESPASSER.Haven.Attributes.${chosenAttr.charAt(0).toUpperCase() + chosenAttr.slice(1)}`);
+    const label = game.i18n.localize(`TRESPASSER.Terms.HavenAttribute.${chosenAttr.charAt(0).toUpperCase() + chosenAttr.slice(1)}`);
     
     const result = await TrespasserRollDialog.wait({
       dice: "1d20",

@@ -1,6 +1,18 @@
 {
   "TRESPASSER": {
     "Terms": {
+      "Status": {
+        "None": "Nenhum"
+      },
+      "DeedPhases": {
+        "Start": "Início",
+        "Before": "Antes",
+        "Base": "Base",
+        "Hit": "Acerto",
+        "Spark": "Centelha",
+        "After": "Depois",
+        "End": "Fim"
+      },
       "Depletion": {
         "None": "Nenhuma",
         "Crude": "Rústica",
@@ -36,8 +48,11 @@
         "Speech": "Lábia",
         "Stealth": "Furtividade",
         "Tinkering": "Engenhosidade",
+        "Diplomacia": "Diplomacia",
+        "Ocultismo": "Ocultismo",
         "Plural": "Perícias"
       },
+      "DC": "CD",
       "ItemType": {
         "Weapon": "Arma",
         "Armor": "Armadura",
@@ -54,6 +69,21 @@
         "States": "Estados",
         "Incantation": "Encantamento",
         "Item": "Item",
+        "ItemSubTypes": {
+          "Tool": "Ferramenta",
+          "Resource": "Recurso",
+          "LightSource": "Fonte de Luz",
+          "Miscellaneous": "Miscelânea",
+          "Bombs": "Bombas",
+          "Oils": "Óleos",
+          "Powders": "Pós",
+          "Potions": "Poções",
+          "Scrolls": "Pergaminhos",
+          "Esoteric": "Esotérico",
+          "Artifacts": "Artefatos",
+          "Ingredients": "Ingredientes",
+          "Materials": "Materiais"
+        },
         "Injury": "Ferimento",
         "Calling": "Vocação",
         "Craft": "Ofício",
@@ -96,7 +126,12 @@
         "TwoHanded": "Duas Mãos",
         "MainHand": "Mão Principal",
         "OffHand": "Mão Secundária",
-        "DualWield": "Empunhadura Dupla"
+        "DualWield": "Empunhadura Dupla",
+        "PanicLabels": {
+          "Low": "Baixo",
+          "Medium": "Médio",
+          "High": "Alto"
+        }
       },
       "Role": {
         "Archer": "Arqueiro",
@@ -140,9 +175,129 @@
         "Military": "Militar",
         "Efficiency": "Eficiência",
         "Resources": "Recursos",
-        "Expertise": "Especialização",
-        "Allegiance": "Lealdade",
-        "Appeal": "Atratividade"
+        "Expertise": "Expertise",
+        "Allegiance": "Fidelidade",
+        "Appeal": "Apelo"
+      },
+      "HavenSkill": {
+        "Agriculture": "Agricultura",
+        "Construction": "Construção",
+        "Commerce": "Comércio",
+        "Cuisine": "Culinária",
+        "Entertainment": "Entretenimento",
+        "Espionage": "Espionagem",
+        "Faith": "Fé",
+        "Hospitality": "Hospitalidade",
+        "Research": "Pesquisa",
+        "Seafaring": "Navegação",
+        "Statecraft": "Governança",
+        "Warfare": "Guerra"
+      },
+      "Dungeon": {
+        "Hostility": {
+          "FirstDay": "Primeiro Dia",
+          "Bleak": "Sombrio",
+          "Sinister": "Sinistro",
+          "Frightening": "Assustador",
+          "Harrowing": "Dilacerante",
+          "Nightmarish": "Pesadelesco"
+        },
+        "Size": {
+          "Tiny": "Minúscula",
+          "Small": "Pequena",
+          "Medium": "Média",
+          "Large": "Grande",
+          "Huge": "Enorme"
+        },
+        "Form": {
+          "Cave": "Caverna",
+          "Ruin": "Ruína",
+          "Tower": "Torre",
+          "Crypt": "Cripta",
+          "Fortress": "Fortaleza",
+          "Temple": "Templo",
+          "Mine": "Mina",
+          "Lair": "Covil",
+          "Sewer": "Esgoto",
+          "Other": "Outro"
+        },
+        "Actions": {
+          "Explore": "Explorar",
+          "ExploreDesc": "Mova-se cautelosamente para uma sala adjacente não explorada ou explore a sala atual.",
+          "Traverse": "Atravessar",
+          "TraverseDesc": "Mova-se para qualquer sala previamente explorada ou para a entrada da masmorra.",
+          "Interact": "Interagir",
+          "InteractDesc": "Interaja com uma característica complexa da sala atual.",
+          "Search": "Procurar",
+          "SearchDesc": "Permaneça em uma sala explorada para investigá-la mais a fundo.",
+          "Hide": "Esconder",
+          "HideDesc": "Espere na escuridão silenciosa para que a masmorra fique quieta novamente.",
+          "Vandalize": "Vandalizar",
+          "VandalizeDesc": "Arrombe uma porta trancada, baú ou outro ato de destruição de propriedade.",
+          "PickLock": "Arrombar Fechadura",
+          "PickLockDesc": "Tente arrombar uma porta trancada ou baú.",
+          "Disarm": "Desarmar",
+          "DisarmDesc": "Tente desarmar uma armadilha.",
+          "Converse": "Conversar",
+          "ConverseDesc": "Passe alguns minutos conversando com uma criatura.",
+          "MomentsRest": "Descanso Breve",
+          "MomentsRestDesc": "Pausa por 10 minutos para se recuperar e comer.",
+          "Incant": "Encantar",
+          "IncantDesc": "Conconjure um encantamento enquanto o grupo vigia."
+        },
+        "Sparks": {
+          "Canny": "Esperto",
+          "CannyDesc": "Oposto de Caro. O grupo usa recursos de forma eficiente.",
+          "Quick": "Rápido",
+          "QuickDesc": "Oposto de Lento. O grupo se move ou age com grande velocidade.",
+          "Quiet": "Silencioso",
+          "QuietDesc": "Oposto de Barulhento. O grupo permanece em silêncio e furtivo.",
+          "Safe": "Seguro",
+          "SafeDesc": "Oposto de Prejudicial. O grupo evita perigos físicos.",
+          "Striking": "Impressionante",
+          "StrikingDesc": "Oposto de Desanimador. O grupo causa uma impressão marcante."
+        },
+        "Shadows": {
+          "Costly": "Caro",
+          "CostlyDesc": "Oposto de Esperto. Recursos são desperdiçados ou caros.",
+          "Slow": "Lento",
+          "SlowDesc": "Oposto de Rápido. O progresso é vagaroso ou atrasado.",
+          "Loud": "Barulhento",
+          "LoudDesc": "Oposto de Silencioso. O ruído atrai atenção indesejada.",
+          "Harmful": "Prejudicial",
+          "HarmfulDesc": "Oposto de Seguro. O grupo sofre dano físico.",
+          "Daunting": "Desanimador",
+          "DauntingDesc": "Oposto de Impressionante. A atmosfera é opressiva ou desmoralizante."
+        },
+        "Reaction": {
+          "Hostile": "Hostil",
+          "Wary": "Cauteloso",
+          "Curious": "Curioso",
+          "Friendly": "Amigável"
+        },
+        "Approach": {
+          "Ambush": "Emboscada",
+          "AmbushDesc": "Lança um ataque surpresa de uma posição de vantagem.",
+          "Fight": "Luta",
+          "FightDesc": "Engaja em combate direto com o encontro.",
+          "Greet": "Cumprimentar",
+          "GreetDesc": "Tenta uma introdução pacífica ou parlamentar.",
+          "Warn": "Avisar",
+          "WarnDesc": "Sinaliza sua presença ou dá um aviso severo.",
+          "Withdraw": "Retirar-se",
+          "WithdrawDesc": "Tenta deixar o encontro sem mais interação."
+        },
+        "Connection": {
+          "Doorway": "Portal",
+          "Hallway": "Corredor",
+          "Passage": "Passagem",
+          "Stairway": "Escadaria",
+          "Ladder": "Escada de Mão",
+          "Secret": "Secreto",
+          "Chasm": "Abismo",
+          "Portal": "Portal",
+          "Other": "Outro"
+        }
       }
     }
   }

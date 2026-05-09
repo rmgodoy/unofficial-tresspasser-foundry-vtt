@@ -83,7 +83,7 @@
         {{#each (array "military" "efficiency" "resources" "expertise" "allegiance" "appeal") as |attr|}}
         <div class="attribute-box">
           <span class="attribute-label rollable" data-action="rollAttribute" data-attribute="{{attr}}">
-            {{localize (concat "TRESPASSER.Haven.Attributes." (capitalize attr))}}
+            {{localize (concat "TRESPASSER.Terms.HavenAttribute." (capitalize attr))}}
             <h3>{{lookup ../totalAttributes attr}}</h3>
           </span>
           <input type="number" name="system.attributes.{{attr}}" value="{{lookup ../system.attributes attr}}" {{disabled (not ../editable)}} />
@@ -215,7 +215,7 @@
                     <div class="skill-tags">
                       {{#each b.system.skills as |sk|}}
                         <div class="skill-tag">
-                            <i class="fas fa-graduation-cap"></i> {{localize (concat "TRESPASSER.Haven.Skills." (capitalize sk))}}
+                            <i class="fas fa-graduation-cap"></i> {{localize (concat "TRESPASSER.Terms.HavenSkill." (capitalize sk))}}
                         </div>
                       {{/each}}
                     </div>

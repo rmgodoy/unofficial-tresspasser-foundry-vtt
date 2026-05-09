@@ -11,7 +11,7 @@ export async function onAttributeRoll(event, sheet) {
   const attrKey = event.currentTarget.dataset.attribute;
   const attrVal = sheet.actor.system.attributes[attrKey] ?? 0;
   const effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, attrKey, "use");
-  const label   = game.i18n.localize(`TRESPASSER.Sheet.Attributes.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
+  const label   = game.i18n.localize(`TRESPASSER.Terms.Attribute.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
 
   const isAdv = TrespasserEffectsHelper.hasAdvantage(sheet.actor, attrKey);
   const diceFormula = isAdv ? "2d20kh" : "1d20";
@@ -57,7 +57,7 @@ export async function onCombatStatRoll(event, sheet) {
     showCD: true,
     cd: targetCD ?? 10,
     bonuses: [
-      { label: game.i18n.localize(`TRESPASSER.Terms.Combat.${label}`), value: baseVal },
+      { label: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`), value: baseVal },
       { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
     ]
   }, { title: `${label} Check` });

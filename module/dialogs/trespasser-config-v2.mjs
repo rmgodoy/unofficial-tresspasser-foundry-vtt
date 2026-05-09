@@ -82,7 +82,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     context.colors = colorKeys.map(key => ({
       key,
       value: game.settings.get("trespasser", key),
-      label: `TRESPASSER.Settings.${key}`
+      label: `TRESPASSER.Settings.Colors.${key}.Name`
     }));
 
     context.isGM = game.user.isGM;
