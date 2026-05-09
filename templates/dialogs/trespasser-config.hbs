@@ -12,110 +12,110 @@
         <!-- Mechanics Tab -->
         <div class="tab {{#if (eq tabGroups.primary 'mechanics')}}active{{/if}}" data-group="primary" data-tab="mechanics">
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.PlayerFacingInitiative"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Mechanics.PlayerFacingInitiative.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="playerFacingInitiative" {{checked settings.playerFacingInitiative}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.PlayerFacingInitiativeHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.PlayerFacingInitiative.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.ShowInitiativeInChat"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Mechanics.InitiativeChat.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="showInitiativeInChat" {{checked settings.showInitiativeInChat}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.ShowInitiativeInChatHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.InitiativeChat.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.RestrictMovementAction"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Mechanics.RestrictMovementAction.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="restrictMovementAction" {{checked settings.restrictMovementAction}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.RestrictMovementActionHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.RestrictMovementAction.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.RestrictHUDActions"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="restrictHUDActions" {{checked settings.restrictHUDActions}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.RestrictHUDActionsHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.RestrictAPFocusUsage"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Mechanics.RestrictAPFocusUsage.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="restrictAPFocusUsage" {{checked settings.restrictAPFocusUsage}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.RestrictAPFocusUsageHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.RestrictAPFocusUsage.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.DisregardRangeOnAttack"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="disregardRangeOnAttack" {{checked settings.disregardRangeOnAttack}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.DisregardRangeOnAttackHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.AllowOutOfTurnMovement"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Mechanics.AllowOutOfTurnMovement.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="allowOutOfTurnMovement" {{checked settings.allowOutOfTurnMovement}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.AllowOutOfTurnMovementHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.AllowOutOfTurnMovement.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.EnableRetreatDialog"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Exploration.EnableRetreatDialog.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="enableRetreatDialog" {{checked settings.enableRetreatDialog}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.EnableRetreatDialogHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.EnableRetreatDialog.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.ShowPerilInChat"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Exploration.ShowPerilInChat.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="showPerilInChat" {{checked settings.showPerilInChat}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.ShowPerilInChatHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.ShowPerilInChat.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.AutoEndCombatOnRetreat"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="autoEndCombatOnRetreat" {{checked settings.autoEndCombatOnRetreat}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.AutoEndCombatOnRetreatHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Hint"}}</p>
             </div>
         </div>
 
         <!-- Exploration Tab -->
         <div class="tab {{#if (eq tabGroups.primary 'exploration')}}active{{/if}}" data-group="primary" data-tab="exploration">
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.GroupCheckFullParty"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="groupCheckFullParty" {{checked settings.groupCheckFullParty}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.GroupCheckFullPartyHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.RestrictHavenEditToLeader"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Exploration.RestrictHavenEditToLeader.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="restrictHavenEditToLeader" {{checked settings.restrictHavenEditToLeader}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.RestrictHavenEditToLeaderHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.RestrictHavenEditToLeader.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.BypassHavenBuildingLimits"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="bypassHavenBuildingLimits" {{checked settings.bypassHavenBuildingLimits}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.BypassHavenBuildingLimitsHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Hint"}}</p>
             </div>
         </div>
         {{/if}}
@@ -123,27 +123,27 @@
         <!-- Visuals Tab -->
         <div class="tab {{#if (eq tabGroups.primary 'visuals')}}active{{/if}}" data-group="primary" data-tab="visuals">
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.ClockSize"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Visuals.ClockSize.Name"}}</label>
                 <div class="form-fields">
                     <input type="number" name="clockSize" value="{{settings.clockSize}}" min="20" max="200">
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.ClockSizeHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Visuals.ClockSize.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.FontSizeBase"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Visuals.FontSizeBase.Name"}}</label>
                 <div class="form-fields">
                     <input type="number" name="fontSizeBase" value="{{settings.fontSizeBase}}" min="10" max="30">
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.FontSizeBaseHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Visuals.FontSizeBase.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.ConfirmItemTransfer"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Mechanics.ConfirmItemTransfer.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="confirmItemTransfer" {{checked settings.confirmItemTransfer}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.ConfirmItemTransferHint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.ConfirmItemTransfer.Hint"}}</p>
             </div>
             
             <h3 style="font-family: var(--trp-font-header); color: var(--trp-gold); text-transform: uppercase; border-bottom: 1px solid var(--trp-border); padding-bottom: 5px; margin: 20px 0 10px 0;">
@@ -167,10 +167,10 @@
 
     <footer class="sheet-footer">
         <button type="submit" name="submit">
-            <i class="fas fa-save"></i> {{localize "TRESPASSER.Settings.Save"}}
+            <i class="fas fa-save"></i> {{localize "TRESPASSER.Settings.Common.Save"}}
         </button>
         <button type="button" data-action="reset">
-            <i class="fas fa-undo"></i> {{localize "TRESPASSER.Settings.ResetDefault"}}
+            <i class="fas fa-undo"></i> {{localize "TRESPASSER.Settings.Common.ResetDefault"}}
         </button>
     </footer>
 </div>

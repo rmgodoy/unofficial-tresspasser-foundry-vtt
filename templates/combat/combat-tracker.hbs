@@ -1,6 +1,6 @@
 <section class="combat-sidebar flexcol {{cssClass}}" id="combat-tracker" data-tab="combat">
   <header class="combat-tracker-header flexrow">
-    <h3>{{localize "COMBAT.Encounter"}} ({{localize "COMBAT.Round"}} {{round}})</h3>
+    <h3>{{localize "TRESPASSER.Chat.Dungeon.Encounter.Label"}} ({{localize "TRESPASSER.Sheet.Dungeon.Round"}} {{round}})</h3>
   </header>
 
   {{#if waitingForInitiatives}}
@@ -48,13 +48,13 @@
               <h4>{{turn.name}}</h4>
             </div>
             <div class="combatant-status flexrow">
-              <a class="combatant-control {{#if turn.hidden}}active{{/if}}" data-action="toggleHidden" title="{{localize "COMBAT.ToggleVis"}}">
+              <a class="combatant-control {{#if turn.hidden}}active{{/if}}" data-action="toggleHidden" title="{{localize "TRESPASSER.Global.Action.ToggleVisibility"}}">
                 <i class="fas {{#if turn.hidden}}fa-eye-slash{{else}}fa-eye{{/if}}"></i>
               </a>
-              <a class="combatant-control {{#if turn.defeated}}active{{/if}}" data-action="toggleDefeated" title="{{localize "COMBAT.ToggleDead"}}">
+              <a class="combatant-control {{#if turn.defeated}}active{{/if}}" data-action="toggleDefeated" title="{{localize "TRESPASSER.Global.Action.ToggleDead"}}">
                 <i class="fas fa-skull"></i>
               </a>
-              <a class="combatant-control {{#if turn.isTargeted}}active{{/if}}" data-action="toggleTarget" title="{{localize "COMBAT.ToggleTarget"}}">
+              <a class="combatant-control {{#if turn.isTargeted}}active{{/if}}" data-action="toggleTarget" title="{{localize "TRESPASSER.Global.Action.ToggleTarget"}}">
                 <i class="fas fa-bullseye"></i>
               </a>
               {{#each turn.effects}}
@@ -108,13 +108,13 @@
     <div class="info-row">
       <div class="left-info">
         <span class="peril-text">
-            {{localize "TRESPASSER.Terms.Peril"}}: {{combatInfo.perilTotal}} 
+            {{localize "TRESPASSER.Terms.Combat.Peril"}}: {{combatInfo.perilTotal}} 
             <span class="peril-label">({{combatInfo.perilLabel}})</span>
         </span>
         <span class="deeds-usage">{{combatInfo.heavy}}H / {{combatInfo.mighty}}M</span>
       </div>
       <div class="right-info">
-        <span class="panic-label">{{localize "TRESPASSER.Terms.Panic"}}: {{combatInfo.panicLevel}}</span>
+        <span class="panic-label">{{localize "TRESPASSER.App.System.Panic"}}: {{combatInfo.panicLevel}}</span>
         <span class="init-dc-label">{{localize "TRESPASSER.Sheet.Combat.InitiativeDC"}}: {{combatInfo.enemyMaxInit}}</span>
       </div>
     </div>
