@@ -110,7 +110,8 @@
       },
       "Item": {
         "ViewDetails": "View item details"
-      }
+      },
+      "SkillCheckTitle": "{skill} Check"
     }
   }
 }

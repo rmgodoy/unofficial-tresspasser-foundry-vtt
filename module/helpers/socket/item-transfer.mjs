@@ -29,8 +29,8 @@ export async function handleTransferRequest(data, senderId) {
   if (confirm) {
     const sender = game.users.get(senderId);
     accepted = await foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.localize("TRESPASSER.Dialog.TransferTitle") },
-      content: "<p>" + game.i18n.format("TRESPASSER.Dialog.TransferContent", {
+      window: { title: game.i18n.localize("TRESPASSER.Dialog.Transfer.Title") },
+      content: "<p>" + game.i18n.format("TRESPASSER.Dialog.Transfer.Content", {
         user: sender.name,
         item: itemData.name,
         target: targetActor.name
@@ -43,7 +43,7 @@ export async function handleTransferRequest(data, senderId) {
     const success = await addItemToActor(targetActor, itemData);
 
     if (success) {
-      ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.TransferAccepted", {
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Transfer.Accepted", {
         item: itemData.name,
         actor: targetActor.name
       }));
@@ -86,7 +86,7 @@ export async function handleTransferAccepted(data) {
   if (item) {
     await sourceActor.deleteEmbeddedDocuments("Item", [itemId]);
     
-    ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.TransferComplete", {
+    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Transfer.Complete", {
       item: itemName,
       target: targetActorName
     }));
@@ -99,7 +99,7 @@ export async function handleTransferAccepted(data) {
  */
 export function handleTransferRejected(data) {
   const { itemName, targetActorName } = data;
-  ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.TransferRejected", {
+  ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Transfer.Rejected", {
     item: itemName,
     target: targetActorName
   }));

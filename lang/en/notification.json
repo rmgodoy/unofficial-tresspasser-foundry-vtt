@@ -63,7 +63,8 @@
         "DropRoomsOnly": "Only Room items can be dropped here.",
         "RoomAdded": "Room {name} added to connections.",
         "AlreadyConnected": "Room {name} is already connected.",
-        "ConnectionCreated": "Connection to {name} created."
+        "ConnectionCreated": "Connection to {name} created.",
+        "NoActionsRemaining": "You have no actions remaining in this round."
       },
       "Rest": {
         "SpendRDLimited": "You tried to spend {spent} RD but only have {current}. Spending {current} instead.",
@@ -88,7 +89,8 @@
         "PastLife": "Past Life '{name}' applied to {actor}."
       },
       "Save": {
-        "Config": "System Configuration saved successfully."
+        "Config": "System Configuration saved successfully.",
+        "OilApplied": "{oil} applied to {weapon}."
       },
       "Reset": {
         "Config": "System Configuration reset to defaults."

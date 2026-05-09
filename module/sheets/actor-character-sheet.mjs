@@ -119,8 +119,8 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
           transferAll: !!data.transferAll
         });
         
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.TransferComplete", {
-          name: entry.item.name,
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Transfer.Complete", {
+          item: entry.item.name,
           target: this.actor.name
         }));
       }
@@ -240,7 +240,7 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
       "system.calling": ""
     });
 
-    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Save.CallingRemoved", { name: callingName }));
+    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Apply.CallingRemoved", { name: callingName, actor: this.actor.name }));
   }
 
   /**
@@ -291,8 +291,9 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
       await actor.createEmbeddedDocuments("Item", itemsToCreate);
     }
 
-    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Save.PastLifeApplied", {
-      name: pastLifeItem.name
+    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Apply.PastLife", {
+      name: pastLifeItem.name,
+      actor: actor.name
     }));
   }
 }

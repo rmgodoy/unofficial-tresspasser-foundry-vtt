@@ -28,7 +28,7 @@ export async function resolveEndOfRound(dungeon) {
 
   // Build the encounter check chat card
   let checkContent = `<div class="trespasser-encounter-check">`;
-  checkContent += `<strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Check")}</strong>`;
+  checkContent += `<strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Check")}</strong>`;
   checkContent += `<div class="encounter-roll-result">`;
   checkContent += `<span class="encounter-die">d10: ${encounterRoll.total}</span>`;
   checkContent += ` vs `;
@@ -36,9 +36,9 @@ export async function resolveEndOfRound(dungeon) {
   checkContent += `</div>`;
 
   if (encountered) {
-    checkContent += `<div class="encounter-triggered">${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Triggered")}</div>`;
+    checkContent += `<div class="encounter-triggered">${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Triggered")}</div>`;
   } else {
-    checkContent += `<div class="encounter-clear">${game.i18n.localize("TRESPASSER.Dungeon.Encounter.NoEncounter")}</div>`;
+    checkContent += `<div class="encounter-clear">${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.NoEncounter")}</div>`;
   }
   checkContent += `</div>`;
 
@@ -56,7 +56,7 @@ export async function resolveEndOfRound(dungeon) {
   // --- Encounter triggered! ---
 
   // 1. Draw from linked RollTable
-  let encounterDescription = game.i18n.localize("TRESPASSER.Dungeon.Encounter.RandomDesc");
+  let encounterDescription = game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.RandomDesc");
   const tableId = system.encounterTableId;
   if (tableId) {
     const table = game.tables.get(tableId);
@@ -87,17 +87,17 @@ export async function resolveEndOfRound(dungeon) {
   const dc = getDungeonDC(dungeon);
 
   let encounterContent = `<div class="trespasser-encounter-card">`;
-  encounterContent += `<h3>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Title")}</h3>`;
-  encounterContent += `<div class="encounter-description"><strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Label")}:</strong> ${encounterDescription}</div>`;
-  encounterContent += `<div class="encounter-reaction"><strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Reaction")}:</strong> ${reactionLabel} (2d6: ${reactionTotal})</div>`;
-  encounterContent += `<div class="encounter-surprise"><strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Surprise")}:</strong> ${game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", {skill: "AGILITY | STEALTH"})} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</div>`;
+  encounterContent += `<h3>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Title")}</h3>`;
+  encounterContent += `<div class="encounter-description"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Label")}:</strong> ${encounterDescription}</div>`;
+  encounterContent += `<div class="encounter-reaction"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Reaction")}:</strong> ${reactionLabel} (2d6: ${reactionTotal})</div>`;
+  encounterContent += `<div class="encounter-surprise"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Surprise")}:</strong> ${game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", {skill: "AGILITY | STEALTH"})} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</div>`;
 
   // Distance suggestion
-  encounterContent += `<div class="encounter-distance"><strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Distance")}:</strong> ${game.i18n.localize("TRESPASSER.Dungeon.Encounter.DistanceRollHint")}</div>`;
+  encounterContent += `<div class="encounter-distance"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Distance")}</strong> ${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.DistanceRollHint")}</div>`;
 
   // Available approaches
   encounterContent += `<div class="encounter-approaches">`;
-  encounterContent += `<strong>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.Approach")}:</strong>`;
+  encounterContent += `<strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Approach")}:</strong>`;
   encounterContent += `<div class="approach-options">`;
   for (const approach of validApproaches) {
     encounterContent += `<span class="approach-option"><i class="${approach.icon}"></i> ${approach.label}</span>`;
@@ -118,7 +118,7 @@ export async function resolveEndOfRound(dungeon) {
 
   // Post alarm reset notification
   await ChatMessage.create({
-    content: `<div class="trespasser-dungeon-action"><em>${game.i18n.localize("TRESPASSER.Dungeon.Encounter.AlarmReset")}</em></div>`,
+    content: `<div class="trespasser-dungeon-action"><em>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.AlarmReset")}</em></div>`,
     speaker: ChatMessage.getSpeaker({ alias: dungeon.name }),
     whisper: game.users.filter(u => u.isGM).map(u => u.id)
   });

@@ -39,11 +39,11 @@ export class TargetingHelper {
 
     switch (type) {
       case "blast":
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.PlaceBlast", { size }));
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.PlaceBlast", { size }));
         return this.#placeBlast(token, size, gridPx, null);
 
       case "close_blast":
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.PlaceCloseBlast", { size }));
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.PlaceCloseBlast", { size }));
         return this.#placeBlast(token, size, gridPx, true);
 
       case "burst":
@@ -64,11 +64,11 @@ export class TargetingHelper {
       }
 
       case "path":
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.PlacePath", { size }));
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.PlacePath", { size }));
         return this.#placePath(token, size, gridPx, false);
 
       case "close_path":
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.PlaceClosePath", { size }));
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.PlaceClosePath", { size }));
         return this.#placePath(token, size, gridPx, true);
 
       default:
@@ -125,7 +125,7 @@ export class TargetingHelper {
     if (deed.actionType !== "support" && targetArr.length === 0) {
       return {
         valid: false,
-        message: game.i18n.localize("TRESPASSER.Notifications.NoTargetsDefault")
+        message: game.i18n.localize("TRESPASSER.Notification.Combat.NoTargetsDefault")
       };
     }
 
@@ -133,7 +133,7 @@ export class TargetingHelper {
     if (targetArr.length > maxTargets) {
       return {
         valid: false,
-        message: game.i18n.format("TRESPASSER.Notifications.TooManyTargets", {
+        message: game.i18n.format("TRESPASSER.Notification.Combat.TooManyTargets", {
           max: maxTargets,
           count: targetArr.length
         })
@@ -201,7 +201,7 @@ export class TargetingHelper {
 
         if (close) {
           if (!this.#isBlastAdjacentToToken(currentSquares, token, gridPx)) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.BlastMustBeAdjacent"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.BlastMustBeAdjacent"));
             return;
           }
         }
@@ -469,7 +469,7 @@ export class TargetingHelper {
           if (close) {
             const tokenTopLeft = canvas.grid.getTopLeftPoint(token.center);
             if (!isAdjacent(target, tokenTopLeft)) {
-              ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.PathMustStartAdjacent"));
+              ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.PathMustStartAdjacent"));
               return;
             }
           }
@@ -489,7 +489,7 @@ export class TargetingHelper {
         // If adjacent, just add directly (fast path)
         if (isAdjacent(last, target)) {
           if (forms2x2(squares, target)) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.PathNo2x2"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.PathNo2x2"));
             return;
           }
           squares.push(target);
@@ -505,7 +505,7 @@ export class TargetingHelper {
         // Non-adjacent: BFS auto-fill
         const path = findPath(last, target, squares, remaining);
         if (!path) {
-          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.PathNoRoute"));
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.PathNoRoute"));
           return;
         }
 
@@ -669,7 +669,7 @@ export class TargetingHelper {
         w.system.type === "melee" || (w.system.type === "missile" && w.system.properties?.thrown)
       );
       if (!hasMelee) {
-        return { valid: false, message: game.i18n.localize("TRESPASSER.Notifications.NeedMeleeWeapon") };
+        return { valid: false, message: game.i18n.localize("TRESPASSER.Notification.Combat.NeedMeleeWeapon") };
       }
     }
     // Missile: requires missile weapon OR thrown melee weapon
@@ -678,20 +678,20 @@ export class TargetingHelper {
         w.system.type === "missile" || (w.system.type === "melee" && w.system.properties?.thrown)
       );
       if (!hasMissile) {
-        return { valid: false, message: game.i18n.localize("TRESPASSER.Notifications.NeedMissileWeapon") };
+        return { valid: false, message: game.i18n.localize("TRESPASSER.Notification.Combat.NeedMissileWeapon") };
       }
     }
     // Spell: requires spell weapon OR free hand
     else if (deedType === "spell") {
       const hasSpell = hasFreeHand || activeWeapons.some(w => w.system.type === "spell");
       if (!hasSpell) {
-        return { valid: false, message: game.i18n.localize("TRESPASSER.Notifications.NeedSpellWeapon") };
+        return { valid: false, message: game.i18n.localize("TRESPASSER.Notification.Combat.NeedSpellWeapon") };
       }
     }
     // Tool: requires free hand
     else if (deedType === "tool") {
       if (!hasFreeHand) {
-        return { valid: false, message: game.i18n.localize("TRESPASSER.Notifications.NeedFreeHand") };
+        return { valid: false, message: game.i18n.localize("TRESPASSER.Notification.Combat.NeedFreeHand") };
       }
     }
     // Versatile: does not require any weapon
@@ -770,7 +770,7 @@ export class TargetingHelper {
       if (distSq > maxRangeSq) {
         return {
           valid: false,
-          message: game.i18n.format("TRESPASSER.Notifications.TargetOutOfRange", {
+          message: game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
             name: t.name,
             range: maxRangeSq,
             distance: Math.round(distSq)

@@ -63,7 +63,8 @@
         "DropRoomsOnly": "Apenas itens de Sala podem ser soltos aqui.",
         "RoomAdded": "Sala {name} adicionada às conexões.",
         "AlreadyConnected": "A sala {name} já está conectada.",
-        "ConnectionCreated": "Conexão com {name} criada."
+        "ConnectionCreated": "Conexão com {name} criada.",
+        "NoActionsRemaining": "Você não tem mais ações restantes neste round."
       },
       "Rest": {
         "SpendRDLimited": "Você tentou gastar {spent} DR mas possui apenas {current}. Gastando {current} em vez disso.",
@@ -88,7 +89,8 @@
         "PastLife": "Vida Passada '{name}' aplicada a {actor}."
       },
       "Save": {
-        "Config": "Configuração do sistema salva com sucesso."
+        "Config": "Configuração do sistema salva com sucesso.",
+        "OilApplied": "{oil} aplicado a {weapon}."
       },
       "Reset": {
         "Config": "Configuração do sistema restaurada para os padrões."

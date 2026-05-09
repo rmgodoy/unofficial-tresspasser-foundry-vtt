@@ -56,6 +56,8 @@
         "WD": "DA",
         "Equip": "Equipar",
         "Unequip": "Desequipar",
+        "Light": "Acender",
+        "Unlight": "Apagar",
         "Quantity": "Quantidade",
         "Range": "Alcance",
         "Price": "Preço",
@@ -208,7 +210,6 @@
         "Details": {
           "ItemType": "Tipo de Item",
           "ResourceType": "Tipo de Recurso",
-          "Tiers": "Graus",
           "Slot": "Espaço",
           "RollExpression": "Expressão de Rolagem",
           "FocusCost": "Custo de Foco",
@@ -238,17 +239,10 @@
           "TwoHanded": "Duas Mãos",
           "Thrown": "Arremesso",
           "Fragile": "Frágil",
-          "EnduranceCost": "Custo de Tolerância",
           "TargetAttribute": "Atributo Alvo",
           "IntensityNote": "Você pode usar @intensity em sua expressão de modificador.",
-          "DeedType": "Tipo de Habilidade",
-          "TargetCount": "Contagem de Alvos",
-          "TargetSize": "Tamanho do Alvo",
           "TargetLabel": "Rótulo do Alvo",
           "AccuracyVs": "Precisão vs.",
-          "FocusCost": "Custo de Foco",
-          "FocusIncrease": "Aumento de Foco",
-          "BonusCost": "Custo de Bônus",
           "Tiers": {
             "Light": "Leve",
             "Heavy": "Pesada",
@@ -468,10 +462,6 @@
         "Strongholds": "Fortalezas",
         "CompletedStrongholds": "Fortalezas Concluídas",
         "StrongholdOwner": "Dono da Fortaleza",
-        "AttributeBonuses": "Bônus de Atributo",
-        "AddBonus": "Adicionar Bônus",
-        "HavenActions": "Ações do Abrigo",
-        "AddAction": "Adicionar Ação",
         "Stagnant": "ESTAGNADO",
         "StagnationDesc": "O Abrigo atingiu o rank de população necessário para o próximo nível. O crescimento do rank está parado até que o Abrigo suba de nível, mas as Fagulhas ainda ativam Chegadas.",
         "Warning": {
@@ -510,7 +500,25 @@
           "Light": "Fontes de Luz"
         }
       },
-      "CallingGrantDescription": "Items concedidos por esta Vocação:"
+      "CallingGrantDescription": "Itens concedidos por esta Vocação:",
+      "Creatures": {
+        "Roles": {
+          "Archer": "Arqueiro",
+          "Enchanter": "Encantador",
+          "Enforcer": "Carrasco",
+          "Guardian": "Guardião",
+          "Harrier": "Assediador",
+          "Hellion": "Turbulento",
+          "Stalker": "Espreitador",
+          "Sorcerer": "Feiticeiro"
+        },
+        "Templates": {
+          "Underling": "Subalterno",
+          "Normal": "Normal",
+          "Paragon": "Paragão",
+          "Tyrant": "Tirano"
+        }
+      }
     }
   }
 }

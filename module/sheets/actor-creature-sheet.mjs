@@ -157,7 +157,7 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
     const header = event.currentTarget;
     const type = header.dataset.type;
     const itemData = {
-      name: game.i18n.format("TRESPASSER.Chat.Action.ResultVs", { total: "New", target: type.capitalize(), status: "" }).split(" — ")[0].trim(),
+      name: game.i18n.format("TRESPASSER.Chat.Check.ResultVs", { total: "New", target: type.capitalize(), status: "" }).split(" — ")[0].trim(),
       type: type
     };
     return await foundry.documents.BaseItem.create(itemData, {parent: this.actor});
@@ -229,7 +229,7 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
         <h3>Feature: ${item.name}</h3>
         <details>
           <summary style="cursor: pointer; color: var(--trp-gold-bright); font-family: var(--trp-font-header); font-size: var(--fs-11); margin-bottom: 5px;">
-            <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Terms.Action.ExpandDescription")}
+            <i class="fas fa-info-circle"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.DescriptionExpand")}
           </summary>
           <div class="collapsible-content" style="background: var(--trp-bg-overlay); padding: 8px; border-radius: 4px; border: 1px solid var(--trp-border); margin-bottom: 10px; font-size: var(--fs-12);">
             ${enrichedRef}
@@ -263,7 +263,7 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
       const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
       const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
       if (restrictAPF && availableAP < 1) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoAP"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
         return;
       }
 
@@ -293,10 +293,10 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
       showCD: true,
       cd: defaultCD,
       bonuses: [
-        { label: game.i18n.localize("TRESPASSER.Terms.Combat.Prevail"), value: prevailStat },
-        { label: game.i18n.localize("TRESPASSER.Chat.Action.GainedAP").replace("{amount}", 1), value: apBonus }
+        { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Prevail"), value: prevailStat },
+        { label: game.i18n.format("TRESPASSER.Chat.Trigger.APGained", { value: 1 }), value: apBonus }
       ]
-    }, { title: game.i18n.format("TRESPASSER.Chat.Action.PrevailCheck", { name: effectItem.name }) });
+    }, { title: game.i18n.format("TRESPASSER.Chat.Check.PrevailCheck", { name: effectItem.name }) });
 
     if (!result) return;
 

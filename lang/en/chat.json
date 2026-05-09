@@ -127,6 +127,29 @@
         "APLost": "Lost {value} Action Points.",
         "PhaseChanged": "Combat Phase changed to {phase}.",
         "ModifierGenerated": "Generated {value} modifier to {target}."
+      },
+      "Dungeon": {
+        "LightDepletion": "Light Depletion",
+        "DepletionPrompt": "Check depletion for active light sources.",
+        "DepletionRollHint": "Roll the depletion die for each source.",
+        "SessionStarted": "Exploration Started: {name}",
+        "SessionRound1": "Round 1 has begun.",
+        "NewRound": "New Round",
+        "RoundEnd": "End of Round {round}",
+        "Encounter": {
+          "Check": "Encounter Check",
+          "Triggered": "Encounter Triggered!",
+          "NoEncounter": "The dungeon remains quiet.",
+          "RandomDesc": "Random Encounter",
+          "Title": "Encounter Result",
+          "Label": "Encounter",
+          "Reaction": "Reaction",
+          "Surprise": "Surprise",
+          "Distance": "Distance",
+          "DistanceRollHint": "Roll 3d6 × 2 for distance (in squares).",
+          "Approach": "Approach",
+          "AlarmReset": "The dungeon alarm has reset to 0."
+        }
       }
     }
   }

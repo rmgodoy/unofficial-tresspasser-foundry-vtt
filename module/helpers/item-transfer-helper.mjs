@@ -48,7 +48,7 @@ export async function addItemToActor(actor, itemData, quantity) {
       const currentItemsCount = actor.items.filter(i => inventoryTypes.includes(i.type) && !i.system.equipped).length;
       
       if (currentItemsCount + qty > maxSlots) {
-        ui.notifications.error(game.i18n.localize("TRESPASSER.Notifications.InventoryCapReached"));
+        ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Inventory.InventoryCapReached"));
         return false;
       }
       

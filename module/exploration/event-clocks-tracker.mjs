@@ -13,7 +13,7 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
     classes: ["trespasser", "event-clocks-tracker"],
     position: { width: 350, height: 400, top: 120, left: 150 },
     window: {
-      title: "EventClocks.TrackerTitle",
+      title: "TRESPASSER.App.EventClocks.Title",
       resizable: true,
       minimizable: true
     },
@@ -142,7 +142,7 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
     
     const newClock = {
         id: foundry.utils.randomID(),
-        name: game.i18n.localize("EventClocks.Name"),
+        name: game.i18n.localize("TRESPASSER.App.EventClocks.Name"),
         playerName: "",
         description: "",
         target: 4,
@@ -167,8 +167,8 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
     const clockId = target.dataset.clockId;
     
     const confirm = await foundry.applications.api.DialogV2.confirm({
-        window: { title: game.i18n.localize("EventClocks.DeleteConfirmTitle") },
-        content: `<p>${game.i18n.localize("EventClocks.DeleteConfirmContent")}</p>`,
+        window: { title: game.i18n.localize("TRESPASSER.App.EventClocks.DeleteConfirmTitle") },
+        content: `<p>${game.i18n.localize("TRESPASSER.App.EventClocks.DeleteConfirmContent")}</p>`,
         rejectClose: false
     });
 
@@ -252,8 +252,8 @@ export function registerEventClocksHooks() {
     li.innerHTML = `
       <button type="button" class="control ui-control tool icon button fas fa-clock" 
         data-action="tool" data-tool="eventClocks" 
-        aria-label="${game.i18n.localize("EventClocks.Button")}" 
-        aria-pressed="false" data-tooltip="${game.i18n.localize("EventClocks.Button")}">
+        aria-label="${game.i18n.localize("TRESPASSER.App.EventClocks.ButtonLabel")}" 
+        aria-pressed="false" data-tooltip="${game.i18n.localize("TRESPASSER.App.EventClocks.ButtonLabel")}">
       </button>
     `;
 

@@ -56,6 +56,8 @@
         "WD": "WD",
         "Equip": "Equip",
         "Unequip": "Unequip",
+        "Light": "Light",
+        "Unlight": "Unlight",
         "Quantity": "Quantity",
         "Range": "Range",
         "Price": "Price",
@@ -208,7 +210,6 @@
         "Details": {
           "ItemType": "Item Type",
           "ResourceType": "Resource Type",
-          "Tiers": "Tiers",
           "Slot": "Slot",
           "RollExpression": "Roll Expression",
           "FocusCost": "Focus Cost",
@@ -238,17 +239,10 @@
           "TwoHanded": "Two Handed",
           "Thrown": "Thrown",
           "Fragile": "Fragile",
-          "EnduranceCost": "Endurance Cost",
           "TargetAttribute": "Target Attribute",
           "IntensityNote": "You can use @intensity in your modifier expression.",
-          "DeedType": "Deed Type",
-          "TargetCount": "Target Count",
-          "TargetSize": "Target Size",
           "TargetLabel": "Target Label",
           "AccuracyVs": "Accuracy vs.",
-          "FocusCost": "Focus Cost",
-          "FocusIncrease": "Focus Increase",
-          "BonusCost": "Bonus Cost",
           "Tiers": {
             "Light": "Light",
             "Heavy": "Heavy",
@@ -468,10 +462,6 @@
         "Strongholds": "Strongholds",
         "CompletedStrongholds": "Completed Strongholds",
         "StrongholdOwner": "Stronghold Owner",
-        "AttributeBonuses": "Attribute Bonuses",
-        "AddBonus": "Add Bonus",
-        "HavenActions": "Haven Actions",
-        "AddAction": "Add Action",
         "Stagnant": "STAGNANT",
         "StagnationDesc": "The Haven has reached the population rank required for the next level. Rank growth is stopped until the Haven levels up, but Sparks still trigger Arrivals.",
         "Warning": {
@@ -510,7 +500,25 @@
           "Light": "Light Sources"
         }
       },
-      "CallingGrantDescription": "Items granted by this Calling:"
+      "CallingGrantDescription": "Items granted by this Calling:",
+      "Creatures": {
+        "Roles": {
+          "Archer": "Archer",
+          "Enchanter": "Enchanter",
+          "Enforcer": "Enforcer",
+          "Guardian": "Guardian",
+          "Harrier": "Harrier",
+          "Hellion": "Hellion",
+          "Stalker": "Stalker",
+          "Sorcerer": "Sorcerer"
+        },
+        "Templates": {
+          "Underling": "Underling",
+          "Normal": "Normal",
+          "Paragon": "Paragon",
+          "Tyrant": "Tyrant"
+        }
+      }
     }
   }
 }

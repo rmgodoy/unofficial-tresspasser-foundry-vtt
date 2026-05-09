@@ -1,65 +1,68 @@
 {
-  "HUD": {
-    "Title": "Token Actions",
-    "Combat": {
-      "ToggleVis": "Toggle Visibility",
-      "ToggleDead": "Toggle Defeated",
-      "ToggleTarget": "Toggle Target"
-    },
-    "Action": {
-      "Defend": "Defend",
-      "Help": "Help",
-      "Move": "Move",
-      "Interact": "Interact",
-      "Maneuver": "Maneuver",
-      "Smash": "Smash",
-      "Rummage": "Rummage",
-      "Throw": "Throw",
-      "Vault": "Vault",
-      "Wait": "Wait",
-      "AttemptDeed": "Attempt Deed",
-      "UseConcoction": "Use Concoction",
-      "TakeAim": "Take Aim"
-    },
-    "Movement": {
-      "Used": "Movement Used",
-      "Undo": "Undo Move",
-      "Value": "{value} sq",
-      "Label": "sq"
-    },
-    "Resource": {
-      "APCost": "AP Cost",
-      "ExtraAP": "AP to spend",
-      "FocusCost": "{count} Focus",
-      "SpentFocusMsg": "and spent {count} Focus",
-      "AddAP": "Add Action Point",
-      "RemoveAP": "Remove Action Point"
-    },
-    "Option": {
-      "Deed": "{cost} AP (+{bonus} Acc)",
-      "DeedBase": "{cost} AP (Base)",
-      "TakeAim": "{cost} AP (+{bonus} sq)",
-      "Interact": "{cost} AP (+{bonus} Check)",
-      "Maneuver": "{cost} AP (+{bonus} Acc)",
-      "Smash": "{cost} AP (+{bonus} Might)",
-      "Throw": "{cost} AP ({range} sq)",
-      "VaultTip": "Jump in a straight line (orthogonal or diagonal). AP Cost: 1.",
-      "WaitTip": "Move your turn to the Late Phase, carrying over AP and Movement. Only available in Early Phase."
-    },
-    "Common": {
-      "SelectAlly": "Select Ally",
-      "Attribute": "Attribute",
-      "Confirm": "Confirm",
-      "NextCheck": "Next Check",
-      "WholeRound": "Whole Round",
-      "WithBonus": "(Bonus: +{bonus})"
-    },
-    "SmashMaterial": {
-      "PlantCeramic": "plant matter, ceramic",
-      "Wood": "wood",
-      "StoneFragile": "fragile or cracked stone",
-      "StoneSolid": "solid stone",
-      "MetalWeak": "weak metal"
+  "TRESPASSER": {
+    "HUD": {
+      "Title": "Token Actions",
+      "Combat": {
+        "ToggleVis": "Toggle Visibility",
+        "ToggleDead": "Toggle Defeated",
+        "ToggleTarget": "Toggle Target"
+      },
+      "Action": {
+        "Defend": "Defend",
+        "Help": "Help",
+        "Move": "Move",
+        "Interact": "Interact",
+        "Maneuver": "Maneuver",
+        "Smash": "Smash",
+        "Rummage": "Rummage",
+        "Throw": "Throw",
+        "Vault": "Vault",
+        "Wait": "Wait",
+        "AttemptDeed": "Attempt Deed",
+        "UseConcoction": "Use Concoction",
+        "TakeAim": "Take Aim"
+      },
+      "Movement": {
+        "Used": "Movement Used",
+        "Undo": "Undo Move",
+        "Value": "{value} sq",
+        "Label": "sq"
+      },
+      "Resource": {
+        "APCost": "AP Cost",
+        "ExtraAP": "AP to spend",
+        "FocusCost": "{count} Focus",
+        "SpentFocusMsg": "and spent {count} Focus",
+        "AddAP": "Add Action Point",
+        "RemoveAP": "Remove Action Point"
+      },
+      "Option": {
+        "Deed": "{cost} AP (+{bonus} Acc)",
+        "DeedBase": "{cost} AP (Base)",
+        "TakeAim": "{cost} AP (+{bonus} sq)",
+        "Interact": "{cost} AP (+{bonus} Check)",
+        "Maneuver": "{cost} AP (+{bonus} Acc)",
+        "Smash": "{cost} AP (+{bonus} Might)",
+        "Throw": "{cost} AP ({range} sq)",
+        "VaultTip": "Jump in a straight line (orthogonal or diagonal). AP Cost: 1.",
+        "WaitTip": "Move your turn to the Late Phase, carrying over AP and Movement. Only available in Early Phase."
+      },
+      "Common": {
+        "SelectAlly": "Select Ally",
+        "Attribute": "Attribute",
+        "Confirm": "Confirm",
+        "NextCheck": "Next Check",
+        "WholeRound": "Whole Round",
+        "WithBonus": "(Bonus: +{bonus})"
+      },
+      "SmashMaterial": {
+        "PlantCeramic": "plant matter, ceramic",
+        "Wood": "wood",
+        "StoneFragile": "fragile or cracked stone",
+        "StoneSolid": "solid stone",
+        "MetalWeak": "weak metal"
+      }
     }
   }
 }
+

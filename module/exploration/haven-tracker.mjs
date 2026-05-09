@@ -13,7 +13,7 @@ export class HavenTracker extends api.HandlebarsApplicationMixin(api.Application
     classes: ["trespasser", "haven-tracker"],
     position: { width: 300, height: "auto", top: 100 },
     window: {
-      title: "TRESPASSER.Haven.Tracker.Title",
+      title: "TRESPASSER.App.HavenTracker.Title",
       resizable: true,
       minimizable: true
     },
@@ -148,8 +148,8 @@ export function registerHavenTrackerHooks() {
     li.innerHTML = `
       <button type="button" class="control ui-control tool icon button fas fa-castle" 
         data-action="tool" data-tool="havenTracker" 
-        aria-label="${game.i18n.localize("TRESPASSER.Haven.Tracker.Button")}" 
-        aria-pressed="false" data-tooltip="${game.i18n.localize("TRESPASSER.Haven.Tracker.Button")}">
+        aria-label="${game.i18n.localize("TRESPASSER.App.HavenTracker.Button")}" 
+        aria-pressed="false" data-tooltip="${game.i18n.localize("TRESPASSER.App.HavenTracker.Button")}">
       </button>
     `;
 

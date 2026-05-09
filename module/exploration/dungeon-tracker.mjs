@@ -27,7 +27,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     classes: ["trespasser", "dungeon-tracker"],
     position: { width: 360, height: "auto", top: 80 },
     window: {
-      title: "TRESPASSER.Dungeon.Tracker.Title",
+      title: "TRESPASSER.App.DungeonTracker.Title",
       resizable: true,
       minimizable: true
     },
@@ -409,8 +409,8 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     if (activeSources.length === 0) return;
 
     let content = `<div class="trespasser-light-depletion">`;
-    content += `<h3><i class="fas fa-fire"></i> ${game.i18n.localize("TRESPASSER.Dungeon.LightDepletion")}</h3>`;
-    content += `<p>${game.i18n.localize("TRESPASSER.Dungeon.DepletionPrompt")}</p>`;
+    content += `<h3><i class="fas fa-fire"></i> ${game.i18n.localize("TRESPASSER.Chat.Dungeon.LightDepletion")}</h3>`;
+    content += `<p>${game.i18n.localize("TRESPASSER.Chat.Dungeon.DepletionPrompt")}</p>`;
     content += `<table class="light-depletion-table">`;
     content += `<tr><th>Source</th><th>Owner</th><th>Die</th><th>Qty</th></tr>`;
     for (const source of activeSources) {
@@ -422,7 +422,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
       content += `</tr>`;
     }
     content += `</table>`;
-    content += `<p><em>${game.i18n.localize("TRESPASSER.Dungeon.DepletionRollHint")}</em></p>`;
+    content += `<p><em>${game.i18n.localize("TRESPASSER.Chat.Dungeon.DepletionRollHint")}</em></p>`;
     content += `</div>`;
 
     await ChatMessage.create({
@@ -486,8 +486,8 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     // Announce in chat
     await ChatMessage.create({
       content: `<div class="trespasser-dungeon-round">
-        <strong>${game.i18n.format("TRESPASSER.Dungeon.Session.Started", { name: this.dungeon.name })}</strong>
-        <div>${game.i18n.localize("TRESPASSER.Dungeon.Session.Round1")}</div>
+        <strong>${game.i18n.format("TRESPASSER.Chat.Dungeon.SessionStarted", { name: this.dungeon.name })}</strong>
+        <div>${game.i18n.localize("TRESPASSER.Chat.Dungeon.SessionRound1")}</div>
       </div>`,
       speaker: ChatMessage.getSpeaker({ alias: this.dungeon.name })
     });
@@ -535,7 +535,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
 
     const remaining = this.dungeon.system.actionsRemaining ?? CONFIG.TRESPASSER.dungeon.actionsPerRound;
     if (remaining <= 0) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Dungeon.NoActionsRemaining"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Dungeon.NoActionsRemaining"));
       return;
     }
 
@@ -577,10 +577,10 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     const roundLog = [...(this.dungeon.system.roundLog ?? [])];
     roundLog.push({
       round: newRound,
-      action: game.i18n.localize("TRESPASSER.Dungeon.NewRound"),
+      action: game.i18n.localize("TRESPASSER.Chat.Dungeon.NewRound"),
       detail: encounterResult.encountered
-        ? "Encounter resolved. " + game.i18n.format("TRESPASSER.Dungeon.AlarmValue", { value: resultAlarm })
-        : game.i18n.format("TRESPASSER.Dungeon.AlarmValue", { value: resultAlarm })
+        ? "Encounter resolved. " + game.i18n.format("TRESPASSER.App.DungeonTracker.AlarmValue", { value: resultAlarm })
+        : game.i18n.format("TRESPASSER.App.DungeonTracker.AlarmValue", { value: resultAlarm })
     });
 
     await this.dungeon.update({
@@ -591,7 +591,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
 
     await ChatMessage.create({
       content: `<div class="trespasser-dungeon-round">
-        <strong>${game.i18n.format("TRESPASSER.Dungeon.RoundEnd", { round: newRound })}</strong>
+        <strong>${game.i18n.format("TRESPASSER.Chat.Dungeon.RoundEnd", { round: newRound })}</strong>
         <div>${game.i18n.localize("TRESPASSER.Dungeon.Alarm")}: ${resultAlarm}</div>
       </div>`,
       speaker: ChatMessage.getSpeaker({ alias: this.dungeon.name })
@@ -637,8 +637,8 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     const roundLog = [...(this.dungeon.system.roundLog ?? [])];
     roundLog.push({
       round: this.dungeon.system.currentRound ?? 0,
-      action: game.i18n.localize("TRESPASSER.Dungeon.Nudge.GMAdjust"),
-      detail: game.i18n.format("TRESPASSER.Dungeon.Nudge.AlarmLog", { value: newAlarm })
+      action: game.i18n.localize("TRESPASSER.App.DungeonTracker.Nudge.GMAdjust"),
+      detail: game.i18n.format("TRESPASSER.App.DungeonTracker.Nudge.AlarmLog", { value: newAlarm })
     });
 
     await this.dungeon.update({
@@ -661,8 +661,8 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     const roundLog = [...(this.dungeon.system.roundLog ?? [])];
     roundLog.push({
       round: this.dungeon.system.currentRound ?? 0,
-      action: game.i18n.localize("TRESPASSER.Dungeon.Nudge.GMAdjust"),
-      detail: game.i18n.format("TRESPASSER.Dungeon.Nudge.ActionsLog", { value: newActions })
+      action: game.i18n.localize("TRESPASSER.App.DungeonTracker.Nudge.GMAdjust"),
+      detail: game.i18n.format("TRESPASSER.App.DungeonTracker.Nudge.ActionsLog", { value: newActions })
     });
 
     await this.dungeon.update({
@@ -702,10 +702,10 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
 
     roundLog.push({
       round: currentRound,
-      action: game.i18n.localize("TRESPASSER.Dungeon.Nudge.GMAdjust"),
+      action: game.i18n.localize("TRESPASSER.App.DungeonTracker.Nudge.GMAdjust"),
       detail: popped
-        ? game.i18n.format("TRESPASSER.Dungeon.Nudge.ActionRefunded", { action: popped.action })
-        : game.i18n.localize("TRESPASSER.Dungeon.Nudge.ActionRefundedNone")
+        ? game.i18n.format("TRESPASSER.App.DungeonTracker.Nudge.ActionRefunded", { action: popped.action })
+        : game.i18n.localize("TRESPASSER.App.DungeonTracker.Nudge.ActionRefundedNone")
     });
 
     await this.dungeon.update({
@@ -737,7 +737,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
 
   /** @override */
   get title() {
-    return game.i18n.localize("TRESPASSER.Dungeon.Tracker.Title");
+    return game.i18n.localize("TRESPASSER.App.DungeonTracker.Title");
   }
 
   /** @override */

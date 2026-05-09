@@ -1,65 +1,68 @@
 {
-  "HUD": {
-    "Title": "Ações de Token",
-    "Combat": {
-      "ToggleVis": "Alternar Visibilidade",
-      "ToggleDead": "Alternar Derrotado",
-      "ToggleTarget": "Alternar Alvo"
-    },
-    "Action": {
-      "Defend": "Defender",
-      "Help": "Ajudar",
-      "Move": "Mover",
-      "Interact": "Interagir",
-      "Maneuver": "Manobra",
-      "Smash": "Esmagar",
-      "Rummage": "Vasculhar",
-      "Throw": "Arremessar",
-      "Vault": "Salto",
-      "Wait": "Esperar",
-      "AttemptDeed": "Tentar Habilidade",
-      "UseConcoction": "Usar Concoção",
-      "TakeAim": "Mirar"
-    },
-    "Movement": {
-      "Used": "Movimento Usado",
-      "Undo": "Desfazer Movimento",
-      "Value": "{value} qdr",
-      "Label": "qdr"
-    },
-    "Resource": {
-      "APCost": "Custo de PA",
-      "ExtraAP": "PA para gastar",
-      "FocusCost": "{count} Foco",
-      "SpentFocusMsg": "e gastou {count} de Foco",
-      "AddAP": "Adicionar Ponto de Ação",
-      "RemoveAP": "Remover Ponto de Ação"
-    },
-    "Option": {
-      "Deed": "{cost} PA (+{bonus} Acurácia)",
-      "DeedBase": "{cost} PA (Base)",
-      "TakeAim": "{cost} PA (+{bonus} qdr)",
-      "Interact": "{cost} PA (+{bonus} Teste)",
-      "Maneuver": "{cost} PA (+{bonus} Acurácia)",
-      "Smash": "{cost} PA (+{bonus} For)",
-      "Throw": "{cost} PA ({range} qdr)",
-      "VaultTip": "Pule em uma linha reta (ortogonal ou diagonal). Custo de PA: 1.",
-      "WaitTip": "Mova seu turno para a Fase Tardia, levando AP e Movimento. Disponível apenas na Fase Inicial."
-    },
-    "Common": {
-      "SelectAlly": "Selecionar Aliado",
-      "Attribute": "Atributo",
-      "Confirm": "Confirmar",
-      "NextCheck": "Próximo Teste",
-      "WholeRound": "Rodada Inteira",
-      "WithBonus": "(Bônus: +{bonus})"
-    },
-    "SmashMaterial": {
-      "PlantCeramic": "matéria vegetal, cerâmica",
-      "Wood": "madeira",
-      "StoneFragile": "pedra frágil ou rachada",
-      "StoneSolid": "pedra sólida",
-      "MetalWeak": "metal fraco"
+  "TRESPASSER": {
+    "HUD": {
+      "Title": "Ações de Token",
+      "Combat": {
+        "ToggleVis": "Alternar Visibilidade",
+        "ToggleDead": "Alternar Derrotado",
+        "ToggleTarget": "Alternar Alvo"
+      },
+      "Action": {
+        "Defend": "Defender",
+        "Help": "Ajudar",
+        "Move": "Mover",
+        "Interact": "Interagir",
+        "Maneuver": "Manobra",
+        "Smash": "Esmagar",
+        "Rummage": "Vasculhar",
+        "Throw": "Arremessar",
+        "Vault": "Salto",
+        "Wait": "Esperar",
+        "AttemptDeed": "Tentar Habilidade",
+        "UseConcoction": "Usar Concoção",
+        "TakeAim": "Mirar"
+      },
+      "Movement": {
+        "Used": "Movimento Usado",
+        "Undo": "Desfazer Movimento",
+        "Value": "{value} qdr",
+        "Label": "qdr"
+      },
+      "Resource": {
+        "APCost": "Custo de PA",
+        "ExtraAP": "PA para gastar",
+        "FocusCost": "{count} Foco",
+        "SpentFocusMsg": "e gastou {count} de Foco",
+        "AddAP": "Adicionar Ponto de Ação",
+        "RemoveAP": "Remover Ponto de Ação"
+      },
+      "Option": {
+        "Deed": "{cost} PA (+{bonus} Acurácia)",
+        "DeedBase": "{cost} PA (Base)",
+        "TakeAim": "{cost} PA (+{bonus} qdr)",
+        "Interact": "{cost} PA (+{bonus} Teste)",
+        "Maneuver": "{cost} PA (+{bonus} Acurácia)",
+        "Smash": "{cost} PA (+{bonus} For)",
+        "Throw": "{cost} PA ({range} qdr)",
+        "VaultTip": "Pule em uma linha reta (ortogonal ou diagonal). Custo de PA: 1.",
+        "WaitTip": "Mova seu turno para a Fase Tardia, levando AP e Movimento. Disponível apenas na Fase Inicial."
+      },
+      "Common": {
+        "SelectAlly": "Selecionar Aliado",
+        "Attribute": "Atributo",
+        "Confirm": "Confirmar",
+        "NextCheck": "Próximo Teste",
+        "WholeRound": "Rodada Inteira",
+        "WithBonus": "(Bônus: +{bonus})"
+      },
+      "SmashMaterial": {
+        "PlantCeramic": "matéria vegetal, cerâmica",
+        "Wood": "madeira",
+        "StoneFragile": "pedra frágil ou rachada",
+        "StoneSolid": "pedra sólida",
+        "MetalWeak": "metal fraco"
+      }
     }
   }
 }
+

@@ -113,20 +113,43 @@
       },
       "Trigger": {
         "Evaluation": "Avaliação de Efeito",
-        "TriggeredAt": "Disparado em {label}",
+        "TriggeredAt": "Gatilho em {label}",
         "HealthRecovered": "Recuperou {value} de Vida.",
         "HealthLost": "Perdeu {value} de Vida.",
-        "HealthUnaffected": "A Vida não foi afetada.",
-        "EnduranceRecovered": "Recuperou {value} de Vigor.",
-        "EnduranceLost": "Perdeu {value} de Vigor.",
-        "EnduranceUnaffected": "O Vigor não foi afetado.",
+        "HealthUnaffected": "Vida não foi afetada.",
+        "EnduranceRecovered": "Recuperou {value} de Vigência.",
+        "EnduranceLost": "Perdeu {value} de Vigência.",
+        "EnduranceUnaffected": "Vigência não foi afetada.",
         "FocusRecovered": "Recuperou {value} de Foco.",
         "FocusLost": "Perdeu {value} de Foco.",
-        "FocusUnaffected": "O Foco não foi afetado.",
+        "FocusUnaffected": "Foco não foi afetado.",
         "APGained": "Ganhou {value} Pontos de Ação.",
         "APLost": "Perdeu {value} Pontos de Ação.",
         "PhaseChanged": "Fase de Combate alterada para {phase}.",
-        "ModifierGenerated": "Gerado modificador de {value} para {target}."
+        "ModifierGenerated": "Gerou modificador de {value} para {target}."
+      },
+      "Dungeon": {
+        "LightDepletion": "Esgotamento de Luz",
+        "DepletionPrompt": "Verifique o esgotamento das fontes de luz ativas.",
+        "DepletionRollHint": "Role o dado de esgotamento para cada fonte.",
+        "SessionStarted": "Exploração Iniciada: {name}",
+        "SessionRound1": "Round 1 começou.",
+        "NewRound": "Novo Round",
+        "RoundEnd": "Fim do Round {round}",
+        "Encounter": {
+          "Check": "Verificação de Encontro",
+          "Triggered": "Encontro Iniciado!",
+          "NoEncounter": "A masmorra permanece em silêncio.",
+          "RandomDesc": "Encontro Aleatório",
+          "Title": "Resultado do Encontro",
+          "Label": "Encontro",
+          "Reaction": "Reação",
+          "Surprise": "Surpresa",
+          "Distance": "Distância",
+          "DistanceRollHint": "Role 3d6 × 2 para a distância (em quadrados).",
+          "Approach": "Abordagem",
+          "AlarmReset": "O alarme da masmorra voltou a 0."
+        }
       }
     }
   }

@@ -235,8 +235,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         for (let i = 1; i <= max; i++) {
             const bonus = (i - 1) * 2;
             const label = i === 1 
-                ? game.i18n.format("TRESPASSER.HUD.DeedBaseOption", { cost: i })
-                : game.i18n.format("TRESPASSER.HUD.DeedOption", { cost: i, bonus });
+                ? game.i18n.format("TRESPASSER.HUD.Option.DeedBase", { cost: i })
+                : game.i18n.format("TRESPASSER.HUD.Option.Deed", { cost: i, bonus });
             options.push({ cost: i, label });
         }
         return options;
@@ -499,7 +499,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
         if (restrictAPF && currentAP < cost) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
             return;
         }
 
@@ -519,7 +519,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         }
 
         const effectData = {
-            name: `${game.i18n.localize("TRESPASSER.HUD.Defend")} (${label})`,
+            name: `${game.i18n.localize("TRESPASSER.HUD.Action.Defend")} (${label})`,
             type: "effect",
             img: "icons/magic/defensive/shield-barrier-blue.webp",
             system: {
@@ -562,7 +562,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
         if (restrictAPF && currentAP < cost) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
             return;
         }
 
@@ -580,7 +580,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             content: `
               <div class="trespasser-chat-card">
                 <h3 style="margin:0;padding-bottom:4px;border-bottom:1px solid var(--trp-gold-dim);color:var(--trp-gold-bright);">
-                  ${game.i18n.localize("TRESPASSER.HUD.Help")}
+                  ${game.i18n.localize("TRESPASSER.HUD.Action.Help")}
                 </h3>
                 <p><strong>${this._token.name}</strong> gives <strong>Help</strong> to <strong>${targetToken.name}</strong>.</p>
                 
@@ -589,7 +589,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                    data-target-attribute="${attr}"
                    data-modifier="+${bonus}"
                    data-source-name="${this._token.name}"
-                   title="${game.i18n.localize("TRESPASSER.Chat.Apply")}">
+                   title="${game.i18n.localize("TRESPASSER.Chat.Common.Apply")}">
                   <img src="systems/trespasser/assets/icons/effect.webp" style="width:32px;height:32px;border:none;margin-right:12px;" />
                   <div style="flex:1;">
                     <div style="color:var(--trp-gold-light);font-weight:bold;font-size:var(--fs-16);">+${bonus} ${attrLabel}</div>
@@ -621,7 +621,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
         if (restrictAPF && currentAP < cost) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
             return;
         }
 
@@ -699,7 +699,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
         if (restrictAPF && currentAP < totalCost) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
             return;
         }
 
@@ -720,9 +720,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             cd: defaultCD,
             bonuses: [
                 { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Prevail"), value: prevailStat },
-                { label: game.i18n.localize("TRESPASSER.HUD.ExtraAP"), value: apBonus }
+                { label: game.i18n.localize("TRESPASSER.HUD.Resource.ExtraAP"), value: apBonus }
             ]
-        }, { title: game.i18n.format("TRESPASSER.Chat.PrevailCheck", { name: stateItem.name }) });
+        }, { title: game.i18n.format("TRESPASSER.Chat.Check.PrevailCheck", { name: stateItem.name }) });
 
         if (!result) return;
 
@@ -855,7 +855,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
         if (restrictAPF && currentAP < cost) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
             return;
         }
 
@@ -866,9 +866,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
-            content: game.i18n.format("TRESPASSER.Chat.TakeAimMessage", {
+            content: game.i18n.format("TRESPASSER.Chat.Action.TakeAimMessage", {
                 name: this._token.name,
-                action: game.i18n.localize("TRESPASSER.HUD.TakeAim"),
+                action: game.i18n.localize("TRESPASSER.HUD.Action.TakeAim"),
                 cost: cost,
                 bonus: rangeBonus
             })
@@ -889,21 +889,21 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
         if (restrictAPF && currentAP < cost) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
             return;
         }
 
         const bonus = (cost - 1) * 2;
-        const bonusText = bonus > 0 ? game.i18n.format("TRESPASSER.HUD.WithBonus", { bonus }) : "";
+        const bonusText = bonus > 0 ? game.i18n.format("TRESPASSER.HUD.Common.WithBonus", { bonus }) : "";
 
         await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
         await TrespasserCombat.recordHUDAction(this._token.actor, "interact");
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
-            content: game.i18n.format("TRESPASSER.Chat.InteractMessage", {
+            content: game.i18n.format("TRESPASSER.Chat.Action.InteractMessage", {
                 name: this._token.name,
-                action: game.i18n.localize("TRESPASSER.HUD.Interact"),
+                action: game.i18n.localize("TRESPASSER.HUD.Action.Interact"),
                 cost: cost,
                 bonusText: bonusText
             })
@@ -924,7 +924,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
         if (restrictAPF && currentAP < cost) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
             return;
         }
 
@@ -938,8 +938,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const currentFocus = actor.system.combat?.focus ?? 0;
 
         if (restrictAPF && focusCost > 0 && currentFocus < focusCost) {
-            ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.NotEnoughFocus", {
-                name: game.i18n.localize("TRESPASSER.HUD.Maneuver"),
+            ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.NotEnoughFocus", {
+                name: game.i18n.localize("TRESPASSER.HUD.Action.Maneuver"),
                 cost: focusCost,
                 current: currentFocus
             }));
@@ -947,7 +947,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         }
 
         const bonus = (cost - 1) * 2;
-        const focusText = focusCost > 0 ? game.i18n.format("TRESPASSER.HUD.SpentFocusMsg", { count: focusCost }) : "";
+        const focusText = focusCost > 0 ? game.i18n.format("TRESPASSER.HUD.Resource.SpentFocusMsg", { count: focusCost }) : "";
 
         await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
         if (focusCost > 0) {
@@ -957,9 +957,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
-            content: game.i18n.format("TRESPASSER.Chat.ManeuverMessage", {
+            content: game.i18n.format("TRESPASSER.Chat.Action.ManeuverMessage", {
                 name: this._token.name,
-                action: game.i18n.localize("TRESPASSER.HUD.Maneuver"),
+                action: game.i18n.localize("TRESPASSER.HUD.Action.Maneuver"),
                 cost: cost,
                 focusText: focusText,
                 bonus: bonus
@@ -981,7 +981,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
         if (restrictAPF && currentAP < cost) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
             return;
         }
 
@@ -1003,9 +1003,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
-            content: game.i18n.format("TRESPASSER.Chat.SmashMessage", {
+            content: game.i18n.format("TRESPASSER.Chat.Action.SmashMessage", {
                 name: this._token.name,
-                action: game.i18n.localize("TRESPASSER.HUD.Smash"),
+                action: game.i18n.localize("TRESPASSER.HUD.Action.Smash"),
                 cost: cost,
                 material: materialStr
             })
@@ -1023,7 +1023,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
         if (restrictAPF && currentAP < 1) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
             return;
         }
 
@@ -1032,9 +1032,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
-            content: game.i18n.format("TRESPASSER.Chat.RummageMessage", {
+            content: game.i18n.format("TRESPASSER.Chat.Action.RummageMessage", {
                 name: this._token.name,
-                action: game.i18n.localize("TRESPASSER.HUD.Rummage"),
+                action: game.i18n.localize("TRESPASSER.HUD.Action.Rummage"),
                 cost: 1
             })
         });
@@ -1054,7 +1054,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
         if (restrictAPF && currentAP < cost) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
             return;
         }
 
@@ -1069,9 +1069,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
-            content: game.i18n.format("TRESPASSER.Chat.ThrowMessage", {
+            content: game.i18n.format("TRESPASSER.Chat.Action.ThrowMessage", {
                 name: this._token.name,
-                action: game.i18n.localize("TRESPASSER.HUD.Throw"),
+                action: game.i18n.localize("TRESPASSER.HUD.Action.Throw"),
                 cost: cost,
                 range: range
             })
@@ -1089,7 +1089,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
         if (restrictAPF && currentAP < 1) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
             return;
         }
 
@@ -1106,9 +1106,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
-            content: game.i18n.format("TRESPASSER.Chat.VaultMessage", {
+            content: game.i18n.format("TRESPASSER.Chat.Action.VaultMessage", {
                 name: this._token.name,
-                action: game.i18n.localize("TRESPASSER.HUD.Vault"),
+                action: game.i18n.localize("TRESPASSER.HUD.Action.Vault"),
                 range: range
             })
         });
@@ -1146,7 +1146,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         // Send message
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
-            content: game.i18n.format("TRESPASSER.Chat.WaitMessage", {
+            content: game.i18n.format("TRESPASSER.Chat.Action.WaitMessage", {
                 name: this._token.name,
                 ap: currentAP,
                 move: movementAllowed - movementUsed
@@ -1167,7 +1167,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const newAP = Math.max(0, currentAP + delta);
         await combatant.setFlag("trespasser", "actionPoints", newAP);
         
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.APModified", { 
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.APModified", { 
             name: this._token.name, 
             ap: newAP 
         }));
