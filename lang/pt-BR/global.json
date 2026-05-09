@@ -7,7 +7,13 @@
         "ToggleVisibility": "Alternar Visibilidade",
         "ToggleDead": "Alternar Morto",
         "ToggleTarget": "Alternar Alvo",
-        "Close": "Fechar"
+        "Close": "Fechar",
+        "NewItem": "Novo(a) {type}",
+        "NewChain": "Nova Cadeia",
+        "RunCheck": "Executar Teste",
+        "Reset": "Redefinir",
+        "Accept": "Aceitar",
+        "Pass": "Passar"
       },
       "Status": {
         "None": "Nenhum"

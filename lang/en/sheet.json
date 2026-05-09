@@ -361,6 +361,10 @@
         "TraitsPlaceholder": "e.g., Flooded, Haunted, Trapped",
         "HostilityTier": "Hostility Tier",
         "Size": "Size",
+        "Exploration": {
+          "UnknownTable": "Unknown Table",
+          "Encounters": "Encounters"
+        },
         "Alarm": "Alarm",
         "AlarmValue": "Alarm Value",
         "Round": "Round",
@@ -518,6 +522,55 @@
           "Paragon": "Paragon",
           "Tyrant": "Tyrant"
         }
+      },
+      "HUD": {
+        "Title": "Battle HUD",
+        "Confirm": "Confirm",
+        "Action": {
+          "AttemptDeed": "Attempt Deed",
+          "Maneuver": "Maneuver",
+          "Defend": "Defend",
+          "Move": "Move",
+          "Help": "Help",
+          "UseConcoction": "Use Concoction",
+          "TakeAim": "Take Aim",
+          "Interact": "Interact",
+          "Smash": "Smash",
+          "Rummage": "Rummage",
+          "Throw": "Throw",
+          "Vault": "Vault",
+          "Wait": "Wait"
+        },
+        "Resource": {
+          "FocusCost": "{count} Focus",
+          "APCost": "AP Cost",
+          "AddAP": "Add AP",
+          "RemoveAP": "Remove AP"
+        },
+        "Common": {
+          "Confirm": "Confirm",
+          "NextCheck": "Next Check",
+          "WholeRound": "Whole Round",
+          "SelectAlly": "Select Ally",
+          "Attribute": "Attribute"
+        },
+        "Movement": {
+          "Undo": "Undo Move",
+          "Value": "Speed: {value}",
+          "Used": "Used",
+          "Label": "sq"
+        },
+        "Option": {
+          "Maneuver": "{cost} AP (+{bonus} Focus)",
+          "TakeAim": "{cost} AP (+{bonus} Range)",
+          "Interact": "{cost} AP (+{bonus} bonus)",
+          "Smash": "{cost} AP (Break {bonus})",
+          "Throw": "{cost} AP ({range} sq)",
+          "VaultTip": "Jump across obstacles",
+          "WaitTip": "Move to Late Phase"
+        },
+        "SpeedValue": "Speed: {value}",
+        "ExtraAP": "Extra Effort (+2 Accuracy)"
       }
     }
   }

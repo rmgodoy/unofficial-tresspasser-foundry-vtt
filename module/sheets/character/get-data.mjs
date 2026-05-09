@@ -19,7 +19,7 @@ export async function getCharacterData(sheet, options = {}) {
   const skills = context.system.skills || {};
   context.skillList = Object.entries(skills).map(([key, value]) => ({
     key,
-    label: game.i18n.localize(`TRESPASSER.Sheet.Skills.${key.charAt(0).toUpperCase() + key.slice(1)}`),
+    label: game.i18n.localize(`TRESPASSER.Terms.Skill.${key.charAt(0).toUpperCase() + key.slice(1)}`),
     value,
   }));
 

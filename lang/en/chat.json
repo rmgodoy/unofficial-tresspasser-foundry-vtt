@@ -20,6 +20,8 @@
         "PrevailFailed": "Failed to prevail against <b>{name}</b> (Roll: {roll} vs {target}) - <b>Failed</b>"
       },
       "Combat": {
+        "Defense": "Defense",
+        "AccuracyRoll": "{name} Accuracy Roll",
         "Hit": "HIT!",
         "Miss": "MISS!",
         "Sparks": "Sparks: {count}",
@@ -99,6 +101,13 @@
         "DepositedToHaven": "Deposited {item} into {haven}.",
         "TransferredToCharacter": "Transferred {item} to {character}."
       },
+      "Party": {
+        "GroupCheck": "Group Check",
+        "Succeeded": "Succeeded",
+        "AllSucceed": "All Succeed!",
+        "HalfMoreSucceed": "Success!",
+        "FewerHalfSucceed": "Failure"
+      },
       "Common": {
         "System": "System",
         "DescriptionExpand": "Description (Click to Expand)",
@@ -109,7 +118,9 @@
         "Apply": "Apply",
         "Applied": "Applied",
         "Success": "SUCCESS",
-        "Failure": "FAILURE"
+        "Failure": "FAILURE",
+        "RollTotal": "Roll Total:",
+        "Rolls": "Rolls"
       },
       "Trigger": {
         "Evaluation": "Effect Evaluation",

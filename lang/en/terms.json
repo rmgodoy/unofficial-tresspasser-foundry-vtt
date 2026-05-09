@@ -58,7 +58,11 @@
         "Craft": "Craft",
         "PastLife": "Past Life",
         "Hireling": "Hireling",
-        "Building": "Building"
+        "Building": "Building",
+        "Room": {
+          "Singular": "Room",
+          "Plural": "Rooms"
+        }
       },
       "ActorType": {
         "Character": "Character",
@@ -86,7 +90,12 @@
           "Next": "Next Phase",
           "NextPhase": "Next Phase"
         },
-        "Peril": "PERIL"
+        "Peril": "PERIL",
+        "DC": "CD",
+        "TwoHanded": "Two-Handed",
+        "MainHand": "Main Hand",
+        "OffHand": "Off-Hand",
+        "DualWield": "Dual Wield"
       },
       "Role": {
         "Archer": "Archer",
@@ -124,6 +133,15 @@
       "Party": {
         "Roll": "Party Roll",
         "GroupCheck": "Group Check"
+      },
+      "Encounters": "Encounters",
+      "HavenAttribute": {
+        "Military": "Military",
+        "Efficiency": "Efficiency",
+        "Resources": "Resources",
+        "Expertise": "Expertise",
+        "Allegiance": "Allegiance",
+        "Appeal": "Appeal"
       }
     }
   }

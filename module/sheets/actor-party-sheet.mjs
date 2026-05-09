@@ -65,17 +65,17 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
 
     // Attributes and skills for the group check dropdowns
     context.attributes = [
-      { key: "mighty", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Mighty.Singular") },
-      { key: "agility", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Agility.Singular") },
-      { key: "intellect", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Intellect.Singular") },
-      { key: "spirit", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Spirit.Singular") }
+      { key: "mighty", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Mighty") },
+      { key: "agility", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Agility") },
+      { key: "intellect", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Intellect") },
+      { key: "spirit", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Spirit") }
     ];
     context.skills = [
       "acrobatics", "alchemy", "athletics", "crafting", "folklore", "letters",
       "magic", "nature", "perception", "speech", "stealth", "tinkering"
     ].map(s => ({
       key: s,
-      label: game.i18n.localize(`TRESPASSER.Sheet.Skills.${s.charAt(0).toUpperCase() + s.slice(1)}`)
+      label: game.i18n.localize(`TRESPASSER.Terms.Skill.${s.charAt(0).toUpperCase() + s.slice(1)}`)
     }));
 
     // Default DC from active dungeon if one is running
@@ -343,14 +343,14 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
 
     // Build the check label
     const attrLabels = {
-      mighty: "TRESPASSER.Terms.Attribute.Mighty.Singular",
-      agility: "TRESPASSER.Terms.Attribute.Agility.Singular",
-      intellect: "TRESPASSER.Terms.Attribute.Intellect.Singular",
-      spirit: "TRESPASSER.Terms.Attribute.Spirit.Singular"
+      mighty: "TRESPASSER.Terms.Attribute.Mighty",
+      agility: "TRESPASSER.Terms.Attribute.Agility",
+      intellect: "TRESPASSER.Terms.Attribute.Intellect",
+      spirit: "TRESPASSER.Terms.Attribute.Spirit"
     };
     const attrLabel = game.i18n.localize(attrLabels[attribute]);
     const skillLabel = skill
-      ? game.i18n.localize(`TRESPASSER.Sheet.Skills.${skill.charAt(0).toUpperCase() + skill.slice(1)}`)
+      ? game.i18n.localize(`TRESPASSER.Terms.Skill.${skill.charAt(0).toUpperCase() + skill.slice(1)}`)
       : null;
     const checkLabel = skillLabel ? `${attrLabel} | ${skillLabel}` : attrLabel;
 

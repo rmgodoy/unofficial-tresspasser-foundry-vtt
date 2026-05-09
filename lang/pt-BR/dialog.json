@@ -15,6 +15,7 @@
         "Prompt": "Com qual atributo você gostaria de fazer o teste?",
         "BonusHint": "<em>(Bônus de perícia +{skill} será adicionado)</em>",
         "ChallengeTitle": "Teste de Desafio",
+        "ChallengeDifficulty": "Dificuldade do Desafio (CD):",
         "Difficulty": "Dificuldade"
       },
       "Roll": {
@@ -111,7 +112,16 @@
       "Item": {
         "ViewDetails": "Ver detalhes do item"
       },
-      "SkillCheckTitle": "Teste de {skill}"
+      "SkillCheckTitle": "Teste de {skill}",
+      "Party": {
+        "SelectAttribute": "Selecione um atributo para o teste de grupo.",
+        "SelectParticipants": "Selecionar Participantes",
+        "SelectParticipantsHint": "Quais membros estão participando deste teste?"
+      },
+      "Rest": {
+        "RDHowMany": "Gastar Dados de Recuperação",
+        "RDDialogNote": "Quantos Dados de Recuperação você deseja gastar?"
+      }
     }
   }
 }

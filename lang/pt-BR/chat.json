@@ -20,6 +20,8 @@
         "PrevailFailed": "Falhou em prevalecer contra <b>{name}</b> (Rolagem: {roll} vs {target}) — <b>Falha</b>"
       },
       "Combat": {
+        "Defense": "Defesa",
+        "AccuracyRoll": "Rolagem de Acurácia de {name}",
         "Hit": "ACERTO!",
         "Miss": "ERRO!",
         "Sparks": "Fagulhas: {count}",
@@ -99,6 +101,13 @@
         "DepositedToHaven": "Depositado {item} em {haven}.",
         "TransferredToCharacter": "Transferido {item} para {character}."
       },
+      "Party": {
+        "GroupCheck": "Teste de Grupo",
+        "Succeeded": "Obtiveram Sucesso",
+        "AllSucceed": "Todos Tiveram Sucesso!",
+        "HalfMoreSucceed": "Sucesso!",
+        "FewerHalfSucceed": "Falha"
+      },
       "Common": {
         "System": "Sistema",
         "DescriptionExpand": "Descrição (Clique para Expandir)",
@@ -109,7 +118,9 @@
         "Apply": "Aplicar",
         "Applied": "Aplicado",
         "Success": "SUCESSO",
-        "Failure": "FALHA"
+        "Failure": "FALHA",
+        "RollTotal": "Total da Rolagem:",
+        "Rolls": "Rolagens"
       },
       "Trigger": {
         "Evaluation": "Avaliação de Efeito",

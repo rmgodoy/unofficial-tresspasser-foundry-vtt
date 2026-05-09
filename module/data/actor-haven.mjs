@@ -270,7 +270,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     const income = this.totalWeeklyIncome;
 
     if (this.treasury + balance < 0) {
-      ui.notifications.error(game.i18n.format("TRESPASSER.Notification.HavenInsufficientFunds", { cost: expenses - income, treasury: this.treasury }));
+      ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Haven.InsufficientFunds", { cost: expenses - income, treasury: this.treasury }));
       return false;
     }
     
@@ -468,7 +468,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       
       if (newRank >= requiredRank && partyLevel >= nextLevel) {
         updates["system.level"] = nextLevel;
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.HavenLevelUp", { name: actor.name, level: nextLevel }));
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Haven.LevelUp", { name: actor.name, level: nextLevel }));
       }
     }
 
@@ -554,7 +554,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       
       if (index === -1 || newInventory[index].quantity < needed) {
         canConsume = false;
-        results.push(`<p class="failure">${game.i18n.format("TRESPASSER.Notification.HavenMissingIngredients", { name: hireling.name, item: consumeData.name })}</p>`);
+        results.push(`<p class="failure">${game.i18n.format("TRESPASSER.Notification.Haven.MissingIngredients", { name: hireling.name, item: consumeData.name })}</p>`);
         break;
       }
       itemsToConsume.push({ index, amount: needed });

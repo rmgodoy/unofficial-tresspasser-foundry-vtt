@@ -11,7 +11,8 @@
         "DropRationsOnly": "Apenas Efeitos e Estados podem ser aplicados em Rações.",
         "DropEffectsOnly": "Apenas efeitos podem ser soltos aqui.",
         "NotFound": "Item não encontrado.",
-        "NoCallingDrop": "Apenas Talentos e Características podem ser soltos em uma Vocação."
+        "NoCallingDrop": "Apenas Talentos e Características podem ser soltos em uma Vocação.",
+        "WithdrawnToActor": "Retirou {name} para {target}."
       },
       "Inventory": {
         "SlotOccupied": "O espaço {placement} já está ocupado por {name}. Desequipe-o primeiro.",
@@ -77,11 +78,21 @@
         "Complete": "Transferência de {item} para {target} concluída.",
         "Pending": "Pedido de transferência de {item} enviado para {target}."
       },
-      "HavenNoBuildSlots": "Você não tem espaços de construção disponíveis (Limite: {max}).",
-      "HavenBuildingLimitReached": "Você atingiu o limite máximo de construções (Limite: {max}).",
-      "HavenInsufficientFunds": "O Refúgio não possui fundos suficientes ({cost}) para pagar todos os contratados! Tesouraria: {treasury}.",
-      "HavenMissingIngredients": "{name} pulou a produção: Faltando {item}.",
-      "HavenLevelUp": "{name} alcançou o Nível {level}!",
+      "Party": {
+        "NoMembers": "O grupo não tem membros.",
+        "DropCharactersOnly": "Apenas atores de personagens podem ser adicionados ao grupo.",
+        "AlreadyMember": "{name} já é um membro do grupo.",
+        "MemberAdded": "{name} adicionado ao grupo."
+      },
+      "Haven": {
+        "CharactersOnly": "Apenas atores de personagens podem ser atribuídos como líderes.",
+        "NoBuildSlots": "Você não tem espaços de construção disponíveis (Limite: {max}).",
+        "BuildingLimitReached": "Você atingiu o limite máximo de construções (Limite: {max}).",
+        "TransferToCharacterOnly": "Você só pode retirar itens para atores de personagens.",
+        "InsufficientFunds": "O Abrigo não possui fundos suficientes ({cost}) para pagar todos os servos! Tesouraria: {treasury}.",
+        "MissingIngredients": "{name} pulou a produção: Faltando {item}.",
+        "LevelUp": "{name} alcançou o Nível {level}!"
+      },
       "Apply": {
         "Calling": "Vocação '{name}' aplicada a {actor}.",
         "CallingRemoved": "Vocação '{name}' e itens associados removidos de {actor}.",

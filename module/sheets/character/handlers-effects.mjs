@@ -22,7 +22,7 @@ export async function onPrevailRoll(event, sheet) {
     const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
     const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
     if (restrictAPF && availableAP < 1) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
       return;
     }
 
@@ -53,9 +53,9 @@ export async function onPrevailRoll(event, sheet) {
     cd: defaultCD,
     bonuses: [
       { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Prevail"), value: prevailStat },
-      { label: game.i18n.localize("TRESPASSER.HUD.ExtraAP"), value: apBonus }
+      { label: game.i18n.localize("TRESPASSER.Sheet.HUD.ExtraAP"), value: apBonus }
     ]
-  }, { title: game.i18n.format("TRESPASSER.Chat.PrevailCheck", { name: effectItem.name }) });
+  }, { title: game.i18n.format("TRESPASSER.Chat.Check.PrevailCheck", { name: effectItem.name }) });
 
   if (!result) return;
 

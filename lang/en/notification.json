@@ -11,7 +11,8 @@
         "DropRationsOnly": "Only Effects and States can be applied to Rations.",
         "DropEffectsOnly": "Only effects can be dropped here.",
         "NotFound": "Item not found.",
-        "NoCallingDrop": "Only Talents and Features can be dropped on a Calling."
+        "NoCallingDrop": "Only Talents and Features can be dropped on a Calling.",
+        "WithdrawnToActor": "Withdrew {name} to {target}."
       },
       "Inventory": {
         "SlotOccupied": "Slot {placement} is already occupied by {name}. Unequip it first.",
@@ -77,11 +78,21 @@
         "Complete": "Transfer of {item} to {target} completed.",
         "Pending": "Transfer request for {item} sent to {target}."
       },
-      "HavenNoBuildSlots": "You have no build slots available (Limit: {max}).",
-      "HavenBuildingLimitReached": "You have reached the maximum building limit (Limit: {max}).",
-      "HavenInsufficientFunds": "The Haven does not have enough funds ({cost}) to pay all hirelings! Treasury: {treasury}.",
-      "HavenMissingIngredients": "{name} skipped production: Missing {item}.",
-      "HavenLevelUp": "{name} reached Level {level}!",
+      "Party": {
+        "NoMembers": "The party has no members.",
+        "DropCharactersOnly": "Only character actors can be added to the party.",
+        "AlreadyMember": "{name} is already a member of the party.",
+        "MemberAdded": "{name} added to the party."
+      },
+      "Haven": {
+        "CharactersOnly": "Only character actors can be assigned as leader.",
+        "NoBuildSlots": "You have no build slots available (Limit: {max}).",
+        "BuildingLimitReached": "You have reached the maximum building limit (Limit: {max}).",
+        "TransferToCharacterOnly": "You can only withdraw items to character actors.",
+        "InsufficientFunds": "The Haven does not have enough funds ({cost}) to pay all hirelings! Treasury: {treasury}.",
+        "MissingIngredients": "{name} skipped production: Missing {item}.",
+        "LevelUp": "{name} reached Level {level}!"
+      },
       "Apply": {
         "Calling": "Calling '{name}' applied to {actor}.",
         "CallingRemoved": "Calling '{name}' and associated items removed from {actor}.",

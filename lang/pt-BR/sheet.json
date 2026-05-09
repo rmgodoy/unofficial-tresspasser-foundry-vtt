@@ -361,6 +361,10 @@
         "TraitsPlaceholder": "ex: Inundada, Assombrada, Com Armadilhas",
         "HostilityTier": "Grau de Hostilidade",
         "Size": "Tamanho",
+        "Exploration": {
+          "UnknownTable": "Tabela Desconhecida",
+          "Encounters": "Encontros"
+        },
         "Alarm": "Alarme",
         "AlarmValue": "Valor do Alarme",
         "Round": "Rodada",
@@ -518,6 +522,55 @@
           "Paragon": "Paragão",
           "Tyrant": "Tirano"
         }
+      },
+      "HUD": {
+        "Title": "HUD de Batalha",
+        "Confirm": "Confirmar",
+        "Action": {
+          "AttemptDeed": "Usar Habilidade",
+          "Maneuver": "Manobra",
+          "Defend": "Defender",
+          "Move": "Mover",
+          "Help": "Ajudar",
+          "UseConcoction": "Usar Preparo",
+          "TakeAim": "Mirar",
+          "Interact": "Interagir",
+          "Smash": "Quebrar",
+          "Rummage": "Organizar",
+          "Throw": "Arremessar",
+          "Vault": "Saltar",
+          "Wait": "Esperar"
+        },
+        "Resource": {
+          "FocusCost": "{count} Foco",
+          "APCost": "Custo de PA",
+          "AddAP": "Adicionar PA",
+          "RemoveAP": "Remover PA"
+        },
+        "Common": {
+          "Confirm": "Confirmar",
+          "NextCheck": "Próximo Teste",
+          "WholeRound": "Rodada Inteira",
+          "SelectAlly": "Selecionar Aliado",
+          "Attribute": "Atributo"
+        },
+        "Movement": {
+          "Undo": "Desfazer Movimento",
+          "Value": "Velocidade: {value}",
+          "Used": "Usado",
+          "Label": "qdr"
+        },
+        "Option": {
+          "Maneuver": "{cost} PA (+{bonus} Foco)",
+          "TakeAim": "{cost} PA (+{bonus} Alcance)",
+          "Interact": "{cost} PA (+{bonus} bônus)",
+          "Smash": "{cost} PA (Quebra {bonus})",
+          "Throw": "{cost} PA ({range} qdr)",
+          "VaultTip": "Saltar sobre obstáculos",
+          "WaitTip": "Mover para a Fase Tardia"
+        },
+        "SpeedValue": "Velocidade: {value}",
+        "ExtraAP": "Esforço Extra (+2 Acurácia)"
       }
     }
   }

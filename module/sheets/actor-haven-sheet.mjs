@@ -549,7 +549,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     
     foundry.applications.api.DialogV2.confirm({
       window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.ItemTitle", { name: building.name }) },
-      content: `<p>${game.i18n.localize("TRESPASSER.Dialog.Delete.ItemConfirm")}</p>`,
+      content: `<p>${game.i18n.localize("TRESPASSER.Dialog.Delete.ItemContent")}</p>`,
       yes: {
         callback: async () => {
           inventory.splice(index, 1);
@@ -622,7 +622,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     
     foundry.applications.api.DialogV2.confirm({
       window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.ItemTitle", { name: item.name }) },
-      content: `<p>${game.i18n.format("TRESPASSER.Dialog.Delete.ItemConfirm", { name: item.name })}</p>`,
+      content: `<p>${game.i18n.format("TRESPASSER.Dialog.Delete.ItemContent", { name: item.name })}</p>`,
       yes: { callback: () => item.delete() }
     });
   }
@@ -659,11 +659,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       <div class="target-result" style="border-top:1px solid var(--trp-border-light);padding-top:5px;margin-top:5px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <strong>VS CD ${dc}</strong>
-          <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}</span>
+          <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Common.Success") : game.i18n.localize("TRESPASSER.Chat.Common.Failure")}</span>
         </div>
         <div style="display:flex;gap:10px;font-size:var(--fs-11);">
-          <span style="color:var(--trp-cyan);">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
-          <span style="color:var(--trp-purple);">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+          <span style="color:var(--trp-cyan);">${game.i18n.format("TRESPASSER.Chat.Combat.Sparks",  { count: sparks  })}</span>
+          <span style="color:var(--trp-purple);">${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: shadows })}</span>
         </div>
       </div>
     `;
@@ -671,7 +671,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const flavor = `
       <div class="trespasser-chat-card">
         <h3>${this.document.name}: ${label}</h3>
-        <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${roll.total} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
+        <p><strong>${game.i18n.localize("TRESPASSER.Chat.Common.RollTotal")}</strong> ${roll.total} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
         ${resultsHtml}
       </div>
     `;
@@ -703,14 +703,14 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const chosenAttr = await new Promise(resolve => {
       const dialog = new foundry.applications.api.DialogV2({
         window: { 
-          title: game.i18n.format("TRESPASSER.Sheet.Dialog.SkillCheckTitle", { skill: skillLabel }),
+          title: game.i18n.format("TRESPASSER.Dialog.SkillCheck.Title", { skill: skillLabel }),
           classes: ["trespasser", "dialog", "haven-attr-picker"] 
         },
         content: `
           <div class="dialog-content">
             <p style="margin-bottom:12px;">
-              ${game.i18n.localize("TRESPASSER.Dialog.Roll.SkillCheckQuestion")}
-              ${trained ? `<em>${game.i18n.format("TRESPASSER.Dialog.Roll.SkillCheckBonus", { skill: system.skillBonus })}</em>` : ""}
+              ${game.i18n.localize("TRESPASSER.Dialog.SkillCheck.Prompt")}
+              ${trained ? `<em>${game.i18n.format("TRESPASSER.Dialog.SkillCheck.BonusHint", { skill: system.skillBonus })}</em>` : ""}
             </p>
             <div class="trp-attr-pick">
               ${attributes.map(attr => `
@@ -767,11 +767,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       <div class="target-result" style="border-top:1px solid var(--trp-border-light);padding-top:5px;margin-top:5px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <strong>VS CD ${dc}</strong>
-          <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}</span>
+          <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Common.Success") : game.i18n.localize("TRESPASSER.Chat.Common.Failure")}</span>
         </div>
         <div style="display:flex;gap:10px;font-size:var(--fs-11);">
-          <span style="color:var(--trp-cyan);">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
-          <span style="color:var(--trp-purple);">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+          <span style="color:var(--trp-cyan);">${game.i18n.format("TRESPASSER.Chat.Combat.Sparks",  { count: sparks  })}</span>
+          <span style="color:var(--trp-purple);">${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: shadows })}</span>
         </div>
       </div>
     `;
@@ -779,7 +779,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const flavor = `
       <div class="trespasser-chat-card">
         <h3>${actor.name}: ${skillLabel} (${label})</h3>
-        <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${roll.total} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
+        <p><strong>${game.i18n.localize("TRESPASSER.Chat.Common.RollTotal")}</strong> ${roll.total} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
         ${resultsHtml}
       </div>
     `;
@@ -833,7 +833,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       const construction = this.document.items.filter(i => i.type === "build" && i.system.progress < i.system.buildClock);
       
       if (construction.length >= system.maxBuildSlots) {
-        ui.notifications.warn(game.i18n.format("TRESPASSER.Haven.Warning.NoBuildSlots", { max: system.maxBuildSlots }));
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Haven.NoBuildSlots", { max: system.maxBuildSlots }));
         return;
       }
     }

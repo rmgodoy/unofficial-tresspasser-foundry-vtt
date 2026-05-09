@@ -15,6 +15,7 @@
         "Prompt": "Which attribute drives this check?",
         "BonusHint": "<em>(Skill bonus +{skill} will be added)</em>",
         "ChallengeTitle": "Challenge Check",
+        "ChallengeDifficulty": "Challenge Difficulty (CD):",
         "Difficulty": "Difficulty"
       },
       "Roll": {
@@ -111,7 +112,16 @@
       "Item": {
         "ViewDetails": "View item details"
       },
-      "SkillCheckTitle": "{skill} Check"
+      "SkillCheckTitle": "{skill} Check",
+      "Party": {
+        "SelectAttribute": "Select an attribute for the group check.",
+        "SelectParticipants": "Select Participants",
+        "SelectParticipantsHint": "Which members are participating in this check?"
+      },
+      "Rest": {
+        "RDHowMany": "Spend Recovery Dice",
+        "RDDialogNote": "How many Recovery Dice do you want to spend?"
+      }
     }
   }
 }

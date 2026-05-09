@@ -58,7 +58,11 @@
         "Craft": "Ofício",
         "PastLife": "Vida Passada",
         "Hireling": "Servo",
-        "Building": "Construção"
+        "Building": "Construção",
+        "Room": {
+          "Singular": "Sala",
+          "Plural": "Salas"
+        }
       },
       "ActorType": {
         "Character": "Personagem",
@@ -86,7 +90,12 @@
           "Next": "Próxima Fase",
           "NextPhase": "Próxima Fase"
         },
-        "Peril": "PERIGO"
+        "Peril": "PERIGO",
+        "DC": "CD",
+        "TwoHanded": "Duas Mãos",
+        "MainHand": "Mão Principal",
+        "OffHand": "Mão Secundária",
+        "DualWield": "Empunhadura Dupla"
       },
       "Role": {
         "Archer": "Arqueiro",
@@ -124,6 +133,15 @@
       "Party": {
         "Roll": "Rolagem do Grupo",
         "GroupCheck": "Teste de Grupo"
+      },
+      "Encounters": "Encontros",
+      "HavenAttribute": {
+        "Military": "Militar",
+        "Efficiency": "Eficiência",
+        "Resources": "Recursos",
+        "Expertise": "Especialização",
+        "Allegiance": "Lealdade",
+        "Appeal": "Atratividade"
       }
     }
   }
