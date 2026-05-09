@@ -76,7 +76,7 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
     
     // Validate types: Only effects can be counter states
     if (sourceItem.type !== "effect") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropEffectsOnly"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropEffectsOnly"));
       return;
     }
 
@@ -85,7 +85,7 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
     // Avoid self-reference and duplicates
     if (sourceItem.uuid === this.item.uuid) return;
     if (currentArray.some(e => e.uuid === sourceItem.uuid)) {
-       ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.AlreadyAdded", { name: sourceItem.name }));
+       ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name }));
        return;
     }
 
@@ -114,7 +114,7 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
     const uuid = el.dataset.uuid;
     const item = await fromUuid(uuid);
     if (item) item.sheet.render(true);
-    else ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.ItemNotFound"));
+    else ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.NotFound"));
   }
 
   // ---------------------------------------------------------------------------

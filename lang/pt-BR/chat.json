@@ -161,6 +161,9 @@
           "Approach": "Abordagem",
           "AlarmReset": "O alarme da masmorra voltou a 0."
         }
+      },
+      "Deed": {
+        "Empty": "Esta proeza ainda não tem efeitos ou descrição."
       }
     }
   }

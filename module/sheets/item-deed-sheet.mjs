@@ -44,9 +44,9 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
   };
 
   static TABS = {
-    card:    { id: "card",    group: "primary", label: "TRESPASSER.Item.DeedTabs.Card",    icon: "id-card" },
-    details: { id: "details", group: "primary", label: "TRESPASSER.Item.DeedTabs.Details", icon: "list" },
-    effects: { id: "effects", group: "primary", label: "TRESPASSER.Item.DeedTabs.Effects", icon: "bolt" }
+    card:    { id: "card",    group: "primary", label: "TRESPASSER.Sheet.Tabs.Card",    icon: "id-card" },
+    details: { id: "details", group: "primary", label: "TRESPASSER.Sheet.Tabs.Details", icon: "list" },
+    effects: { id: "effects", group: "primary", label: "TRESPASSER.Sheet.Tabs.Effects", icon: "bolt" }
   };
 
   tabGroups = { primary: "card" };
@@ -101,34 +101,34 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
 
     context.config = {
       tiers: {
-        light:   game.i18n.localize("TRESPASSER.Terms.Deed.Tier.Light"),
-        heavy:   game.i18n.localize("TRESPASSER.Terms.Deed.Tier.Heavy"),
-        mighty:  game.i18n.localize("TRESPASSER.Terms.Deed.Tier.Mighty"),
-        special: game.i18n.localize("TRESPASSER.Terms.Deed.Tier.Special")
+        light:   game.i18n.localize("TRESPASSER.Sheet.Item.Details.Tiers.Light"),
+        heavy:   game.i18n.localize("TRESPASSER.Sheet.Item.Details.Tiers.Heavy"),
+        mighty:  game.i18n.localize("TRESPASSER.Sheet.Item.Details.Tiers.Mighty"),
+        special: game.i18n.localize("TRESPASSER.Sheet.Item.Details.Tiers.Special")
       },
       actionTypes: {
-        attack:  game.i18n.localize("TRESPASSER.Terms.Deed.ActionType.Attack"),
-        support: game.i18n.localize("TRESPASSER.Terms.Deed.ActionType.Support")
+        attack:  game.i18n.localize("TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Attack"),
+        support: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Support")
       },
       types: {
-        innate:    game.i18n.localize("TRESPASSER.Terms.Deed.Type.Innate"),
-        melee:     game.i18n.localize("TRESPASSER.Terms.Deed.Type.Melee"),
-        missile:   game.i18n.localize("TRESPASSER.Terms.Deed.Type.Missile"),
-        spell:     game.i18n.localize("TRESPASSER.Terms.Deed.Type.Spell"),
-        tool:      game.i18n.localize("TRESPASSER.Terms.Deed.Type.Tool"),
-        unarmed:   game.i18n.localize("TRESPASSER.Terms.Deed.Type.Unarmed"),
-        versatile: game.i18n.localize("TRESPASSER.Terms.Deed.Type.Versatile")
+        innate:    game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Innate"),
+        melee:     game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Melee"),
+        missile:   game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Missile"),
+        spell:     game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Spell"),
+        tool:      game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Tool"),
+        unarmed:   game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Unarmed"),
+        versatile: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Versatile")
       },
       targetTypes: {
-        creature:    game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Creature"),
-        personal:    game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Personal"),
-        blast:       game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Blast"),
-        close_blast: game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.CloseBlast"),
-        burst:       game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Burst"),
-        melee_burst: game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.MeleeBurst"),
-        path:        game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Path"),
-        close_path:  game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.ClosePath"),
-        aura:        game.i18n.localize("TRESPASSER.Terms.Deed.TargetType.Aura")
+        creature:    game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Creature"),
+        personal:    game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Personal"),
+        blast:       game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Blast"),
+        close_blast: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.CloseBlast"),
+        burst:       game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Burst"),
+        melee_burst: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.MeleeBurst"),
+        path:        game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Path"),
+        close_path:  game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.ClosePath"),
+        aura:        game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Aura")
       }
     };
 
@@ -141,7 +141,7 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
     const phases = ["start", "before", "base", "hit", "spark", "after", "end"];
     context.phases = phases.map(key => ({
       key,
-      label: game.i18n.localize(`TRESPASSER.Item.${key.charAt(0).toUpperCase() + key.slice(1)}`),
+      label: game.i18n.localize(`TRESPASSER.Sheet.Common.${key.charAt(0).toUpperCase() + key.slice(1)}`),
       data: item.system.effects?.[key] ?? {},
       effects: (item.system.effects?.[key]?.appliedEffects ?? []).map((e, i) => ({
         ...e, index: i

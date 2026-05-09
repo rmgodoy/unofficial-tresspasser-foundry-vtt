@@ -27,7 +27,8 @@
         "EffectBonus": "Effect Bonus",
         "SkillBonus": "Skill Bonus",
         "SkillCheck": "Skill Check",
-        "AttributeCheck": "Attribute Check"
+        "AttributeCheck": "Attribute Check",
+        "ActionRoll": "Roll"
       },
       "Delete": {
         "ItemTitle": "Delete Item",
@@ -82,6 +83,7 @@
         "Title": "Effect Editor",
         "IntensityNote": "Use <Int> for dynamic intensity.",
         "ModifierPlaceholder": "+1 or 1d6 or <Int>",
+        "TargetAttr": "Target Attribute",
         "ReminderDesc": "Description (Reminder Text)"
       },
       "Fuel": {
@@ -121,6 +123,18 @@
       "Rest": {
         "RDHowMany": "Spend Recovery Dice",
         "RDDialogNote": "How many Recovery Dice do you want to spend?"
+      },
+      "EventClock": {
+        "Name": "Clock Name",
+        "GmOnly": "GM Only?",
+        "PlayerName": "Display Name (to Players)",
+        "PlayerNameHint": "Leave empty to show the real name to players.",
+        "Target": "Target Segments",
+        "Current": "Current Progress",
+        "Description": "Description",
+        "TrackerTitle": "Event Clocks",
+        "NoClocks": "No active event clocks.",
+        "AddClock": "Add Clock"
       }
     }
   }

@@ -141,13 +141,13 @@ export class TrespasserInjurySheet extends foundry.appv1.sheets.ItemSheet {
     const sourceItem = await fromUuid(dropData.uuid);
     if (!sourceItem) return;
     if (sourceItem.type !== "effect" && sourceItem.type !== "state") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropEffectsStatesOnly"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropEffectsStatesOnly"));
       return;
     }
 
     const arr = [...(this.item.system.effects || [])];
     if (arr.some(e => e.name === sourceItem.name || e.uuid === sourceItem.uuid)) {
-      ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.AlreadyAdded", { name: sourceItem.name }));
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name }));
       return;
     }
 

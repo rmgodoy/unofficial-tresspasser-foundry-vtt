@@ -34,7 +34,7 @@ export async function onTalentRoll(event, sheet) {
     if (isAction && combatant) {
       availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
       if (restrictAPF && availableAP < 1) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Character.NoAP"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
         return;
       }
     }
@@ -43,7 +43,7 @@ export async function onTalentRoll(event, sheet) {
     if (totalCost > 0) {
       currentFocus = sheet.actor.system.combat.focus || 0;
       if (currentFocus < totalCost && restrictAPF) {
-        ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Character.NotEnoughFocus", { name: item.name, count: totalCost }));
+        ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Combat.NotEnoughFocus", { name: item.name, cost: totalCost, current: currentFocus }));
         return;
       }
     }
@@ -138,7 +138,7 @@ export async function onFeatureRoll(event, sheet) {
   if (isAction && combatant) {
     const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
     if (restrictAPF && availableAP < 1) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Character.NoAP"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
       return;
     }
     await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - 1));
@@ -176,7 +176,7 @@ export async function onIncantationRoll(event, sheet) {
   const currentEndurance = sheet.actor.system.endurance || 0;
 
   if (currentEndurance < cost) {
-    ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Character.NotEnoughEndurance", { name: item.name, count: cost }));
+    ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Combat.NotEnoughEndurance", { name: item.name, cost: cost, current: currentEndurance }));
     return;
   }
 

@@ -72,7 +72,7 @@ export class TrespasserRationsSheet extends foundry.appv1.sheets.ItemSheet {
     
     // Only allow Effect or State items
     if (item.type !== "effect" && item.type !== "state") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropRationsOnly"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropRationsOnly"));
       return;
     }
 

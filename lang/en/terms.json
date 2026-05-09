@@ -20,6 +20,7 @@
         "Agility": "Agility",
         "Intellect": "Intellect",
         "Spirit": "Spirit",
+        "Singular": "Attribute",
         "Plural": "Attributes"
       },
       "Skill": {

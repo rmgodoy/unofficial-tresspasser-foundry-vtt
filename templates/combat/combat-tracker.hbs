@@ -29,8 +29,8 @@
         </div>
         {{#if (eq phase.id ../activePhase)}}
           {{#if ../isGM}}
-          <button class="next-phase-btn" data-action="nextPhase" title="{{localize "TRESPASSER.Phase.Next"}}">
-            {{localize "TRESPASSER.Phase.NextPhase"}}
+          <button class="next-phase-btn" data-action="nextPhase" title="{{localize 'TRESPASSER.Sheet.Combat.NextPhase'}}">
+            {{localize "TRESPASSER.Sheet.Combat.NextPhase"}}
           </button>
           {{/if}}
         {{/if}}
@@ -108,14 +108,14 @@
     <div class="info-row">
       <div class="left-info">
         <span class="peril-text">
-            {{localize "TRESPASSER.Peril"}}: {{combatInfo.perilTotal}} 
+            {{localize "TRESPASSER.Terms.Peril"}}: {{combatInfo.perilTotal}} 
             <span class="peril-label">({{combatInfo.perilLabel}})</span>
         </span>
         <span class="deeds-usage">{{combatInfo.heavy}}H / {{combatInfo.mighty}}M</span>
       </div>
       <div class="right-info">
-        <span class="panic-label">Panic: {{combatInfo.panicLevel}}</span>
-        <span class="init-dc-label">Init DC: {{combatInfo.enemyMaxInit}}</span>
+        <span class="panic-label">{{localize "TRESPASSER.Terms.Panic"}}: {{combatInfo.panicLevel}}</span>
+        <span class="init-dc-label">{{localize "TRESPASSER.Sheet.Combat.InitiativeDC"}}: {{combatInfo.enemyMaxInit}}</span>
       </div>
     </div>
   </footer>

@@ -5,7 +5,7 @@
     </div>
 
     <div class="bonus-details">
-        <label>{{localize "TRESPASSER.Dialog.Bonuses"}}</label>
+        <label>{{localize "TRESPASSER.Dialog.Roll.Bonuses"}}</label>
         <div class="bonuses-list">
             {{#each bonuses}}
                 <div class="bonus-row">
@@ -14,7 +14,7 @@
                 </div>
             {{else}}
                 <div class="bonus-row empty">
-                    <span class="bonus-label">{{localize "TRESPASSER.General.None"}}</span>
+                    <span class="bonus-label">{{localize "TRESPASSER.Sheet.Common.None"}}</span>
                     <span class="bonus-value">0</span>
                 </div>
             {{/each}}
@@ -23,7 +23,7 @@
 
     <div class="modifier-row">
         <div class="modifier-input">
-            <label>{{localize "TRESPASSER.Dialog.AdditionalModifier"}}</label>
+            <label>{{localize "TRESPASSER.Dialog.Roll.AdditionalModifier"}}</label>
             <div class="input-wrapper">
                  <input type="number" name="modifier" value="0" placeholder="0" autofocus onclick="this.select()" />
             </div>
@@ -31,7 +31,7 @@
 
         {{#if showCD}}
         <div class="modifier-input cd-input">
-            <label>{{localize "TRESPASSER.Dialog.Difficulty"}} (CD)</label>
+            <label>{{localize "TRESPASSER.Dialog.SkillCheck.Difficulty"}} (CD)</label>
             <div class="input-wrapper">
                  <input type="number" name="cd" value="{{cd}}" placeholder="10" onclick="this.select()" />
             </div>
@@ -41,10 +41,10 @@
 
     <footer class="dialog-footer">
         <button type="button" class="trp-btn roll" data-action="roll">
-             <i class="fas fa-dice-d20"></i> {{localize "TRESPASSER.Dialog.Roll"}}
+             <i class="fas fa-dice-d20"></i> {{localize "TRESPASSER.Dialog.Roll.ActionRoll"}}
         </button>
         <button type="button" class="trp-btn cancel" data-action="cancel">
-             <i class="fas fa-times"></i> {{localize "TRESPASSER.Dialog.Cancel"}}
+             <i class="fas fa-times"></i> {{localize "TRESPASSER.Dialog.Common.Cancel"}}
         </button>
     </footer>
 </div>

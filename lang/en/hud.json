@@ -2,6 +2,8 @@
   "TRESPASSER": {
     "HUD": {
       "Title": "Token Actions",
+      "Confirm": "Confirm",
+      "SpeedValue": "{value} sq",
       "Combat": {
         "ToggleVis": "Toggle Visibility",
         "ToggleDead": "Toggle Defeated",

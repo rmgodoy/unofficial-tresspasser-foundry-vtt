@@ -2,6 +2,8 @@
   "TRESPASSER": {
     "HUD": {
       "Title": "Ações de Token",
+      "Confirm": "Confirmar",
+      "SpeedValue": "{value} qdr",
       "Combat": {
         "ToggleVis": "Alternar Visibilidade",
         "ToggleDead": "Alternar Derrotado",

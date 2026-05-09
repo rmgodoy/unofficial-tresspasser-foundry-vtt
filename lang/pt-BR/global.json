@@ -3,6 +3,8 @@
     "Global": {
       "Action": {
         "Cancel": "Cancelar",
+        "New": "Novo(a)",
+        "Apply": "Aplicar",
         "Confirm": "Confirmar",
         "ToggleVisibility": "Alternar Visibilidade",
         "ToggleDead": "Alternar Morto",

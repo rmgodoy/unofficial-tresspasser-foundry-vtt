@@ -7,7 +7,7 @@
     </div>
     <div class="header-column details-column">
       <h1 class="item-title">
-        <input name="name" type="text" value="{{clock.name}}" placeholder="{{localize 'EventClocks.Name'}}"/>
+        <input name="name" type="text" value="{{clock.name}}" placeholder="{{localize 'TRESPASSER.Dialog.EventClock.Name'}}"/>
       </h1>
     </div>
   </header>
@@ -17,27 +17,27 @@
     <div class="attribute-fields event-clock-fields">
         <div class="field-row checkbox-item">
           <input type="checkbox" name="gmOnly" id="clock-gm-only" {{checked clock.gmOnly}} />
-          <label for="clock-gm-only">{{localize "EventClocks.GmOnly"}}</label>
+          <label for="clock-gm-only">{{localize "TRESPASSER.Dialog.EventClock.GmOnly"}}</label>
         </div>
 
         <div class="field-row">
-            <label>{{localize "EventClocks.PlayerName"}}</label>
-            <input type="text" name="playerName" value="{{clock.playerName}}" placeholder="{{localize 'EventClocks.Name'}}"/>
-            <p class="hint">{{localize "EventClocks.PlayerNameHint"}}</p>
+            <label>{{localize "TRESPASSER.Dialog.EventClock.PlayerName"}}</label>
+            <input type="text" name="playerName" value="{{clock.playerName}}" placeholder="{{localize 'TRESPASSER.Dialog.EventClock.Name'}}"/>
+            <p class="hint">{{localize "TRESPASSER.Dialog.EventClock.PlayerNameHint"}}</p>
         </div>
         
         <div class="field-row">
-          <label>{{localize "EventClocks.Target"}}</label>
+          <label>{{localize "TRESPASSER.Dialog.EventClock.Target"}}</label>
           <input type="number" name="target" value="{{clock.target}}" min="2" max="24" />
         </div>
 
         <div class="field-row">
-          <label>{{localize "EventClocks.Current"}}</label>
+          <label>{{localize "TRESPASSER.Dialog.EventClock.Current"}}</label>
           <input type="number" name="current" value="{{clock.current}}" min="0" max="{{clock.target}}" />
         </div>
 
         <div class="field-row description-column">
-          <label>{{localize "EventClocks.Description"}}</label>
+          <label>{{localize "TRESPASSER.Dialog.EventClock.Description"}}</label>
           <div class="trp-editor-container">
             <prose-mirror name="description" value="{{clock.description}}" toggled="false" compact="false">{{{descriptionHTML}}}</prose-mirror>
           </div>

@@ -161,6 +161,9 @@
           "Approach": "Approach",
           "AlarmReset": "The dungeon alarm has reset to 0."
         }
+      },
+      "Deed": {
+        "Empty": "This deed has no effects or description yet."
       }
     }
   }

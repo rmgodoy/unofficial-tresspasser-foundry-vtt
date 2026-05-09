@@ -122,8 +122,8 @@ Hooks.once("init", async () => {
 
   // Register settings
   game.settings.register("trespasser", "showInitiativeInChat", {
-    name: "TRESPASSER.Config.ShowInitiativeInChat",
-    hint: "TRESPASSER.Config.ShowInitiativeInChatHint",
+    name: "TRESPASSER.Settings.Mechanics.InitiativeChat.Name",
+    hint: "TRESPASSER.Settings.Mechanics.InitiativeChat.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -131,8 +131,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "restrictMovementAction", {
-    name: "TRESPASSER.Config.RestrictMovementAction",
-    hint: "TRESPASSER.Config.RestrictMovementActionHint",
+    name: "TRESPASSER.Settings.Mechanics.RestrictMovementAction.Name",
+    hint: "TRESPASSER.Settings.Mechanics.RestrictMovementAction.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -140,8 +140,8 @@ Hooks.once("init", async () => {
   });
   
   game.settings.register("trespasser", "enableRetreatDialog", {
-    name: "TRESPASSER.Config.EnableRetreatDialog",
-    hint: "TRESPASSER.Config.EnableRetreatDialogHint",
+    name: "TRESPASSER.Settings.Mechanics.EnableRetreatDialog.Name",
+    hint: "TRESPASSER.Settings.Mechanics.EnableRetreatDialog.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -149,8 +149,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "showPerilInChat", {
-    name: "TRESPASSER.Config.ShowPerilInChat",
-    hint: "TRESPASSER.Config.ShowPerilInChatHint",
+    name: "TRESPASSER.Settings.Mechanics.ShowPerilInChat.Name",
+    hint: "TRESPASSER.Settings.Mechanics.ShowPerilInChat.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -158,8 +158,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "autoEndCombatOnRetreat", {
-    name: "TRESPASSER.Config.AutoEndCombatOnRetreat",
-    hint: "TRESPASSER.Config.AutoEndCombatOnRetreatHint",
+    name: "TRESPASSER.Settings.Mechanics.AutoEndCombatOnRetreat.Name",
+    hint: "TRESPASSER.Settings.Mechanics.AutoEndCombatOnRetreat.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -167,8 +167,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "restrictHUDActions", {
-    name: "TRESPASSER.Config.RestrictHUDActions",
-    hint: "TRESPASSER.Config.RestrictHUDActionsHint",
+    name: "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Name",
+    hint: "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -176,8 +176,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "restrictAPFocusUsage", {
-    name: "TRESPASSER.Config.RestrictAPFocusUsage",
-    hint: "TRESPASSER.Config.RestrictAPFocusUsageHint",
+    name: "TRESPASSER.Settings.Mechanics.RestrictAPFocusUsage.Name",
+    hint: "TRESPASSER.Settings.Mechanics.RestrictAPFocusUsage.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -185,8 +185,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "groupCheckFullParty", {
-    name: "TRESPASSER.Config.GroupCheckFullParty",
-    hint: "TRESPASSER.Config.GroupCheckFullPartyHint",
+    name: "TRESPASSER.Settings.Mechanics.GroupCheckFullParty.Name",
+    hint: "TRESPASSER.Settings.Mechanics.GroupCheckFullParty.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -194,8 +194,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "restrictHavenEditToLeader", {
-    name: "TRESPASSER.Config.RestrictHavenEditToLeader",
-    hint: "TRESPASSER.Config.RestrictHavenEditToLeaderHint",
+    name: "TRESPASSER.Settings.Mechanics.RestrictHavenEditToLeader.Name",
+    hint: "TRESPASSER.Settings.Mechanics.RestrictHavenEditToLeader.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -203,8 +203,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "bypassHavenBuildingLimits", {
-    name: "TRESPASSER.Config.BypassHavenBuildingLimits",
-    hint: "TRESPASSER.Config.BypassHavenBuildingLimitsHint",
+    name: "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Name",
+    hint: "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -212,8 +212,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "disregardRangeOnAttack", {
-    name: "TRESPASSER.Config.DisregardRangeOnAttack",
-    hint: "TRESPASSER.Config.DisregardRangeOnAttackHint",
+    name: "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Name",
+    hint: "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -221,8 +221,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "confirmItemTransfer", {
-    name: "TRESPASSER.Config.ConfirmItemTransfer",
-    hint: "TRESPASSER.Config.ConfirmItemTransferHint",
+    name: "TRESPASSER.Settings.Exploration.ConfirmItemTransfer.Name",
+    hint: "TRESPASSER.Settings.Exploration.ConfirmItemTransfer.Hint",
     scope: "client",
     config: false,
     type: Boolean,
@@ -230,8 +230,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "allowOutOfTurnMovement", {
-    name: "TRESPASSER.Config.AllowOutOfTurnMovement",
-    hint: "TRESPASSER.Config.AllowOutOfTurnMovementHint",
+    name: "TRESPASSER.Settings.Mechanics.AllowOutOfTurnMovement.Name",
+    hint: "TRESPASSER.Settings.Mechanics.AllowOutOfTurnMovement.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -239,8 +239,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "playerFacingInitiative", {
-    name: "TRESPASSER.Config.PlayerFacingInitiative",
-    hint: "TRESPASSER.Config.PlayerFacingInitiativeHint",
+    name: "TRESPASSER.Settings.Mechanics.PlayerFacingInitiative.Name",
+    hint: "TRESPASSER.Settings.Mechanics.PlayerFacingInitiative.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -248,8 +248,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "clockSize", {
-    name: "TRESPASSER.Config.ClockSize",
-    hint: "TRESPASSER.Config.ClockSizeHint",
+    name: "TRESPASSER.Settings.Visuals.ClockSize.Name",
+    hint: "TRESPASSER.Settings.Visuals.ClockSize.Hint",
     scope: "client",
     config: false,
     type: Number,
@@ -257,8 +257,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "fontSizeBase", {
-    name: "TRESPASSER.Config.FontSizeBase",
-    hint: "TRESPASSER.Config.FontSizeBaseHint",
+    name: "TRESPASSER.Settings.Visuals.FontSizeBase.Name",
+    hint: "TRESPASSER.Settings.Visuals.FontSizeBase.Hint",
     scope: "client",
     config: false,
     type: Number,
@@ -301,7 +301,7 @@ Hooks.once("init", async () => {
 
   for ( const color of colorSettings ) {
     game.settings.register("trespasser", color.key, {
-      name: `TRESPASSER.Config.${color.key}`,
+      name: `TRESPASSER.Settings.Colors.${color.key}.Name`,
       scope: "client",
       config: false,
       type: String,

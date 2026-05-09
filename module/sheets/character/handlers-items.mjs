@@ -18,7 +18,7 @@ export async function onItemCreate(event, sheet) {
     const inventoryItems = sheet.actor.items.filter(i => inventoryTypes.includes(i.type) && !i.system.equipped);
     const maxSlots = sheet.actor.system.inventory_max ?? 5;
     if (inventoryItems.length >= maxSlots) {
-      ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Item.InventoryCapReached"));
+      ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Inventory.InventoryCapReached"));
       return;
     }
   }
@@ -149,7 +149,7 @@ export async function transferItem(item, targetActor) {
     if (success) {
       await sourceActor.deleteEmbeddedDocuments("Item", [item.id]);
       
-      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.TransferComplete", {
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Transfer.Complete", {
         item: item.name,
         target: targetActor.name
       }));
@@ -169,7 +169,7 @@ export async function transferItem(item, targetActor) {
     itemId: item.id
   });
 
-  ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.TransferPending", {
+  ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Transfer.Pending", {
     item: item.name,
     target: targetActor.name
   }));

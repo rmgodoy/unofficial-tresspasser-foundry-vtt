@@ -27,7 +27,8 @@
         "EffectBonus": "Bônus de Efeito",
         "SkillBonus": "Bônus de Perícia",
         "SkillCheck": "Teste de Perícia",
-        "AttributeCheck": "Teste de Atributo"
+        "AttributeCheck": "Teste de Atributo",
+        "ActionRoll": "Rolar"
       },
       "Delete": {
         "ItemTitle": "Excluir Item",
@@ -82,6 +83,7 @@
         "Title": "Editor de Efeitos",
         "IntensityNote": "Use <Int> para intensidade dinâmica.",
         "ModifierPlaceholder": "+1 ou 1d6 ou <Int>",
+        "TargetAttr": "Atributo Alvo",
         "ReminderDesc": "Descrição (Texto do Lembrete)"
       },
       "Fuel": {
@@ -121,6 +123,18 @@
       "Rest": {
         "RDHowMany": "Gastar Dados de Recuperação",
         "RDDialogNote": "Quantos Dados de Recuperação você deseja gastar?"
+      },
+      "EventClock": {
+        "Name": "Nome do Relógio",
+        "GmOnly": "Apenas Mestre?",
+        "PlayerName": "Nome Exibido (para Jogadores)",
+        "PlayerNameHint": "Deixe em branco para mostrar o nome real aos jogadores.",
+        "Target": "Segmentos Alvo",
+        "Current": "Progresso Atual",
+        "Description": "Descrição",
+        "TrackerTitle": "Relógios de Evento",
+        "NoClocks": "Nenhum relógio de evento ativo.",
+        "AddClock": "Adicionar Relógio"
       }
     }
   }

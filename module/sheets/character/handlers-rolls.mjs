@@ -94,18 +94,18 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
   };
   return new Promise((resolve) => {
     const d = new Dialog({
-      title: game.i18n.format("TRESPASSER.Dialog.Roll.SkillCheckTitle", { skill: label }),
+      title: game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", { skill: label }),
       content: `
         <div class="dialog-content">
           <p style="margin-bottom:12px;">
-            ${game.i18n.localize("TRESPASSER.Dialog.Roll.SkillCheckQuestion")}
-            ${isTrained ? `<em>${game.i18n.format("TRESPASSER.Dialog.Roll.SkillCheckBonus", { skill })}</em>` : ""}
+            ${game.i18n.localize("TRESPASSER.Dialog.SkillCheck.Prompt")}
+            ${isTrained ? game.i18n.format("TRESPASSER.Dialog.SkillCheck.BonusHint", { skill }) : ""}
           </p>
           <div class="trp-attr-pick">
-            ${formatAttrBtn("mighty",    game.i18n.localize("TRESPASSER.Terms.Attribute.Mighty.Singular"))}
-            ${formatAttrBtn("agility",   game.i18n.localize("TRESPASSER.Terms.Attribute.Agility.Singular"))}
-            ${formatAttrBtn("intellect", game.i18n.localize("TRESPASSER.Terms.Attribute.Intellect.Singular"))}
-            ${formatAttrBtn("spirit",    game.i18n.localize("TRESPASSER.Terms.Attribute.Spirit.Singular"))}
+            ${formatAttrBtn("mighty",    game.i18n.localize("TRESPASSER.Terms.Attribute.Mighty"))}
+            ${formatAttrBtn("agility",   game.i18n.localize("TRESPASSER.Terms.Attribute.Agility"))}
+            ${formatAttrBtn("intellect", game.i18n.localize("TRESPASSER.Terms.Attribute.Intellect"))}
+            ${formatAttrBtn("spirit",    game.i18n.localize("TRESPASSER.Terms.Attribute.Spirit"))}
           </div>
         </div>`,
       buttons: { cancel: { label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"), callback: () => resolve(null) } },
@@ -126,7 +126,7 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
           const rollData = {
             dice: diceFormula,
             bonuses: [
-              { label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.capitalize()}.Singular`), value: attrVal },
+              { label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.capitalize()}`), value: attrVal },
               { label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus },
               { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
             ]

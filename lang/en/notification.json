@@ -7,11 +7,13 @@
         "AlreadyAdded": "{name} has already been added.",
         "DropArmorOnly": "Only Effects and States can be applied to Armor.",
         "DropDeedsOnlyEffects": "Only Effects and States can be applied to Deeds.",
-        "DropTalentsOnly": "Only Effects and States can be applied to Talents.",
+        "DropTalentsOnly": "Only Talent items can be dropped here.",
+        "DropFeaturesOnly": "Only Feature items can be dropped here.",
         "DropRationsOnly": "Only Effects and States can be applied to Rations.",
         "DropEffectsOnly": "Only effects can be dropped here.",
         "NotFound": "Item not found.",
         "NoCallingDrop": "Only Talents and Features can be dropped on a Calling.",
+        "InvalidTypePossessions": "Only Items, Weapons, and Armor can be added to possessions.",
         "WithdrawnToActor": "Withdrew {name} to {target}."
       },
       "Inventory": {

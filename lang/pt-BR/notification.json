@@ -7,11 +7,13 @@
         "AlreadyAdded": "{name} já foi adicionado.",
         "DropArmorOnly": "Apenas Efeitos e Estados podem ser aplicados em Armaduras.",
         "DropDeedsOnlyEffects": "Apenas Efeitos e Estados podem ser aplicados em Habilidades.",
-        "DropTalentsOnly": "Apenas Efeitos e Estados podem ser aplicados em Talentos.",
+        "DropTalentsOnly": "Apenas itens de Talento podem ser soltos aqui.",
+        "DropFeaturesOnly": "Apenas itens de Característica podem ser soltos aqui.",
         "DropRationsOnly": "Apenas Efeitos e Estados podem ser aplicados em Rações.",
         "DropEffectsOnly": "Apenas efeitos podem ser soltos aqui.",
         "NotFound": "Item não encontrado.",
         "NoCallingDrop": "Apenas Talentos e Características podem ser soltos em uma Vocação.",
+        "InvalidTypePossessions": "Apenas Itens, Armas e Armaduras podem ser adicionados às posses.",
         "WithdrawnToActor": "Retirou {name} para {target}."
       },
       "Inventory": {

@@ -39,6 +39,7 @@
         "Upkeep": "Haven Upkeep",
         "Events": "Events",
         "Progression": "Progression",
+        "Effects": "Effects",
         "Card": "Card"
       },
       "Common": {
@@ -46,6 +47,7 @@
         "Delete": "Delete",
         "Edit": "Edit",
         "Info": "Info",
+        "Roll": "Roll",
         "Empty": "Empty",
         "Slot": "Slot",
         "TypesRange": "Types & Range",
@@ -89,7 +91,8 @@
         "Hit": "Hit",
         "Spark": "Spark",
         "After": "After",
-        "End": "End"
+        "End": "End",
+        "Week": "Week"
       },
       "Character": {
         "Calling": "Calling",
@@ -142,6 +145,8 @@
         "Focus": "Focus",
         "ActionPoints": "Action Points",
         "Phase": "Combat Phase",
+        "NextPhase": "Next Phase",
+        "InitiativeDC": "Initiative DC",
         "Speed": "Speed",
         "TwoHanded": "2 Handed",
         "MainHand": "Main",
@@ -270,7 +275,12 @@
             "Burst": "Burst",
             "MeleeBurst": "Melee Burst",
             "Path": "Path",
-            "ClosePath": "Close Path"
+            "ClosePath": "Close Path",
+            "Aura": "Aura"
+          },
+          "EffectTypeChoices": {
+            "Continuous": "Continuous",
+            "OnTrigger": "On Trigger"
           }
         },
         "Placeholder": {
@@ -293,7 +303,8 @@
           "DeedDescriptionSpark": "Effect on a spark...",
           "DeedDescriptionAfter": "Effect after the action...",
           "DeedDescriptionEnd": "Effect at the end of the action...",
-          "DeedDamage": "Damage formula (e.g. 1d6+@str)"
+          "DeedDamage": "Damage formula (e.g. 1d6+@str)",
+          "Modifier": "e.g. +1 Focus"
         },
         "States": {
           "ActiveLit": "Active (Lit)",
@@ -374,13 +385,58 @@
         "MapImage": "Map Image",
         "Notes": "Notes",
         "NotesPlaceholder": "GM notes about this dungeon...",
+        "SizeCategory": "Size Category",
+        "FormLabel": "Form",
         "Rooms": "Rooms",
         "AddRoom": "Add Room",
         "NoRooms": "No rooms defined yet.",
         "CurrentRoom": "Current Room",
         "RoundLog": "Round Log",
+        "RoundAbbr": "Rnd ",
         "NoLogEntries": "No activity yet.",
+        "RemoveTable": "Remove Table",
+        "CreateTable": "Create Table",
+        "RollTable": "Roll Table",
+        "Reset": {
+          "Button": "Reset Dungeon",
+          "Tip": "Reset all dungeon progress (alarm, rounds, logs, rooms)."
+        },
         "DC": "DC",
+        "ActionShort": "AP",
+        "OpenDungeonSheet": "Open Dungeon Sheet",
+        "DungeonActions": "Dungeon Actions",
+        "ConnectedRooms": "Connected Rooms",
+        "MoveHere": "Move Here",
+        "NoConnectedRooms": "No connected rooms found.",
+        "NextRound": "Next Round",
+        "LightSources": "Active Light Sources",
+        "RecentActivity": "Recent Activity",
+        "Tracker": {
+          "SelectDungeon": "Select Dungeon to Explore",
+          "NoDungeonFound": "No dungeons found in the world.",
+          "CreateDungeonHint": "Create a Dungeon actor to start exploring.",
+          "NoExplorationInProgress": "No exploration in progress.",
+          "WaitingForGM": "Waiting for GM to start exploration...",
+          "ExplorationPaused": "Exploration Paused",
+          "Title": "Dungeon Tracker"
+        },
+        "Session": {
+          "Resume": "Resume Session",
+          "BeginExploration": "Begin Exploration",
+          "BeginWipeWarn": "Warning: This will reset all current progress for this dungeon!",
+          "EndExploration": "End Session",
+          "SwitchTip": "Switch to this dungeon"
+        },
+        "Nudge": {
+          "AlarmDownTip": "Decrease Alarm",
+          "AlarmUpTip": "Increase Alarm",
+          "ActionDownTip": "Spend Action",
+          "ActionUpTip": "Refund Action",
+          "RefundTip": "Refund last action spent",
+          "Refund": "Refund",
+          "AlarmCheckTip": "Perform manual Alarm/Encounter check",
+          "AlarmCheck": "Alarm Check"
+        },
         "Room": {
           "Name": "Room Name",
           "NamePlaceholder": "The Sunken Hall",
@@ -391,14 +447,18 @@
           "AddFeature": "Add Feature",
           "Connections": "Connections",
           "Discovered": "Discovered",
+          "SortOrder": "Sort Order",
           "RoomTrap": "Room Trap",
           "RoomTrapPresent": "Trap Present",
           "RoomTrapHiddenValue": "Hidden Value (Detection DC)",
           "RoomTrapTrigger": "Trigger",
+          "RoomTrapTriggerPlaceholder": "What triggers the trap?",
           "RoomTrapEffect": "Effect",
+          "RoomTrapEffectPlaceholder": "What happens when it triggers?",
           "RoomTrapMagical": "Magical Trap",
           "RoomTrapDisarmed": "Disarmed",
           "DetailTraps": "Detail Traps",
+          "DetailTrapFeature": "Feature #",
           "AddDetailTrap": "Add Detail Trap",
           "Hazards": "Hazards",
           "Loot": "Loot",
@@ -415,10 +475,6 @@
           "AddConnection": "Add Connection",
           "NeedsDungeon": "This room must belong to a dungeon to create connections.",
           "SameDungeon": "The dropped room must belong to the same dungeon."
-        },
-        "Tracker": {
-          "Title": "Dungeon Tracker",
-          "SelectDungeon": "Select Dungeon"
         }
       },
       "Haven": {
@@ -435,6 +491,17 @@
         "CompletedBuildings": "Completed Buildings",
         "UnderConstruction": "Building Slots (Under Construction)",
         "Upkeep": "Haven Upkeep",
+        "UpkeepHeader": "Upkeep Steps",
+        "WeeksRestFlavor": "All characters in the haven benefit from a Week's Rest.",
+        "UpkeepSteps": {
+          "WeeksRest": "1. Perform Week's Rest",
+          "ResolveProduction": "2. Production & Projects",
+          "PopulationCheck": "3. Population Check",
+          "EventCheck": "4. Event Check"
+        },
+        "ResolveProductionFlavor": "Advance all active projects and production chains.",
+        "PopulationCheckFlavor": "Roll for arrivals and update population rank.",
+        "EventCheckFlavor": "Check for haven events and complications.",
         "PopulationRank": "Population Rank",
         "PopulationIncrease": "Population Increase",
         "Growth": "Growth",
@@ -445,7 +512,9 @@
         "SkillBonus": "Skill Bonus",
         "Leader": "Leader",
         "Production": "Production",
+        "ProductionChains": "Production Chains",
         "Hirelings": "Hirelings",
+        "NoHirelingsHint": "No hirelings assigned to this haven.",
         "Inventory": "Inventory",
         "Events": "Events",
         "Notes": "Notes",
@@ -482,7 +551,28 @@
         "Consume": "Consume",
         "Produce": "Produce",
         "DropConsume": "Drop items to consume here",
-        "DropProduce": "Drop items to produce here"
+        "DropProduce": "Drop items to produce here",
+        "Withdraw": "Withdraw",
+        "DropItemHint": "Drop items here to add to haven inventory",
+        "EventTitle": "Active Event",
+        "EventPlaceholder": "No active event...",
+        "NoProjectsHint": "No active projects.",
+        "StrongholdUnderConstruction": "Strongholds Under Construction",
+        "TransferItemTo": "Transfer {name} to..."
+      },
+      "Calling": {
+        "Skills": "Skills",
+        "Talents": "Talents",
+        "Features": "Features",
+        "Enhancements": "Enhancements",
+        "DropTalentsNote": "Drop talent items here to link them to this calling.",
+        "DropFeaturesNote": "Drop items here to link them to this calling.",
+        "GrantDescription": "Grant Description"
+      },
+      "Craft": {
+        "KeyAttribute": "Key Attribute",
+        "DropDeedsNote": "Drop deed items here to link them to this craft.",
+        "DropFeaturesNote": "Drop feature items here to link them to this craft."
       },
       "Party": {
         "NamePlaceholder": "The Company of the Ashen Star",
@@ -493,6 +583,8 @@
         "SelectCharacter": "- Select a character -",
         "Notes": "Notes",
         "GroupCheck": "Group Check",
+        "NoSkill": "- No Skill -",
+        "DropHint": "Drag character actors here to add them to the party.",
         "Resource": {
           "HP": "Hit Points",
           "Endurance": "Endurance",

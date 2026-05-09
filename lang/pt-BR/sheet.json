@@ -39,6 +39,7 @@
         "Upkeep": "Manutenção do Abrigo",
         "Events": "Eventos",
         "Progression": "Progressão",
+        "Effects": "Efeitos",
         "Card": "Card"
       },
       "Common": {
@@ -46,6 +47,7 @@
         "Delete": "Excluir",
         "Edit": "Editar",
         "Info": "Info",
+        "Roll": "Rolar",
         "Empty": "Vazio",
         "Slot": "Espaço",
         "TypesRange": "Tipos & Alcance",
@@ -89,7 +91,8 @@
         "Hit": "Acerto",
         "Spark": "Faísca",
         "After": "Depois",
-        "End": "Fim"
+        "End": "Fim",
+        "Week": "Semana"
       },
       "Character": {
         "Calling": "Vocação",
@@ -142,6 +145,8 @@
         "Focus": "Foco",
         "ActionPoints": "Pontos de Ação",
         "Phase": "Fase de Combate",
+        "NextPhase": "Próxima Fase",
+        "InitiativeDC": "CD de Iniciativa",
         "Speed": "Velocidade",
         "TwoHanded": "2 Mãos",
         "MainHand": "Principal",
@@ -270,7 +275,12 @@
             "Burst": "Erupção (Burst)",
             "MeleeBurst": "Erupção Mágica (Melee Burst)",
             "Path": "Caminho (Path)",
-            "ClosePath": "Caminho Próximo (Close Path)"
+            "ClosePath": "Caminho Próximo (Close Path)",
+            "Aura": "Aura"
+          },
+          "EffectTypeChoices": {
+            "Continuous": "Contínuo",
+            "OnTrigger": "Ao Ativar"
           }
         },
         "Placeholder": {
@@ -293,7 +303,8 @@
           "DeedDescriptionSpark": "Efeito se disparar Faísca...",
           "DeedDescriptionAfter": "Efeito após a ação...",
           "DeedDescriptionEnd": "Efeito no final da ação...",
-          "DeedDamage": "Fórmula de dano (ex: 1d6+@for)"
+          "DeedDamage": "Fórmula de dano (ex: 1d6+@for)",
+          "Modifier": "ex: +1 Foco"
         },
         "States": {
           "ActiveLit": "Ativo (Aceso)",
@@ -374,13 +385,58 @@
         "MapImage": "Imagem do Mapa",
         "Notes": "Notas",
         "NotesPlaceholder": "Notas do Mestre sobre esta masmorra...",
+        "SizeCategory": "Categoria de Tamanho",
+        "FormLabel": "Forma",
         "Rooms": "Salas",
         "AddRoom": "Adicionar Sala",
         "NoRooms": "Nenhuma sala definida ainda.",
         "CurrentRoom": "Sala Atual",
         "RoundLog": "Registro de Rodadas",
+        "RoundAbbr": "Rod ",
         "NoLogEntries": "Nenhuma atividade ainda.",
+        "RemoveTable": "Remover Tabela",
+        "CreateTable": "Criar Tabela",
+        "RollTable": "Rolar Tabela",
+        "Reset": {
+          "Button": "Redefinir Masmorra",
+          "Tip": "Redefinir todo o progresso da masmorra (alarme, rodadas, registros, salas)."
+        },
         "DC": "CD",
+        "ActionShort": "PA",
+        "OpenDungeonSheet": "Abrir Ficha da Masmorra",
+        "DungeonActions": "Ações de Masmorra",
+        "ConnectedRooms": "Salas Conectadas",
+        "MoveHere": "Mover para Cá",
+        "NoConnectedRooms": "Nenhuma sala conectada encontrada.",
+        "NextRound": "Próxima Rodada",
+        "LightSources": "Fontes de Luz Ativas",
+        "RecentActivity": "Atividade Recente",
+        "Tracker": {
+          "SelectDungeon": "Selecione uma Masmorra para Explorar",
+          "NoDungeonFound": "Nenhuma masmorra encontrada no mundo.",
+          "CreateDungeonHint": "Crie um ator de Masmorra para começar a explorar.",
+          "NoExplorationInProgress": "Nenhuma exploração em andamento.",
+          "WaitingForGM": "Aguardando o Mestre iniciar a exploração...",
+          "ExplorationPaused": "Exploração Pausada",
+          "Title": "Rastreador de Masmorra"
+        },
+        "Session": {
+          "Resume": "Retomar Sessão",
+          "BeginExploration": "Iniciar Exploração",
+          "BeginWipeWarn": "Aviso: Isso redefinirá todo o progresso atual desta masmorra!",
+          "EndExploration": "Encerrar Sessão",
+          "SwitchTip": "Mudar para esta masmorra"
+        },
+        "Nudge": {
+          "AlarmDownTip": "Diminuir Alarme",
+          "AlarmUpTip": "Aumentar Alarme",
+          "ActionDownTip": "Gastar Ação",
+          "ActionUpTip": "Reembolsar Ação",
+          "RefundTip": "Reembolsar última ação gasta",
+          "Refund": "Reembolsar",
+          "AlarmCheckTip": "Realizar teste manual de Alarme/Encontro",
+          "AlarmCheck": "Teste de Alarme"
+        },
         "Room": {
           "Name": "Nome da Sala",
           "NamePlaceholder": "O Salão Submerso",
@@ -391,14 +447,18 @@
           "AddFeature": "Adicionar Característica",
           "Connections": "Conexões",
           "Discovered": "Descoberta",
+          "SortOrder": "Ordem de Exibição",
           "RoomTrap": "Armadilha da Sala",
           "RoomTrapPresent": "Armadilha Presente",
           "RoomTrapHiddenValue": "Valor Oculto (CD de Detecção)",
           "RoomTrapTrigger": "Gatilho",
+          "RoomTrapTriggerPlaceholder": "O que ativa a armadilha?",
           "RoomTrapEffect": "Efeito",
+          "RoomTrapEffectPlaceholder": "O que acontece quando ela é ativada?",
           "RoomTrapMagical": "Armadilha Mágica",
           "RoomTrapDisarmed": "Desarmada",
           "DetailTraps": "Armadilhas de Detalhe",
+          "DetailTrapFeature": "Característica #",
           "AddDetailTrap": "Adicionar Armadilha de Detalhe",
           "Hazards": "Perigos",
           "Loot": "Saque",
@@ -415,10 +475,6 @@
           "AddConnection": "Adicionar Conexão",
           "NeedsDungeon": "Esta sala deve pertencer a uma masmorra para criar conexões.",
           "SameDungeon": "A sala solta deve pertencer à mesma masmorra."
-        },
-        "Tracker": {
-          "Title": "Rastreador de Masmorra",
-          "SelectDungeon": "Selecionar Masmorra"
         }
       },
       "Haven": {
@@ -435,6 +491,17 @@
         "CompletedBuildings": "Construções Concluídas",
         "UnderConstruction": "Espaços de Construção (Em Obras)",
         "Upkeep": "Manutenção do Abrigo",
+        "UpkeepHeader": "Etapas de Manutenção",
+        "WeeksRestFlavor": "Todos os personagens no abrigo se beneficiam de um Descanso de uma Semana.",
+        "UpkeepSteps": {
+          "WeeksRest": "1. Realizar Descanso Semanal",
+          "ResolveProduction": "2. Produção & Projetos",
+          "PopulationCheck": "3. Teste de População",
+          "EventCheck": "4. Teste de Evento"
+        },
+        "ResolveProductionFlavor": "Avança todos os projetos e cadeias de produção ativos.",
+        "PopulationCheckFlavor": "Rola para chegadas e atualiza o rank de população.",
+        "EventCheckFlavor": "Verifica eventos e complicações do abrigo.",
         "PopulationRank": "Rank de População",
         "PopulationIncrease": "Aumento de População",
         "Growth": "Crescimento",
@@ -445,7 +512,9 @@
         "SkillBonus": "Bônus de Perícia",
         "Leader": "Líder",
         "Production": "Produção",
+        "ProductionChains": "Cadeias de Produção",
         "Hirelings": "Servos",
+        "NoHirelingsHint": "Nenhum servo designado para este abrigo.",
         "Inventory": "Inventário",
         "Events": "Eventos",
         "Notes": "Notas",
@@ -482,7 +551,28 @@
         "Consume": "Consome",
         "Produce": "Produz",
         "DropConsume": "Solte itens para consumir aqui",
-        "DropProduce": "Solte itens para produzir aqui"
+        "DropProduce": "Solte itens para produzir aqui",
+        "Withdraw": "Retirar",
+        "DropItemHint": "Solte itens aqui para adicionar ao inventário do abrigo",
+        "EventTitle": "Evento Ativo",
+        "EventPlaceholder": "Nenhum evento ativo...",
+        "NoProjectsHint": "Nenhum projeto ativo.",
+        "StrongholdUnderConstruction": "Fortalezas em Construção",
+        "TransferItemTo": "Transferir {name} para..."
+      },
+      "Calling": {
+        "Skills": "Perícias",
+        "Talents": "Talentos",
+        "Features": "Habilidades",
+        "Enhancements": "Aprimoramentos",
+        "DropTalentsNote": "Arraste talentos aqui para vinculá-los a esta vocação.",
+        "DropFeaturesNote": "Arraste itens aqui para vinculá-los a esta vocação.",
+        "GrantDescription": "Descrição de Concessão"
+      },
+      "Craft": {
+        "KeyAttribute": "Atributo Chave",
+        "DropDeedsNote": "Arraste proezas aqui para vinculá-las a este ofício.",
+        "DropFeaturesNote": "Arraste habilidades aqui para vinculá-las a este ofício."
       },
       "Party": {
         "NamePlaceholder": "A Companhia da Estrela de Cinzas",
@@ -493,6 +583,8 @@
         "SelectCharacter": "- Selecione um personagem -",
         "Notes": "Notas",
         "GroupCheck": "Teste de Grupo",
+        "NoSkill": "- Sem Perícia -",
+        "DropHint": "Arraste atores de personagem aqui para adicioná-los ao grupo.",
         "Resource": {
           "HP": "Pontos de Vida",
           "Endurance": "Vigor",

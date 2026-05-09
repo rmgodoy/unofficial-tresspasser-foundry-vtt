@@ -14,7 +14,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     window: {
       resizable: true,
       minimizable: true,
-      title: "TRESPASSER.Config.Title"
+      title: "TRESPASSER.Settings.Title"
     },
     actions: {
       reset: TrespasserConfigV2._onReset,
@@ -31,9 +31,9 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
   static TABS = {
     primary: {
       tabs: [
-        { id: "mechanics", label: "TRESPASSER.Config.Tabs.Mechanics", icon: "fas fa-cog" },
-        { id: "exploration", label: "TRESPASSER.Config.Tabs.Exploration", icon: "fas fa-map" },
-        { id: "visuals", label: "TRESPASSER.Config.Tabs.Visuals", icon: "fas fa-eye" }
+        { id: "mechanics", label: "TRESPASSER.Settings.Tabs.Mechanics", icon: "fas fa-cog" },
+        { id: "exploration", label: "TRESPASSER.Settings.Tabs.Exploration", icon: "fas fa-map" },
+        { id: "visuals", label: "TRESPASSER.Settings.Tabs.Visuals", icon: "fas fa-eye" }
       ],
       initial: "mechanics"
     }
@@ -82,7 +82,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     context.colors = colorKeys.map(key => ({
       key,
       value: game.settings.get("trespasser", key),
-      label: `TRESPASSER.Config.${key}`
+      label: `TRESPASSER.Settings.${key}`
     }));
 
     context.isGM = game.user.isGM;
