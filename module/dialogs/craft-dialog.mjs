@@ -88,10 +88,10 @@ export async function showCraftDialog(craftItem, actor) {
     // For DEEDS, add a tier filter
     const tiers = {
       all:    "TRESPASSER.Dialog.Craft.AllTiers",
-      light:  "TRESPASSER.Item.DeedTierChoices.Light",
-      heavy:  "TRESPASSER.Item.DeedTierChoices.Heavy",
-      mighty: "TRESPASSER.Item.DeedTierChoices.Mighty",
-      special:"TRESPASSER.Item.DeedTierChoices.Special"
+      light:  "TRESPASSER.Sheet.Item.Details.Tiers.Light",
+      heavy:  "TRESPASSER.Sheet.Item.Details.Tiers.Heavy",
+      mighty: "TRESPASSER.Sheet.Item.Details.Tiers.Mighty",
+      special:"TRESPASSER.Sheet.Item.Details.Tiers.Special"
     };
 
     const tierOptions = Object.entries(tiers).map(([k, v]) => 

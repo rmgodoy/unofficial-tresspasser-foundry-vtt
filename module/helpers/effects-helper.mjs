@@ -83,10 +83,10 @@ export class TrespasserEffectsHelper {
    * Constant for target attributes.
    */
   static TARGET_ATTRIBUTES = {
-    "mighty": "TRESPASSER.Sheet.Attributes.Mighty",
-    "agility": "TRESPASSER.Sheet.Attributes.Agility",
-    "intellect": "TRESPASSER.Sheet.Attributes.Intellect",
-    "spirit": "TRESPASSER.Sheet.Attributes.Spirit",
+    "mighty": "TRESPASSER.Terms.Attribute.Mighty",
+    "agility": "TRESPASSER.Terms.Attribute.Agility",
+    "intellect": "TRESPASSER.Terms.Attribute.Intellect",
+    "spirit": "TRESPASSER.Terms.Attribute.Spirit",
     "initiative": "TRESPASSER.Sheet.Combat.Initiative",
     "accuracy": "TRESPASSER.Sheet.Combat.Accuracy",
     "guard": "TRESPASSER.Sheet.Combat.Guard",
@@ -94,16 +94,16 @@ export class TrespasserEffectsHelper {
     "prevail": "TRESPASSER.Sheet.Combat.Prevail",
     "tenacity": "TRESPASSER.Sheet.Combat.Tenacity",
     "speed": "TRESPASSER.Sheet.Combat.Speed",
-    "armor": "TRESPASSER.Sheet.Equipments.Armor",
-    "health": "TRESPASSER.Sheet.Effects.CurrentHealth",
-    "max_health": "TRESPASSER.Sheet.Effects.MaxHealth",
+    "armor": "TRESPASSER.Sheet.Item.Details.ArmorRating",
+    "health": "TRESPASSER.Sheet.Header.HP",
+    "max_health": "TRESPASSER.Sheet.Header.Health",
     "focus": "TRESPASSER.Sheet.Combat.Focus",
     "action_points": "TRESPASSER.Sheet.Combat.ActionPoints",
     "combat_phase": "TRESPASSER.Sheet.Combat.Phase",
-    "damage_dealt": "TRESPASSER.Item.DamageDealt",
-    "damage_received": "TRESPASSER.Item.DamageReceived",
-    "endurance": "TRESPASSER.Endurance",
-    "max_endurance": "TRESPASSER.MaxEndurance"
+    "damage_dealt": "TRESPASSER.App.System.Trigger.DamageDealt",
+    "damage_received": "TRESPASSER.App.System.Trigger.DamageReceived",
+    "endurance": "TRESPASSER.Sheet.Header.Endurance",
+    "max_endurance": "TRESPASSER.Sheet.Header.Endurance"
   };
 
   /**

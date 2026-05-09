@@ -367,7 +367,7 @@
           <tbody>
             {{#each equippedArmor as |item slot|}}
             <tr>
-              <td><label class="slot-label">{{localize (concat "TRESPASSER.Sheet.Equipments." (capitalize slot))}}</label></td>
+              <td><label class="slot-label">{{localize (concat "TRESPASSER.Sheet.Character.Equipments." (capitalize slot))}}</label></td>
               {{#if (eq item.type "item")}}
                 <td colspan="4">
                     <span class="item-name">{{item.name}}</span>
@@ -382,7 +382,15 @@
                 </td>
                 <td>
                     <div class="col-sm" style="text-align: center;">
-                    {{#if item}}{{localize (concat "TRESPASSER.Item.WeightChoices.Short." item.system.weight)}}{{else}}—{{/if}}
+                    {{#if item}}
+                      {{#if (eq item.system.weight "L")}}
+                        {{localize "TRESPASSER.Sheet.Item.Details.Tiers.Light"}}
+                      {{else if (eq item.system.weight "H")}}
+                        {{localize "TRESPASSER.Sheet.Item.Details.Tiers.Heavy"}}
+                      {{else}}
+                        —
+                      {{/if}}
+                    {{else}}—{{/if}}
                     </div>
                 </td>
                 <td>
