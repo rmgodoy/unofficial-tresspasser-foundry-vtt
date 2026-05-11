@@ -24,7 +24,9 @@
         "InventoryCapReached": "Inventory capacity reached. You cannot add more unequipped items.",
         "HandsFull": "Both hands are occupied. Unequip a weapon first.",
         "TwoHandedEquip": "You must unequip both hands to equip a Two-Handed weapon.",
-        "HeavyArmorLimit": "You can only have one Heavy armor equipped."
+        "HeavyArmorLimit": "You can only have one Heavy armor equipped.",
+        "HeavyItemsExceeded": "You have equipped {total} Heavy items, which exceeds your limit of {limit}.",
+        "HeavyEquipWarning": "Equipping {name} will exceed your Heavy item limit of {limit}."
       },
       "Combat": {
         "NoTargets": "No targets selected. Aborting.",

@@ -132,13 +132,24 @@ export class TrespasserActor extends Actor {
       }
     }
 
-    // 2. Heavy Armor Limit check
-    if (item.type === "armor" && item.system.weight === "H") {
-       const otherHeavy = this.items.some(i => i.id !== item.id && i.type === "armor" && i.system.equipped && i.system.weight === "H");
-       if (otherHeavy) {
-         ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Inventory.HeavyArmorLimit"));
-         return;
-       }
+    // 2. Heavy Items Limit check
+    if (item.system.weight === "H") {
+      const equippedHeavy = this.items.filter(i => i.id !== item.id && i.system.equipped && i.system.weight === "H");
+      const totalHeavy = equippedHeavy.length + 1;
+      
+      let limit = 1;
+      if (this.type === "character") {
+        const baseMighty = this.system.attributes?.mighty ?? 0;
+        const mightyBonus = TrespasserEffectsHelper.getAttributeBonus(this, "mighty");
+        limit = Math.max(1, baseMighty + mightyBonus);
+      }
+
+      if (totalHeavy > limit) {
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Inventory.HeavyEquipWarning", {
+          name: item.name,
+          limit: limit
+        }));
+      }
     }
 
     // 3. Update Item state
