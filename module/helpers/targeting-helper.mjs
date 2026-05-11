@@ -779,8 +779,6 @@ export class TargetingHelper {
       
       // Convert to squares based on scene's grid distance (e.g. 5ft/sq)
       const distSq = distUnits / gridDist;
-      console.log("Trespasser TargetingHelper", "distSq", distSq, "distance = ", distUnits);
-      console.log("Trespasser TargetingHelper", "maxRangeSq", maxRangeSq);
       if (distSq > maxRangeSq) {
         return {
           valid: false,

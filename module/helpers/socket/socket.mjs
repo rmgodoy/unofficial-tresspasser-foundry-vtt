@@ -4,6 +4,10 @@ import {
   handleTransferRejected,
   handleHavenWithdrawalRequest
 } from "./item-transfer.mjs";
+import { 
+  handleDefenseRequest, 
+  handleDefenseResponse 
+} from "./defense-roll-handler.mjs";
 
 /**
  * Helper class for handling custom socket events in the Trespasser system.
@@ -39,6 +43,10 @@ export class TrespasserSocket {
         return handleTransferRejected(data);
       case "HAVEN_WITHDRAWAL":
         return handleHavenWithdrawalRequest(data, senderId);
+      case "DEFENSE_REQUEST":
+        return handleDefenseRequest(data, senderId);
+      case "DEFENSE_RESPONSE":
+        return handleDefenseResponse(data);
       default:
         // Ignore unknown types
         break;
