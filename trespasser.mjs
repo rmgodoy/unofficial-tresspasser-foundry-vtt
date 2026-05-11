@@ -105,8 +105,8 @@ Hooks.once("init", async () => {
     depletionDieOptions: {
       "": "TRESPASSER.Terms.Depletion.None",
       "d4": "TRESPASSER.Terms.Depletion.Crude",
-      "d6": "TRESPASSER.Terms.Depletion.Normal",
-      "d8": "TRESPASSER.Terms.Depletion.Fine",
+      "d6": "TRESPASSER.Terms.Depletion.Fine",
+      "d8": "TRESPASSER.Terms.Depletion.Superior",
       "d10": "TRESPASSER.Terms.Depletion.Excellent",
       "d12": "TRESPASSER.Terms.Depletion.Enchanted",
       "d20": "TRESPASSER.Terms.Depletion.Legendary"

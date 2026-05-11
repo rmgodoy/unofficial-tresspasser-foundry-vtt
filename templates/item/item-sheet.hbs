@@ -146,12 +146,12 @@
 
     <div class="field-item flex-row" style="gap: 10px; margin-top: 5px; flex-wrap: wrap;">
       <div class="field-item checkbox-item">
-        <label for="item-is-fuel-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.IsLightFuel"}}</label>
         <input type="checkbox" name="system.isLightFuel" {{checked system.isLightFuel}} id="item-is-fuel-{{item.id}}"/>
+        <label for="item-is-fuel-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.IsLightFuel"}}</label>
       </div>
       <div class="field-item checkbox-item">
-        <label for="item-is-ammo-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.IsAmmo"}}</label>
         <input type="checkbox" name="system.isAmmo" {{checked system.isAmmo}} id="item-is-ammo-{{item.id}}"/>
+        <label for="item-is-ammo-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.IsAmmo"}}</label>
       </div>
 
       {{#unless isLightSource}}

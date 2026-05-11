@@ -16,8 +16,8 @@
       "Depletion": {
         "None": "Nenhuma",
         "Crude": "Rústica",
-        "Normal": "Normal",
         "Fine": "Fina",
+        "Superior": "Superior",
         "Excellent": "Excelente",
         "Enchanted": "Encantada",
         "Legendary": "Lendária"

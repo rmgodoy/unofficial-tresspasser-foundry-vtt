@@ -37,8 +37,8 @@ export class TrespasserRationsData extends foundry.abstract.TypeDataModel {
   getQualityName(die) {
     const qualities = {
       "d4": "Crude",
-      "d6": "Normal",
-      "d8": "Fine",
+      "d6": "Fine",
+      "d8": "Superior",
       "d10": "Excellent",
       "d12": "Enchanted",
       "d20": "Legendary"
