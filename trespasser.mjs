@@ -619,7 +619,7 @@ Hooks.once("ready", () => {
     };
   }
 
-  if (game.combat) {
+  if (game.combat && game.combat.flags?.trespasser?.activePhase ) {
     game.combat.updateTurnMarkers(game.combat.flags.trespasser.activePhase);
   }
 });

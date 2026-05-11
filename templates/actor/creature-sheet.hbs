@@ -22,23 +22,23 @@
         <div class="level-group">
           <label>{{localize "TRESPASSER.Sheet.Header.Role"}}</label>
           <select name="system.role" style="flex: 1; background: transparent; color: var(--trp-text-light); border: none; font-family: var(--trp-font-primary); font-size: var(--fs-14); text-transform: uppercase;">
-            <option value="Archer" {{#if (eq system.details.role "Archer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Archer"}}</option>
-            <option value="Enchanter" {{#if (eq system.details.role "Enchanter")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Enchanter"}}</option>
-            <option value="Enforcer" {{#if (eq system.details.role "Enforcer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Enforcer"}}</option>
-            <option value="Guardian" {{#if (eq system.details.role "Guardian")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Guardian"}}</option>
-            <option value="Harrier" {{#if (eq system.details.role "Harrier")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Harrier"}}</option>
-            <option value="Hellion" {{#if (eq system.details.role "Hellion")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Hellion"}}</option>
-            <option value="Stalker" {{#if (eq system.details.role "Stalker")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Stalker"}}</option>
-            <option value="Sorcerer" {{#if (eq system.details.role "Sorcerer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Sorcerer"}}</option>
+            <option value="archer" {{#if (eq system.role "archer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Archer"}}</option>
+            <option value="enchanter" {{#if (eq system.role "enchanter")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Enchanter"}}</option>
+            <option value="enforcer" {{#if (eq system.role "enforcer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Enforcer"}}</option>
+            <option value="guardian" {{#if (eq system.role "guardian")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Guardian"}}</option>
+            <option value="harrier" {{#if (eq system.role "harrier")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Harrier"}}</option>
+            <option value="hellion" {{#if (eq system.role "hellion")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Hellion"}}</option>
+            <option value="stalker" {{#if (eq system.role "stalker")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Stalker"}}</option>
+            <option value="sorcerer" {{#if (eq system.role "sorcerer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Sorcerer"}}</option>
           </select>
         </div>
         <div class="level-group">
           <label>{{localize "TRESPASSER.Sheet.Header.Template"}}</label>
           <select name="system.template" style="flex: 1; background: transparent; color: var(--trp-text-light); border: none; font-family: var(--trp-font-primary); font-size: var(--fs-14); text-transform: uppercase;">
-            <option value="Underling" {{#if (eq system.details.template "Underling")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Underling"}}</option>
-            <option value="Normal" {{#if (eq system.details.template "Normal")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Normal"}}</option>
-            <option value="Paragon" {{#if (eq system.details.template "Paragon")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Paragon"}}</option>
-            <option value="Tyrant" {{#if (eq system.details.template "Tyrant")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Tyrant"}}</option>
+            <option value="underling" {{#if (eq system.template "underling")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Underling"}}</option>
+            <option value="normal" {{#if (eq system.template "normal")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Normal"}}</option>
+            <option value="paragon" {{#if (eq system.template "paragon")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Paragon"}}</option>
+            <option value="tyrant" {{#if (eq system.template "tyrant")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Tyrant"}}</option>
           </select>
         </div>
       </div>
