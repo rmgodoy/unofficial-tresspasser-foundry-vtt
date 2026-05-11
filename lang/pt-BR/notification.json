@@ -19,6 +19,7 @@
       "Inventory": {
         "SlotOccupied": "O espaço {placement} já está ocupado por {name}. Desequipe-o primeiro.",
         "InventoryFull": "Inventário cheio! Você precisa soltar um item antes de poder desequipar {name}.",
+        "InventoryFullWarning": "Inventário cheio! Desequipar {name} excedeu a capacidade ({used}/{max}).",
         "InventoryFullSwap": "Inventário cheio! Não é possível trocar {name} por {occupant}.",
         "InventoryCapReached": "Capacidade do inventário atingida. Você não pode adicionar mais itens não equipados.",
         "HandsFull": "Ambas as mãos estão ocupadas. Desequipe uma arma primeiro.",

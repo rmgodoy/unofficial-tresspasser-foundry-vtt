@@ -281,8 +281,11 @@ export class TrespasserActor extends Actor {
     const maxSlots = this.system.inventory_max ?? 5;
 
     if ((usedSlots + itemWeight) > maxSlots) {
-      ui.notifications.warn(`Inventory full! Unequipping ${item.name} (Slot: ${itemWeight}) would exceed capacity (${usedSlots.toFixed(1)}/${maxSlots}).`);
-      return;
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Inventory.InventoryFullWarning", {
+        name: item.name,
+        used: (usedSlots + itemWeight).toFixed(1),
+        max: maxSlots
+      }));
     }
 
     const placement = item.system.placement;

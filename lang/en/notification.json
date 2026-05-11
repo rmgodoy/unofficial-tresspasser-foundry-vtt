@@ -19,6 +19,7 @@
       "Inventory": {
         "SlotOccupied": "Slot {placement} is already occupied by {name}. Unequip it first.",
         "InventoryFull": "Inventory full! You must drop an item before you can unequip {name}.",
+        "InventoryFullWarning": "Inventory full! Unequipping {name} has exceeded capacity ({used}/{max}).",
         "InventoryFullSwap": "Inventory full! Cannot swap {name} for {occupant}.",
         "InventoryCapReached": "Inventory capacity reached. You cannot add more unequipped items.",
         "HandsFull": "Both hands are occupied. Unequip a weapon first.",
