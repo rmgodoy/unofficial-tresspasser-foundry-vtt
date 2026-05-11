@@ -127,7 +127,7 @@
 
 .spark-dialog > p {
   margin: 0 0 10px;
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text-dim);
 }
 
@@ -142,13 +142,13 @@
 .spark-layer h4 {
   margin: 0 0 6px;
   font-family: var(--trp-font-header);
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-gold);
   text-transform: uppercase;
 }
 
 .spark-layer-targets {
-  font-size: 10px;
+  font-size: var(--fs-10);
   color: var(--trp-text-dim);
   text-transform: none;
   font-family: var(--trp-font-body);
@@ -178,13 +178,13 @@
 
 .spark-choice-label {
   font-weight: bold;
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text-bright);
   min-width: 80px;
 }
 
 .spark-choice-desc {
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim);
 }
 

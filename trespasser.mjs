@@ -1444,7 +1444,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
   }
 
   const waitingBanner = isWaiting ? `
-    <div class="initiative-waiting-banner" style="background:var(--trp-bg-header); border:1px solid var(--trp-gold-dim); border-radius:4px; padding:8px 12px; margin:8px; text-align:center; color:var(--trp-gold-bright); font-family:var(--trp-font-header); font-size:13px;">
+    <div class="initiative-waiting-banner" style="background:var(--trp-bg-header); border:1px solid var(--trp-gold-dim); border-radius:4px; padding:8px 12px; margin:8px; text-align:center; color:var(--trp-gold-bright); font-family:var(--trp-font-header); font-size:var(--fs-13);">
       <i class="fas fa-hourglass-half"></i> ${game.i18n.localize("TRESPASSER.Sheet.Combat.WaitingForInitiatives")}
     </div>
   ` : "";
