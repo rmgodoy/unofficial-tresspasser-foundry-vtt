@@ -92,7 +92,9 @@
         "Spark": "Spark",
         "After": "After",
         "End": "End",
-        "Week": "Week"
+        "Week": "Week",
+        "CreatureOnly": "Creatures Only",
+        "None": "None"
       },
       "Character": {
         "Calling": "Calling",

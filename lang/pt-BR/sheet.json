@@ -92,7 +92,9 @@
         "Spark": "Faísca",
         "After": "Depois",
         "End": "Fim",
-        "Week": "Semana"
+        "Week": "Semana",
+        "CreatureOnly": "Somente Criaturas",
+        "None": "Nenhum"
       },
       "Character": {
         "Calling": "Vocação",

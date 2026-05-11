@@ -723,50 +723,64 @@ export class TargetingHelper {
 
     // Determine max range in grid squares based on deed type
     let maxRangeSq;
+    // Check actor type from the token's actor
+    const actorType = sourceToken.actor?.type;
+    const isCreature = actorType === "creature";
 
-    const deedType = deed.type;
-    const isThrown = activeWeapons.some(w => w.system.properties?.thrown);
-
-    if (deedType === "melee" || deedType === "unarmed") {
-      if (isThrown) {
-        // Thrown weapon used at missile range
-        const relevant = activeWeapons.filter(w => w.system.properties?.thrown);
-        maxRangeSq = this.#getWeaponRangeInSquares(relevant, gridDist);
-      } else {
-        // Melee reach: parse from weapon range field, default 1 (free hand = 1)
-        const meleeWeapons = activeWeapons.filter(w => w.system.type === "melee");
-        maxRangeSq = this.#getWeaponRangeInSquares(meleeWeapons, gridDist);
-        if (maxRangeSq === 0) maxRangeSq = 1; // free hand / default
-      }
-    } else if (deedType === "missile") {
-      const relevant = activeWeapons.filter(w =>
-        w.system.type === "missile" || w.system.properties?.thrown
-      );
-      maxRangeSq = this.#getWeaponRangeInSquares(relevant, gridDist);
-    } else if (deedType === "spell") {
-      // Spell weapons have spell range; free hand = 4 squares
-      const spellWeapons = activeWeapons.filter(w => w.system.type === "spell");
-      maxRangeSq = this.#getWeaponRangeInSquares(spellWeapons, gridDist);
-      if (maxRangeSq === 0) maxRangeSq = 4; // free hand default
-    } else if (deedType === "tool") {
-      // Tool range = 5 + Agility (throwing range)
-      const agility = sourceToken.actor?.system?.attributes?.agility ?? 0;
-      maxRangeSq = 5 + agility;
-    } else if (deedType === "versatile") {
-      maxRangeSq = this.#getWeaponRangeInSquares(activeWeapons, gridDist);
+    if (isCreature) {
+      // For creatures, range is explicitly set on the deed in squares
+      maxRangeSq = deed.range;
     } else {
-      // Innate: no range enforcement
-      return { valid: true };
+      const deedType = deed.type;
+      const isThrown = activeWeapons.some(w => w.system.properties?.thrown);
+
+      if (deedType === "melee" || deedType === "unarmed") {
+        if (isThrown) {
+          // Thrown weapon used at missile range
+          const relevant = activeWeapons.filter(w => w.system.properties?.thrown);
+          maxRangeSq = this.#getWeaponRangeInSquares(relevant, gridDist);
+        } else {
+          // Melee reach: parse from weapon range field, default 1 (free hand = 1)
+          const meleeWeapons = activeWeapons.filter(w => w.system.type === "melee");
+          maxRangeSq = this.#getWeaponRangeInSquares(meleeWeapons, gridDist);
+          if (maxRangeSq === 0) maxRangeSq = 1; // free hand / default
+        }
+      } else if (deedType === "missile") {
+        const relevant = activeWeapons.filter(w =>
+          w.system.type === "missile" || w.system.properties?.thrown
+        );
+        maxRangeSq = this.#getWeaponRangeInSquares(relevant, gridDist);
+      } else if (deedType === "spell") {
+        // Spell weapons have spell range; free hand = 4 squares
+        const spellWeapons = activeWeapons.filter(w => w.system.type === "spell");
+        maxRangeSq = this.#getWeaponRangeInSquares(spellWeapons, gridDist);
+        if (maxRangeSq === 0) maxRangeSq = 4; // free hand default
+      } else if (deedType === "tool") {
+        // Tool range = 5 + Agility (throwing range)
+        const agility = sourceToken.actor?.system?.attributes?.agility ?? 0;
+        maxRangeSq = 5 + agility;
+      } else if (deedType === "versatile") {
+        maxRangeSq = this.#getWeaponRangeInSquares(activeWeapons, gridDist);
+      } else {
+        // Innate: no range enforcement
+        return { valid: true };
+      }
     }
 
     // If no parseable range found, skip validation (don't block deeds with empty range)
-    if (!maxRangeSq || maxRangeSq <= 0) return { valid: true };
+    if (maxRangeSq === null || maxRangeSq === undefined || maxRangeSq <= 0) return { valid: true };
 
-    // Check each target using Chebyshev distance (grid squares)
+    // Check each target using Foundry's distance measurement (respects grid units)
     for (const t of targets) {
-      const dx = Math.abs(t.center.x - sourceToken.center.x);
-      const dy = Math.abs(t.center.y - sourceToken.center.y);
-      const distSq = Math.max(dx, dy) / gridPx; // Chebyshev distance in squares
+      // In V13, measurePath is the standard way to calculate distance between points
+      // It respects the scene's grid distance and diagonal rules (e.g. 5-5-5, 5-10-5, etc.)
+      const path = [sourceToken.center, t.center];
+      const distUnits = canvas.grid.measurePath(path).distance;
+      
+      // Convert to squares based on scene's grid distance (e.g. 5ft/sq)
+      const distSq = distUnits / gridDist;
+      console.log("Trespasser TargetingHelper", "distSq", distSq, "distance = ", distUnits);
+      console.log("Trespasser TargetingHelper", "maxRangeSq", maxRangeSq);
       if (distSq > maxRangeSq) {
         return {
           valid: false,

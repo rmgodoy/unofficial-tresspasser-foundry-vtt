@@ -11,6 +11,7 @@
         </div>
         <div class="deed-card-subheader">
           {{capitalize system.type}} {{capitalize system.actionType}} {{localize "TRESPASSER.Sheet.Combat.Vs"}} {{system.accuracyTest}} | {{system.target}}
+          {{#if system.range}} | {{localize "TRESPASSER.Sheet.Common.Range"}} {{system.range}}{{/if}}
         </div>
         <div class="deed-card-phases">
           {{#each cardPhases as |phase|}}

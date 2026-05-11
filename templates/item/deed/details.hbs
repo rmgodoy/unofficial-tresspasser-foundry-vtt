@@ -93,6 +93,12 @@
         <label>{{localize "TRESPASSER.Sheet.Item.Details.BonusCost"}}</label>
         <input type="number" name="system.bonusCost" value="{{system.bonusCost}}" min="0" placeholder="0" class="select-on-focus" />
       </div>
+
+      {{!-- Range (Creatures only) --}}
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Common.Range"}} ({{localize "TRESPASSER.Sheet.Common.CreatureOnly"}})</label>
+        <input type="number" name="system.range" value="{{system.range}}" min="0" placeholder="{{localize 'TRESPASSER.Sheet.Common.None'}}" class="select-on-focus" />
+      </div>
     </div>
   </div>
 </section>

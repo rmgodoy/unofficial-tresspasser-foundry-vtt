@@ -142,7 +142,9 @@ export async function onDeedRoll(event, sheet) {
   let templateDoc = null;
 
   // Resolve the caster's token for AOE placement
-  const sourceToken = canvas.tokens.placeables.find(t => t.actor?.id === sheet.actor.id);
+  const sourceToken = sheet.actor.token?.object || 
+                     canvas.tokens.controlled.find(t => t.actor?.id === sheet.actor.id) ||
+                     canvas.tokens.placeables.find(t => t.actor?.id === sheet.actor.id);
 
   if (deed.targetType === "personal") {
     // Personal: auto-target self
@@ -175,20 +177,25 @@ export async function onDeedRoll(event, sheet) {
       return;
     }
 
-    // Range validation for creature-targeted deeds (characters only)
-    if (!isCreature && sourceToken) {
-      const activeWeapons = sheet._getActiveWeapons();
-      const rangeCheck = TargetingHelper.validateRange(targets, sourceToken, deed, activeWeapons);
+    // Range validation
+    if (sourceToken) {
+      let rangeCheck = { valid: true };
+      
+      if (isCreature) {
+        // Creatures: Check range ONLY if deed.range is set
+        if (deed.range !== null) {
+          rangeCheck = TargetingHelper.validateRange(targets, sourceToken, deed, []);
+        }
+      } else {
+        // Characters: Existing weapon-based range check
+        const activeWeapons = sheet._getActiveWeapons() || [];
+        rangeCheck = TargetingHelper.validateRange(targets, sourceToken, deed, activeWeapons);
+      }
+      
       if (!rangeCheck.valid) {
         const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
-        if (disregardRange) {
-          // Warn but allow the attack to proceed
-          ui.notifications.warn(rangeCheck.message);
-        } else {
-          // Block the attack (default behavior)
-          ui.notifications.warn(rangeCheck.message);
-          return;
-        }
+        ui.notifications.warn(rangeCheck.message);
+        if (!disregardRange) return;
       }
     }
   }
@@ -394,7 +401,10 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
   // Engagement penalty: -2 accuracy for missile/spell deeds when engaged and not targeting adjacent
   let engagementPenalty = 0;
   if (isAttack && ["missile", "spell"].includes(item.system.type)) {
-    const sourceToken = canvas.tokens.placeables.find(t => t.actor?.id === sheet.actor.id);
+    // Find the correct source token on the canvas
+    const sourceToken = sheet.actor.token?.object || 
+                       canvas.tokens.controlled.find(t => t.actor?.id === sheet.actor.id) ||
+                       canvas.tokens.placeables.find(t => t.actor?.id === sheet.actor.id);
     if (TargetingHelper.isEngaged(sourceToken) &&
         !TargetingHelper.isExemptFromEngagement(item.system, targets, sourceToken)) {
       engagementPenalty = -2;
