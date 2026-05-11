@@ -13,7 +13,7 @@ export async function askAPDialog(availableAP) {
           ${Array.from({ length: availableAP }, (_, i) => i + 1).map(val => {
             const bonus = (val - 1) * 2;
             const label = val === 1 
-              ? game.i18n.localize("TRESPASSER.Dialog.SpendAP.DefaultOption") 
+              ? game.i18n.localize("TRESPASSER.Dialog.SpendAP.DefaultOption")
               : game.i18n.format("TRESPASSER.Dialog.SpendAP.AdditionalOption", { count: val, bonus: bonus });
             return `<option value="${val}">${label}</option>`;
           }).join("")}

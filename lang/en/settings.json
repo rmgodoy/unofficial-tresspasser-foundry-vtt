@@ -47,6 +47,10 @@
         "ConfirmItemTransfer": {
           "Name": "Confirm Item Transfers",
           "Hint": "If enabled, you will be prompted to accept or reject items transferred to you by other players."
+        },
+        "HideCreatureDamageRolls": {
+          "Name": "Hide Creature Damage Rolls",
+          "Hint": "If enabled, damage rolls made by creatures (creature actors) will be whispered to the GM and the roller only."
         }
       },
       "Exploration": {

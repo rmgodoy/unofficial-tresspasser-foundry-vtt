@@ -148,6 +148,15 @@ Hooks.once("init", async () => {
     default: false
   });
 
+  game.settings.register("trespasser", "hideCreatureDamageRolls", {
+    name: "TRESPASSER.Settings.Mechanics.HideCreatureDamageRolls.Name",
+    hint: "TRESPASSER.Settings.Mechanics.HideCreatureDamageRolls.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
   game.settings.register("trespasser", "showPerilInChat", {
     name: "TRESPASSER.Settings.Exploration.ShowPerilInChat.Name",
     hint: "TRESPASSER.Settings.Exploration.ShowPerilInChat.Hint",

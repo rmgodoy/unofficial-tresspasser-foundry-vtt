@@ -718,7 +718,9 @@ export class TrespasserActor extends Actor {
         let expr = TrespasserEffectsHelper.replacePlaceholders(dmg, this);
         const roll = new foundry.dice.Roll(expr);
         await roll.evaluate();
-        await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this }), flavor: flavorHtml });
+        const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
+        const rollMode = (this.type === "creature" && hideCreatureRolls) ? "gmroll" : "roll";
+        await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this }), flavor: flavorHtml }, { rollMode });
       } catch (e) {
         console.error(e);
         await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this }), content: flavorHtml });

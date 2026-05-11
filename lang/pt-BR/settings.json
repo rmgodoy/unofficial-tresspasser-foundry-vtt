@@ -47,6 +47,10 @@
         "ConfirmItemTransfer": {
           "Name": "Confirmar Transferências de Itens",
           "Hint": "Se ativado, você será solicitado a aceitar ou rejeitar itens transferidos para você por outros jogadores."
+        },
+        "HideCreatureDamageRolls": {
+          "Name": "Ocultar Rolagens de Dano de Criaturas",
+          "Hint": "Se ativado, as rolagens de dano feitas por criaturas serão sussurradas apenas para o Mestre e para quem rolou."
         }
       },
       "Exploration": {

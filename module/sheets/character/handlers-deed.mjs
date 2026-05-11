@@ -819,10 +819,12 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
           <i class="fas fa-heart"></i> Heal
         </button>
       </div>`;
+      const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
+      const rollMode = (actor.type === "creature" && hideCreatureRolls) ? "gmroll" : "roll";
       await rollObj.toMessage({
         speaker: ChatMessage.getSpeaker({ actor }),
         flavor: flavorHtml + applyHealBtns
-      });
+      }, { rollMode });
       return;
     }
   }
