@@ -714,23 +714,17 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
             </p>
             <div class="trp-attr-pick">
               ${attributes.map(attr => `
-                <button class="trp-attr-btn" data-attr="${attr.key}">
+                <button type="button" class="trp-attr-btn" data-action="${attr.key}">
                   ${attr.label} (${totals[attr.key] ?? 0})
                 </button>
               `).join('')}
             </div>
           </div>`,
         buttons: [{ action: "cancel", label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"), default: true }],
-        submit: (result) => { if ( result === "cancel" ) resolve(null); },
-        close: () => resolve(null),
-        render: (html) => {
-          html.querySelectorAll(".trp-attr-btn").forEach(btn => {
-            btn.addEventListener("click", ev => {
-              resolve(ev.currentTarget.dataset.attr);
-              dialog.close();
-            });
-          });
-        }
+        actions: Object.fromEntries([
+          ...attributes.map(attr => [attr.key, () => { resolve(attr.key); dialog.close(); }]),
+          ["cancel", () => { resolve(null); dialog.close(); }]
+        ])
       });
       dialog.render(true);
     });
