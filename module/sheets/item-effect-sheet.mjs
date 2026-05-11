@@ -23,7 +23,7 @@ export class TrespasserEffectSheet extends foundry.appv1.sheets.ItemSheet {
     // Add constants for the sheet
     context.config = {
       effectTypes: {
-        "on_trigger": "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.OnTrigger",
+        "on-trigger": "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.OnTrigger",
         "continuous": "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.Continuous"
       },
       targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
