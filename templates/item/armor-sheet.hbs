@@ -21,7 +21,7 @@
           <label>{{localize "TRESPASSER.Sheet.Common.Placement"}}</label>
           <select name="system.placement">
             {{#each config.placements as |label key|}}
-              <option value="{{key}}" {{#if (eq ../system.placement key)}}selected{{/if}}>{{localize (concat "TRESPASSER.Sheet.Item.Details." (capitalize key))}}</option>
+              <option value="{{key}}" {{#if (eq ../system.placement key)}}selected{{/if}}>{{localize label}}</option>
             {{/each}}
           </select>
         </div>

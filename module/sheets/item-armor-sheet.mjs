@@ -23,12 +23,12 @@ export class TrespasserArmorSheet extends foundry.appv1.sheets.ItemSheet {
     
     context.config = foundry.utils.mergeObject({
       placements: {
-        "head": "Head",
-        "body": "Chest/Body",
-        "arms": "Arms",
-        "legs": "Legs",
-        "outer": "Outer",
-        "shield": "Shield"
+        "head": "TRESPASSER.Sheet.Character.Equipments.Head",
+        "body": "TRESPASSER.Sheet.Character.Equipments.Body",
+        "arms": "TRESPASSER.Sheet.Character.Equipments.Arms",
+        "legs": "TRESPASSER.Sheet.Character.Equipments.Legs",
+        "outer": "TRESPASSER.Sheet.Character.Equipments.Outer",
+        "shield": "TRESPASSER.Sheet.Character.Equipments.Shield"
       }
     }, CONFIG.TRESPASSER);
 
