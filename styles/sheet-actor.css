@@ -928,6 +928,33 @@
   color: var(--trp-gold-bright);
 }
 
+/* ── Speed Split Display ── */
+.combat-stat-speed .speed-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.combat-stat-speed .speed-base {
+  width: 32px;
+  text-align: center;
+}
+
+.combat-stat-speed .speed-separator {
+  color: var(--trp-text-dim);
+  font-weight: bold;
+  margin: 0 1px;
+}
+
+.combat-stat-speed .speed-bonus-value {
+  color: var(--trp-gold-bright);
+  font-weight: bold;
+  font-size: 0.95em;
+  min-width: 24px;
+  text-align: center;
+}
+
 /* Combat Equipment Snapshot */
 .combat-equipment h4 {
   text-align: center;

@@ -94,6 +94,7 @@ export class TrespasserEffectsHelper {
     "prevail": "TRESPASSER.Sheet.Combat.Prevail",
     "tenacity": "TRESPASSER.Sheet.Combat.Tenacity",
     "speed": "TRESPASSER.Sheet.Combat.Speed",
+    "speed_bonus": "TRESPASSER.Sheet.Combat.SpeedBonus",
     "armor": "TRESPASSER.Sheet.Item.Details.ArmorRating",
     "health": "TRESPASSER.Sheet.Header.HP",
     "max_health": "TRESPASSER.Sheet.Header.Health",

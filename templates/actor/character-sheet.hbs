@@ -627,7 +627,7 @@
       <div class="combat-top">
         <!-- Derived Stats -->
         <div class="combat-stats-grid">
-          {{#each (array "initiative" "accuracy" "guard" "resist" "prevail" "tenacity" "focus" "speed") as |stat|}}
+          {{#each (array "initiative" "accuracy" "guard" "resist" "prevail" "tenacity" "focus") as |stat|}}
           <div class="combat-stat">
             {{#if (or (eq stat "focus") (eq stat "speed"))}}
             <span class="combat-stat-label" data-stat="{{stat}}">
@@ -647,6 +647,25 @@
                    title="{{localize (concat 'TRESPASSER.Sheet.Combat.' (capitalize stat))}} (Base: {{lookup ../system.combat stat}})"/>
           </div>
           {{/each}}
+
+          <div class="combat-stat combat-stat-speed">
+            <span class="combat-stat-label" data-stat="speed">
+              {{localize "TRESPASSER.Sheet.Combat.Speed"}}
+            </span>
+            <div class="speed-display">
+              <input type="number"
+                     name="system.combat.speed"
+                     value="{{totalCombat.speed}}"
+                     readonly
+                     class="speed-base"
+                     title="{{localize 'TRESPASSER.Sheet.Combat.Speed'}}" />
+              <span class="speed-separator">/</span>
+              <span class="speed-bonus-value"
+                    title="{{localize 'TRESPASSER.Sheet.Combat.SpeedBonus'}}">
+                +{{speedBonus}}
+              </span>
+            </div>
+          </div>
         </div>
 
         <!-- Equipment Snapshot -->

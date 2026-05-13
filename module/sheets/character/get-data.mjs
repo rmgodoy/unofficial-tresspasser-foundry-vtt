@@ -38,6 +38,8 @@ export async function getCharacterData(sheet, options = {}) {
     max_health: context.system.max_health,
     max_endurance: context.system.max_endurance
   };
+  context.speedBonus = context.system.combat.speed_bonus ?? 2;
+  context.totalCombat.speed_bonus = context.system.combat.speed_bonus;
 
   // Fixed 3-slot craft array
   const crafts = context.system.crafts ?? [];

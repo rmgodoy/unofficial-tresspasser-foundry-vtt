@@ -296,16 +296,16 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
     _getVaultRange() {
         if (!this._token?.actor) return 2;
         const actor = this._token.actor;
-        const equippedArmor = actor.items.filter(i => i.type === "armor" && i.system.equipped);
-        const isLightOrUnarmored = !equippedArmor.some(a => a.system.weight === "H");
-        
-        if (!isLightOrUnarmored) return 2;
 
+        // For characters: use the derived speed_bonus (already includes agility, min 2, and effect bonuses)
+        if (actor.type === "character") {
+            return actor.system.combat?.speed_bonus ?? 2;
+        }
+
+        // For creatures: keep existing behavior (no speed bonus concept)
+        // Creatures' vault range is defined by their deed, not by a speed bonus
         const baseAgility = actor.system.attributes?.agility ?? 0;
-        const bonusAgility = TrespasserEffectsHelper.getAttributeBonus(actor, "agility");
-        const agility = baseAgility + bonusAgility;
-        
-        return Math.max(2, agility);
+        return Math.max(2, baseAgility);
     }
 
     _initHooks() {
