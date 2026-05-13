@@ -75,7 +75,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         for (let i = 1; i <= ap; i++) {
             moveOptions.push({
                 cost: i,
-                dist: speed + (i - 1) * 2
+                dist: speed + (i - 1) * this._getVaultRange()
             });
         }
 
@@ -628,7 +628,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
         const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
         const speed = baseSpeed + bonusSpeed;
-        const dist = speed + (cost - 1) * 2;
+        const dist = speed + (cost - 1) * this._getVaultRange();
 
         await combatant.update({
             "flags.trespasser.actionPoints": Math.max(0, currentAP - cost),
