@@ -110,6 +110,7 @@
         "End": "End"
       },
       "Combat": {
+        "AP": "AP",
         "Phase": {
           "Early": "Early Phase",
           "Enemy": "Enemy Phase",
