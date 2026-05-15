@@ -38,7 +38,13 @@
         "CounterPrompt": "<strong>{defender}</strong> pode contra-atacar <strong>{creature}</strong> com {weapon}! Causar {count}{die} de dano?",
         "DefensePrompt": "{creature} ataca {target} com {deed}! Role seu {stat}!",
         "DefenseTimeout": "A rolagem de defesa de {name} expirou.",
-        "WaitingForDefense": "Aguardando {name} rolar {stat}..."
+        "WaitingForDefense": "Aguardando {name} rolar {stat}...",
+        "PowerBonus": "Dano Bônus de Poder",
+        "PowerBonusDesc": "Rolando {count}{die} de dano bônus do Brilho de Poder.",
+        "PotencyBonus": "Bônus de Potência",
+        "PotencyBonusDesc": "+{count} intensidade nos efeitos aplicados.",
+        "ImpactBonus": "Bônus de Impacto",
+        "ImpactBonusDesc": "+{count} movimento forçado."
       },
       "Action": {
         "UsedItem": "Usou {name}",
@@ -116,6 +122,8 @@
         "GrantsIncantations": "Concede Encantamentos:",
         "Trained": " (treinado)",
         "Apply": "Aplicar",
+        "ApplyDamage": "Aplicar Dano",
+        "Heal": "Curar",
         "Applied": "Aplicado",
         "Success": "SUCESSO",
         "Failure": "FALHA",

@@ -28,7 +28,7 @@ export async function askSparkDialog(results) {
   ];
 
   // Build HTML for each layer
-  let html = `<div class="trespasser-dialog spark-dialog">`;
+  let html = `<div class="trespasser-dialog spark-dialog" style="max-height:60vh;overflow-y:auto;">`;
   html += `<p>${game.i18n.format("TRESPASSER.Dialog.Spark.Intro", { count: maxSparks })}</p>`;
 
   for (let layer = 1; layer <= maxSparks; layer++) {
@@ -88,7 +88,8 @@ export async function askSparkDialog(results) {
       }
     }, {
       classes: ["trespasser", "dialog", "spark-select"],
-      width: 400
+      width: 400,
+      resizable: true
     }).render(true);
   });
 }

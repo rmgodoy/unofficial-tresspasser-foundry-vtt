@@ -367,6 +367,65 @@ export async function onDeedRoll(event, sheet) {
   await sheet._postDeedPhase("After", effects.after, sheet.actor, item, commonOptions);
   await sheet._postDeedPhase("End",   effects.end,   sheet.actor, item, commonOptions);
 
+  // ── 11b. Separate Power bonus damage roll ────────────────────────────────
+  const powerDice = sparkChoices?.powerBonusDice ?? 0;
+  if (powerDice > 0 && anyHit) {
+    const sd = sheet.actor.system.skill_die || "d6";
+    const powerFormula = `${powerDice}${sd}`;
+    const powerRoll = new foundry.dice.Roll(powerFormula);
+    await powerRoll.evaluate();
+
+    // Determine targets for the Apply Damage button (only hit targets)
+    const hitTargetIds = results.filter(r => r.isHit).map(r => r.tokenId).filter(Boolean);
+    const targetIdAttr = hitTargetIds.length
+      ? ` data-target-ids="${hitTargetIds.join(",")}"`
+      : "";
+
+    const powerFlavor = `<div class="trespasser-chat-card">
+      <h3>${item.name} — ${game.i18n.localize("TRESPASSER.Chat.Combat.PowerBonus")}</h3>
+      <p><em>${game.i18n.format("TRESPASSER.Chat.Combat.PowerBonusDesc", { count: powerDice, die: sd })}</em></p>
+      <div class="trp-damage-actions" data-damage="${powerRoll.total}"${targetIdAttr} style="display:flex;gap:6px;margin-top:8px;">
+        <button class="apply-damage-btn" data-damage="${powerRoll.total}"${targetIdAttr} style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
+          <i class="fas fa-heart-broken"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.ApplyDamage")}
+        </button>
+        <button class="heal-damage-btn" data-damage="${powerRoll.total}"${targetIdAttr} style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
+          <i class="fas fa-heart"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.Heal")}
+        </button>
+      </div>
+    </div>`;
+
+    const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
+    const rollMode = (sheet.actor.type === "creature" && hideCreatureRolls) ? "gmroll" : "roll";
+    await powerRoll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+      flavor: powerFlavor
+    }, { rollMode });
+  }
+
+  // ── 11c. Potency bonus chat message ──────────────────────────────────────
+  const potencyBonus = sparkChoices?.potencyBonus ?? 0;
+  if (potencyBonus > 0 && anyHit) {
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+      content: `<div class="trespasser-chat-card">
+        <h3>${item.name} — ${game.i18n.localize("TRESPASSER.Chat.Combat.PotencyBonus")}</h3>
+        <p>${game.i18n.format("TRESPASSER.Chat.Combat.PotencyBonusDesc", { count: potencyBonus })}</p>
+      </div>`
+    });
+  }
+
+  // ── 11d. Impact bonus chat message ───────────────────────────────────────
+  const impactBonus = sparkChoices?.impactBonus ?? 0;
+  if (impactBonus > 0 && anyHit) {
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+      content: `<div class="trespasser-chat-card">
+        <h3>${item.name} — ${game.i18n.localize("TRESPASSER.Chat.Combat.ImpactBonus")}</h3>
+        <p>${game.i18n.format("TRESPASSER.Chat.Combat.ImpactBonusDesc", { count: impactBonus })}</p>
+      </div>`
+    });
+  }
+
   if (!isCreature) {
     for (const weapon of fragileItems) await sheet._runDepletionCheck(weapon);
   }
@@ -804,13 +863,6 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
     const damageBonus = await TrespasserEffectsHelper.evaluateDamageBonus(actor, "damage_dealt", weaponDie);
     if (damageBonus !== 0) parsedDamage = `(${parsedDamage}) + ${damageBonus}`;
 
-    // Spark Power: add extra skill dice to damage
-    const powerDice = options.sparkChoices?.powerBonusDice ?? 0;
-    if (powerDice > 0) {
-      const sd = actor.system.skill_die || "d6";
-      parsedDamage = `(${parsedDamage}) + ${powerDice}${sd}`;
-    }
-
     let rollObj;
     try {
       rollObj = new foundry.dice.Roll(parsedDamage);
@@ -823,10 +875,10 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
         : "";
       const applyHealBtns = `<div class="trp-damage-actions" data-damage="${rollObj.total}"${targetIdAttr} style="display:flex;gap:6px;margin-top:8px;">
         <button class="apply-damage-btn" data-damage="${rollObj.total}"${targetIdAttr} style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
-          <i class="fas fa-heart-broken"></i> Apply Damage
+          <i class="fas fa-heart-broken"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.ApplyDamage")}
         </button>
         <button class="heal-damage-btn" data-damage="${rollObj.total}"${targetIdAttr} style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
-          <i class="fas fa-heart"></i> Heal
+          <i class="fas fa-heart"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.Heal")}
         </button>
       </div>`;
       const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");

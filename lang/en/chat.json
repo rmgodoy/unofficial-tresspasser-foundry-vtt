@@ -38,7 +38,13 @@
         "CounterPrompt": "<strong>{defender}</strong> can counter-attack <strong>{creature}</strong> with {weapon}! Deal {count}{die} damage?",
         "DefensePrompt": "{creature} attacks {target} with {deed}! Roll your {stat}!",
         "DefenseTimeout": "{name}'s defense roll timed out.",
-        "WaitingForDefense": "Waiting for {name} to roll {stat}..."
+        "WaitingForDefense": "Waiting for {name} to roll {stat}...",
+        "PowerBonus": "Power Bonus Damage",
+        "PowerBonusDesc": "Rolling {count}{die} bonus damage from Power spark.",
+        "PotencyBonus": "Potency Bonus",
+        "PotencyBonusDesc": "+{count} intensity on applied effects.",
+        "ImpactBonus": "Impact Bonus",
+        "ImpactBonusDesc": "+{count} forced movement."
       },
       "Action": {
         "UsedItem": "Used {name}",
@@ -116,6 +122,8 @@
         "GrantsIncantations": "Grants Incantations:",
         "Trained": " (trained)",
         "Apply": "Apply",
+        "ApplyDamage": "Apply Damage",
+        "Heal": "Heal",
         "Applied": "Applied",
         "Success": "SUCCESS",
         "Failure": "FAILURE",
