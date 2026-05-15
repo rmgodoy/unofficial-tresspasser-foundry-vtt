@@ -66,6 +66,11 @@
       "path": "lang/en/global.json"
     },
     {
+      "lang": "en",
+      "name": "English (dungeon)",
+      "path": "lang/en/dungeon.json"
+    },
+    {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (app)",
       "path": "lang/pt-br/app.json"
@@ -109,6 +114,11 @@
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (global)",
       "path": "lang/pt-br/global.json"
+    },
+    {
+      "lang": "pt-br",
+      "name": "Portuguese (Brazil) (dungeon)",
+      "path": "lang/pt-br/dungeon.json"
     }
   ],
   "documentTypes": {
