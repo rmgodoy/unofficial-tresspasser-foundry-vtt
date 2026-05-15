@@ -20,6 +20,10 @@
           "Name": "Mostrar rolagem de iniciativa no chat",
           "Hint": "Se ativado, as rolagens de iniciativa serão postadas no log do chat."
         },
+        "ApplyEncumbranceRules": {
+          "Name": "Aplicar Regras de Sobrecarga",
+          "Hint": "Se ativado, as regras de sobrecarga (penalidades de Guarda e Velocidade) serão aplicadas automaticamente com base na Classificação de Armadura. O ícone de estado ainda será mostrado mesmo se isso estiver desativado."
+        },
         "PlayerFacingInitiative": {
           "Name": "Rolagens de Iniciativa pelos Jogadores",
           "Hint": "Quando ativado, os jogadores rolam sua própria iniciativa no início de cada rodada, em vez de ser automático."

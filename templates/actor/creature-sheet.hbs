@@ -2,7 +2,18 @@
   
   <header class="sheet-header">
     <div class="header-portrait">
-      <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+      <div class="actor-avatar-wrapper">
+        <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+        <div class="passive-states-overlay">
+          {{#each passiveStates}}
+            {{#if this.active}}
+              <div class="passive-state-icon" data-tooltip="{{localize this.label}}: {{localize this.description}}">
+                <img src="{{this.icon}}" alt="{{localize this.label}}" />
+              </div>
+            {{/if}}
+          {{/each}}
+        </div>
+      </div>
     </div>
 
     <div class="header-info">

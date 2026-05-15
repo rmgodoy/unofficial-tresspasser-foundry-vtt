@@ -1,5 +1,15 @@
 {
   "TRESPASSER": {
+    "State": {
+      "Bloody": {
+        "Name": "Sangrando",
+        "Description": "A vida está abaixo da metade do máximo."
+      },
+      "Encumbered": {
+        "Name": "Sobrecarregado",
+        "Description": "A Classificação de Armadura é +6 ou maior. Agilidade não é adicionada às verificações de Guarda, e o Bônus de Velocidade é limitado a +2."
+      }
+    },
     "Global": {
       "Action": {
         "Cancel": "Cancelar",

@@ -28,6 +28,14 @@
             </div>
 
             <div class="form-group">
+                <label>{{localize "TRESPASSER.Settings.Mechanics.ApplyEncumbranceRules.Name"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="applyEncumbranceRules" {{checked settings.applyEncumbranceRules}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.ApplyEncumbranceRules.Hint"}}</p>
+            </div>
+
+            <div class="form-group">
                 <label>{{localize "TRESPASSER.Settings.Mechanics.RestrictMovementAction.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="restrictMovementAction" {{checked settings.restrictMovementAction}}>

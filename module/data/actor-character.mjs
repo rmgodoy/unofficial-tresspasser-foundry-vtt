@@ -230,6 +230,23 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     this.combat.speed_bonus = Math.max(totalAgility, 2) + this.bonuses.speed_bonus;
     this.combat.focus      = this.combat.focus + this.bonuses.focus;
 
+    // ── Passive States ──
+    this.passiveStates = {};
+    
+    // Bloody: health < 50% of max
+    this.passiveStates.bloody = this.health < (this.max_health / 2);
+    
+    // Encumbrance: armor rating (from equipped armor pieces, before effect bonuses) >= 6
+    this.passiveStates.encumbered = totalArmor >= 6;
+    
+    const applyEncumbranceRules = game.settings.get("trespasser", "applyEncumbranceRules");
+    if (this.passiveStates.encumbered && applyEncumbranceRules) {
+      // Guard: remove agility contribution
+      this.combat.guard = this.armor + this.bonuses.guard;
+      // Speed bonus: limit agility contribution to 2
+      this.combat.speed_bonus = 2 + this.bonuses.speed_bonus;
+    }
+
     // 6. Deeds Capacity
     this.deed_slots.light = 0;
     this.deed_slots.heavy = 0;

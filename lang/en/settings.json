@@ -20,6 +20,10 @@
           "Name": "Show initiative roll in chat",
           "Hint": "If enabled, initiative rolls will be posted to the chat log."
         },
+        "ApplyEncumbranceRules": {
+          "Name": "Apply Encumbrance Rules",
+          "Hint": "If enabled, encumbrance rules (Guard and Speed penalties) will be automatically applied based on Armor Rating. The state icon will still be shown even if this is disabled."
+        },
         "PlayerFacingInitiative": {
           "Name": "Player-Facing Initiative Rolls",
           "Hint": "When enabled, players roll their own initiative at the start of each round instead of it being automatic."

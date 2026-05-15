@@ -1,5 +1,15 @@
 {
   "TRESPASSER": {
+    "State": {
+      "Bloody": {
+        "Name": "Bloody",
+        "Description": "Health is below half maximum."
+      },
+      "Encumbered": {
+        "Name": "Encumbered",
+        "Description": "Armor Rating is +6 or higher. Agility is not added to Guard checks, and Speed Bonus is limited to +2."
+      }
+    },
     "Global": {
       "Action": {
         "Cancel": "Cancel",

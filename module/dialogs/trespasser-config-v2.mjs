@@ -52,6 +52,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     // Primary settings
     context.settings = {
       showInitiativeInChat: game.settings.get("trespasser", "showInitiativeInChat"),
+      applyEncumbranceRules: game.settings.get("trespasser", "applyEncumbranceRules"),
       restrictMovementAction: game.settings.get("trespasser", "restrictMovementAction"),
       restrictHUDActions: game.settings.get("trespasser", "restrictHUDActions"),
       restrictAPFocusUsage: game.settings.get("trespasser", "restrictAPFocusUsage"),
@@ -172,7 +173,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
 
     // Reset all settings to defaults
     const settingsToReset = [
-        "showInitiativeInChat", "restrictMovementAction", "restrictHUDActions", 
+        "showInitiativeInChat", "applyEncumbranceRules", "restrictMovementAction", "restrictHUDActions", 
         "restrictAPFocusUsage", "groupCheckFullParty", "restrictHavenEditToLeader",
         "bypassHavenBuildingLimits", "disregardRangeOnAttack", "allowOutOfTurnMovement", "playerFacingInitiative", 
         "hideCreatureDamageRolls", "enableRetreatDialog", "showPerilInChat", "autoEndCombatOnRetreat", "confirmItemTransfer",

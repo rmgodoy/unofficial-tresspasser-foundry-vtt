@@ -4,6 +4,7 @@
  */
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
+import { PASSIVE_STATES } from "../../config/state-config.mjs";
 
 export async function getCharacterData(sheet, options = {}) {
   const context = await foundry.appv1.sheets.ActorSheet.prototype.getData.call(sheet, options);
@@ -312,6 +313,16 @@ export async function getCharacterData(sheet, options = {}) {
     relativeTo: actor,
     rollData: actor.getRollData()
   });
+
+  context.passiveStates = Object.entries(PASSIVE_STATES)
+    .map(([key, cfg]) => ({
+      key,
+      active: actor.system.passiveStates?.[key] ?? false,
+      icon: cfg.icon,
+      label: cfg.label,
+      description: cfg.description
+    }))
+    .filter(s => actor.type === "character" || s.key !== "encumbered");
 
   return context;
 }

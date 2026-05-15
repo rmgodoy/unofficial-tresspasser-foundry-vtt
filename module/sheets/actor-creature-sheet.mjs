@@ -4,6 +4,7 @@ import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 import { onDeedRoll, postDeedPhase } from "./character/handlers-deed.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
+import { PASSIVE_STATES } from "../config/state-config.mjs";
 
 /**
  * Extend the basic ActorSheet with some very simple logic.
@@ -112,6 +113,16 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
       special: allDeeds.filter(d => d.system.tier === "special")
     };
     context.deeds = allDeeds;
+
+    context.passiveStates = Object.entries(PASSIVE_STATES)
+      .map(([key, cfg]) => ({
+        key,
+        active: context.system.passiveStates?.[key] ?? false,
+        icon: cfg.icon,
+        label: cfg.label,
+        description: cfg.description
+      }))
+      .filter(s => this.actor.type === "character" || s.key !== "encumbered");
 
     return context;
   }

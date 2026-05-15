@@ -74,5 +74,8 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
     this.combat.accuracy = this.accuracy; 
     this.combat.speed = this.speed;
     this.combat.roll_bonus = this.roll_bonus;
+
+    this.passiveStates = {};
+    this.passiveStates.bloody = this.health < (this.max_health / 2);
   }
 }

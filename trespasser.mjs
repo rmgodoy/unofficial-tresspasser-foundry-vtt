@@ -44,8 +44,7 @@ import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
 import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
 import { TrespasserSocket }        from "./module/helpers/socket/socket.mjs";
-
-
+import { PASSIVE_STATES }          from "./module/config/state-config.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -137,6 +136,15 @@ Hooks.once("init", async () => {
     config: false,
     type: Boolean,
     default: false
+  });
+
+  game.settings.register("trespasser", "applyEncumbranceRules", {
+    name: "TRESPASSER.Settings.Mechanics.ApplyEncumbranceRules.Name",
+    hint: "TRESPASSER.Settings.Mechanics.ApplyEncumbranceRules.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
   });
   
   game.settings.register("trespasser", "enableRetreatDialog", {
@@ -1535,5 +1543,46 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
         if (token) token.setTarget(!token.isTargeted, { releaseOthers: false });
       }
     });
+  });
+});
+
+Hooks.on("refreshToken", (token) => {
+  // Remove old passive-state sprites
+  const existing = token.children.filter(c => c._trespasserPassiveState);
+  existing.forEach(c => { token.removeChild(c); c.destroy(); });
+
+  const states = token.document?.actor?.system?.passiveStates;
+  if (!states) return;
+
+  const activeKeys = Object.entries(states).filter(([key, v]) => v && (token.document.actor.type === "character" || key !== "encumbered"));
+  if (activeKeys.length === 0) return;
+
+  const iconSize = Math.max(16, Math.round(token.w * 0.22));
+  const padding = 2;
+
+  activeKeys.forEach(([key], index) => {
+    const cfg = PASSIVE_STATES[key];
+    if (!cfg) return;
+
+    const texture = PIXI.Texture.from(cfg.icon);
+    const sprite = new PIXI.Sprite(texture);
+    sprite.width = iconSize;
+    sprite.height = iconSize;
+    // Position at top-right corner, stacked vertically
+    sprite.x = token.w - iconSize - padding;
+    sprite.y = padding + index * (iconSize + padding);
+    sprite.alpha = 0.9;
+    sprite._trespasserPassiveState = true;
+    
+    // Tooltip on hover
+    sprite.eventMode = "static";
+    sprite.on("pointerover", () => {
+      const label = game.i18n.localize(cfg.label);
+      const desc = game.i18n.localize(cfg.description);
+      game.tooltip.activate(sprite, { text: `${label}: ${desc}`, direction: "UP" });
+    });
+    sprite.on("pointerout", () => game.tooltip.deactivate());
+
+    token.addChild(sprite);
   });
 });
