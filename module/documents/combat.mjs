@@ -271,6 +271,56 @@ export class TrespasserCombat extends Combat {
   }
 
   /**
+   * Check if the current active phase has no combatants and auto-advance if so.
+   * This handles the scenario where all combatants leave a phase (e.g. via Wait)
+   * and the Next Phase button disappears.
+   * Unlike nextPhase(), this does NOT trigger end-of-turn effects for the empty phase
+   * since there are no combatants to process.
+   */
+  async checkEmptyPhaseAdvance() {
+    if (!game.user.isGM) return;
+    if (!this.started) return;
+
+    // Don't auto-advance while initiatives are being (re-)rolled;
+    // combatant updates during that phase temporarily clear initiatives
+    // and would falsely trigger another nextRound().
+    const isWaiting = this.getFlag("trespasser", "waitingForInitiatives");
+    if (isWaiting) return;
+
+    const activePhase = this.getFlag("trespasser", "activePhase");
+    if (activePhase === null || activePhase === undefined) return;
+
+    // If there are still non-defeated combatants in the active phase, do nothing
+    const hasOccupants = this.combatants.some(
+      c => Number(c.initiative) === Number(activePhase) && !c.defeated
+    );
+    if (hasOccupants) return;
+
+    // Phase is empty — find the next populated phase
+    const phases = Object.values(TrespasserCombat.PHASES).sort((a, b) => b - a);
+    const currentIndex = phases.indexOf(activePhase);
+
+    let nextPhase = null;
+    for (let i = currentIndex + 1; i < phases.length; i++) {
+      const p = phases[i];
+      if (this.combatants.some(c => c.initiative === p && !c.defeated)) {
+        nextPhase = p;
+        break;
+      }
+    }
+
+    if (nextPhase !== null) {
+      await this.setFlag("trespasser", "activePhase", nextPhase);
+      await this.update({ turn: 0 });
+      await this._onStartOfTurn(nextPhase);
+    } else {
+      // No phases left — end of round
+      await this._onEndOfRound();
+      return this.nextRound();
+    }
+  }
+
+  /**
    * Trigger start-of-combat effects for all combatants.
    */
   async _onStartOfCombat() {

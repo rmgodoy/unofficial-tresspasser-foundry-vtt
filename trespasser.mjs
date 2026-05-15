@@ -895,9 +895,16 @@ Hooks.on("updateCombatant", (combatant, changed, options, userId) => {
   if (!game.combat) return;
   const isDefeatedChanged = changed.defeated !== undefined;
   const isAPChanged = changed.flags?.trespasser?.actionPoints !== undefined;
-  if (isDefeatedChanged || isAPChanged) {
+  const isInitiativeChanged = changed.initiative !== undefined;
+  if (isDefeatedChanged || isAPChanged || isInitiativeChanged) {
     const activePhase = game.combat.getFlag("trespasser", "activePhase");
     game.combat.updateTurnMarkers(activePhase);
+  }
+
+  // When a combatant's initiative changes (e.g. Wait action) or is defeated,
+  // check if the active phase has become empty and auto-advance
+  if ((isInitiativeChanged || isDefeatedChanged) && game.user.isGM) {
+    game.combat.checkEmptyPhaseAdvance();
   }
 });
 
