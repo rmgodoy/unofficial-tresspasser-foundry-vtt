@@ -801,13 +801,19 @@ export class TrespasserCombat extends Combat {
       mighty = 0;
     } else if ( perilTotal >= 7 && perilTotal <= 9 ) {
       perilLabel = "TRESPASSER.Terms.Combat.PanicLabels.Medium";
-      heavy = 1;
+      heavy = 2;
       mighty = 1;
     } else {
       perilLabel = "TRESPASSER.Terms.Combat.PanicLabels.High";
-      heavy = 2;
+      heavy = 1;
       mighty = 1;
     }
+
+    // Build display string: Medium uses "or", others use "/"
+    const isMedium = perilTotal >= 7 && perilTotal <= 9;
+    const deedDisplay = isMedium
+      ? `${heavy}H or ${mighty}M`
+      : `${heavy}H/${mighty}M`;
 
     // Store combat state in flags for the tracker
     const combatInfo = {
@@ -816,7 +822,8 @@ export class TrespasserCombat extends Combat {
       heavy,
       mighty,
       panicLevel,
-      enemyMaxInit
+      enemyMaxInit,
+      deedDisplay
     };
     
     await this.setFlag("trespasser", "combatInfo", combatInfo);

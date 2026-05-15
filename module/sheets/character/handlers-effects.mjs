@@ -38,9 +38,7 @@ export async function onPrevailRoll(event, sheet) {
 
   const intensity = effectItem.system.intensity || 0;
   const defaultCD = Math.min(20, 10 + intensity);
-  const prevailStat = sheet.actor.type === "creature" 
-    ? (sheet.actor.system.combat?.roll_bonus || 0) 
-    : (sheet.actor.system.combat?.prevail || 0);
+  const prevailStat = sheet.actor.system.combat?.prevail || 0;
   const apBonus = extraAP * 2;
 
   const isAdv = TrespasserEffectsHelper.hasAdvantage(sheet.actor, "prevail");

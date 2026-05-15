@@ -596,9 +596,7 @@ export class TrespasserActor extends Actor {
 
     const intensity = stateItem.system.intensity || 0;
     const dc = cd !== null ? cd : Math.min(20, 10 + intensity);
-    const prevailStat = this.type === "creature" 
-      ? (this.system.combat?.roll_bonus || 0) 
-      : (this.system.combat?.prevail || 0);
+    const prevailStat = this.system.combat?.prevail || 0;
     const apBonus = extraAP * 2;
     const bonuses = `${prevailStat} + ${apBonus} + ${modifier}`;
 

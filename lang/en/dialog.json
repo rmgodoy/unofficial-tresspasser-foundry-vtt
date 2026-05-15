@@ -50,7 +50,7 @@
       "Retreat": {
         "Title": "Continue or Retreat?",
         "Prompt": "The Peril for this round has been rolled. Do you want to continue the round or attempt a retreat?",
-        "PerilDisplay": "Peril: {total} ({label}) — Heavy: {heavy} / Mighty: {mighty}",
+        "PerilDisplay": "Peril: {total} ({label}) — {deedDisplay}",
         "ActionRetreat": "Retreat",
         "ActionContinue": "Continue Fighting"
       },

@@ -78,7 +78,7 @@
         "Fail": "{name} rolou {total} vs {dc} — Falha!",
         "PartyEscaped": "O grupo recuou com sucesso! ({successes}/{total} sucessos)",
         "PartyFailed": "O recuo falhou! ({successes}/{total} sucessos — {needed} necessários). O combate continua usando as iniciativas roladads.",
-        "Peril": "Perigo: {total} ({label}) — Pesadas: {heavy}, Pujantes: {mighty}"
+        "Peril": "Perigo: {total} ({label}) — {deedDisplay}"
       },
       "Haven": {
         "ReportTitle": "Relatório Semanal do Abrigo",

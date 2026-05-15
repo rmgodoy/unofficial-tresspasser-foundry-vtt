@@ -10,8 +10,7 @@ export async function showRetreatDialog(combatInfo) {
         <h3 style="color:var(--trp-gold-bright); margin:0;">${game.i18n.format("TRESPASSER.Dialog.Retreat.PerilDisplay", {
           total: combatInfo.perilTotal,
           label: label,
-          heavy: combatInfo.heavy,
-          mighty: combatInfo.mighty
+          deedDisplay: combatInfo.deedDisplay
         })}</h3>
       </div>
     </div>

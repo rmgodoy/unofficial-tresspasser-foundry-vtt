@@ -705,9 +705,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         const intensity = stateItem.system.intensity || 0;
         const defaultCD = Math.min(20, 10 + intensity);
-        const prevailStat = this._token.actor.type === "creature" 
-            ? (this._token.actor.system.combat?.roll_bonus || 0) 
-            : (this._token.actor.system.combat?.prevail || 0);
+        const prevailStat = this._token.actor.system.combat?.prevail || 0;
         const apBonus = extraAP * 2;
 
         const isAdv = TrespasserEffectsHelper.hasAdvantage(this._token.actor, "prevail");

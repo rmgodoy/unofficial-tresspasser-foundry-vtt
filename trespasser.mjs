@@ -549,7 +549,7 @@ Hooks.once("init", async () => {
 /**
  * Socket handling for Token Action HUD / Help action
  */
-Hooks.once("ready", () => {
+Hooks.once("ready", async () => {
   // Initialize Token Action HUD
   game.trespasser.tokenHUD = new TrespasserTokenHUD();
 
@@ -638,6 +638,20 @@ Hooks.once("ready", () => {
 
   if (game.combat && game.combat.flags?.trespasser?.activePhase ) {
     game.combat.updateTurnMarkers(game.combat.flags.trespasser.activePhase);
+  }
+
+  // ── Data Migration: Creature roll_bonus → prevail ─────────────────────────
+  if (game.user.isGM) {
+    for (const actor of game.actors) {
+      if (actor.type !== "creature") continue;
+      const src = actor.toObject();
+      const oldVal = src.system?.roll_bonus;
+      const newVal = src.system?.prevail;
+      if (oldVal !== undefined && oldVal !== 0 && (newVal === undefined || newVal === 0)) {
+        await actor.update({ "system.prevail": oldVal });
+        console.log(`Trespasser | Migrated creature "${actor.name}" roll_bonus(${oldVal}) → prevail`);
+      }
+    }
   }
 });
 
@@ -1472,7 +1486,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
             ${game.i18n.localize("TRESPASSER.Terms.Combat.Peril")}: ${combatInfo.perilTotal ?? 0}
             <span class="peril-label">(${game.i18n.localize(combatInfo.perilLabel ?? "TRESPASSER.Terms.Combat.PanicLabels.Low")})</span>
           </span>
-          <span class="deeds-usage">${combatInfo.heavy ?? 0}H / ${combatInfo.mighty ?? 0}M</span>
+          <span class="deeds-usage">${combatInfo.deedDisplay ?? `${combatInfo.heavy ?? 0}H/${combatInfo.mighty ?? 0}M`}</span>
         </div>
         <div class="right-info">
           <span class="panic-label">Panic: ${combatInfo.panicLevel ?? 0}</span>

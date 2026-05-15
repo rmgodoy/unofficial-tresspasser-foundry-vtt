@@ -184,7 +184,7 @@
           "PanicStatus": "PÂNICO! Perigo {peril} <= Nível de Pânico {panic}. Inimigos podem recuar ou se render!",
           "MoraleHolds": "Moral Mantida (Perigo {peril} > Nível de Pânico {panic})",
           "PerilRound": "Perigo da Rodada {round}: {label} ({total})",
-          "DeedUsage": "Você pode usar {heavy} Habilidade(s) Pesada(s) e {mighty} Habilidade(s) Pujante(s) nesta rodada."
+          "DeedUsage": "{deedDisplay} nesta rodada."
         }
       },
       "Rest": {

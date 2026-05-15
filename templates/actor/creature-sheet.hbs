@@ -74,7 +74,7 @@
         </div>
       </div>
 
-      <!-- Row 4: Resources Part 2 (Initiative, Speed, Roll Bonus) -->
+      <!-- Row 4: Resources Part 2 (Initiative, Speed, Prevail) -->
       <div class="header-row header-resources" style="justify-content: space-between;">
         <div class="resource-box">
           <label title="{{localize "TRESPASSER.Sheet.Common.Base"}}: {{system.accuracy}}">{{localize "TRESPASSER.Sheet.Combat.Accuracy"}} {{#if (ne system.accuracy system.combat.accuracy)}}({{system.combat.accuracy}}){{/if}}</label>
@@ -89,8 +89,8 @@
           <input type="number" name="system.speed" value="{{system.speed}}" />
         </div>
         <div class="resource-box">
-          <label title="{{localize "TRESPASSER.Sheet.Common.Base"}}: {{system.roll_bonus}}">{{localize "TRESPASSER.Sheet.Combat.Roll"}} {{#if (ne system.roll_bonus system.combat.roll_bonus)}}({{system.combat.roll_bonus}}){{/if}}</label>
-          <input type="number" name="system.roll_bonus" value="{{system.roll_bonus}}" />
+          <label title="{{localize "TRESPASSER.Sheet.Common.Base"}}: {{system.prevail}}">{{localize "TRESPASSER.Sheet.Combat.Prevail"}} {{#if (ne system.prevail system.combat.prevail)}}({{system.combat.prevail}}){{/if}}</label>
+          <input type="number" name="system.prevail" value="{{system.prevail}}" />
         </div>
       </div>
     </div>

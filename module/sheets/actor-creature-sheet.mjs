@@ -290,9 +290,7 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
 
     const intensity = effectItem.system.intensity || 0;
     const defaultCD = Math.min(20, 10 + intensity);
-    const prevailStat = this.actor.type === "creature" 
-      ? (this.actor.system.combat?.roll_bonus || 0) 
-      : (this.actor.system.combat?.prevail || 0);
+    const prevailStat = this.actor.system.combat?.prevail || 0;
     const apBonus = extraAP * 2;
 
     const isAdv = TrespasserEffectsHelper.hasAdvantage(this.actor, "prevail");

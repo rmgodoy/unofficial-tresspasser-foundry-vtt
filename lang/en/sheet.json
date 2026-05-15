@@ -184,7 +184,7 @@
           "PanicStatus": "PANIC! Peril {peril} <= Panic Level {panic}. Enemies may retreat or surrender!",
           "MoraleHolds": "Morale Holds (Peril {peril} > Panic Level {panic})",
           "PerilRound": "Round {round} Peril: {label} ({total})",
-          "DeedUsage": "You can use {heavy} Heavy Deed(s) and {mighty} Mighty Deed(s) this round."
+          "DeedUsage": "{deedDisplay} this round."
         }
       },
       "Rest": {

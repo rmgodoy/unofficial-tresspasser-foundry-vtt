@@ -78,7 +78,7 @@
         "Fail": "{name} rolled {total} vs {dc} — Failure!",
         "PartyEscaped": "The party successfully retreated! ({successes}/{total} succeeded)",
         "PartyFailed": "The retreat failed! ({successes}/{total} succeeded — {needed} needed). Combat continues using the rolled initiatives.",
-        "Peril": "Peril: {total} ({label}) — Heavy: {heavy}, Mighty: {mighty}"
+        "Peril": "Peril: {total} ({label}) — {deedDisplay}"
       },
       "Haven": {
         "ReportTitle": "Haven Weekly Report",

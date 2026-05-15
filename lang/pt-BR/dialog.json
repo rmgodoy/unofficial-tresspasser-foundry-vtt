@@ -50,7 +50,7 @@
       "Retreat": {
         "Title": "Continuar ou Recuar?",
         "Prompt": "O Perigo desta rodada foi rolado. Deseja continuar a rodada ou tentar recuar?",
-        "PerilDisplay": "Perigo: {total} ({label}) — Pesadas: {heavy} / Pujantes: {mighty}",
+        "PerilDisplay": "Perigo: {total} ({label}) — {deedDisplay}",
         "ActionRetreat": "Retirar-se",
         "ActionContinue": "Continuar Lutando"
       },
