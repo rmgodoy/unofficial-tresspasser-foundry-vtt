@@ -47,6 +47,7 @@
         "NeedFreeHand": "This ability requires a free hand.",
         "NeedWeapon": "This ability requires an equipped weapon.",
         "TargetOutOfRange": "{name} is out of range ({distance} sq, max {range}).",
+        "TargetTypeBlast": "Blast",
         "APModified": "{name} now has {ap} Action Points.",
         "MoveActionRequired": "This action requires a Move Action.",
         "MovementLimitExceeded": "Movement limit exceeded.",

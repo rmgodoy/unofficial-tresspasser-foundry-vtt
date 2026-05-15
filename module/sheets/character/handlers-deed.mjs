@@ -157,7 +157,8 @@ export async function onDeedRoll(event, sheet) {
       return;
     }
 
-    const aoeResult = await TargetingHelper.placeTemplate(sheet.actor, sourceToken, deed);
+    const activeWeapons = typeof sheet._getActiveWeapons === "function" ? sheet._getActiveWeapons() : [];
+    const aoeResult = await TargetingHelper.placeTemplate(sheet.actor, sourceToken, deed, activeWeapons);
     if (!aoeResult) return; // cancelled
     templateDoc = aoeResult.templateDoc;
     const gridPx = canvas.grid.size;

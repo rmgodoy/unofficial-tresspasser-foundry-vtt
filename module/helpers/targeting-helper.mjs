@@ -32,15 +32,17 @@ export class TargetingHelper {
    * @param {object} deed    item.system of the deed
    * @returns {Promise<{squares: Array<{x:number,y:number}>, templateDoc: MeasuredTemplateDocument|null}|null>}
    */
-  static async placeTemplate(actor, token, deed) {
+  static async placeTemplate(actor, token, deed, activeWeapons = []) {
     const type = deed.targetType;
     const size = deed.targetSize ?? 1;
     const gridPx = canvas.grid.size;
 
+    const maxRangeSq = this.getMaxRangeSq(token, deed, activeWeapons);
+
     switch (type) {
       case "blast":
         ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.PlaceBlast", { size }));
-        return this.#placeBlast(token, size, gridPx, null);
+        return this.#placeBlast(token, size, gridPx, false, maxRangeSq);
 
       case "close_blast":
         ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.PlaceCloseBlast", { size }));
@@ -154,9 +156,10 @@ export class TargetingHelper {
    * @param {number} size        Blast size in squares (N)
    * @param {number} gridPx      Pixels per grid square
    * @param {boolean|null} close If true, blast must be adjacent to caster
+   * @param {number|null} maxRangeSq Max range in squares
    * @returns {Promise<{squares, templateDoc: null}|null>}
    */
-  static async #placeBlast(token, size, gridPx, close) {
+  static async #placeBlast(token, size, gridPx, close, maxRangeSq = null) {
     return new Promise((resolve) => {
       const highlights = [];
       const layer = canvas.interface;
@@ -204,6 +207,18 @@ export class TargetingHelper {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.BlastMustBeAdjacent"));
             return;
           }
+        } else if (maxRangeSq !== null && maxRangeSq !== undefined && maxRangeSq > 0) {
+          const tokenSquares = this.#getTokenOccupiedSquares(token, gridPx);
+          const distSq = this.#getMinSquareDistance(currentSquares, tokenSquares, gridPx);
+          if (distSq > maxRangeSq) {
+            ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
+              name: game.i18n.localize("TRESPASSER.Notification.Combat.TargetTypeBlast"),
+              range: maxRangeSq,
+              distance: distSq
+            }));
+            const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
+            if (!disregardRange) return;
+          }
         }
 
         cleanup();
@@ -235,33 +250,64 @@ export class TargetingHelper {
    * any square occupied by the token.
    */
   static #isBlastAdjacentToToken(blastSquares, token, gridPx) {
-    const tokenTopLeft = canvas.grid.getTopLeftPoint(token.center);
+    const tokenPositions = this.#getTokenOccupiedSquares(token, gridPx);
+
+    for (const bsq of blastSquares) {
+      for (const tsq of tokenPositions) {
+        const dx = Math.abs(bsq.x - tsq.x);
+        const dy = Math.abs(bsq.y - tsq.y);
+        // Adjacent if they are exactly 1 square apart (horizontally, vertically, or diagonally)
+        // Since we are using top-left coordinates, dx or dy must be exactly gridPx
+        if (dx <= gridPx && dy <= gridPx && (dx > 0 || dy > 0)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  static #getTokenOccupiedSquares(token, gridPx) {
+    const tokenTopLeft = { x: token.document.x, y: token.document.y };
     const tokenW = token.document.width ?? 1;
     const tokenH = token.document.height ?? 1;
 
-    // Build set of token-occupied positions
-    const tokenPositions = [];
+    const squares = [];
     for (let tx = 0; tx < tokenW; tx++) {
       for (let ty = 0; ty < tokenH; ty++) {
-        tokenPositions.push({
+        squares.push({
           x: tokenTopLeft.x + tx * gridPx,
           y: tokenTopLeft.y + ty * gridPx
         });
       }
     }
+    return squares;
+  }
 
-    // Check if any blast square shares an edge with any token square
-    for (const bSq of blastSquares) {
-      for (const tSq of tokenPositions) {
-        const dx = Math.abs(bSq.x - tSq.x);
-        const dy = Math.abs(bSq.y - tSq.y);
-        // Shares edge: one axis differs by gridPx, the other by 0
-        // OR shares corner: both differ by gridPx (diagonal adjacency)
-        if (dx <= gridPx && dy <= gridPx && !(dx === 0 && dy === 0)) return true;
+  static #getCentersFromSquares(squares, gridPx) {
+    return squares.map(sq => ({
+      x: sq.x + gridPx / 2,
+      y: sq.y + gridPx / 2
+    }));
+  }
+
+  static #getMinSquareDistance(squaresA, squaresB, gridPx) {
+    const gridDist = canvas.dimensions?.distance ?? 5;
+    const centersA = this.#getCentersFromSquares(squaresA, gridPx);
+    const centersB = this.#getCentersFromSquares(squaresB, gridPx);
+
+    let minDistSq = Infinity;
+    for (const cA of centersA) {
+      for (const cB of centersB) {
+        const path = [cA, cB];
+        const distUnits = canvas.grid.measurePath(path).distance;
+        const distSq = distUnits / gridDist;
+        if (distSq < minDistSq) minDistSq = distSq;
       }
     }
-    return false;
+    return Math.round(minDistSq);
   }
+
+
 
   /* -------------------------------------------- */
   /* Private — Burst (square ring computation)     */
@@ -277,7 +323,7 @@ export class TargetingHelper {
    * @returns {Array<{x: number, y: number}>}
    */
   static #computeBurstSquares(token, size, gridPx) {
-    const tokenTopLeft = canvas.grid.getTopLeftPoint(token.center);
+    const tokenTopLeft = { x: token.document.x, y: token.document.y };
     const tokenW = token.document.width ?? 1;
     const tokenH = token.document.height ?? 1;
 
@@ -711,6 +757,46 @@ export class TargetingHelper {
    * @param {Item[]} activeWeapons
    * @returns {{ valid: boolean, message?: string }}
    */
+  static getMaxRangeSq(sourceToken, deed, activeWeapons = []) {
+    let maxRangeSq = null;
+    const actorType = sourceToken?.actor?.type;
+    const isCreature = actorType === "creature";
+    const gridDist = canvas.dimensions?.distance ?? 5;
+
+    if (isCreature) {
+      maxRangeSq = deed.range;
+    } else {
+      const deedType = deed.type;
+      const isThrown = activeWeapons.some(w => w.system.properties?.thrown);
+
+      if (deedType === "melee" || deedType === "unarmed") {
+        if (isThrown) {
+          const relevant = activeWeapons.filter(w => w.system.properties?.thrown);
+          maxRangeSq = this.#getWeaponRangeInSquares(relevant, gridDist);
+        } else {
+          const meleeWeapons = activeWeapons.filter(w => w.system.type === "melee");
+          maxRangeSq = this.#getWeaponRangeInSquares(meleeWeapons, gridDist);
+          if (maxRangeSq === 0) maxRangeSq = 1;
+        }
+      } else if (deedType === "missile") {
+        const relevant = activeWeapons.filter(w =>
+          w.system.type === "missile" || w.system.properties?.thrown
+        );
+        maxRangeSq = this.#getWeaponRangeInSquares(relevant, gridDist);
+      } else if (deedType === "spell") {
+        const spellWeapons = activeWeapons.filter(w => w.system.type === "spell");
+        maxRangeSq = this.#getWeaponRangeInSquares(spellWeapons, gridDist);
+        if (maxRangeSq === 0) maxRangeSq = 4;
+      } else if (deedType === "tool") {
+        const agility = sourceToken.actor?.system?.attributes?.agility ?? 0;
+        maxRangeSq = 5 + agility;
+      } else if (deedType === "versatile") {
+        maxRangeSq = this.#getWeaponRangeInSquares(activeWeapons, gridDist);
+      }
+    }
+    return maxRangeSq;
+  }
+
   static validateRange(targets, sourceToken, deed, activeWeapons) {
     if (!sourceToken || targets.length === 0) return { valid: true };
     // Only applies to creature-targeted deeds
@@ -719,73 +805,26 @@ export class TargetingHelper {
     if (deed.actionType === "support") return { valid: true };
 
     const gridPx = canvas.grid.size;
-    const gridDist = canvas.dimensions?.distance ?? 5;
 
-    // Determine max range in grid squares based on deed type
-    let maxRangeSq;
-    // Check actor type from the token's actor
-    const actorType = sourceToken.actor?.type;
-    const isCreature = actorType === "creature";
-
-    if (isCreature) {
-      // For creatures, range is explicitly set on the deed in squares
-      maxRangeSq = deed.range;
-    } else {
-      const deedType = deed.type;
-      const isThrown = activeWeapons.some(w => w.system.properties?.thrown);
-
-      if (deedType === "melee" || deedType === "unarmed") {
-        if (isThrown) {
-          // Thrown weapon used at missile range
-          const relevant = activeWeapons.filter(w => w.system.properties?.thrown);
-          maxRangeSq = this.#getWeaponRangeInSquares(relevant, gridDist);
-        } else {
-          // Melee reach: parse from weapon range field, default 1 (free hand = 1)
-          const meleeWeapons = activeWeapons.filter(w => w.system.type === "melee");
-          maxRangeSq = this.#getWeaponRangeInSquares(meleeWeapons, gridDist);
-          if (maxRangeSq === 0) maxRangeSq = 1; // free hand / default
-        }
-      } else if (deedType === "missile") {
-        const relevant = activeWeapons.filter(w =>
-          w.system.type === "missile" || w.system.properties?.thrown
-        );
-        maxRangeSq = this.#getWeaponRangeInSquares(relevant, gridDist);
-      } else if (deedType === "spell") {
-        // Spell weapons have spell range; free hand = 4 squares
-        const spellWeapons = activeWeapons.filter(w => w.system.type === "spell");
-        maxRangeSq = this.#getWeaponRangeInSquares(spellWeapons, gridDist);
-        if (maxRangeSq === 0) maxRangeSq = 4; // free hand default
-      } else if (deedType === "tool") {
-        // Tool range = 5 + Agility (throwing range)
-        const agility = sourceToken.actor?.system?.attributes?.agility ?? 0;
-        maxRangeSq = 5 + agility;
-      } else if (deedType === "versatile") {
-        maxRangeSq = this.#getWeaponRangeInSquares(activeWeapons, gridDist);
-      } else {
-        // Innate: no range enforcement
-        return { valid: true };
-      }
-    }
+    const maxRangeSq = this.getMaxRangeSq(sourceToken, deed, activeWeapons);
 
     // If no parseable range found, skip validation (don't block deeds with empty range)
     if (maxRangeSq === null || maxRangeSq === undefined || maxRangeSq <= 0) return { valid: true };
 
-    // Check each target using Foundry's distance measurement (respects grid units)
+    const sourceSquares = this.#getTokenOccupiedSquares(sourceToken, gridPx);
+
+    // Check each target using Chebyshev edge-to-edge distance calculation
     for (const t of targets) {
-      // In V13, measurePath is the standard way to calculate distance between points
-      // It respects the scene's grid distance and diagonal rules (e.g. 5-5-5, 5-10-5, etc.)
-      const path = [sourceToken.center, t.center];
-      const distUnits = canvas.grid.measurePath(path).distance;
-      
-      // Convert to squares based on scene's grid distance (e.g. 5ft/sq)
-      const distSq = distUnits / gridDist;
+      const targetSquares = this.#getTokenOccupiedSquares(t, gridPx);
+      const distSq = this.#getMinSquareDistance(sourceSquares, targetSquares, gridPx);
+
       if (distSq > maxRangeSq) {
         return {
           valid: false,
           message: game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
             name: t.name,
             range: maxRangeSq,
-            distance: Math.round(distSq)
+            distance: distSq
           })
         };
       }
