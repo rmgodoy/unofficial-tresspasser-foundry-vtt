@@ -94,11 +94,17 @@ export class TargetingHelper {
   static getTokensInSquares(squares, gridPx, { excludeTokenId } = {}) {
     return canvas.tokens.placeables.filter(t => {
       if (excludeTokenId && t.id === excludeTokenId) return false;
-      const cx = t.center.x;
-      const cy = t.center.y;
-      return squares.some(sq =>
-        cx >= sq.x && cx < sq.x + gridPx &&
-        cy >= sq.y && cy < sq.y + gridPx
+      
+      const tX = t.document.x;
+      const tY = t.document.y;
+      const tW = (t.document.width ?? 1) * gridPx;
+      const tH = (t.document.height ?? 1) * gridPx;
+
+      return squares.some(sq => 
+        tX < sq.x + gridPx &&
+        tX + tW > sq.x &&
+        tY < sq.y + gridPx &&
+        tY + tH > sq.y
       );
     });
   }

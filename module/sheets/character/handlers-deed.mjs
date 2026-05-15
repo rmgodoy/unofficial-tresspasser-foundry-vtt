@@ -529,7 +529,8 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
       dc
     });
 
-    if (targetActor) {
+    if (targetToken) {
+      // Always show target info (name, CD, hit/miss, sparks/shadows) for every target
       resultsHtml += `
         <div class="target-result" style="border-top:1px solid var(--trp-border-light);padding-top:5px;margin-top:5px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
