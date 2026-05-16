@@ -19,6 +19,7 @@ All notable changes to this project will be documented in this file.
 - **Localization**: Major localization architecture migration, adopting a new language organization format.
 - **Player-Facing Defense Refactor**: Migrated the player-facing defense roll system from document-flags to a more robust custom socket implementation.
 - **Creature Terminology**: Renamed "Roll" to "Prevail" for Creatures and updated the Peril deed economy.
+- **Removed Panic level from chat**: When showing Peril rolls in the chat card, the panic level is no longer shown.
 
 ### Bug Fixes
 - **Targeting**: Fixed corrected range calculations for larger creatures.
