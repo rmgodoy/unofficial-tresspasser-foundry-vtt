@@ -7,7 +7,7 @@
     <div class="header-info" style="flex:1;">
       <h1 class="item-title" style="margin:0;">
         <input type="text" name="name" value="{{item.name}}"
-               placeholder="{{localize 'TRESPASSER.ItemTypes.calling'}}"
+               placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"
                style="font-family:'Cinzel',serif; font-size:var(--fs-22); color:var(--trp-gold-bright); border:none; border-bottom:1px solid #555; background:transparent; width:100%;" />
       </h1>
     </div>
@@ -15,8 +15,8 @@
 
   {{!-- ═══ TAB NAVIGATION ═══ --}}
   <nav class="sheet-tabs tabs" data-group="primary" style="display:flex; border-bottom:1px solid var(--trp-border); margin-bottom:12px;">
-    <a class="item" data-tab="description" style="padding:5px 15px; cursor:pointer;">{{localize "TRESPASSER.Sheet.Header.Description"}}</a>
-    <a class="item" data-tab="progression" style="padding:5px 15px; cursor:pointer;">{{localize "TRESPASSER.Calling.Progression"}}</a>
+    <a class="item" data-tab="description" style="padding:5px 15px; cursor:pointer;">{{localize "TRESPASSER.Sheet.Tabs.Description"}}</a>
+    <a class="item" data-tab="progression" style="padding:5px 15px; cursor:pointer;">{{localize "TRESPASSER.Sheet.Tabs.Progression"}}</a>
   </nav>
 
   <section class="sheet-body scrollable">
@@ -25,7 +25,7 @@
     <div class="tab" data-group="primary" data-tab="description">
       {{!-- ═══ DESCRIPTION ═══ --}}
       <div class="description-section" style="margin-bottom:16px; border-bottom:1px solid var(--trp-border); padding-bottom:12px;">
-        <h4>{{localize "TRESPASSER.Item.Description"}}</h4>
+        <h4>{{localize "TRESPASSER.Sheet.Common.Description"}}</h4>
         <div class="trp-editor-container">
           {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
         </div>
@@ -33,7 +33,7 @@
 
       {{!-- ═══ SKILLS ═══ --}}
       <div class="skills-section" style="margin-bottom:16px; border-bottom:1px solid var(--trp-border); padding-bottom:12px;">
-        <h4>{{localize "TRESPASSER.Calling.Skills"}}</h4>
+        <h4>{{localize "TRESPASSER.Sheet.Calling.Skills"}}</h4>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:2px 12px;">
           {{#each skillRows as |row|}}
             <div class="skill-row" style="display:flex; align-items:center; justify-content:space-between; padding:3px 4px;">
@@ -46,9 +46,9 @@
 
       {{!-- ═══ TALENTS ═══ --}}
       <div class="calling-list-section" style="margin-bottom:16px; border-bottom:1px solid var(--trp-border); padding-bottom:12px;">
-        <h4>{{localize "TRESPASSER.Calling.Talents"}}</h4>
+        <h4>{{localize "TRESPASSER.Sheet.Calling.Talents"}}</h4>
         <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">
-          {{localize "TRESPASSER.Calling.DropTalentsNote"}}
+          {{localize "TRESPASSER.Sheet.Calling.DropTalentsNote"}}
         </p>
         <div class="calling-drop-zone" data-list="talents"
              style="min-height:40px; padding:4px; border:1px dashed var(--trp-border); border-radius:4px; background:var(--trp-bg-overlay); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
@@ -59,22 +59,22 @@
               <span style="color:var(--trp-text-bright);">{{entry.name}}</span>
               {{#if @root.editable}}
                 <a class="calling-item-remove" data-list="talents"
-                   style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Calling.Remove'}}">
+                   style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}">
                   <i class="fas fa-times"></i>
                 </a>
               {{/if}}
             </div>
           {{else}}
-            <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Talents"}}</span>
+            <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropTalents"}}</span>
           {{/each}}
         </div>
       </div>
 
       {{!-- ═══ FEATURES ═══ --}}
       <div class="calling-list-section" style="margin-bottom:16px; border-bottom:1px solid var(--trp-border); padding-bottom:12px;">
-        <h4>{{localize "TRESPASSER.Calling.Features"}}</h4>
+        <h4>{{localize "TRESPASSER.Sheet.Calling.Features"}}</h4>
         <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">
-          {{localize "TRESPASSER.Calling.DropFeaturesNote"}}
+          {{localize "TRESPASSER.Sheet.Calling.DropFeaturesNote"}}
         </p>
         <div class="calling-drop-zone" data-list="features"
              style="min-height:40px; padding:4px; border:1px dashed var(--trp-border); border-radius:4px; background:var(--trp-bg-overlay); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
@@ -85,22 +85,22 @@
               <span style="color:var(--trp-text-bright);">{{entry.name}}</span>
               {{#if @root.editable}}
                 <a class="calling-item-remove" data-list="features"
-                   style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Calling.Remove'}}">
+                   style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}">
                   <i class="fas fa-times"></i>
                 </a>
               {{/if}}
             </div>
           {{else}}
-            <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.MagicTraits"}}</span>
+            <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropFeatures"}}</span>
           {{/each}}
         </div>
       </div>
 
       {{!-- ═══ ENHANCEMENTS ═══ --}}
       <div class="calling-list-section" style="margin-bottom:8px;">
-        <h4>{{localize "TRESPASSER.Calling.Enhancements"}}</h4>
+        <h4>{{localize "TRESPASSER.Sheet.Calling.Enhancements"}}</h4>
         <p style="font-size:var(--fs-11); font-style:italic; color:var(--trp-text-dim); margin-bottom:5px;">
-          {{localize "TRESPASSER.Calling.DropFeaturesNote"}}
+          {{localize "TRESPASSER.Sheet.Calling.DropFeaturesNote"}}
         </p>
         <div class="calling-drop-zone" data-list="enhancements"
              style="min-height:40px; padding:4px; border:1px dashed var(--trp-border); border-radius:4px; background:var(--trp-bg-overlay); display:flex; flex-wrap:wrap; gap:4px; align-items:flex-start;">
@@ -111,13 +111,13 @@
               <span style="color:var(--trp-text-bright);">{{entry.name}}</span>
               {{#if @root.editable}}
                 <a class="calling-item-remove" data-list="enhancements"
-                   style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Calling.Remove'}}">
+                   style="margin-left:6px; color:var(--trp-red); cursor:pointer;" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}">
                   <i class="fas fa-times"></i>
                 </a>
               {{/if}}
             </div>
           {{else}}
-            <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.MagicTraits"}}</span>
+            <span style="color:var(--trp-text-dim); font-style:italic; line-height:30px; margin-left:6px;">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropFeatures"}}</span>
           {{/each}}
         </div>
       </div>
@@ -154,21 +154,21 @@
                 <input type="number" class="prog-input" data-level="{{i}}" data-field="attributePoints" value="{{row.attributePoints}}" />
               </div>
               <div class="prog-field">
-                <label>{{localize "TRESPASSER.Sheet.Combat.DEEDSLIGHT"}}:</label>
+                <label>{{localize "TRESPASSER.Sheet.Combat.DeedsLight"}}:</label>
                 <input type="number" class="prog-input" data-level="{{i}}" data-field="deedsLight" value="{{row.deedsLight}}" />
               </div>
               <div class="prog-field">
-                <label>{{localize "TRESPASSER.Sheet.Combat.DEEDSHEAVY"}}:</label>
+                <label>{{localize "TRESPASSER.Sheet.Combat.DeedsHeavy"}}:</label>
                 <input type="number" class="prog-input" data-level="{{i}}" data-field="deedsHeavy" value="{{row.deedsHeavy}}" />
               </div>
               <div class="prog-field">
-                <label>{{localize "TRESPASSER.Sheet.Combat.DEEDSMIGHTY"}}:</label>
+                <label>{{localize "TRESPASSER.Sheet.Combat.DeedsMighty"}}:</label>
                 <input type="number" class="prog-input" data-level="{{i}}" data-field="deedsMighty" value="{{row.deedsMighty}}" />
               </div>
               <div class="prog-field full-width">
-                <label>{{localize "TRESPASSER.Calling.GrantDescription"}}:</label>
+                <label>{{localize "TRESPASSER.Sheet.Calling.GrantDescription"}}:</label>
                 <input type="text" class="prog-input" data-level="{{i}}" data-field="callingAbilities" value="{{row.callingAbilities}}"
-                       placeholder="{{localize 'TRESPASSER.Calling.GrantDescription'}}" />
+                       placeholder="{{localize 'TRESPASSER.Sheet.Item.Placeholder.GrantDescription'}}" />
               </div>
             </div>
           </div>

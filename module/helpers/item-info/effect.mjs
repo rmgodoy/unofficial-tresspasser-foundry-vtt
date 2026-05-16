@@ -13,22 +13,22 @@ export function buildEffectContent(item) {
   
   const metaParts = [
     typeLabel,
-    `${game.i18n.localize("TRESPASSER.Item.int")}: ${intensity}`
+    `${game.i18n.localize("TRESPASSER.Sheet.Common.IntensityShort")}: ${intensity}`
   ];
 
   if (triggerLabel && triggerLabel !== "immediate" && triggerLabel !== "undefined") {
-    metaParts.push(`${game.i18n.localize("TRESPASSER.Item.triggerWhen")}: ${triggerLabel}`);
+    metaParts.push(`${game.i18n.localize("TRESPASSER.Sheet.Common.Trigger")}: ${triggerLabel}`);
   }
 
   if (sys.gmOnly) {
-    metaParts.push(`<span style="color: var(--trp-red-dim);">${game.i18n.localize("TRESPASSER.Item.gmOnly")}</span>`);
+    metaParts.push(`<span style="color: var(--trp-red-dim);">${game.i18n.localize("TRESPASSER.Sheet.Item.States.GMOnly")}</span>`);
   }
 
   // Duration summary (supports compound conditions)
   const hasNonIndefinite = DurationHelper.getConditions({ system: sys })
     .some(c => c.mode !== "indefinite");
   if (hasNonIndefinite) {
-    metaParts.push(`${game.i18n.localize("TRESPASSER.Item.duration")}: ${DurationHelper.formatSummary({ system: sys })}`);
+    metaParts.push(`${game.i18n.localize("TRESPASSER.Sheet.Common.Duration")}: ${DurationHelper.formatSummary({ system: sys })}`);
   }
 
   let meta = `<div class="info-dlg-meta">${metaParts.join(" | ")}</div>`;
@@ -38,7 +38,7 @@ export function buildEffectContent(item) {
     const targetLookup = TrespasserEffectsHelper.TARGET_ATTRIBUTES[sys.targetAttribute];
     const targetLabel = targetLookup ? game.i18n.localize(targetLookup) : sys.targetAttribute;
     
-    meta += `<div class="info-dlg-meta">${game.i18n.localize("TRESPASSER.Item.modifier")}: ${targetLabel}: ${sys.modifier}</div>`;
+    meta += `<div class="info-dlg-meta">${game.i18n.localize("TRESPASSER.Sheet.Common.Modifier")}: ${targetLabel}: ${sys.modifier}</div>`;
   }
 
   const desc = sys.description?.trim() || "";
@@ -48,6 +48,6 @@ export function buildEffectContent(item) {
       <div class="info-dlg-title">${esc(item.name)}</div>
       ${meta}
       <hr style="border: 0; border-top: 1px solid var(--trp-border-light); margin: 8px 0;" />
-      ${desc ? `<div class="info-dlg-html">${desc}</div>` : `<div class="info-dlg-empty">${game.i18n.localize("TRESPASSER.Item.NoDescription")}</div>`}
+      ${desc ? `<div class="info-dlg-html">${desc}</div>` : `<div class="info-dlg-empty">${game.i18n.localize("TRESPASSER.Sheet.Item.Placeholder.Description")}</div>`}
     </div>`;
 }

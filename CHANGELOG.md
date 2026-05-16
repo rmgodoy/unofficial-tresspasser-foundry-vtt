@@ -2,6 +2,31 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.7] - 2026-05-15
+
+### Features
+- **Item Transfer**: Implemented transferring items via drag and drop and targeted.
+- **Creature Roll Configuration**: Added a new configuration option to hide creature damage rolls.
+- **Armor Restrictions**: Removed the hard restriction on the number of heavy armors and updated the limit to be based on the "Mighty" attribute.
+- **Inventory Management**: Removed the restriction of unequipping items when the inventory is full.
+- **Speed & Movement**: Updated the speed system to use the "Speed" and "Speed Bonus" concepts, applying the speed bonus directly to the Move action.
+- **Passive States**: Implemented passive states for "Bloody" and "Encumbered" with new configuration to apply modifiers when encumbered.
+- **Sparks Chat Messages**: Added dedicated chat messages for potency and impact sparks.
+- **Deed Ranges**: Added a `range` attribute on Deeds specifically for creatures, and changed range restrictions to output warnings rather than hard blocks (configurable in settings).
+
+### Improvements
+- **Item Quality Terminology**: Updated terminology of qualities from "Normal" and "Fine" to "Fine" and "Superior".
+- **Localization**: Major localization architecture migration, adopting a new language organization format.
+- **Player-Facing Defense Refactor**: Migrated the player-facing defense roll system from document-flags to a more robust custom socket implementation.
+- **Creature Terminology**: Renamed "Roll" to "Prevail" for Creatures and updated the Peril deed economy.
+- **Removed Panic level from chat**: When showing Peril rolls in the chat card, the panic level is no longer shown.
+
+### Bug Fixes
+- **Targeting**: Fixed corrected range calculations for larger creatures.
+- **Combat Tracker**: Fixed an issue where the Wait action would get stuck without a "next phase" button.
+- **Dialogs**: Fixed the Haven skill roll dialogs.
+- **UI & Sheets**: Fixed regressions on creature sheet selection options, armor placement field localization, and resolved hard-coded font-size issues.
+
 ## [0.0.6] - 2026-05-07
 
 ### Features

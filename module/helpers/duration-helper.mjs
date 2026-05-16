@@ -122,10 +122,10 @@ export class DurationHelper {
 
     const parts = conditions.map(c => {
       switch (c.mode) {
-        case "indefinite": return game.i18n.localize("TRESPASSER.DurationLabels.Indefinite");
-        case "combat":     return game.i18n.localize("TRESPASSER.DurationLabels.Combat");
-        case "round":     return `${c.value ?? 0} ${game.i18n.localize("TRESPASSER.DurationLabels.Round")}`;
-        case "trigger":   return `${c.value ?? 0} ${game.i18n.localize("TRESPASSER.DurationLabels.Trigger")}`;
+        case "indefinite": return game.i18n.localize("TRESPASSER.App.System.Duration.Indefinite");
+        case "combat":     return game.i18n.localize("TRESPASSER.App.System.Duration.Combat");
+        case "round":     return `${c.value ?? 0} ${game.i18n.localize("TRESPASSER.App.System.Duration.Round")}`;
+        case "trigger":   return `${c.value ?? 0} ${game.i18n.localize("TRESPASSER.App.System.Duration.Trigger")}`;
         default:           return c.mode;
       }
     });
@@ -133,8 +133,8 @@ export class DurationHelper {
     if (parts.length === 1) return parts[0];
 
     const opLabel = operator === "AND"
-      ? game.i18n.localize("TRESPASSER.DurationLabels.AND")
-      : game.i18n.localize("TRESPASSER.DurationLabels.OR");
+      ? game.i18n.localize("TRESPASSER.App.System.Duration.AND")
+      : game.i18n.localize("TRESPASSER.App.System.Duration.OR");
 
     return parts.join(` ${opLabel} `);
   }

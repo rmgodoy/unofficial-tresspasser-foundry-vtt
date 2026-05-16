@@ -6,12 +6,12 @@
 
     <div class="header-column details-column">
       <h1 class="item-title">
-        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Item.Name'}}"/>
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"/>
       </h1>
       <div class="header-details flex-row">
         <label class="checkbox-item">
           <input type="checkbox" name="system.active" {{checked system.active}} />
-          {{localize "TRESPASSER.Haven.Active"}}
+          {{localize "TRESPASSER.Sheet.Common.Active"}}
         </label>
       </div>
     </div>
@@ -20,11 +20,11 @@
   <section class="sheet-body scrollable" data-scrollable="true">
     <div class="attribute-group flex-row">
       <div class="field-item">
-        <label>{{localize "TRESPASSER.Haven.CostPerWeek"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Haven.CostPerWeek"}}</label>
         <input type="number" name="system.cost" value="{{system.cost}}" data-dtype="Number" />
       </div>
       <div class="field-item">
-        <label>{{localize "TRESPASSER.Item.Quantity"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Quantity"}}</label>
         <input type="number" name="system.quantity" value="{{system.quantity}}" data-dtype="Number" />
       </div>
     </div>
@@ -33,7 +33,7 @@
 
     <div class="production-container">
       <div class="consume-section">
-        <h3>{{localize "TRESPASSER.Haven.Consume"}}</h3>
+        <h3>{{localize "TRESPASSER.Sheet.Haven.Consume"}}</h3>
         <div class="item-list drop-zone" data-type="consume">
           {{#each system.consume as |entry index|}}
             <div class="hireling-item-chip" data-index="{{index}}" data-list="consume">
@@ -46,13 +46,13 @@
               </div>
             </div>
           {{else}}
-            <p class="placeholder">{{localize "TRESPASSER.Haven.DropConsume"}}</p>
+            <p class="placeholder">{{localize "TRESPASSER.Sheet.Haven.DropConsume"}}</p>
           {{/each}}
         </div>
       </div>
 
       <div class="produce-section">
-        <h3>{{localize "TRESPASSER.Haven.Produce"}}</h3>
+        <h3>{{localize "TRESPASSER.Sheet.Haven.Produce"}}</h3>
         <div class="item-list drop-zone" data-type="produce">
           {{#each system.produce as |entry index|}}
             <div class="hireling-item-chip" data-index="{{index}}" data-list="produce">
@@ -65,14 +65,14 @@
               </div>
             </div>
           {{else}}
-            <p class="placeholder">{{localize "TRESPASSER.Haven.DropProduce"}}</p>
+            <p class="placeholder">{{localize "TRESPASSER.Sheet.Haven.DropProduce"}}</p>
           {{/each}}
         </div>
       </div>
     </div>
 
     <div class="field-item description-column">
-      <label>{{localize "TRESPASSER.Item.Description"}}</label>
+      <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
       <div class="trp-editor-container">
         <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false">{{{descriptionHTML}}}</prose-mirror>
       </div>

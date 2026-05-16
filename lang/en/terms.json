@@ -1,0 +1,303 @@
+{
+  "TRESPASSER": {
+    "Terms": {
+      "Status": {
+        "None": "None"
+      },
+      "DeedPhases": {
+        "Start": "Start",
+        "Before": "Before",
+        "Base": "Base",
+        "Hit": "Hit",
+        "Spark": "Spark",
+        "After": "After",
+        "End": "End"
+      },
+      "Depletion": {
+        "None": "None",
+        "Crude": "Crude",
+        "Fine": "Fine",
+        "Superior": "Superior",
+        "Excellent": "Excellent",
+        "Enchanted": "Enchanted",
+        "Legendary": "Legendary"
+      },
+      "ActionTypes": {
+        "None": "None",
+        "Action": "Action",
+        "Reaction": "Reaction"
+      },
+      "Attribute": {
+        "Mighty": "Mighty",
+        "Agility": "Agility",
+        "Intellect": "Intellect",
+        "Spirit": "Spirit",
+        "Singular": "Attribute",
+        "Plural": "Attributes"
+      },
+      "Skill": {
+        "Acrobatics": "Acrobatics",
+        "Alchemy": "Alchemy",
+        "Athletics": "Athletics",
+        "Crafting": "Crafting",
+        "Folklore": "Folklore",
+        "Letters": "Letters",
+        "Magic": "Magic",
+        "Nature": "Nature",
+        "Perception": "Perception",
+        "Speech": "Speech",
+        "Stealth": "Stealth",
+        "Tinkering": "Tinkering",
+        "Plural": "Skills"
+      },
+      "DC": "DC",
+      "ItemType": {
+        "Weapon": "Weapon",
+        "Armor": "Armor",
+        "Accessory": "Accessory",
+        "Rations": "Rations",
+        "Deed": "Deed",
+        "Deeds": "Deeds",
+        "Feature": "Feature",
+        "Features": "Features",
+        "Talent": "Talent",
+        "Talents": "Talents",
+        "Effect": "Effect",
+        "State": "State",
+        "States": "States",
+        "Incantation": "Incantation",
+        "Item": "Item",
+        "ItemSubTypes": {
+          "Tool": "Tool",
+          "Resource": "Resource",
+          "LightSource": "Light Source",
+          "Miscellaneous": "Miscellaneous",
+          "Bombs": "Bombs",
+          "Oils": "Oils",
+          "Powders": "Powders",
+          "Potions": "Potions",
+          "Scrolls": "Scrolls",
+          "Esoteric": "Esoteric",
+          "Artifacts": "Artifacts",
+          "Ingredients": "Ingredients",
+          "Materials": "Materials"
+        },
+        "Injury": "Injury",
+        "Calling": "Calling",
+        "Craft": "Craft",
+        "PastLife": "Past Life",
+        "Hireling": "Hireling",
+        "Building": "Building",
+        "Room": {
+          "Singular": "Room",
+          "Plural": "Rooms"
+        }
+      },
+      "ActorType": {
+        "Character": "Character",
+        "Creature": "Creature",
+        "Dungeon": "Dungeon",
+        "Party": "Party",
+        "Haven": "Haven"
+      },
+      "Phase": {
+        "Start": "Start",
+        "Before": "Before",
+        "Base": "Base",
+        "Hit": "Hit",
+        "Spark": "Spark",
+        "After": "After",
+        "End": "End"
+      },
+      "Combat": {
+        "AP": "AP",
+        "Phase": {
+          "Early": "Early Phase",
+          "Enemy": "Enemy Phase",
+          "Late": "Late Phase",
+          "Extra": "Extra Phase",
+          "End": "End of Turn",
+          "Next": "Next Phase",
+          "NextPhase": "Next Phase"
+        },
+        "Peril": "PERIL",
+        "DC": "CD",
+        "TwoHanded": "Two-Handed",
+        "MainHand": "Main Hand",
+        "OffHand": "Off-Hand",
+        "DualWield": "Dual Wield",
+        "PanicLabels": {
+          "Low": "Low",
+          "Medium": "Medium",
+          "High": "High"
+        }
+      },
+      "Role": {
+        "Archer": "Archer",
+        "Enchanter": "Enchanter",
+        "Enforcer": "Enforcer",
+        "Guardian": "Guardian",
+        "Harrier": "Harrier",
+        "Hellion": "Hellion",
+        "Stalker": "Stalker",
+        "Sorcerer": "Sorcerer"
+      },
+      "Template": {
+        "Underling": "Underling",
+        "Normal": "Normal",
+        "Paragon": "Paragon",
+        "Tyrant": "Tyrant"
+      },
+      "HavenUpkeepWeeksRest": "Week's Rest",
+      "HavenUpkeepResolveProduction": "Resolve Production",
+      "HavenWeeklyExpenses": "Weekly Expenses",
+      "HavenWeeklyIncome": "Weekly Income",
+      "HavenWeeklyBalance": "Weekly Balance",
+      "HavenUnassignedHirelings": "Unassigned Hirelings",
+      "HavenStrongholds": "Strongholds",
+      "HavenUpkeepPopulationCheck": "Population Check",
+      "HavenUpkeepEventCheck": "Event Check",
+      "HavenStagnant": "STAGNANT",
+      "HavenPopulationIncrease": "Population Increase",
+      "PopulationRank": "Population Rank",
+      "ThreatClock": "Threat Clock",
+      "HavenDCSkillBonus": "DC (Skill Bonus)",
+      "CharactersRested": "Characters Rested",
+      "Enhancements": "Enhancements",
+      "Progression": "Progression",
+      "Party": {
+        "Roll": "Party Roll",
+        "GroupCheck": "Group Check"
+      },
+      "Encounters": "Encounters",
+      "HavenAttribute": {
+        "Military": "Military",
+        "Efficiency": "Efficiency",
+        "Resources": "Resources",
+        "Expertise": "Expertise",
+        "Allegiance": "Allegiance",
+        "Appeal": "Appeal"
+      },
+      "HavenSkill": {
+        "Agriculture": "Agriculture",
+        "Construction": "Construction",
+        "Commerce": "Commerce",
+        "Cuisine": "Cuisine",
+        "Entertainment": "Entertainment",
+        "Espionage": "Espionage",
+        "Faith": "Faith",
+        "Hospitality": "Hospitality",
+        "Research": "Research",
+        "Seafaring": "Seafaring",
+        "Statecraft": "Statecraft",
+        "Warfare": "Warfare"
+      },
+      "Dungeon": {
+        "Hostility": {
+          "FirstDay": "First Day",
+          "Bleak": "Bleak",
+          "Sinister": "Sinister",
+          "Frightening": "Frightening",
+          "Harrowing": "Harrowing",
+          "Nightmarish": "Nightmarish"
+        },
+        "Size": {
+          "Tiny": "Tiny",
+          "Small": "Small",
+          "Medium": "Medium",
+          "Large": "Large",
+          "Huge": "Huge"
+        },
+        "Form": {
+          "Cave": "Cave",
+          "Ruin": "Ruin",
+          "Tower": "Tower",
+          "Crypt": "Crypt",
+          "Fortress": "Fortress",
+          "Temple": "Temple",
+          "Mine": "Mine",
+          "Lair": "Lair",
+          "Sewer": "Sewer",
+          "Other": "Other"
+        },
+        "Actions": {
+          "Explore": "Explore",
+          "ExploreDesc": "Move cautiously into an adjacent, unexplored room or explore the current room.",
+          "Traverse": "Traverse",
+          "TraverseDesc": "Move to any previously explored room or to the dungeon entrance.",
+          "Interact": "Interact",
+          "InteractDesc": "Engage with a complex feature of the current room.",
+          "Search": "Search",
+          "SearchDesc": "Linger in an explored room to investigate it further.",
+          "Hide": "Hide",
+          "HideDesc": "Wait in silent darkness for the dungeon to become still.",
+          "Vandalize": "Vandalize",
+          "VandalizeDesc": "Break open a locked door, chest, or other property.",
+          "PickLock": "Pick Lock",
+          "PickLockDesc": "Attempt to pick a locked door or chest.",
+          "Disarm": "Disarm",
+          "DisarmDesc": "Attempt to disarm a trap.",
+          "Converse": "Converse",
+          "ConverseDesc": "Spend a few minutes talking to a creature.",
+          "MomentsRest": "Moment's Rest",
+          "MomentsRestDesc": "Pause for 10 minutes to recover and eat.",
+          "Incant": "Incant",
+          "IncantDesc": "Cast an incantation while the party keeps watch."
+        },
+        "Sparks": {
+          "Canny": "Canny",
+          "CannyDesc": "Opposes Costly. The party uses resources efficiently.",
+          "Quick": "Quick",
+          "QuickDesc": "Opposes Slow. The party moves or acts with great speed.",
+          "Quiet": "Quiet",
+          "QuietDesc": "Opposes Loud. The party remains silent and stealthy.",
+          "Safe": "Safe",
+          "SafeDesc": "Opposes Harmful. The party avoids physical danger.",
+          "Striking": "Striking",
+          "StrikingDesc": "Opposes Daunting. The party makes a bold impression."
+        },
+        "Shadows": {
+          "Costly": "Costly",
+          "CostlyDesc": "Opposes Canny. Resources are wasted or expensive.",
+          "Slow": "Slow",
+          "SlowDesc": "Opposes Quick. Progress is sluggish or delayed.",
+          "Loud": "Loud",
+          "LoudDesc": "Opposes Quiet. Noise attracts unwanted attention.",
+          "Harmful": "Harmful",
+          "HarmfulDesc": "Opposes Safe. The party suffers physical harm.",
+          "Daunting": "Daunting",
+          "DauntingDesc": "Opposes Striking. The atmosphere is oppressive or morale-draining."
+        },
+        "Reaction": {
+          "Hostile": "Hostile",
+          "Wary": "Wary",
+          "Curious": "Curious",
+          "Friendly": "Friendly"
+        },
+        "Approach": {
+          "Ambush": "Ambush",
+          "AmbushDesc": "Launch a surprise attack from a position of advantage.",
+          "Fight": "Fight",
+          "FightDesc": "Engage in direct combat with the encounter.",
+          "Greet": "Greet",
+          "GreetDesc": "Attempt a peaceful introduction or parley.",
+          "Warn": "Warn",
+          "WarnDesc": "Signal your presence or give a stern warning.",
+          "Withdraw": "Withdraw",
+          "WithdrawDesc": "Attempt to leave the encounter without further interaction."
+        },
+        "Connection": {
+          "Doorway": "Doorway",
+          "Hallway": "Hallway",
+          "Passage": "Passage",
+          "Stairway": "Stairway",
+          "Ladder": "Ladder",
+          "Secret": "Secret",
+          "Chasm": "Chasm",
+          "Portal": "Portal",
+          "Other": "Other"
+        }
+      }
+    }
+  }
+}

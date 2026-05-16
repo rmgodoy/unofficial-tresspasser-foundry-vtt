@@ -1,0 +1,130 @@
+{
+  "TRESPASSER": {
+    "Settings": {
+      "Title": "Configuração do Trespasser",
+      "Common": {
+        "Save": "Salvar",
+        "Cancel": "Cancelar",
+        "SavedNotice": "Configuração do Trespasser salva.",
+        "ResetDefault": "Redefinir para Padrão",
+        "ResetNotice": "Configuração redefinida para os valores padrão."
+      },
+      "Tabs": {
+        "Mechanics": "Mecânicas",
+        "Exploration": "Abrigo & Exploração",
+        "Visuals": "Aparência",
+        "Colors": "Cores do Tema"
+      },
+      "Mechanics": {
+        "InitiativeChat": {
+          "Name": "Mostrar rolagem de iniciativa no chat",
+          "Hint": "Se ativado, as rolagens de iniciativa serão postadas no log do chat."
+        },
+        "ApplyEncumbranceRules": {
+          "Name": "Aplicar Regras de Sobrecarga",
+          "Hint": "Se ativado, as regras de sobrecarga (penalidades de Guarda e Velocidade) serão aplicadas automaticamente com base na Classificação de Armadura. O ícone de estado ainda será mostrado mesmo se isso estiver desativado."
+        },
+        "PlayerFacingInitiative": {
+          "Name": "Rolagens de Iniciativa pelos Jogadores",
+          "Hint": "Quando ativado, os jogadores rolam sua própria iniciativa no início de cada rodada, em vez de ser automático."
+        },
+        "RestrictMovementAction": {
+          "Name": "Restringir Ação de Movimento",
+          "Hint": "Se ativado, o movimento só é permitido após realizar uma ação de Mover ou Salto. Se desativado, os tokens podem se mover livremente."
+        },
+        "RestrictHUDActions": {
+          "Name": "Restringir Ações por Turno",
+          "Hint": "Se ativado, as ações do HUD (Defender, Ajudar, etc.) só podem ser usadas uma vez por turno, a menos que especificado de outra forma."
+        },
+        "RestrictAPFocusUsage": {
+          "Name": "Restringir uso de ações de PA e Foco",
+          "Hint": "Se ativado, o sistema impõe custos de PA e Foco. Se desativado, as ações podem ser usadas sem pontos suficientes."
+        },
+        "DisregardRangeOnAttack": {
+          "Name": "Desconsiderar Alcance no Ataque",
+          "Hint": "Quando ativado, atacar alvos fora de alcance mostrará um aviso, mas ainda permitirá que o ataque prossiga."
+        },
+        "AllowOutOfTurnMovement": {
+          "Name": "Permitir Movimento Fora do Turno",
+          "Hint": "Quando ativado, os jogadores podem mover seus tokens mesmo quando não for sua fase de combate. O movimento fora do turno não é contado contra seu orçamento de movimento."
+        },
+        "ConfirmItemTransfer": {
+          "Name": "Confirmar Transferências de Itens",
+          "Hint": "Se ativado, você será solicitado a aceitar ou rejeitar itens transferidos para você por outros jogadores."
+        },
+        "HideCreatureDamageRolls": {
+          "Name": "Ocultar Rolagens de Dano de Criaturas",
+          "Hint": "Se ativado, as rolagens de dano feitas por criaturas serão sussurradas apenas para o Mestre e para quem rolou."
+        }
+      },
+      "Exploration": {
+        "GroupCheckFullParty": {
+          "Name": "Teste de Grupo sempre usa grupo completo",
+          "Hint": "Se ativado, os testes de grupo sempre incluirão todos os membros do grupo sem mostrar um popup de seleção."
+        },
+        "RestrictHavenEditToLeader": {
+          "Name": "Restringir Edição do Abrigo ao Líder",
+          "Hint": "Apenas o líder do grupo pode adicionar ou remover construções e projetos no Abrigo."
+        },
+        "BypassHavenBuildingLimits": {
+          "Name": "Ignorar Limites de Construção do Abrigo",
+          "Hint": "Se ativado, os Abrigos não serão restringidos pelo Limite de Construção ou Espaços de Construção definidos na tabela de progressão."
+        },
+        "EnableRetreatDialog": {
+          "Name": "Habilitar Diálogo de Recuo",
+          "Hint": "Se ativado, o Mestre será solicitado a Continuar ou Recuar no início de cada nova rodada após a rolagem de Perigo. Se desativado, as rodadas prosseguem normalmente."
+        },
+        "ShowPerilInChat": {
+          "Name": "Mostrar rolagem de Perigo no chat",
+          "Hint": "Se ativado, a rolagem de Perigo no início de cada rodada será postada no log do chat para todos os jogadores verem."
+        },
+        "AutoEndCombatOnRetreat": {
+          "Name": "Encerrar combate automaticamente em recuo bem-sucedido",
+          "Hint": "Se ativado, o combate terminará automaticamente quando o grupo recuar com sucesso. Se desativado, apenas uma mensagem é postada e o Mestre deve encerrar o combate manualmente."
+        }
+      },
+      "Visuals": {
+        "ClockSize": {
+          "Name": "Tamanho do Relógio (px)",
+          "Hint": "A largura e altura de todos os relógios no sistema (Projetos, Eventos e Ferimentos)."
+        },
+        "FontSizeBase": {
+          "Name": "Tamanho Base da Fonte (px)",
+          "Hint": "O tamanho base da fonte para todo o sistema. Todos os outros tamanhos de fonte escalonarão proporcionalmente."
+        }
+      },
+      "Colors": {
+        "ColorBgDark": { "Name": "Fundo do Aplicativo Principal" },
+        "ColorBgPanel": { "Name": "Fundo da Barra Lateral e Painel" },
+        "ColorBgInput": { "Name": "Fundo de Entrada e Área de Texto" },
+        "ColorBgHeader": { "Name": "Fundo do Cabeçalho da Ficha" },
+        "ColorBgSelect": { "Name": "Fundo de Seleção e Dropdown" },
+        "ColorBorder": { "Name": "Cor de Borda Padrão" },
+        "ColorBorderLight": { "Name": "Cor de Borda Sutil/Clara" },
+        "ColorGold": { "Name": "Cor de Destaque do Sistema (Ouro)" },
+        "ColorGoldDim": { "Name": "Cor de Destaque Suave" },
+        "ColorGoldBright": { "Name": "Cor de Destaque Vibrante" },
+        "ColorRed": { "Name": "Cor de Alerta/Negativa (Vermelho)" },
+        "ColorRedDim": { "Name": "Cor de Alerta Suave" },
+        "ColorText": { "Name": "Texto de Corpo Padrão" },
+        "ColorTextDim": { "Name": "Texto Mudo/Secundário" },
+        "ColorTextBright": { "Name": "Texto de Ênfase/Título" },
+        "ColorGreen": { "Name": "Cor de Sucesso/Positiva (Verde)" },
+        "ColorGreenBright": { "Name": "Cor de Sucesso Brilhante" },
+        "ColorPurple": { "Name": "Tema de Magia/Encantamento (Roxo)" },
+        "ColorBlue": { "Name": "Recurso/Pontos de Recurso (Azul)" },
+        "ColorLightGreen": { "Name": "Tema de Cura/Natureza (Verde Claro)" },
+        "ColorCyan": { "Name": "Foco do Sistema/Alvo (Ciano)" },
+        "ColorSpark": { "Name": "Cor de Destaque de Fagulha" },
+        "ColorShadow": { "Name": "Cor de Destaque de Sombra" },
+        "ColorShadowGold": { "Name": "Efeito de Brilho/Sombra Dourada" },
+        "ColorShadowDark": { "Name": "Sombras de Caixa Profundas" },
+        "ColorBgOverlay": { "Name": "Sobreposição de Fundo Transparente" },
+        "ColorGoldOverlay": { "Name": "Destaque Dourado Transparente" },
+        "ColorRedOverlay": { "Name": "Destaque Vermelho Transparente" },
+        "ColorGreenOverlay": { "Name": "Destaque Verde Transparente" },
+        "ColorScrollbar": { "Name": "Cor da Alça da Barra de Rolagem" }
+      }
+    }
+  }
+}

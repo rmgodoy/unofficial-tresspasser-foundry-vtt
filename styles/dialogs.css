@@ -127,7 +127,7 @@
 
 .spark-dialog > p {
   margin: 0 0 10px;
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text-dim);
 }
 
@@ -142,13 +142,13 @@
 .spark-layer h4 {
   margin: 0 0 6px;
   font-family: var(--trp-font-header);
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-gold);
   text-transform: uppercase;
 }
 
 .spark-layer-targets {
-  font-size: 10px;
+  font-size: var(--fs-10);
   color: var(--trp-text-dim);
   text-transform: none;
   font-family: var(--trp-font-body);
@@ -178,13 +178,13 @@
 
 .spark-choice-label {
   font-weight: bold;
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text-bright);
   min-width: 80px;
 }
 
 .spark-choice-desc {
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim);
 }
 
@@ -328,4 +328,45 @@
 .config-v2 .sheet-footer button[data-action="reset"]:hover {
   color: var(--trp-red);
   border-color: var(--trp-red-dim);
+}
+
+/* Transfer Dialog */
+.trespasser-transfer-dialog .actor-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.trespasser-transfer-dialog .actor-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s;
+  width: 100%;
+  text-align: left;
+}
+
+.trespasser-transfer-dialog .actor-row:hover {
+  background: var(--trp-gold-dim);
+  border-color: var(--trp-gold-bright);
+}
+
+.trespasser-transfer-dialog .actor-row img {
+  border: 1px solid var(--trp-border);
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+.trespasser-transfer-dialog .actor-row span {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-14);
+  color: var(--trp-text-bright);
 }

@@ -1,0 +1,128 @@
+{
+  "TRESPASSER": {
+    "App": {
+      "DungeonTracker": {
+        "Title": "Dungeon Tracker",
+        "SelectDungeon": "Select Dungeon",
+        "AlarmValue": "Alarm: {value}",
+        "Nudge": {
+          "GMAdjust": "GM Adjust",
+          "AlarmLog": "Alarm adjusted to {value}",
+          "ActionsLog": "Actions adjusted to {value}",
+          "ActionRefunded": "Action '{action}' refunded",
+          "ActionRefundedNone": "Action refunded"
+        },
+        "Session": {
+          "State": {
+            "active": "Active",
+            "paused": "Paused"
+          }
+        }
+      },
+      "HavenTracker": {
+        "Title": "Haven Tracker",
+        "SelectHaven": "Select Haven",
+        "NoHavens": "No Haven actors found in the world.",
+        "Button": "Haven Tracker"
+      },
+      "EventClocks": {
+        "Title": "Event Clocks",
+        "EditTitle": "Edit Event Clock",
+        "ButtonLabel": "Event Clocks",
+        "AddClock": "Add Clock",
+        "NoClocks": "No event clocks yet.",
+        "Name": "Clock Name",
+        "PlayerName": "Player-Facing Name",
+        "PlayerNameHint": "If different from the real name, this name is shown to players.",
+        "Description": "Description",
+        "Target": "Target (Max Segments)",
+        "Current": "Current (Filled Segments)",
+        "GmOnly": "GM Only",
+        "GmOnlyHint": "If checked, players will not see this clock.",
+        "DeleteConfirmTitle": "Delete Clock?",
+        "DeleteConfirmContent": "Are you sure you want to delete this clock? This cannot be undone.",
+        "ClockHint": "Click a segment to advance / retreat the clock."
+      },
+      "System": {
+        "Peril": "Peril",
+        "Panic": "Panic",
+        "Types": {
+          "Actor": {
+            "character": "Character",
+            "creature": "Creature",
+            "dungeon": "Dungeon",
+            "party": "Party",
+            "haven": "Haven"
+          },
+          "Item": {
+            "armor": "Armor",
+            "rations": "Rations",
+            "effect": "Effect",
+            "deed": "Deed",
+            "feature": "Feature",
+            "talent": "Talent",
+            "weapon": "Weapon",
+            "incantation": "Incantation",
+            "accessory": "Accessory",
+            "item": "Item",
+            "injury": "Injury",
+            "calling": "Calling",
+            "craft": "Craft",
+            "past_life": "Past Life",
+            "room": "Room",
+            "hireling": "Hireling",
+            "build": "Building",
+            "stronghold": "Stronghold"
+          }
+        },
+        "Trigger": {
+          "StartOfRound": "Start of Round",
+          "StartOfTurn": "Start of Turn",
+          "EndOfTurn": "End of Turn",
+          "EndOfRound": "End of Round",
+          "OnFirstMove": "On First Move",
+          "OnMove": "On Move",
+          "Use": "Use",
+          "Targeted": "Targeted",
+          "Immediate": "Immediate",
+          "DamageDealt": "Damage Dealt",
+          "DamageReceived": "Damage Received",
+          "OnPrevail": "On Prevail",
+          "OnUseDeed": "On Use Deed",
+          "OnTargetedDeed": "On Targeted Deed",
+          "OnDeedHitReceived": "On Deed Hit Received",
+          "OnDeedMissReceived": "On Deed Miss Received",
+          "OnDeedHit": "On Deed Hit",
+          "OnDeedMiss": "On Deed Miss",
+          "StartOfCombat": "Start of Combat",
+          "EndOfCombat": "End of Combat",
+          "Continuous": "Continuous"
+        },
+        "Duration": {
+          "Indefinite": "Indefinite",
+          "Combat": "Whole Combat",
+          "Round": "Round",
+          "Trigger": "Trigger",
+          "OR": "OR",
+          "AND": "AND",
+          "Operator": "Operator",
+          "AddCondition": "Add Condition",
+          "RemoveCondition": "Remove Condition"
+        },
+        "Phase": {
+          "Early": "Early Phase",
+          "Enemy": "Enemy Phase",
+          "Late": "Late Phase",
+          "Extra": "Extra Phase",
+          "End": "End of Turn Phase",
+          "Next": "Next Phase"
+        },
+        "PanicLevel": {
+          "Low": "Low",
+          "Medium": "Medium",
+          "High": "High"
+        }
+      }
+    }
+  }
+}

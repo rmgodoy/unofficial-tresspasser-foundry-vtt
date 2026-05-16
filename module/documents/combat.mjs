@@ -21,11 +21,11 @@ export class TrespasserCombat extends Combat {
    * Mapping of phase values to localized labels.
    */
   static PHASE_LABELS = {
-    [TrespasserCombat.PHASES.EARLY]: "TRESPASSER.Phase.Early",
-    [TrespasserCombat.PHASES.ENEMY]: "TRESPASSER.Phase.Enemy",
-    [TrespasserCombat.PHASES.LATE]: "TRESPASSER.Phase.Late",
-    [TrespasserCombat.PHASES.EXTRA]: "TRESPASSER.Phase.Extra",
-    [TrespasserCombat.PHASES.END]: "TRESPASSER.Phase.End"
+    [TrespasserCombat.PHASES.EARLY]: "TRESPASSER.Terms.Combat.Phase.Early",
+    [TrespasserCombat.PHASES.ENEMY]: "TRESPASSER.Terms.Combat.Phase.Enemy",
+    [TrespasserCombat.PHASES.LATE]: "TRESPASSER.Terms.Combat.Phase.Late",
+    [TrespasserCombat.PHASES.EXTRA]: "TRESPASSER.Terms.Combat.Phase.Extra",
+    [TrespasserCombat.PHASES.END]: "TRESPASSER.Terms.Combat.Phase.End"
   };
 
   /**
@@ -271,6 +271,56 @@ export class TrespasserCombat extends Combat {
   }
 
   /**
+   * Check if the current active phase has no combatants and auto-advance if so.
+   * This handles the scenario where all combatants leave a phase (e.g. via Wait)
+   * and the Next Phase button disappears.
+   * Unlike nextPhase(), this does NOT trigger end-of-turn effects for the empty phase
+   * since there are no combatants to process.
+   */
+  async checkEmptyPhaseAdvance() {
+    if (!game.user.isGM) return;
+    if (!this.started) return;
+
+    // Don't auto-advance while initiatives are being (re-)rolled;
+    // combatant updates during that phase temporarily clear initiatives
+    // and would falsely trigger another nextRound().
+    const isWaiting = this.getFlag("trespasser", "waitingForInitiatives");
+    if (isWaiting) return;
+
+    const activePhase = this.getFlag("trespasser", "activePhase");
+    if (activePhase === null || activePhase === undefined) return;
+
+    // If there are still non-defeated combatants in the active phase, do nothing
+    const hasOccupants = this.combatants.some(
+      c => Number(c.initiative) === Number(activePhase) && !c.defeated
+    );
+    if (hasOccupants) return;
+
+    // Phase is empty — find the next populated phase
+    const phases = Object.values(TrespasserCombat.PHASES).sort((a, b) => b - a);
+    const currentIndex = phases.indexOf(activePhase);
+
+    let nextPhase = null;
+    for (let i = currentIndex + 1; i < phases.length; i++) {
+      const p = phases[i];
+      if (this.combatants.some(c => c.initiative === p && !c.defeated)) {
+        nextPhase = p;
+        break;
+      }
+    }
+
+    if (nextPhase !== null) {
+      await this.setFlag("trespasser", "activePhase", nextPhase);
+      await this.update({ turn: 0 });
+      await this._onStartOfTurn(nextPhase);
+    } else {
+      // No phases left — end of round
+      await this._onEndOfRound();
+      return this.nextRound();
+    }
+  }
+
+  /**
    * Trigger start-of-combat effects for all combatants.
    */
   async _onStartOfCombat() {
@@ -386,7 +436,7 @@ export class TrespasserCombat extends Combat {
     if (game.settings.get("trespasser", "showInitiativeInChat")) {
       await roll.toMessage({
         speaker: ChatMessage.getSpeaker({ actor: combatant.actor }),
-        flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
+        flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
       });
     }
 
@@ -497,7 +547,7 @@ export class TrespasserCombat extends Combat {
     await ChatMessage.create({
       user: game.user.id,
       content: content,
-      flavor: game.i18n.localize("TRESPASSER.Peril"),
+      flavor: game.i18n.localize("TRESPASSER.Terms.Combat.Peril"),
       type: CONST.CHAT_MESSAGE_TYPES.OTHER
     });
   }
@@ -511,7 +561,7 @@ export class TrespasserCombat extends Combat {
     
     // Post attempt to chat
     await ChatMessage.create({
-      content: `<h3 style="color:var(--trp-gold-bright)">${game.i18n.localize("TRESPASSER.Retreat.AttemptChat")}</h3>`,
+      content: `<h3 style="color:var(--trp-gold-bright)">${game.i18n.localize("TRESPASSER.Chat.Retreat.Attempt")}</h3>`,
       type: CONST.CHAT_MESSAGE_TYPES.OTHER
     });
 
@@ -532,7 +582,7 @@ export class TrespasserCombat extends Combat {
         if (game.settings.get("trespasser", "showInitiativeInChat")) {
           await roll.toMessage({
             speaker: ChatMessage.getSpeaker({ actor: c.actor }),
-            flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
+            flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
           });
         }
         
@@ -566,7 +616,7 @@ export class TrespasserCombat extends Combat {
 
     if (success) {
       await ChatMessage.create({
-        content: `<h2 style="color:var(--trp-green-bright)">${game.i18n.format("TRESPASSER.Retreat.PartyEscaped", { successes, total: pcs.length })}</h2>`,
+        content: `<h2 style="color:var(--trp-green-bright)">${game.i18n.format("TRESPASSER.Chat.Retreat.PartyEscaped", { successes, total: pcs.length })}</h2>`,
         type: CONST.CHAT_MESSAGE_TYPES.OTHER
       });
       
@@ -576,7 +626,7 @@ export class TrespasserCombat extends Combat {
       }
     } else {
       await ChatMessage.create({
-        content: `<h2 style="color:var(--trp-red)">${game.i18n.format("TRESPASSER.Retreat.PartyFailed", { successes, total: pcs.length, needed })}</h2>`,
+        content: `<h2 style="color:var(--trp-red)">${game.i18n.format("TRESPASSER.Chat.Retreat.PartyFailed", { successes, total: pcs.length, needed })}</h2>`,
         type: CONST.CHAT_MESSAGE_TYPES.OTHER
       });
     }
@@ -678,7 +728,7 @@ export class TrespasserCombat extends Combat {
           if (game.settings.get("trespasser", "showInitiativeInChat")) {
             await roll.toMessage({
               speaker: ChatMessage.getSpeaker({ actor: actor }),
-              flavor: game.i18n.format("TRESPASSER.Chat.Initiative", { max: enemyMaxInit })
+              flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
             });
           }
 
@@ -746,18 +796,24 @@ export class TrespasserCombat extends Combat {
     let mighty = 0;
 
     if ( perilTotal <= 6 ) {
-      perilLabel = "TRESPASSER.PanicLabels.Low";
+      perilLabel = "TRESPASSER.Terms.Combat.PanicLabels.Low";
       heavy = 1;
       mighty = 0;
     } else if ( perilTotal >= 7 && perilTotal <= 9 ) {
-      perilLabel = "TRESPASSER.PanicLabels.Medium";
-      heavy = 1;
-      mighty = 1;
-    } else {
-      perilLabel = "TRESPASSER.PanicLabels.High";
+      perilLabel = "TRESPASSER.Terms.Combat.PanicLabels.Medium";
       heavy = 2;
       mighty = 1;
+    } else {
+      perilLabel = "TRESPASSER.Terms.Combat.PanicLabels.High";
+      heavy = 1;
+      mighty = 1;
     }
+
+    // Build display string: Medium uses "or", others use "/"
+    const isMedium = perilTotal >= 7 && perilTotal <= 9;
+    const deedDisplay = isMedium
+      ? `${heavy}H or ${mighty}M`
+      : `${heavy}H/${mighty}M`;
 
     // Store combat state in flags for the tracker
     const combatInfo = {
@@ -766,7 +822,8 @@ export class TrespasserCombat extends Combat {
       heavy,
       mighty,
       panicLevel,
-      enemyMaxInit
+      enemyMaxInit,
+      deedDisplay
     };
     
     await this.setFlag("trespasser", "combatInfo", combatInfo);

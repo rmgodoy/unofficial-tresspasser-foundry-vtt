@@ -4,7 +4,7 @@
   
   {{#unless nointensity}}
     <div class="intensity-box">
-      <span class="label">{{localize "TRESPASSER.Item.IntShort"}}</span>
+      <span class="label">{{localize "TRESPASSER.Sheet.Common.IntensityShort"}}</span>
       {{#if editableIntensity}}
         <input type="number" class="effect-intensity-input" value="{{#if effect.intensity}}{{effect.intensity}}{{else}}0{{/if}}" />
       {{else}}
@@ -15,8 +15,8 @@
 
   <div class="controls">
     {{#if editable}}
-      <a class="effect-edit edit" title="{{localize 'TRESPASSER.General.Edit'}}"><i class="fas fa-edit"></i></a>
-      <a class="{{deleteClass}} remove" title="{{localize 'TRESPASSER.Item.RemoveEffect'}}"><i class="fas fa-times"></i></a>
+      <a class="effect-edit edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+      <a class="{{deleteClass}} remove" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
     {{/if}}
   </div>
 </div>

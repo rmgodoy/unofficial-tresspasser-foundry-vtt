@@ -36,16 +36,16 @@ export class TrespasserPastLifeSheet extends foundry.appv1.sheets.ItemSheet {
 
     // Attributes context
     context.attributeLabels = {
-      mighty:    game.i18n.localize("TRESPASSER.Sheet.Attributes.Mighty"),
-      agility:   game.i18n.localize("TRESPASSER.Sheet.Attributes.Agility"),
-      intellect: game.i18n.localize("TRESPASSER.Sheet.Attributes.Intellect"),
-      spirit:    game.i18n.localize("TRESPASSER.Sheet.Attributes.Spirit")
+      mighty:    game.i18n.localize("TRESPASSER.Terms.Attribute.Mighty"),
+      agility:   game.i18n.localize("TRESPASSER.Terms.Attribute.Agility"),
+      intellect: game.i18n.localize("TRESPASSER.Terms.Attribute.Intellect"),
+      spirit:    game.i18n.localize("TRESPASSER.Terms.Attribute.Spirit")
     };
 
     // Skills context
     context.skillRows = ALL_SKILL_KEYS.map(key => ({
       key,
-      label: game.i18n.localize(`TRESPASSER.Sheet.Skills.${key.charAt(0).toUpperCase() + key.slice(1)}`),
+      label: game.i18n.localize(`TRESPASSER.Terms.Skill.${key.charAt(0).toUpperCase() + key.slice(1)}`),
       selected: !!system.skills[key],
     }));
 
@@ -105,13 +105,13 @@ export class TrespasserPastLifeSheet extends foundry.appv1.sheets.ItemSheet {
     // Allowed types: item, weapon, armor
     const allowedTypes = ["item", "weapon", "armor"];
     if (!allowedTypes.includes(sourceItem.type)) {
-      return ui.notifications.warn(game.i18n.localize("TRESPASSER.PastLife.InvalidItemType"));
+      return ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.InvalidTypePossessions"));
     }
 
     const currentItems = [...(this.item.system.items || [])];
     // Check if UUID already exists to avoid duplicates
     if (currentItems.some(i => i.uuid === sourceItem.uuid)) {
-      return ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.AlreadyAdded", { name: sourceItem.name }));
+      return ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name }));
     }
 
     currentItems.push({

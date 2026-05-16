@@ -26,10 +26,10 @@ export class TrespasserCraftSheet extends foundry.appv1.sheets.ItemSheet {
 
     // Key attribute choices for the <select>
     context.attrChoices = [
-      { value: "mighty",    label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Mighty") },
-      { value: "agility",   label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Agility") },
-      { value: "intellect", label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Intellect") },
-      { value: "spirit",    label: game.i18n.localize("TRESPASSER.Sheet.Attributes.Spirit") },
+      { value: "mighty",    label: game.i18n.localize("TRESPASSER.Terms.Attribute.Mighty") },
+      { value: "agility",   label: game.i18n.localize("TRESPASSER.Terms.Attribute.Agility") },
+      { value: "intellect", label: game.i18n.localize("TRESPASSER.Terms.Attribute.Intellect") },
+      { value: "spirit",    label: game.i18n.localize("TRESPASSER.Terms.Attribute.Spirit") },
     ];
 
     context.descriptionHTML = await TextEditor.enrichHTML(this.item.system.description, {
@@ -80,16 +80,16 @@ export class TrespasserCraftSheet extends foundry.appv1.sheets.ItemSheet {
     if (!sourceItem) return;
 
     if (listKey === "deeds" && sourceItem.type !== "deed") {
-      return ui.notifications.warn(game.i18n.localize("TRESPASSER.Craft.DropDeedsOnly"));
+      return ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnly"));
     }
     if (listKey === "features" && sourceItem.type !== "feature") {
-      return ui.notifications.warn(game.i18n.localize("TRESPASSER.Craft.DropFeaturesOnly"));
+      return ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropFeaturesOnly"));
     }
 
     const currentArr = [...(this.item.system[listKey] || [])];
     if (currentArr.some(e => e.uuid === sourceItem.uuid || e.name === sourceItem.name)) {
       return ui.notifications.warn(
-        game.i18n.format("TRESPASSER.Notifications.AlreadyAdded", { name: sourceItem.name })
+        game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name })
       );
     }
 

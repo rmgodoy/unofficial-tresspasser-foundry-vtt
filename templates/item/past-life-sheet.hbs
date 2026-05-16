@@ -8,14 +8,14 @@
 
     <div class="header-column details-column">
       <h1 class="item-title">
-        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Name'}}" />
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}" />
       </h1>
     </div>
   </header>
 
   <section class="scrollable">
     <div class="description-section" style="padding-block: 15px;">
-      <label>{{localize "TRESPASSER.Item.Description"}}</label>
+      <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
       <div class="trp-editor-container">
         {{editor descriptionHTML target="system.description" button=true owner=owner editable=editable engine="prosemirror" resizable=true}}
       </div>
@@ -23,9 +23,9 @@
 
   {{!-- Navigation --}}
     <nav class="sheet-tabs tabs" data-group="primary">
-      <a class="item" data-tab="attributes">{{localize "TRESPASSER.PastLife.Tabs.Attributes"}}</a>
-      <a class="item" data-tab="skills">{{localize "TRESPASSER.PastLife.Tabs.Skills"}}</a>
-      <a class="item" data-tab="inventory">{{localize "TRESPASSER.PastLife.Tabs.Inventory"}}</a>
+      <a class="item" data-tab="attributes">{{localize "TRESPASSER.Sheet.Tabs.Attributes"}}</a>
+      <a class="item" data-tab="skills">{{localize "TRESPASSER.Sheet.Tabs.Skills"}}</a>
+      <a class="item" data-tab="inventory">{{localize "TRESPASSER.Sheet.Tabs.Inventory"}}</a>
     </nav>
 
   {{!-- Body --}}
@@ -36,7 +36,7 @@
         <div class="attributes-grid">
           {{#each system.attributes as |bonus key|}}
           <div class="attribute-row flexrow">
-            <label>{{localize (concat "TRESPASSER.Sheet.Attributes." (capitalize key))}}</label>
+            <label>{{localize (concat "TRESPASSER.Terms.Attribute." (capitalize key))}}</label>
             <input type="number" name="system.attributes.{{key}}" value="{{bonus}}" data-dtype="Number" />
           </div>
           {{/each}}
@@ -58,7 +58,7 @@
       {{!-- Inventory Tab --}}
       <div class="tab inventory flexcol" data-group="primary" data-tab="inventory">
         <div class="past-life-drop-zone" data-list="items">
-          <p class="hint">{{localize "TRESPASSER.PastLife.DropHint"}}</p>
+          <p class="hint">{{localize "TRESPASSER.Sheet.Item.PastLife.DropHint"}}</p>
           
           <div class="linked-items-list">
             {{#each pastLifeItems as |item idx|}}

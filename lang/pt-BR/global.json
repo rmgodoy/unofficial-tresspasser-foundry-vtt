@@ -1,0 +1,69 @@
+{
+  "TRESPASSER": {
+    "State": {
+      "Bloody": {
+        "Name": "Sangrando",
+        "Description": "A vida está abaixo da metade do máximo."
+      },
+      "Encumbered": {
+        "Name": "Sobrecarregado",
+        "Description": "A Classificação de Armadura é +6 ou maior. Agilidade não é adicionada às verificações de Guarda, e o Bônus de Velocidade é limitado a +2."
+      }
+    },
+    "Global": {
+      "Action": {
+        "Cancel": "Cancelar",
+        "New": "Novo(a)",
+        "Apply": "Aplicar",
+        "Confirm": "Confirmar",
+        "ToggleVisibility": "Alternar Visibilidade",
+        "ToggleDead": "Alternar Morto",
+        "ToggleTarget": "Alternar Alvo",
+        "Close": "Fechar",
+        "NewItem": "Novo(a) {type}",
+        "NewChain": "Nova Cadeia",
+        "RunCheck": "Executar Teste",
+        "Reset": "Redefinir",
+        "Accept": "Aceitar",
+        "Pass": "Passar"
+      },
+      "Status": {
+        "None": "Nenhum"
+      },
+      "Completed": "Concluído",
+      "Progress": "Progresso",
+      "General": {
+        "None": "Nenhum"
+      }
+    },
+    "TYPES": {
+      "Actor": {
+        "character": "Personagem",
+        "creature": "Criatura",
+        "dungeon": "Masmorra",
+        "party": "Grupo",
+        "haven": "Abrigo"
+      },
+      "Item": {
+        "armor": "Armadura",
+        "rations": "Rações",
+        "effect": "Efeito",
+        "deed": "Habilidade",
+        "feature": "Característica",
+        "talent": "Talento",
+        "weapon": "Arma",
+        "incantation": "Encantamento",
+        "accessory": "Acessório",
+        "item": "Item",
+        "injury": "Ferimento",
+        "calling": "Vocação",
+        "craft": "Ofício",
+        "past_life": "Vida Passada",
+        "room": "Sala",
+        "hireling": "Servo",
+        "build": "Construção",
+        "stronghold": "Fortaleza"
+      }
+    }
+  }
+}

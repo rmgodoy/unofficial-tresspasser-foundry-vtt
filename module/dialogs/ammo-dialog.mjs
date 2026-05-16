@@ -9,10 +9,10 @@ export function showAmmoDialog(ammoItems, weapon) {
   return new Promise((resolve) => {
     const options = ammoItems.map(a => `<option value="${a.id}">${a.name} (Qty: ${a.system.quantity ?? 1})</option>`).join("");
     new Dialog({
-      title: game.i18n.localize("TRESPASSER.Dialog.Ammo.SelectTitle"),
+      title: game.i18n.localize("TRESPASSER.Dialog.Ammo.Title"),
       content: `
         <div class="trespasser-dialog-content">
-          <p>${game.i18n.format("TRESPASSER.Dialog.Ammo.ChooseRef", { name: weapon.name })}</p>
+          <p>${game.i18n.format("TRESPASSER.Dialog.Ammo.Prompt", { name: weapon.name })}</p>
           <div class="form-group" style="margin-top:10px;">
             <select id="ammo-select">${options}</select>
           </div>
@@ -23,7 +23,7 @@ export function showAmmoDialog(ammoItems, weapon) {
           callback: (html) => resolve(html.find("#ammo-select").val())
         },
         cancel: {
-          label:    game.i18n.localize("TRESPASSER.Dialog.Cancel"),
+          label:    game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
           callback: () => resolve(null)
         }
       },

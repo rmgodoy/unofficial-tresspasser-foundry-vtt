@@ -112,6 +112,7 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
         tenacity:   new fields.NumberField({ integer: true, initial: 0 }),
         focus:      new fields.NumberField({ integer: true, initial: 0 }),
         speed:      new fields.NumberField({ integer: true, initial: 5 }),
+        speed_bonus: new fields.NumberField({ integer: true, initial: 2 }),
         weaponMode: new fields.StringField({ initial: "main", choices: ["main", "off", "dual"] }),
         equipment_snapshot: new fields.SchemaField({
           head:   new fields.SchemaField({ die: new fields.StringField({ initial: "" }), effect: new fields.StringField({ initial: "" }), used: new fields.BooleanField({ initial: false }) }),
@@ -140,6 +141,7 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
         prevail:   new fields.NumberField({ integer: true, initial: 0 }),
         tenacity:  new fields.NumberField({ integer: true, initial: 0 }),
         speed:     new fields.NumberField({ integer: true, initial: 0 }),
+        speed_bonus: new fields.NumberField({ integer: true, initial: 0 }),
         armor:     new fields.NumberField({ integer: true, initial: 0 }),
         health:    new fields.NumberField({ integer: true, initial: 0 }),
         max_health:new fields.NumberField({ integer: true, initial: 0 }),
@@ -188,7 +190,7 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     const allTrackedKeys = [
       "mighty", "agility", "intellect", "spirit",
       "initiative", "accuracy", "guard", "resist", "prevail", "tenacity", "speed",
-      "armor", "health", "max_health", "endurance", "max_endurance", "damage", "focus"
+      "speed_bonus", "armor", "health", "max_health", "endurance", "max_endurance", "damage", "focus"
     ];
     for (const key of allTrackedKeys) {
       this.bonuses[key] = TrespasserEffectsHelper.getAttributeBonus(actor, key);
@@ -225,7 +227,25 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     this.combat.prevail    = totalIntellect + this.skill + this.bonuses.prevail;
     this.combat.tenacity   = totalMighty  + totalSpirit + this.bonuses.tenacity;
     this.combat.speed      = 5 + this.bonuses.speed;
+    this.combat.speed_bonus = Math.max(totalAgility, 2) + this.bonuses.speed_bonus;
     this.combat.focus      = this.combat.focus + this.bonuses.focus;
+
+    // ── Passive States ──
+    this.passiveStates = {};
+    
+    // Bloody: health < 50% of max
+    this.passiveStates.bloody = this.health < (this.max_health / 2);
+    
+    // Encumbrance: armor rating (from equipped armor pieces, before effect bonuses) >= 6
+    this.passiveStates.encumbered = totalArmor >= 6;
+    
+    const applyEncumbranceRules = game.settings.get("trespasser", "applyEncumbranceRules");
+    if (this.passiveStates.encumbered && applyEncumbranceRules) {
+      // Guard: remove agility contribution
+      this.combat.guard = this.armor + this.bonuses.guard;
+      // Speed bonus: limit agility contribution to 2
+      this.combat.speed_bonus = 2 + this.bonuses.speed_bonus;
+    }
 
     // 6. Deeds Capacity
     this.deed_slots.light = 0;

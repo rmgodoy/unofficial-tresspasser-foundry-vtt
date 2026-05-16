@@ -10,7 +10,7 @@
     {{#if isGM}}
       {{#if hasAvailableDungeons}}
       <div class="tracker-dungeon-picker">
-        <h3>{{localize "TRESPASSER.Dungeon.Tracker.SelectDungeon"}}</h3>
+        <h3>{{localize "TRESPASSER.Sheet.Dungeon.Tracker.SelectDungeon"}}</h3>
         <div class="tracker-dungeon-list">
           {{#each availableDungeons}}
           <a class="tracker-dungeon-option {{#if selected}}selected{{/if}}" data-action="chooseDungeon" data-dungeon-id="{{_id}}">
@@ -30,11 +30,11 @@
       <div class="tracker-session-controls">
         {{#if selectedIsResumable}}
         <button type="button" class="tracker-start-btn resume" data-action="resumeSession">
-          <i class="fas fa-play"></i> {{localize "TRESPASSER.Dungeon.Session.Resume"}}
+          <i class="fas fa-play"></i> {{localize "TRESPASSER.Sheet.Dungeon.Session.Resume"}}
         </button>
         {{else}}
-        <button type="button" class="tracker-start-btn" data-action="startSession" data-tooltip="{{localize 'TRESPASSER.Dungeon.Session.BeginWipeWarn'}}">
-          <i class="fas fa-play"></i> {{localize "TRESPASSER.Dungeon.Session.BeginExploration"}}
+        <button type="button" class="tracker-start-btn" data-action="startSession" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.Session.BeginWipeWarn'}}">
+          <i class="fas fa-play"></i> {{localize "TRESPASSER.Sheet.Dungeon.Session.BeginExploration"}}
         </button>
         {{/if}}
       </div>
@@ -42,15 +42,15 @@
 
       {{else}}
       <div class="tracker-no-dungeon">
-        <p>{{localize "TRESPASSER.Dungeon.NoDungeonFound"}}</p>
-        <p class="tracker-hint">{{localize "TRESPASSER.Dungeon.CreateDungeonHint"}}</p>
+        <p>{{localize "TRESPASSER.Sheet.Dungeon.Tracker.NoDungeonFound"}}</p>
+        <p class="tracker-hint">{{localize "TRESPASSER.Sheet.Dungeon.Tracker.CreateDungeonHint"}}</p>
       </div>
       {{/if}}
 
     {{else}}
     <div class="tracker-no-dungeon">
-      <p>{{localize "TRESPASSER.Dungeon.NoExplorationInProgress"}}</p>
-      <p class="tracker-hint">{{localize "TRESPASSER.Dungeon.WaitingForGM"}}</p>
+      <p>{{localize "TRESPASSER.Sheet.Dungeon.Tracker.NoExplorationInProgress"}}</p>
+      <p class="tracker-hint">{{localize "TRESPASSER.Sheet.Dungeon.Tracker.WaitingForGM"}}</p>
     </div>
     {{/if}}
 
@@ -70,8 +70,8 @@
     </div>
     {{#if isGM}}
     <div class="tracker-header-controls">
-      <a data-action="switchDungeon" data-tooltip="{{localize 'TRESPASSER.Dungeon.Session.SwitchTip'}}"><i class="fas fa-arrows-left-right"></i></a>
-      <a data-action="openDungeonSheet" data-tooltip="{{localize 'TRESPASSER.Dungeon.OpenDungeonSheet'}}"><i class="fas fa-pen"></i></a>
+      <a data-action="switchDungeon" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.Session.SwitchTip'}}"><i class="fas fa-arrows-left-right"></i></a>
+      <a data-action="openDungeonSheet" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.OpenDungeonSheet'}}"><i class="fas fa-pen"></i></a>
     </div>
     {{/if}}
   </div>
@@ -79,18 +79,18 @@
   {{!-- Paused Banner --}}
   {{#if isPaused}}
   <div class="tracker-paused-banner">
-    <i class="fas fa-pause"></i> {{localize "TRESPASSER.Dungeon.ExplorationPaused"}}
+    <i class="fas fa-pause"></i> {{localize "TRESPASSER.Sheet.Dungeon.Tracker.ExplorationPaused"}}
   </div>
   {{/if}}
 
   {{!-- Status Bar --}}
   <div class="tracker-status-bar">
     <div class="tracker-stat">
-      <span class="tracker-stat-label">{{localize "TRESPASSER.Dungeon.Round"}}</span>
+      <span class="tracker-stat-label">{{localize "TRESPASSER.Sheet.Dungeon.Round"}}</span>
       <span class="tracker-stat-value">{{currentRound}}</span>
     </div>
     <div class="tracker-stat">
-      <span class="tracker-stat-label">{{localize "TRESPASSER.Dungeon.ActionsRemaining"}}</span>
+      <span class="tracker-stat-label">{{localize "TRESPASSER.Sheet.Dungeon.ActionsRemaining"}}</span>
       <div class="tracker-action-pips">
         {{#each actionPips}}
         <span class="tracker-action-pip {{#if filled}}filled{{/if}}"></span>
@@ -98,7 +98,7 @@
       </div>
     </div>
     <div class="tracker-stat">
-      <span class="tracker-stat-label">{{localize "TRESPASSER.Dungeon.Alarm"}}</span>
+      <span class="tracker-stat-label">{{localize "TRESPASSER.Sheet.Dungeon.Alarm"}}</span>
       <span class="tracker-stat-value alarm">{{alarm}}</span>
     </div>
   </div>
@@ -106,34 +106,34 @@
   {{!-- GM Nudgers: manual overrides for alarm / actions / ad-hoc alarm check --}}
   {{#if isGM}}{{#if isActive}}
   <div class="tracker-nudgers">
-    <button type="button" class="tracker-nudger" data-action="adjustAlarm" data-delta="-1" {{#if alarmAtMin}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.AlarmDownTip'}}">
-      <i class="fas fa-minus"></i> {{localize "TRESPASSER.Dungeon.Alarm"}}
+    <button type="button" class="tracker-nudger" data-action="adjustAlarm" data-delta="-1" {{#if alarmAtMin}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.Nudge.AlarmDownTip'}}">
+      <i class="fas fa-minus"></i> {{localize "TRESPASSER.Sheet.Dungeon.Alarm"}}
     </button>
-    <button type="button" class="tracker-nudger" data-action="adjustAlarm" data-delta="1" data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.AlarmUpTip'}}">
-      <i class="fas fa-plus"></i> {{localize "TRESPASSER.Dungeon.Alarm"}}
+    <button type="button" class="tracker-nudger" data-action="adjustAlarm" data-delta="1" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.Nudge.AlarmUpTip'}}">
+      <i class="fas fa-plus"></i> {{localize "TRESPASSER.Sheet.Dungeon.Alarm"}}
     </button>
-    <button type="button" class="tracker-nudger" data-action="adjustActions" data-delta="-1" {{#if actionsAtMin}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.ActionDownTip'}}">
-      <i class="fas fa-minus"></i> {{localize "TRESPASSER.Dungeon.ActionShort"}}
+    <button type="button" class="tracker-nudger" data-action="adjustActions" data-delta="-1" {{#if actionsAtMin}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.Nudge.ActionDownTip'}}">
+      <i class="fas fa-minus"></i> {{localize "TRESPASSER.Sheet.Dungeon.ActionShort"}}
     </button>
-    <button type="button" class="tracker-nudger" data-action="adjustActions" data-delta="1" {{#if actionsAtMax}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.ActionUpTip'}}">
-      <i class="fas fa-plus"></i> {{localize "TRESPASSER.Dungeon.ActionShort"}}
+    <button type="button" class="tracker-nudger" data-action="adjustActions" data-delta="1" {{#if actionsAtMax}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.Nudge.ActionUpTip'}}">
+      <i class="fas fa-plus"></i> {{localize "TRESPASSER.Sheet.Dungeon.ActionShort"}}
     </button>
-    <button type="button" class="tracker-nudger" data-action="refundLastAction" {{#if actionsAtMax}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.RefundTip'}}">
-      <i class="fas fa-rotate-left"></i> {{localize "TRESPASSER.Dungeon.Nudge.Refund"}}
+    <button type="button" class="tracker-nudger" data-action="refundLastAction" {{#if actionsAtMax}}disabled{{/if}} data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.Nudge.RefundTip'}}">
+      <i class="fas fa-rotate-left"></i> {{localize "TRESPASSER.Sheet.Dungeon.Nudge.Refund"}}
     </button>
-    <button type="button" class="tracker-nudger alarm-check" data-action="alarmCheck" data-tooltip="{{localize 'TRESPASSER.Dungeon.Nudge.AlarmCheckTip'}}">
-      <i class="fas fa-dice-d10"></i> {{localize "TRESPASSER.Dungeon.Nudge.AlarmCheck"}}
+    <button type="button" class="tracker-nudger alarm-check" data-action="alarmCheck" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.Nudge.AlarmCheckTip'}}">
+      <i class="fas fa-dice-d10"></i> {{localize "TRESPASSER.Sheet.Dungeon.Nudge.AlarmCheck"}}
     </button>
   </div>
   {{/if}}{{/if}}
 
   {{!-- Current Room --}}
   <div class="tracker-current-room">
-    <span class="tracker-room-label">{{localize "TRESPASSER.Dungeon.CurrentRoom"}}:</span>
+    <span class="tracker-room-label">{{localize "TRESPASSER.Sheet.Dungeon.CurrentRoom"}}:</span>
     <span class="tracker-room-name">{{currentRoomName}}</span>
     {{#if isGM}}
       {{#if currentRoomId}}
-      <a class="tracker-room-link" data-action="openRoomSheet" data-room-id="{{currentRoomId}}" data-tooltip="{{localize 'TRESPASSER.Dungeon.Room.OpenRoom'}}"><i class="fas fa-eye"></i></a>
+      <a class="tracker-room-link" data-action="openRoomSheet" data-room-id="{{currentRoomId}}" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.Connection.OpenRoom'}}"><i class="fas fa-eye"></i></a>
       {{/if}}
     {{/if}}
   </div>
@@ -144,7 +144,7 @@
   {{#if isActive}}
   {{!-- Action Buttons --}}
   <div class="tracker-actions-section">
-    <h3>{{localize "TRESPASSER.Dungeon.DungeonActions"}}</h3>
+    <h3>{{localize "TRESPASSER.Sheet.Dungeon.DungeonActions"}}</h3>
     <div class="tracker-action-grid">
       {{#each actions}}
       <button type="button" class="tracker-action-btn" data-action="performAction" data-action-key="{{key}}" {{#if disabled}}disabled{{/if}} data-tooltip="{{description}}">
@@ -157,12 +157,12 @@
 
   {{!-- Room Navigation --}}
   <div class="tracker-rooms-section">
-    <h3>{{localize "TRESPASSER.Dungeon.ConnectedRooms"}}</h3>
+    <h3>{{localize "TRESPASSER.Sheet.Dungeon.ConnectedRooms"}}</h3>
     {{#if connectedRooms.length}}
     <div class="tracker-room-list">
       {{#each connectedRooms}}
       <div class="tracker-room-entry {{#unless discovered}}undiscovered{{/unless}}">
-        <a class="tracker-room-go" data-action="setCurrentRoom" data-room-id="{{_id}}" data-tooltip="{{localize 'TRESPASSER.Dungeon.MoveHere'}}">
+        <a class="tracker-room-go" data-action="setCurrentRoom" data-room-id="{{_id}}" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.MoveHere'}}">
           {{#if discovered}}<i class="fas fa-door-open"></i>{{else}}<i class="fas fa-question"></i>{{/if}}
           <span>{{name}}</span>
         </a>
@@ -170,14 +170,14 @@
       {{/each}}
     </div>
     {{else}}
-    <div class="tracker-empty">{{localize "TRESPASSER.Dungeon.NoConnectedRooms"}}</div>
+    <div class="tracker-empty">{{localize "TRESPASSER.Sheet.Dungeon.NoConnectedRooms"}}</div>
     {{/if}}
   </div>
 
   {{!-- Round Control --}}
   <div class="tracker-round-control">
     <button type="button" class="tracker-next-round-btn" data-action="nextRound">
-      <i class="fas fa-forward-step"></i> {{localize "TRESPASSER.Dungeon.NextRound"}}
+      <i class="fas fa-forward-step"></i> {{localize "TRESPASSER.Sheet.Dungeon.NextRound"}}
     </button>
   </div>
   {{/if}} {{!-- end isActive --}}
@@ -189,12 +189,12 @@
   <div class="tracker-session-controls">
     {{#if isActive}}
     <button type="button" class="tracker-session-btn end" data-action="endSession">
-      <i class="fas fa-stop"></i> {{localize "TRESPASSER.Dungeon.Session.EndExploration"}}
+      <i class="fas fa-stop"></i> {{localize "TRESPASSER.Sheet.Dungeon.Session.EndExploration"}}
     </button>
     {{/if}}
     {{#if isPaused}}
     <button type="button" class="tracker-session-btn resume" data-action="resumeSession">
-      <i class="fas fa-play"></i> {{localize "TRESPASSER.Dungeon.Session.Resume"}}
+      <i class="fas fa-play"></i> {{localize "TRESPASSER.Sheet.Dungeon.Session.Resume"}}
     </button>
     {{/if}}
   </div>
@@ -204,7 +204,7 @@
   {{!-- Light Sources (visible to all, only when active/paused) --}}
   {{#if lightSources.length}}
   <div class="tracker-light-section">
-    <h3><i class="fas fa-fire"></i> {{localize "TRESPASSER.Dungeon.LightSources"}}</h3>
+    <h3><i class="fas fa-fire"></i> {{localize "TRESPASSER.Sheet.Dungeon.LightSources"}}</h3>
     <div class="tracker-light-list">
       {{#each lightSources}}
       <div class="tracker-light-entry">
@@ -222,11 +222,11 @@
   {{!-- Recent Log --}}
   {{#if recentLog.length}}
   <div class="tracker-log-section">
-    <h3>{{localize "TRESPASSER.Dungeon.RecentActivity"}}</h3>
+    <h3>{{localize "TRESPASSER.Sheet.Dungeon.RecentActivity"}}</h3>
     <div class="tracker-log-entries">
       {{#each recentLog}}
       <div class="tracker-log-entry">
-        <span class="tracker-log-round">{{localize "TRESPASSER.Dungeon.RoundAbbr"}}{{round}}</span>
+        <span class="tracker-log-round">{{localize "TRESPASSER.Sheet.Dungeon.RoundAbbr"}}{{round}}</span>
         <span class="tracker-log-action">{{action}}</span>
         {{#if detail}}<span class="tracker-log-detail">{{detail}}</span>{{/if}}
       </div>

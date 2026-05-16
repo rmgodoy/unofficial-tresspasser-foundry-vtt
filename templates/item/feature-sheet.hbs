@@ -6,7 +6,7 @@
 
     <div class="header-column details-column">
       <h1 class="item-title">
-        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Item.Name'}}"/>
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"/>
       </h1>
     </div>
   </header>
@@ -15,13 +15,13 @@
 
     <div class="details-grid">
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Item.actionType"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.ActionType"}}</label>
         <select name="system.type">
           {{selectOptions config.actionTypeChoices selected=system.type localize=true}}
         </select>
       </div>
       <div class="field-row description-column">
-        <label>{{localize "TRESPASSER.Item.Description"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
         <div class="trp-editor-container">
           {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
         </div>
@@ -32,8 +32,8 @@
     <div class="links-section">
       
       <div class="applied-effects-section">
-        <h3 class="section-title">{{localize "TRESPASSER.Item.LinkedEffects"}}</h3>
-        <p class="section-note">{{localize "TRESPASSER.Item.LinkedEffectsNote"}}</p>
+        <h3 class="section-title">{{localize "TRESPASSER.Sheet.Item.Sections.LinkedEffects"}}</h3>
+        <p class="section-note">{{localize "TRESPASSER.Sheet.Item.Note.LinkedEffects"}}</p>
         <div class="applied-effects-list drop-zone" data-type="effects">
           {{#each linkedEffects as |effect index|}}
             {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" 
@@ -44,14 +44,14 @@
                 editableIntensity=true
             }}
           {{else}}
-            <p class="notes">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</p>
+            <p class="notes">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</p>
           {{/each}}
         </div>
       </div>
 
       <div class="applied-effects-section">
-        <h3 class="section-title">{{localize "TRESPASSER.Item.LinkedDeeds"}}</h3>
-        <p class="section-note">{{localize "TRESPASSER.Item.LinkedDeedsNote"}}</p>
+        <h3 class="section-title">{{localize "TRESPASSER.Sheet.Item.Sections.LinkedDeeds"}}</h3>
+        <p class="section-note">{{localize "TRESPASSER.Sheet.Item.Note.LinkedDeeds"}}</p>
         <div class="applied-effects-list drop-zone" data-type="deeds">
           {{#each linkedDeeds as |deed index|}}
             <div class="effect-chip deed-chip" data-index="{{index}}" style="border-radius: 20px;">
@@ -59,12 +59,12 @@
               <span class="name">{{deed.name}}</span>
               <div class="controls">
                 {{#if ../editable}}
-                  <a class="deed-remove remove" title="{{localize 'TRESPASSER.Item.RemoveDeed'}}"><i class="fas fa-times"></i></a>
+                  <a class="deed-remove remove" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
                 {{/if}}
               </div>
             </div>
           {{else}}
-            <p class="notes">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Deeds"}}</p>
+            <p class="notes">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropDeeds"}}</p>
           {{/each}}
         </div>
       </div>

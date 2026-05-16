@@ -33,7 +33,7 @@ export async function onToggleLight(event, sheet) {
     const fuels = sheet.actor.items.filter(i => i.system.isLightFuel);
 
     if (fuels.length === 0) {
-      ui.notifications.error(game.i18n.localize("TRESPASSER.Notifications.NoFuelAvailable") || "No light fuel available in inventory.");
+      ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Combat.NoFuelAvailable"));
       return;
     }
 
@@ -44,17 +44,17 @@ export async function onToggleLight(event, sheet) {
       selectedFuelId = await new Promise((resolve) => {
         const options = fuels.map(f => `<option value="${f.id}">${f.name}</option>`).join("");
         new Dialog({
-          title: game.i18n.localize("TRESPASSER.Dialog.Fuel.SelectTitle"),
+          title: game.i18n.localize("TRESPASSER.Dialog.Fuel.Title"),
           content: `
             <div class="trespasser-dialog-content">
-              <p>${game.i18n.format("TRESPASSER.Dialog.Fuel.ChooseRef", { name: item.name })}</p>
+              <p>${game.i18n.format("TRESPASSER.Dialog.Fuel.Prompt", { name: item.name })}</p>
               <div class="form-group" style="margin-top:10px;">
                 <select id="fuel-select">${options}</select>
               </div>
             </div>`,
           buttons: {
-            use:    { label: game.i18n.localize("TRESPASSER.Dialog.Fuel.Use"),    callback: (html) => resolve(html.find("#fuel-select").val()) },
-            cancel: { label: game.i18n.localize("TRESPASSER.Dialog.Cancel"),      callback: () => resolve(null) }
+            use:    { label: game.i18n.localize("TRESPASSER.Global.Action.Apply"),    callback: (html) => resolve(html.find("#fuel-select").val()) },
+            cancel: { label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),      callback: () => resolve(null) }
           },
           default: "use",
           close: () => resolve(null)
@@ -66,7 +66,7 @@ export async function onToggleLight(event, sheet) {
 
     const fuelItem = sheet.actor.items.get(selectedFuelId);
     if (fuelItem) {
-      ui.notifications.info(game.i18n.format("TRESPASSER.Notifications.FuelConsumed", { name: fuelItem.name }) || `Consumed ${fuelItem.name} to light the source.`);
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.FuelConsumed", { fuel: fuelItem.name, item: item.name }));
       const currentQty = fuelItem.system.quantity ?? 1;
       if (currentQty > 1) await fuelItem.update({ "system.quantity": currentQty - 1 });
       else                 await fuelItem.delete();
@@ -80,30 +80,30 @@ export async function onToggleLight(event, sheet) {
 export async function onSpendRDHeader(event, sheet) {
   event.preventDefault();
   const currentRD = sheet.actor.system.recovery_dice || 0;
-  if (currentRD <= 0) { ui.notifications.warn("No Recovery Dice available."); return; }
+  if (currentRD <= 0) { ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Rest.NoRD")); return; }
 
   new Dialog({
-    title: "Spend Recovery Dice",
+    title: game.i18n.localize("TRESPASSER.Dialog.Rest.RDHowMany"),
     content: `
       <div class="form-group">
-        <label>${game.i18n.localize("TRESPASSER.Sheet.Rest.RDHowMany")}</label>
+        <label>${game.i18n.localize("TRESPASSER.Dialog.Rest.RDHowMany")}</label>
         <input type="number" id="spend-rd-count" value="1" min="1" max="${currentRD}" />
-        <p class="notes">${game.i18n.localize("TRESPASSER.Sheet.Rest.RDDialogNote")}</p>
+        <p class="notes">${game.i18n.localize("TRESPASSER.Dialog.Rest.RDDialogNote")}</p>
       </div>`,
     buttons: {
       ok: {
-        label: "Spend",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Apply"),
         callback: async (html) => {
           const count     = parseInt(html.find("#spend-rd-count").val()) || 0;
           const available = sheet.actor.system.recovery_dice || 0;
           if (count > available) {
-            ui.notifications.error(game.i18n.format("TRESPASSER.Notifications.CannotSpendRD", { count, available }));
+            ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Rest.CannotSpendRD", { count: available }));
             return;
           }
           if (count > 0) await sheet._spendRDAndRoll(count);
         }
       },
-      cancel: { label: "Cancel" }
+      cancel: { label: game.i18n.localize("TRESPASSER.Global.Action.Cancel") }
     },
     default: "ok"
   }, { classes: ["trespasser", "dialog"] }).render(true);

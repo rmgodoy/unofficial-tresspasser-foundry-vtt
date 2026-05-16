@@ -26,7 +26,7 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
       resist: new fields.NumberField({ required: true, integer: true, initial: 10, min: 0 }),
       initiative: new fields.NumberField({ required: true, integer: true, initial: 0 }),
       accuracy: new fields.NumberField({ required: true, integer: true, initial: 0 }),
-      roll_bonus: new fields.NumberField({ required: true, integer: true, initial: 0 }),
+      prevail: new fields.NumberField({ required: true, integer: true, initial: 0 }),
 
       // Dynamic Bonuses (derived from states/effects)
       bonuses: new fields.SchemaField({
@@ -37,7 +37,7 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
         health:    new fields.NumberField({ integer: true, initial: 0 }),
         max_health:new fields.NumberField({ integer: true, initial: 0 }),
         damage:    new fields.NumberField({ integer: true, initial: 0 }),
-        roll_bonus:new fields.NumberField({ integer: true, initial: 0 })
+        prevail:new fields.NumberField({ integer: true, initial: 0 })
       }),
 
       combat: new fields.SchemaField({
@@ -46,7 +46,7 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
         initiative: new fields.NumberField({ integer: true, initial: 0 }),
         speed: new fields.NumberField({ integer: true, initial: 5 }),
         accuracy: new fields.NumberField({ integer: true, initial: 0 }),
-        roll_bonus: new fields.NumberField({ integer: true, initial: 0 })
+        prevail: new fields.NumberField({ integer: true, initial: 0 })
       })
     };
   }
@@ -59,7 +59,7 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
     // const st     = this.states;
 
     const allTrackedKeys = [
-      "speed", "guard", "resist", "initiative", "accuracy", "health", "max_health", "damage", "roll_bonus"
+      "speed", "guard", "resist", "initiative", "accuracy", "health", "max_health", "damage", "prevail"
     ]; 
 
     for (const key of allTrackedKeys) {
@@ -73,6 +73,9 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
     this.combat.initiative = this.initiative;
     this.combat.accuracy = this.accuracy; 
     this.combat.speed = this.speed;
-    this.combat.roll_bonus = this.roll_bonus;
+    this.combat.prevail = this.prevail;
+
+    this.passiveStates = {};
+    this.passiveStates.bloody = this.health < (this.max_health / 2);
   }
 }

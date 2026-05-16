@@ -8,16 +8,16 @@
           <img src="{{actor.img}}" alt="{{actor.name}}" data-edit="img" />
         </div>
         <div class="dungeon-header-fields">
-          <input type="text" class="dungeon-name-input" name="name" value="{{actor.name}}" placeholder="{{localize 'TRESPASSER.Dungeon.NamePlaceholder'}}" />
+          <input type="text" class="dungeon-name-input" name="name" value="{{actor.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Dungeon.NamePlaceholder'}}" />
           <div class="form-group">
-            <label>{{localize "TRESPASSER.Dungeon.Location"}}</label>
-            <input type="text" class="dungeon-field-input" name="system.location" value="{{system.location}}" placeholder="{{localize 'TRESPASSER.Dungeon.LocationPlaceholder'}}" />
+            <label>{{localize "TRESPASSER.Sheet.Dungeon.Location"}}</label>
+            <input type="text" class="dungeon-field-input" name="system.location" value="{{system.location}}" placeholder="{{localize 'TRESPASSER.Sheet.Dungeon.LocationPlaceholder'}}" />
           </div>
         </div>
       </div>
       <div class="dungeon-header-line-2">
         <div class="form-group">
-          <label>{{localize "TRESPASSER.Dungeon.HostilityTier"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Dungeon.HostilityTier"}}</label>
           <select class="dungeon-field-input" name="system.hostilityTier">
             {{#each hostilityChoices as |label key|}}
               <option value="{{key}}" {{#if (eq ../system.hostilityTier key)}}selected{{/if}}>{{label}}</option>
@@ -25,7 +25,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>{{localize "TRESPASSER.Dungeon.SizeCategory"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Dungeon.SizeCategory"}}</label>
           <select class="dungeon-field-input" name="system.sizeCategory">
             {{#each sizeChoices as |label key|}}
               <option value="{{key}}" {{#if (eq ../system.sizeCategory key)}}selected{{/if}}>{{label}}</option>
@@ -33,7 +33,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>{{localize "TRESPASSER.Dungeon.FormLabel"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Dungeon.FormLabel"}}</label>
           <select class="dungeon-field-input" name="system.form">
             <option value="">—</option>
             {{#each formChoices as |label key|}}
@@ -50,22 +50,22 @@
       {{!-- Left Column: Dungeon Turn Tracker --}}
       <div class="dungeon-panel dungeon-turn-tracker">
         <div class="dungeon-section-header-row">
-          <h3 class="dungeon-section-header">{{localize "TRESPASSER.Dungeon.RoundLog"}}</h3>
+          <h3 class="dungeon-section-header">{{localize "TRESPASSER.Sheet.Dungeon.RoundLog"}}</h3>
           {{#if editable}}
-          <a class="dungeon-btn-small" data-action="resetDungeon" data-tooltip="{{localize 'TRESPASSER.Dungeon.Reset.Tip'}}"><i class="fas fa-trash"></i></a>
+          <a class="dungeon-btn-small" data-action="resetDungeon" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.Reset.Tip'}}"><i class="fas fa-trash"></i></a>
           {{/if}}
         </div>
         <div class="dungeon-inner-block dungeon-turn-tracker-entries">
           {{#if roundLog.length}}
             {{#each roundLog}}
             <div class="dungeon-log-entry">
-              <span class="log-round">{{localize "TRESPASSER.Dungeon.RoundAbbr"}}{{round}}</span>
+              <span class="log-round">{{localize "TRESPASSER.Sheet.Dungeon.RoundAbbr"}}{{round}}</span>
               <span class="log-action">{{action}}</span>
               <span class="log-detail">{{detail}}</span>
             </div>
             {{/each}}
           {{else}}
-          <div class="dungeon-empty-notice">{{localize "TRESPASSER.Dungeon.NoLogEntries"}}</div>
+          <div class="dungeon-empty-notice">{{localize "TRESPASSER.Sheet.Dungeon.NoLogEntries"}}</div>
           {{/if}}
         </div>
       </div>
@@ -75,7 +75,7 @@
         {{!-- Dungeon Traits Panel --}}
         <div class="dungeon-panel dungeon-traits-section">
           <div class="dungeon-section-header-row">
-            <h3 class="dungeon-section-header">{{localize "TRESPASSER.Dungeon.Traits"}}</h3>
+            <h3 class="dungeon-section-header">{{localize "TRESPASSER.Sheet.Dungeon.Traits"}}</h3>
           </div>
           <div class="dungeon-inner-block">
             <div class="dungeon-traits-list">
@@ -90,7 +90,7 @@
             </div>
             {{#if editable}}
             <div class="dungeon-trait-add">
-              <input type="text" class="dungeon-field-input dungeon-new-trait-input" placeholder="{{localize 'TRESPASSER.Dungeon.TraitsPlaceholder'}}" />
+              <input type="text" class="dungeon-field-input dungeon-new-trait-input" placeholder="{{localize 'TRESPASSER.Sheet.Dungeon.TraitsPlaceholder'}}" />
               <a class="dungeon-btn-small" data-action="addTrait"><i class="fas fa-plus"></i></a>
             </div>
             {{/if}}
@@ -102,18 +102,18 @@
           <div class="dungeon-section-header-row">
             {{#if editable}}
             {{#if encounterTableId}}
-            <a class="dungeon-btn-small encounter-corner-left" data-action="removeEncounterTable" data-tooltip="{{localize 'TRESPASSER.Dungeon.RemoveTable'}}"><i class="fas fa-xmark"></i></a>
+            <a class="dungeon-btn-small encounter-corner-left" data-action="removeEncounterTable" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.RemoveTable'}}"><i class="fas fa-xmark"></i></a>
             {{/if}}
             {{/if}}
-            <h3 class="dungeon-section-header">{{localize "TRESPASSER.Dungeon.EncounterTable"}}</h3>
+            <h3 class="dungeon-section-header">{{localize "TRESPASSER.Sheet.Dungeon.EncounterTable"}}</h3>
             {{#if editable}}
-            <a class="dungeon-btn-small encounter-corner-right" data-action="createEncounterTable" data-tooltip="{{localize 'TRESPASSER.Dungeon.CreateTable'}}"><i class="fas fa-plus"></i></a>
+            <a class="dungeon-btn-small encounter-corner-right" data-action="createEncounterTable" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.CreateTable'}}"><i class="fas fa-plus"></i></a>
             {{/if}}
           </div>
           <div class="dungeon-inner-block">
             {{#if encounterTableId}}
               <div class="encounter-formula-bar">
-                <a class="encounter-formula-left encounter-roll-btn" data-action="rollEncounterTable" data-tooltip="{{localize 'TRESPASSER.Dungeon.RollTable'}}"><i class="fas fa-dice-d20"></i> {{encounterTableFormula}}</a>
+                <a class="encounter-formula-left encounter-roll-btn" data-action="rollEncounterTable" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.RollTable'}}"><i class="fas fa-dice-d20"></i> {{encounterTableFormula}}</a>
                 <span class="encounter-table-name">{{encounterTableName}}</span>
               </div>
               {{#if encounterTableEntries.length}}
@@ -130,7 +130,7 @@
             {{else}}
               <div class="encounter-drop-zone">
                 <i class="fas fa-dice-d20"></i>
-                <span>{{localize "TRESPASSER.Dungeon.EncounterTableHint"}}</span>
+                <span>{{localize "TRESPASSER.Sheet.Dungeon.EncounterTableHint"}}</span>
               </div>
             {{/if}}
           </div>
@@ -142,7 +142,7 @@
     {{!-- C. Collapsible Map Panel --}}
     <details class="dungeon-panel dungeon-map-section">
       <summary class="dungeon-section-header-row dungeon-map-summary">
-        <h3 class="dungeon-section-header">{{localize "TRESPASSER.Dungeon.MapImage"}}</h3>
+        <h3 class="dungeon-section-header">{{localize "TRESPASSER.Sheet.Dungeon.MapImage"}}</h3>
         <i class="fas fa-chevron-down dungeon-collapse-icon"></i>
       </summary>
       <div class="dungeon-inner-block dungeon-map-content">
@@ -160,7 +160,7 @@
     {{!-- D. Description Panel --}}
     <div class="dungeon-panel dungeon-overview-description">
       <div class="dungeon-section-header-row">
-        <h3 class="dungeon-section-header">{{localize "TRESPASSER.Dungeon.Description"}}</h3>
+        <h3 class="dungeon-section-header">{{localize "TRESPASSER.Sheet.Common.Description"}}</h3>
       </div>
       <div class="dungeon-inner-block dungeon-description-editor">
         <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="true">{{{enrichedDescription}}}</prose-mirror>

@@ -36,27 +36,27 @@ export class TrespasserEffectsHelper {
    * Labels for effect trigger timings.
    */
   static TRIGGER_LABELS = {
-    "start-of-combat": "TRESPASSER.TriggerLabels.StartOfCombat",
-    "start-of-round": "TRESPASSER.TriggerLabels.StartOfRound",
-    "start-of-turn": "TRESPASSER.TriggerLabels.StartOfTurn",
-    "end-of-turn": "TRESPASSER.TriggerLabels.EndOfTurn",
-    "end-of-round": "TRESPASSER.TriggerLabels.EndOfRound",
-    "end-of-combat": "TRESPASSER.TriggerLabels.EndOfCombat",
-    "on-first-move": "TRESPASSER.TriggerLabels.OnFirstMove",
-    "on-move": "TRESPASSER.TriggerLabels.OnMove",
-    "use": "TRESPASSER.TriggerLabels.Use",
-    "targeted": "TRESPASSER.TriggerLabels.Targeted",
-    "damage-dealt": "TRESPASSER.TriggerLabels.DamageDealt",
-    "damage-received": "TRESPASSER.TriggerLabels.DamageReceived",
-    "on-prevail": "TRESPASSER.TriggerLabels.OnPrevail",
-    "on-use-deed": "TRESPASSER.TriggerLabels.OnUseDeed",
-    "on-targeted-deed": "TRESPASSER.TriggerLabels.OnTargetedDeed",
-    "on-deed-hit-received": "TRESPASSER.TriggerLabels.OnDeedHitReceived",
-    "on-deed-miss-received": "TRESPASSER.TriggerLabels.OnDeedMissReceived",
-    "on-deed-hit": "TRESPASSER.TriggerLabels.OnDeedHit",
-    "on-deed-miss": "TRESPASSER.TriggerLabels.OnDeedMiss",
-    "immediate": "TRESPASSER.TriggerLabels.Immediate",
-    "continuous": "TRESPASSER.TriggerLabels.Continuous"
+    "start-of-combat": "TRESPASSER.App.System.Trigger.StartOfCombat",
+    "start-of-round": "TRESPASSER.App.System.Trigger.StartOfRound",
+    "start-of-turn": "TRESPASSER.App.System.Trigger.StartOfTurn",
+    "end-of-turn": "TRESPASSER.App.System.Trigger.EndOfTurn",
+    "end-of-round": "TRESPASSER.App.System.Trigger.EndOfRound",
+    "end-of-combat": "TRESPASSER.App.System.Trigger.EndOfCombat",
+    "on-first-move": "TRESPASSER.App.System.Trigger.OnFirstMove",
+    "on-move": "TRESPASSER.App.System.Trigger.OnMove",
+    "use": "TRESPASSER.App.System.Trigger.Use",
+    "targeted": "TRESPASSER.App.System.Trigger.Targeted",
+    "damage-dealt": "TRESPASSER.App.System.Trigger.DamageDealt",
+    "damage-received": "TRESPASSER.App.System.Trigger.DamageReceived",
+    "on-prevail": "TRESPASSER.App.System.Trigger.OnPrevail",
+    "on-use-deed": "TRESPASSER.App.System.Trigger.OnUseDeed",
+    "on-targeted-deed": "TRESPASSER.App.System.Trigger.OnTargetedDeed",
+    "on-deed-hit-received": "TRESPASSER.App.System.Trigger.OnDeedHitReceived",
+    "on-deed-miss-received": "TRESPASSER.App.System.Trigger.OnDeedMissReceived",
+    "on-deed-hit": "TRESPASSER.App.System.Trigger.OnDeedHit",
+    "on-deed-miss": "TRESPASSER.App.System.Trigger.OnDeedMiss",
+    "immediate": "TRESPASSER.App.System.Trigger.Immediate",
+    "continuous": "TRESPASSER.App.System.Trigger.Continuous"
   };
 
   /**
@@ -73,20 +73,20 @@ export class TrespasserEffectsHelper {
    * Labels for effect duration modes.
    */
   static DURATION_LABELS = {
-    "indefinite": "TRESPASSER.DurationLabels.Indefinite",
-    "combat": "TRESPASSER.DurationLabels.Combat",
-    "round": "TRESPASSER.DurationLabels.Round",
-    "trigger": "TRESPASSER.DurationLabels.Trigger"
+    "indefinite": "TRESPASSER.App.System.Duration.Indefinite",
+    "combat": "TRESPASSER.App.System.Duration.Combat",
+    "round": "TRESPASSER.App.System.Duration.Round",
+    "trigger": "TRESPASSER.App.System.Duration.Trigger"
   };
 
   /**
    * Constant for target attributes.
    */
   static TARGET_ATTRIBUTES = {
-    "mighty": "TRESPASSER.Sheet.Attributes.Mighty",
-    "agility": "TRESPASSER.Sheet.Attributes.Agility",
-    "intellect": "TRESPASSER.Sheet.Attributes.Intellect",
-    "spirit": "TRESPASSER.Sheet.Attributes.Spirit",
+    "mighty": "TRESPASSER.Terms.Attribute.Mighty",
+    "agility": "TRESPASSER.Terms.Attribute.Agility",
+    "intellect": "TRESPASSER.Terms.Attribute.Intellect",
+    "spirit": "TRESPASSER.Terms.Attribute.Spirit",
     "initiative": "TRESPASSER.Sheet.Combat.Initiative",
     "accuracy": "TRESPASSER.Sheet.Combat.Accuracy",
     "guard": "TRESPASSER.Sheet.Combat.Guard",
@@ -94,16 +94,17 @@ export class TrespasserEffectsHelper {
     "prevail": "TRESPASSER.Sheet.Combat.Prevail",
     "tenacity": "TRESPASSER.Sheet.Combat.Tenacity",
     "speed": "TRESPASSER.Sheet.Combat.Speed",
-    "armor": "TRESPASSER.Sheet.Equipments.Armor",
-    "health": "TRESPASSER.Sheet.Effects.CurrentHealth",
-    "max_health": "TRESPASSER.Sheet.Effects.MaxHealth",
+    "speed_bonus": "TRESPASSER.Sheet.Combat.SpeedBonus",
+    "armor": "TRESPASSER.Sheet.Item.Details.ArmorRating",
+    "health": "TRESPASSER.Sheet.Header.HP",
+    "max_health": "TRESPASSER.Sheet.Header.Health",
     "focus": "TRESPASSER.Sheet.Combat.Focus",
     "action_points": "TRESPASSER.Sheet.Combat.ActionPoints",
     "combat_phase": "TRESPASSER.Sheet.Combat.Phase",
-    "damage_dealt": "TRESPASSER.Item.DamageDealt",
-    "damage_received": "TRESPASSER.Item.DamageReceived",
-    "endurance": "TRESPASSER.Endurance",
-    "max_endurance": "TRESPASSER.MaxEndurance"
+    "damage_dealt": "TRESPASSER.App.System.Trigger.DamageDealt",
+    "damage_received": "TRESPASSER.App.System.Trigger.DamageReceived",
+    "endurance": "TRESPASSER.Sheet.Header.Endurance",
+    "max_endurance": "TRESPASSER.Sheet.Header.Endurance"
   };
 
   /**
@@ -206,7 +207,7 @@ export class TrespasserEffectsHelper {
     if (toMessage) {
       await roll.toMessage({
         speaker: ChatMessage.getSpeaker({ actor }),
-        flavor: game.i18n.localize("TRESPASSER.Trigger.EffectEvaluation")
+        flavor: game.i18n.localize("TRESPASSER.Chat.Trigger.Evaluation")
       });
     }
     
@@ -242,7 +243,7 @@ export class TrespasserEffectsHelper {
     if (description) cardHtml += `<p><em>${description}</em></p>`;
 
     cardHtml += `<div class="applied-effects">
-      <strong>${game.i18n.localize("TRESPASSER.Chat.EffectsStates")}</strong>`;
+      <strong>${game.i18n.localize("TRESPASSER.Terms.ItemType.States")}</strong>`;
 
     for (const eff of activeOnly) {
       const intensity = parseInt(eff.intensity) || 0;
@@ -562,7 +563,7 @@ export class TrespasserEffectsHelper {
       
       let flavor = `<div class="trespasser-chat-card">
         <h3>${title}</h3>
-        <p style="font-style: italic;">${game.i18n.format("TRESPASSER.Trigger.TriggeredAt", { label: game.i18n.localize(label) })}</p>`;
+        <p style="font-style: italic;">${game.i18n.format("TRESPASSER.Chat.Trigger.TriggeredAt", { label: game.i18n.localize(label) })}</p>`;
 
       if (eff.isOnlyReminder) {
         // Only show text if it exists
@@ -578,21 +579,21 @@ export class TrespasserEffectsHelper {
           await actor.update({ "system.health": newHP });
           
           if (modValue > 0) {
-            flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Trigger.HealthRecovered", { value: modValue })}</p>`;
+            flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthRecovered", { value: modValue })}</p>`;
           } else if (modValue < 0) {
-            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
+            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
           } else {
-            flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.HealthUnaffected")}</p>`;
+            flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.HealthUnaffected")}</p>`;
           }
         } else if (eff.target === "endurance") {
           const newEnd = Math.clamp(actor.system.endurance + modValue, 0, actor.system.max_endurance);
           await actor.update({ "system.endurance": newEnd });
           if (modValue > 0) {
-            flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Trigger.EnduranceRecovered", { value: modValue })}</p>`;
+            flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.EnduranceRecovered", { value: modValue })}</p>`;
           } else if (modValue < 0) {
-            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.EnduranceLost", { value: Math.abs(modValue) })}</p>`;
+            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.EnduranceLost", { value: Math.abs(modValue) })}</p>`;
           } else {
-            flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.EnduranceUnaffected")}</p>`;
+            flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.EnduranceUnaffected")}</p>`;
           }
         } else if (eff.target === "focus") {
           flavor += await TrespasserEffectsHelper.updateFocus(actor, modValue);
@@ -602,7 +603,7 @@ export class TrespasserEffectsHelper {
           flavor += await TrespasserEffectsHelper.updateCombatPhase(actor, modValue);
         } else {
           const targetLabel = game.i18n.localize(this.TARGET_ATTRIBUTES[eff.target]) || eff.target;
-          flavor += `<p>${game.i18n.format("TRESPASSER.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
+          flavor += `<p>${game.i18n.format("TRESPASSER.Chat.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
         }
 
         // Add the rendered roll if it was a dice roll
@@ -677,7 +678,7 @@ export class TrespasserEffectsHelper {
     }));
 
     await weapon.update({ "system.oilEffects": [...existingOilEffects, ...newEffects] });
-    ui.notifications.info(game.i18n.format("TRESPASSER.Dialog.ApplyOil.Applied", { oil: oilItem.name, weapon: weapon.name }));
+    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Save.OilApplied", { oil: oilItem.name, weapon: weapon.name }));
     
     // Consume oil if it's an item
     if (oilItem.system.quantity !== undefined) {
@@ -707,7 +708,7 @@ export class TrespasserEffectsHelper {
 
     let flavor = `<div class="trespasser-chat-card">
       <h3>${title}</h3>
-      <p style="font-style: italic;">${game.i18n.format("TRESPASSER.Trigger.TriggeredAt", { label: game.i18n.localize(label) })}</p>`;
+      <p style="font-style: italic;">${game.i18n.format("TRESPASSER.Chat.Trigger.TriggeredAt", { label: game.i18n.localize(label) })}</p>`;
 
     if (item.system.isOnlyReminder) {
       if (item.system.description) {
@@ -720,23 +721,23 @@ export class TrespasserEffectsHelper {
       if (target === "health") {
         const newHP = Math.clamp(actor.system.health + modValue, 0, actor.system.max_health);
         await actor.update({ "system.health": newHP });
-        if (modValue > 0) flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Trigger.HealthRecovered", { value: modValue })}</p>`;
-        else if (modValue < 0) flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
-        else flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.HealthUnaffected")}</p>`;
+        if (modValue > 0) flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthRecovered", { value: modValue })}</p>`;
+        else if (modValue < 0) flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
+        else flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.HealthUnaffected")}</p>`;
       } 
       else if (target === "endurance") {
         const newEnd = Math.clamp(actor.system.endurance + modValue, 0, actor.system.max_endurance);
         await actor.update({ "system.endurance": newEnd });
-        if (modValue > 0) flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Trigger.EnduranceRecovered", { value: modValue })}</p>`;
-        else if (modValue < 0) flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.EnduranceLost", { value: Math.abs(modValue) })}</p>`;
-        else flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.EnduranceUnaffected")}</p>`;
+        if (modValue > 0) flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.EnduranceRecovered", { value: modValue })}</p>`;
+        else if (modValue < 0) flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.EnduranceLost", { value: Math.abs(modValue) })}</p>`;
+        else flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.EnduranceUnaffected")}</p>`;
       }
       else if (target === "focus") flavor += await TrespasserEffectsHelper.updateFocus(actor, modValue);
       else if (target === "action_points") flavor += await TrespasserEffectsHelper.updateActionPoints(actor, modValue);
       else if (target === "combat_phase") flavor += await TrespasserEffectsHelper.updateCombatPhase(actor, modValue);
       else {
         const targetLabel = game.i18n.localize(this.TARGET_ATTRIBUTES[target]) || target;
-        flavor += `<p>${game.i18n.format("TRESPASSER.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
+        flavor += `<p>${game.i18n.format("TRESPASSER.Chat.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
       }
 
       if (roll instanceof foundry.dice.Roll) flavor += await roll.render();
@@ -775,15 +776,15 @@ export class TrespasserEffectsHelper {
       await actor.update({ "system.combat.focus": newFocus });
 
       if (modValue > 0) {
-        flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Trigger.FocusRecovered", { value: modValue })}</p>`;
+        flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.FocusRecovered", { value: modValue })}</p>`;
       } else if (modValue < 0) {
-        flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.FocusLost", { value: Math.abs(modValue) })}</p>`;
+        flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.FocusLost", { value: Math.abs(modValue) })}</p>`;
       } else {
-        flavor += `<p>${game.i18n.localize("TRESPASSER.Trigger.FocusUnaffected")}</p>`;
+        flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.FocusUnaffected")}</p>`;
       }
     } else {
       const targetLabel = game.i18n.localize(this.TARGET_ATTRIBUTES["focus"]) || "focus";
-      flavor += `<p>${game.i18n.format("TRESPASSER.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
+      flavor += `<p>${game.i18n.format("TRESPASSER.Chat.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
     }
     return flavor;
   }
@@ -804,9 +805,9 @@ export class TrespasserEffectsHelper {
         await combatant.setFlag("trespasser", "actionPoints", newAP);
         
         if (modValue > 0) {
-          flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Trigger.APGained", { value: modValue })}</p>`;
+          flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.APGained", { value: modValue })}</p>`;
         } else if (modValue < 0) {
-          flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Trigger.APLost", { value: Math.abs(modValue) })}</p>`;
+          flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.APLost", { value: Math.abs(modValue) })}</p>`;
         }
       }
     }
@@ -841,7 +842,7 @@ export class TrespasserEffectsHelper {
           phaseLabel = game.i18n.localize(combatClass.PHASE_LABELS[closestPhase]) || closestPhase;
         }
         
-        flavor += `<p>${game.i18n.format("TRESPASSER.Trigger.PhaseChanged", { phase: phaseLabel })}</p>`;
+        flavor += `<p>${game.i18n.format("TRESPASSER.Chat.Trigger.PhaseChanged", { phase: phaseLabel })}</p>`;
       }
     }
     return flavor;

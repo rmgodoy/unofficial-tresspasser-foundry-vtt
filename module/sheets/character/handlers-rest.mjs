@@ -39,7 +39,7 @@ export async function handleRestAction(type, data, actorOrSheet, { chat = true }
     const currentRD = actor.system.recovery_dice || 0;
 
     if (rdToSpend > currentRD) {
-      ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.SpendRDLimited", { spent: rdToSpend, current: currentRD }));
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Rest.SpendRDLimited", { spent: rdToSpend, current: currentRD }));
       rdToSpend = currentRD;
     }
 
@@ -145,6 +145,6 @@ export async function spendRDAndRoll(count, actorOrSheet) {
   await actor.update({ "system.health": newHP, "system.recovery_dice": newRD });
   await roll.toMessage({
     speaker: ChatMessage.getSpeaker({ actor }),
-    flavor:  game.i18n.format("TRESPASSER.Chat.SpendRD", { name: actor.name, count })
+    flavor:  game.i18n.format("TRESPASSER.Chat.Action.SpendRD", { name: actor.name, count })
   });
 }

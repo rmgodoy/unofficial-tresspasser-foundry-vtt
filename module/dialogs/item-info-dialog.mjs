@@ -92,7 +92,7 @@ export async function showItemInfoDialog(uuid) {
   if (!uuid) return;
   const item = await fromUuid(uuid);
   if (!item) {
-    ui.notifications.warn(game.i18n.localize("TRESPASSER.Dialog.ItemNotFound"));
+    ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.NotFound"));
     return;
   }
 
@@ -113,7 +113,7 @@ export async function showItemInfoDialog(uuid) {
     content: `${INFO_STYLE}<div style="padding:6px 4px;">${bodyHTML}</div>`,
     buttons: {
       close: {
-        label: `<i class="fas fa-times"></i> ${game.i18n.localize("TRESPASSER.Dialog.Close")}`,
+        label: `<i class="fas fa-times"></i> ${game.i18n.localize("TRESPASSER.Global.Action.Close")}`,
         callback: () => {}
       }
     },

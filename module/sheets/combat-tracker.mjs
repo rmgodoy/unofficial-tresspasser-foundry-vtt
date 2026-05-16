@@ -39,11 +39,11 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
     const combatInfo = combat.getFlag("trespasser", "combatInfo") || {};
 
     const phases = [
-      { id: 40, label: "TRESPASSER.Phase.Early", css: "early", combatants: [] },
-      { id: 30, label: "TRESPASSER.Phase.Enemy", css: "enemy", combatants: [] },
-      { id: 20, label: "TRESPASSER.Phase.Late", css: "late", combatants: [] },
-      { id: 10, label: "TRESPASSER.Phase.Extra", css: "extra", combatants: [] },
-      { id: 0,  label: "TRESPASSER.Phase.End", css: "end", combatants: [] }
+      { id: 40, label: "TRESPASSER.Terms.Combat.Phase.Early", css: "early", combatants: [] },
+      { id: 30, label: "TRESPASSER.Terms.Combat.Phase.Enemy", css: "enemy", combatants: [] },
+      { id: 20, label: "TRESPASSER.Terms.Combat.Phase.Late", css: "late", combatants: [] },
+      { id: 10, label: "TRESPASSER.Terms.Combat.Phase.Extra", css: "extra", combatants: [] },
+      { id: 0,  label: "TRESPASSER.Terms.Combat.Phase.End", css: "end", combatants: [] }
     ];
 
     const turns = data.turns ?? [];

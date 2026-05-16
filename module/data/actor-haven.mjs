@@ -249,9 +249,9 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
 
     await ChatMessage.create({
       content: `<div class="trespasser-chat-card haven-report">
-        <h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.WeeksRest")}</h3>
-        <p>${game.i18n.localize("TRESPASSER.Haven.WeeksRestFlavor")}</p>
-        <p><strong>Characters Rested:</strong> ${results.length ? results.join(", ") : "None"}</p>
+        <h3>${game.i18n.localize("TRESPASSER.Terms.HavenUpkeepWeeksRest")}</h3>
+        <p>${game.i18n.localize("TRESPASSER.Chat.Haven.WeeksRestFlavor")}</p>
+        <p><strong>${game.i18n.localize("TRESPASSER.Terms.CharactersRested")}:</strong> ${results.length ? results.join(", ") : game.i18n.localize("TRESPASSER.Global.Status.None")}</p>
       </div>`,
       speaker: ChatMessage.getSpeaker({ actor })
     });
@@ -270,7 +270,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     const income = this.totalWeeklyIncome;
 
     if (this.treasury + balance < 0) {
-      ui.notifications.error(game.i18n.format("TRESPASSER.Haven.InsufficientFundsError", { cost: expenses - income, treasury: this.treasury }));
+      ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Haven.InsufficientFunds", { cost: expenses - income, treasury: this.treasury }));
       return false;
     }
     
@@ -285,10 +285,10 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     }
 
     const messages = [];
-    messages.push(`<h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.ResolveProduction")}</h3>`);
-    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.WeeklyExpenses")}:</strong> ${expenses}</p>`);
-    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.WeeklyIncome")}:</strong> ${income}</p>`);
-    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.WeeklyBalance")}:</strong> ${balance >= 0 ? "+" : ""}${balance}</p>`);
+    messages.push(`<h3>${game.i18n.localize("TRESPASSER.Terms.HavenUpkeepResolveProduction")}</h3>`);
+    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Terms.HavenWeeklyExpenses")}:</strong> ${expenses}</p>`);
+    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Terms.HavenWeeklyIncome")}:</strong> ${income}</p>`);
+    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Terms.HavenWeeklyBalance")}:</strong> ${balance >= 0 ? "+" : ""}${balance}</p>`);
 
     // Temporary inventory state for the week's processing
     let currentInventory = foundry.utils.duplicate(this.inventory);
@@ -308,7 +308,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     }
 
     // 3. Process unassigned active hirelings
-    messages.push(`<h4>${game.i18n.localize("TRESPASSER.Haven.UnassignedHirelings")}</h4>`);
+    messages.push(`<h4>${game.i18n.localize("TRESPASSER.Terms.HavenUnassignedHirelings")}</h4>`);
     for (const h of hirelings) {
       if (h.system.active && !assignedHirelingIds.has(h.id)) {
         const { result, newInventory } = await this._processHirelingProduction(h, currentInventory);
@@ -323,7 +323,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     // 4. Process Strongholds (progression and features)
     const strongholds = actor.items.filter(i => i.type === "stronghold");
     if (strongholds.length > 0) {
-      messages.push(`<h4>${game.i18n.localize("TRESPASSER.Haven.Strongholds")}</h4>`);
+      messages.push(`<h4>${game.i18n.localize("TRESPASSER.Terms.HavenStrongholds")}</h4>`);
       for (const s of strongholds) {
         if (s.system.isCompleted) continue; // Already handled for income/outcome
         
@@ -332,7 +332,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
         await s.update({ "system.progress": newProgress });
         
         if (newProgress === s.system.buildClock) {
-          messages.push(`<p style="color:var(--trp-green-bright);"><strong>${s.name} ${game.i18n.localize("TRESPASSER.Haven.Completed")}!</strong></p>`);
+          messages.push(`<p style="color:var(--trp-green-bright);"><strong>${s.name} ${game.i18n.localize("TRESPASSER.Global.Completed")}!</strong></p>`);
           // Apply features to owner if set
           if (s.system.ownerId) {
             const owner = game.actors.get(s.system.ownerId);
@@ -342,7 +342,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
             }
           }
         } else {
-          messages.push(`<p>${s.name}: ${game.i18n.localize("TRESPASSER.Haven.Progress")} ${newProgress}/${s.system.buildClock}</p>`);
+          messages.push(`<p>${s.name}: ${game.i18n.localize("TRESPASSER.Global.Progress")} ${newProgress}/${s.system.buildClock}</p>`);
         }
       }
     }
@@ -366,7 +366,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     const isStagnant = this.isStagnant;
     const state = this.populationState || "growth";
     const messages = [];
-    messages.push(`<h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.PopulationCheck")}</h3>`);
+    messages.push(`<h3>${game.i18n.localize("TRESPASSER.Terms.HavenUpkeepPopulationCheck")}</h3>`);
     
     const oldRank = this.populationRank || 0;
     let newRank = oldRank;
@@ -399,28 +399,28 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       const nextThreshold = (this.level < 9) ? this.populationThresholds[this.level + 1] : Infinity;
       
       if (oldRank >= nextThreshold && increase > 0) {
-        messages.push(`<p class="warning" style="color:var(--trp-gold); font-weight:bold; margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Haven.Stagnant")}</p>`);
-        messages.push(`<p style="font-size:var(--fs-11); font-style:italic;">Rank growth blocked by level. Rolling for Arrivals only.</p>`);
+        messages.push(`<p class="warning" style="color:var(--trp-gold); font-weight:bold; margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Terms.HavenStagnant")}</p>`);
+        messages.push(`<p style="font-size:var(--fs-11); font-style:italic;">${game.i18n.localize("TRESPASSER.Chat.Haven.GrowthBlocked")}</p>`);
         increase = 0;
       } else if (oldRank + increase > nextThreshold) {
         increase = nextThreshold - oldRank;
-        messages.push(`<p class="warning" style="font-size:var(--fs-11); font-style:italic; color:var(--trp-gold);">Growth capped at rank ${nextThreshold} until level up.</p>`);
+        messages.push(`<p class="warning" style="font-size:var(--fs-11); font-style:italic; color:var(--trp-gold);">${game.i18n.format("TRESPASSER.Chat.Haven.GrowthCapped", { threshold: nextThreshold })}</p>`);
       }
       
       newRank = oldRank + increase;
       updates["system.populationRank"] = newRank;
 
       if (isSuccess) {
-        messages.push(`<p class="success" style="color:var(--trp-green-bright);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Success")}</p>`);
-        if (increase > 0) messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Haven.PopulationIncrease")}:</strong> +${increase} (Rank: ${newRank})</p>`);
+        messages.push(`<p class="success" style="color:var(--trp-green-bright);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Common.Success")}</p>`);
+        if (increase > 0) messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Terms.HavenPopulationIncrease")}:</strong> +${increase} (Rank: ${newRank})</p>`);
         
         if (sparks > 0) {
-          messages.push(`<p style="color:var(--trp-spark);"><i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Sparks", { count: sparks })}</p>`);
-          messages.push(`<p style="color:var(--trp-spark); font-weight:bold;"><i class="fas fa-walking"></i> HAVEN ARRIVALS!</p>`);
-          messages.push(`<p style="font-size:var(--fs-11); font-style:italic;">The Judge rolls on the Haven Arrivals table and fills the Arrivals tab.</p>`);
+          messages.push(`<p style="color:var(--trp-spark);"><i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: sparks })}</p>`);
+          messages.push(`<p style="color:var(--trp-spark); font-weight:bold;"><i class="fas fa-walking"></i> ${game.i18n.localize("TRESPASSER.Chat.Haven.Arrivals")}</p>`);
+          messages.push(`<p style="font-size:var(--fs-11); font-style:italic;">${game.i18n.localize("TRESPASSER.Chat.Haven.ArrivalsInstruction")}</p>`);
         }
       } else {
-        messages.push(`<p class="failure" style="color:var(--trp-red);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Failure")}</p>`);
+        messages.push(`<p class="failure" style="color:var(--trp-red);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Common.Failure")}</p>`);
       }
 
       await roll.toMessage({
@@ -441,14 +441,14 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       const isSuccess = total >= 20;
       
       if (isSuccess) {
-        messages.push(`<p class="success" style="color:var(--trp-green-bright);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Success")} (Decline Halted)</p>`);
-        messages.push(`<p>Population rank remains stable at ${oldRank}.</p>`);
+        messages.push(`<p class="success" style="color:var(--trp-green-bright);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Common.Success")} ${game.i18n.localize("TRESPASSER.Chat.Haven.DeclineHalted")}</p>`);
+        messages.push(`<p>${game.i18n.format("TRESPASSER.Chat.Haven.PopulationStable", { rank: oldRank })}</p>`);
       } else {
         // Failure: Lose 1 rank. (One per shadow - we'll ignore shadow specifics for now as per rules image core)
-        messages.push(`<p class="failure" style="color:var(--trp-shadow);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Failure")} (Population Decline)</p>`);
+        messages.push(`<p class="failure" style="color:var(--trp-shadow);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Common.Failure")} ${game.i18n.localize("TRESPASSER.Chat.Haven.PopulationDecline")}</p>`);
         newRank = Math.max(0, oldRank - 1);
         updates["system.populationRank"] = newRank;
-        messages.push(`<p><strong>Population Rank:</strong> -1 (Now: ${newRank})</p>`);
+        messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Terms.PopulationRank")}:</strong> -1 ${game.i18n.format("TRESPASSER.Chat.Haven.NewRank", { rank: newRank })}</p>`);
       }
 
       await roll.toMessage({
@@ -468,7 +468,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       
       if (newRank >= requiredRank && partyLevel >= nextLevel) {
         updates["system.level"] = nextLevel;
-        ui.notifications.info(`${actor.name} reached Level ${nextLevel}!`);
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Haven.LevelUp", { name: actor.name, level: nextLevel }));
       }
     }
 
@@ -493,13 +493,13 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       
       await ChatMessage.create({
         content: `<div class="trespasser-chat-card haven-report">
-          <h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.EventCheck")}</h3>
-          <p><strong>${event.title}</strong> advances!</p>
+          <h3>${game.i18n.localize("TRESPASSER.Terms.HavenUpkeepEventCheck")}</h3>
+          <p><strong>${event.title}</strong> ${game.i18n.localize("TRESPASSER.Chat.Haven.EventAdvances")}</p>
           <div class="haven-event-status">
-            <span class="label">Threat Clock:</span>
+            <span class="label">${game.i18n.localize("TRESPASSER.Terms.ThreatClock")}:</span>
             <span class="value">${nextValue} / ${event.clock}</span>
           </div>
-          ${isComplete ? `<p class="critical" style="color:var(--trp-red); font-weight:bold; margin-top:10px; border:2px solid var(--trp-red); padding:5px; text-align:center;">THE EVENT CLOCK IS COMPLETE!</p>` : ""}
+          ${isComplete ? `<p class="critical" style="color:var(--trp-red); font-weight:bold; margin-top:10px; border:2px solid var(--trp-red); padding:5px; text-align:center;">${game.i18n.localize("TRESPASSER.Chat.Haven.EventComplete")}</p>` : ""}
         </div>`,
         speaker: ChatMessage.getSpeaker({ actor })
       });
@@ -511,18 +511,18 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       const starts = roll.total <= skillBonus;
       
       let content = `<div class="trespasser-chat-card haven-report">
-        <h3>${game.i18n.localize("TRESPASSER.Haven.UpkeepSteps.EventCheck")}</h3>
-        <p>No active event. Rolling for new threat...</p>
+        <h3>${game.i18n.localize("TRESPASSER.Terms.HavenUpkeepEventCheck")}</h3>
+        <p>${game.i18n.localize("TRESPASSER.Chat.Haven.RollingThreat")}</p>
         <div class="haven-check-details">
-          <span>DC (Skill Bonus): <strong>${skillBonus}</strong></span>
+          <span>${game.i18n.localize("TRESPASSER.Terms.HavenDCSkillBonus")}: <strong>${skillBonus}</strong></span>
         </div>`;
       
       if (starts) {
-        content += `<p class="success" style="color:var(--trp-green-bright); font-weight:bold; margin-top:8px;">A NEW EVENT STARTS!</p>
-                   <p style="font-size:var(--fs-11); font-style:italic;">The Judge should define the event in the Haven's Event tab.</p>`;
+        content += `<p class="success" style="color:var(--trp-green-bright); font-weight:bold; margin-top:8px;">${game.i18n.localize("TRESPASSER.Chat.Haven.NewEventStarts")}</p>
+                   <p style="font-size:var(--fs-11); font-style:italic;">${game.i18n.localize("TRESPASSER.Chat.Haven.DefineEventInstruction")}</p>`;
         await actor.update({ "system.event.current": 1 });
       } else {
-        content += `<p class="failure" style="color:var(--trp-text-dim); font-style:italic; margin-top:8px;">All is quiet in the Haven this week.</p>`;
+        content += `<p class="failure" style="color:var(--trp-text-dim); font-style:italic; margin-top:8px;">${game.i18n.localize("TRESPASSER.Chat.Haven.QuietWeek")}</p>`;
       }
       content += `</div>`;
       
@@ -554,7 +554,7 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
       
       if (index === -1 || newInventory[index].quantity < needed) {
         canConsume = false;
-        results.push(`<p class="failure">${game.i18n.format("TRESPASSER.Haven.MissingIngredients", { name: hireling.name, item: consumeData.name })}</p>`);
+        results.push(`<p class="failure">${game.i18n.format("TRESPASSER.Notification.Haven.MissingIngredients", { name: hireling.name, item: consumeData.name })}</p>`);
         break;
       }
       itemsToConsume.push({ index, amount: needed });
@@ -581,13 +581,13 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
             quantity: qty
           });
         }
-        results.push(`<p class="success">${game.i18n.format("TRESPASSER.Haven.ProducedItem", { name: hireling.name, quantity: qty, item: produceData.name })}</p>`);
+        results.push(`<p class="success">${game.i18n.format("TRESPASSER.Chat.Haven.Produced", { name: hireling.name, quantity: qty, item: produceData.name })}</p>`);
       }
       
       if (system.produce.length === 0 && system.consume.length > 0) {
-        results.push(`<p class="success">${game.i18n.format("TRESPASSER.Haven.ConsumedOnly", { name: hireling.name })}</p>`);
+        results.push(`<p class="success">${game.i18n.format("TRESPASSER.Chat.Haven.ConsumedOnly", { name: hireling.name })}</p>`);
       } else if (system.produce.length === 0 && system.consume.length === 0) {
-        results.push(`<p>${hireling.name} ${game.i18n.localize("TRESPASSER.Haven.DidNothing")}</p>`);
+        results.push(`<p>${game.i18n.format("TRESPASSER.Chat.Haven.DidNothing", { name: hireling.name })}</p>`);
       }
     }
 

@@ -54,7 +54,7 @@ export class TrespasserActor extends Actor {
     const formula = `1${skillDie} + ${attrValue} + ${bonus}`;
 
     const roll = new foundry.dice.Roll(formula);
-    const attrLabel = game.i18n.localize(`TRESPASSER.Attributes.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
+    const attrLabel = game.i18n.localize(`TRESPASSER.Terms.Attribute.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
     
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: this }),
@@ -104,7 +104,7 @@ export class TrespasserActor extends Actor {
       if (is2H) {
         // Must have both hands free
         if (equipment.main_hand || equipment.off_hand || equipment.shield) {
-          ui.notifications.error(game.i18n.localize("TRESPASSER.Notifications.TwoHandedEquip") || "Both hands must be free to equip a two-handed weapon.");
+          ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Inventory.TwoHandedEquip") || "Both hands must be free to equip a two-handed weapon.");
           return;
         }
         handKeys = ["main_hand", "off_hand"];
@@ -115,7 +115,7 @@ export class TrespasserActor extends Actor {
         } else if (!equipment.off_hand && !equipment.shield) {
           handKeys = ["off_hand"];
         } else {
-          ui.notifications.error(game.i18n.localize("TRESPASSER.Notifications.HandsFull") || "Both hands are full!");
+          ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Inventory.HandsFull") || "Both hands are full!");
           return;
         }
       }
@@ -124,7 +124,7 @@ export class TrespasserActor extends Actor {
       const occupantId = equipment[placement];
       if (occupantId) {
         const occupant = this.items.get(occupantId);
-        ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.SlotOccupied", { 
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Inventory.SlotOccupied", { 
           placement: placement, 
           name: occupant ? occupant.name : "another item" 
         }));
@@ -132,13 +132,24 @@ export class TrespasserActor extends Actor {
       }
     }
 
-    // 2. Heavy Armor Limit check
-    if (item.type === "armor" && item.system.weight === "H") {
-       const otherHeavy = this.items.some(i => i.id !== item.id && i.type === "armor" && i.system.equipped && i.system.weight === "H");
-       if (otherHeavy) {
-         ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.HeavyArmorLimit"));
-         return;
-       }
+    // 2. Heavy Items Limit check
+    if (item.system.weight === "H") {
+      const equippedHeavy = this.items.filter(i => i.id !== item.id && i.system.equipped && i.system.weight === "H");
+      const totalHeavy = equippedHeavy.length + 1;
+      
+      let limit = 1;
+      if (this.type === "character") {
+        const baseMighty = this.system.attributes?.mighty ?? 0;
+        const mightyBonus = TrespasserEffectsHelper.getAttributeBonus(this, "mighty");
+        limit = Math.max(1, baseMighty + mightyBonus);
+      }
+
+      if (totalHeavy > limit) {
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Inventory.HeavyEquipWarning", {
+          name: item.name,
+          limit: limit
+        }));
+      }
     }
 
     // 3. Update Item state
@@ -281,8 +292,11 @@ export class TrespasserActor extends Actor {
     const maxSlots = this.system.inventory_max ?? 5;
 
     if ((usedSlots + itemWeight) > maxSlots) {
-      ui.notifications.warn(`Inventory full! Unequipping ${item.name} (Slot: ${itemWeight}) would exceed capacity (${usedSlots.toFixed(1)}/${maxSlots}).`);
-      return;
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Inventory.InventoryFullWarning", {
+        name: item.name,
+        used: (usedSlots + itemWeight).toFixed(1),
+        max: maxSlots
+      }));
     }
 
     const placement = item.system.placement;
@@ -582,9 +596,7 @@ export class TrespasserActor extends Actor {
 
     const intensity = stateItem.system.intensity || 0;
     const dc = cd !== null ? cd : Math.min(20, 10 + intensity);
-    const prevailStat = this.type === "creature" 
-      ? (this.system.combat?.roll_bonus || 0) 
-      : (this.system.combat?.prevail || 0);
+    const prevailStat = this.system.combat?.prevail || 0;
     const apBonus = extraAP * 2;
     const bonuses = `${prevailStat} + ${apBonus} + ${modifier}`;
 
@@ -599,14 +611,14 @@ export class TrespasserActor extends Actor {
     const success = roll.total >= dc;
     
     let flavor = `<div class="trespasser-chat-card">
-      <h3>${game.i18n.format("TRESPASSER.Chat.PrevailCheck", { name: stateItem.name })}</h3>
-      <p>${game.i18n.format("TRESPASSER.Chat.PrevailVsDC", { total: roll.total, dc: dc })}</p>
+      <h3>${game.i18n.format("TRESPASSER.Chat.Check.PrevailCheck", { name: stateItem.name })}</h3>
+      <p>${game.i18n.format("TRESPASSER.Chat.Check.PrevailVsDC", { total: roll.total, dc: dc })}</p>
       <div class="roll-details" style="font-size: var(--fs-10); color: var(--trp-text-dim); margin-bottom: 5px;">
         Formula: ${roll.formula} (d20: ${roll.dice[0].total})<br>
         Bonus: ${prevailStat} (Prevail) ${apBonus > 0 ? `+ ${apBonus} (AP)` : ""} ${modifier !== 0 ? `+ ${modifier} (Mod)` : ""}
       </div>
       <p class="${success ? 'hit-text' : 'miss-text'}" style="font-size: var(--fs-16); font-weight: bold; text-align: center;">
-        ${success ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}
+        ${success ? game.i18n.localize("TRESPASSER.Chat.Common.Success") : game.i18n.localize("TRESPASSER.Chat.Common.Failure")}
       </p>
     </div>`;
 
@@ -651,13 +663,13 @@ export class TrespasserActor extends Actor {
       const activePhase = game.combat.getFlag("trespasser", "activePhase");
       if (combatant) {
         if (combatant.initiative !== activePhase && !game.user.isGM) {
-          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotYourPhase"));
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotYourPhase"));
           return;
         }
         const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         if (restrictAPF && currentAP < 1) {
-          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoAP"));
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
           return;
         }
         await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
@@ -676,7 +688,7 @@ export class TrespasserActor extends Actor {
     }
 
     let flavorHtml = `<div class="trespasser-chat-card phase-base">`;
-    flavorHtml += `<h3 style="margin:0;padding-bottom:4px;border-bottom:1px solid var(--trp-gold-dim);color:var(--trp-gold-bright);">${game.i18n.format("TRESPASSER.Chat.UsedItem", { name: item.name })}</h3>`;
+    flavorHtml += `<h3 style="margin:0;padding-bottom:4px;border-bottom:1px solid var(--trp-gold-dim);color:var(--trp-gold-bright);">${game.i18n.format("TRESPASSER.Chat.Action.UsedItem", { name: item.name })}</h3>`;
 
     if (item.system.description) {
       flavorHtml += `<div style="font-size:var(--fs-12);font-style:italic;margin-bottom:8px;color:var(--trp-text-dim);">${item.system.description}</div>`;
@@ -684,7 +696,7 @@ export class TrespasserActor extends Actor {
 
     if (item.system.effects?.length > 0) {
       flavorHtml += `<div style="margin-top:8px;">`;
-      flavorHtml += `<div style="font-size:var(--fs-11);color:var(--trp-text-dim);text-transform:uppercase;margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Sheet.Combat.States")}</div>`;
+      flavorHtml += `<div style="font-size:var(--fs-11);color:var(--trp-text-dim);text-transform:uppercase;margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Terms.ItemType.States")}</div>`;
       for (const eff of item.system.effects) {
         const isApplied = item.system.subType === "potions";
         flavorHtml += `
@@ -693,10 +705,10 @@ export class TrespasserActor extends Actor {
             <span style="font-size:var(--fs-13);font-family:var(--trp-font-primary);color:var(--trp-gold-bright);flex:1;">${eff.name}</span>
             ${isApplied ? `
             <span style="font-size:var(--fs-11);color:var(--trp-text-dim);padding:0 4px;">
-              <i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.Chat.Applied")}
+              <i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.Applied")}
             </span>` : `
             <a class="apply-effect-btn" data-uuid="${eff.uuid}" data-name="${eff.name}" data-intensity="${eff.intensity || 0}" title="Apply to Targets" style="color:var(--trp-gold-bright);cursor:pointer;padding:0 4px;">
-              <i class="fas fa-play"></i> ${game.i18n.localize("TRESPASSER.Chat.Apply")}
+              <i class="fas fa-play"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.Apply")}
             </a>`}
           </div>`;
       }
@@ -704,10 +716,10 @@ export class TrespasserActor extends Actor {
     }
 
     if (item.system.deeds?.length > 0) {
-      flavorHtml += `<div style="margin-top:8px;font-size:var(--fs-12);"><strong>${game.i18n.localize("TRESPASSER.Chat.GrantsDeeds")}</strong> ${item.system.deeds.map(d => d.name).join(", ")}</div>`;
+      flavorHtml += `<div style="margin-top:8px;font-size:var(--fs-12);"><strong>${game.i18n.localize("TRESPASSER.Chat.Common.GrantsDeeds")}</strong> ${item.system.deeds.map(d => d.name).join(", ")}</div>`;
     }
     if (item.system.incantations?.length > 0) {
-      flavorHtml += `<div style="margin-top:8px;font-size:var(--fs-12);"><strong>${game.i18n.localize("TRESPASSER.Chat.GrantsIncantations")}</strong> ${item.system.incantations.map(d => d.name).join(", ")}</div>`;
+      flavorHtml += `<div style="margin-top:8px;font-size:var(--fs-12);"><strong>${game.i18n.localize("TRESPASSER.Chat.Common.GrantsIncantations")}</strong> ${item.system.incantations.map(d => d.name).join(", ")}</div>`;
     }
 
     flavorHtml += `</div>`;
@@ -718,7 +730,9 @@ export class TrespasserActor extends Actor {
         let expr = TrespasserEffectsHelper.replacePlaceholders(dmg, this);
         const roll = new foundry.dice.Roll(expr);
         await roll.evaluate();
-        await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this }), flavor: flavorHtml });
+        const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
+        const rollMode = (this.type === "creature" && hideCreatureRolls) ? "gmroll" : "roll";
+        await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this }), flavor: flavorHtml }, { rollMode });
       } catch (e) {
         console.error(e);
         await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this }), content: flavorHtml });

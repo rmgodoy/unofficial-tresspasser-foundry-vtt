@@ -1,0 +1,69 @@
+{
+  "TRESPASSER": {
+    "State": {
+      "Bloody": {
+        "Name": "Bloody",
+        "Description": "Health is below half maximum."
+      },
+      "Encumbered": {
+        "Name": "Encumbered",
+        "Description": "Armor Rating is +6 or higher. Agility is not added to Guard checks, and Speed Bonus is limited to +2."
+      }
+    },
+    "Global": {
+      "Action": {
+        "Cancel": "Cancel",
+        "New": "New",
+        "Apply": "Apply",
+        "Confirm": "Confirm",
+        "ToggleVisibility": "Toggle Visibility",
+        "ToggleDead": "Toggle Dead",
+        "ToggleTarget": "Toggle Target",
+        "Close": "Close",
+        "NewItem": "New {type}",
+        "NewChain": "New Chain",
+        "RunCheck": "Run Check",
+        "Reset": "Reset",
+        "Accept": "Accept",
+        "Pass": "Pass"
+      },
+      "Status": {
+        "None": "None"
+      },
+      "Completed": "Completed",
+      "Progress": "Progress",
+      "General": {
+        "None": "None"
+      }
+    },
+    "TYPES": {
+      "Actor": {
+        "character": "Character",
+        "creature": "Creature",
+        "dungeon": "Dungeon",
+        "party": "Party",
+        "haven": "Haven"
+      },
+      "Item": {
+        "armor": "Armor",
+        "rations": "Rations",
+        "effect": "Effect",
+        "deed": "Deed",
+        "feature": "Feature",
+        "talent": "Talent",
+        "weapon": "Weapon",
+        "incantation": "Incantation",
+        "accessory": "Accessory",
+        "item": "Item",
+        "injury": "Injury",
+        "calling": "Calling",
+        "craft": "Craft",
+        "past_life": "Past Life",
+        "room": "Room",
+        "hireling": "Hireling",
+        "build": "Building",
+        "stronghold": "Stronghold"
+      }
+    }
+  }
+}

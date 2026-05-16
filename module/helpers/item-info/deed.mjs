@@ -3,21 +3,21 @@ import { esc } from "./utils.mjs";
 const DEED_PHASES = ["start", "before", "base", "hit", "spark", "after", "end"];
 
 const PHASE_LABELS = {
-  start:  "TRESPASSER.Item.Start",
-  before: "TRESPASSER.Item.Before",
-  base:   "TRESPASSER.Item.Base",
-  hit:    "TRESPASSER.Item.Hit",
-  spark:  "TRESPASSER.Item.Spark",
-  after:  "TRESPASSER.Item.After",
-  end:    "TRESPASSER.Item.End",
+  start:  "TRESPASSER.Sheet.Common.Start",
+  before: "TRESPASSER.Sheet.Common.Before",
+  base:   "TRESPASSER.Sheet.Common.Base",
+  hit:    "TRESPASSER.Sheet.Common.Hit",
+  spark:  "TRESPASSER.Sheet.Common.Spark",
+  after:  "TRESPASSER.Sheet.Common.After",
+  end:    "TRESPASSER.Sheet.Common.End",
 };
 
 export function buildDeedContent(item) {
   const sys = item.system;
 
   // Subtitle: "TYPE ATTACK vs. ACCURACY | TARGET"
-  const typeLabel    = game.i18n.localize(`TRESPASSER.Item.DeedTypeChoices.${sys.type?.charAt(0).toUpperCase() + sys.type?.slice(1)}`) || sys.type || "";
-  const actionLabel  = game.i18n.localize(`TRESPASSER.Item.DeedActionTypeChoices.${sys.actionType?.charAt(0).toUpperCase() + sys.actionType?.slice(1)}`) || sys.actionType || "";
+  const typeLabel    = game.i18n.localize(`TRESPASSER.Sheet.Item.Details.TypeChoices.${sys.type?.charAt(0).toUpperCase() + sys.type?.slice(1)}`) || sys.type || "";
+  const actionLabel  = game.i18n.localize(`TRESPASSER.Sheet.Item.Details.ActionTypeChoices.${sys.actionType?.charAt(0).toUpperCase() + sys.actionType?.slice(1)}`) || sys.actionType || "";
   const accuracyTest = sys.actionType === "support" ? "10" : (sys.accuracyTest || "");
   const target       = esc(sys.target || "");
 
@@ -31,7 +31,7 @@ export function buildDeedContent(item) {
   const baseCost    = sys.focusCost != null ? sys.focusCost : null;
   const bonusCost   = sys.bonusCost != null ? `+${sys.bonusCost}` : null;
   const focusLine   = baseCost != null
-    ? `<div class="info-dlg-meta">${game.i18n.localize("TRESPASSER.Item.FocusCost")}: ${baseCost}${bonusCost ? " " + bonusCost : ""}</div>`
+    ? `<div class="info-dlg-meta">${game.i18n.localize("TRESPASSER.Sheet.Item.Details.FocusCost")}: ${baseCost}${bonusCost ? " " + bonusCost : ""}</div>`
     : "";
 
   // Phase rows
@@ -46,7 +46,7 @@ export function buildDeedContent(item) {
     let body = "";
     if (desc) body += `<span class="info-dlg-desc">${esc(desc)}</span>`;
     if (dmg)  body += `<span class="info-dlg-sub"> — ${esc(dmg)}</span>`;
-    if (weap) body += `<span class="info-dlg-sub"> (${game.i18n.localize("TRESPASSER.Item.WeaponEffects")})</span>`;
+    if (weap) body += `<span class="info-dlg-sub"> (${game.i18n.localize("TRESPASSER.Sheet.Item.Sections.WeaponEffects")})</span>`;
     return `<div class="info-dlg-phase"><span class="info-dlg-phase-label">${esc(label)}:</span> ${body}</div>`;
   }).filter(Boolean).join("");
 

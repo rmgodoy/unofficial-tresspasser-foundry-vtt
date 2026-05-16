@@ -1,0 +1,141 @@
+{
+  "TRESPASSER": {
+    "Dialog": {
+      "Common": {
+        "Confirm": "Confirm",
+        "Cancel": "Cancel",
+        "Close": "Close",
+        "Save": "Save",
+        "Ok": "Ok",
+        "Apply": "Apply",
+        "SearchPlaceholder": "Search…"
+      },
+      "SkillCheck": {
+        "Title": "{skill} Check - Choose Attribute",
+        "Prompt": "Which attribute drives this check?",
+        "BonusHint": "<em>(Skill bonus +{skill} will be added)</em>",
+        "ChallengeTitle": "Challenge Check",
+        "ChallengeDifficulty": "Challenge Difficulty (CD):",
+        "Difficulty": "Difficulty"
+      },
+      "Roll": {
+        "Title": "Roll Check",
+        "Dice": "Dice",
+        "Bonuses": "Bonuses",
+        "AdditionalModifier": "Additional Modifier",
+        "BaseAttribute": "Base Attribute",
+        "EffectBonus": "Effect Bonus",
+        "SkillBonus": "Skill Bonus",
+        "SkillCheck": "Skill Check",
+        "AttributeCheck": "Attribute Check",
+        "ActionRoll": "Roll"
+      },
+      "Delete": {
+        "ItemTitle": "Delete Item",
+        "ItemContent": "Are you sure you want to delete {name}?",
+        "CallingTitle": "Remove Calling: {name}",
+        "CallingConfirm": "Are you sure you want to remove the Calling <strong>{name}</strong>? This will also delete all Talents and Features granted by this Calling."
+      },
+      "Reset": {
+        "ConfigTitle": "Reset Configuration?",
+        "ConfigContent": "This will revert ALL settings in the Trespasser configuration to their default values. This cannot be undone.",
+        "DungeonTitle": "Reset Dungeon",
+        "DungeonConfirm": "This will erase the round log and reset alarm, round, actions, and current room for <strong>{name}</strong>. The dungeon will be returned to a never-visited state. This cannot be undone."
+      },
+      "Transfer": {
+        "Title": "Item Transfer",
+        "Content": "{user} wants to give {item} to {target}. Do you accept?",
+        "SelectTargetHint": "Select a character to receive the item:"
+      },
+      "Retreat": {
+        "Title": "Continue or Retreat?",
+        "Prompt": "The Peril for this round has been rolled. Do you want to continue the round or attempt a retreat?",
+        "PerilDisplay": "Peril: {total} ({label}) — {deedDisplay}",
+        "ActionRetreat": "Retreat",
+        "ActionContinue": "Continue Fighting"
+      },
+      "Spark": {
+        "Title": "Choose Sparks",
+        "Intro": "You have {count} spark(s) to assign. Each layer applies to all eligible targets.",
+        "Layer": "Spark {n}",
+        "DeedSpark": "Deed Spark",
+        "DeedSparkDesc": "Activate the deed's Spark phase effects.",
+        "Impact": "Impact",
+        "ImpactDesc": "+2 forced movement per impact chosen.",
+        "Potency": "Potency",
+        "PotencyDesc": "+1 intensity on applied effects.",
+        "Power": "Power",
+        "PowerDesc": "+1 skill die added to damage."
+      },
+      "Calling": {
+        "Title": "Apply Calling: {name}",
+        "ApplySelections": "Apply Selections",
+        "NoItems": "No items available.",
+        "AlreadyTrained": "(already trained)"
+      },
+      "Craft": {
+        "Title": "Apply Craft: {name}",
+        "AttrReadonlyTooltip": "Key attribute is set by the first Craft applied; this Craft cannot override it.",
+        "AttrFirstTooltip": "Your first Craft determines your key attribute (required).",
+        "AllTiers": "All Tiers"
+      },
+      "EffectEditor": {
+        "Title": "Effect Editor",
+        "IntensityNote": "Use <Int> for dynamic intensity.",
+        "ModifierPlaceholder": "+1 or 1d6 or <Int>",
+        "TargetAttr": "Target Attribute",
+        "ReminderDesc": "Description (Reminder Text)"
+      },
+      "Fuel": {
+        "Title": "Select Fuel Source",
+        "Prompt": "Choose a resource to fuel <b>{name}</b>:"
+      },
+      "Ammo": {
+        "Title": "Select Ammo",
+        "Prompt": "Choose an ammo to use with <b>{name}</b>:",
+        "Use": "Use Ammunition"
+      },
+      "SpendAP": {
+        "Title": "Spend Action Points",
+        "Question": "How many Action Points do you want to spend on this deed?",
+        "Available": "Available: {count} AP",
+        "Bonus": "Accuracy Bonus: +{bonus}",
+        "DefaultOption": "1 AP (No Bonus)",
+        "AdditionalOption": "{count} AP (+{bonus} Accuracy)"
+      },
+      "ApplyOil": {
+        "Title": "Apply Oil",
+        "Prompt": "Choose a weapon to apply <strong>{name}</strong> to:"
+      },
+      "Concoction": {
+        "Title": "Use Concoction",
+        "Instruction": "Select a concoction to use:"
+      },
+      "Item": {
+        "ViewDetails": "View item details"
+      },
+      "SkillCheckTitle": "{skill} Check",
+      "Party": {
+        "SelectAttribute": "Select an attribute for the group check.",
+        "SelectParticipants": "Select Participants",
+        "SelectParticipantsHint": "Which members are participating in this check?"
+      },
+      "Rest": {
+        "RDHowMany": "Spend Recovery Dice",
+        "RDDialogNote": "How many Recovery Dice do you want to spend?"
+      },
+      "EventClock": {
+        "Name": "Clock Name",
+        "GmOnly": "GM Only?",
+        "PlayerName": "Display Name (to Players)",
+        "PlayerNameHint": "Leave empty to show the real name to players.",
+        "Target": "Target Segments",
+        "Current": "Current Progress",
+        "Description": "Description",
+        "TrackerTitle": "Event Clocks",
+        "NoClocks": "No active event clocks.",
+        "AddClock": "Add Clock"
+      }
+    }
+  }
+}

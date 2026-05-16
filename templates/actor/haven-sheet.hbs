@@ -7,38 +7,38 @@
     <div class="header-info">
       <div class="header-row header-identity">
         <div class="name-group">
-          <input type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'TRESPASSER.Haven.NamePlaceholder'}}" {{disabled (not editable)}} />
+          <input type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Haven.NamePlaceholder'}}" {{disabled (not editable)}} />
         </div>
         
         {{!-- Top-right Leader Display --}}
         <div class="header-leader-mini drop-zone {{#if leader}}has-leader{{/if}}" data-action="dropLeader">
-          <label>{{localize "TRESPASSER.Haven.Leader"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Haven.Leader"}}</label>
           {{#if leader}}
             <div class="leader-badge" data-action="openLeaderSheet">
               <span class="name">{{leader.name}}</span>
               {{#if editable}}
-                <a class="remove-leader" data-action="removeLeader" title="{{localize 'TRESPASSER.Remove'}}"><i class="fas fa-times"></i></a>
+                <a class="remove-leader" data-action="removeLeader" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
               {{/if}}
             </div>
           {{else}}
-            <span class="placeholder">{{localize "TRESPASSER.Haven.DropLeaderHint"}}</span>
+            <span class="placeholder">{{localize "TRESPASSER.Sheet.Haven.DropCharacterHere"}}</span>
           {{/if}}
         </div>
       </div>
 
       <div class="header-row header-resources">
         <div class="resource-box">
-          <label>{{localize "TRESPASSER.Haven.Treasury"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Haven.Treasury"}}</label>
           <input type="number" name="system.treasury" value="{{system.treasury}}" data-dtype="Number" {{disabled (not editable)}} />
         </div>
         <div class="resource-box balance-box {{#if isOverBudget}}over-budget{{/if}}">
-          <label>{{localize "TRESPASSER.Haven.WeeklyBalance"}} <span class="breakdown-info" title="{{localize 'TRESPASSER.Haven.TreasuryBreakdown'}}"><i class="fas fa-info-circle"></i></span></label>
+          <label>{{localize "TRESPASSER.Sheet.Haven.WeeklyBalance"}} <span class="breakdown-info" title="{{localize 'TRESPASSER.Sheet.Haven.TreasuryBreakdown'}}"><i class="fas fa-info-circle"></i></span></label>
           <div class="balance-display">
             <input type="text" value="{{#if (gte weeklyBalance 0)}}+{{/if}}{{weeklyBalance}}" disabled />
           </div>
           <div class="balance-popover">
             <h5>
-              <span>{{localize 'TRESPASSER.Haven.WeeklyIncome'}}</span>
+              <span>{{localize 'TRESPASSER.Sheet.Haven.WeeklyIncome'}}</span>
               <span>+{{totalWeeklyIncome}}</span>
             </h5>
             <ul>
@@ -46,7 +46,7 @@
             </ul>
             <hr>
             <h5>
-              <span>{{localize 'TRESPASSER.Haven.WeeklyExpenses'}}</span>
+              <span>{{localize 'TRESPASSER.Sheet.Haven.WeeklyExpenses'}}</span>
               <span>-{{totalWeeklyExpenses}}</span>
             </h5>
             <ul>
@@ -54,27 +54,27 @@
             </ul>
           </div>
         </div>
-        <div class="resource-box {{#if system.isStagnant}}stagnant{{/if}} {{#if (eq system.populationState 'decline')}}decline{{/if}}" title="{{#if system.isStagnant}}{{localize 'TRESPASSER.Haven.StagnationDesc'}}{{/if}}">
-          <label>{{localize "TRESPASSER.Haven.PopulationRank"}}</label>
+        <div class="resource-box {{#if system.isStagnant}}stagnant{{/if}} {{#if (eq system.populationState 'decline')}}decline{{/if}}" title="{{#if system.isStagnant}}{{localize 'TRESPASSER.Sheet.Haven.StagnationDesc'}}{{/if}}">
+          <label>{{localize "TRESPASSER.Sheet.Haven.PopulationRank"}}</label>
           <div class="pop-rank-wrapper">
             <input type="number" name="system.populationRank" value="{{system.populationRank}}" data-dtype="Number" {{disabled (not editable)}} />
             {{#if editable}}
               <select name="system.populationState" class="pop-state-select">
-                <option value="growth" {{#if (eq system.populationState 'growth')}}selected{{/if}}>{{localize "TRESPASSER.Haven.Growth"}}</option>
-                <option value="decline" {{#if (eq system.populationState 'decline')}}selected{{/if}}>{{localize "TRESPASSER.Haven.Decline"}}</option>
+                <option value="growth" {{#if (eq system.populationState 'growth')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Haven.Growth"}}</option>
+                <option value="decline" {{#if (eq system.populationState 'decline')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Haven.Decline"}}</option>
               </select>
             {{else}}
-              <span class="pop-state-tag {{system.populationState}}">{{localize (concat "TRESPASSER.Haven." (capitalize system.populationState))}}</span>
+              <span class="pop-state-tag {{system.populationState}}">{{localize (concat "TRESPASSER.Sheet.Haven." (capitalize system.populationState))}}</span>
             {{/if}}
           </div>
-          {{#if system.isStagnant}}<span class="stagnant-label">{{localize "TRESPASSER.Haven.Stagnant"}}</span>{{/if}}
+          {{#if system.isStagnant}}<span class="stagnant-label">{{localize "TRESPASSER.Sheet.Haven.Stagnant"}}</span>{{/if}}
         </div>
         <div class="resource-box">
-          <label>{{localize "TRESPASSER.Haven.Level"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Haven.Level"}}</label>
           <input type="number" name="system.level" value="{{system.level}}" data-dtype="Number" {{disabled (not editable)}} />
         </div>
         <div class="resource-box">
-          <label>{{localize "TRESPASSER.Haven.SkillBonus"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Haven.SkillBonus"}}</label>
           <input type="number" value="{{system.skillBonus}}" disabled />
         </div>
       </div>
@@ -83,7 +83,7 @@
         {{#each (array "military" "efficiency" "resources" "expertise" "allegiance" "appeal") as |attr|}}
         <div class="attribute-box">
           <span class="attribute-label rollable" data-action="rollAttribute" data-attribute="{{attr}}">
-            {{localize (concat "TRESPASSER.Haven.Attributes." (capitalize attr))}}
+            {{localize (concat "TRESPASSER.Terms.HavenAttribute." (capitalize attr))}}
             <h3>{{lookup ../totalAttributes attr}}</h3>
           </span>
           <input type="number" name="system.attributes.{{attr}}" value="{{lookup ../system.attributes attr}}" {{disabled (not ../editable)}} />
@@ -95,19 +95,19 @@
 
   {{#if isGM}}
   <section class="haven-upkeep-section">
-    <h3 class="section-title">{{localize "TRESPASSER.Haven.UpkeepHeader"}}</h3>
+    <h3 class="section-title">{{localize "TRESPASSER.Sheet.Haven.UpkeepHeader"}}</h3>
     <div class="upkeep-buttons">
-      <button type="button" class="upkeep-btn" data-action="upkeepWeeksRest" title="{{localize 'TRESPASSER.Haven.WeeksRestFlavor'}}">
-        <i class="fas fa-bed"></i> {{localize "TRESPASSER.Haven.UpkeepSteps.WeeksRest"}}
+      <button type="button" class="upkeep-btn" data-action="upkeepWeeksRest" title="{{localize 'TRESPASSER.Sheet.Haven.WeeksRestFlavor'}}">
+        <i class="fas fa-bed"></i> {{localize "TRESPASSER.Sheet.Haven.UpkeepSteps.WeeksRest"}}
       </button>
-      <button type="button" class="upkeep-btn" data-action="processWeek" title="{{localize 'TRESPASSER.Haven.ResolveProductionFlavor'}}">
-        <i class="fas fa-users-cog"></i> {{localize "TRESPASSER.Haven.UpkeepSteps.ResolveProduction"}}
+      <button type="button" class="upkeep-btn" data-action="processWeek" title="{{localize 'TRESPASSER.Sheet.Haven.ResolveProductionFlavor'}}">
+        <i class="fas fa-users-cog"></i> {{localize "TRESPASSER.Sheet.Haven.UpkeepSteps.ResolveProduction"}}
       </button>
-      <button type="button" class="upkeep-btn" data-action="upkeepPopulationCheck" title="{{localize 'TRESPASSER.Haven.PopulationCheckFlavor'}}">
-        <i class="fas fa-users"></i> {{localize "TRESPASSER.Haven.UpkeepSteps.PopulationCheck"}}
+      <button type="button" class="upkeep-btn" data-action="upkeepPopulationCheck" title="{{localize 'TRESPASSER.Sheet.Haven.PopulationCheckFlavor'}}">
+        <i class="fas fa-users"></i> {{localize "TRESPASSER.Sheet.Haven.UpkeepSteps.PopulationCheck"}}
       </button>
-      <button type="button" class="upkeep-btn" data-action="upkeepEventCheck" title="{{localize 'TRESPASSER.Haven.EventCheckFlavor'}}">
-        <i class="fas fa-exclamation-triangle"></i> {{localize "TRESPASSER.Haven.UpkeepSteps.EventCheck"}}
+      <button type="button" class="upkeep-btn" data-action="upkeepEventCheck" title="{{localize 'TRESPASSER.Sheet.Haven.EventCheckFlavor'}}">
+        <i class="fas fa-exclamation-triangle"></i> {{localize "TRESPASSER.Sheet.Haven.UpkeepSteps.EventCheck"}}
       </button>
     </div>
   </section>
@@ -116,12 +116,12 @@
 
   {{!-- Tabs --}}
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item {{#if (eq tabs.primary 'skills')}}active{{/if}}" data-tab="skills">{{localize "TRESPASSER.Haven.SkillsLabel"}}</a>
-    <a class="item {{#if (eq tabs.primary 'buildings')}}active{{/if}}" data-tab="buildings">{{localize "TRESPASSER.Haven.BuildingsLabel"}}</a>
-    <a class="item {{#if (eq tabs.primary 'hirelings')}}active{{/if}}" data-tab="hirelings">{{localize "TRESPASSER.Haven.ProductionChains"}}</a>
-    <a class="item {{#if (eq tabs.primary 'event')}}active{{/if}}" data-tab="event">{{localize "TRESPASSER.Haven.Event"}}</a>
-    <a class="item {{#if (eq tabs.primary 'strongholds')}}active{{/if}}" data-tab="strongholds">{{localize "TRESPASSER.Haven.Strongholds"}}</a>
-    <a class="item {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-tab="notes">{{localize "TRESPASSER.Haven.Notes"}}</a>
+    <a class="item {{#if (eq tabs.primary 'skills')}}active{{/if}}" data-tab="skills">{{localize "TRESPASSER.Sheet.Tabs.Skills"}}</a>
+    <a class="item {{#if (eq tabs.primary 'buildings')}}active{{/if}}" data-tab="buildings">{{localize "TRESPASSER.Sheet.Tabs.Buildings"}}</a>
+    <a class="item {{#if (eq tabs.primary 'hirelings')}}active{{/if}}" data-tab="hirelings">{{localize "TRESPASSER.Sheet.Haven.ProductionChains"}}</a>
+    <a class="item {{#if (eq tabs.primary 'event')}}active{{/if}}" data-tab="event">{{localize "TRESPASSER.Sheet.Tabs.Events"}}</a>
+    <a class="item {{#if (eq tabs.primary 'strongholds')}}active{{/if}}" data-tab="strongholds">{{localize "TRESPASSER.Sheet.Haven.Strongholds"}}</a>
+    <a class="item {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-tab="notes">{{localize "TRESPASSER.Sheet.Tabs.Notes"}}</a>
   </nav>
 
   <section class="sheet-content" data-scrollable="true">
@@ -134,7 +134,7 @@
         {{!-- Under Construction --}}
         <div class="buildings-section">
           <h3 class="section-title">
-            {{localize "TRESPASSER.Haven.UnderConstruction"}}
+            {{localize "TRESPASSER.Sheet.Haven.UnderConstruction"}}
             <span class="limit-count">({{numConstruction}} / {{maxBuildSlots}})</span>
           </h3>
           <div class="buildings-grid">
@@ -153,7 +153,7 @@
                   {{#if ../editable}}
                     <div class="card-controls">
                       <a class="edit-item" data-action="editItem" title="Edit Building"><i class="fas fa-edit"></i></a>
-                      <a class="delete-item" data-action="deleteItem" title="{{localize 'TRESPASSER.General.Delete'}}"><i class="fas fa-trash"></i></a>
+                      <a class="delete-item" data-action="deleteItem" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
                     </div>
                   {{/if}}
                 </div>
@@ -164,7 +164,7 @@
                     </div>
                   {{/if}}
                   <div class="clock-controls">
-                    <label>{{localize "TRESPASSER.Haven.Build.BuildClock"}}</label>
+                    <label>{{localize "TRESPASSER.Sheet.Haven.Build.BuildClock"}}</label>
                     <div class="controls-row">
                       <a data-action="adjustBuildClock" data-delta="-1"><i class="fas fa-minus"></i></a>
                       <span class="clock-value">{{b.system.progress}} / {{b.system.buildClock}}</span>
@@ -175,7 +175,7 @@
               </div>
             {{else}}
               <div class="empty-placeholder mini">
-                <p>{{localize "TRESPASSER.General.None"}}</p>
+                <p>{{localize "TRESPASSER.Sheet.Common.Empty"}}</p>
               </div>
             {{/each}}
           </div>
@@ -184,7 +184,7 @@
         {{!-- Completed Buildings --}}
         <div class="buildings-section">
           <h3 class="section-title">
-            {{localize "TRESPASSER.Haven.CompletedBuildings"}}
+            {{localize "TRESPASSER.Sheet.Haven.CompletedBuildings"}}
             <span class="limit-count">({{numCompleted}} / {{maxBuildingLimit}})</span>
           </h3>
           <div class="buildings-grid">
@@ -206,7 +206,7 @@
                         <a class="upgrade-item" data-action="upgradeBuilding" title="Upgrade"><i class="fas fa-arrow-up"></i></a>
                       {{/if}}
                       <a class="edit-item" data-action="editItem" title="Edit"><i class="fas fa-edit"></i></a>
-                      <a class="delete-item" data-action="deleteItem" title="{{localize 'TRESPASSER.General.Delete'}}"><i class="fas fa-trash"></i></a>
+                      <a class="delete-item" data-action="deleteItem" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
                     </div>
                   {{/if}}
                 </div>
@@ -215,7 +215,7 @@
                     <div class="skill-tags">
                       {{#each b.system.skills as |sk|}}
                         <div class="skill-tag">
-                            <i class="fas fa-graduation-cap"></i> {{localize (concat "TRESPASSER.Haven.Skills." (capitalize sk))}}
+                            <i class="fas fa-graduation-cap"></i> {{localize (concat "TRESPASSER.Terms.HavenSkill." (capitalize sk))}}
                         </div>
                       {{/each}}
                     </div>
@@ -223,7 +223,7 @@
                   
                   {{#if b.system.havenActions.length}}
                     <div class="haven-actions-display">
-                      <span class="section-label">{{localize "TRESPASSER.Haven.HavenActions"}}</span>
+                      <span class="section-label">{{localize "TRESPASSER.Sheet.Haven.HavenActions"}}</span>
                       {{#each b.system.havenActions as |action|}}
                         <div class="haven-action-item">
                           <span class="action-title">{{action.title}}</span>
@@ -235,7 +235,7 @@
               </div>
             {{else}}
               <div class="empty-placeholder mini">
-                <p>{{localize "TRESPASSER.General.None"}}</p>
+                <p>{{localize "TRESPASSER.Sheet.Common.Empty"}}</p>
               </div>
             {{/each}}
           </div>
@@ -252,7 +252,7 @@
             <div class="card-info" data-action="openItemSheet">
               <div class="details">
                 <span class="name">{{h.name}}</span>
-                <span class="cost">{{h.system.cost}} / {{localize "TRESPASSER.Haven.Week"}}</span>
+                <span class="cost">{{h.system.cost}} / {{localize "TRESPASSER.Sheet.Common.Week"}}</span>
               </div>
             </div>
             <div class="card-controls">
@@ -263,16 +263,16 @@
             </div>
           </div>
         {{else}}
-          <p class="placeholder">{{localize "TRESPASSER.Haven.NoHirelingsHint"}}</p>
+          <p class="placeholder">{{localize "TRESPASSER.Sheet.Haven.NoHirelingsHint"}}</p>
         {{/each}}
       </div>
 
       {{!-- Production Chains (Embedded in Hirelings) --}}
       <div class="production-chains-section">
         <h3 class="section-title">
-          {{localize "TRESPASSER.Haven.ProductionChains"}}
+          {{localize "TRESPASSER.Sheet.Haven.ProductionChains"}}
           {{#if editable}}
-            <a class="item-create button mini" data-type="productionChain" data-action="addChain" style="margin-left: 10px; font-size: var(--fs-10); padding: 2px 6px;">+ {{localize "TRESPASSER.Haven.AddProductionChainItem"}}</a>
+            <a class="item-create button mini" data-type="productionChain" data-action="addChain" style="margin-left: 10px; font-size: var(--fs-10); padding: 2px 6px;">+ {{localize "TRESPASSER.Sheet.Haven.AddProduction"}}</a>
           {{/if}}
         </h3>
         
@@ -303,7 +303,7 @@
                 {{#if (and ../editable ../availableHirelings.length)}}
                   <div class="add-hireling-to-chain-container flex-row">
                     <select class="available-hirelings-select" data-form-no-save>
-                      <option value="">-- {{localize "TRESPASSER.Haven.AddHireling"}} --</option>
+                      <option value="">-- {{localize "TRESPASSER.Sheet.Haven.AddHireling"}} --</option>
                       {{#each ../availableHirelings as |avail|}}
                         <option value="{{avail.id}}">{{avail.name}}</option>
                       {{/each}}
@@ -324,7 +324,7 @@
     <div class="tab {{#if (eq tabs.primary 'skills')}}active{{/if}}" data-group="primary" data-tab="skills">
       <div class="haven-skills-projects-layout">
         <div class="haven-skills-section">
-          <h3 class="section-title">{{localize "TRESPASSER.Haven.SkillsLabel"}}</h3>
+          <h3 class="section-title">{{localize "TRESPASSER.Sheet.Tabs.Skills"}}</h3>
           <div class="skills-columns">
             {{#each skillColumns as |column|}}
             <div class="skill-column">
@@ -343,9 +343,9 @@
 
         <div class="haven-projects-section">
           <h3 class="section-title">
-            {{localize "TRESPASSER.Haven.Projects"}}
+            {{localize "TRESPASSER.Sheet.Haven.Projects"}}
             {{#if editable}}
-              <a class="item-create button mini" data-action="addProject" title="{{localize 'TRESPASSER.Haven.AddProject'}}"><i class="fas fa-plus"></i></a>
+              <a class="item-create button mini" data-action="addProject" title="{{localize 'TRESPASSER.Sheet.Haven.AddProject'}}"><i class="fas fa-plus"></i></a>
             {{/if}}
           </h3>
           
@@ -366,27 +366,27 @@
                 </div>
                 
                 <div class="project-clock-config">
-                    <label>{{localize "TRESPASSER.Haven.ClockMax"}}</label>
+                    <label>{{localize "TRESPASSER.Sheet.Haven.ClockMax"}}</label>
                     <input type="number" value="{{p.clock}}" min="2" max="12" name="system.projects.{{pIndex}}.clock" {{disabled (not ../editable)}} />
                 </div>
 
                 {{#if ../editable}}
-                  <a class="delete-project" data-action="removeProject" title="{{localize 'TRESPASSER.General.Delete'}}"><i class="fas fa-trash"></i></a>
+                  <a class="delete-project" data-action="removeProject" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
                 {{/if}}
               </div>
             {{else}}
-              <p class="placeholder">{{localize "TRESPASSER.Haven.NoProjectsHint"}}</p>
+              <p class="placeholder">{{localize "TRESPASSER.Sheet.Haven.NoProjectsHint"}}</p>
             {{/each}}
           </div>
         </div>
 
         <div class="haven-inventory-section">
           <h3 class="section-title">
-            {{localize "TRESPASSER.Haven.Inventory"}}
+            {{localize "TRESPASSER.Sheet.Haven.Inventory"}}
           </h3>
           <div class="inventory-list drop-zone" data-action="dropItem">
             {{#each inventory as |entry|}}
-              <div class="inventory-item" data-index="{{entry.index}}">
+              <div class="inventory-item item" data-index="{{entry.index}}" draggable="true">
                 <span class="name">{{entry.name}}</span>
                 <div class="quantity-controls">
                   {{#if ../editable}}<a data-action="adjustInventoryQty" data-delta="-1"><i class="fas fa-minus"></i></a>{{/if}}
@@ -398,14 +398,14 @@
                    {{#if entry.item.system.subType}}<span class="subtype">({{entry.item.system.subType}})</span>{{/if}}
                 </div>
                 <div class="controls">
-                  <a class="withdraw-item" data-action="withdrawInventoryItem" title="{{localize 'TRESPASSER.Haven.Withdraw'}}"><i class="fas fa-box-open"></i></a>
+                  <a class="withdraw-item" data-action="withdrawInventoryItem" title="{{localize 'TRESPASSER.Sheet.Haven.Withdraw'}}"><i class="fas fa-box-open"></i></a>
                   {{#if ../editable}}
-                    <a class="delete-item" data-action="deleteInventoryItem" title="{{localize 'TRESPASSER.DeleteItemTitle'}}"><i class="fas fa-trash"></i></a>
+                    <a class="delete-item" data-action="deleteInventoryItem" title="{{localize 'TRESPASSER.Dialog.Delete.ItemTitle'}}"><i class="fas fa-trash"></i></a>
                   {{/if}}
                 </div>
               </div>
             {{else}}
-               <p class="placeholder">{{localize "TRESPASSER.Haven.DropItemHint"}}</p>
+               <p class="placeholder">{{localize "TRESPASSER.Sheet.Haven.DropItemHint"}}</p>
             {{/each}}
           </div>
         </div>
@@ -416,12 +416,12 @@
       <div class="haven-event-layout">
         <div class="event-left-panel">
            <div class="event-title-group">
-              <label>{{localize "TRESPASSER.Haven.EventTitle"}}</label>
-              <input type="text" name="system.event.title" value="{{system.event.title}}" placeholder="{{localize 'TRESPASSER.Haven.EventPlaceholder'}}" />
+              <label>{{localize "TRESPASSER.Sheet.Haven.EventTitle"}}</label>
+              <input type="text" name="system.event.title" value="{{system.event.title}}" placeholder="{{localize 'TRESPASSER.Sheet.Haven.EventPlaceholder'}}" />
            </div>
 
            <div class="event-description">
-             <label>{{localize "TRESPASSER.General.Description"}}</label>
+             <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
              <prose-mirror name="system.event.description" value="{{system.event.description}}" toggled="false" compact="false" {{#if (not editable)}}readonly{{/if}}>{{{enrichedEventDescription}}}</prose-mirror>
            </div>
         </div>
@@ -437,12 +437,12 @@
                     showMax=true
                 }}
               </div>
-             <label class="clock-title">{{localize "TRESPASSER.Haven.Clock"}}</label>
+             <label class="clock-title">{{localize "TRESPASSER.Sheet.Haven.Clock"}}</label>
            </div>
 
            <div class="clock-config-container shadow-box">
               <div class="field">
-                <label>{{localize "TRESPASSER.Haven.ClockMax"}}</label>
+                <label>{{localize "TRESPASSER.Sheet.Haven.ClockMax"}}</label>
                 <input type="number" name="system.event.clock" value="{{system.event.clock}}" min="2" max="12" />
               </div>
            </div>
@@ -451,7 +451,7 @@
 
       {{!-- Arrivals (Embedded in Event) --}}
       <div class="haven-arrivals-section">
-        <h3 class="section-title">{{localize "TRESPASSER.Haven.Arrivals"}}</h3>
+        <h3 class="section-title">{{localize "TRESPASSER.Sheet.Haven.Arrivals"}}</h3>
         <prose-mirror name="system.arrivals" value="{{system.arrivals}}" toggled="false" compact="false" {{#if (not editable)}}readonly{{/if}}>{{{enrichedArrivals}}}</prose-mirror>
       </div>
     </div>
@@ -463,7 +463,7 @@
         {{!-- Under Construction --}}
         <div class="buildings-section">
           <h3 class="section-title">
-            {{localize "TRESPASSER.Haven.StrongholdUnderConstruction"}}
+            {{localize "TRESPASSER.Sheet.Haven.StrongholdUnderConstruction"}}
           </h3>
           <div class="buildings-grid">
             {{#each constructionStrongholds as |s|}}
@@ -477,13 +477,13 @@
                   {{#if ../editable}}
                     <div class="card-controls">
                       <a class="edit-item" data-action="editItem" title="Edit Item"><i class="fas fa-edit"></i></a>
-                      <a class="delete-item" data-action="deleteItem" title="{{localize 'TRESPASSER.General.Delete'}}"><i class="fas fa-trash"></i></a>
+                      <a class="delete-item" data-action="deleteItem" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
                     </div>
                   {{/if}}
                 </div>
                 <div class="card-body">
                   <div class="clock-controls">
-                    <label>{{localize "TRESPASSER.Haven.Build.BuildClock"}}</label>
+                    <label>{{localize "TRESPASSER.Sheet.Haven.Build.BuildClock"}}</label>
                     <div class="controls-row">
                       <a data-action="adjustBuildClock" data-delta="-1"><i class="fas fa-minus"></i></a>
                       <span class="clock-value">{{s.system.progress}} / {{s.system.buildClock}}</span>
@@ -497,7 +497,7 @@
               </div>
             {{else}}
               <div class="empty-placeholder mini">
-                <p>{{localize "TRESPASSER.General.None"}}</p>
+                <p>{{localize "TRESPASSER.Sheet.Common.Empty"}}</p>
               </div>
             {{/each}}
           </div>
@@ -506,7 +506,7 @@
         {{!-- Completed Strongholds --}}
         <div class="buildings-section">
           <h3 class="section-title">
-            {{localize "TRESPASSER.Haven.CompletedStrongholds"}}
+            {{localize "TRESPASSER.Sheet.Haven.CompletedStrongholds"}}
           </h3>
           <div class="buildings-grid">
             {{#each completedStrongholds as |s|}}
@@ -524,7 +524,7 @@
                   {{#if ../editable}}
                     <div class="card-controls">
                       <a class="edit-item" data-action="editItem" title="Edit"><i class="fas fa-edit"></i></a>
-                      <a class="delete-item" data-action="deleteItem" title="{{localize 'TRESPASSER.General.Delete'}}"><i class="fas fa-trash"></i></a>
+                      <a class="delete-item" data-action="deleteItem" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
                     </div>
                   {{/if}}
                 </div>
@@ -537,7 +537,7 @@
 
                    {{#if s.system.havenActions.length}}
                     <div class="haven-actions-display">
-                      <span class="section-label">{{localize "TRESPASSER.Haven.HavenActions"}}</span>
+                      <span class="section-label">{{localize "TRESPASSER.Sheet.Haven.HavenActions"}}</span>
                       {{#each s.system.havenActions as |action|}}
                         <div class="haven-action-item">
                           <span class="action-title">{{action.title}}</span>
@@ -549,7 +549,7 @@
               </div>
             {{else}}
               <div class="empty-placeholder mini">
-                <p>{{localize "TRESPASSER.General.None"}}</p>
+                <p>{{localize "TRESPASSER.Sheet.Common.Empty"}}</p>
               </div>
             {{/each}}
           </div>

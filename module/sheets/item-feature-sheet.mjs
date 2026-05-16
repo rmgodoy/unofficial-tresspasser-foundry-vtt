@@ -81,11 +81,11 @@ export class TrespasserFeatureSheet extends foundry.appv1.sheets.ItemSheet {
     
     // Validate types
     if (targetType === "deeds" && sourceItem.type !== "deed") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropDeedsOnly"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnly"));
       return;
     }
     if (targetType === "effects" && (sourceItem.type !== "effect" && sourceItem.type !== "state")) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropEffectsStatesOnly"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropEffectsStatesOnly"));
       return;
     }
 
@@ -93,7 +93,7 @@ export class TrespasserFeatureSheet extends foundry.appv1.sheets.ItemSheet {
 
     // Avoid duplicates
     if (currentArray.some(e => e.name === sourceItem.name || e.uuid === sourceItem.uuid)) {
-       ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.AlreadyAdded", { name: sourceItem.name }));
+       ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name }));
        return;
     }
 

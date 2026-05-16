@@ -26,6 +26,40 @@
   box-shadow: 0 0 10px var(--trp-shadow-dark);
 }
 
+.actor-avatar-wrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.passive-states-overlay {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 10;
+  pointer-events: auto;
+}
+
+.passive-state-icon {
+  width: 24px;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: help;
+  border: 1px solid var(--trp-border-light);
+}
+
+.passive-state-icon img {
+  width: 18px;
+  height: 18px;
+  border: none;
+}
+
 .rest-btn {
   margin-top: 6px;
   width: 90px;
@@ -926,6 +960,33 @@
   font-size: var(--fs-15);
   font-weight: 600;
   color: var(--trp-gold-bright);
+}
+
+/* ── Speed Split Display ── */
+.combat-stat-speed .speed-display {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+}
+
+.combat-stat-speed .speed-base {
+  width: 32px;
+  text-align: center;
+}
+
+.combat-stat-speed .speed-separator {
+  color: var(--trp-text-dim);
+  font-weight: bold;
+  margin: 0 1px;
+}
+
+.combat-stat-speed .speed-bonus-value {
+  color: var(--trp-gold-bright);
+  font-weight: bold;
+  font-size: 0.95em;
+  min-width: 24px;
+  text-align: center;
 }
 
 /* Combat Equipment Snapshot */

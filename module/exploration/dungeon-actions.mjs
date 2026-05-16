@@ -46,7 +46,7 @@ async function postActionChat(dungeon, title, body, gmOnly = false) {
   const content = `<div class="trespasser-dungeon-action">
     <strong>${title}</strong>
     <div class="dungeon-action-body">${body}</div>
-    <span class="dungeon-action-meta">${game.i18n.format("TRESPASSER.Dungeon.Round")} ${system.currentRound || 1} | ${remaining} ${game.i18n.localize("TRESPASSER.Dungeon.ActionsRemaining").toLowerCase()}</span>
+    <span class="dungeon-action-meta">${game.i18n.localize("TRESPASSER.Sheet.Dungeon.Round")} ${system.currentRound || 1} | ${remaining} ${game.i18n.localize("TRESPASSER.Sheet.Dungeon.ActionsRemaining").toLowerCase()}</span>
   </div>`;
 
   const messageData = {
@@ -124,7 +124,7 @@ function getDungeonDC(dungeon) {
  * the action is interrupted and must be resolved first.
  */
 async function handleExplore(dungeon, options) {
-  const label = game.i18n.localize("TRESPASSER.Dungeon.Actions.Explore");
+  const label = game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.Explore");
   const dc = getDungeonDC(dungeon);
 
   // Get connected unexplored rooms for the GM to pick from
@@ -136,8 +136,8 @@ async function handleExplore(dungeon, options) {
     .map(c => dungeon.items.get(c.roomId ?? c))
     .filter(r => r && !r.system.discovered);
 
-  let body = `<p>${game.i18n.localize("TRESPASSER.Dungeon.Actions.ExploreDesc")}</p>`;
-  body += `<p><strong>${game.i18n.localize("TRESPASSER.Party.Roll")}:</strong> ${game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", {skill: `${game.i18n.localize("TRESPASSER.Intellect")} | ${game.i18n.localize("TRESPASSER.Perception")}`})} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</p>`;
+  let body = `<p>${game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.ExploreDesc")}</p>`;
+  body += `<p><strong>${game.i18n.localize("TRESPASSER.Terms.Party.Roll")}:</strong> ${game.i18n.format("TRESPASSER.Dialog.SkillCheck.Title", {skill: `${game.i18n.localize("TRESPASSER.Terms.Attribute.Intellect")} | ${game.i18n.localize("TRESPASSER.Terms.Skill.Perception")}`})} vs ${game.i18n.localize("TRESPASSER.Terms.DC")} ${dc}</p>`;
 
   if (unexplored.length > 0) {
     body += `<p><strong>${game.i18n.localize("TRESPASSER.Dungeon.Room.UnexploredConnections")}:</strong></p><ul>`;
@@ -155,11 +155,11 @@ async function handleExplore(dungeon, options) {
   if (unexplored.length > 0) {
     const trapped = unexplored.filter(r => r.system.roomTrap?.present && !r.system.roomTrap?.disarmed);
     if (trapped.length > 0) {
-      body += `<p class="gm-trap-warning">${game.i18n.format("TRESPASSER.Dungeon.Room.TrapWarning", { label: game.i18n.localize("TRESPASSER.Dungeon.Room.RoomTrapPresent") })}</p>`;
+      body += `<p class="gm-trap-warning">${game.i18n.format("TRESPASSER.Sheet.Dungeon.Room.TrapWarning", { label: game.i18n.localize("TRESPASSER.Sheet.Dungeon.Room.RoomTrapPresent") })}</p>`;
     }
   }
 
-  await consumeAction(dungeon, label, unexplored.length ? game.i18n.format("TRESPASSER.Dungeon.Log.UnexploredCount", { count: unexplored.length }) : "");
+  await consumeAction(dungeon, label, unexplored.length ? game.i18n.format("TRESPASSER.Chat.Dungeon.Log.UnexploredCount", { count: unexplored.length }) : "");
   await postActionChat(dungeon, label, body, true);
   return true;
 }
@@ -174,7 +174,7 @@ async function handleExplore(dungeon, options) {
  * alarm check.
  */
 async function handleTraverse(dungeon, options) {
-  const label = game.i18n.localize("TRESPASSER.Dungeon.Actions.Traverse");
+  const label = game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.Traverse");
 
   const currentRoom = dungeon.system.currentRoomId
     ? dungeon.items.get(dungeon.system.currentRoomId)
@@ -184,7 +184,7 @@ async function handleTraverse(dungeon, options) {
     .map(c => dungeon.items.get(c.roomId ?? c))
     .filter(r => r && r.system.discovered);
 
-  let body = `<p>${game.i18n.localize("TRESPASSER.Dungeon.Actions.TraverseDesc")}</p>`;
+  let body = `<p>${game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.TraverseDesc")}</p>`;
 
   if (explored.length > 0) {
     body += `<p><strong>${game.i18n.localize("TRESPASSER.Dungeon.Room.ExploredConnections")}:</strong></p><ul>`;
@@ -208,11 +208,11 @@ async function handleTraverse(dungeon, options) {
  * time-consuming way. The Judge calls for a skill check or group check as needed.
  */
 async function handleInteract(dungeon, options) {
-  const label = game.i18n.localize("TRESPASSER.Dungeon.Actions.Interact");
+  const label = game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.Interact");
   const dc = getDungeonDC(dungeon);
 
-  let body = `<p>${game.i18n.localize("TRESPASSER.Dungeon.Actions.InteractDesc")}</p>`;
-  body += `<p><strong>${game.i18n.localize("TRESPASSER.Party.Roll")}:</strong> ${game.i18n.localize("TRESPASSER.Party.GroupCheck")} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</p>`;
+  let body = `<p>${game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.InteractDesc")}</p>`;
+  body += `<p><strong>${game.i18n.localize("TRESPASSER.Terms.Party.Roll")}:</strong> ${game.i18n.localize("TRESPASSER.Terms.Party.GroupCheck")} vs ${game.i18n.localize("TRESPASSER.Terms.DC")} ${dc}</p>`;
 
   await consumeAction(dungeon, label);
   await postActionChat(dungeon, label, body);
@@ -229,7 +229,7 @@ async function handleInteract(dungeon, options) {
  * required.
  */
 async function handleSearch(dungeon, options) {
-  const label = game.i18n.localize("TRESPASSER.Dungeon.Actions.Search");
+  const label = game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.Search");
 
   const currentRoom = dungeon.system.currentRoomId
     ? dungeon.items.get(dungeon.system.currentRoomId)
@@ -237,24 +237,24 @@ async function handleSearch(dungeon, options) {
   const features = currentRoom?.system.features ?? [];
   const loot = currentRoom?.system.loot ?? "";
 
-  let body = `<p>${game.i18n.localize("TRESPASSER.Dungeon.Actions.SearchDesc")}</p>`;
+  let body = `<p>${game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.SearchDesc")}</p>`;
 
   if (features.length > 0) {
-    body += `<p><strong>${game.i18n.localize("TRESPASSER.Dungeon.Room.Features")}:</strong></p><ul>`;
+    body += `<p><strong>${game.i18n.localize("TRESPASSER.Sheet.Dungeon.Room.Features")}:</strong></p><ul>`;
     for (const f of features) {
       body += `<li>${f}</li>`;
     }
     body += `</ul>`;
   }
   if (loot) {
-    body += `<p><strong>${game.i18n.localize("TRESPASSER.Dungeon.Room.Loot")}:</strong> ${loot}</p>`;
+    body += `<p><strong>${game.i18n.localize("TRESPASSER.Sheet.Dungeon.Room.Loot")}:</strong> ${loot}</p>`;
   }
 
   // Warn about detail traps on undiscovered features
   const detailTraps = currentRoom?.system.detailTraps ?? [];
   const activeTraps = detailTraps.filter(t => !t.disarmed);
   if (activeTraps.length > 0) {
-    body += `<p class="gm-trap-warning">${game.i18n.format("TRESPASSER.Dungeon.Room.DetailTrapsWarning", { count: activeTraps.length, label: game.i18n.localize("TRESPASSER.Dungeon.Room.DetailTraps") })}</p>`;
+    body += `<p class="gm-trap-warning">${game.i18n.format("TRESPASSER.Sheet.Dungeon.Room.DetailTrapsWarning", { count: activeTraps.length, label: game.i18n.localize("TRESPASSER.Sheet.Dungeon.Room.DetailTraps") })}</p>`;
   }
 
   await consumeAction(dungeon, label, currentRoom?.name ?? "");
@@ -273,12 +273,12 @@ async function handleSearch(dungeon, options) {
  * sources, making a depletion check for each.
  */
 async function handleHide(dungeon, options) {
-  const label = game.i18n.localize("TRESPASSER.Dungeon.Actions.Hide");
+  const label = game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.Hide");
   const dc = getDungeonDC(dungeon);
 
-  let body = `<p>${game.i18n.localize("TRESPASSER.Dungeon.Actions.HideDesc")}</p>`;
-  body += `<p><strong>${game.i18n.localize("TRESPASSER.Party.Roll")}:</strong> ${game.i18n.localize("TRESPASSER.Agility")} | ${game.i18n.localize("TRESPASSER.Stealth")} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</p>`;
-  body += `<p>${game.i18n.localize("TRESPASSER.Dungeon.Alarm")}: <strong>${dungeon.system.alarm ?? 0}</strong></p>`;
+  let body = `<p>${game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.HideDesc")}</p>`;
+  body += `<p><strong>${game.i18n.localize("TRESPASSER.Terms.Party.Roll")}:</strong> ${game.i18n.localize("TRESPASSER.Terms.Attribute.Agility")} | ${game.i18n.localize("TRESPASSER.Terms.Skill.Stealth")} vs ${game.i18n.localize("TRESPASSER.Terms.DC")} ${dc}</p>`;
+  body += `<p>${game.i18n.localize("TRESPASSER.Sheet.Dungeon.Alarm")}: <strong>${dungeon.system.alarm ?? 0}</strong></p>`;
 
   await consumeAction(dungeon, label);
   await postActionChat(dungeon, label, body);
@@ -295,18 +295,18 @@ async function handleHide(dungeon, options) {
  * to make it a group check. Alarm rises by +1 for each participant.
  */
 async function handleVandalize(dungeon, options) {
-  const label = game.i18n.localize("TRESPASSER.Dungeon.Actions.Vandalize");
+  const label = game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.Vandalize");
   const dc = getDungeonDC(dungeon);
 
   // Raise alarm by at least 1 (for the acting character)
   const newAlarm = (dungeon.system.alarm ?? 0) + 1;
   await dungeon.update({ "system.alarm": newAlarm });
 
-  let body = `<p>${game.i18n.localize("TRESPASSER.Dungeon.Actions.VandalizeDesc")}</p>`;
-  body += `<p><strong>${game.i18n.localize("TRESPASSER.Party.Roll")}:</strong> ${game.i18n.localize("TRESPASSER.Might")} | ${game.i18n.localize("TRESPASSER.Athletics")} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</p>`;
-  body += `<p>${game.i18n.localize("TRESPASSER.Dungeon.Alarm")}: <strong>${newAlarm}</strong></p>`;
+  let body = `<p>${game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.VandalizeDesc")}</p>`;
+  body += `<p><strong>${game.i18n.localize("TRESPASSER.Terms.Party.Roll")}:</strong> ${game.i18n.localize("TRESPASSER.Terms.Attribute.Mighty")} | ${game.i18n.localize("TRESPASSER.Terms.Skill.Athletics")} vs ${game.i18n.localize("TRESPASSER.Terms.DC")} ${dc}</p>`;
+  body += `<p>${game.i18n.localize("TRESPASSER.Sheet.Dungeon.Alarm")}: <strong>${newAlarm}</strong></p>`;
 
-  await consumeAction(dungeon, label, game.i18n.format("TRESPASSER.Dungeon.Log.AlarmChange", { value: newAlarm }));
+  await consumeAction(dungeon, label, game.i18n.format("TRESPASSER.Chat.Dungeon.Log.AlarmChange", { value: newAlarm }));
   await postActionChat(dungeon, label, body);
   return true;
 }
@@ -320,11 +320,11 @@ async function handleVandalize(dungeon, options) {
  * makes an AGILITY | TINKERING check while the others look out for danger.
  */
 async function handlePickLock(dungeon, options) {
-  const label = game.i18n.localize("TRESPASSER.Dungeon.Actions.PickLock");
+  const label = game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.PickLock");
   const dc = getDungeonDC(dungeon);
 
-  let body = `<p>${game.i18n.localize("TRESPASSER.Dungeon.Actions.PickLockDesc")}</p>`;
-  body += `<p><strong>${game.i18n.localize("TRESPASSER.Party.Roll")}:</strong> ${game.i18n.localize("TRESPASSER.Agility")} | ${game.i18n.localize("TRESPASSER.Tinkering")} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</p>`;
+  let body = `<p>${game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.PickLockDesc")}</p>`;
+  body += `<p><strong>${game.i18n.localize("TRESPASSER.Terms.Party.Roll")}:</strong> ${game.i18n.localize("TRESPASSER.Terms.Attribute.Agility")} | ${game.i18n.localize("TRESPASSER.Terms.Skill.Tinkering")} vs ${game.i18n.localize("TRESPASSER.Terms.DC")} ${dc}</p>`;
 
   await consumeAction(dungeon, label);
   await postActionChat(dungeon, label, body);
@@ -341,11 +341,11 @@ async function handlePickLock(dungeon, options) {
  * the acting character.
  */
 async function handleDisarm(dungeon, options) {
-  const label = game.i18n.localize("TRESPASSER.Dungeon.Actions.Disarm");
+  const label = game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.Disarm");
   const dc = getDungeonDC(dungeon);
 
-  let body = `<p>${game.i18n.localize("TRESPASSER.Dungeon.Actions.DisarmDesc")}</p>`;
-  body += `<p><strong>${game.i18n.localize("TRESPASSER.Party.Roll")}:</strong> ${game.i18n.localize("TRESPASSER.Intellect")} | ${game.i18n.localize("TRESPASSER.Tinkering")} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</p>`;
+  let body = `<p>${game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.DisarmDesc")}</p>`;
+  body += `<p><strong>${game.i18n.localize("TRESPASSER.Terms.Party.Roll")}:</strong> ${game.i18n.localize("TRESPASSER.Terms.Attribute.Intellect")} | ${game.i18n.localize("TRESPASSER.Terms.Skill.Tinkering")} vs ${game.i18n.localize("TRESPASSER.Terms.DC")} ${dc}</p>`;
 
   await consumeAction(dungeon, label);
   await postActionChat(dungeon, label, body);
@@ -361,9 +361,9 @@ async function handleDisarm(dungeon, options) {
  * consumes an action if more than a minute or two is spent talking.
  */
 async function handleConverse(dungeon, options) {
-  const label = game.i18n.localize("TRESPASSER.Dungeon.Actions.Converse");
+  const label = game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.Converse");
 
-  let body = `<p>${game.i18n.localize("TRESPASSER.Dungeon.Actions.ConverseDesc")}</p>`;
+  let body = `<p>${game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.ConverseDesc")}</p>`;
 
   await consumeAction(dungeon, label);
   await postActionChat(dungeon, label, body);
@@ -380,9 +380,9 @@ async function handleConverse(dungeon, options) {
  * (max value), erase one focus checkmark, and regain spent armor dice.
  */
 async function handleMomentsRest(dungeon, options) {
-  const label = game.i18n.localize("TRESPASSER.Dungeon.Actions.MomentsRest");
+  const label = game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.MomentsRest");
 
-  let body = `<p>${game.i18n.localize("TRESPASSER.Dungeon.Actions.MomentsRestDesc")}</p>`;
+  let body = `<p>${game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.MomentsRestDesc")}</p>`;
 
   await consumeAction(dungeon, label);
   await postActionChat(dungeon, label, body);
@@ -397,9 +397,9 @@ async function handleMomentsRest(dungeon, options) {
  * INCANT (p.55): Cast an incantation while the rest of the party keeps watch.
  */
 async function handleIncant(dungeon, options) {
-  const label = game.i18n.localize("TRESPASSER.Dungeon.Actions.Incant");
+  const label = game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.Incant");
 
-  let body = `<p>${game.i18n.localize("TRESPASSER.Dungeon.Actions.IncantDesc")}</p>`;
+  let body = `<p>${game.i18n.localize("TRESPASSER.Terms.Dungeon.Actions.IncantDesc")}</p>`;
 
   await consumeAction(dungeon, label);
   await postActionChat(dungeon, label, body);

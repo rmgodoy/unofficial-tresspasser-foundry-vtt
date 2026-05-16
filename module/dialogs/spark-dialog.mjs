@@ -21,22 +21,22 @@ export async function askSparkDialog(results) {
   const maxSparks = Math.max(...sparkTargets.map(r => r.sparks));
 
   const sparkTypes = [
-    { key: "deed",    label: game.i18n.localize("TRESPASSER.Spark.DeedSpark"),  desc: game.i18n.localize("TRESPASSER.Spark.DeedSparkDesc") },
-    { key: "impact",  label: game.i18n.localize("TRESPASSER.Spark.Impact"),     desc: game.i18n.localize("TRESPASSER.Spark.ImpactDesc") },
-    { key: "potency", label: game.i18n.localize("TRESPASSER.Spark.Potency"),    desc: game.i18n.localize("TRESPASSER.Spark.PotencyDesc") },
-    { key: "power",   label: game.i18n.localize("TRESPASSER.Spark.Power"),      desc: game.i18n.localize("TRESPASSER.Spark.PowerDesc") }
+    { key: "deed",    label: game.i18n.localize("TRESPASSER.Dialog.Spark.DeedSpark"),  desc: game.i18n.localize("TRESPASSER.Dialog.Spark.DeedSparkDesc") },
+    { key: "impact",  label: game.i18n.localize("TRESPASSER.Dialog.Spark.Impact"),     desc: game.i18n.localize("TRESPASSER.Dialog.Spark.ImpactDesc") },
+    { key: "potency", label: game.i18n.localize("TRESPASSER.Dialog.Spark.Potency"),    desc: game.i18n.localize("TRESPASSER.Dialog.Spark.PotencyDesc") },
+    { key: "power",   label: game.i18n.localize("TRESPASSER.Dialog.Spark.Power"),      desc: game.i18n.localize("TRESPASSER.Dialog.Spark.PowerDesc") }
   ];
 
   // Build HTML for each layer
-  let html = `<div class="trespasser-dialog spark-dialog">`;
-  html += `<p>${game.i18n.format("TRESPASSER.Spark.DialogIntro", { count: maxSparks })}</p>`;
+  let html = `<div class="trespasser-dialog spark-dialog" style="max-height:60vh;overflow-y:auto;">`;
+  html += `<p>${game.i18n.format("TRESPASSER.Dialog.Spark.Intro", { count: maxSparks })}</p>`;
 
   for (let layer = 1; layer <= maxSparks; layer++) {
     const eligibleTargets = sparkTargets.filter(t => t.sparks >= layer);
     const targetNames = eligibleTargets.map(t => t.tokenName).join(", ");
 
     html += `<div class="spark-layer" data-layer="${layer}">`;
-    html += `<h4>${game.i18n.format("TRESPASSER.Spark.Layer", { n: layer })} <span class="spark-layer-targets">(${targetNames})</span></h4>`;
+    html += `<h4>${game.i18n.format("TRESPASSER.Dialog.Spark.Layer", { n: layer })} <span class="spark-layer-targets">(${targetNames})</span></h4>`;
 
     for (const st of sparkTypes) {
       // Deed Spark has a global limit of 1 — use radio-like logic via data attribute
@@ -55,12 +55,12 @@ export async function askSparkDialog(results) {
 
   return new Promise((resolve) => {
     new Dialog({
-      title: game.i18n.localize("TRESPASSER.Spark.DialogTitle"),
+      title: game.i18n.localize("TRESPASSER.Dialog.Spark.Title"),
       content: html,
       buttons: {
         confirm: {
           icon: '<i class="fas fa-sun"></i>',
-          label: game.i18n.localize("TRESPASSER.Spark.Confirm"),
+          label: game.i18n.localize("TRESPASSER.Global.Action.Confirm"),
           callback: (dialogHtml) => {
             const choices = _parseSparkChoices(dialogHtml, sparkTargets, maxSparks);
             resolve(choices);
@@ -68,7 +68,7 @@ export async function askSparkDialog(results) {
         },
         cancel: {
           icon: '<i class="fas fa-times"></i>',
-          label: game.i18n.localize("TRESPASSER.General.Cancel"),
+          label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
           callback: () => resolve(null)
         }
       },
@@ -88,7 +88,8 @@ export async function askSparkDialog(results) {
       }
     }, {
       classes: ["trespasser", "dialog", "spark-select"],
-      width: 400
+      width: 400,
+      resizable: true
     }).render(true);
   });
 }

@@ -43,7 +43,8 @@ import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
 import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
-
+import { TrespasserSocket }        from "./module/helpers/socket/socket.mjs";
+import { PASSIVE_STATES }          from "./module/config/state-config.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -101,18 +102,18 @@ Hooks.once("init", async () => {
   CONFIG.TRESPASSER = {
     targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
     depletionDieOptions: {
-      "": "TRESPASSER.Item.DepletionChoices.None",
-      "d4": "TRESPASSER.Item.DepletionChoices.Crude",
-      "d6": "TRESPASSER.Item.DepletionChoices.Normal",
-      "d8": "TRESPASSER.Item.DepletionChoices.Fine",
-      "d10": "TRESPASSER.Item.DepletionChoices.Excellent",
-      "d12": "TRESPASSER.Item.DepletionChoices.Enchanted",
-      "d20": "TRESPASSER.Item.DepletionChoices.Legendary"
+      "": "TRESPASSER.Terms.Depletion.None",
+      "d4": "TRESPASSER.Terms.Depletion.Crude",
+      "d6": "TRESPASSER.Terms.Depletion.Fine",
+      "d8": "TRESPASSER.Terms.Depletion.Superior",
+      "d10": "TRESPASSER.Terms.Depletion.Excellent",
+      "d12": "TRESPASSER.Terms.Depletion.Enchanted",
+      "d20": "TRESPASSER.Terms.Depletion.Legendary"
     },
     actionTypeChoices: {
-      "none": "TRESPASSER.Item.ActionTypeChoices.none",
-      "action": "TRESPASSER.Item.ActionTypeChoices.action",
-      "reaction": "TRESPASSER.Item.ActionTypeChoices.reaction"
+      "none": "TRESPASSER.Terms.ActionTypes.None",
+      "action": "TRESPASSER.Terms.ActionTypes.Action",
+      "reaction": "TRESPASSER.Terms.ActionTypes.Reaction"
     },
     // Dungeon exploration config
     dungeon: DUNGEON_CONFIG
@@ -120,8 +121,8 @@ Hooks.once("init", async () => {
 
   // Register settings
   game.settings.register("trespasser", "showInitiativeInChat", {
-    name: "TRESPASSER.Config.ShowInitiativeInChat",
-    hint: "TRESPASSER.Config.ShowInitiativeInChatHint",
+    name: "TRESPASSER.Settings.Mechanics.InitiativeChat.Name",
+    hint: "TRESPASSER.Settings.Mechanics.InitiativeChat.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -129,17 +130,35 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "restrictMovementAction", {
-    name: "TRESPASSER.Config.RestrictMovementAction",
-    hint: "TRESPASSER.Config.RestrictMovementActionHint",
+    name: "TRESPASSER.Settings.Mechanics.RestrictMovementAction.Name",
+    hint: "TRESPASSER.Settings.Mechanics.RestrictMovementAction.Hint",
     scope: "world",
     config: false,
     type: Boolean,
     default: false
   });
+
+  game.settings.register("trespasser", "applyEncumbranceRules", {
+    name: "TRESPASSER.Settings.Mechanics.ApplyEncumbranceRules.Name",
+    hint: "TRESPASSER.Settings.Mechanics.ApplyEncumbranceRules.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
   
   game.settings.register("trespasser", "enableRetreatDialog", {
-    name: "TRESPASSER.Config.EnableRetreatDialog",
-    hint: "TRESPASSER.Config.EnableRetreatDialogHint",
+    name: "TRESPASSER.Settings.Exploration.EnableRetreatDialog.Name",
+    hint: "TRESPASSER.Settings.Exploration.EnableRetreatDialog.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register("trespasser", "hideCreatureDamageRolls", {
+    name: "TRESPASSER.Settings.Mechanics.HideCreatureDamageRolls.Name",
+    hint: "TRESPASSER.Settings.Mechanics.HideCreatureDamageRolls.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -147,8 +166,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "showPerilInChat", {
-    name: "TRESPASSER.Config.ShowPerilInChat",
-    hint: "TRESPASSER.Config.ShowPerilInChatHint",
+    name: "TRESPASSER.Settings.Exploration.ShowPerilInChat.Name",
+    hint: "TRESPASSER.Settings.Exploration.ShowPerilInChat.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -156,8 +175,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "autoEndCombatOnRetreat", {
-    name: "TRESPASSER.Config.AutoEndCombatOnRetreat",
-    hint: "TRESPASSER.Config.AutoEndCombatOnRetreatHint",
+    name: "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Name",
+    hint: "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -165,8 +184,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "restrictHUDActions", {
-    name: "TRESPASSER.Config.RestrictHUDActions",
-    hint: "TRESPASSER.Config.RestrictHUDActionsHint",
+    name: "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Name",
+    hint: "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -174,8 +193,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "restrictAPFocusUsage", {
-    name: "TRESPASSER.Config.RestrictAPFocusUsage",
-    hint: "TRESPASSER.Config.RestrictAPFocusUsageHint",
+    name: "TRESPASSER.Settings.Mechanics.RestrictAPFocusUsage.Name",
+    hint: "TRESPASSER.Settings.Mechanics.RestrictAPFocusUsage.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -183,8 +202,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "groupCheckFullParty", {
-    name: "TRESPASSER.Config.GroupCheckFullParty",
-    hint: "TRESPASSER.Config.GroupCheckFullPartyHint",
+    name: "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Name",
+    hint: "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -192,8 +211,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "restrictHavenEditToLeader", {
-    name: "TRESPASSER.Config.RestrictHavenEditToLeader",
-    hint: "TRESPASSER.Config.RestrictHavenEditToLeaderHint",
+    name: "TRESPASSER.Settings.Exploration.RestrictHavenEditToLeader.Name",
+    hint: "TRESPASSER.Settings.Exploration.RestrictHavenEditToLeader.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -201,8 +220,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "bypassHavenBuildingLimits", {
-    name: "TRESPASSER.Config.BypassHavenBuildingLimits",
-    hint: "TRESPASSER.Config.BypassHavenBuildingLimitsHint",
+    name: "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Name",
+    hint: "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -210,17 +229,26 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "disregardRangeOnAttack", {
-    name: "TRESPASSER.Config.DisregardRangeOnAttack",
-    hint: "TRESPASSER.Config.DisregardRangeOnAttackHint",
+    name: "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Name",
+    hint: "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Hint",
     scope: "world",
     config: false,
     type: Boolean,
     default: true
   });
 
+  game.settings.register("trespasser", "confirmItemTransfer", {
+    name: "TRESPASSER.Settings.Mechanics.ConfirmItemTransfer.Name",
+    hint: "TRESPASSER.Settings.Mechanics.ConfirmItemTransfer.Hint",
+    scope: "client",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
   game.settings.register("trespasser", "allowOutOfTurnMovement", {
-    name: "TRESPASSER.Config.AllowOutOfTurnMovement",
-    hint: "TRESPASSER.Config.AllowOutOfTurnMovementHint",
+    name: "TRESPASSER.Settings.Mechanics.AllowOutOfTurnMovement.Name",
+    hint: "TRESPASSER.Settings.Mechanics.AllowOutOfTurnMovement.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -228,8 +256,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "playerFacingInitiative", {
-    name: "TRESPASSER.Config.PlayerFacingInitiative",
-    hint: "TRESPASSER.Config.PlayerFacingInitiativeHint",
+    name: "TRESPASSER.Settings.Mechanics.PlayerFacingInitiative.Name",
+    hint: "TRESPASSER.Settings.Mechanics.PlayerFacingInitiative.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -237,8 +265,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "clockSize", {
-    name: "TRESPASSER.Config.ClockSize",
-    hint: "TRESPASSER.Config.ClockSizeHint",
+    name: "TRESPASSER.Settings.Visuals.ClockSize.Name",
+    hint: "TRESPASSER.Settings.Visuals.ClockSize.Hint",
     scope: "client",
     config: false,
     type: Number,
@@ -246,8 +274,8 @@ Hooks.once("init", async () => {
   });
 
   game.settings.register("trespasser", "fontSizeBase", {
-    name: "TRESPASSER.Config.FontSizeBase",
-    hint: "TRESPASSER.Config.FontSizeBaseHint",
+    name: "TRESPASSER.Settings.Visuals.FontSizeBase.Name",
+    hint: "TRESPASSER.Settings.Visuals.FontSizeBase.Hint",
     scope: "client",
     config: false,
     type: Number,
@@ -290,7 +318,7 @@ Hooks.once("init", async () => {
 
   for ( const color of colorSettings ) {
     game.settings.register("trespasser", color.key, {
-      name: `TRESPASSER.Config.${color.key}`,
+      name: `TRESPASSER.Settings.Colors.${color.key}.Name`,
       scope: "client",
       config: false,
       type: String,
@@ -299,7 +327,7 @@ Hooks.once("init", async () => {
   }
 
   game.settings.register("trespasser", "eventClocks", {
-    name: "TRESPASSER.EventClocks.TrackerTitle",
+    name: "TRESPASSER.App.EventClocks.Title",
     scope: "world",
     config: false,
     type: String,
@@ -521,9 +549,12 @@ Hooks.once("init", async () => {
 /**
  * Socket handling for Token Action HUD / Help action
  */
-Hooks.once("ready", () => {
+Hooks.once("ready", async () => {
   // Initialize Token Action HUD
   game.trespasser.tokenHUD = new TrespasserTokenHUD();
+
+  // Initialize Sockets
+  TrespasserSocket.init();
 
   // Function to apply settings to CSS variables
   game.trespasser.applySystemSettings = () => {
@@ -605,8 +636,22 @@ Hooks.once("ready", () => {
     };
   }
 
-  if (game.combat) {
+  if (game.combat && game.combat.flags?.trespasser?.activePhase ) {
     game.combat.updateTurnMarkers(game.combat.flags.trespasser.activePhase);
+  }
+
+  // ── Data Migration: Creature roll_bonus → prevail ─────────────────────────
+  if (game.user.isGM) {
+    for (const actor of game.actors) {
+      if (actor.type !== "creature") continue;
+      const src = actor.toObject();
+      const oldVal = src.system?.roll_bonus;
+      const newVal = src.system?.prevail;
+      if (oldVal !== undefined && oldVal !== 0 && (newVal === undefined || newVal === 0)) {
+        await actor.update({ "system.prevail": oldVal });
+        console.log(`Trespasser | Migrated creature "${actor.name}" roll_bonus(${oldVal}) → prevail`);
+      }
+    }
   }
 });
 
@@ -707,7 +752,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
       const sourceItem = await fromUuid(uuid);
       if (!sourceItem) {
-        ui.notifications.error(game.i18n.localize("TRESPASSER.Dialog.ItemNotFound"));
+        ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Item.NotFound"));
         return;
       }
 
@@ -715,7 +760,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
       const tokens = canvas.tokens.controlled;
       if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
         return;
       }
 
@@ -728,7 +773,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         delete itemData._id;
 
         await foundry.documents.BaseItem.create(itemData, { parent: actor });
-        ui.notifications.info(game.i18n.format("TRESPASSER.Chat.AppliedEffect", { name: sourceItem.name, target: actor.name }));
+        ui.notifications.info(game.i18n.format("TRESPASSER.Chat.Effect.Applied", { effect: sourceItem.name, target: actor.name }));
       }
     });
   });
@@ -746,7 +791,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       if (!targetActor) return;
 
       const effectData = {
-        name: game.i18n.format("TRESPASSER.Chat.HelpFrom", { name: sourceName }),
+        name: game.i18n.format("TRESPASSER.Chat.Action.HelpFrom", { name: target.name, helper: sourceName }),
         type: "effect",
         img: "system/trespasser/assets/icons/effect.webp",
         system: {
@@ -767,7 +812,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       };
 
       const res = await targetActor.createEmbeddedDocuments("Item", [effectData]);
-      ui.notifications.info(game.i18n.format("TRESPASSER.Chat.AppliedHelp", { name: targetActor.name }));
+      ui.notifications.info(game.i18n.format("TRESPASSER.Chat.Action.AppliedHelp", { target: targetActor.name }));
     });
   });
 
@@ -782,7 +827,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       let tokens = canvas.tokens.controlled;
       if (tokens.length === 0) tokens = Array.from(game.user.targets);
       if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
         return;
       }
 
@@ -814,8 +859,8 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         }
 
         const msg = reduction !== 0
-          ? game.i18n.format("TRESPASSER.Chat.TookDamageReduction", { name: actor.name, damage: finalDamage, raw: rawDamage, reduction: Math.abs(reduction) })
-          : game.i18n.format("TRESPASSER.Chat.TookDamage", { name: actor.name, damage: finalDamage });
+          ? game.i18n.format("TRESPASSER.Chat.Combat.TookDamageReduction", { name: actor.name, total: finalDamage, reduced: Math.abs(reduction) })
+          : game.i18n.format("TRESPASSER.Chat.Combat.TookDamage", { name: actor.name, total: finalDamage });
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),
           content: `<div class="trespasser-chat-card"><p>${msg}</p></div>`
@@ -834,7 +879,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       let tokens = canvas.tokens.controlled;
       if (tokens.length === 0) tokens = Array.from(game.user.targets);
       if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NoTargetsAbort"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
         return;
       }
 
@@ -847,7 +892,7 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),
-          content: `<div class="trespasser-chat-card"><p>${game.i18n.format("TRESPASSER.Chat.HealedAmount", { name: actor.name, amount: healAmount })}</p></div>`
+          content: `<div class="trespasser-chat-card"><p>${game.i18n.format("TRESPASSER.Chat.Combat.HealedAmount", { name: actor.name, amount: healAmount })}</p></div>`
         });
       }
     });
@@ -864,9 +909,16 @@ Hooks.on("updateCombatant", (combatant, changed, options, userId) => {
   if (!game.combat) return;
   const isDefeatedChanged = changed.defeated !== undefined;
   const isAPChanged = changed.flags?.trespasser?.actionPoints !== undefined;
-  if (isDefeatedChanged || isAPChanged) {
+  const isInitiativeChanged = changed.initiative !== undefined;
+  if (isDefeatedChanged || isAPChanged || isInitiativeChanged) {
     const activePhase = game.combat.getFlag("trespasser", "activePhase");
     game.combat.updateTurnMarkers(activePhase);
+  }
+
+  // When a combatant's initiative changes (e.g. Wait action) or is defeated,
+  // check if the active phase has become empty and auto-advance
+  if ((isInitiativeChanged || isDefeatedChanged) && game.user.isGM) {
+    game.combat.checkEmptyPhaseAdvance();
   }
 });
 
@@ -931,7 +983,7 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
   if (combatant.initiative !== activePhase) {
     const allowOutOfTurn = game.settings.get("trespasser", "allowOutOfTurnMovement");
     if (!game.user.isGM && !allowOutOfTurn) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.NotYourPhase"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotYourPhase"));
         return false;
     }
     return; // Out-of-phase movement — don't track distance
@@ -946,7 +998,7 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
 
   const moveActionTaken = combatant.getFlag("trespasser", "moveActionTaken") ?? false;
   if (!moveActionTaken) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.MoveActionRequired"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.MoveActionRequired"));
       return false;
   }
 
@@ -967,13 +1019,13 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
       const isStraight = dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy);
       
       if (!isStraight) {
-          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.VaultStraightLine"));
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.VaultStraightLine"));
           return false;
       }
   }
 
   if ((movementUsed + dist) > movementAllowed) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.MovementLimitExceeded"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.MovementLimitExceeded"));
       return false;
   }
 
@@ -1326,11 +1378,11 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
   const combatInfo  = combat.getFlag("trespasser", "combatInfo") || {};
 
   const PHASES = [
-    { id: 40, label: game.i18n.localize("TRESPASSER.Phase.Early"), css: "early", combatants: [] },
-    { id: 30, label: game.i18n.localize("TRESPASSER.Phase.Enemy"), css: "enemy", combatants: [] },
-    { id: 20, label: game.i18n.localize("TRESPASSER.Phase.Late"), css: "late", combatants: [] },
-    { id: 10, label: game.i18n.localize("TRESPASSER.Phase.Extra"), css: "extra", combatants: [] },
-    { id: 0,  label: game.i18n.localize("TRESPASSER.Phase.End"), css: "end", combatants: [] }
+    { id: 40, label: game.i18n.localize("TRESPASSER.Terms.Combat.Phase.Early"), css: "early", combatants: [] },
+    { id: 30, label: game.i18n.localize("TRESPASSER.Terms.Combat.Phase.Enemy"), css: "enemy", combatants: [] },
+    { id: 20, label: game.i18n.localize("TRESPASSER.Terms.Combat.Phase.Late"), css: "late", combatants: [] },
+    { id: 10, label: game.i18n.localize("TRESPASSER.Terms.Combat.Phase.Extra"), css: "extra", combatants: [] },
+    { id: 0,  label: game.i18n.localize("TRESPASSER.Terms.Combat.Phase.End"), css: "end", combatants: [] }
   ];
 
   for (const combatant of combat.combatants) {
@@ -1358,7 +1410,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
   function buildPhaseHTML(phaseData) {
     const isActive = phaseData.id === activePhase;
     const nextBtn  = (isActive && game.user.isGM && !isWaiting)
-      ? `<button class="next-phase-btn trp-next-phase" title="${game.i18n.localize("TRESPASSER.Phase.Next")}">${game.i18n.localize("TRESPASSER.Phase.NextPhase")}</button>`
+      ? `<button class="next-phase-btn trp-next-phase" title="${game.i18n.localize("TRESPASSER.Terms.Combat.Phase.Next")}">${game.i18n.localize("TRESPASSER.Terms.Combat.Phase.NextPhase")}</button>`
       : "";
 
     const combatantsHTML = phaseData.combatants.map(({ combatant, ap, focus, isPending }) => {
@@ -1389,13 +1441,13 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
           <div class="combatant-info flexcol">
             <div class="token-name"><h4>${name}</h4></div>
             <div class="combatant-status flexrow">
-              <a class="combatant-control ${isHidden ? "active" : ""}" data-action="toggleHidden" title="${game.i18n.localize("COMBAT.ToggleVis")}">
+              <a class="combatant-control ${isHidden ? "active" : ""}" data-action="toggleHidden" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleVisibility")}">
                 <i class="fas ${isHidden ? "fa-eye-slash" : "fa-eye"}"></i>
               </a>
-              <a class="combatant-control ${isDefeated ? "active" : ""}" data-action="toggleDefeated" title="${game.i18n.localize("COMBAT.ToggleDead")}">
+              <a class="combatant-control ${isDefeated ? "active" : ""}" data-action="toggleDefeated" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleDead")}">
                 <i class="fas fa-skull"></i>
               </a>
-              <a class="combatant-control ${isTargeted ? "active" : ""}" data-action="toggleTarget" title="${game.i18n.localize("COMBAT.ToggleTarget")}">
+              <a class="combatant-control ${isTargeted ? "active" : ""}" data-action="toggleTarget" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleTarget")}">
                 <i class="fas fa-bullseye"></i>
               </a>
             </div>
@@ -1421,7 +1473,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
   }
 
   const waitingBanner = isWaiting ? `
-    <div class="initiative-waiting-banner" style="background:var(--trp-bg-header); border:1px solid var(--trp-gold-dim); border-radius:4px; padding:8px 12px; margin:8px; text-align:center; color:var(--trp-gold-bright); font-family:var(--trp-font-header); font-size:13px;">
+    <div class="initiative-waiting-banner" style="background:var(--trp-bg-header); border:1px solid var(--trp-gold-dim); border-radius:4px; padding:8px 12px; margin:8px; text-align:center; color:var(--trp-gold-bright); font-family:var(--trp-font-header); font-size:var(--fs-13);">
       <i class="fas fa-hourglass-half"></i> ${game.i18n.localize("TRESPASSER.Sheet.Combat.WaitingForInitiatives")}
     </div>
   ` : "";
@@ -1431,10 +1483,10 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
       <div class="info-row">
         <div class="left-info">
           <span class="peril-text">
-            ${game.i18n.localize("TRESPASSER.Peril")}: ${combatInfo.perilTotal ?? 0}
-            <span class="peril-label">(${game.i18n.localize(combatInfo.perilLabel ?? "TRESPASSER.PanicLabels.Low")})</span>
+            ${game.i18n.localize("TRESPASSER.Terms.Combat.Peril")}: ${combatInfo.perilTotal ?? 0}
+            <span class="peril-label">(${game.i18n.localize(combatInfo.perilLabel ?? "TRESPASSER.Terms.Combat.PanicLabels.Low")})</span>
           </span>
-          <span class="deeds-usage">${combatInfo.heavy ?? 0}H / ${combatInfo.mighty ?? 0}M</span>
+          <span class="deeds-usage">${combatInfo.deedDisplay ?? `${combatInfo.heavy ?? 0}H/${combatInfo.mighty ?? 0}M`}</span>
         </div>
         <div class="right-info">
           <span class="panic-label">Panic: ${combatInfo.panicLevel ?? 0}</span>
@@ -1512,5 +1564,46 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
         if (token) token.setTarget(!token.isTargeted, { releaseOthers: false });
       }
     });
+  });
+});
+
+Hooks.on("refreshToken", (token) => {
+  // Remove old passive-state sprites
+  const existing = token.children.filter(c => c._trespasserPassiveState);
+  existing.forEach(c => { token.removeChild(c); c.destroy(); });
+
+  const states = token.document?.actor?.system?.passiveStates;
+  if (!states) return;
+
+  const activeKeys = Object.entries(states).filter(([key, v]) => v && (token.document.actor.type === "character" || key !== "encumbered"));
+  if (activeKeys.length === 0) return;
+
+  const iconSize = Math.max(16, Math.round(token.w * 0.22));
+  const padding = 2;
+
+  activeKeys.forEach(([key], index) => {
+    const cfg = PASSIVE_STATES[key];
+    if (!cfg) return;
+
+    const texture = PIXI.Texture.from(cfg.icon);
+    const sprite = new PIXI.Sprite(texture);
+    sprite.width = iconSize;
+    sprite.height = iconSize;
+    // Position at top-right corner, stacked vertically
+    sprite.x = token.w - iconSize - padding;
+    sprite.y = padding + index * (iconSize + padding);
+    sprite.alpha = 0.9;
+    sprite._trespasserPassiveState = true;
+    
+    // Tooltip on hover
+    sprite.eventMode = "static";
+    sprite.on("pointerover", () => {
+      const label = game.i18n.localize(cfg.label);
+      const desc = game.i18n.localize(cfg.description);
+      game.tooltip.activate(sprite, { text: `${label}: ${desc}`, direction: "UP" });
+    });
+    sprite.on("pointerout", () => game.tooltip.deactivate());
+
+    token.addChild(sprite);
   });
 });

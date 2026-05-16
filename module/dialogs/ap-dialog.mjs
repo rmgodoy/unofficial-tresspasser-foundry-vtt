@@ -13,7 +13,7 @@ export async function askAPDialog(availableAP) {
           ${Array.from({ length: availableAP }, (_, i) => i + 1).map(val => {
             const bonus = (val - 1) * 2;
             const label = val === 1 
-              ? game.i18n.localize("TRESPASSER.Dialog.SpendAP.DefaultOption") 
+              ? game.i18n.localize("TRESPASSER.Dialog.SpendAP.DefaultOption")
               : game.i18n.format("TRESPASSER.Dialog.SpendAP.AdditionalOption", { count: val, bonus: bonus });
             return `<option value="${val}">${label}</option>`;
           }).join("")}
@@ -38,11 +38,11 @@ export async function askAPDialog(availableAP) {
       content,
       buttons: {
         confirm: {
-          label: game.i18n.localize("TRESPASSER.Dialog.SpendAP.Confirm"),
+          label: game.i18n.localize("TRESPASSER.Global.Action.Confirm"),
           callback: (html) => resolve(parseInt(html.find("#ap-spent").val()))
         },
         cancel: {
-          label: game.i18n.localize("TRESPASSER.Dialog.Cancel"),
+          label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
           callback: () => resolve(null)
         }
       },

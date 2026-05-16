@@ -67,14 +67,14 @@ export class TrespasserTalentSheet extends foundry.appv1.sheets.ItemSheet {
     if (!item) return;
 
     if (item.type !== "effect" && item.type !== "state") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notifications.DropEffectsStatesOnly"));
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropEffectsStatesOnly"));
       return;
     }
 
     const currentEffects = foundry.utils.deepClone(this.item.system.effects) || [];
 
     if (currentEffects.some(e => e.uuid === item.uuid)) {
-      ui.notifications.warn(game.i18n.format("TRESPASSER.Notifications.AlreadyAdded", { name: item.name }));
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: item.name }));
       return;
     }
 

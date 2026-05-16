@@ -52,7 +52,7 @@ export async function showRestDialog(actor, handleRestActionFn) {
     </div>`;
 
   new Dialog({
-    title: game.i18n.localize("TRESPASSER.Sheet.Rest.TitleActions"),
+    title: game.i18n.localize("TRESPASSER.Sheet.Rest.Title"),
     content,
     buttons: {
       moment: {

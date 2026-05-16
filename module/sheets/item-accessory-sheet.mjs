@@ -23,9 +23,9 @@ export class TrespasserAccessorySheet extends foundry.appv1.sheets.ItemSheet {
     
     context.config = foundry.utils.mergeObject({
       placements: {
-        "ring": "TRESPASSER.Item.Accessory.Ring",
-        "talisman": "TRESPASSER.Item.Accessory.Talisman",
-        "amulet": "TRESPASSER.Item.Accessory.Amulet"
+        "ring": "TRESPASSER.Sheet.Character.Equipments.Ring",
+        "talisman": "TRESPASSER.Sheet.Character.Equipments.Talisman",
+        "amulet": "TRESPASSER.Sheet.Character.Equipments.Amulet"
       }
     }, CONFIG.TRESPASSER);
 

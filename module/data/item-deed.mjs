@@ -44,6 +44,7 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
       }),
       targetCount: new fields.NumberField({ initial: 1, min: 1, integer: true }),
       targetSize: new fields.NumberField({ initial: null, min: 1, integer: true, nullable: true }),
+      range: new fields.NumberField({ initial: null, min: 0, integer: true, nullable: true }),
       accuracyTest: new fields.StringField({ initial: "Guard" }),
       focusCost: new fields.NumberField({ initial: null, nullable: true }),
       focusIncrease: new fields.NumberField({ initial: null, nullable: true }),

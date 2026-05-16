@@ -1,5 +1,7 @@
 import { buildClockSegments } from "./character/get-data.mjs";
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
+import { addItemToActor } from "../helpers/item-transfer-helper.mjs";
+import { TrespasserSocket } from "../helpers/socket/socket.mjs";
 
 const { api, sheets } = foundry.applications;
 
@@ -163,12 +165,12 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     });
 
     context.attributes = {
-      "military": "TRESPASSER.Haven.Attributes.Military",
-      "efficiency": "TRESPASSER.Haven.Attributes.Efficiency",
-      "resources": "TRESPASSER.Haven.Attributes.Resources",
-      "expertise": "TRESPASSER.Haven.Attributes.Expertise",
-      "allegiance": "TRESPASSER.Haven.Attributes.Allegiance",
-      "appeal": "TRESPASSER.Haven.Attributes.Appeal"
+      "military": "TRESPASSER.Terms.HavenAttribute.Military",
+      "efficiency": "TRESPASSER.Terms.HavenAttribute.Efficiency",
+      "resources": "TRESPASSER.Terms.HavenAttribute.Resources",
+      "expertise": "TRESPASSER.Terms.HavenAttribute.Expertise",
+      "allegiance": "TRESPASSER.Terms.HavenAttribute.Allegiance",
+      "appeal": "TRESPASSER.Terms.HavenAttribute.Appeal"
     };
 
     // Inventory is data-driven stacking list from system.inventory
@@ -212,7 +214,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       key,
       trained: trainedSet.has(key),
       inherited: !system.skills[key] && trainedSet.has(key), // Flag if trained via building
-      label: game.i18n.localize(`TRESPASSER.Haven.Skills.${key.charAt(0).toUpperCase() + key.slice(1)}`)
+      label: game.i18n.localize(`TRESPASSER.Terms.HavenSkill.${key.charAt(0).toUpperCase() + key.slice(1)}`)
     }));
     
     context.skillColumns = [
@@ -300,6 +302,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       });
     });
 
+    // Handle dragging items from inventory
+    html.querySelectorAll('.inventory-item.item').forEach(li => {
+      li.addEventListener('dragstart', (ev) => this.#onDragStart(ev));
+    });
+
     // From here, only for GMs/Leaders
     if (!this.isEditable) return;
 
@@ -314,6 +321,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
   /* -------------------------------------------- */
 
   async #onDrop(event) {
+    console.log("Trespasser | TrespasserHavenSheet.#onDrop: Entry");
     event.preventDefault();
     event.stopPropagation();
     const zone = event.currentTarget;
@@ -325,7 +333,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       if (data.type !== "Actor") return;
       const leader = await fromUuid(data.uuid);
       if (leader?.type !== "character") {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Haven.CharactersOnly"));
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Haven.CharactersOnly"));
         return;
       }
       await this.document.update({ "system.leaderId": leader.id });
@@ -348,16 +356,20 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
           const numCompleted = allBuildings.filter(b => b.system.progress >= b.system.buildClock).length;
 
           if (numConstruction >= system.maxBuildSlots) {
-            ui.notifications.warn(game.i18n.format("TRESPASSER.Haven.Warning.NoBuildSlots", { max: system.maxBuildSlots }));
+            ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Haven.NoBuildSlots", { max: system.maxBuildSlots }));
             return;
           }
           if (numCompleted >= system.maxBuildingLimit) {
-            ui.notifications.warn(game.i18n.format("TRESPASSER.Haven.Warning.BuildingLimitReached", { max: system.maxBuildingLimit }));
+            ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Haven.BuildingLimitReached", { max: system.maxBuildingLimit }));
             return;
           }
         }
 
-        return Item.create(item.toObject(), { parent: this.document });
+        const created = await Item.create(item.toObject(), { parent: this.document });
+        if (created && item.parent && item.parent !== this.document) {
+          await item.delete();
+        }
+        return created;
       }
 
       const inventory = foundry.utils.duplicate(this.document.system.inventory);
@@ -375,11 +387,43 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
         inventory.push({ item: itemData, quantity: qty });
       }
 
-      await this.document.update({ "system.inventory": inventory });
+      const updated = await this.document.update({ "system.inventory": inventory });
       
-      // If the item was on this actor, delete the document
-      if (item.parent === this.document) await item.delete();
+      // If the item came from another actor (like a character), delete the source document
+      if (updated && item.parent && item.parent !== this.document) {
+        await item.delete();
+      }
     }
+  }
+
+  /**
+   * Handle dragging an item out of the Haven inventory.
+   * @param {DragEvent} event
+   * @private
+   */
+  #onDragStart(event) {
+    const li = event.currentTarget;
+    if (li.dataset.index === undefined) return;
+    
+    const index = parseInt(li.dataset.index);
+    const entry = this.document.system.inventory[index];
+    if (!entry) return;
+
+    // Build drag data
+    const dragData = {
+      type: "Item",
+      data: entry.item,
+      havenIndex: index,
+      actorId: this.document.id,
+      isHavenTransfer: true
+    };
+    
+    // Check for ALT key to transfer full stack
+    if (event.altKey) {
+      dragData.transferAll = true;
+    }
+
+    event.dataTransfer.setData("text/plain", JSON.stringify(dragData));
   }
 
   /* -------------------------------------------- */
@@ -415,7 +459,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const chains = [...this.document.system.productionChains];
     chains.push({
       id: foundry.utils.randomID(),
-      name: game.i18n.localize("TRESPASSER.Haven.NewChain"),
+      name: game.i18n.localize("TRESPASSER.Global.Action.NewChain"),
       active: true,
       hirelings: []
     });
@@ -504,8 +548,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const inventory = foundry.utils.duplicate(this.document.system.inventory);
     
     foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.localize("TRESPASSER.DeleteItemTitle") },
-      content: `<p>${game.i18n.localize("TRESPASSER.DeleteItemContent")}</p>`,
+      window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.ItemTitle", { name: building.name }) },
+      content: `<p>${game.i18n.localize("TRESPASSER.Dialog.Delete.ItemContent")}</p>`,
       yes: {
         callback: async () => {
           inventory.splice(index, 1);
@@ -523,31 +567,40 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
 
     // Get the character receiving the item
     const controlledTokens = canvas.tokens.controlled;
-    if (controlledTokens.length === 0) return;
+    if (controlledTokens.length === 0) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargetsAbort"));
+      return;
+    }
 
     const receiverToken = controlledTokens[0];
     const receiverActor = receiverToken.actor;
 
     // Ensure it's a character
     if (receiverActor?.type !== "character") {
-      ui.notifications.error(game.i18n.localize("TRESPASSER.Haven.TransferToCharacterOnly"));
+      ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Haven.TransferToCharacterOnly"));
       return;
     }
 
     // Transfer item
     const itemData = foundry.utils.duplicate(entry.item);
-    itemData.system.quantity = 1;
-    await receiverActor.createEmbeddedDocuments("Item", [itemData]);
+    const success = await addItemToActor(receiverActor, itemData, 1);
+    console.log(`Trespasser | #onWithdrawInventoryItem: Item added to character: ${success}`);
 
-    // Reduce quantity in internal inventory
-    entry.quantity -= 1;
-    if (entry.quantity <= 0) inventory.splice(index, 1);
-    await this.document.update({ "system.inventory": inventory });
-    
-    ui.notifications.info(game.i18n.format("TRESPASSER.Haven.WithdrawnToActor", { 
-      name: itemData.name,
-      actor: receiverActor.name 
-    }));
+    if (success) {
+      console.log(`Trespasser | #onWithdrawInventoryItem: Emitting HAVEN_WITHDRAWAL socket for index ${index}`);
+      // Notify through socket to update Haven (handles permissions)
+      TrespasserSocket.emit("HAVEN_WITHDRAWAL", {
+        havenUuid: this.document.uuid,
+        index: index,
+        targetActorUuid: receiverActor.uuid,
+        transferAll: false
+      });
+      
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.WithdrawnToActor", { 
+        name: itemData.name,
+        target: receiverActor.name 
+      }));
+    }
   }
 
   static async #onToggleHirelingActive(event, target) {
@@ -568,8 +621,8 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     if (!item) return;
     
     foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.localize("TRESPASSER.DeleteItemTitle") },
-      content: `<p>${game.i18n.format("TRESPASSER.DeleteItemContent", { name: item.name })}</p>`,
+      window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.ItemTitle", { name: item.name }) },
+      content: `<p>${game.i18n.format("TRESPASSER.Dialog.Delete.ItemContent", { name: item.name })}</p>`,
       yes: { callback: () => item.delete() }
     });
   }
@@ -578,7 +631,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const attrKey = target.dataset.attribute;
     const totals = this.document.system.totalAttributes;
     const attrVal = totals[attrKey] ?? 0;
-    const label = game.i18n.localize(`TRESPASSER.Haven.Attributes.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
+    const label = game.i18n.localize(`TRESPASSER.Terms.HavenAttribute.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
     
     const result = await TrespasserRollDialog.wait({
       dice: "1d20",
@@ -606,11 +659,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       <div class="target-result" style="border-top:1px solid var(--trp-border-light);padding-top:5px;margin-top:5px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <strong>VS CD ${dc}</strong>
-          <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}</span>
+          <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Common.Success") : game.i18n.localize("TRESPASSER.Chat.Common.Failure")}</span>
         </div>
         <div style="display:flex;gap:10px;font-size:var(--fs-11);">
-          <span style="color:var(--trp-cyan);">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
-          <span style="color:var(--trp-purple);">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+          <span style="color:var(--trp-cyan);">${game.i18n.format("TRESPASSER.Chat.Combat.Sparks",  { count: sparks  })}</span>
+          <span style="color:var(--trp-purple);">${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: shadows })}</span>
         </div>
       </div>
     `;
@@ -618,7 +671,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const flavor = `
       <div class="trespasser-chat-card">
         <h3>${this.document.name}: ${label}</h3>
-        <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${roll.total} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
+        <p><strong>${game.i18n.localize("TRESPASSER.Chat.Common.RollTotal")}</strong> ${roll.total} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
         ${resultsHtml}
       </div>
     `;
@@ -636,48 +689,42 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const system = actor.system;
     const totals = system.totalAttributes;
     const skillBonusValue = trained ? system.skillBonus : 0;
-    const skillLabel = game.i18n.localize(`TRESPASSER.Haven.Skills.${skillKey.charAt(0).toUpperCase() + skillKey.slice(1)}`);
+    const skillLabel = game.i18n.localize(`TRESPASSER.Terms.HavenSkill.${skillKey.charAt(0).toUpperCase() + skillKey.slice(1)}`);
 
     const attributes = [
-      { key: "military", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Military") },
-      { key: "efficiency", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Efficiency") },
-      { key: "resources", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Resources") },
-      { key: "expertise", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Expertise") },
-      { key: "allegiance", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Allegiance") },
-      { key: "appeal", label: game.i18n.localize("TRESPASSER.Haven.Attributes.Appeal") }
+      { key: "military", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Military") },
+      { key: "efficiency", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Efficiency") },
+      { key: "resources", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Resources") },
+      { key: "expertise", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Expertise") },
+      { key: "allegiance", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Allegiance") },
+      { key: "appeal", label: game.i18n.localize("TRESPASSER.Terms.HavenAttribute.Appeal") }
     ];
 
     const chosenAttr = await new Promise(resolve => {
       const dialog = new foundry.applications.api.DialogV2({
         window: { 
-          title: game.i18n.format("TRESPASSER.Sheet.Dialog.SkillCheckTitle", { skill: skillLabel }),
+          title: game.i18n.format("TRESPASSER.Dialog.SkillCheck.Title", { skill: skillLabel }),
           classes: ["trespasser", "dialog", "haven-attr-picker"] 
         },
         content: `
           <div class="dialog-content">
             <p style="margin-bottom:12px;">
-              ${game.i18n.localize("TRESPASSER.Sheet.Dialog.SkillCheckQ")}
-              ${trained ? `<em>${game.i18n.format("TRESPASSER.Sheet.Dialog.SkillCheckBonus", { skill: system.skillBonus })}</em>` : ""}
+              ${game.i18n.localize("TRESPASSER.Dialog.SkillCheck.Prompt")}
+              ${trained ? `<em>${game.i18n.format("TRESPASSER.Dialog.SkillCheck.BonusHint", { skill: system.skillBonus })}</em>` : ""}
             </p>
             <div class="trp-attr-pick">
               ${attributes.map(attr => `
-                <button class="trp-attr-btn" data-attr="${attr.key}">
+                <button type="button" class="trp-attr-btn" data-action="${attr.key}">
                   ${attr.label} (${totals[attr.key] ?? 0})
                 </button>
               `).join('')}
             </div>
           </div>`,
-        buttons: [{ action: "cancel", label: game.i18n.localize("TRESPASSER.Sheet.Dialog.Cancel"), default: true }],
-        submit: (result) => { if ( result === "cancel" ) resolve(null); },
-        close: () => resolve(null),
-        render: (html) => {
-          html.querySelectorAll(".trp-attr-btn").forEach(btn => {
-            btn.addEventListener("click", ev => {
-              resolve(ev.currentTarget.dataset.attr);
-              dialog.close();
-            });
-          });
-        }
+        buttons: [{ action: "cancel", label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"), default: true }],
+        actions: Object.fromEntries([
+          ...attributes.map(attr => [attr.key, () => { resolve(attr.key); dialog.close(); }]),
+          ["cancel", () => { resolve(null); dialog.close(); }]
+        ])
       });
       dialog.render(true);
     });
@@ -685,7 +732,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     if ( !chosenAttr || chosenAttr === "cancel" ) return;
 
     const attrVal = totals[chosenAttr] ?? 0;
-    const label = game.i18n.localize(`TRESPASSER.Haven.Attributes.${chosenAttr.charAt(0).toUpperCase() + chosenAttr.slice(1)}`);
+    const label = game.i18n.localize(`TRESPASSER.Terms.HavenAttribute.${chosenAttr.charAt(0).toUpperCase() + chosenAttr.slice(1)}`);
     
     const result = await TrespasserRollDialog.wait({
       dice: "1d20",
@@ -714,11 +761,11 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       <div class="target-result" style="border-top:1px solid var(--trp-border-light);padding-top:5px;margin-top:5px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <strong>VS CD ${dc}</strong>
-          <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Success") : game.i18n.localize("TRESPASSER.Chat.Failure")}</span>
+          <span class="${isHit ? "hit-text" : "miss-text"}" style="font-weight:bold;">${isHit ? game.i18n.localize("TRESPASSER.Chat.Common.Success") : game.i18n.localize("TRESPASSER.Chat.Common.Failure")}</span>
         </div>
         <div style="display:flex;gap:10px;font-size:var(--fs-11);">
-          <span style="color:var(--trp-cyan);">${game.i18n.format("TRESPASSER.Chat.Sparks",  { count: sparks  })}</span>
-          <span style="color:var(--trp-purple);">${game.i18n.format("TRESPASSER.Chat.Shadows", { count: shadows })}</span>
+          <span style="color:var(--trp-cyan);">${game.i18n.format("TRESPASSER.Chat.Combat.Sparks",  { count: sparks  })}</span>
+          <span style="color:var(--trp-purple);">${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: shadows })}</span>
         </div>
       </div>
     `;
@@ -726,7 +773,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const flavor = `
       <div class="trespasser-chat-card">
         <h3>${actor.name}: ${skillLabel} (${label})</h3>
-        <p><strong>${game.i18n.localize("TRESPASSER.Chat.RollTotal")}</strong> ${roll.total} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
+        <p><strong>${game.i18n.localize("TRESPASSER.Chat.Common.RollTotal")}</strong> ${roll.total} <span style="font-size:var(--fs-10);color:var(--trp-text-dim);">(d20: ${diceResult})</span></p>
         ${resultsHtml}
       </div>
     `;
@@ -780,7 +827,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       const construction = this.document.items.filter(i => i.type === "build" && i.system.progress < i.system.buildClock);
       
       if (construction.length >= system.maxBuildSlots) {
-        ui.notifications.warn(game.i18n.format("TRESPASSER.Haven.Warning.NoBuildSlots", { max: system.maxBuildSlots }));
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Haven.NoBuildSlots", { max: system.maxBuildSlots }));
         return;
       }
     }

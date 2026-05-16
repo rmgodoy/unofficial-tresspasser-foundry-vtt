@@ -1,0 +1,11 @@
+<div class="trespasser-transfer-dialog">
+    <p class="notes">{{localize "TRESPASSER.Dialog.Transfer.SelectTargetHint"}}</p>
+    <div class="actor-list">
+        {{#each actors}}
+        <button type="button" class="actor-row flexrow" data-action="select" data-actor-id="{{this.id}}">
+            <img src="{{this.img}}" width="32" height="32">
+            <span>{{this.name}}</span>
+        </button>
+        {{/each}}
+    </div>
+</div>

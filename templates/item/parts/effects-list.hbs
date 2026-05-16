@@ -4,7 +4,7 @@
     {{#each items as |effect index|}}
       {{> "systems/trespasser/templates/item/parts/effect-chip.hbs" effect=effect index=index deleteClass=../deleteClass editable=true editableIntensity=true }}
     {{else}}
-    <span style="color: var(--trp-text-dim); font-style: italic; font-size: var(--fs-11); margin-left: 8px;">{{localize "TRESPASSER.Sheet.Items.DropPlaceholder.Effects"}}</span>
+    <span style="color: var(--trp-text-dim); font-style: italic; font-size: var(--fs-11); margin-left: 8px;">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</span>
     {{/each}}
   </div>
 </div>

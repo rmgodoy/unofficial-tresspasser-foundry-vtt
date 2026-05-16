@@ -14,7 +14,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     window: {
       resizable: true,
       minimizable: true,
-      title: "TRESPASSER.Config.Title"
+      title: "TRESPASSER.Settings.Title"
     },
     actions: {
       reset: TrespasserConfigV2._onReset,
@@ -31,9 +31,9 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
   static TABS = {
     primary: {
       tabs: [
-        { id: "mechanics", label: "TRESPASSER.Config.Tabs.Mechanics", icon: "fas fa-cog" },
-        { id: "exploration", label: "TRESPASSER.Config.Tabs.Exploration", icon: "fas fa-map" },
-        { id: "visuals", label: "TRESPASSER.Config.Tabs.Visuals", icon: "fas fa-eye" }
+        { id: "mechanics", label: "TRESPASSER.Settings.Tabs.Mechanics", icon: "fas fa-cog" },
+        { id: "exploration", label: "TRESPASSER.Settings.Tabs.Exploration", icon: "fas fa-map" },
+        { id: "visuals", label: "TRESPASSER.Settings.Tabs.Visuals", icon: "fas fa-eye" }
       ],
       initial: "mechanics"
     }
@@ -52,6 +52,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     // Primary settings
     context.settings = {
       showInitiativeInChat: game.settings.get("trespasser", "showInitiativeInChat"),
+      applyEncumbranceRules: game.settings.get("trespasser", "applyEncumbranceRules"),
       restrictMovementAction: game.settings.get("trespasser", "restrictMovementAction"),
       restrictHUDActions: game.settings.get("trespasser", "restrictHUDActions"),
       restrictAPFocusUsage: game.settings.get("trespasser", "restrictAPFocusUsage"),
@@ -60,7 +61,9 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
       bypassHavenBuildingLimits: game.settings.get("trespasser", "bypassHavenBuildingLimits"),
       disregardRangeOnAttack: game.settings.get("trespasser", "disregardRangeOnAttack"),
       allowOutOfTurnMovement: game.settings.get("trespasser", "allowOutOfTurnMovement"),
+      hideCreatureDamageRolls: game.settings.get("trespasser", "hideCreatureDamageRolls"),
       playerFacingInitiative: game.settings.get("trespasser", "playerFacingInitiative"),
+      confirmItemTransfer: game.settings.get("trespasser", "confirmItemTransfer"),
       enableRetreatDialog: game.settings.get("trespasser", "enableRetreatDialog"),
       showPerilInChat: game.settings.get("trespasser", "showPerilInChat"),
       autoEndCombatOnRetreat: game.settings.get("trespasser", "autoEndCombatOnRetreat"),
@@ -81,7 +84,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     context.colors = colorKeys.map(key => ({
       key,
       value: game.settings.get("trespasser", key),
-      label: `TRESPASSER.Config.${key}`
+      label: `TRESPASSER.Settings.Colors.${key}.Name`
     }));
 
     context.isGM = game.user.isGM;
@@ -154,15 +157,15 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     // Apply changes immediately
     game.trespasser.applySystemSettings?.();
 
-    ui.notifications.info(game.i18n.localize("TRESPASSER.Config.SavedNotice"));
+    ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Save.Config"));
   }
 
   static async _onReset(event, target) {
     // In ApplicationV2, 'this' in action handlers is bound to the instance
     const app = this;
     const confirm = await foundry.applications.api.DialogV2.confirm({
-        window: { title: game.i18n.localize("TRESPASSER.Config.ResetConfirmTitle") },
-        content: "<p>" + game.i18n.localize("TRESPASSER.Config.ResetConfirmContent") + "</p>",
+        window: { title: game.i18n.localize("TRESPASSER.Dialog.Reset.ConfigTitle") },
+        content: `<p>${game.i18n.localize("TRESPASSER.Dialog.Reset.ConfigContent")}</p>`,
         rejectClose: false
     });
 
@@ -170,10 +173,10 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
 
     // Reset all settings to defaults
     const settingsToReset = [
-        "showInitiativeInChat", "restrictMovementAction", "restrictHUDActions", 
+        "showInitiativeInChat", "applyEncumbranceRules", "restrictMovementAction", "restrictHUDActions", 
         "restrictAPFocusUsage", "groupCheckFullParty", "restrictHavenEditToLeader",
         "bypassHavenBuildingLimits", "disregardRangeOnAttack", "allowOutOfTurnMovement", "playerFacingInitiative", 
-        "enableRetreatDialog", "showPerilInChat", "autoEndCombatOnRetreat",
+        "hideCreatureDamageRolls", "enableRetreatDialog", "showPerilInChat", "autoEndCombatOnRetreat", "confirmItemTransfer",
         "clockSize", "fontSizeBase",
         "colorBgDark", "colorBgPanel", "colorBgInput", "colorBgHeader", "colorBgSelect",
         "colorBorder", "colorBorderLight", "colorGold", "colorGoldDim", "colorGoldBright",
@@ -196,6 +199,6 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
 
     app.render(true);
     game.trespasser.applySystemSettings?.();
-    ui.notifications.info(game.i18n.localize("TRESPASSER.Config.ResetNotice"));
+    ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Reset.Config"));
   }
 }

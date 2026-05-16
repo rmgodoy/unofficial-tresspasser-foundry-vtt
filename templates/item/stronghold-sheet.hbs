@@ -5,10 +5,10 @@
     </div>
     <div class="header-column details-column">
       <h1 class="item-title">
-        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.ItemName'}}"/>
+        <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"/>
       </h1>
       <div class="item-subtitle">
-        {{localize "TYPES.Item.stronghold"}}
+        {{localize "TRESPASSER.TYPES.Item.stronghold"}}
       </div>
     </div>
   </header>
@@ -17,7 +17,7 @@
     <div class="custom-attributes-area">
       {{!-- Build Status --}}
       <div class="attribute-fields">
-        <label>{{localize "TRESPASSER.Haven.BuildClock"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Haven.Build.BuildClock"}}</label>
         <div class="form-fields">
           <input type="number" name="system.progress" value="{{system.progress}}" data-dtype="Number" placeholder="Current" title="Current Progress" />
           <span>/</span>
@@ -27,16 +27,16 @@
 
       {{!-- Income & Owner --}}
       <div class="attribute-fields">
-        <label>{{localize "TRESPASSER.Haven.WeeklyIncome"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Haven.WeeklyIncome"}}</label>
         <input type="number" name="system.income" value="{{system.income}}" data-dtype="Number"/>
       </div>
       <div class="attribute-fields">
-        <label>{{localize "TRESPASSER.Haven.WeeklyStableCost"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Haven.WeeklyStableCost"}}</label>
         <input type="number" name="system.weeklyCost" value="{{system.weeklyCost}}" data-dtype="Number"/>
       </div>
 
       <div class="attribute-fields">
-        <label>{{localize "TRESPASSER.Haven.StrongholdOwner"}}</label>
+        <label>{{localize "TRESPASSER.Sheet.Haven.StrongholdOwner"}}</label>
         <div class="owner-drop-zone {{#unless system.ownerId}}empty{{/unless}}">
           {{#if system.ownerId}}
             <span class="owner-name">{{ownerName}}</span>
@@ -44,7 +44,7 @@
               <a class="remove-owner" data-action="removeOwner"><i class="fas fa-times"></i></a>
             {{/if}}
           {{else}}
-            <span class="placeholder">{{localize "TRESPASSER.Haven.DropCharacterHere"}}</span>
+            <span class="placeholder">{{localize "TRESPASSER.Sheet.Haven.DropCharacterHere"}}</span>
           {{/if}}
         </div>
       </div>
@@ -52,9 +52,9 @@
       {{!-- Attribute Bonuses --}}
       <div class="attribute-list-section">
         <div class="section-header">
-            <label>{{localize "TRESPASSER.Haven.AttributeBonuses"}}</label>
+            <label>{{localize "TRESPASSER.Sheet.Haven.AttributeBonuses"}}</label>
             {{#if editable}}
-              <a data-action="addBonus" title="{{localize 'TRESPASSER.Haven.AddBonus'}}"><i class="fas fa-plus"></i></a>
+              <a data-action="addBonus" title="{{localize 'TRESPASSER.Sheet.Haven.AddBonus'}}"><i class="fas fa-plus"></i></a>
             {{/if}}
         </div>
         <div class="bonus-entries">
@@ -74,16 +74,16 @@
 
       <div class="attribute-list-section">
         <div class="section-header">
-            <label>{{localize "TRESPASSER.Haven.HavenActions"}}</label>
+            <label>{{localize "TRESPASSER.Sheet.Haven.HavenActions"}}</label>
             {{#if editable}}
-              <a data-action="addAction" title="{{localize 'TRESPASSER.Haven.AddAction'}}"><i class="fas fa-plus"></i></a>
+              <a data-action="addAction" title="{{localize 'TRESPASSER.Sheet.Haven.AddAction'}}"><i class="fas fa-plus"></i></a>
             {{/if}}
         </div>
         <div class="actions-list">
             {{#each enrichedHavenActions as |action idx|}}
                 <div class="haven-action-edit-row">
                     <div class="action-inputs">
-                      <input type="text" name="system.havenActions.{{idx}}.title" value="{{action.title}}" placeholder="{{localize 'TRESPASSER.General.Title'}}"/>
+                      <input type="text" name="system.havenActions.{{idx}}.title" value="{{action.title}}" placeholder="{{localize 'TRESPASSER.Sheet.Common.Title'}}"/>
                       <div class="haven-action-editor">
                         <prose-mirror name="system.havenActions.{{idx}}.description" value="{{action.description}}" toggled="false" compact="false" editable="{{../editable}}">{{{action.enrichedDescription}}}</prose-mirror>
                       </div>
@@ -103,7 +103,7 @@
         </div>
         <div class="features-drop-zone">
           {{#if (not system.features.length)}}
-            <p class="hint">{{localize "TRESPASSER.Haven.DropFeaturesHint"}}</p>
+            <p class="hint">{{localize "TRESPASSER.Sheet.Haven.DropFeaturesHint"}}</p>
           {{/if}}
           <div class="feature-list">
             {{#each system.features as |f idx|}}
@@ -125,7 +125,7 @@
 
     {{!-- Description Column --}}
     <div class="attribute-fields description-column">
-      <label>{{localize "TRESPASSER.General.Description"}}</label>
+      <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
       <div class="trp-editor-container">
         <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false" {{#if (not editable)}}readonly{{/if}}>{{{descriptionHTML}}}</prose-mirror>
       </div>

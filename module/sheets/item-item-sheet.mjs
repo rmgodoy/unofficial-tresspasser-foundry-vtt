@@ -36,37 +36,37 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
 
     // Provide localized options
     context.subTypeOptions = {
-      tool: "TRESPASSER.Sheet.Items.ItemType.Tool",
-      resource: "TRESPASSER.Sheet.Items.ItemType.Resource",
-      light_source: "TRESPASSER.Sheet.Items.ItemType.LightSource",
-      miscellaneous: "TRESPASSER.Sheet.Items.ItemType.Miscellaneous",
-      bombs: "TRESPASSER.Sheet.Items.ItemType.Bombs",
-      oils: "TRESPASSER.Sheet.Items.ItemType.Oils",
-      powders: "TRESPASSER.Sheet.Items.ItemType.Powders",
-      potions: "TRESPASSER.Sheet.Items.ItemType.Potions",
-      scrolls: "TRESPASSER.Sheet.Items.ItemType.Scrolls",
-      esoteric: "TRESPASSER.Sheet.Items.ItemType.Esoteric",
-      artifacts: "TRESPASSER.Sheet.Items.ItemType.Artifacts"
+      tool: "TRESPASSER.Terms.ItemType.ItemSubTypes.Tool",
+      resource: "TRESPASSER.Terms.ItemType.ItemSubTypes.Resource",
+      light_source: "TRESPASSER.Terms.ItemType.ItemSubTypes.LightSource",
+      miscellaneous: "TRESPASSER.Terms.ItemType.ItemSubTypes.Miscellaneous",
+      bombs: "TRESPASSER.Terms.ItemType.ItemSubTypes.Bombs",
+      oils: "TRESPASSER.Terms.ItemType.ItemSubTypes.Oils",
+      powders: "TRESPASSER.Terms.ItemType.ItemSubTypes.Powders",
+      potions: "TRESPASSER.Terms.ItemType.ItemSubTypes.Potions",
+      scrolls: "TRESPASSER.Terms.ItemType.ItemSubTypes.Scrolls",
+      esoteric: "TRESPASSER.Terms.ItemType.ItemSubTypes.Esoteric",
+      artifacts: "TRESPASSER.Terms.ItemType.ItemSubTypes.Artifacts"
     };
 
     context.resourceTypeOptions = {
-      ingredients: "TRESPASSER.Sheet.Items.ResourceType.Ingredients",
-      materials: "TRESPASSER.Sheet.Items.ResourceType.Materials"
+      ingredients: "TRESPASSER.Terms.ItemType.ItemSubTypes.Ingredients",
+      materials: "TRESPASSER.Terms.ItemType.ItemSubTypes.Materials"
     };
 
     context.placementOptions = {
-      hand: "TRESPASSER.Sheet.Items.Equipments.Hand",
-      head: "TRESPASSER.Sheet.Items.Equipments.Head",
-      body: "TRESPASSER.Sheet.Items.Equipments.Body",
-      arms: "TRESPASSER.Sheet.Items.Equipments.Arms",
-      legs: "TRESPASSER.Sheet.Items.Equipments.Legs",
-      outer: "TRESPASSER.Sheet.Items.Equipments.Outer",
-      shield: "TRESPASSER.Sheet.Items.Equipments.Shield"
+      hand: "TRESPASSER.Sheet.Character.Equipments.Hand",
+      head: "TRESPASSER.Sheet.Character.Equipments.Head",
+      body: "TRESPASSER.Sheet.Character.Equipments.Body",
+      arms: "TRESPASSER.Sheet.Character.Equipments.Arms",
+      legs: "TRESPASSER.Sheet.Character.Equipments.Legs",
+      outer: "TRESPASSER.Sheet.Character.Equipments.Outer",
+      shield: "TRESPASSER.Sheet.Character.Equipments.Shield"
     };
 
     context.tierOptions = {
-      lesser: "TRESPASSER.Sheet.Items.Tiers.Lesser",
-      greater: "TRESPASSER.Sheet.Items.Tiers.Greater"
+      lesser: "TRESPASSER.Sheet.Item.Details.Tiers.Light",
+      greater: "TRESPASSER.Sheet.Item.Details.Tiers.Heavy"
     };
 
     // Subtype visibility flags for the template
