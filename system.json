@@ -73,52 +73,52 @@
     {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (app)",
-      "path": "lang/pt-br/app.json"
+      "path": "lang/pt-BR/app.json"
     },
     {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (chat)",
-      "path": "lang/pt-br/chat.json"
+      "path": "lang/pt-BR/chat.json"
     },
     {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (dialog)",
-      "path": "lang/pt-br/dialog.json"
+      "path": "lang/pt-BR/dialog.json"
     },
     {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (hud)",
-      "path": "lang/pt-br/hud.json"
+      "path": "lang/pt-BR/hud.json"
     },
     {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (notification)",
-      "path": "lang/pt-br/notification.json"
+      "path": "lang/pt-BR/notification.json"
     },
     {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (settings)",
-      "path": "lang/pt-br/settings.json"
+      "path": "lang/pt-BR/settings.json"
     },
     {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (sheet)",
-      "path": "lang/pt-br/sheet.json"
+      "path": "lang/pt-BR/sheet.json"
     },
     {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (terms)",
-      "path": "lang/pt-br/terms.json"
+      "path": "lang/pt-BR/terms.json"
     },
     {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (global)",
-      "path": "lang/pt-br/global.json"
+      "path": "lang/pt-BR/global.json"
     },
     {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (dungeon)",
-      "path": "lang/pt-br/dungeon.json"
+      "path": "lang/pt-BR/dungeon.json"
     }
   ],
   "documentTypes": {
