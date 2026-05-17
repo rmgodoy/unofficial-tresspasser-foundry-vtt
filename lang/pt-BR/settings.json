@@ -115,7 +115,7 @@
         "ColorBlue": { "Name": "Recurso/Pontos de Recurso (Azul)" },
         "ColorLightGreen": { "Name": "Tema de Cura/Natureza (Verde Claro)" },
         "ColorCyan": { "Name": "Foco do Sistema/Alvo (Ciano)" },
-        "ColorSpark": { "Name": "Cor de Destaque de Fagulha" },
+        "ColorSpark": { "Name": "Cor de Destaque de Centelha" },
         "ColorShadow": { "Name": "Cor de Destaque de Sombra" },
         "ColorShadowGold": { "Name": "Efeito de Brilho/Sombra Dourada" },
         "ColorShadowDark": { "Name": "Sombras de Caixa Profundas" },

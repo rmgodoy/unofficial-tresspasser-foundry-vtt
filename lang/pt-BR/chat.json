@@ -24,7 +24,7 @@
         "AccuracyRoll": "Rolagem de Acurácia de {name}",
         "Hit": "ACERTO!",
         "Miss": "ERRO!",
-        "Sparks": "Fagulhas: {count}",
+        "Sparks": "Centelhas: {count}",
         "Shadows": "Sombras: {count}",
         "AttackMessage": "<strong>{name}</strong> ataca com <strong>{action}</strong>: {formula} = {total}. Dano Base: {damage}",
         "DamageMessage": "<strong>{name}</strong> causa <strong>{damage}</strong> de dano.",
@@ -175,7 +175,7 @@
         }
       },
       "Deed": {
-        "Empty": "Esta proeza ainda não tem efeitos ou descrição."
+        "Empty": "Esta habilidade ainda não tem efeitos ou descrição."
       }
     }
   }
