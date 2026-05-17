@@ -58,7 +58,7 @@
         "Title": "Escolher Centelhas",
         "Intro": "Você tem {count} centelha(s) para atribuir. Cada camada se aplica a todos os alvos elegíveis.",
         "Layer": "Centelha {n}",
-        "DeedSpark": "Centelha da Proeza",
+        "DeedSpark": "Centelha da Habilidade",
         "DeedSparkDesc": "Ativa os efeitos da fase Centelha da Habilidade.",
         "Impact": "Impacto",
         "ImpactDesc": "+2 movimento forçado por impacto escolhido.",
