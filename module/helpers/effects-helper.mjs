@@ -623,7 +623,10 @@ export class TrespasserEffectsHelper {
         chatData.whisper = ChatMessage.getWhisperRecipients("GM");
       }
 
-      await ChatMessage.create(chatData);
+      const isDefend = eff.item?.getFlag?.("trespasser", "isDefend") === true;
+      if (!isDefend) {
+        await ChatMessage.create(chatData);
+      }
 
       // Apply intensity increment after triggering
       const currentIntensity = eff.intensity || 0;

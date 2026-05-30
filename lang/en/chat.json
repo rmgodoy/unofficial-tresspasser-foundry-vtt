@@ -61,6 +61,7 @@
         "ThrowMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for {cost} AP. Throwing range: {range} sq.",
         "WaitMessage": "<strong>{name}</strong> uses <strong>Wait</strong>. Turn moves to the Late Phase with {ap} AP and {move} movement points reserved.",
         "VaultMessage": "<strong>{name}</strong> uses <strong>{action}</strong> for 1 AP. (Jump Range: {range} sq).",
+        "DefendMessage": "<strong>{name}</strong> uses <strong>{action}</strong> ({type}) for {cost} AP.",
         "RollMessage": "<strong>{name}</strong> rolls <strong>{action}</strong>: {formula} = {total}",
         "DestroyedConsumed": "{name} has been destroyed/consumed.",
         "HelpFrom": "{name} receives Help from {helper}!",

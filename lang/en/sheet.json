@@ -646,8 +646,6 @@
         },
         "Common": {
           "Confirm": "Confirm",
-          "NextCheck": "Next Check",
-          "WholeRound": "Whole Round",
           "SelectAlly": "Select Ally",
           "Attribute": "Attribute"
         },
@@ -663,6 +661,8 @@
           "Interact": "{cost} AP (+{bonus} bonus)",
           "Smash": "{cost} AP (Break {bonus})",
           "Throw": "{cost} AP ({range} sq)",
+          "DefendSingle": "1 AP (Chosen type)",
+          "DefendBoth": "2 AP (Both Guard & Resist)",
           "VaultTip": "Jump across obstacles",
           "WaitTip": "Move to Late Phase"
         },

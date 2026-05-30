@@ -646,8 +646,6 @@
         },
         "Common": {
           "Confirm": "Confirmar",
-          "NextCheck": "Próximo Teste",
-          "WholeRound": "Rodada Inteira",
           "SelectAlly": "Selecionar Aliado",
           "Attribute": "Atributo"
         },
@@ -663,6 +661,8 @@
           "Interact": "{cost} PA (+{bonus} bônus)",
           "Smash": "{cost} PA (Quebra {bonus})",
           "Throw": "{cost} PA ({range} qdr)",
+          "DefendSingle": "1 PA (Tipo escolhido)",
+          "DefendBoth": "2 PA (Guarda & Resistir)",
           "VaultTip": "Saltar sobre obstáculos",
           "WaitTip": "Mover para a Fase Tardia"
         },

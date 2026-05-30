@@ -503,43 +503,58 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             return;
         }
 
-        const label = game.i18n.localize(type === "guard" ? "TRESPASSER.Sheet.Combat.Guard" : "TRESPASSER.Sheet.Combat.Resist");
-        const isWholeRound = cost === 2;
+        const isBoth = cost === 2;
 
-        const durationOptions = {};
-        if (!isWholeRound) {
-            durationOptions.durationOperator = 'OR';
-            durationOptions.durationConditions = [
-                {mode: 'trigger', value: 1},
-                {mode: "round", value: 1}
-            ];
-        } else {
-            durationOptions.durationOperator = 'OR';
-            durationOptions.durationConditions = [{mode: "round", value: 1}];
-        }
-
-        const effectData = {
-            name: `${game.i18n.localize("TRESPASSER.HUD.Action.Defend")} (${label})`,
-            type: "effect",
-            img: "icons/magic/defensive/shield-barrier-blue.webp",
-            system: {
-                targetAttribute: type,
-                modifier: "+2",
-                isCombat: true,
-                isPrevailable: false,
-                type: "on-trigger",
-                when: "use",
-                ...durationOptions,
-            }
+        // Duration is always until end of round
+        const durationOptions = {
+            durationOperator: 'OR',
+            durationConditions: [{mode: "round", value: 1}]
         };
 
-        await this._token.actor.createEmbeddedDocuments("Item", [effectData]);
+        // Determine which attributes to boost
+        const targets = isBoth ? ["guard", "resist"] : [type];
+
+        const effectDocs = targets.map(attr => {
+            const label = game.i18n.localize(attr === "guard" ? "TRESPASSER.Sheet.Combat.Guard" : "TRESPASSER.Sheet.Combat.Resist");
+            return {
+                name: `${game.i18n.localize("TRESPASSER.HUD.Action.Defend")} (${label})`,
+                type: "effect",
+                img: "icons/magic/defensive/shield-barrier-blue.webp",
+                system: {
+                    targetAttribute: attr,
+                    modifier: "+2",
+                    isCombat: true,
+                    isPrevailable: false,
+                    type: "on-trigger",
+                    when: "use",
+                    ...durationOptions,
+                },
+                flags: {
+                    trespasser: {
+                        isDefend: true
+                    }
+                }
+            };
+        });
+
+        await this._token.actor.createEmbeddedDocuments("Item", effectDocs);
         await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
         await TrespasserCombat.recordHUDAction(this._token.actor, "defend");
+
+        const guardLabel = game.i18n.localize("TRESPASSER.Sheet.Combat.Guard");
+        const resistLabel = game.i18n.localize("TRESPASSER.Sheet.Combat.Resist");
+        const typeLabel = isBoth
+            ? `${guardLabel} & ${resistLabel}`
+            : game.i18n.localize(type === "guard" ? "TRESPASSER.Sheet.Combat.Guard" : "TRESPASSER.Sheet.Combat.Resist");
         
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),
-            content: `<strong>${this._token.name}</strong> uses <strong>Defend</strong> (${type}) for ${cost} AP.`
+            content: game.i18n.format("TRESPASSER.Chat.Action.DefendMessage", {
+                name: this._token.name,
+                action: game.i18n.localize("TRESPASSER.HUD.Action.Defend"),
+                type: typeLabel,
+                cost: cost
+            })
         });
 
         this._activePanel = null;
