@@ -370,3 +370,40 @@
   font-size: var(--fs-14);
   color: var(--trp-text-bright);
 }
+
+/* Item Type Dialog */
+.trespasser-item-type-dialog .type-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.trespasser-item-type-dialog .type-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px 14px;
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  width: 100%;
+  text-align: center;
+}
+
+.trespasser-item-type-dialog .type-row:hover {
+  background: var(--trp-gold-dim);
+  border-color: var(--trp-gold-bright);
+  box-shadow: 0 0 6px var(--trp-shadow-gold);
+}
+
+.trespasser-item-type-dialog .type-row span {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-13);
+  color: var(--trp-text-bright);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+

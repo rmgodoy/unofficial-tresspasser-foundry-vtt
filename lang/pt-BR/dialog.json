@@ -47,6 +47,10 @@
         "Content": "{user} deseja dar {item} para {target}. Você aceita?",
         "SelectTargetHint": "Selecione um personagem para receber o item:"
       },
+      "ItemType": {
+        "Title": "Escolher Tipo de Item",
+        "SelectTypeHint": "Selecione o tipo de item que deseja criar no inventário:"
+      },
       "Retreat": {
         "Title": "Continuar ou Recuar?",
         "Prompt": "O Perigo desta rodada foi rolado. Deseja continuar a rodada ou tentar recuar?",

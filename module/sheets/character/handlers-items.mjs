@@ -6,20 +6,35 @@
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { TransferDialog } from "../../dialogs/transfer-dialog.mjs";
 import { TrespasserSocket } from "../../helpers/socket/socket.mjs";
+import { ItemTypeDialog } from "../../dialogs/item-type-dialog.mjs";
 
 
 export async function onItemCreate(event, sheet) {
   event.preventDefault();
-  const type = event.currentTarget.dataset.type ?? "deed";
+  let type = event.currentTarget.dataset.type ?? "deed";
 
-  // Only physical inventory types count against the inventory cap
   const inventoryTypes = ["weapon", "armor", "accessory", "rations", "item"];
-  if (inventoryTypes.includes(type)) {
+
+  // If this is an inventory creation trigger, prompt the user for the item type
+  if (type === "inventory") {
+    // Check inventory capacity and display a warning if full, but do not block creation
     const inventoryItems = sheet.actor.items.filter(i => inventoryTypes.includes(i.type) && !i.system.equipped);
     const maxSlots = sheet.actor.system.inventory_max ?? 5;
     if (inventoryItems.length >= maxSlots) {
-      ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Inventory.InventoryCapReached"));
-      return;
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Inventory.InventoryCapReached"));
+    }
+
+    // Query for the item type
+    type = await ItemTypeDialog.wait();
+    if (!type) return; // Cancelled
+  } else {
+    // For non-inventory triggers, show warning if it's an inventory type and capacity is reached
+    if (inventoryTypes.includes(type)) {
+      const inventoryItems = sheet.actor.items.filter(i => inventoryTypes.includes(i.type) && !i.system.equipped);
+      const maxSlots = sheet.actor.system.inventory_max ?? 5;
+      if (inventoryItems.length >= maxSlots) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Inventory.InventoryCapReached"));
+      }
     }
   }
 
@@ -28,7 +43,10 @@ export async function onItemCreate(event, sheet) {
   const system    = {};
   if (event.currentTarget.dataset.tier) system.tier = event.currentTarget.dataset.tier;
 
-  await foundry.documents.BaseItem.create({ name, type, system }, { parent: sheet.actor });
+  const created = await foundry.documents.BaseItem.create({ name, type, system }, { parent: sheet.actor });
+  if (created) {
+    created.sheet.render(true);
+  }
 }
 
 export async function onItemConsume(event, sheet) {

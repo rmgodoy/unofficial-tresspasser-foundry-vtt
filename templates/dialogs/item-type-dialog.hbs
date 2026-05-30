@@ -1,0 +1,10 @@
+<div class="trespasser-item-type-dialog">
+    <p class="notes">{{localize "TRESPASSER.Dialog.ItemType.SelectTypeHint"}}</p>
+    <div class="type-list">
+        {{#each types}}
+        <button type="button" class="type-row flexrow" data-action="select" data-type="{{this.id}}">
+            <span>{{this.label}}</span>
+        </button>
+        {{/each}}
+    </div>
+</div>
