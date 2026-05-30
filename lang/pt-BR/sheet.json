@@ -284,7 +284,9 @@
           "EffectTypeChoices": {
             "Continuous": "Contínuo",
             "OnTrigger": "Ao Ativar"
-          }
+          },
+          "StatusIcon": "Ícone de Status",
+          "NoStatusIcon": "-- Nenhum --"
         },
         "Placeholder": {
           "Name": "Nome do item...",

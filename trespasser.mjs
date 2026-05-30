@@ -697,12 +697,22 @@ Hooks.on("preUpdateActor", (actor, updateData, options, userId) => {
   }
 });
 
+Hooks.on("preCreateToken", (tokenDoc, updates, options, userId) => {
+  const actor = tokenDoc.actor || game.actors.get(updates.actorId || tokenDoc.actorId);
+  if (actor) {
+    TrespasserEffectsHelper.syncActorTokenEffects(actor);
+  }
+});
+
 /* ─── Stronghold Benefit Syncing ─── */
 Hooks.on("createItem", (item, options, userId) => {
   if (game.user.id !== userId) return;
   if (item.parent?.type === "haven" && item.type === "stronghold") {
     console.log("Trespasser | Global Hook - createItem (Stronghold)");
     item.parent.system.syncStrongholdBenefit(item);
+  }
+  if (item.parent?.documentName === "Actor" && item.type === "effect") {
+    TrespasserEffectsHelper.syncActorTokenEffects(item.parent);
   }
 });
 
@@ -712,6 +722,9 @@ Hooks.on("updateItem", (item, delta, options, userId) => {
      console.log("Trespasser | Global Hook - updateItem (Stronghold)");
      item.parent.system.syncStrongholdBenefit(item, delta);
   }
+  if (item.parent?.documentName === "Actor" && item.type === "effect") {
+    TrespasserEffectsHelper.syncActorTokenEffects(item.parent);
+  }
 });
 
 Hooks.on("deleteItem", (item, options, userId) => {
@@ -719,6 +732,9 @@ Hooks.on("deleteItem", (item, options, userId) => {
   if (item.parent?.type === "haven" && item.type === "stronghold") {
      console.log("Trespasser | Global Hook - deleteItem (Stronghold)");
      item.parent.system.syncStrongholdBenefit(item, { deleted: true });
+  }
+  if (item.parent?.documentName === "Actor" && item.type === "effect") {
+    TrespasserEffectsHelper.syncActorTokenEffects(item.parent);
   }
 });
 

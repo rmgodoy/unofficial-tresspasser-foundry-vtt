@@ -1,4 +1,4 @@
-<form class="{{cssClass}} trespasser-sheet item effect" autocomplete="off">
+<section class="{{cssClass}} trespasser-sheet item-sheet effect-sheet" autocomplete="off">
   <header class="sheet-header item-header-layout">
     <div class="header-column image-column">
       <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
@@ -12,7 +12,7 @@
     </div>
   </header>
 
-  <section class="sheet-body scrollable">
+  <section class="sheet-body scrollable" data-scrollable="true">
     <div class="details-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Item.Details.ItemType"}}</label>
@@ -147,12 +147,29 @@
         </div>
       </div>
 
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.StatusIcon"}}</label>
+        <div style="display:flex; align-items:center; gap:10px; width: 100%;">
+          <select name="system.statusIcon" style="flex:1;">
+            <option value="">{{localize "TRESPASSER.Sheet.Item.Details.NoStatusIcon"}}</option>
+            {{#each config.statusEffects as |se|}}
+              <option value="{{se.img}}" {{#if (eq ../system.statusIcon se.img)}}selected{{/if}}>
+                {{se.name}}
+              </option>
+            {{/each}}
+          </select>
+          {{#if system.statusIcon}}
+            <img src="{{system.statusIcon}}" style="width:24px; height:24px; border:none; background:transparent;" />
+          {{/if}}
+        </div>
+      </div>
+
       <div class="field-row editor-row" style="margin-top: 10px;">
         <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
         <div class="trp-editor-container">
-          {{editor system.description target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+          <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false">{{{descriptionHTML}}}</prose-mirror>
         </div>
       </div>
     </div>
   </section>
-</form>
+</section>

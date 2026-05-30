@@ -880,4 +880,81 @@ export class TrespasserEffectsHelper {
     } 
     doc.sheet.render(true);
   }
+
+  /**
+   * Synchronizes the actor's active status effect icons with all its active tokens.
+   * @param {Actor} actor The actor document to sync tokens for
+   */
+  static async syncActorTokenEffects(actor) {
+    if (!actor) return;
+
+    // Get all active effect items on the actor that have a statusIcon selected
+    const effectItems = actor.items.filter(i => i.type === "effect" && i.system.statusIcon);
+
+    // Get all existing ActiveEffects on the actor that were created by our sync (have our sourceItem flag)
+    const existingActiveEffects = actor.effects ? actor.effects.filter(ae => ae.getFlag("trespasser", "sourceItem")) : [];
+
+    const itemsToKeep = new Set();
+    const effectsToDelete = [];
+    const effectsToCreate = [];
+    const effectsToUpdate = [];
+
+    for (const item of effectItems) {
+      // Find if there is an existing ActiveEffect for this item
+      const ae = existingActiveEffects.find(ae => ae.getFlag("trespasser", "sourceItem") === item.id);
+      
+      const statusIconPath = item.system.statusIcon;
+      const matchingStatus = CONFIG.statusEffects.find(se => {
+        const img = se.img || se.icon || se.src;
+        return img === statusIconPath;
+      });
+      const statusId = matchingStatus?.id || "effect";
+
+      const effectData = {
+        name: item.name,
+        img: statusIconPath,
+        statuses: [statusId],
+        flags: {
+          trespasser: {
+            sourceItem: item.id
+          }
+        }
+      };
+
+      if (ae) {
+        itemsToKeep.add(ae.id);
+        // Check if we need to update the image, name, or status ID
+        const currentStatuses = Array.from(ae.statuses || []);
+        const statusesChanged = currentStatuses.length !== 1 || currentStatuses[0] !== statusId;
+        if (ae.name !== effectData.name || ae.img !== effectData.img || statusesChanged) {
+          effectsToUpdate.push({
+            _id: ae.id,
+            name: effectData.name,
+            img: effectData.img,
+            statuses: [statusId]
+          });
+        }
+      } else {
+        effectsToCreate.push(effectData);
+      }
+    }
+
+    // Identify ActiveEffects to delete (sourceItem is set but the item no longer exists or no longer has a statusIcon)
+    for (const ae of existingActiveEffects) {
+      if (!itemsToKeep.has(ae.id)) {
+        effectsToDelete.push(ae.id);
+      }
+    }
+
+    // Perform database operations
+    if (effectsToDelete.length > 0) {
+      await actor.deleteEmbeddedDocuments("ActiveEffect", effectsToDelete);
+    }
+    if (effectsToUpdate.length > 0) {
+      await actor.updateEmbeddedDocuments("ActiveEffect", effectsToUpdate);
+    }
+    if (effectsToCreate.length > 0) {
+      await actor.createEmbeddedDocuments("ActiveEffect", effectsToCreate);
+    }
+  }
 }
