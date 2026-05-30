@@ -7,10 +7,14 @@ import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { PASSIVE_STATES } from "../../config/state-config.mjs";
 
 export async function getCharacterData(sheet, options = {}) {
-  const context = await foundry.appv1.sheets.ActorSheet.prototype.getData.call(sheet, options);
   const actor   = sheet.actor;
-  context.system = actor.system;
-  context.flags  = actor.flags;
+  const context = {
+    actor,
+    system: actor.system,
+    flags: actor.flags,
+    editable: sheet.isEditable,
+    owner: actor.isOwner,
+  };
 
   // Categorize effects using helper
   context.activeEffects = TrespasserEffectsHelper.getActorEffects(actor);
@@ -307,7 +311,7 @@ export async function getCharacterData(sheet, options = {}) {
   }
 
   // Enrich Notes
-  context.enrichedNotes = await TextEditor.enrichHTML(actor.system.notes ?? "", {
+  context.enrichedNotes = await foundry.applications.ux.TextEditor.implementation.enrichHTML(actor.system.notes ?? "", {
     async: true,
     secrets: actor.isOwner,
     relativeTo: actor,

@@ -25,35 +25,66 @@ import { onPrevailRoll, onIntensityChange, onEffectRemove, onEffectInfo, onEffec
 import { onEquipRoll, getActiveWeapons, getAccuracyFromTarget }             from "./character/handlers-combat.mjs";
 import { onInjuryClockClick, onToggleLight, onSpendRDHeader }               from "./character/handlers-misc.mjs";
 
+const { api, sheets } = foundry.applications;
+
 /**
  * Character Sheet class for Trespasser TTRPG.
  */
-export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
+export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
+
+  static DEFAULT_OPTIONS = {
+    classes: ["trespasser", "trespasser-sheet", "sheet", "actor", "character"],
+    position: { width: 868, height: 720 },
+    form: {
+      submitOnChange: true,
+      closeOnSubmit: false
+    },
+    window: { resizable: true },
+    dragDrop: [{ dragSelector: ".inventory-card, .item, .deed-slot", dropSelector: null }]
+  };
+
+  static PARTS = {
+    main: {
+      template: "systems/trespasser/templates/actor/character-sheet.hbs",
+      scrollable: [".tab-body.active", ".editor-container"]
+    }
+  };
+
+  tabGroups = { primary: "character" };
 
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes:  ["trespasser", "sheet", "actor", "character"],
-      template: "systems/trespasser/templates/actor/character-sheet.hbs",
-      width:    868,
-      height:   720,
-      resizable: true,
-      scrollY:  [".tab-body"],
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "character" }],
-      dragDrop: [{ dragSelector: ".inventory-card, .item, .deed-slot", dropSelector: null }]
-    });
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Actor.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
   }
 
   // ── Foundry lifecycle ──────────────────────────────────────────────────────
 
   /** @override */
-  async getData(options = {}) { return getCharacterData(this, options); }
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const charData = await getCharacterData(this, options);
+    const merged = foundry.utils.mergeObject(context, charData);
+    merged.tabs = this.tabGroups;
+    return merged;
+  }
 
   /** @override */
-  activateListeners(html) {
-    console.log(`Trespasser | TrespasserCharacterSheet.activateListeners for ${this.actor.name}`);
-    super.activateListeners(html);
+  _onRender(context, options) {
+    super._onRender(context, options);
+    const html = $(this.element);
+
+    console.log(`Trespasser | TrespasserCharacterSheet._onRender for ${this.actor.name}`);
     activateCharacterListeners(html, this);
+
+    // Sync tabs
+    const tabs = this.element.querySelectorAll('.sheet-tabs .item');
+    tabs.forEach(t => {
+      t.addEventListener('click', (ev) => {
+        this.tabGroups.primary = t.dataset.tab;
+        this.render();
+      });
+    });
 
     // Re-render when targets change so transfer buttons show up
     if (!this._targetingHook) {

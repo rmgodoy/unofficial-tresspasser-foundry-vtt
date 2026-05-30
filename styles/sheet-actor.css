@@ -1,6 +1,11 @@
-/* ═══════════════════════════════════════════════════
-   HEADER
-═══════════════════════════════════════════════════ */
+.trespasser-character-sheet-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  flex: 1;
+}
+
 .trespasser-sheet .sheet-header {
   display: flex;
   gap: 16px;
