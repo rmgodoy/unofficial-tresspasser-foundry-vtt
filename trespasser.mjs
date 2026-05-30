@@ -282,6 +282,15 @@ Hooks.once("init", async () => {
     default: 14
   });
 
+  game.settings.register("trespasser", "showStatusEffectsOnTokens", {
+    name: "TRESPASSER.Settings.Visuals.ShowStatusEffectsOnTokens.Name",
+    hint: "TRESPASSER.Settings.Visuals.ShowStatusEffectsOnTokens.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
   // ── Color Theme Settings ──
   const colorSettings = [
     { key: "colorBgDark", default: "#1a1714" },

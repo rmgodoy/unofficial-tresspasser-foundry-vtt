@@ -91,6 +91,10 @@
         "FontSizeBase": {
           "Name": "Tamanho Base da Fonte (px)",
           "Hint": "O tamanho base da fonte para todo o sistema. Todos os outros tamanhos de fonte escalonarão proporcionalmente."
+        },
+        "ShowStatusEffectsOnTokens": {
+          "Name": "Mostrar efeitos de status nos tokens",
+          "Hint": "Se ativado, os ícones de efeito de status selecionados dos itens de Efeito serão exibidos como ícones sobrepostos nos tokens ativos."
         }
       },
       "Colors": {

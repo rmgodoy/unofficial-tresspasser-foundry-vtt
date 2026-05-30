@@ -888,8 +888,11 @@ export class TrespasserEffectsHelper {
   static async syncActorTokenEffects(actor) {
     if (!actor) return;
 
+    const showEffects = game.settings.get("trespasser", "showStatusEffectsOnTokens") ?? true;
     // Get all active effect items on the actor that have a statusIcon selected
-    const effectItems = actor.items.filter(i => i.type === "effect" && i.system.statusIcon);
+    const effectItems = showEffects
+      ? actor.items.filter(i => i.type === "effect" && i.system.statusIcon)
+      : [];
 
     // Get all existing ActiveEffects on the actor that were created by our sync (have our sourceItem flag)
     const existingActiveEffects = actor.effects ? actor.effects.filter(ae => ae.getFlag("trespasser", "sourceItem")) : [];

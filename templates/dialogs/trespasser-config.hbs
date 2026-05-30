@@ -155,6 +155,14 @@
             </div>
 
             <div class="form-group">
+                <label>{{localize "TRESPASSER.Settings.Visuals.ShowStatusEffectsOnTokens.Name"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="showStatusEffectsOnTokens" {{checked settings.showStatusEffectsOnTokens}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Settings.Visuals.ShowStatusEffectsOnTokens.Hint"}}</p>
+            </div>
+
+            <div class="form-group">
                 <label>{{localize "TRESPASSER.Settings.Mechanics.ConfirmItemTransfer.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="confirmItemTransfer" {{checked settings.confirmItemTransfer}}>

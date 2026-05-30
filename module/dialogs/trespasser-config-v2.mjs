@@ -1,3 +1,5 @@
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+
 /**
  * Trespasser Configuration - ApplicationsV2
  */
@@ -68,7 +70,8 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
       showPerilInChat: game.settings.get("trespasser", "showPerilInChat"),
       autoEndCombatOnRetreat: game.settings.get("trespasser", "autoEndCombatOnRetreat"),
       clockSize: game.settings.get("trespasser", "clockSize"),
-      fontSizeBase: game.settings.get("trespasser", "fontSizeBase")
+      fontSizeBase: game.settings.get("trespasser", "fontSizeBase"),
+      showStatusEffectsOnTokens: game.settings.get("trespasser", "showStatusEffectsOnTokens")
     };
 
     // Color settings
@@ -157,6 +160,15 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     // Apply changes immediately
     game.trespasser.applySystemSettings?.();
 
+    // Sync status effects on all tokens immediately if canvas is ready
+    if ( canvas.ready && TrespasserEffectsHelper?.syncActorTokenEffects ) {
+      for ( const token of canvas.tokens.placeables ) {
+        if ( token.actor ) {
+          await TrespasserEffectsHelper.syncActorTokenEffects(token.actor);
+        }
+      }
+    }
+
     ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Save.Config"));
   }
 
@@ -177,7 +189,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
         "restrictAPFocusUsage", "groupCheckFullParty", "restrictHavenEditToLeader",
         "bypassHavenBuildingLimits", "disregardRangeOnAttack", "allowOutOfTurnMovement", "playerFacingInitiative", 
         "hideCreatureDamageRolls", "enableRetreatDialog", "showPerilInChat", "autoEndCombatOnRetreat", "confirmItemTransfer",
-        "clockSize", "fontSizeBase",
+        "clockSize", "fontSizeBase", "showStatusEffectsOnTokens",
         "colorBgDark", "colorBgPanel", "colorBgInput", "colorBgHeader", "colorBgSelect",
         "colorBorder", "colorBorderLight", "colorGold", "colorGoldDim", "colorGoldBright",
         "colorRed", "colorRedDim", "colorText", "colorTextDim", "colorTextBright",
