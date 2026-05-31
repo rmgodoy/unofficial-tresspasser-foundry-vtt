@@ -1,4 +1,4 @@
-<form class="{{cssClass}} trespasser-sheet item-sheet past-life" autocomplete="off">
+<section class="{{cssClass}} trespasser-sheet item-sheet past-life" autocomplete="off">
   
   {{!-- Header --}}
   <header class="sheet-header item-header-layout">
@@ -17,22 +17,22 @@
     <div class="description-section" style="padding-block: 15px;">
       <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
       <div class="trp-editor-container">
-        {{editor descriptionHTML target="system.description" button=true owner=owner editable=editable engine="prosemirror" resizable=true}}
+        <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false" editable="{{editable}}">{{{descriptionHTML}}}</prose-mirror>
       </div>
     </div>
 
   {{!-- Navigation --}}
     <nav class="sheet-tabs tabs" data-group="primary">
-      <a class="item" data-tab="attributes">{{localize "TRESPASSER.Sheet.Tabs.Attributes"}}</a>
-      <a class="item" data-tab="skills">{{localize "TRESPASSER.Sheet.Tabs.Skills"}}</a>
-      <a class="item" data-tab="inventory">{{localize "TRESPASSER.Sheet.Tabs.Inventory"}}</a>
+      <a class="item {{#if (eq tabs.primary 'attributes')}}active{{/if}}" data-tab="attributes">{{localize "TRESPASSER.Sheet.Tabs.Attributes"}}</a>
+      <a class="item {{#if (eq tabs.primary 'skills')}}active{{/if}}" data-tab="skills">{{localize "TRESPASSER.Sheet.Tabs.Skills"}}</a>
+      <a class="item {{#if (eq tabs.primary 'inventory')}}active{{/if}}" data-tab="inventory">{{localize "TRESPASSER.Sheet.Tabs.Inventory"}}</a>
     </nav>
 
   {{!-- Body --}}
     <section class="sheet-body">
 
       {{!-- Attributes Tab --}}
-      <div class="tab attributes flexcol" data-group="primary" data-tab="attributes">
+      <div class="tab attributes flexcol {{#if (eq tabs.primary 'attributes')}}active{{/if}}" data-group="primary" data-tab="attributes">
         <div class="attributes-grid">
           {{#each system.attributes as |bonus key|}}
           <div class="attribute-row flexrow">
@@ -44,7 +44,7 @@
       </div>
 
       {{!-- Skills Tab --}}
-      <div class="tab skills flexcol" data-group="primary" data-tab="skills">
+      <div class="tab skills flexcol {{#if (eq tabs.primary 'skills')}}active{{/if}}" data-group="primary" data-tab="skills">
         <div class="skills-list flexrow flex-wrap">
           {{#each skillRows}}
           <div class="skill-entry flexrow">
@@ -56,7 +56,7 @@
       </div>
 
       {{!-- Inventory Tab --}}
-      <div class="tab inventory flexcol" data-group="primary" data-tab="inventory">
+      <div class="tab inventory flexcol {{#if (eq tabs.primary 'inventory')}}active{{/if}}" data-group="primary" data-tab="inventory">
         <div class="past-life-drop-zone" data-list="items">
           <p class="hint">{{localize "TRESPASSER.Sheet.Item.PastLife.DropHint"}}</p>
           
@@ -75,4 +75,4 @@
 
     </section>
   </section>
-</form>
+</section>

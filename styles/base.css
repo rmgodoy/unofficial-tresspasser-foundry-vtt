@@ -92,6 +92,7 @@
 .scrollable {
   flex: 1;
   overflow-y: auto !important;
+  width: 100%;
   min-height: 0;
   scrollbar-width: thin;
   scrollbar-color: var(--trp-scrollbar) transparent;
