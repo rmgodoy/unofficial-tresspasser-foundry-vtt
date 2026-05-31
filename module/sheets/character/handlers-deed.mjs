@@ -750,7 +750,7 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
  * @param {number} shadows  Number of shadows (= counter dice)
  * @returns {Promise<boolean>}
  */
-function _askCounterReaction(defenderToken, creatureToken, weapon, shadows) {
+async function _askCounterReaction(defenderToken, creatureToken, weapon, shadows) {
   const wDie = weapon.system.weaponDie || "d4";
   const content = `<div class="trespasser-dialog">
     <p>${game.i18n.format("TRESPASSER.Chat.Combat.CounterPrompt", {
@@ -762,28 +762,31 @@ function _askCounterReaction(defenderToken, creatureToken, weapon, shadows) {
     })}</p>
   </div>`;
 
-  return new Promise((resolve) => {
-    new Dialog({
-      title: game.i18n.localize("TRESPASSER.Chat.Combat.CounterReaction"),
-      content,
-      buttons: {
-        counter: {
-          icon: '<i class="fas fa-shield-alt"></i>',
-          label: game.i18n.localize("TRESPASSER.Global.Action.Accept"),
-          callback: () => resolve(true)
-        },
-        pass: {
-          icon: '<i class="fas fa-times"></i>',
-          label: game.i18n.localize("TRESPASSER.Global.Action.Pass"),
-          callback: () => resolve(false)
-        }
+  const result = await foundry.applications.api.DialogV2.wait({
+    window: { title: game.i18n.localize("TRESPASSER.Chat.Combat.CounterReaction") },
+    classes: ["trespasser", "dialog"],
+    position: { width: 380 },
+    content,
+    buttons: [
+      {
+        action: "counter",
+        icon: "fas fa-shield-alt",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Accept"),
+        default: true,
+        callback: () => true
       },
-      default: "counter"
-    }, {
-      classes: ["trespasser", "dialog"],
-      width: 380
-    }).render(true);
+      {
+        action: "pass",
+        icon: "fas fa-times",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Pass"),
+        callback: () => false
+      }
+    ],
+    rejectClose: false,
+    close: () => false
   });
+
+  return result;
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -904,27 +907,32 @@ export async function requestCDAndRoll(roll, flavor, sheet) {
   const content = `
     <div class="form-group">
       <label>${game.i18n.localize("TRESPASSER.Dialog.SkillCheck.ChallengeDifficulty")}</label>
-      <input type="number" id="roll-cd" value="10" autofocus />
+      <input type="number" name="roll-cd" value="10" autofocus />
     </div>`;
 
-  return new Promise((resolve) => {
-    new Dialog({
-      title: game.i18n.localize("TRESPASSER.Dialog.SkillCheck.ChallengeTitle"),
-      content,
-      buttons: {
-        roll: {
-          label: game.i18n.localize("TRESPASSER.Global.Action.RunCheck"),
-          callback: async (html) => {
-            const cd     = parseInt(html.find("#roll-cd").val()) || 0;
-            const result = await sheet._evaluateAndShowRoll(roll, flavor, cd);
-            resolve(result);
-          }
-        },
-        cancel: { label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"), callback: () => resolve(null) }
+  const cd = await foundry.applications.api.DialogV2.wait({
+    window: { title: game.i18n.localize("TRESPASSER.Dialog.SkillCheck.ChallengeTitle") },
+    classes: ["trespasser", "dialog"],
+    content,
+    buttons: [
+      {
+        action: "roll",
+        label: game.i18n.localize("TRESPASSER.Global.Action.RunCheck"),
+        default: true,
+        callback: (event, button) => parseInt(button.form.elements["roll-cd"].value) || 0
       },
-      default: "roll"
-    }, { classes: ["trespasser", "dialog"] }).render(true);
+      {
+        action: "cancel",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
+        callback: () => null
+      }
+    ],
+    rejectClose: false,
+    close: () => null
   });
+
+  if (cd === null) return null;
+  return sheet._evaluateAndShowRoll(roll, flavor, cd);
 }
 
 export async function evaluateAndShowRoll(roll, flavor, cd, sheet) {

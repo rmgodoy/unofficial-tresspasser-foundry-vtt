@@ -241,12 +241,11 @@ export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(she
 
     const callingName = callingItem.name;
 
-    const confirm = await Dialog.confirm({
-      title: game.i18n.format("TRESPASSER.Dialog.Delete.CallingTitle", { name: callingName }),
+    const confirm = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.CallingTitle", { name: callingName }) },
       content: `<p>${game.i18n.format("TRESPASSER.Dialog.Delete.CallingConfirm", { name: callingName })}</p>`,
-      yes: () => true,
-      no: () => false,
-      defaultYes: false
+      classes: ["trespasser", "dialog"],
+      rejectClose: false
     });
 
     if (!confirm) return;

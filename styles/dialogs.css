@@ -407,3 +407,10 @@
   letter-spacing: 0.05em;
 }
 
+/* Spend Recovery Dice Dialog */
+.spend-rd-dialog .form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
