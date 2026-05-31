@@ -5,6 +5,7 @@ export class TrespasserWeaponData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     const fields = foundry.data.fields;
     return {
+      description: new fields.HTMLField({ blank: true }),
       weaponDie: new fields.StringField({ initial: "d6" }),
       type: new fields.StringField({ 
         initial: "melee", 

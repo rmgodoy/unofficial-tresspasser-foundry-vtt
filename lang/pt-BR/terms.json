@@ -28,7 +28,7 @@
         "Reaction": "Reação"
       },
       "Attribute": {
-        "Mighty": "Pujança",
+        "Mighty": "Poder",
         "Agility": "Agilidade",
         "Intellect": "Intelecto",
         "Spirit": "Espírito",
@@ -107,7 +107,7 @@
         "Before": "Antes",
         "Base": "Base",
         "Hit": "Acerto",
-        "Spark": "Fagulha",
+        "Spark": "Centelha",
         "After": "Depois",
         "End": "Fim"
       },

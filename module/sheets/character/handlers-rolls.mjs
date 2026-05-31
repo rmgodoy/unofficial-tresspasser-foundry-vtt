@@ -92,9 +92,16 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
     const total = base + bon + eff;
     return `<button class="trp-attr-btn" data-attr="${key}">${lbl} (${total})</button>`;
   };
+
   return new Promise((resolve) => {
-    const d = new Dialog({
-      title: game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", { skill: label }),
+    let resolved = false;
+
+    foundry.applications.api.DialogV2.wait({
+      window: {
+        title: game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", { skill: label }),
+        width: 400
+      },
+      classes: ["trespasser", "dialog"],
       content: `
         <div class="dialog-content">
           <p style="margin-bottom:12px;">
@@ -108,58 +115,77 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
             ${formatAttrBtn("spirit",    game.i18n.localize("TRESPASSER.Terms.Attribute.Spirit"))}
           </div>
         </div>`,
-      buttons: { cancel: { label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"), callback: () => resolve(null) } },
-      default: "cancel",
-      render: (html) => {
-        html.find(".trp-attr-btn").on("click", async (ev) => {
-          const chosenAttr = ev.currentTarget.dataset.attr;
-          
-          // Close immediately after selection
-          d.close();
+      buttons: [
+        {
+          action: "cancel",
+          label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
+          callback: () => {
+            if (!resolved) {
+              resolved = true;
+              resolve(null);
+            }
+          }
+        }
+      ],
+      render: (event, dialog) => {
+        const el = dialog.element;
+        el.querySelectorAll(".trp-attr-btn").forEach(btn => {
+          btn.addEventListener("click", async (ev) => {
+            if (resolved) return;
+            resolved = true;
+            const chosenAttr = ev.currentTarget.dataset.attr;
+            
+            // Close immediately after selection
+            dialog.close();
 
-          const attrVal    = attr[chosenAttr]    ?? 0;
-          const attrBonus  = bonuses[chosenAttr] ?? 0;
-          const effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, chosenAttr, "use");
-          const isAdv      = TrespasserEffectsHelper.hasAdvantage(actor, chosenAttr);
-          const diceFormula = isAdv ? "2d20kh" : "1d20";
+            const attrVal    = attr[chosenAttr]    ?? 0;
+            const attrBonus  = bonuses[chosenAttr] ?? 0;
+            const effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, chosenAttr, "use");
+            const isAdv      = TrespasserEffectsHelper.hasAdvantage(actor, chosenAttr);
+            const diceFormula = isAdv ? "2d20kh" : "1d20";
 
-          const rollData = {
-            dice: diceFormula,
-            bonuses: [
-              { label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.capitalize()}`), value: attrVal },
-              { label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus },
-              { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
-            ]
-          };
-          if (attrBonus !== 0) rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
+            const rollData = {
+              dice: diceFormula,
+              bonuses: [
+                { label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.capitalize()}`), value: attrVal },
+                { label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus },
+                { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
+              ]
+            };
+            if (attrBonus !== 0) rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
 
-          const result = await TrespasserRollDialog.wait({
-            ...rollData,
-            showCD: true,
-            cd: 10
-          }, { title: `${label} Check` });
+            const result = await TrespasserRollDialog.wait({
+              ...rollData,
+              showCD: true,
+              cd: 10
+            }, { title: `${label} Check` });
 
-          if (!result) return resolve(null); // Resolve with null if roll dialog canceled
+            if (!result) return resolve(null); // Resolve with null if roll dialog canceled
 
-          let formula = `${diceFormula} + ${attrVal} + ${result.modifier}`;
-          if (attrBonus  !== 0) formula += ` + ${attrBonus}`;
-          if (effectBonus !== 0) formula += ` + ${effectBonus}`;
-          if (skillBonus  > 0)  formula += ` + ${skillBonus}`;
+            let formula = `${diceFormula} + ${attrVal} + ${result.modifier}`;
+            if (attrBonus  !== 0) formula += ` + ${attrBonus}`;
+            if (effectBonus !== 0) formula += ` + ${effectBonus}`;
+            if (skillBonus  > 0)  formula += ` + ${skillBonus}`;
 
-          const roll = new foundry.dice.Roll(formula);
-          const flavorFull = isAdv
-            ? game.i18n.format("TRESPASSER.Chat.Check.SkillCheckAdv", { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`
-            : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck",    { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`;
-          
-          const finalCD = result.cd ?? 10;
-          const rollRes = await sheet._evaluateAndShowRoll(roll, flavorFull, finalCD);
-          if (rollRes) await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: chosenAttr });
-          
-          resolve(roll);
+            const roll = new foundry.dice.Roll(formula);
+            const flavorFull = isAdv
+              ? game.i18n.format("TRESPASSER.Chat.Check.SkillCheckAdv", { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`
+              : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck",    { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`;
+            
+            const finalCD = result.cd ?? 10;
+            const rollRes = await sheet._evaluateAndShowRoll(roll, flavorFull, finalCD);
+            if (rollRes) await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: chosenAttr });
+            
+            resolve(roll);
+          });
         });
+      },
+      rejectClose: false
+    }).then(() => {
+      if (!resolved) {
+        resolved = true;
+        resolve(null);
       }
-    }, { classes: ["trespasser", "dialog"] });
-    d.render(true);
+    });
   });
-
 }

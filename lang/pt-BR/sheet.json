@@ -284,7 +284,9 @@
           "EffectTypeChoices": {
             "Continuous": "Contínuo",
             "OnTrigger": "Ao Ativar"
-          }
+          },
+          "StatusIcon": "Ícone de Status",
+          "NoStatusIcon": "-- Nenhum --"
         },
         "Placeholder": {
           "Name": "Nome do item...",
@@ -541,7 +543,7 @@
         "CompletedStrongholds": "Fortalezas Concluídas",
         "StrongholdOwner": "Dono da Fortaleza",
         "Stagnant": "ESTAGNADO",
-        "StagnationDesc": "O Abrigo atingiu o rank de população necessário para o próximo nível. O crescimento do rank está parado até que o Abrigo suba de nível, mas as Fagulhas ainda ativam Chegadas.",
+        "StagnationDesc": "O Abrigo atingiu o rank de população necessário para o próximo nível. O crescimento do rank está parado até que o Abrigo suba de nível, mas as Centelhas ainda ativam Chegadas.",
         "Warning": {
           "NoBuildSlots": "Você não tem espaços de construção disponíveis (Limite: {max}).",
           "BuildingLimitReached": "Você atingiu o limite máximo de construções (Limite: {max})."
@@ -576,7 +578,7 @@
       },
       "Craft": {
         "KeyAttribute": "Atributo Chave",
-        "DropDeedsNote": "Arraste proezas aqui para vinculá-las a este ofício.",
+        "DropDeedsNote": "Arraste habilidades aqui para vinculá-las a este ofício.",
         "DropFeaturesNote": "Arraste habilidades aqui para vinculá-las a este ofício."
       },
       "Party": {
@@ -646,8 +648,6 @@
         },
         "Common": {
           "Confirm": "Confirmar",
-          "NextCheck": "Próximo Teste",
-          "WholeRound": "Rodada Inteira",
           "SelectAlly": "Selecionar Aliado",
           "Attribute": "Atributo"
         },
@@ -663,6 +663,8 @@
           "Interact": "{cost} PA (+{bonus} bônus)",
           "Smash": "{cost} PA (Quebra {bonus})",
           "Throw": "{cost} PA ({range} qdr)",
+          "DefendSingle": "1 PA (Tipo escolhido)",
+          "DefendBoth": "2 PA (Guarda & Resistir)",
           "VaultTip": "Saltar sobre obstáculos",
           "WaitTip": "Mover para a Fase Tardia"
         },

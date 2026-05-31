@@ -53,56 +53,60 @@ export async function askSparkDialog(results) {
 
   html += `</div>`;
 
-  return new Promise((resolve) => {
-    new Dialog({
+  return foundry.applications.api.DialogV2.wait({
+    window: {
       title: game.i18n.localize("TRESPASSER.Dialog.Spark.Title"),
-      content: html,
-      buttons: {
-        confirm: {
-          icon: '<i class="fas fa-sun"></i>',
-          label: game.i18n.localize("TRESPASSER.Global.Action.Confirm"),
-          callback: (dialogHtml) => {
-            const choices = _parseSparkChoices(dialogHtml, sparkTargets, maxSparks);
-            resolve(choices);
-          }
-        },
-        cancel: {
-          icon: '<i class="fas fa-times"></i>',
-          label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
-          callback: () => resolve(null)
+      width: 400,
+      resizable: true
+    },
+    classes: ["trespasser", "dialog", "spark-select"],
+    content: html,
+    buttons: [
+      {
+        action: "confirm",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Confirm"),
+        icon: "fas fa-sun",
+        default: true,
+        callback: (event, button, dialog) => {
+          return _parseSparkChoices(button.form, sparkTargets, maxSparks);
         }
       },
-      default: "confirm",
-      render: (dialogHtml) => {
-        // Enforce deed spark uniqueness: only allow one across all layers
-        dialogHtml.find('input[type="radio"]').on("change", () => {
-          const deedChecked = dialogHtml.find('input[value="deed"]:checked').length > 0;
+      {
+        action: "cancel",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
+        icon: "fas fa-times",
+        callback: () => null
+      }
+    ],
+    render: (event, dialog) => {
+      const el = dialog.element;
+      // Enforce deed spark uniqueness: only allow one across all layers
+      el.querySelectorAll('input[type="radio"]').forEach(radio => {
+        radio.addEventListener("change", () => {
+          const deedChecked = el.querySelectorAll('input[value="deed"]:checked').length > 0;
           // Disable deed options in other layers when one is selected
-          dialogHtml.find('input[value="deed"]').each((i, el) => {
-            if (!el.checked) {
-              el.disabled = deedChecked;
-              el.closest("label")?.classList.toggle("disabled", deedChecked);
+          el.querySelectorAll('input[value="deed"]').forEach(deedEl => {
+            if (!deedEl.checked) {
+              deedEl.disabled = deedChecked;
+              deedEl.closest("label")?.classList.toggle("disabled", deedChecked);
             }
           });
         });
-      }
-    }, {
-      classes: ["trespasser", "dialog", "spark-select"],
-      width: 400,
-      resizable: true
-    }).render(true);
+      });
+    },
+    rejectClose: false
   });
 }
 
 /**
  * Parse the dialog HTML into structured spark choices.
  */
-function _parseSparkChoices(dialogHtml, sparkTargets, maxSparks) {
+function _parseSparkChoices(element, sparkTargets, maxSparks) {
   const layerChoices = [];
 
   for (let layer = 1; layer <= maxSparks; layer++) {
-    const checked = dialogHtml.find(`input[name="spark-layer-${layer}"]:checked`);
-    layerChoices.push(checked.length > 0 ? checked.val() : null);
+    const checked = element.querySelector(`input[name="spark-layer-${layer}"]:checked`);
+    layerChoices.push(checked ? checked.value : null);
   }
 
   let applyDeedSpark = false;

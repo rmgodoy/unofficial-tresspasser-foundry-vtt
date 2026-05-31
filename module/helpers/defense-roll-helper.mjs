@@ -74,26 +74,33 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
  */
 export async function _rollDefenseLocally(actor, statKey, creatureDC, deedName) {
   const totalDef = actor.system.combat[statKey] ?? 10;
-  const defEffBonus = TrespasserEffectsHelper.getAttributeBonus(actor, statKey, "use");
-  const baseDefense = totalDef - defEffBonus;
+  // Continuous bonuses are already baked into totalDef via prepareDerivedData.
+  // Use-triggered bonuses (e.g. Defend's +2) are NOT baked in.
+  // We must split them to display correctly and avoid double-counting.
+  const continuousBonus = TrespasserEffectsHelper.getAttributeBonus(actor, statKey);
+  const fullBonus = TrespasserEffectsHelper.getAttributeBonus(actor, statKey, "use");
+  const useOnlyBonus = fullBonus - continuousBonus;
+  const baseDefense = totalDef - continuousBonus;
   const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, statKey);
   const diceFormula = isAdv ? "2d20kh" : "1d20";
   const label = statKey.charAt(0).toUpperCase() + statKey.slice(1);
+
+  const bonuses = [
+    { label: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`), value: baseDefense },
+    { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: fullBonus }
+  ];
 
   const result = await TrespasserRollDialog.wait({
     dice: diceFormula,
     showCD: true,
     cd: creatureDC,
-    bonuses: [
-      { label: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`), value: baseDefense },
-      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: defEffBonus }
-    ]
+    bonuses
   }, { title: `${deedName} — ${label} Check` });
 
   if (!result) return null;
 
   const userModifier = result.modifier ?? 0;
-  let formula = `${diceFormula} + ${baseDefense} + ${defEffBonus}`;
+  let formula = `${diceFormula} + ${baseDefense} + ${fullBonus}`;
   if (userModifier !== 0) formula += ` + ${userModifier}`;
 
   const defRoll = new foundry.dice.Roll(formula);

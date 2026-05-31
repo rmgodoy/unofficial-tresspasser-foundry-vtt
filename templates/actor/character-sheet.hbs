@@ -1,5 +1,4 @@
-<form class="{{cssClass}} trespasser-sheet actor character" autocomplete="off">
-
+<section class="trespasser-character-sheet-layout">
   <!-- ═══════════════════════════════════════════════════
        HEADER
   ════════════════════════════════════════════════════ -->
@@ -108,12 +107,12 @@
        TAB NAVIGATION
   ════════════════════════════════════════════════════ -->
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item" data-tab="character">{{localize "TRESPASSER.Sheet.Tabs.Character"}}</a>
-    <a class="item" data-tab="equipments">{{localize "TRESPASSER.Sheet.Tabs.Equipments"}}</a>
-    <a class="item" data-tab="inventory">{{localize "TRESPASSER.Sheet.Tabs.Inventory"}}</a>
-    <a class="item" data-tab="features">{{localize "TRESPASSER.Sheet.Tabs.Features"}}</a>
-    <a class="item" data-tab="combat">{{localize "TRESPASSER.Sheet.Tabs.Combat"}}</a>
-    <a class="item" data-tab="notes">{{localize "TRESPASSER.Sheet.Tabs.Notes"}}</a>
+    <a class="item {{#if (eq tabs.primary 'character')}}active{{/if}}" data-tab="character">{{localize "TRESPASSER.Sheet.Tabs.Character"}}</a>
+    <a class="item {{#if (eq tabs.primary 'equipments')}}active{{/if}}" data-tab="equipments">{{localize "TRESPASSER.Sheet.Tabs.Equipments"}}</a>
+    <a class="item {{#if (eq tabs.primary 'inventory')}}active{{/if}}" data-tab="inventory">{{localize "TRESPASSER.Sheet.Tabs.Inventory"}}</a>
+    <a class="item {{#if (eq tabs.primary 'features')}}active{{/if}}" data-tab="features">{{localize "TRESPASSER.Sheet.Tabs.Features"}}</a>
+    <a class="item {{#if (eq tabs.primary 'combat')}}active{{/if}}" data-tab="combat">{{localize "TRESPASSER.Sheet.Tabs.Combat"}}</a>
+    <a class="item {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-tab="notes">{{localize "TRESPASSER.Sheet.Tabs.Notes"}}</a>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════
@@ -122,7 +121,7 @@
   <section class="sheet-body">
 
     <!-- ─── TAB 1: CHARACTER ─── -->
-    <div class="tab tab-body" data-group="primary" data-tab="character">
+    <div class="tab tab-body {{#if (eq tabs.primary 'character')}}active{{/if}}" data-group="primary" data-tab="character">
       <div class="character-layout">
 
         <!-- Column 1: Identity -->
@@ -257,12 +256,13 @@
             <div style="flex: 1;">
               <b>{{this.name}}</b>{{#if (eq this.type "continuous")}} <span style="font-size: var(--fs-9); opacity: 0.7;">({{localize "TRESPASSER.App.System.Trigger.Continuous"}})</span>{{/if}}
               <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Common.Info'}}"><i class="fas fa-info-circle"></i></a>
+              <a class="effect-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
               {{#if this.sourceName}} <span style="font-size: var(--fs-11); font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
               {{#if this.fromInjury}}<span style="font-size: var(--fs-10); color: var(--trp-red); margin-left: 4px;" title="{{localize 'TRESPASSER.Sheet.Item.Injury.FromInjury'}}">⚕</span>{{/if}}
               (I: {{this.intensity}}) - {{this.target}}: {{this.modifier}}
             </div>
             {{#unless this.fromInjury}}
-                    <a class="item-control effect-delete" data-action="delete-effect" title="{{localize "TRESPASSER.Sheet.Common.Delete"}}">
+                    <a class="item-control effect-remove" data-action="delete-effect" title="{{localize "TRESPASSER.Sheet.Common.Delete"}}">
                         <i class="fas fa-trash"></i>
                     </a>
             {{/unless}}
@@ -277,7 +277,7 @@
 
 
     <!-- ─── TAB 2: EQUIPMENTS ─── -->
-    <div class="tab tab-body" data-group="primary" data-tab="equipments">
+    <div class="tab tab-body {{#if (eq tabs.primary 'equipments')}}active{{/if}}" data-group="primary" data-tab="equipments">
 
       <!-- Weapons -->
       <div class="equip-section">
@@ -480,10 +480,10 @@
     </div>
 
     <!-- ─── TAB 3: INVENTORY ─── -->
-    <div class="tab tab-body" data-group="primary" data-tab="inventory">
+    <div class="tab tab-body {{#if (eq tabs.primary 'inventory')}}active{{/if}}" data-group="primary" data-tab="inventory">
       <div class="inventory-header">
         <span class="inventory-cap">{{localize "TRESPASSER.Sheet.Character.UnequippedSlots"}}: {{inventorySlotsUsed}} / {{inventoryMax}}</span>
-        <a class="item-create button" data-type="weapon" title="{{localize "TRESPASSER.Sheet.Common.AddItem"}}">+ {{localize "TRESPASSER.Sheet.Common.AddItem"}}</a>
+        <a class="item-create button" data-type="inventory" title="{{localize "TRESPASSER.Sheet.Common.AddItem"}}">+ {{localize "TRESPASSER.Sheet.Common.AddItem"}}</a>
       </div>
       
       <div class="inventory-grid">
@@ -562,7 +562,7 @@
     </div>
 
     <!-- ─── TAB 4: FEATURES ─── -->
-    <div class="tab tab-body" data-group="primary" data-tab="features">
+    <div class="tab tab-body {{#if (eq tabs.primary 'features')}}active{{/if}}" data-group="primary" data-tab="features">
       <div class="features-layout">
         <div class="features-panel">
           <div class="panel-header">
@@ -633,7 +633,7 @@
     </div>
 
     <!-- ─── TAB 5: COMBAT ─── -->
-    <div class="tab tab-body" data-group="primary" data-tab="combat">
+    <div class="tab tab-body {{#if (eq tabs.primary 'combat')}}active{{/if}}" data-group="primary" data-tab="combat">
 
       <div class="combat-top">
         <!-- Derived Stats -->
@@ -786,9 +786,10 @@
     </div><!-- /combat -->
 
     <!-- Notes -->
-    <div class="tab notes" data-group="primary" data-tab="notes">
-      {{editor system.notes target="system.notes" button=true owner=owner editable=editable engine="prosemirror"}}
+    <div class="tab notes {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-group="primary" data-tab="notes">
+      <prose-mirror name="system.notes" value="{{system.notes}}" toggled="false" compact="false" {{#if (not editable)}}readonly{{/if}}>{{{enrichedNotes}}}</prose-mirror>
     </div>
 
   </section>
-</form>
+</section>
+

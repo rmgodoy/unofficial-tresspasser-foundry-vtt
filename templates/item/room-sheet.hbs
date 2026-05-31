@@ -1,4 +1,4 @@
-<form class="{{cssClass}} trespasser-sheet item room" autocomplete="off">
+<section class="{{cssClass}} trespasser-sheet item room" autocomplete="off">
 
   <header class="sheet-header item-header-layout">
     <div class="header-column image-column">
@@ -29,7 +29,7 @@
     <div class="field-item description-column">
       <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
       <div class="trp-editor-container">
-        {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+        <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false" editable="{{editable}}">{{{descriptionHTML}}}</prose-mirror>
       </div>
     </div>
 
@@ -220,7 +220,7 @@
     <div class="field-item description-column">
       <h3 class="room-section-title">{{localize "TRESPASSER.Sheet.Dungeon.Room.Hazards"}}</h3>
       <div class="trp-editor-container">
-        {{editor hazardsHTML target="system.hazards" button=true editable=editable engine="prosemirror" resizable=true}}
+        <prose-mirror name="system.hazards" value="{{system.hazards}}" toggled="false" compact="false" editable="{{editable}}">{{{hazardsHTML}}}</prose-mirror>
       </div>
     </div>
 
@@ -228,9 +228,9 @@
     <div class="field-item description-column">
       <h3 class="room-section-title">{{localize "TRESPASSER.Sheet.Dungeon.Room.Loot"}}</h3>
       <div class="trp-editor-container">
-        {{editor lootHTML target="system.loot" button=true editable=editable engine="prosemirror" resizable=true}}
+        <prose-mirror name="system.loot" value="{{system.loot}}" toggled="false" compact="false" editable="{{editable}}">{{{lootHTML}}}</prose-mirror>
       </div>
     </div>
 
   </section>
-</form>
+</section>

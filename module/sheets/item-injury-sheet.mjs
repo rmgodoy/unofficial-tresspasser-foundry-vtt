@@ -1,50 +1,68 @@
+const { api, sheets } = foundry.applications;
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
  * Sheet for the Injury item type.
  * Minimalist — no tabs, consistent with the Weapon sheet style.
+ * Implemented using ApplicationV2 (sheets.ItemSheetV2).
  */
-export class TrespasserInjurySheet extends foundry.appv1.sheets.ItemSheet {
+export class TrespasserInjurySheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+
+  static DEFAULT_OPTIONS = {
+    classes: ["trespasser", "sheet", "item", "injury-sheet"],
+    position: { width: 480, height: 420 },
+    form: {
+      handler: TrespasserInjurySheet.#onSubmit,
+      submitOnChange: true,
+      closeOnSubmit: false
+    },
+    window: { resizable: true }
+  };
+
+  static PARTS = {
+    main: {
+      template: "systems/trespasser/templates/item/injury-sheet.hbs",
+      scrollable: [".scrollable", ".sheet-body"]
+    }
+  };
 
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["trespasser", "sheet", "item", "injury-sheet"],
-      width: 480,
-      height: 420,
-      scrollY: [".sheet-body"],
-      tabs: [] // No tabs — minimalist like the weapon sheet
-    });
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Item.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
   }
 
   /** @override */
-  get template() {
-    return `systems/trespasser/templates/item/injury-sheet.hbs`;
-  }
-
-  /** @override */
-  async getData(options = {}) {
-    const context = await super.getData(options);
-    context.system = this.item.system;
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const item = this.document;
+    const system = foundry.utils.deepClone(item.system);
 
     // Clamp currentClock so it never exceeds injuryClock
-    if (context.system.currentClock > context.system.injuryClock) {
-      context.system.currentClock = context.system.injuryClock;
+    if (system.currentClock > system.injuryClock) {
+      system.currentClock = system.injuryClock;
     }
 
+    context.item = item;
+    context.system = system;
+    context.editable = this.isEditable;
+
     // Build clock segments for the SVG clock rendering
-    const total   = Math.max(2, context.system.injuryClock);
-    const filled  = Math.min(context.system.currentClock, total);
+    const total   = Math.max(2, system.injuryClock);
+    const filled  = Math.min(system.currentClock, total);
     context.clockSegments = this._buildClockSegments(total, filled);
     context.clockTotal    = total;
     context.clockFilled   = filled;
 
     // Enrich HTML description
-    context.descriptionHTML = await TextEditor.enrichHTML(this.item.system.description, {
-      async: true,
-      secrets: this.document.isOwner,
-      relativeTo: this.document
-    });
+    context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      system.description ?? "",
+      {
+        async: true,
+        secrets: item.isOwner,
+        relativeTo: item
+      }
+    );
 
     return context;
   }
@@ -86,53 +104,105 @@ export class TrespasserInjurySheet extends foundry.appv1.sheets.ItemSheet {
   }
 
   /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Intercept change events from prose-mirror and handle them asynchronously to prevent synchronous re-rendering crash
+    this.element.addEventListener('change', ev => {
+      const pm = ev.target.closest('prose-mirror');
+      if (pm) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        setTimeout(() => {
+          if (this.element && this.document) {
+            const desc = pm.value;
+            this.document.update({ "system.description": desc });
+          }
+        }, 0);
+      }
+    }, true);
+
+    // Intercept submit events from prose-mirror and handle them asynchronously
+    this.element.addEventListener('submit', ev => {
+      const pm = ev.submitter?.closest('prose-mirror');
+      if (pm) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        setTimeout(() => {
+          if (this.element && this.document) {
+            const desc = pm.value;
+            this.document.update({ "system.description": desc });
+          }
+        }, 0);
+      }
+    }, true);
 
     if (!this.isEditable) return;
 
     // Clock segment click: advance by 1
-    html.find(".clock-segment").on("click", this._onClockSegmentClick.bind(this));
+    this.element.querySelectorAll(".clock-segment").forEach(el => {
+      el.addEventListener("click", this._onClockSegmentClick.bind(this));
+    });
 
-    // Effects list
-    html.find(".effect-remove").on("click", this._onRemoveEffect.bind(this));
+    // Remove effect button
+    this.element.querySelectorAll(".effect-remove").forEach(el => {
+      el.addEventListener("click", this._onRemoveEffect.bind(this));
+    });
 
     // Drag-and-drop for effects
-    const dropZone = html.find(".drop-zone");
-    dropZone.on("dragover", (ev) => { ev.preventDefault(); return false; });
-    dropZone.on("drop", this._onDropEffect.bind(this));
+    const dropZone = this.element.querySelector(".drop-zone");
+    if (dropZone) {
+      dropZone.addEventListener("dragover", (ev) => { ev.preventDefault(); return false; });
+      dropZone.addEventListener("drop", this._onDropEffect.bind(this));
+    }
 
     // Intensity changes
-    html.find(".effect-intensity-input").change(this._onIntensityChange.bind(this));
+    this.element.querySelectorAll(".effect-intensity-input").forEach(el => {
+      el.addEventListener("change", this._onIntensityChange.bind(this));
+    });
 
     // Edit button
-    html.find(".effect-edit").on("click", this._onEffectEdit.bind(this));
+    this.element.querySelectorAll(".effect-edit").forEach(el => {
+      el.addEventListener("click", this._onEffectEdit.bind(this));
+    });
   }
 
   /** Clicking a clock segment sets currentClock to that segment index + 1 (toggle off if already filled). */
   async _onClockSegmentClick(event) {
     event.preventDefault();
     const idx   = parseInt(event.currentTarget.dataset.index);
-    const total = this.item.system.injuryClock;
-    const cur   = this.item.system.currentClock;
+    const total = this.document.system.injuryClock;
+    const cur   = this.document.system.currentClock;
 
     // Toggle: clicking the last filled segment unfills it
     const newVal = (cur === idx + 1) ? idx : idx + 1;
-    await this.item.update({ "system.currentClock": Math.min(newVal, total) });
+
+    // Preserve unsaved description edits
+    const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+    const updateData = { "system.currentClock": Math.min(newVal, total) };
+    if (desc !== undefined) updateData["system.description"] = desc;
+
+    await this.document.update(updateData);
   }
 
   async _onRemoveEffect(event) {
     event.preventDefault();
     const el    = event.currentTarget.closest(".effect-chip");
     const index = Number(el.dataset.index);
-    const arr   = [...this.item.system.effects];
+    const arr   = [...this.document.system.effects];
     arr.splice(index, 1);
-    await this.item.update({ "system.effects": arr });
+
+    // Preserve unsaved description edits
+    const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+    const updateData = { "system.effects": arr };
+    if (desc !== undefined) updateData["system.description"] = desc;
+
+    await this.document.update(updateData);
   }
 
   async _onDropEffect(event) {
     event.preventDefault();
-    const dataText = event.originalEvent?.dataTransfer?.getData("text/plain");
+    const dataText = (event.dataTransfer || event.originalEvent?.dataTransfer)?.getData("text/plain");
     if (!dataText) return;
     let dropData;
     try { dropData = JSON.parse(dataText); } catch(e) { return; }
@@ -145,7 +215,7 @@ export class TrespasserInjurySheet extends foundry.appv1.sheets.ItemSheet {
       return;
     }
 
-    const arr = [...(this.item.system.effects || [])];
+    const arr = [...(this.document.system.effects || [])];
     if (arr.some(e => e.name === sourceItem.name || e.uuid === sourceItem.uuid)) {
       ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name }));
       return;
@@ -158,7 +228,13 @@ export class TrespasserInjurySheet extends foundry.appv1.sheets.ItemSheet {
       img:       sourceItem.img,
       intensity: sourceItem.system.intensity || 0
     });
-    await this.item.update({ "system.effects": arr });
+
+    // Preserve unsaved description edits
+    const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+    const updateData = { "system.effects": arr };
+    if (desc !== undefined) updateData["system.description"] = desc;
+
+    await this.document.update(updateData);
   }
 
   async _onIntensityChange(event) {
@@ -168,10 +244,16 @@ export class TrespasserInjurySheet extends foundry.appv1.sheets.ItemSheet {
     if (!el) return;
     const index = Number(el.dataset.index);
     const value = parseInt(input.value) || 0;
-    const arr   = [...(this.item.system.effects || [])];
+    const arr   = [...(this.document.system.effects || [])];
     if (arr[index]) {
       arr[index].intensity = value;
-      await this.item.update({ "system.effects": arr });
+
+      // Preserve unsaved description edits
+      const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+      const updateData = { "system.effects": arr };
+      if (desc !== undefined) updateData["system.description"] = desc;
+
+      await this.document.update(updateData);
     }
   }
 
@@ -182,12 +264,16 @@ export class TrespasserInjurySheet extends foundry.appv1.sheets.ItemSheet {
 
     const index = Number(el.dataset.index);
     const targetType = "effects";
-    const currentArray = [...(this.item.system[targetType] || [])];
+    const currentArray = [...(this.document.system[targetType] || [])];
     const effectData = foundry.utils.deepClone(currentArray[index]);
 
-    if(effectData.uuid) {
+    if (effectData.uuid) {
       await TrespasserEffectsHelper.openEffectSheet(effectData.uuid);
       return;
     }
+  }
+
+  static async #onSubmit(event, form, formData) {
+    await this.document.update(formData.object);
   }
 }

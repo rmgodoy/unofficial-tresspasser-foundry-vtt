@@ -1,8 +1,3 @@
-/**
- * Craft Selection Dialog
- * Usage: await showCraftDialog(craftItem, actor)
- */
-
 import { showItemInfoDialog } from "./item-info-dialog.mjs";
 
 const ATTRIBUTE_LABELS = {
@@ -12,272 +7,234 @@ const ATTRIBUTE_LABELS = {
   spirit:    "TRESPASSER.Terms.Attribute.Spirit",
 };
 
-export async function showCraftDialog(craftItem, actor) {
-  const sys       = craftItem.system;
-  const craftName = craftItem.name;
+/**
+ * Craft Selection Dialog using Handlebars and ApplicationV2.
+ */
+export class TrespasserCraftDialog extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
+  static async wait(craftItem, actor) {
+    return new Promise((resolve) => {
+      let resolved = false;
+      const safeResolve = (val) => {
+        if (!resolved) {
+          resolved = true;
+          resolve(val);
+        }
+      };
+      const dialog = new TrespasserCraftDialog(craftItem, actor, safeResolve);
+      dialog.render(true);
+    });
+  }
 
-  // ── Fetch missing tiers for deeds (backward compatibility) ────
-  if (sys.deeds) {
-    for (const d of sys.deeds) {
-      if (!d.tier && d.uuid) {
-        const item = await fromUuid(d.uuid);
-        if (item) d.tier = item.system.tier;
+  constructor(craftItem, actor, resolve, options={}) {
+    super(options);
+    this.craftItem = craftItem;
+    this.actor = actor;
+    this.resolve = resolve;
+    this.options.window.title = game.i18n.format("TRESPASSER.Dialog.Craft.Title", { name: craftItem.name });
+
+    // Determine listed status and first craft status
+    const craftsSlots   = actor.system.crafts ?? [];
+    this.alreadyListed = craftsSlots.some(s => s && s.trim() === craftItem.name.trim());
+    this.isFirstCraft  = !craftsSlots.some(s => s && s.trim() !== "");
+  }
+
+  static DEFAULT_OPTIONS = {
+    classes: ["trespasser", "dialog", "craft-dialog-v2"],
+    position: { width: 480, height: "auto" },
+    window: {
+      resizable: true,
+      minimizable: false,
+      title: ""
+    },
+    actions: {
+      apply: TrespasserCraftDialog._onApply,
+      cancel: TrespasserCraftDialog._onCancel,
+      switchTab: TrespasserCraftDialog._onTabSelect,
+      info: TrespasserCraftDialog._onInfoClick
+    }
+  };
+
+  static PARTS = {
+    main: {
+      template: "systems/trespasser/templates/dialogs/craft-dialog.hbs"
+    }
+  };
+
+  static TABS = {
+    primary: {
+      tabs: [
+        { id: "attribute", label: "TRESPASSER.Terms.Attribute.Plural" },
+        { id: "deeds", label: "TRESPASSER.Terms.ItemType.Deeds" },
+        { id: "features", label: "TRESPASSER.Terms.ItemType.Features" }
+      ],
+      initial: "attribute"
+    }
+  };
+
+  tabGroups = {
+    primary: "attribute"
+  };
+
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    
+    const sys = this.craftItem.system;
+    
+    // Fetch missing tiers for deeds (backward compatibility)
+    if (sys.deeds) {
+      for (const d of sys.deeds) {
+        if (!d.tier && d.uuid) {
+          const item = await fromUuid(d.uuid);
+          if (item) d.tier = item.system.tier;
+        }
       }
+    }
+
+    const keyAttr = sys.keyAttribute || "mighty";
+    const keyAttrLabel = game.i18n.localize(ATTRIBUTE_LABELS[keyAttr] ?? keyAttr);
+
+    context.craftName = this.craftItem.name;
+    context.description = sys.description;
+    context.keyAttrLabel = keyAttrLabel;
+    context.isFirstCraft = this.isFirstCraft;
+    context.deeds = sys.deeds;
+    context.features = sys.features;
+    context.tabGroups = this.tabGroups;
+
+    // Prepare tab buttons context
+    context.tabs = this.constructor.TABS.primary.tabs.map(tab => {
+      tab.active = this.tabGroups.primary === tab.id;
+      tab.cssClass = tab.active ? "active" : "";
+      return tab;
+    });
+
+    return context;
+  }
+
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+    const html = this.element;
+
+    // Search input listener
+    const searchInputs = html.querySelectorAll(".craft-dlg-search");
+    searchInputs.forEach(input => {
+      input.addEventListener("input", (ev) => {
+        const tabId = ev.currentTarget.dataset.tab;
+        if (tabId === "deeds") {
+          this._filterDeeds(html);
+        } else {
+          const query = ev.currentTarget.value.toLowerCase().trim();
+          html.querySelectorAll(`.craft-dlg-pane[data-tab="${tabId}"] .craft-dlg-chip-row`).forEach(row => {
+            const name = row.querySelector(".craft-dlg-name")?.textContent?.toLowerCase() ?? "";
+            row.style.display = name.includes(query) ? "" : "none";
+          });
+        }
+      });
+    });
+
+    // Tier filter listener
+    const tierFilter = html.querySelector(".craft-dlg-tier-filter");
+    if (tierFilter) {
+      tierFilter.addEventListener("change", () => this._filterDeeds(html));
     }
   }
 
-  // ── Is this the first craft? ──────────────────────────────────
-  const craftsSlots   = actor.system.crafts ?? [];
-  const alreadyListed = craftsSlots.some(s => s && s.trim() === craftName.trim());
-  const isFirstCraft  = !craftsSlots.some(s => s && s.trim() !== "");
+  _filterDeeds(html) {
+    const query = html.querySelector(".craft-dlg-search[data-tab='deeds']").value.toLowerCase().trim();
+    const tier = html.querySelector(".craft-dlg-tier-filter").value;
 
-  // ── Key attribute ─────────────────────────────────────────────
-  const keyAttr      = sys.keyAttribute || "mighty";
-  const keyAttrLabel = game.i18n.localize(ATTRIBUTE_LABELS[keyAttr] ?? keyAttr);
+    html.querySelectorAll(`.craft-dlg-pane[data-tab="deeds"] .craft-dlg-chip-row`).forEach((row, idx) => {
+      const entry = this.craftItem.system.deeds[idx];
+      if (!entry) return;
 
-  // First craft  → checked + readonly (must change to it)
-  // Later crafts → unchecked + enabled (user may optionally change)
-  const keyAttrHTML = isFirstCraft
-    ? `<label class="craft-dlg-chip" style="justify-content:flex-start;cursor:default;"
-              title="${game.i18n.localize("TRESPASSER.Dialog.Craft.AttrFirstTooltip")}">
-         <input type="checkbox" id="craft-attr-check" checked disabled
-                style="accent-color:var(--trp-gold);flex-shrink:0;cursor:default;" />
-         <span class="craft-dlg-name" style="margin-left:8px;">${keyAttrLabel}</span>
-         <span style="margin-left:6px;font-size:var(--fs-10);color:var(--trp-text-dim);font-style:italic;">
-           ${game.i18n.localize("TRESPASSER.Dialog.Craft.AttrFirstTooltip")}
-         </span>
-       </label>`
-    : `<label class="craft-dlg-chip" style="justify-content:flex-start;">
-         <input type="checkbox" id="craft-attr-check"
-                style="accent-color:var(--trp-gold);flex-shrink:0;" />
-         <span class="craft-dlg-name" style="margin-left:8px;">${keyAttrLabel}</span>
-       </label>`;
-
-  // ── Item chip helpers ─────────────────────────────────────────
-  const noItems = () =>
-    `<div class="craft-dlg-empty">${game.i18n.localize("TRESPASSER.Dialog.Calling.NoItems")}</div>`;
-
-  const infoBtn = uuid =>
-    `<a class="dlg-info-btn" data-uuid="${uuid}" title="${game.i18n.localize("TRESPASSER.Dialog.Item.ViewDetails")}"
-        style="flex-shrink:0;color:var(--trp-text-dim);margin-left:4px;font-size:var(--fs-12);cursor:pointer;">
-       <i class="fas fa-info-circle"></i>
-     </a>`;
-
-  const chipHTML = (list, listId) => {
-    if (!list || list.length === 0) return noItems();
-    return list.map((entry, i) => `
-      <div class="craft-dlg-chip-row">
-        <label class="craft-dlg-chip" data-list="${listId}" data-index="${i}" style="flex:1;margin:0;">
-          <input type="checkbox" class="craft-dlg-check" data-list="${listId}" data-index="${i}" />
-          <img src="${entry.img}" width="20" height="20" style="border:none;border-radius:50%;flex-shrink:0;" />
-          <span class="craft-dlg-name">${entry.name}</span>
-        </label>
-        ${entry.uuid ? infoBtn(entry.uuid) : ""}
-      </div>`).join("");
-  };
-
-  const descHTML = sys.description
-    ? `<div class="craft-dlg-desc">${sys.description}</div>` : "";
-
-  const searchBar = tabId => {
-    if (tabId !== "deeds") {
-      return `<input type="text" class="craft-dlg-search" data-tab="${tabId}"
-              placeholder="${game.i18n.localize("TRESPASSER.Dialog.Common.SearchPlaceholder")}" />`;
-    }
-    
-    // For DEEDS, add a tier filter
-    const tiers = {
-      all:    "TRESPASSER.Dialog.Craft.AllTiers",
-      light:  "TRESPASSER.Sheet.Item.Details.Tiers.Light",
-      heavy:  "TRESPASSER.Sheet.Item.Details.Tiers.Heavy",
-      mighty: "TRESPASSER.Sheet.Item.Details.Tiers.Mighty",
-      special:"TRESPASSER.Sheet.Item.Details.Tiers.Special"
-    };
-
-    const tierOptions = Object.entries(tiers).map(([k, v]) => 
-      `<option value="${k}">${game.i18n.localize(v)}</option>`
-    ).join("");
-
-    return `
-      <div class="craft-dlg-filter-row">
-        <input type="text" class="craft-dlg-search" data-tab="deeds"
-               style="flex:1;margin-bottom:0;"
-               placeholder="${game.i18n.localize("TRESPASSER.Dialog.Common.SearchPlaceholder")}" />
-        <select class="craft-dlg-tier-filter" style="width:120px;height:28px;">
-          ${tierOptions}
-        </select>
-      </div>`;
-  };
-
-  const tabBtn = (id, label, first = false) =>
-    `<a class="craft-dlg-tab-btn item${first ? " active" : ""}" data-tab="${id}"
-        style="font-family:var(--trp-font-header);font-size:var(--fs-11);text-transform:uppercase;
-               letter-spacing:.08em;padding:5px 12px;cursor:pointer;
-               color:${first ? "var(--trp-gold-bright)" : "var(--trp-text-dim)"};
-               border-bottom:2px solid ${first ? "var(--trp-gold)" : "transparent"};">${label}</a>`;
-
-  const content = `
-    <div class="trespasser craft-dialog"
-         style="font-family:var(--trp-font-body);color:var(--trp-text);background:var(--trp-bg-dark);">
-      <div class="craft-dlg-header"
-           style="border-bottom:2px solid var(--trp-gold-dim);padding-bottom:8px;margin-bottom:10px;">
-        <h2 style="font-family:var(--trp-font-header);color:var(--trp-gold-bright);margin:0 0 4px;">${craftName}</h2>
-        ${descHTML}
-      </div>
-      <nav class="craft-dlg-tabs sheet-tabs"
-           style="display:flex;border-bottom:2px solid var(--trp-border);margin-bottom:8px;">
-        ${tabBtn("attribute", game.i18n.localize("TRESPASSER.Terms.Attribute.Plural"), true)}
-        ${tabBtn("deeds",     game.i18n.localize("TRESPASSER.Terms.ItemType.Deeds"))}
-        ${tabBtn("features",  game.i18n.localize("TRESPASSER.Terms.ItemType.Features"))}
-      </nav>
-      <div class="craft-dlg-tab-content" style="min-height:200px;max-height:320px;">
-        <div class="craft-dlg-pane" data-pane="attribute">
-          <div class="craft-dlg-list" style="margin-top:4px;">${keyAttrHTML}</div>
-        </div>
-        <div class="craft-dlg-pane" data-pane="deeds" style="display:none;">
-          ${searchBar("deeds")}
-          <div class="craft-dlg-list">${chipHTML(sys.deeds, "deeds")}</div>
-        </div>
-        <div class="craft-dlg-pane" data-pane="features" style="display:none;">
-          ${searchBar("features")}
-          <div class="craft-dlg-list">${chipHTML(sys.features, "features")}</div>
-        </div>
-      </div>
-    </div>
-    <style>
-      .craft-dialog .craft-dlg-desc{font-size:var(--fs-13);color:var(--trp-text-dim);font-style:italic;margin-top:4px;}
-      .craft-dialog .craft-dlg-search{width:100%;box-sizing:border-box;margin-bottom:8px;padding:4px 8px;background:var(--trp-bg-input);border:1px solid var(--trp-border);color:var(--trp-text-bright);font-family:var(--trp-font-body);font-size:var(--fs-13);border-radius:3px;}
-      .craft-dialog .craft-dlg-filter-row{display:flex;gap:8px;margin-bottom:8px;align-items:center;}
-      .craft-dialog .craft-dlg-tier-filter{background:var(--trp-bg-input);border:1px solid var(--trp-border);color:var(--trp-text-bright);font-family:var(--trp-font-body);font-size:var(--fs-12);border-radius:3px;cursor:pointer;}
-      .craft-dialog .craft-dlg-list{display:flex;flex-direction:column;gap:3px;overflow-y:auto;max-height:270px;padding-right:2px;}
-      .craft-dialog .craft-dlg-chip-row{display:flex;align-items:center;gap:4px;}
-      .craft-dialog .craft-dlg-chip{display:flex;align-items:center;gap:8px;padding:4px 8px;background:var(--trp-bg-overlay);border:1px solid var(--trp-border);border-radius:4px;cursor:pointer;transition:background 0.1s;}
-      .craft-dialog .craft-dlg-chip:hover{background:var(--trp-gold-overlay);border-color:var(--trp-gold-dim);}
-      .craft-dialog .craft-dlg-name{font-size:var(--fs-13);color:var(--trp-text-bright);flex:1;}
-      .craft-dialog .craft-dlg-empty{color:var(--trp-text-dim);font-style:italic;padding:12px 0;text-align:center;}
-      .craft-dialog input[type="checkbox"]{accent-color:var(--trp-gold);}
-      .craft-dialog .dlg-info-btn{flex-shrink:0;color:var(--trp-text-dim);font-size:var(--fs-12);cursor:pointer;padding:2px 4px;}
-      .craft-dialog .dlg-info-btn:hover{color:var(--trp-gold-bright);}
-    </style>`;
-
-  return new Promise(resolve => {
-    const dialog = new Dialog({
-      title: game.i18n.format("TRESPASSER.Dialog.Craft.Title", { name: craftName }),
-      content,
-      buttons: {
-        apply: {
-          label: `<i class="fas fa-check"></i> ${game.i18n.localize("TRESPASSER.Dialog.Calling.ApplySelections")}`,
-          callback: async html => {
-            const actorUpdates = {};
-
-            // ── Write Craft name to first empty slot ──────────────
-            // Build the full 3-slot array to avoid index overwrite bug
-            if (!alreadyListed) {
-              const current  = actor.system.crafts ?? [];
-              const newSlots = [current[0] ?? "", current[1] ?? "", current[2] ?? ""];
-              const emptyIdx = newSlots.findIndex(s => !s || s.trim() === "");
-              if (emptyIdx !== -1) {
-                newSlots[emptyIdx] = craftName;
-                actorUpdates["system.crafts"] = newSlots;
-              }
-            }
-
-            // ── Key attribute ─────────────────────────────────────
-            if (isFirstCraft || html.find("#craft-attr-check").prop("checked")) {
-              actorUpdates["system.key_attribute"] = keyAttr;
-            }
-
-            if (Object.keys(actorUpdates).length > 0) await actor.update(actorUpdates);
-
-            // ── Deeds & Features ───────────────────────────────────
-            const toCreate = [];
-            for (const listKey of ["deeds", "features"]) {
-              html.find(`.craft-dlg-check[data-list='${listKey}']:checked`).each((_, el) => {
-                const entry = sys[listKey]?.[parseInt(el.dataset.index)];
-                if (entry) toCreate.push(entry);
-              });
-            }
-            for (const entry of toCreate) {
-              const sourceItem = await fromUuid(entry.uuid);
-              if (!sourceItem) continue;
-              const itemData = sourceItem.toObject();
-              delete itemData._id;
-              foundry.utils.setProperty(itemData, "flags.trespasser.linkedSource", craftName);
-              await foundry.documents.BaseItem.create(itemData, { parent: actor });
-            }
-
-            ui.notifications.info(
-              game.i18n.format("TRESPASSER.Notification.Apply.Craft", { name: craftName, actor: actor.name })
-            );
-            resolve(true);
-          }
-        },
-        cancel: {
-          label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
-          callback: () => resolve(false)
-        }
-      },
-      default: "apply",
-      render: html => {
-        // Tab switching
-        html.find(".craft-dlg-tab-btn").on("click", ev => {
-          const tab = ev.currentTarget.dataset.tab;
-          html.find(".craft-dlg-tab-btn").each((_, btn) => {
-            const active = btn.dataset.tab === tab;
-            btn.style.color            = active ? "var(--trp-gold-bright)" : "var(--trp-text-dim)";
-            btn.style.borderBottomColor = active ? "var(--trp-gold)" : "transparent";
-          });
-          html.find(".craft-dlg-pane").each((_, pane) => {
-            pane.style.display = pane.dataset.pane === tab ? "" : "none";
-          });
-        });
-
-        // Unified filtering for deeds
-        const filterDeeds = () => {
-          const query = html.find(".craft-dlg-search[data-tab='deeds']").val().toLowerCase().trim();
-          const tier  = html.find(".craft-dlg-tier-filter").val();
-
-          html.find(`.craft-dlg-pane[data-pane="deeds"] .craft-dlg-chip-row`).each((idx, row) => {
-            const entry = sys.deeds[idx];
-            if (!entry) return;
-
-            const matchesSearch = entry.name.toLowerCase().includes(query);
-            const matchesTier   = (tier === "all") || (entry.tier === tier);
-            
-            row.style.display = (matchesSearch && matchesTier) ? "" : "none";
-          });
-        };
-
-        // Search & Tier events
-        html.find(".craft-dlg-search").on("input", ev => {
-          const tabId = ev.currentTarget.dataset.tab;
-          if (tabId === "deeds") {
-            filterDeeds();
-          } else {
-            const query = ev.currentTarget.value.toLowerCase().trim();
-            html.find(`.craft-dlg-pane[data-pane="${tabId}"] .craft-dlg-chip-row`).each((_, row) => {
-              const name = row.querySelector(".craft-dlg-name")?.textContent?.toLowerCase() ?? "";
-              row.style.display = name.includes(query) ? "" : "none";
-            });
-          }
-        });
-
-        html.find(".craft-dlg-tier-filter").on("change", () => filterDeeds());
-
-        // Info icons
-        html.find(".dlg-info-btn").on("click", async ev => {
-          ev.preventDefault();
-          ev.stopPropagation();
-          await showItemInfoDialog(ev.currentTarget.dataset.uuid);
-        });
-      }
-    }, {
-      classes: ["trespasser", "dialog", "craft-dialog"],
-      width: 480,
-      height: "auto",
-      resizable: true
+      const matchesSearch = entry.name.toLowerCase().includes(query);
+      const matchesTier = (tier === "all") || (entry.tier === tier);
+      
+      row.style.display = (matchesSearch && matchesTier) ? "" : "none";
     });
+  }
 
-    dialog.render(true);
-  });
+  /** @override */
+  async close(options={}) {
+    this.resolve(false);
+    return super.close(options);
+  }
+
+  static async _onApply(event, button) {
+    const dialog = this;
+    const html = dialog.element;
+    const sys = dialog.craftItem.system;
+
+    const actorUpdates = {};
+
+    // ── Write Craft name to first empty slot ──────────────
+    if (!dialog.alreadyListed) {
+      const current  = dialog.actor.system.crafts ?? [];
+      const newSlots = [current[0] ?? "", current[1] ?? "", current[2] ?? ""];
+      const emptyIdx = newSlots.findIndex(s => !s || s.trim() === "");
+      if (emptyIdx !== -1) {
+        newSlots[emptyIdx] = dialog.craftItem.name;
+        actorUpdates["system.crafts"] = newSlots;
+      }
+    }
+
+    // ── Key attribute ─────────────────────────────────────
+    const attrCheck = html.querySelector("#craft-attr-check");
+    if (dialog.isFirstCraft || (attrCheck && attrCheck.checked)) {
+      actorUpdates["system.key_attribute"] = sys.keyAttribute || "mighty";
+    }
+
+    if (Object.keys(actorUpdates).length > 0) await dialog.actor.update(actorUpdates);
+
+    // ── Deeds & Features ───────────────────────────────────
+    const toCreate = [];
+    for (const listKey of ["deeds", "features"]) {
+      html.querySelectorAll(`.craft-dlg-check[data-list='${listKey}']:checked`).forEach(el => {
+        const entry = sys[listKey]?.[parseInt(el.dataset.index)];
+        if (entry) toCreate.push(entry);
+      });
+    }
+    for (const entry of toCreate) {
+      const sourceItem = await fromUuid(entry.uuid);
+      if (!sourceItem) continue;
+      const itemData = sourceItem.toObject();
+      delete itemData._id;
+      foundry.utils.setProperty(itemData, "flags.trespasser.linkedSource", dialog.craftItem.name);
+      await foundry.documents.BaseItem.create(itemData, { parent: dialog.actor });
+    }
+
+    ui.notifications.info(
+      game.i18n.format("TRESPASSER.Notification.Apply.Craft", { name: dialog.craftItem.name, actor: dialog.actor.name })
+    );
+
+    dialog.resolve(true);
+    dialog.close();
+  }
+
+  static _onCancel() {
+    this.resolve(false);
+    this.close();
+  }
+
+  static _onTabSelect(event, target) {
+    event.preventDefault();
+    this.tabGroups.primary = target.dataset.tab;
+    this.render();
+  }
+
+  static async _onInfoClick(event, target) {
+    event.preventDefault();
+    event.stopPropagation();
+    await showItemInfoDialog(target.dataset.uuid);
+  }
+}
+
+/**
+ * Craft Selection Dialog
+ * Usage: await showCraftDialog(craftItem, actor)
+ */
+export async function showCraftDialog(craftItem, actor) {
+  return TrespasserCraftDialog.wait(craftItem, actor);
 }

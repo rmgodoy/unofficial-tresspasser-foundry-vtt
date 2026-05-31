@@ -2,6 +2,25 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.8] - 2026-05-31
+
+### Features
+- **Token Status Effects**: Added support for displaying status effects on tokens, with configuration settings to show or hide them.
+- **Direct Item Creation**: Added support to create items directly from the Character inventory sheet using a new item type selection dialog.
+
+### Improvements & Migrations
+- **Defend Action**: Fixed defend action behavior and updated to v2.1.3.
+- **ApplicationV2 Sheet Migration**: Migrated system sheets to Foundry's `ApplicationV2` framework, including:
+  - **Actors**: Character and Creature sheets.
+  - **Items**: Accessory, Armor, Calling, Craft, Features, Incantation, Injury, Item, Past Life, Rations, Room, Talents, and Weapon sheets.
+- **ApplicationV2 Dialog Migration**: Migrated all 15 legacy dialogs to the modern `ApplicationsV2` framework:
+  - Migrated simple dialogs (`ammo-dialog`, `oil-dialog`, `ap-dialog`, `spark-dialog`, `rest-dialog`) and sheet action dialogs to `DialogV2.wait()` / `DialogV2.confirm()`.
+  - Migrated complex dialogs (`item-info-dialog`, `craft-dialog`, `calling-dialog`) to custom `ApplicationV2` subclasses with dedicated `.hbs` templates.
+  - Consolidated and moved inline dialog CSS styles to the system stylesheet `styles/dialogs.css`.
+  - Removed all jQuery dependencies (`html.find`) from dialog controllers and templates, replacing them with native DOM APIs.
+  - Refactored sheet callers in `actor-character-sheet.mjs` to consume dialog classes directly.
+- **pt-BR Terminology**: Updated Portuguese (pt-BR) translations and fixed terminology consistency across settings, sheets, chat, and dialogs.
+
 ## [0.0.7-1] - 2026-05-15
 
 ### Bug Fixes

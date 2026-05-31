@@ -44,11 +44,6 @@ export function activateCharacterListeners(html, sheet) {
   html.find(".item-transfer").on("click",     sheet._onItemTransfer.bind(sheet));
   html.find(".item-toggle-light").on("click", sheet._onToggleLight.bind(sheet));
 
-  html.find(".weapon-mode-select").on("change", async (ev) => {
-    await actor.update({ "system.combat.weaponMode": ev.currentTarget.value });
-    sheet.render();
-  });
-
   if (!sheet.isEditable) return;
 
   // Injury clock mini segments

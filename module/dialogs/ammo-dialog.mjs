@@ -5,30 +5,36 @@
  * Returns the selected ammo item ID, or null if cancelled.
  */
 
-export function showAmmoDialog(ammoItems, weapon) {
-  return new Promise((resolve) => {
-    const options = ammoItems.map(a => `<option value="${a.id}">${a.name} (Qty: ${a.system.quantity ?? 1})</option>`).join("");
-    new Dialog({
-      title: game.i18n.localize("TRESPASSER.Dialog.Ammo.Title"),
-      content: `
-        <div class="trespasser-dialog-content">
-          <p>${game.i18n.format("TRESPASSER.Dialog.Ammo.Prompt", { name: weapon.name })}</p>
-          <div class="form-group" style="margin-top:10px;">
-            <select id="ammo-select">${options}</select>
-          </div>
-        </div>`,
-      buttons: {
-        use: {
-          label:    game.i18n.localize("TRESPASSER.Dialog.Ammo.Use"),
-          callback: (html) => resolve(html.find("#ammo-select").val())
-        },
-        cancel: {
-          label:    game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
-          callback: () => resolve(null)
-        }
+export async function showAmmoDialog(ammoItems, weapon) {
+  const options = ammoItems.map(a => `<option value="${a.id}">${a.name} (Qty: ${a.system.quantity ?? 1})</option>`).join("");
+  const content = `
+    <div class="trespasser-dialog-content">
+      <p>${game.i18n.format("TRESPASSER.Dialog.Ammo.Prompt", { name: weapon.name })}</p>
+      <div class="form-group" style="margin-top:10px;">
+        <select name="ammo-select">${options}</select>
+      </div>
+    </div>`;
+
+  const result = await foundry.applications.api.DialogV2.wait({
+    window: { title: game.i18n.localize("TRESPASSER.Dialog.Ammo.Title") },
+    classes: ["trespasser", "dialog"],
+    content,
+    buttons: [
+      {
+        action: "use",
+        label: game.i18n.localize("TRESPASSER.Dialog.Ammo.Use"),
+        default: true,
+        callback: (event, button) => button.form.elements["ammo-select"].value
       },
-      default: "use",
-      close: () => resolve(null)
-    }, { classes: ["trespasser", "dialog"] }).render(true);
+      {
+        action: "cancel",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
+        callback: () => null
+      }
+    ],
+    rejectClose: false,
+    close: () => null
   });
+
+  return result;
 }

@@ -1,4 +1,4 @@
-<form class="{{cssClass}} trespasser-sheet item armor" autocomplete="off">
+<section class="{{cssClass}} trespasser-sheet item armor" autocomplete="off">
   <header class="sheet-header item-header-layout">
     <div class="header-column image-column">
       <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
@@ -10,7 +10,7 @@
       </h1>
   </header>
 
-  <section class="sheet-body scrollable">
+  <section class="sheet-body scrollable" data-scrollable="true">
     <div class="details-grid">
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Common.Price"}}</label>
@@ -29,7 +29,7 @@
 
       <div class="header-column description-column">
         <div class="trp-editor-container">
-          {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+          <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false">{{{descriptionHTML}}}</prose-mirror>
         </div>
       </div>
       <div class="field-row">
@@ -77,8 +77,8 @@
             title=(localize "TRESPASSER.Sheet.Item.Sections.LinkedEffects") 
             items=system.effects 
             property="effects" 
-            deleteClass="remove-effect"}}
+            deleteClass="remove-link"}}
     </div>
     </div>
   </section>
-</form>
+</section>

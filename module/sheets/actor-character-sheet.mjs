@@ -7,8 +7,8 @@
 
 import { addItemToActor } from "../helpers/item-transfer-helper.mjs";
 import { TrespasserSocket } from "../helpers/socket/socket.mjs";
-import { showCallingDialog }           from "../dialogs/calling-dialog.mjs";
-import { showCraftDialog }             from "../dialogs/craft-dialog.mjs";
+import { TrespasserCallingDialog }     from "../dialogs/calling-dialog.mjs";
+import { TrespasserCraftDialog }       from "../dialogs/craft-dialog.mjs";
 import { showRestDialog }              from "../dialogs/rest-dialog.mjs";
 import { showAmmoDialog }              from "../dialogs/ammo-dialog.mjs";
 import { askAPDialog }               from "../dialogs/ap-dialog.mjs";
@@ -25,35 +25,66 @@ import { onPrevailRoll, onIntensityChange, onEffectRemove, onEffectInfo, onEffec
 import { onEquipRoll, getActiveWeapons, getAccuracyFromTarget }             from "./character/handlers-combat.mjs";
 import { onInjuryClockClick, onToggleLight, onSpendRDHeader }               from "./character/handlers-misc.mjs";
 
+const { api, sheets } = foundry.applications;
+
 /**
  * Character Sheet class for Trespasser TTRPG.
  */
-export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
+export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
+
+  static DEFAULT_OPTIONS = {
+    classes: ["trespasser", "trespasser-sheet", "sheet", "actor", "character"],
+    position: { width: 868, height: 720 },
+    form: {
+      submitOnChange: true,
+      closeOnSubmit: false
+    },
+    window: { resizable: true },
+    dragDrop: [{ dragSelector: ".inventory-card, .item, .deed-slot", dropSelector: null }]
+  };
+
+  static PARTS = {
+    main: {
+      template: "systems/trespasser/templates/actor/character-sheet.hbs",
+      scrollable: [".tab-body.active", ".editor-container"]
+    }
+  };
+
+  tabGroups = { primary: "character" };
 
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes:  ["trespasser", "sheet", "actor", "character"],
-      template: "systems/trespasser/templates/actor/character-sheet.hbs",
-      width:    868,
-      height:   720,
-      resizable: true,
-      scrollY:  [".tab-body"],
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "character" }],
-      dragDrop: [{ dragSelector: ".inventory-card, .item, .deed-slot", dropSelector: null }]
-    });
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Actor.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
   }
 
   // ── Foundry lifecycle ──────────────────────────────────────────────────────
 
   /** @override */
-  async getData(options = {}) { return getCharacterData(this, options); }
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const charData = await getCharacterData(this, options);
+    const merged = foundry.utils.mergeObject(context, charData);
+    merged.tabs = this.tabGroups;
+    return merged;
+  }
 
   /** @override */
-  activateListeners(html) {
-    console.log(`Trespasser | TrespasserCharacterSheet.activateListeners for ${this.actor.name}`);
-    super.activateListeners(html);
+  _onRender(context, options) {
+    super._onRender(context, options);
+    const html = $(this.element);
+
+    console.log(`Trespasser | TrespasserCharacterSheet._onRender for ${this.actor.name}`);
     activateCharacterListeners(html, this);
+
+    // Sync tabs
+    const tabs = this.element.querySelectorAll('.sheet-tabs .item');
+    tabs.forEach(t => {
+      t.addEventListener('click', (ev) => {
+        this.tabGroups.primary = t.dataset.tab;
+        this.render();
+      });
+    });
 
     // Re-render when targets change so transfer buttons show up
     if (!this._targetingHook) {
@@ -131,8 +162,8 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     const item = await Item.implementation.fromDropData(data);
     if (!item) return super._onDropItem(event, data);
 
-    if (item.type === "calling") return showCallingDialog(item, this.actor);
-    if (item.type === "craft")   return showCraftDialog(item, this.actor);
+    if (item.type === "calling") return TrespasserCallingDialog.wait(item, this.actor);
+    if (item.type === "craft")   return TrespasserCraftDialog.wait(item, this.actor);
     if (item.type === "past_life") return this._applyPastLife(item);
     return super._onDropItem(event, data);
   }
@@ -200,7 +231,7 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
     event.preventDefault();
     const callingItem = this.actor.items.find(i => i.type === "calling");
     if (!callingItem) return ui.notifications.warn("No calling item found on this actor.");
-    return showCallingDialog(callingItem, this.actor);
+    return TrespasserCallingDialog.wait(callingItem, this.actor);
   }
 
   async _onCallingDelete(event) {
@@ -210,12 +241,11 @@ export class TrespasserCharacterSheet extends foundry.appv1.sheets.ActorSheet {
 
     const callingName = callingItem.name;
 
-    const confirm = await Dialog.confirm({
-      title: game.i18n.format("TRESPASSER.Dialog.Delete.CallingTitle", { name: callingName }),
+    const confirm = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.CallingTitle", { name: callingName }) },
       content: `<p>${game.i18n.format("TRESPASSER.Dialog.Delete.CallingConfirm", { name: callingName })}</p>`,
-      yes: () => true,
-      no: () => false,
-      defaultYes: false
+      classes: ["trespasser", "dialog"],
+      rejectClose: false
     });
 
     if (!confirm) return;

@@ -46,6 +46,8 @@
         "Maneuver": "{cost} PA (+{bonus} Acurácia)",
         "Smash": "{cost} PA (+{bonus} For)",
         "Throw": "{cost} PA ({range} qdr)",
+        "DefendSingle": "1 PA (Tipo escolhido)",
+        "DefendBoth": "2 PA (Guarda & Resistir)",
         "VaultTip": "Pule em uma linha reta (ortogonal ou diagonal). Custo de PA: 1.",
         "WaitTip": "Mova seu turno para a Fase Tardia, levando AP e Movimento. Disponível apenas na Fase Inicial."
       },
@@ -53,8 +55,6 @@
         "SelectAlly": "Selecionar Aliado",
         "Attribute": "Atributo",
         "Confirm": "Confirmar",
-        "NextCheck": "Próximo Teste",
-        "WholeRound": "Rodada Inteira",
         "WithBonus": "(Bônus: +{bonus})"
       },
       "SmashMaterial": {

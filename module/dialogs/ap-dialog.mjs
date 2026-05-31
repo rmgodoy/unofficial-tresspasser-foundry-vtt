@@ -9,7 +9,7 @@ export async function askAPDialog(availableAP) {
       <p>${game.i18n.localize("TRESPASSER.Dialog.SpendAP.Question")}</p>
       <div class="form-group" style="margin-top: 10px;">
         <label>${game.i18n.format("TRESPASSER.Dialog.SpendAP.Available", { count: availableAP })}</label>
-        <select id="ap-spent" style="width: 100%;">
+        <select name="ap-spent" style="width: 100%;">
           ${Array.from({ length: availableAP }, (_, i) => i + 1).map(val => {
             const bonus = (val - 1) * 2;
             const label = val === 1 
@@ -19,34 +19,43 @@ export async function askAPDialog(availableAP) {
           }).join("")}
         </select>
       </div>
-      <p id="ap-bonus-preview" style="margin-top: 5px; font-style: italic; font-size: var(--fs-13); color: var(--trp-gold-bright);">
+      <p class="ap-bonus-preview" style="margin-top: 5px; font-style: italic; font-size: var(--fs-13); color: var(--trp-gold-bright);">
         ${game.i18n.format("TRESPASSER.Dialog.SpendAP.Bonus", { bonus: 0 })}
       </p>
-    </div>
-    <script>
-      document.getElementById("ap-spent").addEventListener("change", (ev) => {
-        const val = parseInt(ev.target.value);
-        const bonus = (val - 1) * 2;
-        document.getElementById("ap-bonus-preview").innerText = game.i18n.format("TRESPASSER.Dialog.SpendAP.Bonus", { bonus: bonus });
-      });
-    </script>
-  `;
+    </div>`;
 
-  return new Promise((resolve) => {
-    new Dialog({
-      title: game.i18n.localize("TRESPASSER.Dialog.SpendAP.Title"),
-      content,
-      buttons: {
-        confirm: {
-          label: game.i18n.localize("TRESPASSER.Global.Action.Confirm"),
-          callback: (html) => resolve(parseInt(html.find("#ap-spent").val()))
-        },
-        cancel: {
-          label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
-          callback: () => resolve(null)
-        }
+  const result = await foundry.applications.api.DialogV2.wait({
+    window: { title: game.i18n.localize("TRESPASSER.Dialog.SpendAP.Title") },
+    classes: ["trespasser", "dialog"],
+    content,
+    render: (event, dialog) => {
+      const el = dialog.element;
+      const select = el.querySelector('[name="ap-spent"]');
+      const preview = el.querySelector(".ap-bonus-preview");
+      if (select && preview) {
+        select.addEventListener("change", () => {
+          const val = parseInt(select.value);
+          const bonus = (val - 1) * 2;
+          preview.textContent = game.i18n.format("TRESPASSER.Dialog.SpendAP.Bonus", { bonus });
+        });
+      }
+    },
+    buttons: [
+      {
+        action: "confirm",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Confirm"),
+        default: true,
+        callback: (event, button) => parseInt(button.form.elements["ap-spent"].value)
       },
-      default: "confirm"
-    }, { classes: ["trespasser", "dialog"] }).render(true);
+      {
+        action: "cancel",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
+        callback: () => null
+      }
+    ],
+    rejectClose: false,
+    close: () => null
   });
+
+  return result;
 }

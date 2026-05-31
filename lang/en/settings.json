@@ -91,6 +91,10 @@
         "FontSizeBase": {
           "Name": "Base Font Size (px)",
           "Hint": "The base font size for the entire system. All other font sizes will scale proportionally."
+        },
+        "ShowStatusEffectsOnTokens": {
+          "Name": "Show status effects on tokens",
+          "Hint": "If enabled, selected status effect icons from Effect items will be displayed as overlay icons on active tokens."
         }
       },
       "Colors": {

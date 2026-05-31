@@ -41,24 +41,32 @@ export async function onToggleLight(event, sheet) {
     if (fuels.length === 1) {
       selectedFuelId = fuels[0].id;
     } else {
-      selectedFuelId = await new Promise((resolve) => {
-        const options = fuels.map(f => `<option value="${f.id}">${f.name}</option>`).join("");
-        new Dialog({
-          title: game.i18n.localize("TRESPASSER.Dialog.Fuel.Title"),
-          content: `
-            <div class="trespasser-dialog-content">
-              <p>${game.i18n.format("TRESPASSER.Dialog.Fuel.Prompt", { name: item.name })}</p>
-              <div class="form-group" style="margin-top:10px;">
-                <select id="fuel-select">${options}</select>
-              </div>
-            </div>`,
-          buttons: {
-            use:    { label: game.i18n.localize("TRESPASSER.Global.Action.Apply"),    callback: (html) => resolve(html.find("#fuel-select").val()) },
-            cancel: { label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),      callback: () => resolve(null) }
+      const fuelOptions = fuels.map(f => `<option value="${f.id}">${f.name}</option>`).join("");
+      selectedFuelId = await foundry.applications.api.DialogV2.wait({
+        window: { title: game.i18n.localize("TRESPASSER.Dialog.Fuel.Title") },
+        classes: ["trespasser", "dialog"],
+        content: `
+          <div class="trespasser-dialog-content">
+            <p>${game.i18n.format("TRESPASSER.Dialog.Fuel.Prompt", { name: item.name })}</p>
+            <div class="form-group" style="margin-top:10px;">
+              <select name="fuel-select">${fuelOptions}</select>
+            </div>
+          </div>`,
+        buttons: [
+          {
+            action: "use",
+            label: game.i18n.localize("TRESPASSER.Global.Action.Apply"),
+            default: true,
+            callback: (event, button) => button.form.elements["fuel-select"].value
           },
-          default: "use",
-          close: () => resolve(null)
-        }, { classes: ["trespasser", "dialog"] }).render(true);
+          {
+            action: "cancel",
+            label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
+            callback: () => null
+          }
+        ],
+        rejectClose: false,
+        close: () => null
       });
     }
 
@@ -82,29 +90,37 @@ export async function onSpendRDHeader(event, sheet) {
   const currentRD = sheet.actor.system.recovery_dice || 0;
   if (currentRD <= 0) { ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Rest.NoRD")); return; }
 
-  new Dialog({
-    title: game.i18n.localize("TRESPASSER.Dialog.Rest.RDHowMany"),
+  const result = await foundry.applications.api.DialogV2.wait({
+    window: { title: game.i18n.localize("TRESPASSER.Dialog.Rest.RDHowMany") },
+    classes: ["trespasser", "dialog", "spend-rd-dialog"],
     content: `
       <div class="form-group">
         <label>${game.i18n.localize("TRESPASSER.Dialog.Rest.RDHowMany")}</label>
-        <input type="number" id="spend-rd-count" value="1" min="1" max="${currentRD}" />
+        <input type="number" name="spend-rd-count" value="1" min="1" max="${currentRD}" />
         <p class="notes">${game.i18n.localize("TRESPASSER.Dialog.Rest.RDDialogNote")}</p>
       </div>`,
-    buttons: {
-      ok: {
+    buttons: [
+      {
+        action: "ok",
         label: game.i18n.localize("TRESPASSER.Global.Action.Apply"),
-        callback: async (html) => {
-          const count     = parseInt(html.find("#spend-rd-count").val()) || 0;
-          const available = sheet.actor.system.recovery_dice || 0;
-          if (count > available) {
-            ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Rest.CannotSpendRD", { count: available }));
-            return;
-          }
-          if (count > 0) await sheet._spendRDAndRoll(count);
-        }
+        default: true,
+        callback: (event, button) => parseInt(button.form.elements["spend-rd-count"].value) || 0
       },
-      cancel: { label: game.i18n.localize("TRESPASSER.Global.Action.Cancel") }
-    },
-    default: "ok"
-  }, { classes: ["trespasser", "dialog"] }).render(true);
+      {
+        action: "cancel",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
+        callback: () => null
+      }
+    ],
+    rejectClose: false,
+    close: () => null
+  });
+
+  if (result === null) return;
+  const available = sheet.actor.system.recovery_dice || 0;
+  if (result > available) {
+    ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Rest.CannotSpendRD", { count: available }));
+    return;
+  }
+  if (result > 0) await sheet._spendRDAndRoll(result);
 }

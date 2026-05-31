@@ -1,0 +1,146 @@
+<div class="trespasser calling-dialog-v2">
+  <div class="calling-dlg-header">
+    <h2>{{callingName}}</h2>
+    {{#if description}}
+      <div class="calling-dlg-desc">{{{description}}}</div>
+    {{/if}}
+  </div>
+
+  <nav class="calling-dlg-tabs sheet-tabs" data-group="primary">
+    {{#each tabs}}
+      <a class="calling-dlg-tab-btn item {{this.cssClass}}" data-action="switchTab" data-tab="{{this.id}}">
+        {{localize this.label}}
+      </a>
+    {{/each}}
+  </nav>
+
+  <div class="calling-dlg-tab-content">
+    <!-- Skills Pane -->
+    <div class="calling-dlg-pane tab {{#if (eq tabGroups.primary 'skills')}}active{{/if}}" data-group="primary" data-tab="skills">
+      <input type="text" class="calling-dlg-search" data-tab="skills" placeholder="{{localize 'TRESPASSER.Dialog.Common.SearchPlaceholder'}}" />
+      <div class="calling-dlg-list">
+        {{#each skills}}
+          <label class="calling-dlg-chip {{#if (and this.alreadyTrained (not this.isFromThisCalling))}}already-trained{{/if}}" data-list="skills" data-index="{{this.index}}">
+            <input type="checkbox" class="calling-dlg-check" data-list="skills" data-index="{{this.index}}" {{#if this.isFromThisCalling}}checked{{/if}} />
+            <span class="calling-dlg-name">
+              {{this.label}}
+              {{#if (and this.alreadyTrained (not this.isFromThisCalling))}}
+                <em>({{localize "TRESPASSER.Dialog.Calling.AlreadyTrained"}})</em>
+              {{/if}}
+            </span>
+          </label>
+        {{else}}
+          <div class="calling-dlg-empty">{{localize "TRESPASSER.Dialog.Calling.NoItems"}}</div>
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- Talents Pane -->
+    <div class="calling-dlg-pane tab {{#if (eq tabGroups.primary 'talents')}}active{{/if}}" data-group="primary" data-tab="talents">
+      <input type="text" class="calling-dlg-search" data-tab="talents" placeholder="{{localize 'TRESPASSER.Dialog.Common.SearchPlaceholder'}}" />
+      <div class="calling-dlg-list">
+        {{#each talents}}
+          <div class="calling-dlg-chip-row">
+            <label class="calling-dlg-chip" data-list="talents" data-index="{{this.index}}" style="flex:1;margin:0;">
+              <input type="checkbox" class="calling-dlg-check" data-list="talents" data-index="{{this.index}}" {{#if this.isPicked}}checked{{/if}} />
+              <img src="{{this.img}}" width="20" height="20" style="border:none;border-radius:50%;flex-shrink:0;" />
+              <span class="calling-dlg-name">{{this.name}}</span>
+            </label>
+            {{#if this.uuid}}
+              <a class="dlg-info-btn" data-action="info" data-uuid="{{this.uuid}}" title="{{localize 'TRESPASSER.Dialog.Item.ViewDetails'}}">
+                <i class="fas fa-info-circle"></i>
+              </a>
+            {{/if}}
+          </div>
+        {{else}}
+          <div class="calling-dlg-empty">{{localize "TRESPASSER.Dialog.Calling.NoItems"}}</div>
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- Features Pane -->
+    <div class="calling-dlg-pane tab {{#if (eq tabGroups.primary 'features')}}active{{/if}}" data-group="primary" data-tab="features">
+      <input type="text" class="calling-dlg-search" data-tab="features" placeholder="{{localize 'TRESPASSER.Dialog.Common.SearchPlaceholder'}}" />
+      <div class="calling-dlg-list">
+        {{#each features}}
+          <div class="calling-dlg-chip-row">
+            <label class="calling-dlg-chip" data-list="features" data-index="{{this.index}}" style="flex:1;margin:0;">
+              <input type="checkbox" class="calling-dlg-check" data-list="features" data-index="{{this.index}}" {{#if this.isPicked}}checked{{/if}} />
+              <img src="{{this.img}}" width="20" height="20" style="border:none;border-radius:50%;flex-shrink:0;" />
+              <span class="calling-dlg-name">{{this.name}}</span>
+            </label>
+            {{#if this.uuid}}
+              <a class="dlg-info-btn" data-action="info" data-uuid="{{this.uuid}}" title="{{localize 'TRESPASSER.Dialog.Item.ViewDetails'}}">
+                <i class="fas fa-info-circle"></i>
+              </a>
+            {{/if}}
+          </div>
+        {{else}}
+          <div class="calling-dlg-empty">{{localize "TRESPASSER.Dialog.Calling.NoItems"}}</div>
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- Enhancements Pane -->
+    <div class="calling-dlg-pane tab {{#if (eq tabGroups.primary 'enhancements')}}active{{/if}}" data-group="primary" data-tab="enhancements">
+      <input type="text" class="calling-dlg-search" data-tab="enhancements" placeholder="{{localize 'TRESPASSER.Dialog.Common.SearchPlaceholder'}}" />
+      <div class="calling-dlg-list">
+        {{#each enhancements}}
+          <div class="calling-dlg-chip-row">
+            <label class="calling-dlg-chip" data-list="enhancements" data-index="{{this.index}}" style="flex:1;margin:0;">
+              <input type="checkbox" class="calling-dlg-check" data-list="enhancements" data-index="{{this.index}}" {{#if this.isPicked}}checked{{/if}} />
+              <img src="{{this.img}}" width="20" height="20" style="border:none;border-radius:50%;flex-shrink:0;" />
+              <span class="calling-dlg-name">{{this.name}}</span>
+            </label>
+            {{#if this.uuid}}
+              <a class="dlg-info-btn" data-action="info" data-uuid="{{this.uuid}}" title="{{localize 'TRESPASSER.Dialog.Item.ViewDetails'}}">
+                <i class="fas fa-info-circle"></i>
+              </a>
+            {{/if}}
+          </div>
+        {{else}}
+          <div class="calling-dlg-empty">{{localize "TRESPASSER.Dialog.Calling.NoItems"}}</div>
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- Progression Pane -->
+    <div class="calling-dlg-pane tab {{#if (eq tabGroups.primary 'progression')}}active{{/if}}" data-group="primary" data-tab="progression" style="overflow-y:auto; max-height:270px;">
+      <div class="progression-list">
+        {{#each progression}}
+          <div class="progression-level {{#if this.isCollapsed}}collapsed{{/if}}" data-level="{{this.index}}">
+            <div class="level-header" data-action="toggleLevel" data-level="{{this.index}}">
+              <span class="level-title">{{localize "TRESPASSER.Sheet.Header.Level"}} {{this.level}}</span>
+              <i class="fas fa-chevron-down level-toggle"></i>
+            </div>
+            <div class="level-content">
+              <div class="prog-field"><label>{{localize "TRESPASSER.Sheet.Header.XP"}}:</label> <span>{{this.xp}}</span></div>
+              <div class="prog-field"><label>{{localize "TRESPASSER.Sheet.Header.HP"}} Base:</label> <span>{{this.hp}}</span></div>
+              <div class="prog-field"><label>{{localize "TRESPASSER.Sheet.Header.Skill"}} Bonus:</label> <span>{{this.skillBonus}}</span></div>
+              <div class="prog-field"><label>{{localize "TRESPASSER.Sheet.Header.SkillDie"}}:</label> <span>{{this.skillDie}}</span></div>
+              <div class="prog-field"><label>{{localize "TRESPASSER.Sheet.Header.AttributeBonus"}}:</label> <span>{{this.attributePoints}}</span></div>
+              <div class="prog-field"><label>{{localize "TRESPASSER.Sheet.Combat.DeedsLight"}}:</label> <span>{{this.deedsLight}}</span></div>
+              <div class="prog-field"><label>{{localize "TRESPASSER.Sheet.Combat.DeedsHeavy"}}:</label> <span>{{this.deedsHeavy}}</span></div>
+              <div class="prog-field"><label>{{localize "TRESPASSER.Sheet.Combat.DeedsMighty"}}:</label> <span>{{this.deedsMighty}}</span></div>
+              <div class="prog-field full-width">
+                <label>{{localize "TRESPASSER.Sheet.CallingGrantDescription"}}:</label>
+                <div style="font-size:var(--fs-11); color:var(--trp-text-bright); margin-top:4px;">
+                  {{#if this.callingAbilities}}{{{this.callingAbilities}}}{{else}}—{{/if}}
+                </div>
+              </div>
+            </div>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+
+  <footer class="dialog-footer">
+    <button type="button" class="trp-btn apply" data-action="apply">
+      <i class="fas fa-check"></i> {{localize "TRESPASSER.Dialog.Calling.ApplySelections"}}
+    </button>
+    <button type="button" class="trp-btn cancel" data-action="cancel">
+      {{localize "TRESPASSER.Global.Action.Cancel"}}
+    </button>
+  </footer>
+</div>

@@ -1,4 +1,4 @@
-<form class="{{cssClass}} trespasser-sheet item accessory" autocomplete="off">
+<section class="{{cssClass}} trespasser-sheet item accessory" autocomplete="off">
   <header class="sheet-header">
     <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
     <div class="header-info">
@@ -8,7 +8,7 @@
     </div>
   </header>
 
-  <section class="sheet-body scrollable">
+  <section class="sheet-body scrollable" data-scrollable="true">
     <div class="details-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Header.Name"}}</label>
@@ -33,7 +33,7 @@
     <div class="description-section" style="margin-top: 20px; border-top: 1px solid var(--trp-gold-dim); padding-top: 10px; margin-bottom: 20px;">
         <h3 style="font-family: var(--trp-font-header); color: var(--trp-gold-bright); margin-bottom: 10px;">{{localize "TRESPASSER.Sheet.Common.Description"}}</h3>
         <div class="trp-editor-container">
-          {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+          <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false">{{{descriptionHTML}}}</prose-mirror>
         </div>
     </div>
 
@@ -65,4 +65,4 @@
             deleteClass="remove-link"}}
     </div>
   </section>
-</form>
+</section>

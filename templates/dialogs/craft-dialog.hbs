@@ -1,0 +1,102 @@
+<div class="trespasser craft-dialog-v2">
+  <div class="craft-dlg-header">
+    <h2>{{craftName}}</h2>
+    {{#if description}}
+      <div class="craft-dlg-desc">{{{description}}}</div>
+    {{/if}}
+  </div>
+
+  <nav class="craft-dlg-tabs sheet-tabs" data-group="primary">
+    {{#each tabs}}
+      <a class="craft-dlg-tab-btn item {{this.cssClass}}" data-action="switchTab" data-tab="{{this.id}}">
+        {{localize this.label}}
+      </a>
+    {{/each}}
+  </nav>
+
+  <div class="craft-dlg-tab-content">
+    <!-- Attribute Pane -->
+    <div class="craft-dlg-pane tab {{#if (eq tabGroups.primary 'attribute')}}active{{/if}}" data-group="primary" data-tab="attribute">
+      <div class="craft-dlg-list" style="margin-top:4px;">
+        {{#if isFirstCraft}}
+          <label class="craft-dlg-chip" style="justify-content:flex-start;cursor:default;" title="{{localize 'TRESPASSER.Dialog.Craft.AttrFirstTooltip'}}">
+            <input type="checkbox" id="craft-attr-check" checked disabled />
+            <span class="craft-dlg-name" style="margin-left:8px;">{{keyAttrLabel}}</span>
+            <span style="margin-left:6px;font-size:var(--fs-10);color:var(--trp-text-dim);font-style:italic;">
+              {{localize 'TRESPASSER.Dialog.Craft.AttrFirstTooltip'}}
+            </span>
+          </label>
+        {{else}}
+          <label class="craft-dlg-chip" style="justify-content:flex-start;">
+            <input type="checkbox" id="craft-attr-check" />
+            <span class="craft-dlg-name" style="margin-left:8px;">{{keyAttrLabel}}</span>
+          </label>
+        {{/if}}
+      </div>
+    </div>
+
+    <!-- Deeds Pane -->
+    <div class="craft-dlg-pane tab {{#if (eq tabGroups.primary 'deeds')}}active{{/if}}" data-group="primary" data-tab="deeds">
+      <div class="craft-dlg-filter-row">
+        <input type="text" class="craft-dlg-search" data-tab="deeds" placeholder="{{localize 'TRESPASSER.Dialog.Common.SearchPlaceholder'}}" />
+        <select class="craft-dlg-tier-filter" style="width:120px;height:28px;">
+          <option value="all">{{localize "TRESPASSER.Dialog.Craft.AllTiers"}}</option>
+          <option value="light">{{localize "TRESPASSER.Sheet.Item.Details.Tiers.Light"}}</option>
+          <option value="heavy">{{localize "TRESPASSER.Sheet.Item.Details.Tiers.Heavy"}}</option>
+          <option value="mighty">{{localize "TRESPASSER.Sheet.Item.Details.Tiers.Mighty"}}</option>
+          <option value="special">{{localize "TRESPASSER.Sheet.Item.Details.Tiers.Special"}}</option>
+        </select>
+      </div>
+      <div class="craft-dlg-list">
+        {{#each deeds}}
+          <div class="craft-dlg-chip-row">
+            <label class="craft-dlg-chip" data-list="deeds" data-index="{{@index}}" style="flex:1;margin:0;">
+              <input type="checkbox" class="craft-dlg-check" data-list="deeds" data-index="{{@index}}" />
+              <img src="{{this.img}}" width="20" height="20" style="border:none;border-radius:50%;flex-shrink:0;" />
+              <span class="craft-dlg-name">{{this.name}}</span>
+            </label>
+            {{#if this.uuid}}
+              <a class="dlg-info-btn" data-action="info" data-uuid="{{this.uuid}}" title="{{localize 'TRESPASSER.Dialog.Item.ViewDetails'}}">
+                <i class="fas fa-info-circle"></i>
+              </a>
+            {{/if}}
+          </div>
+        {{else}}
+          <div class="craft-dlg-empty">{{localize "TRESPASSER.Dialog.Calling.NoItems"}}</div>
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- Features Pane -->
+    <div class="craft-dlg-pane tab {{#if (eq tabGroups.primary 'features')}}active{{/if}}" data-group="primary" data-tab="features">
+      <input type="text" class="craft-dlg-search" data-tab="features" placeholder="{{localize 'TRESPASSER.Dialog.Common.SearchPlaceholder'}}" />
+      <div class="craft-dlg-list">
+        {{#each features}}
+          <div class="craft-dlg-chip-row">
+            <label class="craft-dlg-chip" data-list="features" data-index="{{@index}}" style="flex:1;margin:0;">
+              <input type="checkbox" class="craft-dlg-check" data-list="features" data-index="{{@index}}" />
+              <img src="{{this.img}}" width="20" height="20" style="border:none;border-radius:50%;flex-shrink:0;" />
+              <span class="craft-dlg-name">{{this.name}}</span>
+            </label>
+            {{#if this.uuid}}
+              <a class="dlg-info-btn" data-action="info" data-uuid="{{this.uuid}}" title="{{localize 'TRESPASSER.Dialog.Item.ViewDetails'}}">
+                <i class="fas fa-info-circle"></i>
+              </a>
+            {{/if}}
+          </div>
+        {{else}}
+          <div class="craft-dlg-empty">{{localize "TRESPASSER.Dialog.Calling.NoItems"}}</div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+
+  <footer class="dialog-footer">
+    <button type="button" class="trp-btn apply" data-action="apply">
+      <i class="fas fa-check"></i> {{localize "TRESPASSER.Dialog.Calling.ApplySelections"}}
+    </button>
+    <button type="button" class="trp-btn cancel" data-action="cancel">
+      {{localize "TRESPASSER.Global.Action.Cancel"}}
+    </button>
+  </footer>
+</div>

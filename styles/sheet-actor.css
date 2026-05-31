@@ -1,6 +1,11 @@
-/* ═══════════════════════════════════════════════════
-   HEADER
-═══════════════════════════════════════════════════ */
+.trespasser-character-sheet-layout {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+  flex: 1;
+}
+
 .trespasser-sheet .sheet-header {
   display: flex;
   gap: 16px;
@@ -357,7 +362,12 @@
 }
 
 .trespasser-sheet .sheet-body.scrollable {
-  overflow-y: auto;
+  --color-scrollbar: var(--trp-scrollbar, #782e22);
+  --color-scrollbar-track: transparent;
+  overflow-x: hidden !important;
+  overflow-y: auto !important;
+  width: 100%;
+  box-sizing: border-box !important;
   padding: 10px 24px;
   scrollbar-width: thin;
   scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-track);
@@ -367,7 +377,7 @@
   width: 6px;
 }
 .trespasser-sheet .sheet-body.scrollable::-webkit-scrollbar-thumb {
-  background: var(--color-scrollbar);
+  background: var(--color-scrollbar, #782e22);
   border-radius: 3px;
 }
 

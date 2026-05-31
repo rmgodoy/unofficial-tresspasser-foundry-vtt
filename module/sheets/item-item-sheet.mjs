@@ -1,36 +1,53 @@
+const { api, sheets } = foundry.applications;
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+
 /**
  * Extend the basic ItemSheet with some very simple logic.
  */
-import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+export class TrespasserItemSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
 
-export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
+  static DEFAULT_OPTIONS = {
+    classes: ["trespasser", "trespasser-sheet", "sheet", "item", "item-sheet"],
+    position: { width: 520, height: 480 },
+    form: {
+      handler: TrespasserItemSheet.#onSubmit,
+      submitOnChange: true,
+      closeOnSubmit: false
+    },
+    window: { resizable: true }
+  };
+
+  static PARTS = {
+    main: {
+      template: "systems/trespasser/templates/item/item-sheet.hbs",
+      scrollable: [".scrollable", ".sheet-body"]
+    }
+  };
 
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["trespasser", "sheet", "item"],
-      width: 520,
-      height: 480,
-      scrollY: [".sheet-body"],
-      tabs: [] // Minimalist design (no tabs)
-    });
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Item.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
   }
 
   /** @override */
-  get template() {
-    return `systems/trespasser/templates/item/item-sheet.hbs`;
-  }
-
-  /** @override */
-  async getData(options) {
-    const context = await super.getData(options);
-    context.system = this.item.system;
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const item = this.document;
+    const system = item.system;
     
-    context.descriptionHTML = await TextEditor.enrichHTML(this.item.system.description, {
-      async: true,
-      secrets: this.item.isOwner,
-      relativeTo: this.item
-    });
+    context.item = item;
+    context.system = system;
+    context.editable = this.isEditable;
+    
+    context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      system.description ?? "",
+      {
+        async: true,
+        secrets: item.isOwner,
+        relativeTo: item
+      }
+    );
     
     context.config = CONFIG.TRESPASSER;
 
@@ -70,7 +87,7 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
     };
 
     // Subtype visibility flags for the template
-    const st = this.item.system.subType;
+    const st = system.subType;
     context.isResource = st === "resource";
     context.isLightSource = st === "light_source";
     context.isConsumable = ["bombs", "oils", "powders", "potions"].includes(st);
@@ -79,64 +96,80 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
     context.isArtifact = st === "artifacts";
     context.hasDamage = st === "bombs";
 
-    // "Custom Attributes" exists if it's a special subtype or has any linked data
-    const hasLinkedItems = 
-      (context.system.effects?.length > 0) || 
-      (context.system.deeds?.length > 0) || 
-      (context.system.incantations?.length > 0) || 
-      (context.system.talents?.length > 0) || 
-      (context.system.features?.length > 0);
-    
+    // "Custom Attributes" exists if it's a special subtype
     context.hasCustomAttributes = context.isResource || context.isLightSource || 
                                   context.isConsumable || context.isScroll || 
-                                  context.isEsoteric || context.isArtifact || 
-                                  hasLinkedItems;
+                                  context.isEsoteric || context.isArtifact;
 
     return context;
   }
 
   /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
+  _onRender(context, options) {
+    super._onRender(context, options);
 
     if (!this.isEditable) return;
 
+    const html = this.element;
+
     // Remove buttons based on component logic
-    html.find('.remove-effect').click(this._onRemoveLink.bind(this, 'effects'));
-    html.find('.effect-edit').click(this._onEffectEdit.bind(this));
-    html.find('.remove-deed').click(this._onRemoveLink.bind(this, 'deeds'));
-    html.find('.remove-incantation').click(this._onRemoveLink.bind(this, 'incantations'));
-    html.find('.remove-talent').click(this._onRemoveLink.bind(this, 'talents'));
-    html.find('.remove-feature').click(this._onRemoveLink.bind(this, 'features'));
+    html.querySelectorAll('.remove-effect').forEach(btn => {
+      btn.addEventListener('click', this._onRemoveLink.bind(this, 'effects'));
+    });
+    html.querySelectorAll('.remove-deed').forEach(btn => {
+      btn.addEventListener('click', this._onRemoveLink.bind(this, 'deeds'));
+    });
+    html.querySelectorAll('.remove-incantation').forEach(btn => {
+      btn.addEventListener('click', this._onRemoveLink.bind(this, 'incantations'));
+    });
+    html.querySelectorAll('.remove-talent').forEach(btn => {
+      btn.addEventListener('click', this._onRemoveLink.bind(this, 'talents'));
+    });
+    html.querySelectorAll('.remove-feature').forEach(btn => {
+      btn.addEventListener('click', this._onRemoveLink.bind(this, 'features'));
+    });
 
     // Edit button for effects
-    html.find('.effect-edit').click(this._onEffectEdit.bind(this));
+    html.querySelectorAll('.effect-edit').forEach(btn => {
+      btn.addEventListener('click', this._onEffectEdit.bind(this));
+    });
 
     // Drag-and-drop zones
-    const dropZones = html.find('.drop-zone');
-    dropZones.on("dragover", (ev) => { ev.preventDefault(); return false; });
-    dropZones.on("drop", this._onDropItem.bind(this));
+    const dropZones = html.querySelectorAll('.drop-zone');
+    dropZones.forEach(zone => {
+      zone.addEventListener("dragover", (ev) => { ev.preventDefault(); return false; });
+      zone.addEventListener("drop", this._onDropItem.bind(this));
+    });
 
     // Intensity management for effects
-    html.find('.effect-intensity-input').change(this._onIntensityChange.bind(this));
+    html.querySelectorAll('.effect-intensity-input').forEach(input => {
+      input.addEventListener('change', this._onIntensityChange.bind(this));
+    });
+
+    // Intercept change events from prose-mirror in the capture phase to prevent synchronous submission crash
+    this.element.addEventListener('change', ev => {
+      const pm = ev.target.closest('prose-mirror');
+      if (pm) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        setTimeout(() => {
+          if (this.element && this.document) {
+            this.document.update({ "system.description": pm.value });
+          }
+        }, 0);
+      }
+    }, true);
   }
 
   async _onDropItem(event) {
     event.preventDefault();
-    const dataText = event.originalEvent?.dataTransfer?.getData("text/plain");
-    if (!dataText) return;
-
-    let dropData;
-    try {
-      dropData = JSON.parse(dataText);
-    } catch(e) { return; }
-
-    if (dropData.type !== "Item") return;
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+    if (!data || data.type !== "Item") return;
     
     const targetEl = event.currentTarget;
     const targetType = targetEl.dataset.type; // "effects", "deeds", etc.
 
-    const sourceItem = await fromUuid(dropData.uuid);
+    const sourceItem = await fromUuid(data.uuid);
     if (!sourceItem) return;
 
     if (sourceItem.parent) {
@@ -144,7 +177,29 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
       return;
     }
 
-    const currentArray = this.item.system[targetType] ? [...this.item.system[targetType]] : [];
+    // Validation
+    if (targetType === "talents" && sourceItem.type !== "talent") {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropTalentsOnly"));
+      return;
+    }
+    if (targetType === "features" && sourceItem.type !== "feature") {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropFeaturesOnly"));
+      return;
+    }
+    if (targetType === "deeds" && sourceItem.type !== "deed") {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnly"));
+      return;
+    }
+    if (targetType === "incantations" && sourceItem.type !== "incantation") {
+      ui.notifications.warn("Only Incantation items can be dropped here.");
+      return;
+    }
+    if (targetType === "effects" && sourceItem.type !== "effect" && sourceItem.type !== "state") {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropEffectsStatesOnly"));
+      return;
+    }
+
+    const currentArray = this.document.system[targetType] ? [...this.document.system[targetType]] : [];
 
     if (currentArray.some(e => e.uuid === sourceItem.uuid)) {
       ui.notifications.warn(`${sourceItem.name} is already linked.`);
@@ -159,8 +214,9 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
       intensity: sourceItem.system.intensity || 0
     });
 
-    await this.item.update({
-      "system.description": this.item.system.description,
+    const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+    await this.document.update({
+      "system.description": desc ?? this.document.system.description,
       [`system.${targetType}`]: currentArray
     });
   }
@@ -173,10 +229,12 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
     const index = el.dataset.index !== undefined ? Number(el.dataset.index) : 
                 Array.from(el.parentNode.children).indexOf(el);
 
-    const currentArray = [...(this.item.system[targetType] || [])];
+    const currentArray = [...(this.document.system[targetType] || [])];
     currentArray.splice(index, 1);
-    await this.item.update({
-      "system.description": this.item.system.description,
+
+    const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+    await this.document.update({
+      "system.description": desc ?? this.document.system.description,
       [`system.${targetType}`]: currentArray
     });
   }
@@ -192,11 +250,13 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
     const targetType = targetEl.dataset.type;
     const value = parseInt(input.value) || 0;
 
-    const currentArray = [...(this.item.system[targetType] || [])];
+    const currentArray = [...(this.document.system[targetType] || [])];
     if (currentArray[index]) {
       currentArray[index].intensity = value;
-      await this.item.update({
-        "system.description": this.item.system.description,
+
+      const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+      await this.document.update({
+        "system.description": desc ?? this.document.system.description,
         [`system.${targetType}`]: currentArray
       });
     }
@@ -210,12 +270,16 @@ export class TrespasserItemSheet extends foundry.appv1.sheets.ItemSheet {
 
     const index = Number(el.dataset.index);
     const targetType = targetEl.dataset.type;
-    const currentArray = [...(this.item.system[targetType] || [])];
+    const currentArray = [...(this.document.system[targetType] || [])];
     const effectData = foundry.utils.deepClone(currentArray[index]);
 
     if(effectData.uuid) {
       await TrespasserEffectsHelper.openEffectSheet(effectData.uuid);
       return;
     }
+  }
+
+  static async #onSubmit(event, form, formData) {
+    await this.document.update(formData.object);
   }
 }

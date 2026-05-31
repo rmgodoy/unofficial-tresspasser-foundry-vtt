@@ -1,9 +1,4 @@
-/**
- * Item Sheet for the Calling item type.
- *
- * Minimalist single-page sheet consistent with other Trespasser item sheets.
- * Supports drag-and-drop of Talent/Feature items and checkbox skill selection.
- */
+const { api, sheets } = foundry.applications;
 
 // Full list of skill keys matching the Character data model
 const ALL_SKILL_KEYS = [
@@ -12,80 +7,132 @@ const ALL_SKILL_KEYS = [
   "perception", "speech", "stealth", "tinkering"
 ];
 
-export class TrespasserCallingSheet extends foundry.appv1.sheets.ItemSheet {
+/**
+ * Item Sheet for the Calling item type.
+ *
+ * Minimalist single-page sheet consistent with other Trespasser item sheets.
+ * Supports drag-and-drop of Talent/Feature items and checkbox skill selection.
+ * Implemented using ApplicationV2 (sheets.ItemSheetV2).
+ */
+export class TrespasserCallingSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
 
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["trespasser", "sheet", "item", "calling"],
-      width: 580,
-      height: 620,
-      scrollY: [".sheet-body"],
-      tabs: [{ navSelector: ".sheet-tabs", contentSelector: ".sheet-body", initial: "description", group: "primary" }],
-    });
+  static DEFAULT_OPTIONS = {
+    classes: ["trespasser", "sheet", "item", "calling", "item-sheet"],
+    position: { width: 580, height: 620 },
+    form: {
+      handler: TrespasserCallingSheet.#onSubmit,
+      submitOnChange: true,
+      closeOnSubmit: false
+    },
+    window: { resizable: true }
+  };
+
+  static PARTS = {
+    main: {
+      template: "systems/trespasser/templates/item/calling-sheet.hbs",
+      scrollable: [".scrollable", ".sheet-body"]
+    }
+  };
+
+  tabGroups = { primary: "description" };
+
+  /** @override */
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Item.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
   }
 
-  get template() {
-    return "systems/trespasser/templates/item/calling-sheet.hbs";
-  }
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const item = this.document;
+    const system = item.system;
 
-  async getData(options = {}) {
-    const context = await super.getData(options);
-    context.system = this.item.system;
+    context.item = item;
+    context.system = system;
+    context.editable = this.isEditable;
+    context.tabs = this.tabGroups;
 
     // Build skill rows: each has key, label, and whether it's selected in this Calling
-    const selectedSkills = new Set(this.item.system.skills || []);
+    const selectedSkills = new Set(system.skills || []);
     context.skillRows = ALL_SKILL_KEYS.map(key => ({
       key,
       label: game.i18n.localize(`TRESPASSER.Terms.Skill.${key.charAt(0).toUpperCase() + key.slice(1)}`),
       selected: selectedSkills.has(key),
     }));
 
-    context.callingTalents      = this.item.system.talents     || [];
-    context.callingFeatures     = this.item.system.features    || [];
-    context.callingEnhancements = this.item.system.enhancements || [];
-    context.progression         = this.item.system.progression  || [];
+    context.callingTalents      = system.talents      || [];
+    context.callingFeatures     = system.features     || [];
+    context.callingEnhancements = system.enhancements || [];
+    context.progression         = system.progression   || [];
 
-    context.descriptionHTML = await TextEditor.enrichHTML(this.item.system.description, {
-      async: true,
-      secrets: this.document.isOwner,
-      relativeTo: this.document,
-    });
+    context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      system.description ?? "",
+      {
+        async: true,
+        secrets: item.isOwner,
+        relativeTo: item
+      }
+    );
 
     return context;
   }
 
-  activateListeners(html) {
-    super.activateListeners(html);
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Sync tabs
+    const tabs = this.element.querySelectorAll('.sheet-tabs .item');
+    tabs.forEach(t => {
+      t.addEventListener('click', (ev) => {
+        this.tabGroups.primary = t.dataset.tab;
+        this.render();
+      });
+    });
 
     if (!this.isEditable) return;
 
     // Skill checkbox toggles
-    html.find(".calling-skill-check").on("change", this._onSkillToggle.bind(this));
+    this.element.querySelectorAll(".calling-skill-check").forEach(chk => {
+      chk.addEventListener("change", this._onSkillToggle.bind(this));
+    });
 
     // Remove buttons for each list
-    html.find(".calling-item-remove[data-list='talents']").on("click", ev => this._onRemoveEntry(ev, "talents"));
-    html.find(".calling-item-remove[data-list='features']").on("click", ev => this._onRemoveEntry(ev, "features"));
-    html.find(".calling-item-remove[data-list='enhancements']").on("click", ev => this._onRemoveEntry(ev, "enhancements"));
+    this.element.querySelectorAll(".calling-chip .calling-item-remove").forEach(btn => {
+      btn.addEventListener("click", ev => {
+        const listKey = btn.dataset.list;
+        this._onRemoveEntry(ev, listKey);
+      });
+    });
 
     // Progression Table Editing
-    html.find(".prog-input").on("change", this._onProgressionChange.bind(this));
-    html.find(".level-header").on("click", this._onToggleLevel.bind(this));
+    this.element.querySelectorAll(".prog-input").forEach(input => {
+      input.addEventListener("change", this._onProgressionChange.bind(this));
+    });
+
+    // Level headers toggle
+    this.element.querySelectorAll(".level-header").forEach(header => {
+      header.addEventListener("click", this._onToggleLevel.bind(this));
+    });
 
     // Drag-and-drop zones
-    html.find(".calling-drop-zone").on("dragover", ev => { ev.preventDefault(); return false; });
-    html.find(".calling-drop-zone").on("drop", this._onDropItem.bind(this));
+    this.element.querySelectorAll(".calling-drop-zone").forEach(zone => {
+      zone.addEventListener("dragover", ev => { ev.preventDefault(); return false; });
+      zone.addEventListener("drop", this._onDropItem.bind(this));
+    });
   }
 
   async _onSkillToggle(event) {
     const key = event.currentTarget.dataset.skill;
     const checked = event.currentTarget.checked;
-    const current = new Set(this.item.system.skills || []);
+    const current = new Set(this.document.system.skills || []);
 
     if (checked) current.add(key);
     else current.delete(key);
 
-    await this.item.update({
-      "system.description": this.item.system.description,
+    await this.document.update({
+      "system.description": this.document.system.description,
       "system.skills": [...current]
     });
   }
@@ -94,25 +141,21 @@ export class TrespasserCallingSheet extends foundry.appv1.sheets.ItemSheet {
     event.preventDefault();
     const el    = event.currentTarget.closest(".calling-chip");
     const index = Number(el.dataset.index);
-    const arr   = [...(this.item.system[listKey] || [])];
+    const arr   = [...(this.document.system[listKey] || [])];
     arr.splice(index, 1);
-    await this.item.update({
-      "system.description": this.item.system.description,
+    await this.document.update({
+      "system.description": this.document.system.description,
       [`system.${listKey}`]: arr
     });
   }
 
   async _onDropItem(event) {
     event.preventDefault();
-    const dataText = event.originalEvent?.dataTransfer?.getData("text/plain");
-    if (!dataText) return;
-
-    let dropData;
-    try { dropData = JSON.parse(dataText); } catch (e) { return; }
-    if (dropData.type !== "Item") return;
+    const data = TextEditor.getDragEventData(event);
+    if (!data || data.type !== "Item") return;
 
     const listKey = event.currentTarget.dataset.list; // "talents" | "features" | "enhancements"
-    const sourceItem = await fromUuid(dropData.uuid);
+    const sourceItem = await fromUuid(data.uuid);
     if (!sourceItem) return;
 
     // Validate allowed types per zone
@@ -123,14 +166,14 @@ export class TrespasserCallingSheet extends foundry.appv1.sheets.ItemSheet {
       return ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropFeaturesOnly"));
     }
 
-    const currentArr = [...(this.item.system[listKey] || [])];
+    const currentArr = [...(this.document.system[listKey] || [])];
     if (currentArr.some(e => e.uuid === sourceItem.uuid || e.name === sourceItem.name)) {
       return ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name }));
     }
 
     currentArr.push({ uuid: sourceItem.uuid, name: sourceItem.name, img: sourceItem.img });
-    await this.item.update({
-      "system.description": this.item.system.description,
+    await this.document.update({
+      "system.description": this.document.system.description,
       [`system.${listKey}`]: currentArr
     });
   }
@@ -144,10 +187,10 @@ export class TrespasserCallingSheet extends foundry.appv1.sheets.ItemSheet {
     // Convert to number if applicable
     if (input.type === "number") value = parseInt(value);
 
-    const progression = foundry.utils.deepClone(this.item.system.progression);
+    const progression = foundry.utils.deepClone(this.document.system.progression);
     if (progression[level]) {
       progression[level][field] = value;
-      await this.item.update({ "system.progression": progression });
+      await this.document.update({ "system.progression": progression });
     }
   }
 
@@ -156,5 +199,12 @@ export class TrespasserCallingSheet extends foundry.appv1.sheets.ItemSheet {
     const header = event.currentTarget;
     const levelRow = header.closest(".progression-level");
     levelRow.classList.toggle("collapsed");
+  }
+
+  /**
+   * Manual form submission handler for AppV2.
+   */
+  static async #onSubmit(event, form, formData) {
+    await this.document.update(formData.object);
   }
 }

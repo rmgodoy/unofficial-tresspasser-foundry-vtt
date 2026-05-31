@@ -1,25 +1,45 @@
+const { api, sheets } = foundry.applications;
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
  * Item Sheet for Armor in the Trespasser TTRPG system.
+ * Implemented using ApplicationV2 (sheets.ItemSheetV2).
  */
-export class TrespasserArmorSheet extends foundry.appv1.sheets.ItemSheet {
+export class TrespasserArmorSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+
+  static DEFAULT_OPTIONS = {
+    classes: ["trespasser", "sheet", "item", "armor", "item-sheet"],
+    position: { width: 520, height: 480 },
+    form: {
+      handler: TrespasserArmorSheet.#onSubmit,
+      submitOnChange: true,
+      closeOnSubmit: false
+    },
+    window: { resizable: true }
+  };
+
+  static PARTS = {
+    main: {
+      template: "systems/trespasser/templates/item/armor-sheet.hbs",
+      scrollable: [".scrollable", ".sheet-body", "[data-scrollable='true']"]
+    }
+  };
 
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["trespasser", "sheet", "item", "armor", "item-sheet"],
-      template: "systems/trespasser/templates/item/armor-sheet.hbs",
-      width: 520,
-      height: 480,
-      scrollY: [".sheet-body"],
-    });
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Item.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
   }
 
   /** @override */
-  async getData(options = {}) {
-    const context = await super.getData(options);
-    context.system = this.item.system;
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const item = this.document;
+    const system = item.system;
+
+    context.item = item;
+    context.system = system;
+    context.editable = this.isEditable;
     
     context.config = foundry.utils.mergeObject({
       placements: {
@@ -33,53 +53,61 @@ export class TrespasserArmorSheet extends foundry.appv1.sheets.ItemSheet {
     }, CONFIG.TRESPASSER);
 
     // Enrich HTML description
-    // Enrich HTML description
-    context.descriptionHTML = await TextEditor.enrichHTML(this.item.system.description, {
-      async: true,
-      secrets: this.document.isOwner,
-      relativeTo: this.document
-    });
+    context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      system.description ?? "",
+      {
+        async: true,
+        secrets: item.isOwner,
+        relativeTo: item
+      }
+    );
 
     return context;
   }
 
   /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
+  _onRender(context, options) {
+    super._onRender(context, options);
 
     if (!this.isEditable) return;
 
-    // Standardized removals
-    html.find('.remove-effect').click(this._onRemoveLink.bind(this, 'effects'));
+    const html = this.element;
 
-    // Standardized edit
-    html.find('.effect-edit').click(this._onEffectEdit.bind(this));
+    // Standardized removals
+    html.querySelectorAll('.remove-link').forEach(btn => {
+      btn.addEventListener('click', event => {
+        const type = event.currentTarget.dataset.type || event.currentTarget.closest('.drop-zone')?.dataset?.type;
+        this._onRemoveLink(type, event);
+      });
+    });
 
     // Standardized drag-and-drop
-    const dropZones = html.find('.drop-zone');
-    dropZones.on("dragover", (ev) => { ev.preventDefault(); return false; });
-    dropZones.on("drop", this._onDropItem.bind(this));
+    const dropZones = html.querySelectorAll('.drop-zone');
+    dropZones.forEach(zone => {
+      zone.addEventListener("dragover", (ev) => { ev.preventDefault(); return false; });
+      zone.addEventListener("drop", this._onDropItem.bind(this));
+    });
 
     // Standardized intensity change
-    html.find('.effect-intensity-input').change(this._onIntensityChange.bind(this));
+    html.querySelectorAll('.effect-intensity-input').forEach(input => {
+      input.addEventListener('change', this._onIntensityChange.bind(this));
+    });
+
+    // Standardized edit
+    html.querySelectorAll('.effect-edit').forEach(btn => {
+      btn.addEventListener('click', this._onEffectEdit.bind(this));
+    });
   }
 
   async _onDropItem(event) {
     event.preventDefault();
-    const dataText = event.originalEvent?.dataTransfer?.getData("text/plain");
-    if (!dataText) return;
-
-    let dropData;
-    try {
-      dropData = JSON.parse(dataText);
-    } catch(e) { return; }
-
-    if (dropData.type !== "Item") return;
+    const data = TextEditor.getDragEventData(event);
+    if (!data || data.type !== "Item") return;
     
     const targetEl = event.currentTarget;
     const targetType = targetEl.dataset.type; // Always "effects" for armor
 
-    const sourceItem = await fromUuid(dropData.uuid);
+    const sourceItem = await fromUuid(data.uuid);
     if (!sourceItem) return;
 
     if (sourceItem.parent) {
@@ -93,23 +121,25 @@ export class TrespasserArmorSheet extends foundry.appv1.sheets.ItemSheet {
         return;
     }
 
-    const currentArray = this.item.system[targetType] ? [...this.item.system[targetType]] : [];
+    const currentArray = this.document.system[targetType] ? [...this.document.system[targetType]] : [];
 
     if (currentArray.some(e => e.uuid === sourceItem.uuid)) {
       ui.notifications.warn(`${sourceItem.name} is already linked.`);
       return;
     }
 
-    currentArray.push({
+    const entry = {
       uuid: sourceItem.uuid,
       type: sourceItem.type,
       name: sourceItem.name,
       img: sourceItem.img,
       intensity: sourceItem.system.intensity || 0
-    });
+    };
 
-    await this.item.update({
-      "system.description": this.item.system.description,
+    currentArray.push(entry);
+
+    await this.document.update({
+      "system.description": this.document.system.description,
       [`system.${targetType}`]: currentArray
     });
   }
@@ -120,10 +150,10 @@ export class TrespasserArmorSheet extends foundry.appv1.sheets.ItemSheet {
     if (!el) return;
     
     const index = Number(el.dataset.index);
-    const currentArray = [...(this.item.system[targetType] || [])];
+    const currentArray = [...(this.document.system[targetType] || [])];
     currentArray.splice(index, 1);
-    await this.item.update({
-      "system.description": this.item.system.description,
+    await this.document.update({
+      "system.description": this.document.system.description,
       [`system.${targetType}`]: currentArray
     });
   }
@@ -139,11 +169,11 @@ export class TrespasserArmorSheet extends foundry.appv1.sheets.ItemSheet {
     const targetType = targetEl.dataset.type;
     const value = parseInt(input.value) || 0;
 
-    const currentArray = [...(this.item.system[targetType] || [])];
+    const currentArray = [...(this.document.system[targetType] || [])];
     if (currentArray[index]) {
       currentArray[index].intensity = value;
-      await this.item.update({
-        "system.description": this.item.system.description,
+      await this.document.update({
+        "system.description": this.document.system.description,
         [`system.${targetType}`]: currentArray
       });
     }
@@ -152,17 +182,23 @@ export class TrespasserArmorSheet extends foundry.appv1.sheets.ItemSheet {
   async _onEffectEdit(event) {
     event.preventDefault();
     const el = event.currentTarget.closest('.effect-chip');
-    const targetEl = event.currentTarget.closest('.drop-zone');
-    if (!el || !targetEl) return;
+    if (!el) return;
 
     const index = Number(el.dataset.index);
-    const targetType = targetEl.dataset.type;
-    const currentArray = [...(this.item.system[targetType] || [])];
+    const targetType = "effects";
+    const currentArray = [...(this.document.system[targetType] || [])];
     const effectData = foundry.utils.deepClone(currentArray[index]);
     
     if (effectData.uuid) {
       await TrespasserEffectsHelper.openEffectSheet(effectData.uuid);
       return;
     }
+  }
+
+  /**
+   * Manual form submission handler for AppV2.
+   */
+  static async #onSubmit(event, form, formData) {
+    await this.document.update(formData.object);
   }
 }

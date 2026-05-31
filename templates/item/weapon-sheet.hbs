@@ -1,4 +1,4 @@
-<form class="{{cssClass}} trespasser-sheet item-sheet" autocomplete="off">
+<section class="{{cssClass}} trespasser-sheet item-sheet" autocomplete="off">
   <header class="sheet-header item-header-layout">
     <div class="header-column image-column">
       <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
@@ -122,8 +122,8 @@
     <div class="attribute-fields description-column">
       <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
       <div class="trp-editor-container">
-        {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+        <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false" editable="{{editable}}">{{{descriptionHTML}}}</prose-mirror>
       </div>
     </div>
   </section>
-</form>
+</section>

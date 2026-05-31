@@ -46,6 +46,8 @@
         "Maneuver": "{cost} AP (+{bonus} Acc)",
         "Smash": "{cost} AP (+{bonus} Might)",
         "Throw": "{cost} AP ({range} sq)",
+        "DefendSingle": "1 AP (Chosen type)",
+        "DefendBoth": "2 AP (Both Guard & Resist)",
         "VaultTip": "Jump in a straight line (orthogonal or diagonal). AP Cost: 1.",
         "WaitTip": "Move your turn to the Late Phase, carrying over AP and Movement. Only available in Early Phase."
       },
@@ -53,8 +55,6 @@
         "SelectAlly": "Select Ally",
         "Attribute": "Attribute",
         "Confirm": "Confirm",
-        "NextCheck": "Next Check",
-        "WholeRound": "Whole Round",
         "WithBonus": "(Bonus: +{bonus})"
       },
       "SmashMaterial": {

@@ -47,6 +47,10 @@
         "Content": "{user} deseja dar {item} para {target}. Você aceita?",
         "SelectTargetHint": "Selecione um personagem para receber o item:"
       },
+      "ItemType": {
+        "Title": "Escolher Tipo de Item",
+        "SelectTypeHint": "Selecione o tipo de item que deseja criar no inventário:"
+      },
       "Retreat": {
         "Title": "Continuar ou Recuar?",
         "Prompt": "O Perigo desta rodada foi rolado. Deseja continuar a rodada ou tentar recuar?",
@@ -55,11 +59,11 @@
         "ActionContinue": "Continuar Lutando"
       },
       "Spark": {
-        "Title": "Escolher Fagulhas",
-        "Intro": "Você tem {count} fagulha(s) para atribuir. Cada camada se aplica a todos os alvos elegíveis.",
-        "Layer": "Fagulha {n}",
-        "DeedSpark": "Fagulha da Proeza",
-        "DeedSparkDesc": "Ativa os efeitos da fase Fagulha da proeza.",
+        "Title": "Escolher Centelhas",
+        "Intro": "Você tem {count} centelha(s) para atribuir. Cada camada se aplica a todos os alvos elegíveis.",
+        "Layer": "Centelha {n}",
+        "DeedSpark": "Centelha da Habilidade",
+        "DeedSparkDesc": "Ativa os efeitos da fase Centelha da Habilidade.",
         "Impact": "Impacto",
         "ImpactDesc": "+2 movimento forçado por impacto escolhido.",
         "Potency": "Potência",

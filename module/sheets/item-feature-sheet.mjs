@@ -1,84 +1,137 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
+const { api, sheets } = foundry.applications;
+
 /**
  * Item Sheet for Features.
+ * Implemented using ApplicationV2 (sheets.ItemSheetV2).
  */
-export class TrespasserFeatureSheet extends foundry.appv1.sheets.ItemSheet {
+export class TrespasserFeatureSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
 
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["trespasser", "sheet", "item", "feature"],
-      width: 520,
-      height: 600,
-      scrollY: [".sheet-body"],
-    });
+  static DEFAULT_OPTIONS = {
+    classes: ["trespasser", "sheet", "item", "feature", "item-sheet"],
+    position: { width: 520, height: 600 },
+    form: {
+      handler: TrespasserFeatureSheet.#onSubmit,
+      submitOnChange: true,
+      closeOnSubmit: false
+    },
+    window: { resizable: true }
+  };
+
+  static PARTS = {
+    main: {
+      template: "systems/trespasser/templates/item/feature-sheet.hbs",
+      scrollable: [".scrollable", ".sheet-body"]
+    }
+  };
+
+  /** @override */
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Item.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
   }
 
-  get template() {
-    return `systems/trespasser/templates/item/feature-sheet.hbs`;
-  }
+  /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const item = this.document;
+    const system = item.system;
 
-  async getData(options = {}) {
-    const context = await super.getData(options);
-    context.system = this.item.system;
-    
+    context.item = item;
+    context.system = system;
+    context.editable = this.isEditable;
+
     // Preparation for Handlebars
-    context.linkedEffects = this.item.system.effects || [];
-    context.linkedDeeds = this.item.system.deeds || [];
+    context.linkedEffects = system.effects || [];
+    context.linkedDeeds = system.deeds || [];
 
-    context.descriptionHTML = await TextEditor.enrichHTML(this.item.system.description, {
-      async: true,
-      secrets: this.document.isOwner,
-      relativeTo: this.document
-    });
-    
+    context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      system.description ?? "",
+      {
+        async: true,
+        secrets: item.isOwner,
+        relativeTo: item
+      }
+    );
+
     context.config = CONFIG.TRESPASSER;
 
     return context;
   }
 
-  activateListeners(html) {
-    super.activateListeners(html);
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Intercept change events from prose-mirror and handle them asynchronously to prevent synchronous re-rendering crash
+    this.element.addEventListener('change', ev => {
+      const pm = ev.target.closest('prose-mirror');
+      if (pm) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        setTimeout(() => {
+          if (this.element && this.document) {
+            const desc = pm.value;
+            this.document.update({ "system.description": desc });
+          }
+        }, 0);
+      }
+    }, true);
+
+    // Intercept submit events from prose-mirror and handle them asynchronously
+    this.element.addEventListener('submit', ev => {
+      const pm = ev.submitter?.closest('prose-mirror');
+      if (pm) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        setTimeout(() => {
+          if (this.element && this.document) {
+            const desc = pm.value;
+            this.document.update({ "system.description": desc });
+          }
+        }, 0);
+      }
+    }, true);
 
     if (!this.isEditable) return;
 
     // Remove buttons
-    html.find('.effect-remove').click(this._onRemoveLink.bind(this, 'effects'));
-    html.find('.deed-remove').click(this._onRemoveLink.bind(this, 'deeds'));
+    this.element.querySelectorAll('.effect-remove').forEach(btn => {
+      btn.addEventListener('click', ev => this._onRemoveLink('effects', ev));
+    });
+    this.element.querySelectorAll('.deed-remove').forEach(btn => {
+      btn.addEventListener('click', ev => this._onRemoveLink('deeds', ev));
+    });
 
     // Drag-and-drop
-    const dropZones = html.find('.drop-zone');
-    dropZones.on("dragover", this._onDragOver.bind(this));
-    dropZones.on("drop", this._onDropItem.bind(this));
+    this.element.querySelectorAll('.drop-zone').forEach(dropZone => {
+      dropZone.addEventListener("dragover", ev => { ev.preventDefault(); return false; });
+      dropZone.addEventListener("drop", this._onDropItem.bind(this));
+    });
 
     // Intensity change
-    html.find('.effect-intensity-input').change(this._onIntensityChange.bind(this));
+    this.element.querySelectorAll('.effect-intensity-input').forEach(input => {
+      input.addEventListener("change", this._onIntensityChange.bind(this));
+    });
 
     // Edit button
-    html.find('.effect-edit').click(this._onEffectEdit.bind(this));
-  }
-
-  _onDragOver(event) {
-    event.preventDefault();
-    return false;
+    this.element.querySelectorAll('.effect-edit').forEach(btn => {
+      btn.addEventListener("click", this._onEffectEdit.bind(this));
+    });
   }
 
   async _onDropItem(event) {
     event.preventDefault();
-    const dataText = event.originalEvent?.dataTransfer?.getData("text/plain");
-    if (!dataText) return;
+    const dropData = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+    if (!dropData || dropData.type !== "Item") return;
 
-    let dropData;
-    try { dropData = JSON.parse(dataText); } catch(e) { return; }
-
-    if (dropData.type !== "Item") return;
-    
     const targetEl = event.currentTarget;
     const targetType = targetEl.dataset.type; // "effects" or "deeds"
 
     const sourceItem = await fromUuid(dropData.uuid);
     if (!sourceItem) return;
-    
+
     // Validate types
     if (targetType === "deeds" && sourceItem.type !== "deed") {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnly"));
@@ -89,7 +142,7 @@ export class TrespasserFeatureSheet extends foundry.appv1.sheets.ItemSheet {
       return;
     }
 
-    const currentArray = this.item.system[targetType] ? [...this.item.system[targetType]] : [];
+    const currentArray = this.document.system[targetType] ? [...this.document.system[targetType]] : [];
 
     // Avoid duplicates
     if (currentArray.some(e => e.name === sourceItem.name || e.uuid === sourceItem.uuid)) {
@@ -105,8 +158,10 @@ export class TrespasserFeatureSheet extends foundry.appv1.sheets.ItemSheet {
       intensity: sourceItem.system.intensity || 0
     });
 
-    await this.item.update({
-      "system.description": this.item.system.description,
+    const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+
+    await this.document.update({
+      "system.description": desc ?? this.document.system.description,
       [`system.${targetType}`]: currentArray
     });
   }
@@ -115,10 +170,13 @@ export class TrespasserFeatureSheet extends foundry.appv1.sheets.ItemSheet {
     event.preventDefault();
     const el = event.currentTarget.closest('.effect-chip');
     const index = Number(el.dataset.index);
-    const currentArray = [...this.item.system[targetType]];
+    const currentArray = [...this.document.system[targetType]];
     currentArray.splice(index, 1);
-    await this.item.update({
-      "system.description": this.item.system.description,
+
+    const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+
+    await this.document.update({
+      "system.description": desc ?? this.document.system.description,
       [`system.${targetType}`]: currentArray
     });
   }
@@ -134,11 +192,14 @@ export class TrespasserFeatureSheet extends foundry.appv1.sheets.ItemSheet {
     const targetType = targetEl.dataset.type;
     const value = parseInt(input.value) || 0;
 
-    const currentArray = [...(this.item.system[targetType] || [])];
+    const currentArray = [...(this.document.system[targetType] || [])];
     if (currentArray[index]) {
       currentArray[index].intensity = value;
-      await this.item.update({
-        "system.description": this.item.system.description,
+
+      const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+
+      await this.document.update({
+        "system.description": desc ?? this.document.system.description,
         [`system.${targetType}`]: currentArray
       });
     }
@@ -155,12 +216,16 @@ export class TrespasserFeatureSheet extends foundry.appv1.sheets.ItemSheet {
     // Features support deeds and effects, but only effects can be edited in-place
     if (targetType !== 'effects') return;
 
-    const currentArray = [...(this.item.system[targetType] || [])];
+    const currentArray = [...(this.document.system[targetType] || [])];
     const effectData = foundry.utils.deepClone(currentArray[index]);
 
     if(effectData.uuid) {
       await TrespasserEffectsHelper.openEffectSheet(effectData.uuid);
       return;
     }
+  }
+
+  static async #onSubmit(event, form, formData) {
+    await this.document.update(formData.object);
   }
 }

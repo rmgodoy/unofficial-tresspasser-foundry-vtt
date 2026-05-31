@@ -47,6 +47,10 @@
         "Content": "{user} wants to give {item} to {target}. Do you accept?",
         "SelectTargetHint": "Select a character to receive the item:"
       },
+      "ItemType": {
+        "Title": "Choose Item Type",
+        "SelectTypeHint": "Select the type of item you want to create in the inventory:"
+      },
       "Retreat": {
         "Title": "Continue or Retreat?",
         "Prompt": "The Peril for this round has been rolled. Do you want to continue the round or attempt a retreat?",

@@ -6,53 +6,57 @@ import { TrespasserCombat } from "../documents/combat.mjs";
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 import { PASSIVE_STATES } from "../config/state-config.mjs";
 
+const { api, sheets } = foundry.applications;
+
 /**
- * Extend the basic ActorSheet with some very simple logic.
- * @extends {ActorSheet}
+ * Creature Sheet class for Trespasser TTRPG (V2)
  */
-export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
+export class TrespasserCreatureSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
+
+  static DEFAULT_OPTIONS = {
+    classes: ["trespasser", "trespasser-sheet", "sheet", "actor", "creature"],
+    position: { width: 580, height: 600 },
+    form: {
+      submitOnChange: true,
+      closeOnSubmit: false
+    },
+    window: { resizable: true }
+  };
+
+  static PARTS = {
+    main: {
+      template: "systems/trespasser/templates/actor/creature-sheet.hbs",
+      scrollable: [".sheet-body"]
+    }
+  };
 
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["trespasser", "sheet", "actor", "creature"],
-      width: 580,
-      height: 600,
-      scrollY: [".sheet-body"],
-      tabs: [] // Simple layout, no tabs
-    });
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Actor.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
   }
 
   /** @override */
-  async _onDropItem(event, data) {
-    if (!this.actor.isOwner) return false;
-    return super._onDropItem(event, data);
-  }
-
-  /** @override */
-  get template() {
-    return `systems/trespasser/templates/actor/creature-sheet.hbs`;
-  }
-
-  /** @override */
-  async getData(options = {}) {
-    const context = await super.getData(options);
-    context.system = context.actor.system;
-    context.flags = this.actor.flags;
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const actor = this.document;
+    context.actor = actor;
+    context.system = actor.system;
+    context.flags = actor.flags;
 
     // Categorize effects using helper for the partial
-    context.activeEffects = TrespasserEffectsHelper.getActorEffects(this.actor);
+    context.activeEffects = TrespasserEffectsHelper.getActorEffects(actor);
     context.durationModes = TrespasserEffectsHelper.DURATION_LABELS;
     
     // Prepare items for the sheet
-    context.feats = this.actor.items.filter(i => i.type === "feature");
-    context.features = context.feats; // legacy compatibility if needed
-    context.states = this.actor.items.filter(i => i.type === "state");
-    context.effects = this.actor.items.filter(i => i.type === "effect");
-    context.deeds = this.actor.items.filter(i => i.type === "deed");
+    context.feats = actor.items.filter(i => i.type === "feature");
+    context.features = context.feats; // legacy compatibility
+    context.states = actor.items.filter(i => i.type === "state");
+    context.effects = actor.items.filter(i => i.type === "effect");
+    context.deeds = actor.items.filter(i => i.type === "deed");
     
     const sourceMapByUuid = {};
-    for (const item of this.actor.items) {
+    for (const item of actor.items) {
       if (item.type === "feature") {
         (item.system.deeds || []).forEach(d => { if (d.uuid) sourceMapByUuid[d.uuid] = item.name; });
         (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
@@ -66,7 +70,7 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
     }
 
     // Group deeds by tier to match the unified component
-    const allDeeds = this.actor.items.filter(i => i.type === "deed").map(d => {
+    const allDeeds = actor.items.filter(i => i.type === "deed").map(d => {
       const deedData = d.toObject ? d.toObject(false) : d.toJSON();
       deedData.id = d.id;
       
@@ -122,27 +126,28 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
         label: cfg.label,
         description: cfg.description
       }))
-      .filter(s => this.actor.type === "character" || s.key !== "encumbered");
+      .filter(s => actor.type === "character" || s.key !== "encumbered");
 
     return context;
   }
 
   /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
+  _onRender(context, options) {
+    super._onRender(context, options);
+    const html = $(this.element);
 
     if (!this.isEditable) return;
 
     // Item Management
-    html.find('.item-create').click(this._onItemCreate.bind(this));
-    html.find('.item-edit').click(this._onItemEdit.bind(this));
-    html.find('.item-delete').click(this._onItemDelete.bind(this));
+    html.find('.item-create').on("click", this._onItemCreate.bind(this));
+    html.find('.item-edit').on("click", this._onItemEdit.bind(this));
+    html.find('.item-delete').on("click", this._onItemDelete.bind(this));
     
     // Rollable Deeds
-    html.find('.deed-rollable').click(this._onDeedRoll.bind(this));
-    html.find('.feature-name.rollable').click(this._onFeatureRoll.bind(this));
+    html.find('.deed-rollable').on("click", this._onDeedRoll.bind(this));
+    html.find('.feature-name.rollable').on("click", this._onFeatureRoll.bind(this));
     
-    // Effects Prevail/Remove/Intensity
+    // Effects Prevail/Remove/Intensity/Duration
     html.find(".effect-intensity-input").on("change", this._onIntensityChange.bind(this));
     html.find(".effect-prevail").on("click", this._onPrevailRoll.bind(this));
     html.find(".effect-info, .feature-info, .talent-info").on("click", this._onEffectInfo.bind(this));
@@ -155,12 +160,18 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
       }
     });
 
-    // Generic item name click (Requirement 2)
+    // Generic item name click
     html.find(".item-name:not(.rollable)").on("click", (ev) => {
       const el = ev.currentTarget.closest("[data-item-id]");
       const item = this.actor.items.get(el.dataset.itemId);
       item?.sheet.render(true);
     });
+  }
+
+  /** @override */
+  async _onDropItem(event, data) {
+    if (!this.actor.isOwner) return false;
+    return super._onDropItem(event, data);
   }
 
   async _onItemCreate(event) {
@@ -171,7 +182,7 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
       name: game.i18n.format("TRESPASSER.Chat.Check.ResultVs", { total: "New", target: type.capitalize(), status: "" }).split(" — ")[0].trim(),
       type: type
     };
-    return await foundry.documents.BaseItem.create(itemData, {parent: this.actor});
+    return await foundry.documents.BaseItem.create(itemData, { parent: this.actor });
   }
 
   _onItemEdit(event) {
@@ -219,11 +230,11 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
   }
 
   /**
-   * Post standard feature to chat (matching character sheet intent)
+   * Post enrichable feature to chat
    */
   async _onFeatureRoll(event) {
     event.preventDefault();
-    event.stopImmediatePropagation(); // Prevent other listeners on the same element from firing
+    event.stopImmediatePropagation();
     
     const li = event.currentTarget.closest("[data-item-id]");
     const item = this.actor.items.get(li.dataset.itemId);
@@ -257,8 +268,6 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
 
   /**
    * Handle rolling a prevail check for an effect/state on a creature.
-   *
-   * @param {Event} event
    */
   async _onPrevailRoll(event) {
     event.preventDefault();
@@ -318,12 +327,11 @@ export class TrespasserCreatureSheet extends foundry.appv1.sheets.ActorSheet {
 
   /**
    * Handle rolling a Deed from the creature sheet.
-   * Delegates to the shared onDeedRoll handler for full consistency.
    */
   async _onDeedRoll(event) { return onDeedRoll(event, this); }
 
   /**
-   * Post a deed phase to chat — delegates to the shared postDeedPhase.
+   * Post standard deed phase to chat.
    */
   async _postDeedPhase(phaseName, phaseData, actor, item, options = {}) {
     return postDeedPhase(phaseName, phaseData, actor, item, options, this);

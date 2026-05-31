@@ -10,4 +10,8 @@ TASK*.md
 localization_plan.md
 socket-pattern-guideline.md
 
+__pycache__
+./scripts/
 *.py
+
+.understand-anything

@@ -1,71 +1,130 @@
+const { api, sheets } = foundry.applications;
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
- * Extend the basic ItemSheet with some very simple logic.
- * @extends {ItemSheet}
+ * Item Sheet for Weapons in the Trespasser TTRPG system.
  */
-export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
+export class TrespasserWeaponSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+
+  static DEFAULT_OPTIONS = {
+    classes: ["trespasser", "sheet", "item", "weapon", "item-sheet"],
+    position: { width: 520, height: 480 },
+    form: {
+      handler: TrespasserWeaponSheet.#onSubmit,
+      submitOnChange: true,
+      closeOnSubmit: false
+    },
+    window: { resizable: true }
+  };
+
+  static PARTS = {
+    main: {
+      template: "systems/trespasser/templates/item/weapon-sheet.hbs",
+      scrollable: [".scrollable", ".sheet-body"]
+    }
+  };
 
   /** @override */
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      classes: ["trespasser", "sheet", "item"],
-      width: 520,
-      height: 480,
-      scrollY: [".sheet-body"],
-      tabs: [] // No tabs for weapons
-    });
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Item.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
   }
 
   /** @override */
-  get template() {
-    return `systems/trespasser/templates/item/weapon-sheet.hbs`;
-  }
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    const item = this.document;
+    const system = item.system;
 
-  /** @override */
-  async getData(options = {}) {
-    const context = await super.getData(options);
-    context.system = this.item.system;
-    
+    context.item = item;
+    context.system = system;
+    context.editable = this.isEditable;
+
     // Prepare linked references for the Handlebars template
-    context.linkedEffects = this.item.system.effects || [];
-    context.linkedEnhancements = this.item.system.enhancementEffects || [];
-    context.linkedDeeds = this.item.system.extraDeeds || [];
+    context.linkedEffects = system.effects || [];
+    context.linkedEnhancements = system.enhancementEffects || [];
+    context.linkedDeeds = system.extraDeeds || [];
 
     // Enrich HTML description
-    context.descriptionHTML = await TextEditor.enrichHTML(this.item.system.description, {
-      async: true,
-      secrets: this.document.isOwner,
-      relativeTo: this.document
-    });
-    
+    context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      system.description ?? "",
+      {
+        async: true,
+        secrets: item.isOwner,
+        relativeTo: item
+      }
+    );
+
     context.config = CONFIG.TRESPASSER;
 
     return context;
   }
 
   /** @override */
-  activateListeners(html) {
-    super.activateListeners(html);
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Intercept change events from prose-mirror and handle them asynchronously to prevent synchronous re-rendering crash
+    this.element.addEventListener('change', ev => {
+      const pm = ev.target.closest('prose-mirror');
+      if (pm) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        setTimeout(() => {
+          if (this.element && this.document) {
+            this.document.update({ "system.description": pm.value });
+          }
+        }, 0);
+      }
+    }, true);
+
+    // Intercept submit events from prose-mirror and handle them asynchronously
+    this.element.addEventListener('submit', ev => {
+      const pm = ev.submitter?.closest('prose-mirror');
+      if (pm) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        setTimeout(() => {
+          if (this.element && this.document) {
+            this.document.update({ "system.description": pm.value });
+          }
+        }, 0);
+      }
+    }, true);
 
     if (!this.isEditable) return;
 
+    const html = this.element;
+
     // Remove buttons
-    html.find('.effect-remove').click(this._onRemoveLink.bind(this, 'effects'));
-    html.find('.enhancement-remove').click(this._onRemoveLink.bind(this, 'enhancementEffects'));
-    html.find('.oil-remove').click(this._onRemoveLink.bind(this, 'oilEffects'));
-    html.find('.deed-remove').click(this._onRemoveLink.bind(this, 'extraDeeds'));
+    html.querySelectorAll('.effect-remove').forEach(btn => {
+      btn.addEventListener('click', this._onRemoveLink.bind(this, 'effects'));
+    });
+    html.querySelectorAll('.enhancement-remove').forEach(btn => {
+      btn.addEventListener('click', this._onRemoveLink.bind(this, 'enhancementEffects'));
+    });
+    html.querySelectorAll('.oil-remove').forEach(btn => {
+      btn.addEventListener('click', this._onRemoveLink.bind(this, 'oilEffects'));
+    });
+    html.querySelectorAll('.deed-remove').forEach(btn => {
+      btn.addEventListener('click', this._onRemoveLink.bind(this, 'extraDeeds'));
+    });
 
     // Drag-and-drop
-    const dropZones = html.find('.drop-zone');
-    dropZones.on("dragover", this._onDragOver.bind(this));
-    dropZones.on("drop", this._onDropItem.bind(this));
+    html.querySelectorAll('.drop-zone').forEach(zone => {
+      zone.addEventListener("dragover", this._onDragOver.bind(this));
+      zone.addEventListener("drop", this._onDropItem.bind(this));
+    });
 
     // Intensity change
-    html.find('.effect-intensity-input').change(this._onIntensityChange.bind(this));
+    html.querySelectorAll('.effect-intensity-input').forEach(input => {
+      input.addEventListener('change', this._onIntensityChange.bind(this));
+    });
 
     // Edit button
-    html.find('.effect-edit').click(this._onEffectEdit.bind(this));
+    html.querySelectorAll('.effect-edit').forEach(btn => {
+      btn.addEventListener('click', this._onEffectEdit.bind(this));
+    });
   }
 
   _onDragOver(event) {
@@ -75,23 +134,15 @@ export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
 
   async _onDropItem(event) {
     event.preventDefault();
-    const dataText = event.originalEvent?.dataTransfer?.getData("text/plain");
-    if (!dataText) return;
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+    if (!data || data.type !== "Item") return;
 
-    let dropData;
-    try {
-      dropData = JSON.parse(dataText);
-    } catch(e) {
-      return;
-    }
-
-    if (dropData.type !== "Item") return;
-    
     // Check which element was targeted 
     const targetEl = event.currentTarget;
-    const targetType = targetEl.dataset.type; // "effects", "enhancementEffects", or "extraDeeds"
+    const targetType = targetEl.dataset.type; // "effects", "enhancementEffects", "oilEffects", or "extraDeeds"
+    if (!targetType) return;
 
-    const sourceItem = await fromUuid(dropData.uuid);
+    const sourceItem = await fromUuid(data.uuid);
     if (!sourceItem) return;
     
     // Validate types implicitly
@@ -105,7 +156,7 @@ export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
       return;
     }
 
-    const currentArray = this.item.system[targetType] ? [...this.item.system[targetType]] : [];
+    const currentArray = this.document.system[targetType] ? [...this.document.system[targetType]] : [];
 
     // Avoid duplicates of the same effect/deed based on its name (not uuid because the original item could change)
     if (currentArray.some(e => e.name === sourceItem.name || e.uuid === sourceItem.uuid)) {
@@ -121,8 +172,9 @@ export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
       intensity: sourceItem.system.intensity || 0
     });
 
-    await this.item.update({
-      "system.description": this.item.system.description,
+    const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+    await this.document.update({
+      "system.description": desc ?? this.document.system.description,
       [`system.${targetType}`]: currentArray
     });
   }
@@ -130,11 +182,16 @@ export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
   async _onRemoveLink(targetType, event) {
     event.preventDefault();
     const el = event.currentTarget.closest('.effect-chip');
+    if (!el) return;
     const index = Number(el.dataset.index);
-    const currentArray = [...this.item.system[targetType]];
+    if (isNaN(index)) return;
+
+    const currentArray = [...this.document.system[targetType]];
     currentArray.splice(index, 1);
-    await this.item.update({
-      "system.description": this.item.system.description,
+
+    const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+    await this.document.update({
+      "system.description": desc ?? this.document.system.description,
       [`system.${targetType}`]: currentArray
     });
   }
@@ -150,11 +207,13 @@ export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
     const targetType = targetEl.dataset.type;
     const value = parseInt(input.value) || 0;
 
-    const currentArray = [...(this.item.system[targetType] || [])];
+    const currentArray = [...(this.document.system[targetType] || [])];
     if (currentArray[index]) {
       currentArray[index].intensity = value;
-      await this.item.update({
-        "system.description": this.item.system.description,
+
+      const desc = this.element.querySelector("prose-mirror[name='system.description']")?.value;
+      await this.document.update({
+        "system.description": desc ?? this.document.system.description,
         [`system.${targetType}`]: currentArray
       });
     }
@@ -168,13 +227,17 @@ export class TrespasserWeaponSheet extends foundry.appv1.sheets.ItemSheet {
 
     const index = Number(el.dataset.index);
     const targetType = targetEl.dataset.type;
-    const currentArray = [...(this.item.system[targetType] || [])];
+    const currentArray = [...(this.document.system[targetType] || [])];
     const effectData = foundry.utils.deepClone(currentArray[index]);
 
-    if(effectData.uuid) {
+    if (effectData.uuid) {
       await TrespasserEffectsHelper.openEffectSheet(effectData.uuid);
       return;
     }
+  }
+
+  static async #onSubmit(event, form, formData) {
+    await this.document.update(formData.object);
   }
 
 }
