@@ -33,7 +33,7 @@
         "HealMessage": "<strong>{name}</strong> cura <strong>{amount}</strong> PV.",
         "HealedAmount": "{name} curou {amount} PV.",
         "EngagementPenalty": "(Engajado: -2 acurácia)",
-        "CounterReaction": "{name} — Reação de Contra-ataque",
+        "CounterReaction": "Reação de Contra-ataque",
         "CounterDamageDesc": "{count}×{die} dano de contra-ataque ({weapon})",
         "CounterPrompt": "<strong>{defender}</strong> pode contra-atacar <strong>{creature}</strong> com {weapon}! Causar {count}{die} de dano?",
         "DefensePrompt": "{creature} ataca {target} com {deed}! Role seu {stat}!",

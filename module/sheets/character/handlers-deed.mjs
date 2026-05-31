@@ -710,7 +710,7 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
               <p>${game.i18n.format("TRESPASSER.Chat.Combat.CounterDamageDesc", { count: shadows, die: wDie, weapon: weapon.name })}</p>
               <div class="trp-damage-actions" data-damage="${counterRoll.total}" data-target-ids="${creatureToken?.id ?? ""}" style="display:flex;gap:6px;margin-top:8px;">
                 <button class="apply-damage-btn" data-damage="${counterRoll.total}" data-target-ids="${creatureToken?.id ?? ""}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
-                  <i class="fas fa-heart-broken"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.Apply")} ${game.i18n.localize("TRESPASSER.Chat.Combat.DamageMessage")}
+                  <i class="fas fa-heart-broken"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.ApplyDamage")}
                 </button>
               </div>
             </div>`;

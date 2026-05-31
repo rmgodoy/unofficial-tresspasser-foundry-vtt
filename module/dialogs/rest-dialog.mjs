@@ -17,68 +17,85 @@ export async function showRestDialog(actor, handleRestActionFn) {
     <div class="rest-dialog-form">
       <p style="text-align:center;margin-bottom:12px;">${game.i18n.format("TRESPASSER.Sheet.Rest.ApplyFor", { name: actor.name })}</p>
 
-      <div class="form-group">
-        <label>${game.i18n.localize("TRESPASSER.Sheet.Rest.FoodEat")}</label>
-        <select id="rest-food-id">
-          <option value="">${game.i18n.localize("TRESPASSER.Sheet.Rest.NoneNoFood")}</option>
-          ${rationOptions}
-        </select>
-        <p class="notes">${game.i18n.localize("TRESPASSER.Sheet.Rest.IfNoneEndurance")}</p>
-      </div>
+      <div class="rest-grid">
+        <div class="rest-col">
+          <div class="form-group">
+            <label>${game.i18n.localize("TRESPASSER.Sheet.Rest.FoodEat")}</label>
+            <select name="rest-food-id">
+              <option value="">${game.i18n.localize("TRESPASSER.Sheet.Rest.NoneNoFood")}</option>
+              ${rationOptions}
+            </select>
+            <p class="notes">${game.i18n.localize("TRESPASSER.Sheet.Rest.IfNoneEndurance")}</p>
+          </div>
 
-      <div class="rest-type-specifics" id="moment-rest-extra" style="margin-top:10px;border-top:1px solid var(--trp-border);padding-top:10px;">
-        <div class="form-group">
-          <label>${game.i18n.localize("TRESPASSER.Sheet.Rest.RDSpendMoment")}</label>
-          <input type="number" id="rest-rd-spend" value="0" min="0" max="${actor.system.recovery_dice}" />
-          <p class="notes">${game.i18n.localize("TRESPASSER.Sheet.Rest.RDRecoverNote")}</p>
+          <div class="form-group">
+            <label>${game.i18n.localize("TRESPASSER.Sheet.Rest.RDSpendMoment")}</label>
+            <input type="number" name="rest-rd-spend" value="0" min="0" max="${actor.system.recovery_dice}" />
+            <p class="notes">${game.i18n.localize("TRESPASSER.Sheet.Rest.RDRecoverNote")}</p>
+          </div>
         </div>
 
-        <div class="form-group" style="margin-top:8px;">
-          <label>${game.i18n.localize("TRESPASSER.Sheet.Rest.ReduceRecoverChoice1")}</label>
-          <select id="rest-recover-1">
-            <option value="">${game.i18n.localize("TRESPASSER.Sheet.Rest.NoneChoice")}</option>
-            ${itemOptions}
-          </select>
-        </div>
-        <div class="form-group">
-          <label>${game.i18n.localize("TRESPASSER.Sheet.Rest.ReduceRecoverChoice2")}</label>
-          <select id="rest-recover-2">
-            <option value="">${game.i18n.localize("TRESPASSER.Sheet.Rest.NoneChoice")}</option>
-            ${itemOptions}
-          </select>
-          <p class="notes">${game.i18n.localize("TRESPASSER.Sheet.Rest.ChoiceTwiceNote")}</p>
+        <div class="rest-col">
+          <div class="form-group">
+            <label>${game.i18n.localize("TRESPASSER.Sheet.Rest.ReduceRecoverChoice1")}</label>
+            <select name="rest-recover-1">
+              <option value="">${game.i18n.localize("TRESPASSER.Sheet.Rest.NoneChoice")}</option>
+              ${itemOptions}
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>${game.i18n.localize("TRESPASSER.Sheet.Rest.ReduceRecoverChoice2")}</label>
+            <select name="rest-recover-2">
+              <option value="">${game.i18n.localize("TRESPASSER.Sheet.Rest.NoneChoice")}</option>
+              ${itemOptions}
+            </select>
+            <p class="notes">${game.i18n.localize("TRESPASSER.Sheet.Rest.ChoiceTwiceNote")}</p>
+          </div>
         </div>
       </div>
     </div>`;
 
-  new Dialog({
-    title: game.i18n.localize("TRESPASSER.Sheet.Rest.Title"),
+  await foundry.applications.api.DialogV2.wait({
+    window: {
+      title: game.i18n.localize("TRESPASSER.Sheet.Rest.Title"),
+      width: 650
+    },
+    classes: ["trespasser", "dialog", "rest-dialog"],
     content,
-    buttons: {
-      moment: {
-        label: `<i class="fas fa-hourglass-start"></i> ${game.i18n.localize("TRESPASSER.Sheet.Rest.Moment")}`,
-        callback: async (html) => {
-          const foodId   = html.find("#rest-food-id").val();
-          const rdSpend  = parseInt(html.find("#rest-rd-spend").val()) || 0;
-          const recover1 = html.find("#rest-recover-1").val();
-          const recover2 = html.find("#rest-recover-2").val();
+    buttons: [
+      {
+        action: "moment",
+        label: game.i18n.localize("TRESPASSER.Sheet.Rest.Moment"),
+        icon: "fas fa-hourglass-start",
+        callback: async (event, button) => {
+          const form = button.form;
+          const foodId   = form.elements["rest-food-id"].value;
+          const rdSpend  = parseInt(form.elements["rest-rd-spend"].value) || 0;
+          const recover1 = form.elements["rest-recover-1"].value;
+          const recover2 = form.elements["rest-recover-2"].value;
           await handleRestActionFn("moment", { foodId, rdSpend, recover1, recover2 });
         }
       },
-      night: {
-        label: `<i class="fas fa-moon"></i> ${game.i18n.localize("TRESPASSER.Sheet.Rest.Night")}`,
-        callback: async (html) => {
-          const foodId = html.find("#rest-food-id").val();
+      {
+        action: "night",
+        label: game.i18n.localize("TRESPASSER.Sheet.Rest.Night"),
+        icon: "fas fa-moon",
+        callback: async (event, button) => {
+          const form = button.form;
+          const foodId = form.elements["rest-food-id"].value;
           await handleRestActionFn("night", { foodId });
         }
       },
-      week: {
-        label: `<i class="fas fa-calendar-week"></i> ${game.i18n.localize("TRESPASSER.Sheet.Rest.Week")}`,
+      {
+        action: "week",
+        label: game.i18n.localize("TRESPASSER.Sheet.Rest.Week"),
+        icon: "fas fa-calendar-week",
         callback: async () => {
           await handleRestActionFn("week", {});
         }
       }
-    },
-    default: "moment"
-  }, { classes: ["trespasser", "dialog"] }).render(true);
+    ],
+    rejectClose: false
+  });
 }

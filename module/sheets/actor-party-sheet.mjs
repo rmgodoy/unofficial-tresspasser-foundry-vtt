@@ -303,38 +303,40 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     let members = allMembers;
     const alwaysFull = game.settings.get("trespasser", "groupCheckFullParty");
     if (!alwaysFull) {
-      const selection = await new Promise(resolve => {
-        new Dialog({
-          title: game.i18n.localize("TRESPASSER.Dialog.Party.SelectParticipants"),
-          content: `
-            <p>${game.i18n.localize("TRESPASSER.Dialog.Party.SelectParticipantsHint")}</p>
-            <div class="participant-selection" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
-              ${allMembers.map(m => `
-                <div class="form-group" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px; border-bottom: 1px solid var(--trp-border); padding: 4px;">
-                  <input type="checkbox" name="participant" value="${m.id}" checked>
-                  <img src="${m.img}" width="24" height="24" style="border-radius: 4px; border: 1px solid var(--trp-text-dim);">
-                  <label style="flex: 1;">${m.name}</label>
-                </div>
-              `).join('')}
-            </div>
-          `,
-          buttons: {
-            run: {
-              icon: '<i class="fas fa-dice"></i>',
-              label: game.i18n.localize("TRESPASSER.Global.Action.RunCheck"),
-              callback: (html) => {
-                const selectedIds = html.find('input[name="participant"]:checked').map((i, el) => el.value).get();
-                resolve(allMembers.filter(m => selectedIds.includes(m.id)));
-              }
-            },
-            cancel: {
-              icon: '<i class="fas fa-times"></i>',
-              label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
-              callback: () => resolve(null)
+      const selection = await foundry.applications.api.DialogV2.wait({
+        window: { title: game.i18n.localize("TRESPASSER.Dialog.Party.SelectParticipants") },
+        classes: ["trespasser", "dialog", "group-participant-select"],
+        content: `
+          <p>${game.i18n.localize("TRESPASSER.Dialog.Party.SelectParticipantsHint")}</p>
+          <div class="participant-selection" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
+            ${allMembers.map(m => `
+              <div class="form-group" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px; border-bottom: 1px solid var(--trp-border); padding: 4px;">
+                <input type="checkbox" name="participant" value="${m.id}" checked>
+                <img src="${m.img}" style="width: 40px !important; height: 40px !important; flex: 0 0 40px !important; object-fit: cover !important; border-radius: 4px; border: 1px solid var(--trp-text-dim);">
+                <label style="flex: 1;">${m.name}</label>
+              </div>
+            `).join('')}
+          </div>
+        `,
+        buttons: [
+          {
+            action: "run",
+            label: game.i18n.localize("TRESPASSER.Global.Action.RunCheck"),
+            icon: "fas fa-dice",
+            default: true,
+            callback: (event, button) => {
+              const selectedIds = Array.from(button.form.querySelectorAll('input[name="participant"]:checked')).map(el => el.value);
+              return allMembers.filter(m => selectedIds.includes(m.id));
             }
           },
-          default: "run"
-        }, { classes: ["trespasser", "dialog", "group-participant-select"] }).render(true);
+          {
+            action: "cancel",
+            label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
+            icon: "fas fa-times",
+            callback: () => null
+          }
+        ],
+        rejectClose: false
       });
 
       if (!selection || selection.length === 0) return;

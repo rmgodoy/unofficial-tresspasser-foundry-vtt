@@ -33,7 +33,7 @@
         "HealMessage": "<strong>{name}</strong> heals <strong>{amount}</strong> HP.",
         "HealedAmount": "{name} healed {amount} HP.",
         "EngagementPenalty": "(Engaged: -2 accuracy)",
-        "CounterReaction": "{name} — Counter Reaction",
+        "CounterReaction": "Counter Reaction",
         "CounterDamageDesc": "{count}×{die} counter damage ({weapon})",
         "CounterPrompt": "<strong>{defender}</strong> can counter-attack <strong>{creature}</strong> with {weapon}! Deal {count}{die} damage?",
         "DefensePrompt": "{creature} attacks {target} with {deed}! Roll your {stat}!",

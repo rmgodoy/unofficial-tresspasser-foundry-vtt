@@ -155,7 +155,7 @@
 }
 
 .spark-choice {
-  display: flex;
+  display: flex !important;
   align-items: center;
   gap: 8px;
   padding: 4px 6px;
@@ -172,8 +172,40 @@
 }
 
 .spark-choice input[type="radio"] {
+  -webkit-appearance: none;
+  appearance: none;
   margin: 0;
   flex-shrink: 0;
+  height: 14px;
+  width: 14px;
+  border: 1px solid var(--trp-border);
+  border-radius: 50%;
+  background-color: var(--trp-bg-input);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: border-color 0.15s, background-color 0.15s;
+  box-sizing: border-box;
+}
+
+.spark-choice input[type="radio"]:hover {
+  border-color: var(--trp-gold-dim);
+}
+
+.spark-choice input[type="radio"]:checked {
+  border-color: var(--trp-gold);
+  background-color: var(--trp-gold);
+  box-shadow: inset 0 0 0 3px var(--trp-bg-input);
+}
+
+.spark-choice input[type="radio"]:focus {
+  outline: none;
+  box-shadow: 0 0 0 1px var(--trp-gold-dim);
+}
+
+.spark-choice input[type="radio"]:checked:focus {
+  box-shadow: inset 0 0 0 3px var(--trp-bg-input), 0 0 0 1px var(--trp-gold-dim);
 }
 
 .spark-choice-label {
@@ -412,5 +444,31 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
+}
+
+/* Rest Dialog */
+.rest-dialog .rest-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 10px;
+}
+
+.rest-dialog .rest-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.rest-dialog .rest-col + .rest-col {
+  border-left: 1px solid var(--trp-border);
+  padding-left: 20px;
+}
+
+.rest-dialog .form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 8px;
 }
 
