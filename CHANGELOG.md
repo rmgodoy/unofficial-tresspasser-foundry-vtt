@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.8] - 2026-05-31
+
+### Features
+- **Token Status Effects**: Added support for displaying status effects on tokens, with configuration settings to show or hide them.
+- **Direct Item Creation**: Added support to create items directly from the Character inventory sheet using a new item type selection dialog.
+
+### Improvements & Migrations
+- **ApplicationV2 Sheet Migration**: Migrated system sheets to Foundry's `ApplicationV2` framework, including:
+  - **Actors**: Character and Creature sheets.
+  - **Items**: Accessory, Armor, Calling, Craft, Features, Incantation, Injury, Item, Past Life, Rations, Room, Talents, and Weapon sheets.
+- **Defend Action**: Fixed defend action behavior and updated to v2.1.3.
+- **pt-BR Terminology**: Updated Portuguese (pt-BR) translations and fixed terminology consistency across settings, sheets, chat, and dialogs.
+
 ## [0.0.7-1] - 2026-05-15
 
 ### Bug Fixes
