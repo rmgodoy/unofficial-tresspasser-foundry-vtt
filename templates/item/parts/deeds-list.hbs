@@ -8,7 +8,13 @@
         <a class="{{../deleteClass}}" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}" style="margin-left: 6px; color: var(--trp-red); cursor: pointer;"><i class="fas fa-times"></i></a>
       </div>
     {{else}}
-    <span style="color: var(--trp-text-dim); font-style: italic; font-size: var(--fs-11); margin-left: 8px;">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropDeeds"}}</span>
+    <span style="color: var(--trp-text-dim); font-style: italic; font-size: var(--fs-11); margin-left: 8px;">
+      {{#if placeholder}}
+        {{localize placeholder}}
+      {{else}}
+        {{localize "TRESPASSER.Sheet.Item.Placeholder.DropDeeds"}}
+      {{/if}}
+    </span>
     {{/each}}
   </div>
 </div>

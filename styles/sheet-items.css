@@ -305,7 +305,7 @@
   flex: 0 0 auto;
 }
 
-.field-item input, .field-item select {
+.field-item input:not([type="checkbox"]), .field-item select {
   box-sizing: border-box;
   flex: 1;
   background: var(--trp-bg-input);

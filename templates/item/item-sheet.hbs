@@ -1,4 +1,4 @@
-<form class="{{cssClass}} trespasser-sheet item-sheet" autocomplete="off">
+<section class="{{cssClass}} trespasser-sheet item-sheet" autocomplete="off">
   <header class="sheet-header item-header-layout">
     <div class="header-column image-column">
       <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}"/>
@@ -110,24 +110,27 @@
                 title=(localize "TRESPASSER.Sheet.Item.Sections.Incantations") 
                 items=system.incantations 
                 property="incantations" 
-                deleteClass="remove-incantation"}}
+                deleteClass="remove-incantation"
+                placeholder="TRESPASSER.Sheet.Item.Placeholder.DropIncantations"}}
           </div>
         {{/if}}
 
         {{#if isArtifact}}
           <div class="nested-item-wrapper">
-            {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
+            {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
                 title=(localize "TRESPASSER.Sheet.Item.Sections.Talents") 
                 items=system.talents 
                 property="talents" 
-                deleteClass="remove-talent"}}
+                deleteClass="remove-talent"
+                placeholder="TRESPASSER.Sheet.Item.Placeholder.DropTalents"}}
           </div>
           <div class="nested-item-wrapper">
-            {{> "systems/trespasser/templates/item/parts/effects-list.hbs" 
+            {{> "systems/trespasser/templates/item/parts/deeds-list.hbs" 
                 title=(localize "TRESPASSER.Sheet.Item.Sections.MagicTraits") 
                 items=system.features 
                 property="features" 
-                deleteClass="remove-feature"}}
+                deleteClass="remove-feature"
+                placeholder="TRESPASSER.Sheet.Item.Placeholder.DropFeatures"}}
           </div>
         {{/if}}
       </div>
@@ -173,8 +176,8 @@
     <div class="field-item description-column">
       <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
       <div class="trp-editor-container">
-        {{editor descriptionHTML target="system.description" button=true editable=editable engine="prosemirror" resizable=true}}
+        <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false" editable="{{editable}}">{{{descriptionHTML}}}</prose-mirror>
       </div>
     </div>
   </section>
-</form>
+</section>
