@@ -65,7 +65,6 @@
   text-transform: uppercase;
   font-size: var(--fs-11);
   margin-bottom: 4px;
-  display: block;
 }
 
 .trespasser.dialog .trespasser-dialog-content {
@@ -536,5 +535,144 @@
   color: var(--trp-text-dim);
   margin-top: 8px;
 }
+
+/* Craft Dialog */
+.craft-dialog-v2 .craft-dlg-header {
+  border-bottom: 2px solid var(--trp-gold-dim);
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+}
+.craft-dialog-v2 .craft-dlg-header h2 {
+  font-family: var(--trp-font-header);
+  color: var(--trp-gold-bright);
+  margin: 0 0 4px;
+}
+.craft-dialog-v2 .craft-dlg-desc {
+  font-size: var(--fs-13);
+  color: var(--trp-text-dim);
+  font-style: italic;
+  margin-top: 4px;
+}
+.craft-dialog-v2 .craft-dlg-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--trp-border);
+  margin-bottom: 8px;
+}
+.craft-dialog-v2 .craft-dlg-tab-btn {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  padding: 5px 12px;
+  cursor: pointer;
+  color: var(--trp-text-dim);
+  border-bottom: 2px solid transparent;
+  transition: all 0.15s;
+}
+.craft-dialog-v2 .craft-dlg-tab-btn:hover {
+  color: var(--trp-text-bright);
+}
+.craft-dialog-v2 .craft-dlg-tab-btn.active {
+  color: var(--trp-gold-bright);
+  border-bottom-color: var(--trp-gold);
+}
+.craft-dialog-v2 .craft-dlg-tab-content {
+  min-height: 200px;
+  max-height: 320px;
+}
+.craft-dialog-v2 .craft-dlg-pane {
+  display: none;
+}
+.craft-dialog-v2 .craft-dlg-pane.active {
+  display: block;
+}
+.craft-dialog-v2 .craft-dlg-search {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+  padding: 4px 8px;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-bright);
+  font-family: var(--trp-font-body);
+  font-size: var(--fs-13);
+  border-radius: 3px;
+}
+.craft-dialog-v2 .craft-dlg-filter-row {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+.craft-dialog-v2 .craft-dlg-tier-filter {
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-bright);
+  font-family: var(--trp-font-body);
+  font-size: var(--fs-12);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.craft-dialog-v2 .craft-dlg-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  overflow-y: auto;
+  max-height: 270px;
+  padding-right: 2px;
+}
+.craft-dialog-v2 .craft-dlg-chip-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.craft-dialog-v2 .craft-dlg-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 8px;
+  background: var(--trp-bg-overlay);
+  border: 1px solid var(--trp-border);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.craft-dialog-v2 .craft-dlg-chip:hover {
+  background: var(--trp-gold-overlay);
+  border-color: var(--trp-gold-dim);
+}
+.craft-dialog-v2 .craft-dlg-name {
+  font-size: var(--fs-13);
+  color: var(--trp-text-bright);
+  flex: 1;
+}
+.craft-dialog-v2 .craft-dlg-empty {
+  color: var(--trp-text-dim);
+  font-style: italic;
+  padding: 12px 0;
+  text-align: center;
+}
+.craft-dialog-v2 input[type="checkbox"] {
+  accent-color: var(--trp-gold);
+}
+.craft-dialog-v2 .dlg-info-btn {
+  flex-shrink: 0;
+  color: var(--trp-text-dim);
+  font-size: var(--fs-12);
+  cursor: pointer;
+  padding: 2px 4px;
+}
+.craft-dialog-v2 .dlg-info-btn:hover {
+  color: var(--trp-gold-bright);
+}
+.craft-dialog-v2 .dialog-footer {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+.craft-dialog-v2 .dialog-footer button {
+  flex: 1;
+}
+
 
 
