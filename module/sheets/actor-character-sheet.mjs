@@ -7,8 +7,8 @@
 
 import { addItemToActor } from "../helpers/item-transfer-helper.mjs";
 import { TrespasserSocket } from "../helpers/socket/socket.mjs";
-import { showCallingDialog }           from "../dialogs/calling-dialog.mjs";
-import { showCraftDialog }             from "../dialogs/craft-dialog.mjs";
+import { TrespasserCallingDialog }     from "../dialogs/calling-dialog.mjs";
+import { TrespasserCraftDialog }       from "../dialogs/craft-dialog.mjs";
 import { showRestDialog }              from "../dialogs/rest-dialog.mjs";
 import { showAmmoDialog }              from "../dialogs/ammo-dialog.mjs";
 import { askAPDialog }               from "../dialogs/ap-dialog.mjs";
@@ -162,8 +162,8 @@ export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(she
     const item = await Item.implementation.fromDropData(data);
     if (!item) return super._onDropItem(event, data);
 
-    if (item.type === "calling") return showCallingDialog(item, this.actor);
-    if (item.type === "craft")   return showCraftDialog(item, this.actor);
+    if (item.type === "calling") return TrespasserCallingDialog.wait(item, this.actor);
+    if (item.type === "craft")   return TrespasserCraftDialog.wait(item, this.actor);
     if (item.type === "past_life") return this._applyPastLife(item);
     return super._onDropItem(event, data);
   }
@@ -231,7 +231,7 @@ export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(she
     event.preventDefault();
     const callingItem = this.actor.items.find(i => i.type === "calling");
     if (!callingItem) return ui.notifications.warn("No calling item found on this actor.");
-    return showCallingDialog(callingItem, this.actor);
+    return TrespasserCallingDialog.wait(callingItem, this.actor);
   }
 
   async _onCallingDelete(event) {
