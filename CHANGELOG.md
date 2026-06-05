@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.8-1] - 2026-06-05
+
+### Bug Fixes
+- **PC Skill Die**: Fixed an issue where the Skill Die was not following evolution table correctly.
+
 ## [0.0.8] - 2026-05-31
 
 ### Features
