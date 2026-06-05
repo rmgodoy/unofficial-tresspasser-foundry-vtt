@@ -185,6 +185,7 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     // 1. Progression Advancement (Needs to happen before bonuses if effects use <sb>)
     this.xp_to_next_level = currentTableData.xp || (level * 10);
     this.skill = currentTableData.skillBonus || (2 + Math.floor(level / 3));
+    this.skill_die = currentTableData.skillDie || "d6";
 
     // 2. Fetch and store Effect Bonuses in the document field
     const allTrackedKeys = [
