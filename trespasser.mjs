@@ -28,6 +28,7 @@ import { TrespasserArmorSheet }     from "./module/sheets/item-armor-sheet.mjs";
 import { TrespasserWeaponSheet }    from "./module/sheets/item-weapon-sheet.mjs";
 import { TrespasserRationsSheet }   from "./module/sheets/item-rations-sheet.mjs";
 import { TrespasserEffectSheet }    from "./module/sheets/item-effect-sheet.mjs";
+import { TrespasserPlightSheet }    from "./module/sheets/item-plight-sheet.mjs";
 import { TrespasserDeedSheet }      from "./module/sheets/item-deed-sheet.mjs";
 import { TrespasserFeatureSheet }   from "./module/sheets/item-feature-sheet.mjs";
 import { TrespasserTalentSheet }    from "./module/sheets/item-talent-sheet.mjs";
@@ -425,6 +426,11 @@ Hooks.once("init", async () => {
     types: ["effect"],
     makeDefault: true,
     label: "Trespasser Effect Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserPlightSheet, {
+    types: ["plight"],
+    makeDefault: true,
+    label: "Trespasser Plight Sheet",
   });
   foundry.documents.collections.Items.registerSheet("trespasser", TrespasserDeedSheet, {
     types: ["deed"],
