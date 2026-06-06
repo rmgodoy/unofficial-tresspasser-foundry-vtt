@@ -101,11 +101,16 @@ export async function promptAttributeSelection(actor, skillKey) {
 }
 
 export async function executeTemptFateFlow(actor, skillKey, cd, originalMsgId) {
+  if (actor.system.hasPlight?.("discouraged")) {
+    ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.DiscouragedTemptFate"));
+    return;
+  }
+
   // 1. Choose Shadow using the generic NonCombatShadowDialog with generic labels
   const chosenTemptShadows = await NonCombatShadowDialog.wait(1, {
     singleSelect: true,
-    title: game.i18n.localize("TRESPASSER.Dialog.ChooseShadow") || "Choose Shadow",
-    promptText: "Choose a shadow to add to your attempt. The shadow is applied to your result even on a success."
+    title: game.i18n.localize("TRESPASSER.Dialog.TemptFate.ChooseShadow"),
+    promptText: game.i18n.localize("TRESPASSER.Dialog.TemptFate.Prompt")
   });
   if (!chosenTemptShadows || chosenTemptShadows.length === 0) return;
   const chosenTemptShadow = chosenTemptShadows[0];
@@ -159,7 +164,9 @@ export async function executeTemptFateFlow(actor, skillKey, cd, originalMsgId) {
     rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
   }
 
-  const result = await TrespasserRollDialog.wait(rollData, { title: `Tempt Fate: ${skillLabel} Check` });
+  const result = await TrespasserRollDialog.wait(rollData, {
+    title: game.i18n.format("TRESPASSER.Dialog.TemptFate.CheckTitle", { skill: skillLabel })
+  });
   if (!result) return;
 
   // 4. Perform Roll

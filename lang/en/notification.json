@@ -2,6 +2,7 @@
   "TRESPASSER": {
     "Notification": {
       "AttributeSuppressed": "{plight}: No bonus applied to {attr} checks.",
+      "DiscouragedTemptFate": "You cannot tempt fate while Discouraged.",
       "Item": {
         "DropDeedsOnly": "Only Deeds can be dropped here.",
         "DropEffectsStatesOnly": "Only Effects or States can be dropped here.",

@@ -131,7 +131,8 @@
       "TemptFate": {
         "Prompt": "Choose a shadow to add to your attempt. The shadow is applied to your result even on a success.",
         "Tempt": "Tempt Fate",
-        "ChooseShadow": "Tempt Fate: Choose Shadow"
+        "ChooseShadow": "Tempt Fate: Choose Shadow",
+        "CheckTitle": "Tempt Fate: {skill} Check"
       },
       "EventClock": {
         "Name": "Clock Name",

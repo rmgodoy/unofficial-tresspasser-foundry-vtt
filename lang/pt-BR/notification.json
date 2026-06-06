@@ -2,6 +2,7 @@
   "TRESPASSER": {
     "Notification": {
       "AttributeSuppressed": "{plight}: Nenhum bônus aplicado a testes de {attr}.",
+      "DiscouragedTemptFate": "Você não pode desafiar o destino enquanto estiver Desencorajado.",
       "Item": {
         "DropDeedsOnly": "Apenas Habilidades podem ser soltas aqui.",
         "DropEffectsStatesOnly": "Apenas Efeitos ou Estados podem ser soltos aqui.",

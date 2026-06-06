@@ -358,7 +358,8 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
 
     // Append Tempt Fate button if failed skill check, and not already a Tempt Fate reroll
     let temptFateButton = "";
-    if (options.skillKey && diff < 0 && !options.isTemptFate) {
+    const isDiscouraged = sheet.actor?.system?.hasPlight?.("discouraged");
+    if (options.skillKey && diff < 0 && !options.isTemptFate && !isDiscouraged) {
       temptFateButton = `
         <div class="tempt-fate-container" style="margin-top:8px;">
           <button type="button" class="tempt-fate-btn" data-skill-key="${options.skillKey}" data-actor-id="${sheet.actor.id}" data-cd="${cd}" style="width:100%;cursor:pointer;font-family:var(--trp-font-header);font-size:var(--fs-11);text-transform:uppercase;font-weight:bold;padding:6px;background:var(--trp-gold);color:var(--trp-bg-dark);border:none;border-radius:4px;">
