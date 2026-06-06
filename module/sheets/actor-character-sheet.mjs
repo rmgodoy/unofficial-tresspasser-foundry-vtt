@@ -187,7 +187,7 @@ export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(she
     return postDeedPhase(phaseName, phaseData, actor, item, options, this);
   }
   async _requestCDAndRoll(roll, flavor)     { return requestCDAndRoll(roll, flavor, this); }
-  async _evaluateAndShowRoll(roll, flavor, cd) { return evaluateAndShowRoll(roll, flavor, cd, this); }
+  async _evaluateAndShowRoll(roll, flavor, cd, options={}) { return evaluateAndShowRoll(roll, flavor, cd, this, options); }
   async _askAPDialog(availableAP)             { return askAPDialog(availableAP); }
 
   // ── Talents / Features / Incantations ─────────────────────────────────────

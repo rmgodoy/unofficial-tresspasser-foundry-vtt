@@ -53,7 +53,7 @@ export async function onAttributeRoll(event, sheet) {
     : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck", { name: sheet.actor.name, skill: label });
   
   const cd = result.cd ?? 10;
-  const rollRes = await sheet._evaluateAndShowRoll(roll, flavor, cd);
+  const rollRes = await sheet._evaluateAndShowRoll(roll, flavor, cd, { attributeKey: attrKey, isNonCombat: true });
   if (rollRes) await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: attrKey });
 }
 
@@ -220,7 +220,7 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
               : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck",    { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`;
             
             const finalCD = result.cd ?? 10;
-            const rollRes = await sheet._evaluateAndShowRoll(roll, flavorFull, finalCD);
+            const rollRes = await sheet._evaluateAndShowRoll(roll, flavorFull, finalCD, { skillKey, isNonCombat: true });
             if (rollRes) await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: chosenAttr });
             
             resolve(roll);

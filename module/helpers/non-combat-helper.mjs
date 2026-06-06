@@ -18,16 +18,16 @@ export async function requestGMShadows({ requestId, shadowCount, rollLabel }) {
   console.log(`Trespasser | requestGMShadows: Sending request ${requestId} for ${shadowCount} shadows.`);
 
   const promise = new Promise((resolve) => {
-    const timeout = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       console.warn(`Trespasser | requestGMShadows: Request ${requestId} timed out.`);
       _pendingRequests.delete(requestId);
       // Cancel the GM dialogs
       const { TrespasserSocket } = game.trespasser || {};
       TrespasserSocket?.emit("CANCEL_NON_COMBAT_POPUP", { requestId });
       resolve(null);
-    }, timeout); // 15 seconds timeout
+    }, timeout);
 
-    _pendingRequests.set(requestId, { resolve, timeout });
+    _pendingRequests.set(requestId, { resolve, timeout: timeoutId });
   });
 
   const { TrespasserSocket } = game.trespasser || {};
@@ -50,16 +50,16 @@ export async function requestPlayerSparks({ requestId, targetUserId, sparkCount,
   console.log(`Trespasser | requestPlayerSparks: Sending request ${requestId} to player ${targetUserId} for ${sparkCount} sparks.`);
 
   const promise = new Promise((resolve) => {
-    const timeout = setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       console.warn(`Trespasser | requestPlayerSparks: Request ${requestId} timed out.`);
       _pendingRequests.delete(requestId);
       // Cancel the player dialog
       const { TrespasserSocket } = game.trespasser || {};
       TrespasserSocket?.emit("CANCEL_NON_COMBAT_POPUP", { requestId });
       resolve(null);
-    }, timeout); // 15 seconds timeout
+    }, timeout);
 
-    _pendingRequests.set(requestId, { resolve, timeout });
+    _pendingRequests.set(requestId, { resolve, timeout: timeoutId });
   });
 
   const { TrespasserSocket } = game.trespasser || {};

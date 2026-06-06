@@ -49,6 +49,7 @@ import { TrespasserSocket }        from "./module/helpers/socket/socket.mjs";
 import { PASSIVE_STATES }          from "./module/config/state-config.mjs";
 import { COMMON_PLIGHTS }          from "./module/config/plight-config.mjs";
 import * as NonCombatHelper        from "./module/helpers/non-combat-helper.mjs";
+import { NonCombatSparkDialog, NonCombatShadowDialog } from "./module/dialogs/tempt-fate-dialogs.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -96,7 +97,9 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/dungeon/dungeon-notes.hbs",
     "systems/trespasser/templates/exploration/dungeon-tracker.hbs",
     "systems/trespasser/templates/exploration/haven-tracker.hbs",
-    "systems/trespasser/templates/item/room-sheet.hbs"
+    "systems/trespasser/templates/item/room-sheet.hbs",
+    "systems/trespasser/templates/dialogs/non-combat-spark.hbs",
+    "systems/trespasser/templates/dialogs/non-combat-shadow.hbs"
   ]);
 
   // Register custom document classes
@@ -566,6 +569,8 @@ Hooks.once("init", async () => {
   game.trespasser.Config = TrespasserConfigV2;
   game.trespasser.EventClocks = EventClocksTracker;
   game.trespasser.NonCombatHelper = NonCombatHelper;
+  game.trespasser.NonCombatSparkDialog = NonCombatSparkDialog;
+  game.trespasser.NonCombatShadowDialog = NonCombatShadowDialog;
 });
 
 /**
