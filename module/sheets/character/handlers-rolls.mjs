@@ -276,6 +276,19 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
     let showShadowButton = false;
     const requestId = foundry.utils.randomID();
 
+    // Plight shadows in Dungeon Frame (non-group checks only)
+    const plightShadows = [];
+    const hasActiveDungeon = game.actors.some(a => a.type === "dungeon" && a.system.sessionState === "active");
+    const isGroupCheck = options.isGroupCheck || sheet.actor?.type === "party";
+    if (hasActiveDungeon && !isGroupCheck) {
+      if (sheet.actor?.system?.hasPlight?.("clumsy")) {
+        plightShadows.push("costly");
+      }
+      if (sheet.actor?.system?.hasPlight?.("conspicuous")) {
+        plightShadows.push("loud");
+      }
+    }
+
     // 1. Sparks picker (Player who rolled)
     if (sparks > 0) {
       if (game.user.isGM || sheet.actor.isOwner) {
@@ -315,6 +328,8 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
       }
     }
 
+    const finalShadows = [...chosenShadows, ...plightShadows];
+
     // 3. Format message content
     let metrics = `<div class="non-combat-roll-details" data-request-id="${requestId}">`;
     
@@ -336,9 +351,9 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
       metrics += `</ul></div>`;
     }
     
-    if (chosenShadows.length > 0) {
+    if (finalShadows.length > 0) {
       metrics += `<div class="shadow-results"><strong>Shadows:</strong><ul>`;
-      for (const shadow of chosenShadows) {
+      for (const shadow of finalShadows) {
         metrics += `<li><span style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${shadow.capitalize()}</span></li>`;
       }
       metrics += `</ul></div>`;
@@ -387,7 +402,8 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
           sparksCount: sparks,
           shadowsCount: shadows,
           chosenSparks,
-          chosenShadows,
+          chosenShadows: finalShadows,
+          plightShadows,
           showShadowButton
         }
       }

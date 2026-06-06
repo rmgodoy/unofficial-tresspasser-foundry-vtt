@@ -62,7 +62,7 @@ import { TrespasserRoomData }      from "./module/data/item-room.mjs";
 import { DUNGEON_CONFIG, ensureDungeonHelpers } from "./module/config/dungeon-config.mjs";
 import { TrespasserDungeonSheet }  from "./module/sheets/actor-dungeon-sheet.mjs";
 import { TrespasserRoomSheet }     from "./module/sheets/item-room-sheet.mjs";
-import { registerDungeonTrackerHooks } from "./module/exploration/dungeon-tracker.mjs";
+import { DungeonTracker, registerDungeonTrackerHooks } from "./module/exploration/dungeon-tracker.mjs";
 import { TrespasserHavenData }   from "./module/data/actor-haven.mjs";
 import { TrespasserHirelingData } from "./module/data/item-hireling.mjs";
 import { TrespasserHavenSheet }   from "./module/sheets/actor-haven-sheet.mjs";
@@ -574,6 +574,8 @@ Hooks.once("init", async () => {
   game.trespasser.NonCombatShadowDialog = NonCombatShadowDialog;
   game.trespasser.TrespasserSocket = TrespasserSocket;
   game.trespasser.executeTemptFateFlow = executeTemptFateFlow;
+  game.trespasser.DungeonTracker = DungeonTracker;
+  globalThis.trespasser = game.trespasser;
 });
 
 /**
@@ -963,12 +965,14 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
       // Update message content and flags
       const flags = foundry.utils.deepClone(message.flags.trespasser || {});
-      flags.chosenShadows = chosenShadows;
+      const plightShadows = flags.plightShadows || [];
+      const finalShadows = [...chosenShadows, ...plightShadows];
+      flags.chosenShadows = finalShadows;
       flags.showShadowButton = false;
 
       let content = message.content;
       let shadowResults = `<div class="shadow-results"><strong>Shadows:</strong><ul>`;
-      for (const shadow of chosenShadows) {
+      for (const shadow of finalShadows) {
         shadowResults += `<li><span style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${shadow.capitalize()}</span></li>`;
       }
       shadowResults += `</ul></div>`;
