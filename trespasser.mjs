@@ -571,6 +571,7 @@ Hooks.once("init", async () => {
   game.trespasser.NonCombatHelper = NonCombatHelper;
   game.trespasser.NonCombatSparkDialog = NonCombatSparkDialog;
   game.trespasser.NonCombatShadowDialog = NonCombatShadowDialog;
+  game.trespasser.TrespasserSocket = TrespasserSocket;
 });
 
 /**
@@ -938,6 +939,59 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
           content: `<div class="trespasser-chat-card"><p>${game.i18n.format("TRESPASSER.Chat.Combat.HealedAmount", { name: actor.name, amount: healAmount })}</p></div>`
         });
       }
+    });
+  });
+
+  // ── Select Shadows (GM Only) button ───────────────────────────────────────
+  html.querySelectorAll(".select-non-combat-shadows-btn").forEach(btn => {
+    if (!game.user.isGM) {
+      btn.style.display = "none";
+      return;
+    }
+
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const messageId = btn.closest(".message")?.dataset.messageId;
+      const message = game.messages.get(messageId);
+      if (!message) return;
+
+      const shadowCount = parseInt(btn.dataset.shadowCount) || 1;
+      const chosenShadows = await game.trespasser.NonCombatShadowDialog.wait(shadowCount);
+      if (!chosenShadows || chosenShadows.length === 0) return;
+
+      // Update message content and flags
+      const flags = foundry.utils.deepClone(message.flags.trespasser || {});
+      flags.chosenShadows = chosenShadows;
+      flags.showShadowButton = false;
+
+      let content = message.content;
+      let shadowResults = `<div class="shadow-results"><strong>Shadows:</strong><ul>`;
+      for (const shadow of chosenShadows) {
+        shadowResults += `<li><span style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${shadow.capitalize()}</span></li>`;
+      }
+      shadowResults += `</ul></div>`;
+
+      // Modify HTML using DOMParser
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, "text/html");
+      const warningEl = doc.querySelector(".pending-shadows-warning");
+      const btnEl = doc.querySelector(".select-non-combat-shadows-btn");
+      const containerEl = doc.querySelector(".non-combat-roll-details");
+
+      if (containerEl) {
+        warningEl?.remove();
+        btnEl?.remove();
+        
+        // Append shadow results
+        const tempDiv = doc.createElement("div");
+        tempDiv.innerHTML = shadowResults;
+        containerEl.appendChild(tempDiv.firstChild);
+      }
+
+      await message.update({
+        content: doc.body.innerHTML,
+        "flags.trespasser": flags
+      });
     });
   });
 });
