@@ -50,6 +50,16 @@
       "Sluggish": {
         "Name": "Sluggish",
         "Description": "A sluggish character is dazed and unresponsive. They do not roll on initiative checks in combat, failing them automatically. They can still roll initiative to retreat as normal."
+      },
+      "Custom": {
+        "Name": "Custom Plight",
+        "ButtonLabel": "Custom Plight"
+      }
+    },
+    "Dialog": {
+      "PlightPicker": {
+        "Title": "Select Plight",
+        "SelectHint": "Choose a plight to afflict this character. Active plights are disabled."
       }
     },
     "Global": {

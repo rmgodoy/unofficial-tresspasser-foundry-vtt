@@ -888,5 +888,27 @@
   align-items: flex-start;
 }
 
+/* Plight Picker Dialog */
+.trespasser-plight-picker .plight-card {
+  box-shadow: 0 0 4px var(--trp-shadow-dark);
+}
+
+.trespasser-plight-picker .plight-card:not(.disabled):hover {
+  background: var(--trp-gold-dim) !important;
+  border-color: var(--trp-gold-bright) !important;
+  box-shadow: 0 0 8px var(--trp-shadow-gold);
+}
+
+.trespasser-plight-picker .plight-card.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.trespasser-plight-picker .custom-plight-btn:hover {
+  background: var(--trp-gold-dim) !important;
+  border-color: var(--trp-gold-bright) !important;
+  box-shadow: 0 0 8px var(--trp-shadow-gold);
+}
+
 
 

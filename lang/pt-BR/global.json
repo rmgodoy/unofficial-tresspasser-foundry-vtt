@@ -50,6 +50,16 @@
       "Sluggish": {
         "Name": "Lento",
         "Description": "Um personagem lento está atordoado e sem resposta. Ele não rola testes de iniciativa no combate, falhando automaticamente. Ele ainda pode rolar iniciativa para recuar normalmente."
+      },
+      "Custom": {
+        "Name": "Aflição Personalizada",
+        "ButtonLabel": "Aflição Personalizada"
+      }
+    },
+    "Dialog": {
+      "PlightPicker": {
+        "Title": "Selecionar Aflição",
+        "SelectHint": "Escolha uma aflição para este personagem. Aflições ativas estão desativadas."
       }
     },
     "Global": {
