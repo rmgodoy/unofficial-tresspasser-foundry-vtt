@@ -13,6 +13,8 @@
 
 const { api, sheets } = foundry.applications;
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { NonCombatSparkDialog, NonCombatShadowDialog } from "../dialogs/tempt-fate-dialogs.mjs";
+import * as NonCombatHelper from "../helpers/non-combat-helper.mjs";
 
 export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
 
@@ -357,6 +359,8 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     const checkLabel = skillLabel ? `${attrLabel} | ${skillLabel}` : attrLabel;
 
     // Roll for each member
+    let successes = 0;
+    let failures = 0;
     const results = [];
     for (const actor of members) {
       const data = actor.system;
@@ -376,44 +380,113 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
       const roll = new foundry.dice.Roll(formula);
       await roll.evaluate();
 
+      const dieResult = roll.dice[0]?.results[0]?.result;
+      const isNat20 = dieResult === 20;
+      const isSuccess = roll.total >= dc || isNat20;
+
+      let contribSuccesses = 0;
+      let contribFailures = 0;
+
+      if (isSuccess) {
+        contribSuccesses = isNat20 ? 2 : 1;
+        successes += contribSuccesses;
+      } else {
+        contribFailures = 1;
+        failures += contribFailures;
+      }
+
       results.push({
+        actor,
         name: actor.name,
         total: roll.total,
         formula: roll.formula,
-        success: roll.total >= dc,
+        success: isSuccess,
+        isNat20,
         roll
       });
     }
 
-    // Build chat output
-    const successes = results.filter(r => r.success).length;
-    const total = results.length;
-    const halfOrMore = successes >= Math.ceil(total / 2);
-    const allSucceed = successes === total;
+    // Determine Group Sparks / Shadows
+    let chosenSparks = [];
+    let chosenShadows = [];
+    const outcome = successes - failures;
 
+    if (outcome >= 2) {
+      // Prompt character with highest roll result
+      const highestRoll = results.reduce((max, curr) => curr.total > max.total ? curr : max, results[0]);
+      const ownerUser = game.users.find(u => !u.isGM && highestRoll.actor.testUserPermission(u, "OWNER") && u.active);
+      const requestId = foundry.utils.randomID();
+      
+      if (!ownerUser || ownerUser.id === game.user.id) {
+        chosenSparks = await NonCombatSparkDialog.wait(1);
+      } else {
+        chosenSparks = await NonCombatHelper.requestPlayerSparks({
+          requestId,
+          targetUserId: ownerUser.id,
+          sparkCount: 1,
+          rollLabel: "Group Check Spark"
+        });
+      }
+      chosenSparks = chosenSparks || [];
+    } else if (outcome <= -2) {
+      if (game.user.isGM) {
+        chosenShadows = await NonCombatShadowDialog.wait(1);
+      } else {
+        const requestId = foundry.utils.randomID();
+        chosenShadows = await NonCombatHelper.requestGMShadows({
+          requestId,
+          shadowCount: 1,
+          rollLabel: "Group Check Shadow"
+        });
+      }
+      chosenShadows = chosenShadows || [];
+    }
+
+    // Build chat output
     let content = `<div class="trespasser-group-check">`;
     content += `<h3>${game.i18n.localize("TRESPASSER.Chat.Party.GroupCheck")}: ${checkLabel}</h3>`;
     content += `<p class="group-check-dc-line">${game.i18n.localize("TRESPASSER.Terms.Combat.DC")} ${dc}</p>`;
     content += `<div class="group-check-results">`;
     for (const r of results) {
       const cls = r.success ? "success" : "failure";
+      let resultIndicator = r.success ? "✓" : "✗";
+      let isNat20Text = "";
+      if (r.isNat20) {
+        resultIndicator = "✓✓";
+        isNat20Text = ` <span style="font-size: var(--fs-9); color: var(--trp-gold-bright); font-weight: bold; text-transform: uppercase;">(Nat 20)</span>`;
+      }
+
       content += `<div class="group-check-row ${cls}">`;
-      content += `<span class="group-check-name">${r.name}</span>`;
+      content += `<span class="group-check-name">${r.name}${isNat20Text}</span>`;
       content += `<span class="group-check-roll">${r.formula}</span>`;
       content += `<span class="group-check-total">${r.total}</span>`;
-      content += `<span class="group-check-result">${r.success ? "✓" : "✗"}</span>`;
+      content += `<span class="group-check-result">${resultIndicator}</span>`;
       content += `</div>`;
     }
     content += `</div>`;
-    content += `<div class="group-check-summary">`;
-    content += `<strong>${successes} / ${total}</strong> ${game.i18n.localize("TRESPASSER.Chat.Party.Succeeded")}`;
-    if (allSucceed) {
-      content += ` — <span class="group-check-all">${game.i18n.localize("TRESPASSER.Chat.Party.AllSucceed")}</span>`;
-    } else if (halfOrMore) {
-      content += ` — <span class="group-check-half">${game.i18n.localize("TRESPASSER.Chat.Party.HalfMoreSucceed")}</span>`;
-    } else {
-      content += ` — <span class="group-check-fail">${game.i18n.localize("TRESPASSER.Chat.Party.FewerHalfSucceed")}</span>`;
+
+    content += `<div class="group-check-summary" style="display: flex; flex-direction: column; gap: 4px;">`;
+    content += `<div><strong>Successes:</strong> ${successes} | <strong>Failures:</strong> ${failures}</div>`;
+    content += `<div><strong>Net Outcome:</strong> ${outcome >= 0 ? "+" + outcome : outcome}</div>`;
+
+    if (chosenSparks.length > 0) {
+      content += `<div class="group-check-sparks" style="margin-top: 4px; text-align: left;">`;
+      content += `<strong>Group Sparks:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
+      for (const spark of chosenSparks) {
+        content += `<li><span style="color:var(--trp-spark); font-weight:bold;"><i class="fas fa-sun"></i> ${spark.toUpperCase()}</span></li>`;
+      }
+      content += `</ul></div>`;
     }
+
+    if (chosenShadows.length > 0) {
+      content += `<div class="group-check-shadows" style="margin-top: 4px; text-align: left;">`;
+      content += `<strong>Group Shadows:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
+      for (const shadow of chosenShadows) {
+        content += `<li><span style="color:var(--trp-shadow); font-weight:bold;"><i class="fas fa-moon"></i> ${shadow.toUpperCase()}</span></li>`;
+      }
+      content += `</ul></div>`;
+    }
+
     content += `</div></div>`;
 
     await ChatMessage.create({
