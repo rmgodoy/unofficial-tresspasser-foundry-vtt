@@ -50,6 +50,7 @@ import { PASSIVE_STATES }          from "./module/config/state-config.mjs";
 import { COMMON_PLIGHTS }          from "./module/config/plight-config.mjs";
 import * as NonCombatHelper        from "./module/helpers/non-combat-helper.mjs";
 import { NonCombatSparkDialog, NonCombatShadowDialog } from "./module/dialogs/tempt-fate-dialogs.mjs";
+import { executeTemptFateFlow } from "./module/sheets/character/handlers-tempt-fate.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -572,6 +573,7 @@ Hooks.once("init", async () => {
   game.trespasser.NonCombatSparkDialog = NonCombatSparkDialog;
   game.trespasser.NonCombatShadowDialog = NonCombatShadowDialog;
   game.trespasser.TrespasserSocket = TrespasserSocket;
+  game.trespasser.executeTemptFateFlow = executeTemptFateFlow;
 });
 
 /**
@@ -993,6 +995,45 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         "flags.trespasser": flags
       });
     });
+  });
+
+  // ── Tempt Fate Button Event Listener ──
+  html.querySelectorAll(".tempt-fate-btn").forEach(btn => {
+    const skillKey = btn.dataset.skillKey;
+    const actorId = btn.dataset.actorId;
+    
+    // Resolve active character for the user (handles various configurations)
+    let activeChar = game.user.character;
+    if (!activeChar) {
+      const controlled = canvas.tokens?.controlled || [];
+      const controlledChar = controlled.find(t => t.actor?.type === "character")?.actor;
+      activeChar = controlledChar || game.actors.find(a => a.type === "character" && a.isOwner);
+    }
+    
+    // Visibility: GM can see, or any player whose active/owned character has the skill trained
+    const isTrained = activeChar?.system?.skills?.[skillKey] === true;
+    const canSee = game.user.isGM || isTrained;
+    
+    if (!canSee) {
+      btn.style.display = "none";
+    } else {
+      btn.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        // Determine who is performing the Tempt Fate action
+        let actingActor = activeChar;
+        if (game.user.isGM) {
+          // GM defaults to the rolling actor, unless they are controlling a specific character
+          const controlled = canvas.tokens?.controlled || [];
+          const controlledChar = controlled.find(t => t.actor?.type === "character")?.actor;
+          actingActor = controlledChar || game.actors.get(actorId);
+        }
+        
+        if (!actingActor) return ui.notifications.warn("No active character found to Tempt Fate.");
+        
+        const messageId = btn.closest(".message")?.dataset.messageId;
+        await game.trespasser.executeTemptFateFlow(actingActor, skillKey, parseInt(btn.dataset.cd), messageId);
+      });
+    }
   });
 });
 

@@ -15,6 +15,7 @@ import {
   handleSparksResponse,
   handleCancelPopup
 } from "../non-combat-helper.mjs";
+import { handleRemoveTemptFateButton } from "../../sheets/character/handlers-tempt-fate.mjs";
 
 /**
  * Helper class for handling custom socket events in the Trespasser system.
@@ -64,6 +65,8 @@ export class TrespasserSocket {
         return handleSparksResponse(data);
       case "CANCEL_NON_COMBAT_POPUP":
         return handleCancelPopup(data);
+      case "REMOVE_TEMPT_FATE_BUTTON":
+        return handleRemoveTemptFateButton(data);
       default:
         // Ignore unknown types
         break;

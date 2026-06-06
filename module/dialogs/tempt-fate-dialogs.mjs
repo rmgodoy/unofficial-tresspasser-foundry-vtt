@@ -223,12 +223,7 @@ export class NonCombatShadowDialog extends foundry.applications.api.HandlebarsAp
   }
 
   static #onConfirm(event, target) {
-    let chosen = null;
-    if (this.singleSelect) {
-      chosen = this.element.querySelector('input[name="choices"]:checked')?.value;
-    } else {
-      chosen = Array.from(this.element.querySelectorAll('input[name="choices"]:checked')).map(el => el.value);
-    }
+    const chosen = Array.from(this.element.querySelectorAll('input[name="choices"]:checked')).map(el => el.value);
     this.resolve(chosen);
     this.close();
   }

@@ -18,8 +18,8 @@ import { COMMON_PLIGHTS }              from "../config/plight-config.mjs";
 import { getCharacterData, buildClockSegments } from "./character/get-data.mjs";
 import { activateCharacterListeners }           from "./character/listeners.mjs";
 
-import { onAttributeRoll, onCombatStatRoll, onSkillRoll } from "./character/handlers-rolls.mjs";
-import { onDeedRoll, postDeedPhase, requestCDAndRoll, evaluateAndShowRoll } from "./character/handlers-deed.mjs";
+import { onAttributeRoll, onCombatStatRoll, onSkillRoll, evaluateAndShowRoll } from "./character/handlers-rolls.mjs";
+import { onDeedRoll, postDeedPhase, requestCDAndRoll } from "./character/handlers-deed.mjs";
 import { onTalentRoll, onFeatureRoll, onIncantationRoll }                   from "./character/handlers-talent.mjs";
 import { handleRestAction, recoverItemCost, spendRDAndRoll }                from "./character/handlers-rest.mjs";
 import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck, onItemTransfer }  from "./character/handlers-items.mjs";
