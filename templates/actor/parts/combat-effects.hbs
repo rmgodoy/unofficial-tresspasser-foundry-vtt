@@ -34,6 +34,7 @@
               <input type="number" class="effect-intensity-input" value="{{this.intensity}}" />
             </div>
 
+            {{#unless this.isLasting}}
             {{#if this.isPrevailable}}
             {{#unless this.fromInjury}}
             <button type="button" class="effect-prevail prevail-btn">
@@ -41,6 +42,7 @@
             </button>
             {{/unless}}
             {{/if}}
+            {{/unless}}
             <a class="effect-remove" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
           </div>
           {{/unless}}

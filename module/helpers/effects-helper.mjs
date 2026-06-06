@@ -403,6 +403,9 @@ export class TrespasserEffectsHelper {
       }
     }
 
+    effects.combat.sort((a, b) => a.name.localeCompare(b.name));
+    effects.nonCombat.sort((a, b) => a.name.localeCompare(b.name));
+
     return effects;
   }
 

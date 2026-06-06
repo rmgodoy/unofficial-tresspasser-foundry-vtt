@@ -594,7 +594,17 @@ export class TrespasserActor extends Actor {
       return;
     }
 
-    const intensity = stateItem.system.intensity || 0;
+    let intensity = stateItem.system.intensity || 0;
+    if (!stateItem.system.isLasting) {
+      const matchingLasting = this.items.find(i => 
+        i.type === "effect" && 
+        i.system.isLasting && 
+        i.name.toLowerCase() === stateItem.name.toLowerCase()
+      );
+      if (matchingLasting) {
+        intensity += (matchingLasting.system.intensity || 0);
+      }
+    }
     const dc = cd !== null ? cd : Math.min(20, 10 + intensity);
     const prevailStat = this.system.combat?.prevail || 0;
     const apBonus = extraAP * 2;
@@ -628,18 +638,7 @@ export class TrespasserActor extends Actor {
     });
 
     if (success) {
-      if (stateItem.system.isLasting) {
-        const baseIntensity = stateItem.getFlag("trespasser", "lastingBaseIntensity") !== undefined
-          ? stateItem.getFlag("trespasser", "lastingBaseIntensity")
-          : stateItem.system.intensity;
-        await stateItem.update({ "system.intensity": baseIntensity });
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.LastingStateReduced", {
-          name: stateItem.name,
-          intensity: baseIntensity
-        }));
-      } else {
-        await stateItem.delete();
-      }
+      await stateItem.delete();
     }
 
     // Trigger any effects that fire when a prevail check is made
