@@ -24,6 +24,10 @@ export function activateCharacterListeners(html, sheet) {
   html.find(".feature-info, .talent-info, .incantation-info").on("click", sheet._onEffectInfo.bind(sheet));
   html.find(".effect-duration-input").on("change",  sheet._onDurationChange.bind(sheet));
 
+  // Plight / Lasting State listeners
+  html.find(".plight-add").on("click",              sheet._onPlightAdd.bind(sheet));
+  html.find(".lasting-state-add").on("click",       sheet._onLastingStateAdd.bind(sheet));
+
   // Equip / Unequip
   html.find(".item-equip").on("click", (ev) => {
     const li = ev.currentTarget.closest(".inventory-card");

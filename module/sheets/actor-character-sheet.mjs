@@ -218,6 +218,30 @@ export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(she
   async _onEffectEdit(event)                { return onEffectEdit(event, this); }
   async _onDurationChange(event)            { return onDurationChange(event, this); }
 
+  async _onPlightAdd(event) {
+    event.preventDefault();
+    const type = "plight";
+    const name = "New Plight";
+    const created = await Item.implementation.create({ name, type }, { parent: this.actor });
+    if (created) {
+      created.sheet.render(true);
+    }
+  }
+
+  async _onLastingStateAdd(event) {
+    event.preventDefault();
+    const type = "effect";
+    const name = "New Lasting State";
+    const system = {
+      isLasting: true,
+      isCombat: true
+    };
+    const created = await Item.implementation.create({ name, type, system }, { parent: this.actor });
+    if (created) {
+      created.sheet.render(true);
+    }
+  }
+
   // ── Combat / Equipment ─────────────────────────────────────────────────────
   async _onEquipRoll(event)                 { return onEquipRoll(event, this); }
   _getActiveWeapons()                       { return getActiveWeapons(this); }

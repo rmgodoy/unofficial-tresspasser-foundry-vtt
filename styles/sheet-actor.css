@@ -1500,3 +1500,47 @@
   flex: 1;
   overflow-y: auto;
 }
+
+/* ───────────────────────────────────────────────────────
+   PLIGHTS & LASTING STATES SECTION
+─────────────────────────────────────────────────────── */
+.plights-lasting-states {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 15px;
+  margin-bottom: 15px;
+}
+
+.plight-row,
+.lasting-state-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--trp-bg-overlay);
+  border: 1px solid var(--trp-border);
+  border-radius: 4px;
+  padding: 6px 8px;
+  transition: border-color 0.15s;
+}
+
+.plight-row:hover,
+.lasting-state-row:hover {
+  border-color: var(--trp-gold-dim);
+}
+
+.plight-icon {
+  font-size: var(--fs-14);
+}
+
+.lasting-badge {
+  display: inline-block;
+  font-weight: bold;
+  color: var(--trp-gold);
+  font-size: var(--fs-13);
+  background: var(--trp-bg-dark);
+  border: 1px solid var(--trp-border);
+  border-radius: 2px;
+  padding: 0 4px;
+  line-height: 1.2;
+}

@@ -79,6 +79,7 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/actor/parts/deed-list.hbs",
     "systems/trespasser/templates/actor/parts/combat-effects.hbs",
     "systems/trespasser/templates/actor/parts/clock.hbs",
+    "systems/trespasser/templates/actor/parts/plights-lasting-states.hbs",
     "systems/trespasser/templates/item/parts/effect-chip.hbs",
     "systems/trespasser/templates/item/parts/effects-list.hbs",
     "systems/trespasser/templates/item/parts/deeds-list.hbs",
