@@ -2,6 +2,32 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.0.9] - 2026-06-06
+
+### Features
+- **Plights & Lasting States System**:
+  - Added a new `plight` item type with an item sheet and configuration registry.
+  - Implemented the `PlightPickerDialog` for selecting the 10 common plights or creating custom ones.
+  - Added a new two-column layout for Plights & Lasting States on the Character tab of the Character sheet.
+  - Displayed active plight icons on character portraits and the token status overlay.
+  - Enforced mechanical effects for all 10 common plights:
+    - **Afraid**: Disables selecting Quick or Striking sparks.
+    - **Angry**: Disables selecting Canny, Quiet, or Safe sparks.
+    - **Befuddled**: Suppresses any attribute bonus to Intellect and Spirit checks.
+    - **Clumsy**: Automatically adds the "costly" shadow to non-group dungeon checks (while Dungeon Tracker has an active session).
+    - **Conspicuous**: Automatically adds the "loud" shadow to non-group dungeon checks (while Dungeon Tracker has an active session).
+    - **Discouraged**: Disables the ability to tempt fate on skill checks.
+    - **Distracted**: Causes character to start combat with 0 focus.
+    - **Enfeebled**: Halves maximum inventory capacity.
+    - **Sickly**: Suppresses any attribute bonus to Might and Agility checks.
+    - **Sluggish**: Automatically fails initiative checks in combat (retreat initiative rolls normally).
+  - Implemented **Lasting States** as a property on effects (`isLasting` flag). Lasting states prevent gaining opposite states, stack with normal states, and return to their base intensity when prevailed against instead of being removed. Displayed a lasting state indicator (L) on the character sheet and combat tracker.
+- **Tempt Fate & Non-Combat Sparks/Shadows**:
+  - Implemented dialogs for selecting non-combat Sparks (Canny, Quick, Quiet, Safe, Striking) and Shadows (Costly, Slow, Loud, Harmful, Daunting).
+  - Intercepted non-combat skill/attribute rolls to compute degrees of success/failure and prompt for Sparks and Shadows.
+  - Added the **Tempt Fate** mechanic for failed skill checks, allowing players to choose a shadow to add and reroll the check with custom attributes/modifiers.
+  - Integrated **Group Checks** with counted natural 20s as double successes.
+
 ## [0.0.8-1] - 2026-06-05
 
 ### Bug Fixes
