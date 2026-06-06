@@ -147,7 +147,8 @@
       "room": {},
       "hireling": {},
       "build": {},
-      "stronghold": {}
+      "stronghold": {},
+      "plight": {}
     }
   },
   "socket": true,

@@ -17,6 +17,7 @@ import { TrespasserItemData }        from "./module/data/item-item.mjs";
 import { TrespasserAccessoryData }   from "./module/data/item-accessory.mjs";
 import { TrespasserInjuryData }      from "./module/data/item-injury.mjs";
 import { TrespasserCallingData }    from "./module/data/item-calling.mjs";
+import { TrespasserPlightData }     from "./module/data/item-plight.mjs";
 import { TrespasserActor }         from "./module/documents/actor.mjs";
 import { TrespasserCombat }        from "./module/documents/combat.mjs";
 import { TrespasserEffectsHelper } from "./module/helpers/effects-helper.mjs";
@@ -45,6 +46,7 @@ import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
 import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
 import { TrespasserSocket }        from "./module/helpers/socket/socket.mjs";
 import { PASSIVE_STATES }          from "./module/config/state-config.mjs";
+import { COMMON_PLIGHTS }          from "./module/config/plight-config.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -116,7 +118,8 @@ Hooks.once("init", async () => {
       "reaction": "TRESPASSER.Terms.ActionTypes.Reaction"
     },
     // Dungeon exploration config
-    dungeon: DUNGEON_CONFIG
+    dungeon: DUNGEON_CONFIG,
+    plights: COMMON_PLIGHTS
   };
 
   // Register settings
@@ -368,6 +371,7 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.hireling = TrespasserHirelingData;
   CONFIG.Item.dataModels.build = TrespasserBuildData;
   CONFIG.Item.dataModels.stronghold = TrespasserStrongholdData;
+  CONFIG.Item.dataModels.plight = TrespasserPlightData;
 
   // Sheets
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);

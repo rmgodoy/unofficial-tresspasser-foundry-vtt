@@ -45,6 +45,7 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
       intensityIncrement: new fields.NumberField({ initial: 0 }),
       counterStates: new fields.ArrayField(new fields.ObjectField(), { initial: [] }),
       isPrevailable: new fields.BooleanField({ initial: true }),
+      isLasting: new fields.BooleanField({ initial: false }),
       statusIcon: new fields.StringField({ initial: "", blank: true })
     };
   }
