@@ -418,13 +418,14 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
       const requestId = foundry.utils.randomID();
       
       if (!ownerUser || ownerUser.id === game.user.id) {
-        chosenSparks = await NonCombatSparkDialog.wait(1);
+        chosenSparks = await NonCombatSparkDialog.wait(1, { actor: highestRoll.actor });
       } else {
         chosenSparks = await NonCombatHelper.requestPlayerSparks({
           requestId,
           targetUserId: ownerUser.id,
           sparkCount: 1,
-          rollLabel: "Group Check Spark"
+          rollLabel: "Group Check Spark",
+          actorId: highestRoll.actor.id
         });
       }
       chosenSparks = chosenSparks || [];

@@ -9,6 +9,7 @@ export class NonCombatSparkDialog extends foundry.applications.api.HandlebarsApp
     super(options);
     this.sparkCount = options.sparkCount;
     this.resolve = options.resolve;
+    this.actor = options.actor;
   }
 
   static DEFAULT_OPTIONS = {
@@ -34,14 +35,44 @@ export class NonCombatSparkDialog extends foundry.applications.api.HandlebarsApp
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    context.promptText = `You rolled ${this.sparkCount} spark(s). Choose exactly ${this.sparkCount} unique spark(s) to color the outcome:`;
-    context.options = [
+
+    const hasAfraid = this.actor?.system?.hasPlight?.("afraid");
+    const hasAngry = this.actor?.system?.hasPlight?.("angry");
+
+    const optionData = [
       { key: "canny", label: "Canny", desc: "You perform the task with care and attention. You retain something you expected to lose in the effort or avoid paying what seemed like a necessary cost. Banishes costly." },
       { key: "quick", label: "Quick", desc: "You accomplish in short order something that should have taken much longer, saving all-valuable time for your companions. Banishes slow." },
       { key: "quiet", label: "Quiet", desc: "You slip beneath the notice of those who might oppose your efforts. You don't draw notice from unfriendly eyes or arouse unwanted attention from the dungeon around you. Banishes loud." },
       { key: "safe", label: "Safe", desc: "Even though injury might have seemed a certainty given the task at hand, you suffer no harm doing it. Banishes harmful." },
       { key: "striking", label: "Striking", desc: "You display such impressive skill in your attempt that you influence those around you. Perhaps you inspire a watching ally or earn the favor of someone doubting your abilities. Banishes daunting." }
     ];
+
+    let disabledCount = 0;
+    context.options = optionData.map(opt => {
+      let disabled = false;
+      let tooltip = "";
+
+      if (hasAfraid && (opt.key === "quick" || opt.key === "striking")) {
+        disabled = true;
+        tooltip = "Afraid: You cannot choose quick or striking sparks";
+      } else if (hasAngry && (opt.key === "canny" || opt.key === "quiet" || opt.key === "safe")) {
+        disabled = true;
+        tooltip = "Angry: You cannot choose canny, quiet, or safe sparks";
+      }
+
+      if (disabled) disabledCount++;
+
+      return {
+        ...opt,
+        disabled,
+        tooltip
+      };
+    });
+
+    const maxSelectable = Math.max(0, optionData.length - disabledCount);
+    const targetCount = Math.min(this.sparkCount, maxSelectable);
+    context.promptText = `You rolled ${this.sparkCount} spark(s). Choose exactly ${targetCount} unique spark(s) to color the outcome:`;
+
     return context;
   }
 
@@ -53,12 +84,20 @@ export class NonCombatSparkDialog extends foundry.applications.api.HandlebarsApp
 
     const updateControls = () => {
       const checkedCount = form.querySelectorAll('input[name="choices"]:checked').length;
-      confirmBtn.disabled = checkedCount !== this.sparkCount;
+      const nonRestrictedCount = form.querySelectorAll('input[name="choices"]:not([data-restricted="true"])').length;
+      const targetCount = Math.min(this.sparkCount, nonRestrictedCount);
+
+      confirmBtn.disabled = checkedCount !== targetCount;
       
       checkboxes.forEach(cb => {
+        if (cb.dataset.restricted === "true") {
+          cb.disabled = true;
+          cb.closest("label")?.classList.add("disabled");
+          return;
+        }
         if (!cb.checked) {
-          cb.disabled = checkedCount >= this.sparkCount;
-          cb.closest("label")?.classList.toggle("disabled", checkedCount >= this.sparkCount);
+          cb.disabled = checkedCount >= targetCount;
+          cb.closest("label")?.classList.toggle("disabled", checkedCount >= targetCount);
         } else {
           cb.disabled = false;
           cb.closest("label")?.classList.remove("disabled");
@@ -84,11 +123,15 @@ export class NonCombatSparkDialog extends foundry.applications.api.HandlebarsApp
     this.close();
   }
 
-  static async wait(sparkCount) {
+  static async wait(sparkCount, options={}) {
     return new Promise((resolve) => {
       const dialog = new NonCombatSparkDialog({
         sparkCount,
-        resolve
+        resolve,
+        ...options,
+        window: {
+          title: options.title || "Select Sparks"
+        }
       });
 
       const originalClose = dialog.close.bind(dialog);

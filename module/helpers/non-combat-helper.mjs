@@ -43,7 +43,7 @@ export async function requestGMShadows({ requestId, shadowCount, rollLabel }) {
 /**
  * Prompt a specific player to pick sparks on behalf of a check (e.g. Group check highest roller).
  */
-export async function requestPlayerSparks({ requestId, targetUserId, sparkCount, rollLabel }) {
+export async function requestPlayerSparks({ requestId, targetUserId, sparkCount, rollLabel, actorId }) {
   const targetUser = game.users.get(targetUserId);
   if (!targetUser || !targetUser.active) return null;
 
@@ -67,7 +67,8 @@ export async function requestPlayerSparks({ requestId, targetUserId, sparkCount,
     requestId,
     targetUserId,
     sparkCount,
-    rollLabel
+    rollLabel,
+    actorId
   });
 
   return promise;
@@ -117,14 +118,15 @@ export async function handleShadowsResponse(data) {
  * Handle incoming player Sparks request (runs on target player client).
  */
 export async function handleSparksRequest(data, senderId) {
-  const { requestId, targetUserId, sparkCount, rollLabel } = data;
+  const { requestId, targetUserId, sparkCount, rollLabel, actorId } = data;
   if (game.user.id !== targetUserId) return;
 
   console.log(`Trespasser | handleSparksRequest: Received request ${requestId} for ${sparkCount} sparks.`);
 
   // Fallback / placeholder until dialog classes are implemented in Task 2
   if (game.trespasser.NonCombatSparkDialog) {
-    const chosenSparks = await game.trespasser.NonCombatSparkDialog.wait(sparkCount, { title: rollLabel, requestId });
+    const actor = actorId ? game.actors.get(actorId) : null;
+    const chosenSparks = await game.trespasser.NonCombatSparkDialog.wait(sparkCount, { title: rollLabel, requestId, actor });
     if (chosenSparks) {
       const { TrespasserSocket } = game.trespasser || {};
       TrespasserSocket?.emit("NON_COMBAT_SPARKS_RESPONSE", {

@@ -280,14 +280,15 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
     if (sparks > 0) {
       if (game.user.isGM || sheet.actor.isOwner) {
         // Local prompt
-        chosenSparks = await NonCombatSparkDialog.wait(sparks);
+        chosenSparks = await NonCombatSparkDialog.wait(sparks, { actor: sheet.actor });
       } else {
         // Prompt player owning actor via socket
         chosenSparks = await NonCombatHelper.requestPlayerSparks({
           requestId,
           targetUserId: game.user.id,
           sparkCount: sparks,
-          rollLabel: flavor
+          rollLabel: flavor,
+          actorId: sheet.actor.id
         });
       }
       chosenSparks = chosenSparks || [];

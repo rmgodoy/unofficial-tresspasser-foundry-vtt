@@ -1004,7 +1004,7 @@
   background: var(--trp-bg-dark) !important;
   border-color: rgba(74, 63, 47, 0.3) !important;
   opacity: 0.4;
-  pointer-events: none;
+  cursor: not-allowed;
 }
 
 /* Footer layout */
