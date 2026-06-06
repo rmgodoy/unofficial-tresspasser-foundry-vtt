@@ -273,4 +273,23 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     this.deed_max.mighty = currentTableData.deedsMighty ?? 4;
     this.attribute_points_max = currentTableData.attributePoints ?? 0;
   }
+
+  /**
+   * Check if the character has a specific common plight.
+   * @param {string} plightId - Key from COMMON_PLIGHTS config
+   * @returns {boolean}
+   */
+  hasPlight(plightId) {
+    return this.parent.items.some(
+      i => i.type === "plight" && i.system.plightId === plightId
+    );
+  }
+
+  /**
+   * Get all plight items on this character.
+   * @returns {Item[]}
+   */
+  getPlights() {
+    return this.parent.items.filter(i => i.type === "plight");
+  }
 }

@@ -357,6 +357,22 @@ export async function getCharacterData(sheet, options = {}) {
     }))
     .filter(s => actor.type === "character" || s.key !== "encumbered");
 
+  // Build plight overlay icons
+  context.plightOverlay = {};
+  for (const item of actor.items) {
+    if (item.type !== "plight") continue;
+    const config = COMMON_PLIGHTS[item.system.plightId];
+    if (config) {
+      context.plightOverlay[item.system.plightId] = {
+        active: true,
+        icon: config.icon,
+        label: config.label,
+        description: config.description,
+        tint: config.tint
+      };
+    }
+  }
+
   return context;
 }
 
