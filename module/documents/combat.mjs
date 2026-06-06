@@ -121,7 +121,8 @@ export class TrespasserCombat extends Combat {
       const combatantUpdates = initResults.updates;
       for (const combatant of this.combatants) {
         if (combatant.actor?.type === "character") {
-          const skillBonus = combatant.actor.system.skill || 2;
+          const isDistracted = combatant.actor.system.hasPlight?.("distracted") || false;
+          const skillBonus = isDistracted ? 0 : (combatant.actor.system.skill || 2);
           await combatant.actor.update({ "system.combat.focus": skillBonus });
         }
         

@@ -266,6 +266,9 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     }
 
     this.inventory_max = 5 + this.attributes.mighty;
+    if (this.hasPlight("enfeebled")) {
+      this.inventory_max = Math.floor(this.inventory_max / 2);
+    }
 
     // 7. Deed Max and Attribute Points
     this.deed_max.light  = currentTableData.deedsLight  ?? 6;
