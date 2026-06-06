@@ -128,6 +128,12 @@
         "RDHowMany": "Gastar Dados de Recuperação",
         "RDDialogNote": "Quantos Dados de Recuperação você deseja gastar?"
       },
+      "TemptFate": {
+        "Prompt": "Escolha uma sombra para adicionar à sua tentativa. A sombra é aplicada ao seu resultado mesmo em caso de sucesso.",
+        "Tempt": "Desafiar o Destino",
+        "ChooseShadow": "Desafiar o Destino: Escolher Sombra",
+        "CheckTitle": "Desafiar o Destino: Teste de {skill}"
+      },
       "EventClock": {
         "Name": "Nome do Relógio",
         "GmOnly": "Apenas Mestre?",

@@ -10,6 +10,58 @@
         "Description": "A Classificação de Armadura é +6 ou maior. Agilidade não é adicionada às verificações de Guarda, e o Bônus de Velocidade é limitado a +2."
       }
     },
+    "Plight": {
+      "Afraid": {
+        "Name": "Amedrontado",
+        "Description": "Um personagem amedrontado é hesitante e ansioso. Ele não pode escolher ser rápido (quick) ou impactante (striking) ao usar uma centelha (spark) em um teste."
+      },
+      "Angry": {
+        "Name": "Furioso",
+        "Description": "Um personagem Furioso é impetuoso e não cooperativo. Ele não pode escolher ser astuto (canny), silencioso (quiet) ou seguro (safe) ao usar uma centelha (spark) em um teste."
+      },
+      "Befuddled": {
+        "Name": "Confuso",
+        "Description": "Um personagem confuso é desorientado e confuso. Ele não pode adicionar nenhum bônus a testes de Intelecto ou Espírito."
+      },
+      "Clumsy": {
+        "Name": "Desastrado",
+        "Description": "Um personagem desastrado tem dificuldade em acompanhar seus pertences. Ele adiciona custoso (costly) como uma sombra extra a todas as jogadas que não sejam de grupo durante a fase de masmorra."
+      },
+      "Conspicuous": {
+        "Name": "Chamativo",
+        "Description": "Um personagem chamativo está tossindo alto, exala um odor terrível ou chama a atenção de outra forma. Ele adiciona barulhento (loud) como uma sombra extra a todas as jogadas que não sejam de grupo que fizer durante a fase de masmorra."
+      },
+      "Discouraged": {
+        "Name": "Desanimado",
+        "Description": "Um personagem desanimado espera o pior de cada empreitada. Ele não pode desafiar o destino (tempt fate) em testes de perícia."
+      },
+      "Distracted": {
+        "Name": "Distraído",
+        "Description": "Um personagem distraído está perdido em pensamentos ou emoções, incomodado por insetos ou preocupado com algo que encontrou. Ele começa o combate com 0 de foco em vez de foco igual ao seu bônus de perícia."
+      },
+      "Enfeebled": {
+        "Name": "Debilitado",
+        "Description": "Um personagem debilitado está fraco demais para ajudar a carregar o peso. O tamanho de seu inventário é reduzido pela metade."
+      },
+      "Sickly": {
+        "Name": "Enfermo",
+        "Description": "Um personagem enfermo está fisicamente diminuído e fraco. Ele não pode adicionar nenhum bônus a testes de Força (Might) ou Agilidade."
+      },
+      "Sluggish": {
+        "Name": "Lento",
+        "Description": "Um personagem lento está atordoado e sem resposta. Ele não rola testes de iniciativa no combate, falhando automaticamente. Ele ainda pode rolar iniciativa para recuar normalmente."
+      },
+      "Custom": {
+        "Name": "Aflição Personalizada",
+        "ButtonLabel": "Aflição Personalizada"
+      }
+    },
+    "Dialog": {
+      "PlightPicker": {
+        "Title": "Selecionar Aflição",
+        "SelectHint": "Escolha uma aflição para este personagem. Aflições ativas estão desativadas."
+      }
+    },
     "Global": {
       "Action": {
         "Cancel": "Cancelar",
@@ -62,7 +114,8 @@
         "room": "Sala",
         "hireling": "Servo",
         "build": "Construção",
-        "stronghold": "Fortaleza"
+        "stronghold": "Fortaleza",
+        "plight": "Aflição"
       }
     }
   }

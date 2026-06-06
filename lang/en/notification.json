@@ -1,6 +1,10 @@
 {
   "TRESPASSER": {
     "Notification": {
+      "AttributeSuppressed": "{plight}: No bonus applied to {attr} checks.",
+      "DiscouragedTemptFate": "You cannot tempt fate while Discouraged.",
+      "OppositeLastingActive": "Cannot gain {newEffect} — opposite lasting state {lasting} is active.",
+      "LastingStateReduced": "{name} returns to lasting intensity {intensity}.",
       "Item": {
         "DropDeedsOnly": "Only Deeds can be dropped here.",
         "DropEffectsStatesOnly": "Only Effects or States can be dropped here.",

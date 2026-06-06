@@ -17,6 +17,7 @@ import { TrespasserItemData }        from "./module/data/item-item.mjs";
 import { TrespasserAccessoryData }   from "./module/data/item-accessory.mjs";
 import { TrespasserInjuryData }      from "./module/data/item-injury.mjs";
 import { TrespasserCallingData }    from "./module/data/item-calling.mjs";
+import { TrespasserPlightData }     from "./module/data/item-plight.mjs";
 import { TrespasserActor }         from "./module/documents/actor.mjs";
 import { TrespasserCombat }        from "./module/documents/combat.mjs";
 import { TrespasserEffectsHelper } from "./module/helpers/effects-helper.mjs";
@@ -27,6 +28,7 @@ import { TrespasserArmorSheet }     from "./module/sheets/item-armor-sheet.mjs";
 import { TrespasserWeaponSheet }    from "./module/sheets/item-weapon-sheet.mjs";
 import { TrespasserRationsSheet }   from "./module/sheets/item-rations-sheet.mjs";
 import { TrespasserEffectSheet }    from "./module/sheets/item-effect-sheet.mjs";
+import { TrespasserPlightSheet }    from "./module/sheets/item-plight-sheet.mjs";
 import { TrespasserDeedSheet }      from "./module/sheets/item-deed-sheet.mjs";
 import { TrespasserFeatureSheet }   from "./module/sheets/item-feature-sheet.mjs";
 import { TrespasserTalentSheet }    from "./module/sheets/item-talent-sheet.mjs";
@@ -45,6 +47,10 @@ import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
 import { TrespasserTokenHUD }      from "./module/hud/token-hud.mjs";
 import { TrespasserSocket }        from "./module/helpers/socket/socket.mjs";
 import { PASSIVE_STATES }          from "./module/config/state-config.mjs";
+import { COMMON_PLIGHTS }          from "./module/config/plight-config.mjs";
+import * as NonCombatHelper        from "./module/helpers/non-combat-helper.mjs";
+import { NonCombatSparkDialog, NonCombatShadowDialog } from "./module/dialogs/tempt-fate-dialogs.mjs";
+import { executeTemptFateFlow } from "./module/sheets/character/handlers-tempt-fate.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -56,7 +62,7 @@ import { TrespasserRoomData }      from "./module/data/item-room.mjs";
 import { DUNGEON_CONFIG, ensureDungeonHelpers } from "./module/config/dungeon-config.mjs";
 import { TrespasserDungeonSheet }  from "./module/sheets/actor-dungeon-sheet.mjs";
 import { TrespasserRoomSheet }     from "./module/sheets/item-room-sheet.mjs";
-import { registerDungeonTrackerHooks } from "./module/exploration/dungeon-tracker.mjs";
+import { DungeonTracker, registerDungeonTrackerHooks } from "./module/exploration/dungeon-tracker.mjs";
 import { TrespasserHavenData }   from "./module/data/actor-haven.mjs";
 import { TrespasserHirelingData } from "./module/data/item-hireling.mjs";
 import { TrespasserHavenSheet }   from "./module/sheets/actor-haven-sheet.mjs";
@@ -76,6 +82,7 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/actor/parts/deed-list.hbs",
     "systems/trespasser/templates/actor/parts/combat-effects.hbs",
     "systems/trespasser/templates/actor/parts/clock.hbs",
+    "systems/trespasser/templates/actor/parts/plights-lasting-states.hbs",
     "systems/trespasser/templates/item/parts/effect-chip.hbs",
     "systems/trespasser/templates/item/parts/effects-list.hbs",
     "systems/trespasser/templates/item/parts/deeds-list.hbs",
@@ -91,7 +98,9 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/dungeon/dungeon-notes.hbs",
     "systems/trespasser/templates/exploration/dungeon-tracker.hbs",
     "systems/trespasser/templates/exploration/haven-tracker.hbs",
-    "systems/trespasser/templates/item/room-sheet.hbs"
+    "systems/trespasser/templates/item/room-sheet.hbs",
+    "systems/trespasser/templates/dialogs/non-combat-spark.hbs",
+    "systems/trespasser/templates/dialogs/non-combat-shadow.hbs"
   ]);
 
   // Register custom document classes
@@ -116,7 +125,8 @@ Hooks.once("init", async () => {
       "reaction": "TRESPASSER.Terms.ActionTypes.Reaction"
     },
     // Dungeon exploration config
-    dungeon: DUNGEON_CONFIG
+    dungeon: DUNGEON_CONFIG,
+    plights: COMMON_PLIGHTS
   };
 
   // Register settings
@@ -368,6 +378,7 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.hireling = TrespasserHirelingData;
   CONFIG.Item.dataModels.build = TrespasserBuildData;
   CONFIG.Item.dataModels.stronghold = TrespasserStrongholdData;
+  CONFIG.Item.dataModels.plight = TrespasserPlightData;
 
   // Sheets
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
@@ -421,6 +432,11 @@ Hooks.once("init", async () => {
     types: ["effect"],
     makeDefault: true,
     label: "Trespasser Effect Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserPlightSheet, {
+    types: ["plight"],
+    makeDefault: true,
+    label: "Trespasser Plight Sheet",
   });
   foundry.documents.collections.Items.registerSheet("trespasser", TrespasserDeedSheet, {
     types: ["deed"],
@@ -553,6 +569,13 @@ Hooks.once("init", async () => {
   game.trespasser.ItemExporter = ItemExporter;
   game.trespasser.Config = TrespasserConfigV2;
   game.trespasser.EventClocks = EventClocksTracker;
+  game.trespasser.NonCombatHelper = NonCombatHelper;
+  game.trespasser.NonCombatSparkDialog = NonCombatSparkDialog;
+  game.trespasser.NonCombatShadowDialog = NonCombatShadowDialog;
+  game.trespasser.TrespasserSocket = TrespasserSocket;
+  game.trespasser.executeTemptFateFlow = executeTemptFateFlow;
+  game.trespasser.DungeonTracker = DungeonTracker;
+  globalThis.trespasser = game.trespasser;
 });
 
 /**
@@ -922,6 +945,100 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       }
     });
   });
+
+  // ── Select Shadows (GM Only) button ───────────────────────────────────────
+  html.querySelectorAll(".select-non-combat-shadows-btn").forEach(btn => {
+    if (!game.user.isGM) {
+      btn.style.display = "none";
+      return;
+    }
+
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const messageId = btn.closest(".message")?.dataset.messageId;
+      const message = game.messages.get(messageId);
+      if (!message) return;
+
+      const shadowCount = parseInt(btn.dataset.shadowCount) || 1;
+      const chosenShadows = await game.trespasser.NonCombatShadowDialog.wait(shadowCount);
+      if (!chosenShadows || chosenShadows.length === 0) return;
+
+      // Update message content and flags
+      const flags = foundry.utils.deepClone(message.flags.trespasser || {});
+      const plightShadows = flags.plightShadows || [];
+      const finalShadows = [...chosenShadows, ...plightShadows];
+      flags.chosenShadows = finalShadows;
+      flags.showShadowButton = false;
+
+      let content = message.content;
+      let shadowResults = `<div class="shadow-results"><strong>Shadows:</strong><ul>`;
+      for (const shadow of finalShadows) {
+        shadowResults += `<li><span style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${shadow.capitalize()}</span></li>`;
+      }
+      shadowResults += `</ul></div>`;
+
+      // Modify HTML using DOMParser
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(content, "text/html");
+      const warningEl = doc.querySelector(".pending-shadows-warning");
+      const btnEl = doc.querySelector(".select-non-combat-shadows-btn");
+      const containerEl = doc.querySelector(".non-combat-roll-details");
+
+      if (containerEl) {
+        warningEl?.remove();
+        btnEl?.remove();
+        
+        // Append shadow results
+        const tempDiv = doc.createElement("div");
+        tempDiv.innerHTML = shadowResults;
+        containerEl.appendChild(tempDiv.firstChild);
+      }
+
+      await message.update({
+        content: doc.body.innerHTML,
+        "flags.trespasser": flags
+      });
+    });
+  });
+
+  // ── Tempt Fate Button Event Listener ──
+  html.querySelectorAll(".tempt-fate-btn").forEach(btn => {
+    const skillKey = btn.dataset.skillKey;
+    const actorId = btn.dataset.actorId;
+    
+    // Resolve active character for the user (handles various configurations)
+    let activeChar = game.user.character;
+    if (!activeChar) {
+      const controlled = canvas.tokens?.controlled || [];
+      const controlledChar = controlled.find(t => t.actor?.type === "character")?.actor;
+      activeChar = controlledChar || game.actors.find(a => a.type === "character" && a.isOwner);
+    }
+    
+    // Visibility: GM can see, or any player whose active/owned character has the skill trained
+    const isTrained = activeChar?.system?.skills?.[skillKey] === true;
+    const canSee = game.user.isGM || isTrained;
+    
+    if (!canSee) {
+      btn.style.display = "none";
+    } else {
+      btn.addEventListener("click", async (ev) => {
+        ev.preventDefault();
+        // Determine who is performing the Tempt Fate action
+        let actingActor = activeChar;
+        if (game.user.isGM) {
+          // GM defaults to the rolling actor, unless they are controlling a specific character
+          const controlled = canvas.tokens?.controlled || [];
+          const controlledChar = controlled.find(t => t.actor?.type === "character")?.actor;
+          actingActor = controlledChar || game.actors.get(actorId);
+        }
+        
+        if (!actingActor) return ui.notifications.warn("No active character found to Tempt Fate.");
+        
+        const messageId = btn.closest(".message")?.dataset.messageId;
+        await game.trespasser.executeTemptFateFlow(actingActor, skillKey, parseInt(btn.dataset.cd), messageId);
+      });
+    }
+  });
 });
 
 Hooks.on("updateCombat", async (combat, changed, options, userId) => {
@@ -954,6 +1071,17 @@ Hooks.on("deleteCombat", async (combat) => {
   for (const c of combat.combatants) {
     if (c.actor) {
       await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");
+
+
+
+      // Remove combat states that were acquired during combat
+      const acquiredInCombat = c.actor.items.filter(i => {
+        if (i.type !== "effect") return false;
+        return i.getFlag("trespasser", "acquiredDuringCombat") === true && i.system.isCombat && !i.system.isLasting;
+      });
+      for (const eff of acquiredInCombat) {
+        await eff.delete();
+      }
       
       // Remove effects where combat-end triggers expiry (compound or legacy "combat" duration)
       const toRemove = c.actor.items.filter(i => {
@@ -961,7 +1089,9 @@ Hooks.on("deleteCombat", async (combat) => {
         return DurationHelper.shouldExpire(i) || i.system.duration === "combat";
       });
       for (const eff of toRemove) {
-        await eff.delete();
+        if (c.actor.items.has(eff.id)) {
+          await eff.delete();
+        }
       }
     }
   }
@@ -1206,6 +1336,20 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
     const system = item.system;
     let intensityToApply = system.intensity || 0;
 
+    // Check for active opposite lasting state
+    const lastingStates = actor.items.filter(i => i.type === "effect" && i.system.isLasting);
+    for (const lasting of lastingStates) {
+      const isOpposite = (system.counterStates || []).some(cs => cs.name === lasting.name) ||
+                         (lasting.system.counterStates || []).some(cs => cs.name === item.name);
+      if (isOpposite) {
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.OppositeLastingActive", {
+          newEffect: item.name,
+          lasting: lasting.name
+        }));
+        return false;
+      }
+    }
+
     // 1. Handle Counter States
     const counterStates = system.counterStates || [];
     let wasCountered = false;
@@ -1234,12 +1378,22 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
     // 2. If intensity reduced to 0 by counters, cancel creation
     if (wasCountered && intensityToApply <= 0) return false;
 
-    // 3. Handle Summing with existing effect of same name
-    const existing = actor.items.find(i => i.type === item.type && i.name === item.name);
+    // 3. Handle Summing with existing effect of same name and same lasting status
+    const existing = actor.items.find(i => 
+      i.type === item.type && 
+      i.name === item.name &&
+      (!!i.system.isLasting) === (!!system.isLasting)
+    );
     if (existing) {
       const currentIntensity = existing.system.intensity || 0;
       existing.update({ "system.intensity": currentIntensity + intensityToApply });
       return false; // Cancel creation of the new item
+    }
+
+
+
+    if (game.combat) {
+      item.updateSource({ "flags.trespasser.acquiredDuringCombat": true });
     }
 
     // 4. Update the item being created with the final intensity (if modified by counters)

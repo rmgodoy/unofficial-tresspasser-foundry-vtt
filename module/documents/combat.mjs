@@ -121,7 +121,8 @@ export class TrespasserCombat extends Combat {
       const combatantUpdates = initResults.updates;
       for (const combatant of this.combatants) {
         if (combatant.actor?.type === "character") {
-          const skillBonus = combatant.actor.system.skill || 2;
+          const isDistracted = combatant.actor.system.hasPlight?.("distracted") || false;
+          const skillBonus = isDistracted ? 0 : (combatant.actor.system.skill || 2);
           await combatant.actor.update({ "system.combat.focus": skillBonus });
         }
         
@@ -424,24 +425,38 @@ export class TrespasserCombat extends Combat {
     if (!combatant.getFlag("trespasser", "initiativePending")) return;
 
     // 1. Roll locally
-    const initBonus = combatant.actor.system.combat?.initiative || 0;
-    const isAdv = combatant.actor.getFlag("trespasser", "initiativeAdvantage") || false;
-    const formula = isAdv ? "2d20kh" : "1d20";
-    const roll = new foundry.dice.Roll(`${formula} + ${initBonus}`);
-    await roll.evaluate();
+    const isSluggish = combatant.actor.system.hasPlight?.("sluggish") || false;
+    let total = 0;
+    let isNat20 = false;
 
-    // 2. Post to chat
-    const combatInfo = this.getFlag("trespasser", "combatInfo") || {};
-    const enemyMaxInit = combatInfo.enemyMaxInit || 0;
-    if (game.settings.get("trespasser", "showInitiativeInChat")) {
-      await roll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor: combatant.actor }),
-        flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
-      });
+    if (isSluggish) {
+      if (game.settings.get("trespasser", "showInitiativeInChat")) {
+        await ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({ actor: combatant.actor }),
+          content: game.i18n.localize("TRESPASSER.Chat.Check.SluggishAutofail"),
+          flavor: game.i18n.localize("TRESPASSER.Sheet.Combat.Initiative")
+        });
+      }
+    } else {
+      const initBonus = combatant.actor.system.combat?.initiative || 0;
+      const isAdv = combatant.actor.getFlag("trespasser", "initiativeAdvantage") || false;
+      const formula = isAdv ? "2d20kh" : "1d20";
+      const roll = new foundry.dice.Roll(`${formula} + ${initBonus}`);
+      await roll.evaluate();
+
+      // 2. Post to chat
+      const combatInfo = this.getFlag("trespasser", "combatInfo") || {};
+      const enemyMaxInit = combatInfo.enemyMaxInit || 0;
+      if (game.settings.get("trespasser", "showInitiativeInChat")) {
+        await roll.toMessage({
+          speaker: ChatMessage.getSpeaker({ actor: combatant.actor }),
+          flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
+        });
+      }
+
+      total = roll.total;
+      isNat20 = roll.dice[0].results[0].result === 20;
     }
-
-    const total = roll.total;
-    const isNat20 = roll.dice[0].results[0].result === 20;
 
     // 3. Handle Update (GM updates directly, Players use Flags)
     if (game.user.isGM) {
@@ -477,7 +492,10 @@ export class TrespasserCombat extends Combat {
       // During retreat, we store the raw total to evaluate success later
       updates.initiative = total;
     } else {
-      if (isNat20) {
+      const isSluggish = combatant.actor?.system.hasPlight?.("sluggish") || false;
+      if (isSluggish) {
+        updates.initiative = TrespasserCombat.PHASES.LATE;
+      } else if (isNat20) {
         updates.initiative = TrespasserCombat.PHASES.EARLY;
         const extraData = this.createExtraCombatant(combatant, TrespasserCombat.PHASES.LATE);
         newCombatants.push(extraData);
@@ -720,22 +738,38 @@ export class TrespasserCombat extends Combat {
           hasPending = true;
         } else {
           // Player rolls 1d20 + Initiative
-          const initBonus = actor.system.combat?.initiative || 0;
-          const roll = new foundry.dice.Roll(`1d20 + ${initBonus}`);
-          await roll.evaluate();
-          
-          // Broadcast the roll so everyone sees it (if setting is enabled)
-          if (game.settings.get("trespasser", "showInitiativeInChat")) {
-            await roll.toMessage({
-              speaker: ChatMessage.getSpeaker({ actor: actor }),
-              flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
-            });
+          const isSluggish = actor.system.hasPlight?.("sluggish") || false;
+          let total = 0;
+          let isNat20 = false;
+
+          if (isSluggish) {
+            if (game.settings.get("trespasser", "showInitiativeInChat")) {
+              await ChatMessage.create({
+                speaker: ChatMessage.getSpeaker({ actor: actor }),
+                content: game.i18n.localize("TRESPASSER.Chat.Check.SluggishAutofail"),
+                flavor: game.i18n.localize("TRESPASSER.Sheet.Combat.Initiative")
+              });
+            }
+          } else {
+            const initBonus = actor.system.combat?.initiative || 0;
+            const roll = new foundry.dice.Roll(`1d20 + ${initBonus}`);
+            await roll.evaluate();
+            
+            // Broadcast the roll so everyone sees it (if setting is enabled)
+            if (game.settings.get("trespasser", "showInitiativeInChat")) {
+              await roll.toMessage({
+                speaker: ChatMessage.getSpeaker({ actor: actor }),
+                flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
+              });
+            }
+
+            total = roll.total;
+            isNat20 = roll.dice[0].results[0].result === 20;
           }
 
-          const total = roll.total;
-          const isNat20 = roll.dice[0].results[0].result === 20;
-
-          if ( isNat20 ) {
+          if ( isSluggish ) {
+            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, "flags.trespasser.initiativePending": false });
+          } else if ( isNat20 ) {
             // Nat 20: acts in Extra phase (10)
             updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, "flags.trespasser.initiativePending": false });
             const extraData = this.createExtraCombatant(c, TrespasserCombat.PHASES.LATE);

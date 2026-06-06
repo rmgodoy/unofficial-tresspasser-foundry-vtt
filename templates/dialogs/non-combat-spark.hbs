@@ -1,0 +1,24 @@
+<div class="non-combat-picker-content">
+  <p class="picker-prompt">
+    {{promptText}}
+  </p>
+  <div class="choices-list">
+    {{#each options}}
+      <label class="choice-row {{#if this.disabled}}disabled{{/if}}" {{#if this.tooltip}}data-tooltip="{{this.tooltip}}"{{/if}}>
+        <input type="checkbox" name="choices" value="{{this.key}}" {{#if this.disabled}}disabled data-restricted="true"{{/if}} />
+        <div class="choice-text">
+          <span class="choice-label spark">{{this.label}}</span>
+          <span class="choice-desc">{{this.desc}}</span>
+        </div>
+      </label>
+    {{/each}}
+  </div>
+  <footer class="dialog-footer">
+    <button type="button" class="trp-btn confirm" data-action="confirm" disabled>
+      <i class="fas fa-sun"></i> {{localize "TRESPASSER.Global.Action.Confirm"}}
+    </button>
+    <button type="button" class="trp-btn cancel" data-action="cancel">
+      <i class="fas fa-times"></i> {{localize "TRESPASSER.Global.Action.Cancel"}}
+    </button>
+  </footer>
+</div>

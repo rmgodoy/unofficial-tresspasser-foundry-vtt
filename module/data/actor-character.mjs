@@ -266,11 +266,33 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     }
 
     this.inventory_max = 5 + this.attributes.mighty;
+    if (this.hasPlight("enfeebled")) {
+      this.inventory_max = Math.floor(this.inventory_max / 2);
+    }
 
     // 7. Deed Max and Attribute Points
     this.deed_max.light  = currentTableData.deedsLight  ?? 6;
     this.deed_max.heavy  = currentTableData.deedsHeavy  ?? 4;
     this.deed_max.mighty = currentTableData.deedsMighty ?? 4;
     this.attribute_points_max = currentTableData.attributePoints ?? 0;
+  }
+
+  /**
+   * Check if the character has a specific common plight.
+   * @param {string} plightId - Key from COMMON_PLIGHTS config
+   * @returns {boolean}
+   */
+  hasPlight(plightId) {
+    return this.parent.items.some(
+      i => i.type === "plight" && i.system.plightId === plightId
+    );
+  }
+
+  /**
+   * Get all plight items on this character.
+   * @returns {Item[]}
+   */
+  getPlights() {
+    return this.parent.items.filter(i => i.type === "plight");
   }
 }

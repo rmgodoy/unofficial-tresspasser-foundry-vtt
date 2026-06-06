@@ -389,6 +389,7 @@ export class TrespasserEffectsHelper {
           durationSummary: DurationHelper.formatSummary(item),
           intensityIncrement: item.system.intensityIncrement || 0,
           isPrevailable: !!item.system.isPrevailable,
+          isLasting: !!item.system.isLasting,
           gmOnly: !!item.system.gmOnly,
           item: item,
           fromInjury
@@ -401,6 +402,9 @@ export class TrespasserEffectsHelper {
         }
       }
     }
+
+    effects.combat.sort((a, b) => a.name.localeCompare(b.name));
+    effects.nonCombat.sort((a, b) => a.name.localeCompare(b.name));
 
     return effects;
   }

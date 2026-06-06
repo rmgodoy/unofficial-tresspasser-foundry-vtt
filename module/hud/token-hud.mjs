@@ -53,7 +53,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         if (!combatant) return { inCombat: false };
 
-        const states = TrespasserEffectsHelper.getActorEffects(this._token.actor).combat.filter(e => e.item?.type === "effect");
+        const states = TrespasserEffectsHelper.getActorEffects(this._token.actor).combat.filter(e => e.item?.type === "effect" && !e.isLasting);
 
         const ap = combatant.getFlag("trespasser", "actionPoints") ?? 3;
         // Show at least the base 3 AP, but expand if bonus AP is granted.
@@ -718,7 +718,17 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             return;
         }
 
-        const intensity = stateItem.system.intensity || 0;
+        let intensity = stateItem.system.intensity || 0;
+        if (!stateItem.system.isLasting) {
+            const matchingLasting = this._token.actor.items.find(i => 
+                i.type === "effect" && 
+                i.system.isLasting && 
+                i.name.toLowerCase() === stateItem.name.toLowerCase()
+            );
+            if (matchingLasting) {
+                intensity += (matchingLasting.system.intensity || 0);
+            }
+        }
         const defaultCD = Math.min(20, 10 + intensity);
         const prevailStat = this._token.actor.system.combat?.prevail || 0;
         const apBonus = extraAP * 2;

@@ -17,7 +17,8 @@
         "PrevailCheck": "Prevail Check: {name}",
         "PrevailVsDC": "Roll Total: {total} vs DC {dc}",
         "PrevailSuccess": "Prevails against <b>{name}</b> (Roll: {roll} vs {target}) - <b>Success!</b>",
-        "PrevailFailed": "Failed to prevail against <b>{name}</b> (Roll: {roll} vs {target}) - <b>Failed</b>"
+        "PrevailFailed": "Failed to prevail against <b>{name}</b> (Roll: {roll} vs {target}) - <b>Failed</b>",
+        "SluggishAutofail": "<strong>Sluggish:</strong> Auto-failed initiative check."
       },
       "Combat": {
         "Defense": "Defense",

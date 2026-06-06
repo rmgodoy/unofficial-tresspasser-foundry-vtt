@@ -12,12 +12,14 @@ import { TrespasserCraftDialog }       from "../dialogs/craft-dialog.mjs";
 import { showRestDialog }              from "../dialogs/rest-dialog.mjs";
 import { showAmmoDialog }              from "../dialogs/ammo-dialog.mjs";
 import { askAPDialog }               from "../dialogs/ap-dialog.mjs";
+import { PlightPickerDialog }          from "../dialogs/plight-picker-dialog.mjs";
+import { COMMON_PLIGHTS }              from "../config/plight-config.mjs";
 
 import { getCharacterData, buildClockSegments } from "./character/get-data.mjs";
 import { activateCharacterListeners }           from "./character/listeners.mjs";
 
-import { onAttributeRoll, onCombatStatRoll, onSkillRoll } from "./character/handlers-rolls.mjs";
-import { onDeedRoll, postDeedPhase, requestCDAndRoll, evaluateAndShowRoll } from "./character/handlers-deed.mjs";
+import { onAttributeRoll, onCombatStatRoll, onSkillRoll, evaluateAndShowRoll } from "./character/handlers-rolls.mjs";
+import { onDeedRoll, postDeedPhase, requestCDAndRoll } from "./character/handlers-deed.mjs";
 import { onTalentRoll, onFeatureRoll, onIncantationRoll }                   from "./character/handlers-talent.mjs";
 import { handleRestAction, recoverItemCost, spendRDAndRoll }                from "./character/handlers-rest.mjs";
 import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck, onItemTransfer }  from "./character/handlers-items.mjs";
@@ -185,7 +187,7 @@ export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(she
     return postDeedPhase(phaseName, phaseData, actor, item, options, this);
   }
   async _requestCDAndRoll(roll, flavor)     { return requestCDAndRoll(roll, flavor, this); }
-  async _evaluateAndShowRoll(roll, flavor, cd) { return evaluateAndShowRoll(roll, flavor, cd, this); }
+  async _evaluateAndShowRoll(roll, flavor, cd, options={}) { return evaluateAndShowRoll(roll, flavor, cd, this, options); }
   async _askAPDialog(availableAP)             { return askAPDialog(availableAP); }
 
   // ── Talents / Features / Incantations ─────────────────────────────────────
@@ -217,6 +219,61 @@ export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(she
   async _onEffectInfo(event)                { return onEffectInfo(event, this); }
   async _onEffectEdit(event)                { return onEffectEdit(event, this); }
   async _onDurationChange(event)            { return onDurationChange(event, this); }
+
+  async _onPlightAdd(event) {
+    event.preventDefault();
+    const plightId = await PlightPickerDialog.wait(this.actor);
+    if (!plightId) return;
+
+    if (plightId === "custom") {
+      const created = await Item.implementation.create({
+        name: game.i18n.localize("TRESPASSER.Plight.Custom.Name"),
+        type: "plight",
+        img: "systems/trespasser/assets/icons/effect.webp",
+        system: {
+          plightId: "",
+          description: ""
+        }
+      }, { parent: this.actor });
+      if (created) {
+        created.sheet.render(true);
+      }
+    } else {
+      const config = COMMON_PLIGHTS[plightId];
+      if (config) {
+        // Double check duplicate prevention
+        const alreadyHas = this.actor.items.some(i => i.type === "plight" && i.system.plightId === plightId);
+        if (alreadyHas) {
+          ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: game.i18n.localize(config.label) }));
+          return;
+        }
+
+        await Item.implementation.create({
+          name: game.i18n.localize(config.label),
+          type: "plight",
+          img: "systems/trespasser/assets/icons/effect.webp",
+          system: {
+            plightId: plightId,
+            description: game.i18n.localize(config.description)
+          }
+        }, { parent: this.actor });
+      }
+    }
+  }
+
+  async _onLastingStateAdd(event) {
+    event.preventDefault();
+    const type = "effect";
+    const name = "New Lasting State";
+    const system = {
+      isLasting: true,
+      isCombat: true
+    };
+    const created = await Item.implementation.create({ name, type, system }, { parent: this.actor });
+    if (created) {
+      created.sheet.render(true);
+    }
+  }
 
   // ── Combat / Equipment ─────────────────────────────────────────────────────
   async _onEquipRoll(event)                 { return onEquipRoll(event, this); }

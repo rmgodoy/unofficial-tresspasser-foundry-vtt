@@ -321,7 +321,8 @@
           "IsCombat": "É Combate?",
           "GMOnly": "Apenas Mestre?",
           "IsReminder": "Apenas Lembrete?",
-          "IsPrevailable": "Pode Prevalecer?"
+          "IsPrevailable": "Pode Prevalecer?",
+          "IsLasting": "É Duradouro?"
         },
         "Sections": {
           "DeedEffects": "Efeitos da Habilidade",

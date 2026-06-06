@@ -1,0 +1,50 @@
+<div class="plights-lasting-states" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 15px; margin-bottom: 15px;">
+  <!-- Plights Column -->
+  <div class="plights-column" style="background: var(--trp-bg-panel); border: 1px solid var(--trp-border); border-radius: var(--trp-radius); padding: 12px; display: flex; flex-direction: column;">
+    <h3 class="section-title" style="display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px 0; border-bottom: 1px solid var(--trp-border-light); padding-bottom: 4px; font-family: var(--trp-font-header); font-size: var(--fs-13); text-transform: uppercase; letter-spacing: 0.12em; color: var(--trp-gold-bright);">
+      <span>{{localize "TRESPASSER.TYPES.Item.plight"}}</span>
+      <a class="plight-add" title="{{localize 'TRESPASSER.Sheet.Common.AddItem'}}" style="cursor: pointer; color: var(--trp-gold);"><i class="fas fa-plus"></i></a>
+    </h3>
+    <div class="plights-list" style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+      {{#each plights}}
+      <div class="plight-row effect-row" data-item-id="{{this.id}}" style="display: flex; justify-content: space-between; align-items: center; background: var(--trp-bg-overlay); border: 1px solid var(--trp-border); border-radius: 4px; padding: 6px 8px;">
+        <div class="plight-info-wrap" style="display: flex; align-items: center; gap: 8px;">
+          <i class="plight-icon {{this.icon}}" style="color: {{this.tint}}; font-size: var(--fs-14);"></i>
+          <span class="plight-name" style="font-weight: bold; color: {{this.tint}}; font-size: var(--fs-13); cursor: help;" title="{{this.description}}">{{this.name}}</span>
+        </div>
+        <div class="plight-controls" style="display: flex; gap: 8px; align-items: center;">
+          <a class="item-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}" style="cursor: pointer; color: var(--trp-gold);"><i class="fas fa-edit"></i></a>
+          <a class="item-delete" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}" style="cursor: pointer; color: var(--trp-red-dim);"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+      {{else}}
+      <div class="empty-list" style="font-style: italic; color: var(--trp-text-dim); text-align: center; padding: 10px 0;">{{localize "TRESPASSER.Sheet.Common.Empty"}}</div>
+      {{/each}}
+    </div>
+  </div>
+
+  <!-- Lasting States Column -->
+  <div class="lasting-states-column" style="background: var(--trp-bg-panel); border: 1px solid var(--trp-border); border-radius: var(--trp-radius); padding: 12px; display: flex; flex-direction: column;">
+    <h3 class="section-title" style="display: flex; justify-content: space-between; align-items: center; margin: 0 0 10px 0; border-bottom: 1px solid var(--trp-border-light); padding-bottom: 4px; font-family: var(--trp-font-header); font-size: var(--fs-13); text-transform: uppercase; letter-spacing: 0.12em; color: var(--trp-gold-bright);">
+      <span>{{localize "TRESPASSER.Sheet.Combat.States"}} ({{localize "TRESPASSER.Sheet.Common.Auto"}})</span>
+      <a class="lasting-state-add" title="{{localize 'TRESPASSER.Sheet.Common.AddItem'}}" style="cursor: pointer; color: var(--trp-gold);"><i class="fas fa-plus"></i></a>
+    </h3>
+    <div class="lasting-states-list" style="display: flex; flex-direction: column; gap: 6px; flex: 1;">
+      {{#each lastingStates}}
+      <div class="lasting-state-row effect-row" data-item-id="{{this.id}}" style="display: flex; justify-content: space-between; align-items: center; background: var(--trp-bg-overlay); border: 1px solid var(--trp-border); border-radius: 4px; padding: 6px 8px;">
+        <div class="lasting-state-info-wrap" style="display: flex; align-items: center; gap: 8px;">
+          <span class="lasting-badge" style="font-weight: bold; color: var(--trp-gold); font-size: var(--fs-13);" title="Lasting State">L</span>
+          <span class="lasting-state-name" style="font-weight: bold; font-size: var(--fs-13);" title="{{this.description}}">{{this.name}}</span>
+          <span class="lasting-state-intensity" style="font-size: var(--fs-11); color: var(--trp-text-dim);">({{localize "TRESPASSER.Sheet.Common.IntensityShort"}}: {{this.intensity}})</span>
+        </div>
+        <div class="lasting-state-controls" style="display: flex; gap: 8px; align-items: center;">
+          <a class="effect-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}" style="cursor: pointer; color: var(--trp-gold);"><i class="fas fa-edit"></i></a>
+          <a class="effect-remove" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}" style="cursor: pointer; color: var(--trp-red-dim);"><i class="fas fa-trash"></i></a>
+        </div>
+      </div>
+      {{else}}
+      <div class="empty-list" style="font-style: italic; color: var(--trp-text-dim); text-align: center; padding: 10px 0;">{{localize "TRESPASSER.Sheet.Common.Empty"}}</div>
+      {{/each}}
+    </div>
+  </div>
+</div>

@@ -17,7 +17,8 @@
         "PrevailCheck": "Teste de Prevalecer: {name}",
         "PrevailVsDC": "Total da Rolagem: {total} vs DC {dc}",
         "PrevailSuccess": "Prevalece contra <b>{name}</b> (Rolagem: {roll} vs {target}) — <b>Sucesso!</b>",
-        "PrevailFailed": "Falhou em prevalecer contra <b>{name}</b> (Rolagem: {roll} vs {target}) — <b>Falha</b>"
+        "PrevailFailed": "Falhou em prevalecer contra <b>{name}</b> (Rolagem: {roll} vs {target}) — <b>Falha</b>",
+        "SluggishAutofail": "<strong>Lento:</strong> Falhou automaticamente no teste de iniciativa."
       },
       "Combat": {
         "Defense": "Defesa",

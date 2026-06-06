@@ -36,7 +36,17 @@ export async function onPrevailRoll(event, sheet) {
     await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - apSpent));
   }
 
-  const intensity = effectItem.system.intensity || 0;
+  let intensity = effectItem.system.intensity || 0;
+  if (!effectItem.system.isLasting) {
+    const matchingLasting = sheet.actor.items.find(i => 
+      i.type === "effect" && 
+      i.system.isLasting && 
+      i.name.toLowerCase() === effectItem.name.toLowerCase()
+    );
+    if (matchingLasting) {
+      intensity += (matchingLasting.system.intensity || 0);
+    }
+  }
   const defaultCD = Math.min(20, 10 + intensity);
   const prevailStat = sheet.actor.system.combat?.prevail || 0;
   const apBonus = extraAP * 2;

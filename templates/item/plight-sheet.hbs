@@ -1,0 +1,32 @@
+<section class="{{cssClass}} trespasser-sheet item-sheet plight-sheet" autocomplete="off">
+  <header class="sheet-header item-header-layout">
+    <div class="header-column image-column">
+      <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    </div>
+    <div class="header-info">
+      <div class="name-group">
+        <h1 class="item-title" style="margin: 0;">
+          <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}" style="font-family: 'Cinzel', serif; font-size: var(--fs-24); color: var(--trp-gold-bright); border: none; border-bottom: 1px solid #555; background: transparent; width: 100%;" />
+        </h1>
+      </div>
+    </div>
+  </header>
+
+  <section class="sheet-body scrollable" data-scrollable="true">
+    <div class="details-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.TYPES.Item.plight"}}</label>
+        <select name="system.plightId">
+          {{{selectOptions plightOptions selected=system.plightId}}}
+        </select>
+      </div>
+
+      <div class="field-row editor-row" style="margin-top: 10px;">
+        <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
+        <div class="trp-editor-container">
+          <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false">{{{descriptionHTML}}}</prose-mirror>
+        </div>
+      </div>
+    </div>
+  </section>
+</section>

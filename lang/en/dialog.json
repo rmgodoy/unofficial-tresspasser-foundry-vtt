@@ -128,6 +128,12 @@
         "RDHowMany": "Spend Recovery Dice",
         "RDDialogNote": "How many Recovery Dice do you want to spend?"
       },
+      "TemptFate": {
+        "Prompt": "Choose a shadow to add to your attempt. The shadow is applied to your result even on a success.",
+        "Tempt": "Tempt Fate",
+        "ChooseShadow": "Tempt Fate: Choose Shadow",
+        "CheckTitle": "Tempt Fate: {skill} Check"
+      },
       "EventClock": {
         "Name": "Clock Name",
         "GmOnly": "GM Only?",

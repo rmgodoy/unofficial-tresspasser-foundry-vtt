@@ -594,7 +594,17 @@ export class TrespasserActor extends Actor {
       return;
     }
 
-    const intensity = stateItem.system.intensity || 0;
+    let intensity = stateItem.system.intensity || 0;
+    if (!stateItem.system.isLasting) {
+      const matchingLasting = this.items.find(i => 
+        i.type === "effect" && 
+        i.system.isLasting && 
+        i.name.toLowerCase() === stateItem.name.toLowerCase()
+      );
+      if (matchingLasting) {
+        intensity += (matchingLasting.system.intensity || 0);
+      }
+    }
     const dc = cd !== null ? cd : Math.min(20, 10 + intensity);
     const prevailStat = this.system.combat?.prevail || 0;
     const apBonus = extraAP * 2;

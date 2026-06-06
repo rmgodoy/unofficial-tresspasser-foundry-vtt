@@ -5,6 +5,7 @@
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { PASSIVE_STATES } from "../../config/state-config.mjs";
+import { COMMON_PLIGHTS } from "../../config/plight-config.mjs";
 
 export async function getCharacterData(sheet, options = {}) {
   const actor   = sheet.actor;
@@ -80,6 +81,34 @@ export async function getCharacterData(sheet, options = {}) {
     return talentData;
   });
   context.incantations = actor.items.filter(i => i.type === "incantation");
+
+  // Plights
+  context.plights = actor.items
+    .filter(i => i.type === "plight")
+    .map(item => {
+      const config = COMMON_PLIGHTS[item.system.plightId];
+      return {
+        id: item.id,
+        name: item.name,
+        plightId: item.system.plightId,
+        description: item.system.description,
+        icon: config?.icon || "fas fa-exclamation-triangle",
+        tint: config?.tint || "#aaa",
+        isCustom: !item.system.plightId
+      };
+    });
+
+  // Lasting States (effects with isLasting = true)
+  context.lastingStates = actor.items
+    .filter(i => i.type === "effect" && i.system.isLasting)
+    .map(item => ({
+      id: item.id,
+      name: item.name,
+      intensity: item.system.intensity || 0,
+      modifier: item.system.modifier,
+      target: item.system.targetAttribute,
+      description: item.system.description
+    }));
 
   // Actions and Reactions for Combat Tab
   const combatActions = [];
@@ -327,6 +356,22 @@ export async function getCharacterData(sheet, options = {}) {
       description: cfg.description
     }))
     .filter(s => actor.type === "character" || s.key !== "encumbered");
+
+  // Build plight overlay icons
+  context.plightOverlay = {};
+  for (const item of actor.items) {
+    if (item.type !== "plight") continue;
+    const config = COMMON_PLIGHTS[item.system.plightId];
+    if (config) {
+      context.plightOverlay[item.system.plightId] = {
+        active: true,
+        icon: config.icon,
+        label: config.label,
+        description: config.description,
+        tint: config.tint
+      };
+    }
+  }
 
   return context;
 }

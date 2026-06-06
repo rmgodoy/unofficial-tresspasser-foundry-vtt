@@ -8,6 +8,14 @@ import {
   handleDefenseRequest, 
   handleDefenseResponse 
 } from "./defense-roll-handler.mjs";
+import {
+  handleShadowsRequest,
+  handleShadowsResponse,
+  handleSparksRequest,
+  handleSparksResponse,
+  handleCancelPopup
+} from "../non-combat-helper.mjs";
+import { handleRemoveTemptFateButton } from "../../sheets/character/handlers-tempt-fate.mjs";
 
 /**
  * Helper class for handling custom socket events in the Trespasser system.
@@ -47,6 +55,18 @@ export class TrespasserSocket {
         return handleDefenseRequest(data, senderId);
       case "DEFENSE_RESPONSE":
         return handleDefenseResponse(data);
+      case "NON_COMBAT_SHADOWS_REQUEST":
+        return handleShadowsRequest(data, senderId);
+      case "NON_COMBAT_SHADOWS_RESPONSE":
+        return handleShadowsResponse(data);
+      case "NON_COMBAT_SPARKS_REQUEST":
+        return handleSparksRequest(data, senderId);
+      case "NON_COMBAT_SPARKS_RESPONSE":
+        return handleSparksResponse(data);
+      case "CANCEL_NON_COMBAT_POPUP":
+        return handleCancelPopup(data);
+      case "REMOVE_TEMPT_FATE_BUTTON":
+        return handleRemoveTemptFateButton(data);
       default:
         // Ignore unknown types
         break;

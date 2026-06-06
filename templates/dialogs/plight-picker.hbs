@@ -1,0 +1,18 @@
+<div class="trespasser-plight-picker" style="padding: 10px;">
+  <p class="notes" style="font-size: var(--fs-12); color: var(--trp-text-dim); margin-bottom: 15px; text-align: center;">
+    {{localize "TRESPASSER.Dialog.PlightPicker.SelectHint"}}
+  </p>
+  <div class="plight-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 15px;">
+    {{#each plights}}
+    <button type="button" class="plight-card {{#if this.disabled}}disabled{{/if}}" data-action="select" data-plight-id="{{this.id}}" {{#if this.disabled}}disabled{{/if}} data-tooltip="{{localize this.description}}" style="display: flex; align-items: center; gap: 10px; background: var(--trp-bg-panel); border: 1px solid var(--trp-border); border-radius: var(--trp-radius); padding: 10px; cursor: pointer; text-align: left; transition: all 0.15s; width: 100%;">
+      <i class="plight-icon {{this.icon}}" style="color: {{#if this.disabled}}var(--trp-text-dim){{else}}{{this.tint}}{{/if}}; font-size: var(--fs-18); flex-shrink: 0; width: 24px; text-align: center;"></i>
+      <span class="plight-label" style="font-family: var(--trp-font-header); font-size: var(--fs-13); font-weight: bold; color: {{#if this.disabled}}var(--trp-text-dim){{else}}var(--trp-text-bright){{/if}}; text-transform: uppercase; letter-spacing: 0.05em;">{{localize this.label}}</span>
+    </button>
+    {{/each}}
+  </div>
+  <div class="custom-plight-row" style="border-top: 1px solid var(--trp-border-light); padding-top: 12px; display: flex; justify-content: center;">
+    <button type="button" class="custom-plight-btn" data-action="select" data-plight-id="custom" style="display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--trp-bg-panel); border: 1px solid var(--trp-gold-dim); border-radius: var(--trp-radius); padding: 8px 16px; cursor: pointer; font-family: var(--trp-font-header); font-size: var(--fs-12); font-weight: bold; color: var(--trp-gold-bright); text-transform: uppercase; letter-spacing: 0.08em; transition: all 0.15s;">
+      <i class="fas fa-plus"></i> {{localize "TRESPASSER.Plight.Custom.ButtonLabel"}}
+    </button>
+  </div>
+</div>
