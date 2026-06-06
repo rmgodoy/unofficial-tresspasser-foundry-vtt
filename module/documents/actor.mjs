@@ -628,7 +628,18 @@ export class TrespasserActor extends Actor {
     });
 
     if (success) {
-      await stateItem.delete();
+      if (stateItem.system.isLasting) {
+        const baseIntensity = stateItem.getFlag("trespasser", "lastingBaseIntensity") !== undefined
+          ? stateItem.getFlag("trespasser", "lastingBaseIntensity")
+          : stateItem.system.intensity;
+        await stateItem.update({ "system.intensity": baseIntensity });
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.LastingStateReduced", {
+          name: stateItem.name,
+          intensity: baseIntensity
+        }));
+      } else {
+        await stateItem.delete();
+      }
     }
 
     // Trigger any effects that fire when a prevail check is made

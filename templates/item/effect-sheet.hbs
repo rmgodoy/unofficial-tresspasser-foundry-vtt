@@ -36,6 +36,11 @@
         <label for="effect-prevailable-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.IsPrevailable"}}</label>
       </div>
 
+      <div class="field-row checkbox-row">
+        <input type="checkbox" name="system.isLasting" {{checked system.isLasting}} id="effect-lasting-{{item.id}}"/>
+        <label for="effect-lasting-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.IsLasting"}}</label>
+      </div>
+
       {{#if system.isOnlyReminder}}
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.gmOnly" {{checked system.gmOnly}} id="effect-gmonly-{{item.id}}"/>

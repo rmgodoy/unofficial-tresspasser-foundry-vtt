@@ -1067,6 +1067,15 @@ Hooks.on("deleteCombat", async (combat) => {
   for (const c of combat.combatants) {
     if (c.actor) {
       await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");
+
+      // Revert lasting states to their base intensity
+      const lastingStates = c.actor.items.filter(i => i.type === "effect" && i.system.isLasting);
+      for (const eff of lastingStates) {
+        const baseIntensity = eff.getFlag("trespasser", "lastingBaseIntensity");
+        if (baseIntensity !== undefined && eff.system.intensity !== baseIntensity) {
+          await eff.update({ "system.intensity": baseIntensity });
+        }
+      }
       
       // Remove effects where combat-end triggers expiry (compound or legacy "combat" duration)
       const toRemove = c.actor.items.filter(i => {
@@ -1319,6 +1328,20 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
     const system = item.system;
     let intensityToApply = system.intensity || 0;
 
+    // Check for active opposite lasting state
+    const lastingStates = actor.items.filter(i => i.type === "effect" && i.system.isLasting);
+    for (const lasting of lastingStates) {
+      const isOpposite = (system.counterStates || []).some(cs => cs.name === lasting.name) ||
+                         (lasting.system.counterStates || []).some(cs => cs.name === item.name);
+      if (isOpposite) {
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.OppositeLastingActive", {
+          newEffect: item.name,
+          lasting: lasting.name
+        }));
+        return false;
+      }
+    }
+
     // 1. Handle Counter States
     const counterStates = system.counterStates || [];
     let wasCountered = false;
@@ -1353,6 +1376,10 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
       const currentIntensity = existing.system.intensity || 0;
       existing.update({ "system.intensity": currentIntensity + intensityToApply });
       return false; // Cancel creation of the new item
+    }
+
+    if (system.isLasting) {
+      item.updateSource({ "flags.trespasser.lastingBaseIntensity": intensityToApply });
     }
 
     // 4. Update the item being created with the final intensity (if modified by counters)
@@ -1424,10 +1451,21 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
 });
 
 /**
- * Update placeholder icon when subType changes.
+ * Update placeholder icon when subType changes and handle lasting state base intensity.
  */
 Hooks.on("preUpdateItem", (item, changed, options, userId) => {
   // TODO: update to use the new icons for sub types
+  
+  if (item.type === "effect") {
+    const isLasting = changed.system?.isLasting !== undefined ? changed.system.isLasting : item.system.isLasting;
+    if (isLasting) {
+      const currentFlag = item.getFlag("trespasser", "lastingBaseIntensity");
+      if (currentFlag === undefined || changed.system?.isLasting === true) {
+        const intensity = changed.system?.intensity !== undefined ? changed.system.intensity : item.system.intensity;
+        foundry.utils.setProperty(changed, "flags.trespasser.lastingBaseIntensity", intensity);
+      }
+    }
+  }
 });
 
 /**

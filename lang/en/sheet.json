@@ -321,7 +321,8 @@
           "IsCombat": "Is Combat?",
           "GMOnly": "GM Only?",
           "IsReminder": "Is Reminder Only?",
-          "IsPrevailable": "Is Prevailable?"
+          "IsPrevailable": "Is Prevailable?",
+          "IsLasting": "Is Lasting?"
         },
         "Sections": {
           "DeedEffects": "Deed Effects",
