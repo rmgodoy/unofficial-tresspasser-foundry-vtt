@@ -9,8 +9,24 @@ import { TrespasserRollDialog } from "../../dialogs/roll-dialog.mjs";
 export async function onAttributeRoll(event, sheet) {
   event.preventDefault();
   const attrKey = event.currentTarget.dataset.attribute;
-  const attrVal = sheet.actor.system.attributes[attrKey] ?? 0;
-  const effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, attrKey, "use");
+  let attrVal = sheet.actor.system.attributes[attrKey] ?? 0;
+  let effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, attrKey, "use");
+
+  // Befuddled & Sickly checks
+  let plightName = "";
+  if ((attrKey === "intellect" || attrKey === "spirit") && sheet.actor.system.hasPlight?.("befuddled")) {
+    plightName = "Befuddled";
+  } else if ((attrKey === "mighty" || attrKey === "agility") && sheet.actor.system.hasPlight?.("sickly")) {
+    plightName = "Sickly";
+  }
+
+  if (plightName) {
+    attrVal = 0;
+    effectBonus = 0;
+    const attrLabel = game.i18n.localize(`TRESPASSER.Terms.Attribute.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.AttributeSuppressed", { plight: plightName, attr: attrLabel }));
+  }
+
   const label   = game.i18n.localize(`TRESPASSER.Terms.Attribute.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
 
   const isAdv = TrespasserEffectsHelper.hasAdvantage(sheet.actor, attrKey);
@@ -86,9 +102,23 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
   const trainedLabel = isTrained ? game.i18n.localize("TRESPASSER.Chat.Common.Trained") : "";
 
   const formatAttrBtn = (key, lbl) => {
-    const base  = attr[key]    ?? 0;
-    const bon   = bonuses[key] ?? 0;
-    const eff   = TrespasserEffectsHelper.getAttributeBonus(actor, key, "use");
+    let base  = attr[key]    ?? 0;
+    let bon   = bonuses[key] ?? 0;
+    let eff   = TrespasserEffectsHelper.getAttributeBonus(actor, key, "use");
+
+    let isSuppressed = false;
+    if ((key === "intellect" || key === "spirit") && actor.system.hasPlight?.("befuddled")) {
+      isSuppressed = true;
+    } else if ((key === "mighty" || key === "agility") && actor.system.hasPlight?.("sickly")) {
+      isSuppressed = true;
+    }
+
+    if (isSuppressed) {
+      base = 0;
+      bon = 0;
+      eff = 0;
+    }
+
     const total = base + bon + eff;
     return `<button class="trp-attr-btn" data-attr="${key}">${lbl} (${total})</button>`;
   };
@@ -138,9 +168,26 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
             // Close immediately after selection
             dialog.close();
 
-            const attrVal    = attr[chosenAttr]    ?? 0;
-            const attrBonus  = bonuses[chosenAttr] ?? 0;
-            const effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, chosenAttr, "use");
+            let attrVal    = attr[chosenAttr]    ?? 0;
+            let attrBonus  = bonuses[chosenAttr] ?? 0;
+            let effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, chosenAttr, "use");
+
+            // Befuddled & Sickly checks
+            let plightName = "";
+            if ((chosenAttr === "intellect" || chosenAttr === "spirit") && actor.system.hasPlight?.("befuddled")) {
+              plightName = "Befuddled";
+            } else if ((chosenAttr === "mighty" || chosenAttr === "agility") && actor.system.hasPlight?.("sickly")) {
+              plightName = "Sickly";
+            }
+
+            if (plightName) {
+              attrVal = 0;
+              attrBonus = 0;
+              effectBonus = 0;
+              const attrLabel = game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.charAt(0).toUpperCase() + chosenAttr.slice(1)}`);
+              ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.AttributeSuppressed", { plight: plightName, attr: attrLabel }));
+            }
+
             const isAdv      = TrespasserEffectsHelper.hasAdvantage(actor, chosenAttr);
             const diceFormula = isAdv ? "2d20kh" : "1d20";
 
