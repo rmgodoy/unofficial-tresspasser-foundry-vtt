@@ -161,10 +161,14 @@
     {{#if connectedRooms.length}}
     <div class="tracker-room-list">
       {{#each connectedRooms}}
-      <div class="tracker-room-entry {{#unless discovered}}undiscovered{{/unless}}">
+      <div class="tracker-room-entry {{#unless discovered}}undiscovered{{/unless}} {{#if isLastVisited}}last-visited{{/if}}">
         <a class="tracker-room-go" data-action="setCurrentRoom" data-room-id="{{_id}}" data-tooltip="{{localize 'TRESPASSER.Sheet.Dungeon.MoveHere'}}">
-          {{#if discovered}}<i class="fas fa-door-open"></i>{{else}}<i class="fas fa-question"></i>{{/if}}
-          <span>{{name}}</span>
+          {{#if isLastVisited}}
+            <i class="fas fa-history" title="{{localize 'TRESPASSER.Sheet.Dungeon.Room.LastVisited'}}"></i>
+          {{else}}
+            {{#if discovered}}<i class="fas fa-door-open"></i>{{else}}<i class="fas fa-question"></i>{{/if}}
+          {{/if}}
+          <span>{{name}}{{#if isLastVisited}} <small>({{localize "TRESPASSER.Sheet.Dungeon.Room.LastVisited"}})</small>{{/if}}</span>
         </a>
       </div>
       {{/each}}

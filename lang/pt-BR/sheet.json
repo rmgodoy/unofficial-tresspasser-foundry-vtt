@@ -455,6 +455,8 @@
           "AddFeature": "Adicionar Característica",
           "Connections": "Conexões",
           "Discovered": "Descoberta",
+          "IsEntrance": "Entrada",
+          "LastVisited": "Última Visitada",
           "SortOrder": "Ordem de Exibição",
           "RoomTrap": "Armadilha da Sala",
           "RoomTrapPresent": "Armadilha Presente",

@@ -1254,6 +1254,12 @@ select.dungeon-field-input option {
   opacity: 0.6;
 }
 
+.tracker-room-entry.last-visited .tracker-room-go {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: var(--trp-gold-overlay, rgba(212, 175, 55, 0.15));
+}
+
 .tracker-room-go {
   display: flex;
   align-items: center;

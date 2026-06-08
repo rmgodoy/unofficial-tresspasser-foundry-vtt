@@ -37,6 +37,12 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     }
   };
 
+  /** @override */
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Actor.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
+  }
+
   /* -------------------------------------------- */
   /* Context Preparation                          */
   /* -------------------------------------------- */

@@ -49,6 +49,12 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
 
   tabGroups = { primary: "overview" };
 
+  /** @override */
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Actor.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
+  }
+
   /* -------------------------------------------- */
   /* Context Preparation                          */
   /* -------------------------------------------- */
@@ -276,6 +282,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
       "system.actionsRemaining": actionsPerRound,
       "system.alarm": 0,
       "system.currentRoomId": "",
+      "system.lastRoomId": "",
       "system.sessionState": "idle"
     });
   }
