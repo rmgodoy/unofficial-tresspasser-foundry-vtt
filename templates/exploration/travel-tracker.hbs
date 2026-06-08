@@ -137,11 +137,47 @@
   </div>
   {{/if}}
 
-  {{!-- Action buttons placeholder for TASKs 5-8 --}}
   {{#if isGM}}{{#if isActive}}
   <div class="tracker-actions-section">
     <h3>{{localize "TRESPASSER.App.TravelTracker.TravelActions"}}</h3>
-    <p class="tracker-hint">Action buttons will be added in TASK 5-8.</p>
+    <div class="tracker-action-grid">
+      <button type="button" class="tracker-action-btn" data-action="performAdvance" data-tooltip="{{localize 'TRESPASSER.Terms.Travel.Actions.AdvanceDesc'}}">
+        <i class="fa-solid fa-route"></i>
+        <span>{{localize "TRESPASSER.Terms.Travel.Actions.Advance"}}</span>
+      </button>
+      {{!-- Camp and Night's Rest buttons will be added in TASK 7 and TASK 8 --}}
+    </div>
+  </div>
+
+  {{!-- GM Nudgers --}}
+  <div class="tracker-nudgers">
+    <button type="button" class="tracker-nudger" data-action="adjustTravelPoints" data-delta="-1" data-tooltip="Spend 1 TP">
+      <i class="fas fa-minus"></i> TP
+    </button>
+    <button type="button" class="tracker-nudger" data-action="adjustTravelPoints" data-delta="1" data-tooltip="Gain 1 TP">
+      <i class="fas fa-plus"></i> TP
+    </button>
+    <button type="button" class="tracker-nudger" data-action="toggleRoad" data-tooltip="Toggle road travel">
+      <i class="fas fa-road"></i> {{localize "TRESPASSER.App.TravelTracker.OnRoad"}}
+    </button>
+    {{#if isDisoriented}}
+    <button type="button" class="tracker-nudger" data-action="clearDisorientation" data-tooltip="Clear disorientation">
+      <i class="fas fa-compass"></i> {{localize "TRESPASSER.App.TravelTracker.ClearDisorientation"}}
+    </button>
+    {{/if}}
+    <button type="button" class="tracker-nudger" data-action="nextDay" data-tooltip="Advance to next day">
+      <i class="fas fa-forward-step"></i> {{localize "TRESPASSER.App.TravelTracker.NextDay"}}
+    </button>
+  </div>
+
+  {{!-- Weather Selector --}}
+  <div class="travel-weather-selector">
+    <label>{{localize "TRESPASSER.App.TravelTracker.Weather"}}:</label>
+    <select data-action="setWeather">
+      {{#each weatherChoices}}
+      <option value="{{@key}}" {{#if (eq @key ../weather)}}selected{{/if}}>{{this}}</option>
+      {{/each}}
+    </select>
   </div>
   {{/if}}{{/if}}
 

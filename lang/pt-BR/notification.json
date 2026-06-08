@@ -80,6 +80,9 @@
       "Region": {
         "NoEmbeddedItems": "Regiões não podem conter itens embutidos."
       },
+      "Travel": {
+        "CannotAdvanceAtNight": "Não é possível avançar à noite. Faça um Descanso Noturno primeiro."
+      },
       "Rest": {
         "SpendRDLimited": "Você tentou gastar {spent} DR mas possui apenas {current}. Gastando {current} em vez disso.",
         "NoRD": "Nenhum Dado de Recuperação disponível.",

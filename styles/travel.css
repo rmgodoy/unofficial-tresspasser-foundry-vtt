@@ -310,3 +310,27 @@ button[data-tool="travelTracker"]:hover {
   flex: 1;
 }
 
+/* Weather Selector dropdown */
+.travel-weather-selector {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--trp-bg-panel);
+  border-top: 1px solid var(--trp-border);
+}
+
+.travel-weather-selector label {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-10);
+  text-transform: uppercase;
+  color: var(--trp-text-dim);
+  margin-bottom: 0;
+  flex: 0 0 100px;
+}
+
+.travel-weather-selector select {
+  flex: 1;
+  max-width: 150px;
+}
+

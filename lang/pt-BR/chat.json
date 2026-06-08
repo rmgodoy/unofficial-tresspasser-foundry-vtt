@@ -178,7 +178,25 @@
       },
       "Travel": {
         "SessionStarted": "A viagem começa por {name}!",
-        "SessionDay1": "Dia 1 — Manhã"
+        "SessionDay1": "Dia 1 — Manhã",
+        "AdvanceAnnounce": "O grupo avança por {name}.",
+        "TravelPointsAwarded": "6 pontos de viagem concedidos.",
+        "PressingOn": "Forçando a Marcha!",
+        "PressingOnDetail": "Cada membro do grupo sem uma montaria perde 1 de Vigor.",
+        "NewDay": "Dia {day}",
+        "WayfindingCheck": "Teste de Rota",
+        "WayfindingPrompt": "Um personagem deve fazer um teste de INTELLECT | NATURE vs DC {dc}. O Mestre também rola secretamente um d10.",
+        "WayfindingSkill": "Perícia",
+        "Wayfinding": {
+          "Spark": "Centelha (Recuperar o Rumo)",
+          "SparkDesc": "O grupo recupera o rumo imediatamente sem perda de tempo.",
+          "Success": "Sucesso (Desvio)",
+          "SuccessDesc": "Gasta metade dos pontos de viagem na direção errada, depois corrige o curso.",
+          "Failure": "Falha (Digressão Completa)",
+          "FailureDesc": "Gasta TODOS os pontos de viagem na direção errada, depois percebe o erro e recupera o rumo.",
+          "Shadow": "Sombra (Desorientação)",
+          "ShadowDesc": "O grupo viaja na direção errada sem saber. Continue errado nos próximos avanços até um teste de rota bem-sucedido."
+        }
       },
       "Deed": {
         "Empty": "Esta habilidade ainda não tem efeitos ou descrição."

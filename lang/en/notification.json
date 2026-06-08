@@ -80,6 +80,9 @@
       "Region": {
         "NoEmbeddedItems": "Regions cannot contain embedded items."
       },
+      "Travel": {
+        "CannotAdvanceAtNight": "Cannot advance at night. Take a Night's Rest first."
+      },
       "Rest": {
         "SpendRDLimited": "You tried to spend {spent} RD but only have {current}. Spending {current} instead.",
         "NoRD": "No Recovery Dice available.",

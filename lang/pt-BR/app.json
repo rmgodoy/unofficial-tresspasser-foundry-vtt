@@ -36,6 +36,8 @@
         "RecentActivity": "Atividade Recente",
         "TravelPaused": "Viagem Pausada",
         "Disoriented": "O grupo está desorientado!",
+        "ClearDisorientation": "Limpar Desorientação",
+        "NextDay": "Próximo Dia",
         "Session": {
           "BeginTravel": "Iniciar Viagem",
           "EndTravel": "Encerrar Viagem",

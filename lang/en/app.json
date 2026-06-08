@@ -36,6 +36,8 @@
         "RecentActivity": "Recent Activity",
         "TravelPaused": "Travel Paused",
         "Disoriented": "The party is disoriented!",
+        "ClearDisorientation": "Clear Disorientation",
+        "NextDay": "Next Day",
         "Session": {
           "BeginTravel": "Begin Travel",
           "EndTravel": "End Travel",

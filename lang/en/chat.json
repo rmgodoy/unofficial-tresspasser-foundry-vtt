@@ -178,7 +178,25 @@
       },
       "Travel": {
         "SessionStarted": "Travel begins through {name}!",
-        "SessionDay1": "Day 1 — Morning"
+        "SessionDay1": "Day 1 — Morning",
+        "AdvanceAnnounce": "The party advances through {name}.",
+        "TravelPointsAwarded": "6 travel points awarded.",
+        "PressingOn": "Pressing On!",
+        "PressingOnDetail": "Each party member without a mount loses 1 Endurance.",
+        "NewDay": "Day {day}",
+        "WayfindingCheck": "Wayfinding Check",
+        "WayfindingPrompt": "One character must make an INTELLECT | NATURE check vs DC {dc}. The Judge also secretly rolls a d10.",
+        "WayfindingSkill": "Skill",
+        "Wayfinding": {
+          "Spark": "Spark (Regain Heading)",
+          "SparkDesc": "The party regains heading immediately with no lost time.",
+          "Success": "Success (Detour)",
+          "SuccessDesc": "Spend half travel points going wrong direction, then correct course.",
+          "Failure": "Failure (Full Digression)",
+          "FailureDesc": "Spend ALL travel points going wrong direction, then realize mistake and regain heading.",
+          "Shadow": "Shadow (Disorientation)",
+          "ShadowDesc": "Party travels wrong direction unknowingly. Continue wrong on future advances until a successful wayfinding check."
+        }
       },
       "Deed": {
         "Empty": "This deed has no effects or description yet."

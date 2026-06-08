@@ -13,6 +13,8 @@
  * Player view: region name, day, period, road status.
  */
 
+import { runTravelHostilityCheck } from "./encounter-resolution.mjs";
+
 const { api } = foundry.applications;
 
 /** @typedef {"idle"|"active"|"paused"} SessionState */
@@ -34,7 +36,13 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
       openRegionSheet: TravelTracker.#onOpenRegionSheet,
       startSession:   TravelTracker.#onStartSession,
       resumeSession:  TravelTracker.#onResumeSession,
-      endSession:     TravelTracker.#onEndSession
+      endSession:     TravelTracker.#onEndSession,
+      performAdvance:       TravelTracker.#onPerformAdvance,
+      toggleRoad:           TravelTracker.#onToggleRoad,
+      setWeather:           TravelTracker.#onSetWeather,
+      adjustTravelPoints:   TravelTracker.#onAdjustTravelPoints,
+      clearDisorientation:  TravelTracker.#onClearDisorientation,
+      nextDay:              TravelTracker.#onNextDay
     }
   };
 
@@ -306,6 +314,144 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     if (!this.region || !game.user.isGM) return;
     await this.region.update({ "system.sessionState": "paused" });
     this.region = null;
+    this.render();
+  }
+
+  static async #onPerformAdvance(event, target) {
+    if (!this.region || !game.user.isGM || this.sessionState !== "active") return;
+
+    const system = this.region.system;
+    const travelConfig = CONFIG.TRESPASSER.travel;
+    const currentPeriod = system.currentPeriod ?? "morning";
+
+    // Advance the period
+    const periodOrder = ["morning", "evening", "night"];
+    const currentIndex = periodOrder.indexOf(currentPeriod);
+    
+    // If already at night, can't advance (need to rest first to start new day)
+    if (currentIndex >= 2) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Travel.CannotAdvanceAtNight"));
+      return;
+    }
+
+    const nextPeriod = periodOrder[currentIndex + 1];
+    const isPressing = currentIndex >= 1; // 2nd advance in a day = pressing on
+
+    // Award travel points
+    const newTP = travelConfig.travelPointsPerAdvance;
+
+    // Build log entry
+    const dayLog = [...(system.dayLog ?? [])];
+    dayLog.push({
+      day: system.currentDay ?? 1,
+      action: game.i18n.localize("TRESPASSER.Terms.Travel.Actions.Advance"),
+      detail: game.i18n.localize(travelConfig.periods[nextPeriod]?.label ?? "")
+    });
+
+    // Update region state
+    await this.region.update({
+      "system.currentPeriod": nextPeriod,
+      "system.travelPointsRemaining": newTP,
+      "system.dayLog": dayLog
+    });
+
+    // Post chat messages
+
+    // 1. Wayfinding check (if not on road or disoriented override)
+    if (!system.onRoad || system.isDisoriented) {
+      await this._postWayfindingPrompt();
+    }
+
+    // 2. Pressing on warning
+    if (isPressing) {
+      await ChatMessage.create({
+        content: `<div class="trespasser-travel-action">
+          <strong>${game.i18n.localize("TRESPASSER.Chat.Travel.PressingOn")}</strong>
+          <div>${game.i18n.localize("TRESPASSER.Chat.Travel.PressingOnDetail")}</div>
+        </div>`,
+        speaker: ChatMessage.getSpeaker({ alias: this.region.name })
+      });
+    }
+
+    // 3. Hostility check
+    await runTravelHostilityCheck(this.region);
+
+    // 4. Advance announcement
+    await ChatMessage.create({
+      content: `<div class="trespasser-travel-action">
+        <strong>${game.i18n.format("TRESPASSER.Chat.Travel.AdvanceAnnounce", { name: this.region.name })}</strong>
+        <div>${game.i18n.localize("TRESPASSER.Chat.Travel.TravelPointsAwarded")}</div>
+      </div>`,
+      speaker: ChatMessage.getSpeaker({ alias: this.region.name })
+    });
+
+    this.render();
+  }
+
+  async _postWayfindingPrompt() {
+    const system = this.region.system;
+    const dc = CONFIG.TRESPASSER.dungeon.hostilityTiers[system.hostilityTier]?.dc ?? 10;
+
+    let content = `<div class="trespasser-wayfinding-check">`;
+    content += `<h3><i class="fas fa-compass"></i> ${game.i18n.localize("TRESPASSER.Chat.Travel.WayfindingCheck")}</h3>`;
+    content += `<div>${game.i18n.format("TRESPASSER.Chat.Travel.WayfindingPrompt", { dc })}</div>`;
+    content += `<div><strong>${game.i18n.localize("TRESPASSER.Chat.Travel.WayfindingSkill")}:</strong> INTELLECT | NATURE</div>`;
+    content += `<div class="wayfinding-outcomes">`;
+    content += `<div><i class="fas fa-star"></i> <strong>${game.i18n.localize("TRESPASSER.Chat.Travel.Wayfinding.Spark")}:</strong> ${game.i18n.localize("TRESPASSER.Chat.Travel.Wayfinding.SparkDesc")}</div>`;
+    content += `<div><i class="fas fa-check"></i> <strong>${game.i18n.localize("TRESPASSER.Chat.Travel.Wayfinding.Success")}:</strong> ${game.i18n.localize("TRESPASSER.Chat.Travel.Wayfinding.SuccessDesc")}</div>`;
+    content += `<div><i class="fas fa-xmark"></i> <strong>${game.i18n.localize("TRESPASSER.Chat.Travel.Wayfinding.Failure")}:</strong> ${game.i18n.localize("TRESPASSER.Chat.Travel.Wayfinding.FailureDesc")}</div>`;
+    content += `<div><i class="fas fa-skull"></i> <strong>${game.i18n.localize("TRESPASSER.Chat.Travel.Wayfinding.Shadow")}:</strong> ${game.i18n.localize("TRESPASSER.Chat.Travel.Wayfinding.ShadowDesc")}</div>`;
+    content += `</div></div>`;
+
+    await ChatMessage.create({
+      content,
+      speaker: ChatMessage.getSpeaker({ alias: this.region.name }),
+      whisper: game.users.filter(u => u.isGM).map(u => u.id)
+    });
+  }
+
+  static async #onToggleRoad(event, target) {
+    if (!this.region || !game.user.isGM) return;
+    await this.region.update({ "system.onRoad": !this.region.system.onRoad });
+  }
+
+  static async #onSetWeather(event, target) {
+    if (!this.region || !game.user.isGM) return;
+    const weather = target.value ?? target.dataset.weather;
+    if (!weather) return;
+    await this.region.update({ "system.weather": weather });
+  }
+
+  static async #onAdjustTravelPoints(event, target) {
+    if (!this.region || !game.user.isGM) return;
+    const delta = parseInt(target.dataset.delta, 10) || 0;
+    const current = this.region.system.travelPointsRemaining ?? 0;
+    const max = CONFIG.TRESPASSER.travel.travelPointsPerAdvance;
+    const newTP = Math.max(0, Math.min(max, current + delta));
+    if (newTP === current) return;
+    await this.region.update({ "system.travelPointsRemaining": newTP });
+  }
+
+  static async #onClearDisorientation(event, target) {
+    if (!this.region || !game.user.isGM) return;
+    await this.region.update({ "system.isDisoriented": false });
+  }
+
+  static async #onNextDay(event, target) {
+    if (!this.region || !game.user.isGM || this.sessionState !== "active") return;
+    const currentDay = this.region.system.currentDay ?? 1;
+    await this.region.update({
+      "system.currentDay": currentDay + 1,
+      "system.currentPeriod": "morning",
+      "system.travelPointsRemaining": 0
+    });
+
+    await ChatMessage.create({
+      content: `<div class="trespasser-travel-action">
+        <strong>${game.i18n.format("TRESPASSER.Chat.Travel.NewDay", { day: currentDay + 1 })}</strong>
+      </div>`,
+      speaker: ChatMessage.getSpeaker({ alias: this.region.name })
+    });
     this.render();
   }
 
