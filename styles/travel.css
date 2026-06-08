@@ -101,3 +101,38 @@
   background: var(--trp-purple);
   color: var(--text-primary);
 }
+
+/* Travel Tracker window */
+.travel-tracker .window-content {
+  padding: 0;
+  background: var(--bg-primary);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-scrollbar) var(--color-scrollbar-track);
+}
+
+.travel-tracker-content {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--fs-12);
+}
+
+/* ========================================================================== */
+/* 1. Travel Tracker Button (Main Toolbar)                                    */
+/* ========================================================================== */
+
+button[data-tool="travelTracker"] {
+  font-family: var(--font-awesome);
+  font-size: var(--fs-16);
+  background: var(--color-cool-5-75);
+  color: var(--color-light-1);
+  border: 1px solid var(--color-cool-4);
+}
+
+/* Style the button when it is hovered */
+button[data-tool="travelTracker"]:hover {
+  background: var(--color-cool-5);
+  border-color: var(--color-cool-4);
+  color: var(--color-light-1);
+}
+

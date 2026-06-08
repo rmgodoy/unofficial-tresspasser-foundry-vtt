@@ -68,6 +68,7 @@ import { DungeonTracker, registerDungeonTrackerHooks } from "./module/exploratio
 import { TrespasserRegionData }    from "./module/data/actor-region.mjs";
 import { TRAVEL_CONFIG }           from "./module/config/travel-config.mjs";
 import { TrespasserRegionSheet }   from "./module/sheets/actor-region-sheet.mjs";
+import { TravelTracker, registerTravelTrackerHooks } from "./module/exploration/travel-tracker.mjs";
 import { TrespasserHavenData }   from "./module/data/actor-haven.mjs";
 import { TrespasserHirelingData } from "./module/data/item-hireling.mjs";
 import { TrespasserHavenSheet }   from "./module/sheets/actor-haven-sheet.mjs";
@@ -107,6 +108,7 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/region/region-log.hbs",
     "systems/trespasser/templates/region/region-notes.hbs",
     "systems/trespasser/templates/exploration/dungeon-tracker.hbs",
+    "systems/trespasser/templates/exploration/travel-tracker.hbs",
     "systems/trespasser/templates/exploration/haven-tracker.hbs",
     "systems/trespasser/templates/item/room-sheet.hbs",
     "systems/trespasser/templates/dialogs/non-combat-spark.hbs",
@@ -573,6 +575,9 @@ Hooks.once("init", async () => {
   // Dungeon tracker scene control button
   registerDungeonTrackerHooks();
 
+  // Travel tracker scene control button
+  registerTravelTrackerHooks();
+
   // Haven tracker scene control button
   // registerHavenTrackerHooks();
   // TODO: implement Haven tracker scene control button
@@ -593,6 +598,7 @@ Hooks.once("init", async () => {
   game.trespasser.TrespasserSocket = TrespasserSocket;
   game.trespasser.executeTemptFateFlow = executeTemptFateFlow;
   game.trespasser.DungeonTracker = DungeonTracker;
+  game.trespasser.TravelTracker = TravelTracker;
   globalThis.trespasser = game.trespasser;
 });
 

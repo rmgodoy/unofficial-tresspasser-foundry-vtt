@@ -19,6 +19,20 @@
           }
         }
       },
+      "TravelTracker": {
+        "Title": "Rastreador de Viagem",
+        "SelectRegion": "Selecionar Região",
+        "NoRegionFound": "Nenhuma região encontrada.",
+        "CreateRegionHint": "Crie um ator de Região para começar a viagem terrestre.",
+        "NoTravelInProgress": "Nenhuma viagem em andamento.",
+        "WaitingForGM": "Aguardando o Mestre iniciar a viagem.",
+        "Session": {
+          "State": {
+            "active": "Ativo",
+            "paused": "Pausado"
+          }
+        }
+      },
       "HavenTracker": {
         "Title": "Rastreador de Refúgio",
         "SelectHaven": "Selecionar Refúgio",
@@ -52,7 +66,8 @@
             "creature": "Criatura",
             "dungeon": "Masmorra",
             "party": "Grupo",
-            "haven": "Abrigo"
+            "haven": "Abrigo",
+            "region": "Região"
           },
           "Item": {
             "armor": "Armadura",

@@ -19,6 +19,20 @@
           }
         }
       },
+      "TravelTracker": {
+        "Title": "Travel Tracker",
+        "SelectRegion": "Select Region",
+        "NoRegionFound": "No regions found.",
+        "CreateRegionHint": "Create a Region actor to begin overland travel.",
+        "NoTravelInProgress": "No travel in progress.",
+        "WaitingForGM": "Waiting for the GM to begin travel.",
+        "Session": {
+          "State": {
+            "active": "Active",
+            "paused": "Paused"
+          }
+        }
+      },
       "HavenTracker": {
         "Title": "Haven Tracker",
         "SelectHaven": "Select Haven",
@@ -52,7 +66,8 @@
             "creature": "Creature",
             "dungeon": "Dungeon",
             "party": "Party",
-            "haven": "Haven"
+            "haven": "Haven",
+            "region": "Region"
           },
           "Item": {
             "armor": "Armor",
