@@ -136,3 +136,177 @@ button[data-tool="travelTracker"]:hover {
   color: var(--color-light-1);
 }
 
+/* ========================================================================== */
+/* 2. Travel Tracker Session State & Status Bar                               */
+/* ========================================================================== */
+
+/* Disorientation warning banner */
+.travel-disoriented-banner {
+  padding: 6px 10px;
+  background: var(--trp-red-overlay);
+  border-bottom: 1px solid var(--trp-red-dim);
+  color: var(--trp-red);
+  font-weight: bold;
+  font-size: var(--fs-12);
+  text-align: center;
+}
+
+/* Conditions bar (weather + road) */
+.travel-conditions-bar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding: 6px 10px;
+  background: var(--trp-bg-header);
+  border-bottom: 1px solid var(--trp-border);
+}
+
+.travel-condition {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.travel-condition label {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-10);
+  text-transform: uppercase;
+  color: var(--trp-text-dim);
+  margin-bottom: 0;
+}
+
+/* Weather Badges */
+.travel-weather-badge {
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: var(--fs-11);
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.travel-weather-badge.weather-clear {
+  background: var(--trp-green-overlay);
+  color: var(--trp-green-bright);
+  border: 1px solid var(--trp-green-bright);
+}
+
+.travel-weather-badge.weather-poor {
+  background: var(--trp-gold-overlay);
+  color: var(--trp-gold-bright);
+  border: 1px solid var(--trp-gold);
+}
+
+.travel-weather-badge.weather-extreme {
+  background: var(--trp-red-overlay);
+  color: var(--trp-red);
+  border: 1px solid var(--trp-red);
+}
+
+/* Terrain cost reference table */
+.travel-terrain-ref {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--trp-border);
+}
+
+.travel-terrain-ref h4 {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-10);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--trp-gold-bright);
+  margin: 0 0 6px 0;
+  border-bottom: 1px solid var(--trp-border);
+  padding-bottom: 2px;
+}
+
+.travel-terrain-table {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.travel-terrain-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fs-11);
+  padding: 4px 6px;
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: 3px;
+}
+
+.terrain-label {
+  font-weight: bold;
+  color: var(--trp-text);
+  flex: 0 0 90px;
+}
+
+.terrain-cost {
+  color: var(--trp-gold-bright);
+  font-weight: bold;
+  flex: 0 0 50px;
+  text-align: right;
+  padding-right: 8px;
+}
+
+.terrain-examples {
+  color: var(--trp-text-dim);
+  font-style: italic;
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Travel Log / Recent Activity Styles */
+.tracker-log-section {
+  padding: 6px 10px 8px;
+}
+
+.tracker-log-section h3 {
+  font-size: var(--fs-10);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--trp-gold);
+  margin: 0 0 6px;
+}
+
+.tracker-log-entries {
+  display: flex;
+  flex-direction: column;
+}
+
+.tracker-log-entry {
+  display: flex;
+  gap: 8px;
+  padding: 4px 0;
+  border-bottom: 1px solid var(--trp-border);
+  font-size: var(--fs-11);
+  align-items: baseline;
+}
+
+.tracker-log-entry:last-child {
+  border-bottom: none;
+}
+
+.tracker-log-round {
+  font-weight: bold;
+  color: var(--trp-gold-bright);
+  min-width: 24px;
+  flex-shrink: 0;
+}
+
+.tracker-log-action {
+  color: var(--trp-text-bright);
+  font-weight: bold;
+  min-width: 80px;
+  flex-shrink: 0;
+}
+
+.tracker-log-detail {
+  color: var(--trp-text-dim);
+  flex: 1;
+}
+

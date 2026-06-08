@@ -176,6 +176,10 @@
           "AlarmChange": "Alarme: {value}"
         }
       },
+      "Travel": {
+        "SessionStarted": "A viagem começa por {name}!",
+        "SessionDay1": "Dia 1 — Manhã"
+      },
       "Deed": {
         "Empty": "Esta habilidade ainda não tem efeitos ou descrição."
       }

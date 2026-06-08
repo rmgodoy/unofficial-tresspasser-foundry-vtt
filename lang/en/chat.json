@@ -176,6 +176,10 @@
           "AlarmChange": "Alarm: {value}"
         }
       },
+      "Travel": {
+        "SessionStarted": "Travel begins through {name}!",
+        "SessionDay1": "Day 1 — Morning"
+      },
       "Deed": {
         "Empty": "This deed has no effects or description yet."
       }

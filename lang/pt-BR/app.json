@@ -26,7 +26,20 @@
         "CreateRegionHint": "Crie um ator de Região para começar a viagem terrestre.",
         "NoTravelInProgress": "Nenhuma viagem em andamento.",
         "WaitingForGM": "Aguardando o Mestre iniciar a viagem.",
+        "Day": "Dia",
+        "Period": "Período",
+        "TravelPoints": "Pontos de Viagem",
+        "Weather": "Clima",
+        "OnRoad": "Na Estrada",
+        "TerrainCosts": "Custos de Terreno",
+        "TravelActions": "Ações de Viagem",
+        "RecentActivity": "Atividade Recente",
+        "TravelPaused": "Viagem Pausada",
+        "Disoriented": "O grupo está desorientado!",
         "Session": {
+          "BeginTravel": "Iniciar Viagem",
+          "EndTravel": "Encerrar Viagem",
+          "Resume": "Retomar Viagem",
           "State": {
             "active": "Ativo",
             "paused": "Pausado"

@@ -31,7 +31,10 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     actions: {
       chooseRegion: TravelTracker.#onChooseRegion,
       switchRegion: TravelTracker.#onSwitchRegion,
-      openRegionSheet: TravelTracker.#onOpenRegionSheet
+      openRegionSheet: TravelTracker.#onOpenRegionSheet,
+      startSession:   TravelTracker.#onStartSession,
+      resumeSession:  TravelTracker.#onResumeSession,
+      endSession:     TravelTracker.#onEndSession
     }
   };
 
@@ -109,6 +112,22 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
   }
 
   /**
+   * Pause any other regions currently flagged active so only one travel session is
+   * "live" at a time. Called before activating or resuming a session.
+   */
+  async _pauseOtherActiveSessions() {
+    if (!game.user.isGM) return;
+    const others = game.actors.filter(a =>
+      a.type === "region" &&
+      a.id !== this.region?.id &&
+      a.system.sessionState === "active"
+    );
+    for (const other of others) {
+      await other.update({ "system.sessionState": "paused" });
+    }
+  }
+
+  /**
    * Build a list of available region actors.
    * Prefers region tokens on the active scene, falls back to world actors.
    * @returns {Actor[]}
@@ -175,6 +194,56 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
       const tier = CONFIG.TRESPASSER.dungeon.hostilityTiers[this.region.system.hostilityTier] ?? CONFIG.TRESPASSER.dungeon.hostilityTiers[1];
       context.hostilityLabel = game.i18n.localize(tier.label);
       context.hostilityDC = tier.dc;
+
+      if (!context.isIdle) {
+        const system = this.region.system;
+        context.regionImg = this.region.img;
+        const travelConfig = CONFIG.TRESPASSER.travel;
+
+        // Day & Period
+        context.currentDay = system.currentDay ?? 0;
+        context.currentPeriod = system.currentPeriod ?? "morning";
+        const periodConfig = travelConfig.periods[context.currentPeriod];
+        context.periodLabel = game.i18n.localize(periodConfig?.label ?? "");
+        context.periodIcon = periodConfig?.icon ?? "fa-solid fa-sun";
+
+        // Travel Points
+        const tpMax = travelConfig.travelPointsPerAdvance;
+        context.travelPointsRemaining = system.travelPointsRemaining ?? tpMax;
+        context.travelPointsMax = tpMax;
+        context.travelPips = Array.from({ length: tpMax }, (_, i) => ({
+          filled: i < context.travelPointsRemaining
+        }));
+
+        // Weather
+        const weatherConfig = travelConfig.weatherModifiers[system.weather ?? "clear"];
+        context.weatherLabel = game.i18n.localize(weatherConfig?.label ?? "");
+        context.weather = system.weather ?? "clear";
+        context.weatherChoices = {};
+        for (const [key, val] of Object.entries(travelConfig.weatherModifiers)) {
+          context.weatherChoices[key] = game.i18n.localize(val.label);
+        }
+
+        // Road
+        context.onRoad = system.onRoad ?? false;
+
+        // Disorientation
+        context.isDisoriented = system.isDisoriented ?? false;
+
+        // Terrain cost reference (with weather modifier applied)
+        context.terrainCosts = Object.entries(travelConfig.terrainCosts).map(([key, val]) => ({
+          key,
+          label: game.i18n.localize(val.label),
+          baseCost: val.cost,
+          totalCost: val.cost + (weatherConfig?.extraCost ?? 0),
+          examples: game.i18n.localize(val.examples)
+        }));
+
+        // Day log (last 5 entries)
+        const log = [...(system.dayLog ?? [])].reverse();
+        context.recentLog = log.slice(0, 5);
+        context.hasMoreLog = log.length > 5;
+      }
     }
 
     return context;
@@ -201,6 +270,43 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
 
   static #onOpenRegionSheet(event, target) {
     if (this.region) this.region.sheet.render(true);
+  }
+
+  static async #onStartSession(event, target) {
+    if (!this.region || !game.user.isGM) return;
+    await this._pauseOtherActiveSessions();
+    await this.region.update({
+      "system.currentDay": 1,
+      "system.currentPeriod": "morning",
+      "system.travelPointsRemaining": CONFIG.TRESPASSER.travel.travelPointsPerAdvance,
+      "system.onRoad": false,
+      "system.isDisoriented": false,
+      "system.dayLog": [],
+      "system.sessionState": "active"
+    });
+
+    const chatContent = game.i18n.format("TRESPASSER.Chat.Travel.SessionStarted", { name: this.region.name }) +
+      " — " + game.i18n.localize("TRESPASSER.Chat.Travel.SessionDay1");
+    await ChatMessage.create({
+      content: chatContent,
+      speaker: ChatMessage.getSpeaker({ alias: this.region.name })
+    });
+
+    this.render();
+  }
+
+  static async #onResumeSession(event, target) {
+    if (!this.region || !game.user.isGM) return;
+    await this._pauseOtherActiveSessions();
+    await this.region.update({ "system.sessionState": "active" });
+    this.render();
+  }
+
+  static async #onEndSession(event, target) {
+    if (!this.region || !game.user.isGM) return;
+    await this.region.update({ "system.sessionState": "paused" });
+    this.region = null;
+    this.render();
   }
 
   /* -------------------------------------------- */

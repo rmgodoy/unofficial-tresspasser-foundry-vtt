@@ -26,7 +26,20 @@
         "CreateRegionHint": "Create a Region actor to begin overland travel.",
         "NoTravelInProgress": "No travel in progress.",
         "WaitingForGM": "Waiting for the GM to begin travel.",
+        "Day": "Day",
+        "Period": "Period",
+        "TravelPoints": "Travel Points",
+        "Weather": "Weather",
+        "OnRoad": "On Road",
+        "TerrainCosts": "Terrain Costs",
+        "TravelActions": "Travel Actions",
+        "RecentActivity": "Recent Activity",
+        "TravelPaused": "Travel Paused",
+        "Disoriented": "The party is disoriented!",
         "Session": {
+          "BeginTravel": "Begin Travel",
+          "EndTravel": "End Travel",
+          "Resume": "Resume Travel",
           "State": {
             "active": "Active",
             "paused": "Paused"

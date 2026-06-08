@@ -25,7 +25,15 @@
         <span class="tracker-hostility">{{hostilityLabel}} (DC {{hostilityDC}})</span>
       </div>
       <div class="tracker-session-controls">
-        {{!-- Start/Resume buttons will be added in TASK 4 --}}
+        {{#if selectedIsResumable}}
+        <button type="button" class="tracker-start-btn resume" data-action="resumeSession">
+          <i class="fas fa-play"></i> {{localize "TRESPASSER.App.TravelTracker.Session.Resume"}}
+        </button>
+        {{else}}
+        <button type="button" class="tracker-start-btn" data-action="startSession">
+          <i class="fas fa-play"></i> {{localize "TRESPASSER.App.TravelTracker.Session.BeginTravel"}}
+        </button>
+        {{/if}}
       </div>
       {{/if}}
 
@@ -45,17 +53,130 @@
   </div>
   {{/if}}
 
-  {{!-- ACTIVE / PAUSED STATE: placeholder for TASK 4 --}}
+  {{!-- ACTIVE / PAUSED STATE --}}
   {{#unless isIdle}}
+  {{!-- Header --}}
   <div class="tracker-header">
     <div class="tracker-header-info">
       <h2 class="tracker-dungeon-name">{{regionName}}</h2>
       <span class="tracker-hostility">{{hostilityLabel}} (DC {{hostilityDC}})</span>
     </div>
+    {{#if isGM}}
+    <div class="tracker-header-controls">
+      <a data-action="switchRegion" data-tooltip="Switch Region"><i class="fas fa-arrows-left-right"></i></a>
+      <a data-action="openRegionSheet" data-tooltip="Open Region Sheet"><i class="fas fa-pen"></i></a>
+    </div>
+    {{/if}}
   </div>
-  <div class="tracker-no-dungeon">
-    <p>Travel session UI will be implemented in TASK 4.</p>
+
+  {{!-- Paused Banner --}}
+  {{#if isPaused}}
+  <div class="tracker-paused-banner">
+    <i class="fas fa-pause"></i> {{localize "TRESPASSER.App.TravelTracker.TravelPaused"}}
   </div>
+  {{/if}}
+
+  {{!-- Disorientation Warning --}}
+  {{#if isDisoriented}}
+  <div class="travel-disoriented-banner">
+    <i class="fas fa-compass fa-spin"></i> {{localize "TRESPASSER.App.TravelTracker.Disoriented"}}
+  </div>
+  {{/if}}
+
+  {{!-- Status Bar --}}
+  <div class="tracker-status-bar">
+    <div class="tracker-stat">
+      <span class="tracker-stat-label">{{localize "TRESPASSER.App.TravelTracker.Day"}}</span>
+      <span class="tracker-stat-value">{{currentDay}}</span>
+    </div>
+    <div class="tracker-stat">
+      <span class="tracker-stat-label">{{localize "TRESPASSER.App.TravelTracker.Period"}}</span>
+      <span class="tracker-stat-value"><i class="{{periodIcon}}"></i> {{periodLabel}}</span>
+    </div>
+    <div class="tracker-stat">
+      <span class="tracker-stat-label">{{localize "TRESPASSER.App.TravelTracker.TravelPoints"}}</span>
+      <div class="tracker-action-pips">
+        {{#each travelPips}}
+        <span class="tracker-action-pip {{#if filled}}filled{{/if}}"></span>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+
+  {{!-- Weather & Road --}}
+  <div class="travel-conditions-bar">
+    {{#if isGM}}
+    <div class="travel-condition">
+      <label>{{localize "TRESPASSER.App.TravelTracker.Weather"}}:</label>
+      <span class="travel-weather-badge weather-{{weather}}">{{weatherLabel}}</span>
+    </div>
+    <div class="travel-condition">
+      <label>{{localize "TRESPASSER.App.TravelTracker.OnRoad"}}:</label>
+      <span>{{#if onRoad}}✓{{else}}✗{{/if}}</span>
+    </div>
+    {{else}}
+    <div class="travel-condition">
+      <span class="travel-weather-badge weather-{{weather}}"><i class="fas fa-cloud"></i> {{weatherLabel}}</span>
+    </div>
+    {{/if}}
+  </div>
+
+  {{!-- GM Controls: terrain reference --}}
+  {{#if isGM}}
+  <div class="travel-terrain-ref">
+    <h4>{{localize "TRESPASSER.App.TravelTracker.TerrainCosts"}}</h4>
+    <div class="travel-terrain-table">
+      {{#each terrainCosts}}
+      <div class="travel-terrain-row">
+        <span class="terrain-label">{{label}}</span>
+        <span class="terrain-cost">{{totalCost}} TP</span>
+        <span class="terrain-examples">{{examples}}</span>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
+  {{!-- Action buttons placeholder for TASKs 5-8 --}}
+  {{#if isGM}}{{#if isActive}}
+  <div class="tracker-actions-section">
+    <h3>{{localize "TRESPASSER.App.TravelTracker.TravelActions"}}</h3>
+    <p class="tracker-hint">Action buttons will be added in TASK 5-8.</p>
+  </div>
+  {{/if}}{{/if}}
+
+  {{!-- Session Controls --}}
+  {{#if isGM}}
+  <div class="tracker-session-controls">
+    {{#if isActive}}
+    <button type="button" class="tracker-session-btn end" data-action="endSession">
+      <i class="fas fa-stop"></i> {{localize "TRESPASSER.App.TravelTracker.Session.EndTravel"}}
+    </button>
+    {{/if}}
+    {{#if isPaused}}
+    <button type="button" class="tracker-session-btn resume" data-action="resumeSession">
+      <i class="fas fa-play"></i> {{localize "TRESPASSER.App.TravelTracker.Session.Resume"}}
+    </button>
+    {{/if}}
+  </div>
+  {{/if}}
+
+  {{!-- Recent Log --}}
+  {{#if recentLog.length}}
+  <div class="tracker-log-section">
+    <h3>{{localize "TRESPASSER.App.TravelTracker.RecentActivity"}}</h3>
+    <div class="tracker-log-entries">
+      {{#each recentLog}}
+      <div class="tracker-log-entry">
+        <span class="tracker-log-round">D{{day}}</span>
+        <span class="tracker-log-action">{{action}}</span>
+        {{#if detail}}<span class="tracker-log-detail">{{detail}}</span>{{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
   {{/unless}}
 
 </div>
