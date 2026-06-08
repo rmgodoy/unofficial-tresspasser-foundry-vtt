@@ -70,11 +70,12 @@
 .trespasser.sheet.dungeon .dungeon-icon-tabs {
   justify-content: center;
   gap: 16px;
+  padding: 8px 12px !important;
 }
 
 .trespasser.sheet.dungeon .dungeon-icon-tabs .item {
   font-size: var(--fs-18);
-  padding: 0 !important;
+  padding: 6px 16px !important;
   border-right: none !important;
 }
 

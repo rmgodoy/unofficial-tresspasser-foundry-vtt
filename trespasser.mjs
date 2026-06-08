@@ -67,6 +67,7 @@ import { DungeonTracker, registerDungeonTrackerHooks } from "./module/exploratio
 // ── Travel Exploration imports ──────────────────────────────────────────────
 import { TrespasserRegionData }    from "./module/data/actor-region.mjs";
 import { TRAVEL_CONFIG }           from "./module/config/travel-config.mjs";
+import { TrespasserRegionSheet }   from "./module/sheets/actor-region-sheet.mjs";
 import { TrespasserHavenData }   from "./module/data/actor-haven.mjs";
 import { TrespasserHirelingData } from "./module/data/item-hireling.mjs";
 import { TrespasserHavenSheet }   from "./module/sheets/actor-haven-sheet.mjs";
@@ -100,6 +101,11 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/dungeon/dungeon-rooms.hbs",
     "systems/trespasser/templates/dungeon/dungeon-log.hbs",
     "systems/trespasser/templates/dungeon/dungeon-notes.hbs",
+    // Region templates
+    "systems/trespasser/templates/region/region-tabs.hbs",
+    "systems/trespasser/templates/region/region-overview.hbs",
+    "systems/trespasser/templates/region/region-log.hbs",
+    "systems/trespasser/templates/region/region-notes.hbs",
     "systems/trespasser/templates/exploration/dungeon-tracker.hbs",
     "systems/trespasser/templates/exploration/haven-tracker.hbs",
     "systems/trespasser/templates/item/room-sheet.hbs",
@@ -415,6 +421,12 @@ Hooks.once("init", async () => {
     types: ["haven"],
     makeDefault: true,
     label: "Trespasser Haven Sheet",
+  });
+  // Region sheet (AppV2)
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserRegionSheet, {
+    types: ["region"],
+    makeDefault: true,
+    label: "Trespasser Region Sheet",
   });
 
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);

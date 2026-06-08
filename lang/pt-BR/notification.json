@@ -77,6 +77,9 @@
         "ConnectionCreated": "Conexão com {name} criada.",
         "NoActionsRemaining": "Você não tem mais ações restantes neste round."
       },
+      "Region": {
+        "NoEmbeddedItems": "Regiões não podem conter itens embutidos."
+      },
       "Rest": {
         "SpendRDLimited": "Você tentou gastar {spent} DR mas possui apenas {current}. Gastando {current} em vez disso.",
         "NoRD": "Nenhum Dado de Recuperação disponível.",

@@ -487,6 +487,19 @@
           "SameDungeon": "A sala solta deve pertencer à mesma masmorra."
         }
       },
+      "Region": {
+        "Title": "Região",
+        "Hostility": "Grau de Hostilidade",
+        "DefaultTerrain": "Terreno Padrão",
+        "Weather": "Clima",
+        "SessionState": "Sessão",
+        "CurrentDay": "Dia",
+        "MapImage": "Imagem do Mapa",
+        "Description": "Descrição",
+        "Encounters": "Encontros",
+        "DropTableHint": "Arraste uma Tabela de Rolagem para cá para vincular encontros",
+        "NoLogEntries": "Nenhum registro de viagem ainda."
+      },
       "Haven": {
         "NamePlaceholder": "Nome do Abrigo",
         "Treasury": "Tesouraria",

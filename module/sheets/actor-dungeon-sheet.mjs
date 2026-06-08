@@ -111,10 +111,10 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
     context.hostilityDC = tier.dc;
 
     // Dropdown choices
-    context.hostilityChoices = {};
-    for (const [key, val] of Object.entries(dungeonConfig.hostilityTiers)) {
-      context.hostilityChoices[key] = game.i18n.localize(val.label);
-    }
+    context.hostilityChoices = Object.entries(dungeonConfig.hostilityTiers).map(([key, val]) => ({
+      value: Number(key),
+      label: game.i18n.localize(val.label)
+    }));
     context.sizeChoices = {};
     for (const [key, val] of Object.entries(dungeonConfig.sizeCategories)) {
       context.sizeChoices[key] = game.i18n.localize(val);

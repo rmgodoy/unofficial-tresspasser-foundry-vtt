@@ -487,6 +487,19 @@
           "SameDungeon": "The dropped room must belong to the same dungeon."
         }
       },
+      "Region": {
+        "Title": "Region",
+        "Hostility": "Hostility Tier",
+        "DefaultTerrain": "Default Terrain",
+        "Weather": "Weather",
+        "SessionState": "Session",
+        "CurrentDay": "Day",
+        "MapImage": "Map Image",
+        "Description": "Description",
+        "Encounters": "Encounters",
+        "DropTableHint": "Drag a Roll Table here to link encounters",
+        "NoLogEntries": "No travel log entries yet."
+      },
       "Haven": {
         "NamePlaceholder": "Haven Name",
         "Treasury": "Treasury",

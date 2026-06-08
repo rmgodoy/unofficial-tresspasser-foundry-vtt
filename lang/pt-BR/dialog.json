@@ -40,7 +40,9 @@
         "ConfigTitle": "Redefinir Configuração?",
         "ConfigContent": "Isso retornará TODAS as configurações do Trespasser para seus valores padrão. Esta ação não pode ser desfeita.",
         "DungeonTitle": "Redefinir Masmorra",
-        "DungeonConfirm": "Isso apagará o registro de rodadas e redefinirá alarme, rodada, ações e sala atual de <strong>{name}</strong>. A masmorra voltará ao estado de nunca visitada. Esta ação não pode ser desfeita."
+        "DungeonConfirm": "Isso apagará o registro de rodadas e redefinirá alarme, rodada, ações e sala atual de <strong>{name}</strong>. A masmorra voltará ao estado de nunca visitada. Esta ação não pode ser desfeita.",
+        "RegionTitle": "Redefinir Região",
+        "RegionConfirm": "Redefinir \"{name}\" para um estado novo? Isso apagará o registro de viagem e todos os dados da sessão. Esta ação não pode ser desfeita."
       },
       "Transfer": {
         "Title": "Transferência de Item",

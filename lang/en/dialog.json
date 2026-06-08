@@ -40,7 +40,9 @@
         "ConfigTitle": "Reset Configuration?",
         "ConfigContent": "This will revert ALL settings in the Trespasser configuration to their default values. This cannot be undone.",
         "DungeonTitle": "Reset Dungeon",
-        "DungeonConfirm": "This will erase the round log and reset alarm, round, actions, and current room for <strong>{name}</strong>. The dungeon will be returned to a never-visited state. This cannot be undone."
+        "DungeonConfirm": "This will erase the round log and reset alarm, round, actions, and current room for <strong>{name}</strong>. The dungeon will be returned to a never-visited state. This cannot be undone.",
+        "RegionTitle": "Reset Region",
+        "RegionConfirm": "Reset \"{name}\" to a fresh state? This will clear the travel log and all session data. This cannot be undone."
       },
       "Transfer": {
         "Title": "Item Transfer",
