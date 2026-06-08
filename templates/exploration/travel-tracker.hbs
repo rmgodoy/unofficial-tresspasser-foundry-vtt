@@ -173,7 +173,7 @@
   {{!-- Weather Selector --}}
   <div class="travel-weather-selector">
     <label>{{localize "TRESPASSER.App.TravelTracker.Weather"}}:</label>
-    <select data-action="setWeather">
+    <select class="travel-weather-select">
       {{#each weatherChoices}}
       <option value="{{@key}}" {{#if (eq @key ../weather)}}selected{{/if}}>{{this}}</option>
       {{/each}}

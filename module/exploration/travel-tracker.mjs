@@ -39,7 +39,6 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
       endSession:     TravelTracker.#onEndSession,
       performAdvance:       TravelTracker.#onPerformAdvance,
       toggleRoad:           TravelTracker.#onToggleRoad,
-      setWeather:           TravelTracker.#onSetWeather,
       adjustTravelPoints:   TravelTracker.#onAdjustTravelPoints,
       clearDisorientation:  TravelTracker.#onClearDisorientation,
       nextDay:              TravelTracker.#onNextDay
@@ -239,13 +238,16 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
         context.isDisoriented = system.isDisoriented ?? false;
 
         // Terrain cost reference (with weather modifier applied)
-        context.terrainCosts = Object.entries(travelConfig.terrainCosts).map(([key, val]) => ({
-          key,
-          label: game.i18n.localize(val.label),
-          baseCost: val.cost,
-          totalCost: val.cost + (weatherConfig?.extraCost ?? 0),
-          examples: game.i18n.localize(val.examples)
-        }));
+        context.terrainCosts = Object.entries(travelConfig.terrainCosts).map(([key, val]) => {
+          const baseCost = system.onRoad ? 1 : val.cost;
+          return {
+            key,
+            label: game.i18n.localize(val.label),
+            baseCost: baseCost,
+            totalCost: baseCost + (weatherConfig?.extraCost ?? 0),
+            examples: game.i18n.localize(val.examples)
+          };
+        });
 
         // Day log (last 5 entries)
         const log = [...(system.dayLog ?? [])].reverse();
@@ -328,14 +330,11 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     const periodOrder = ["morning", "evening", "night"];
     const currentIndex = periodOrder.indexOf(currentPeriod);
     
-    // If already at night, can't advance (need to rest first to start new day)
-    if (currentIndex >= 2) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Travel.CannotAdvanceAtNight"));
-      return;
-    }
-
-    const nextPeriod = periodOrder[currentIndex + 1];
-    const isPressing = currentIndex >= 1; // 2nd advance in a day = pressing on
+    const nextIndex = (currentIndex + 1) % periodOrder.length;
+    const nextPeriod = periodOrder[nextIndex];
+    const isNewDay = nextIndex === 0;
+    const isPressing = currentIndex === 1; // 2nd advance in a day (evening -> night) = pressing on
+    const nextDay = isNewDay ? (system.currentDay ?? 1) + 1 : (system.currentDay ?? 1);
 
     // Award travel points
     const newTP = travelConfig.travelPointsPerAdvance;
@@ -343,13 +342,14 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     // Build log entry
     const dayLog = [...(system.dayLog ?? [])];
     dayLog.push({
-      day: system.currentDay ?? 1,
+      day: nextDay,
       action: game.i18n.localize("TRESPASSER.Terms.Travel.Actions.Advance"),
       detail: game.i18n.localize(travelConfig.periods[nextPeriod]?.label ?? "")
     });
 
     // Update region state
     await this.region.update({
+      "system.currentDay": nextDay,
       "system.currentPeriod": nextPeriod,
       "system.travelPointsRemaining": newTP,
       "system.dayLog": dayLog
@@ -415,13 +415,6 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     await this.region.update({ "system.onRoad": !this.region.system.onRoad });
   }
 
-  static async #onSetWeather(event, target) {
-    if (!this.region || !game.user.isGM) return;
-    const weather = target.value ?? target.dataset.weather;
-    if (!weather) return;
-    await this.region.update({ "system.weather": weather });
-  }
-
   static async #onAdjustTravelPoints(event, target) {
     if (!this.region || !game.user.isGM) return;
     const delta = parseInt(target.dataset.delta, 10) || 0;
@@ -483,6 +476,18 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
             this.region = null;
           }
           this.render({ force: true });
+        }
+      });
+    }
+
+    // Weather select change listener
+    const weatherSelect = this.element.querySelector('.travel-weather-select');
+    if (weatherSelect) {
+      weatherSelect.addEventListener('change', async (ev) => {
+        if (!this.region || !game.user.isGM) return;
+        const weather = weatherSelect.value;
+        if (weather) {
+          await this.region.update({ "system.weather": weather });
         }
       });
     }
