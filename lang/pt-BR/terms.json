@@ -100,7 +100,8 @@
         "Creature": "Criatura",
         "Dungeon": "Masmorra",
         "Party": "Grupo",
-        "Haven": "Abrigo"
+        "Haven": "Abrigo",
+        "Region": "Região"
       },
       "Phase": {
         "Start": "Início",
@@ -298,6 +299,66 @@
           "Chasm": "Abismo",
           "Portal": "Portal",
           "Other": "Outro"
+        }
+      },
+      "Travel": {
+        "Terrain": {
+          "Flat": "Plano",
+          "FlatExamples": "Deserto, Planícies, Bosque",
+          "Mixed": "Misto",
+          "MixedExamples": "Floresta, Colina, Pântano",
+          "Rough": "Acidentado",
+          "RoughExamples": "Cavernas, Montanhas"
+        },
+        "Weather": {
+          "Clear": "Limpo",
+          "Poor": "Ruim",
+          "PoorExamples": "Onda de calor, chuva forte, neve",
+          "Extreme": "Extremo",
+          "ExtremeExamples": "Nevasca, tempestade de areia"
+        },
+        "Period": {
+          "Morning": "Manhã",
+          "Evening": "Tarde",
+          "Night": "Noite"
+        },
+        "Actions": {
+          "Advance": "Avançar",
+          "AdvanceDesc": "Desmonte o acampamento e continue viajando. Ganhe 6 pontos de viagem para gastar no movimento do hexágono.",
+          "Camp": "Acampar",
+          "CampDesc": "Monte o acampamento e realize atividades de acampamento. Cada membro do grupo escolhe uma atividade.",
+          "NightsRest": "Descanso Noturno",
+          "NightsRestDesc": "Descanse durante a noite para se recuperar. Deve comer uma ração. Desencadeia um teste de hostilidade."
+        },
+        "Camp": {
+          "Assist": "Assistir",
+          "AssistDesc": "Ajude um aliado em sua atividade de acampamento.",
+          "CampAlchemy": "Alquimia de Acampamento",
+          "CampAlchemyDesc": "Use um kit de alquimia para criar uma mistura. Gaste 2 ingredientes.",
+          "Cook": "Cozinhar",
+          "CookDesc": "Cozinhe uma refeição comestível com os ingredientes disponíveis.",
+          "Craft": "Artesanato",
+          "CraftDesc": "Crie uma ferramenta ou equipamento simples com o que tiver em mãos.",
+          "Forage": "Forragear",
+          "ForageDesc": "Procure por plantas comestíveis e ingredientes de alquimia. Teste de PODER | NATUREZA.",
+          "Fish": "Pescar",
+          "FishDesc": "Pesque por comida perto de um corpo d'água. Teste simples de ESPÍRITO | NATUREZA.",
+          "Hunt": "Caçar",
+          "HuntDesc": "Cace animais selvagens por comida. Teste de AGILIDADE | NATUREZA.",
+          "LiftSpirits": "Animar o Grupo",
+          "LiftSpiritsDesc": "Eleve os ânimos dos companheiros. Teste de ESPÍRITO | LÁBIA.",
+          "PrepareTorches": "Preparar Tochas",
+          "PrepareTorchesDesc": "Fabrique tochas improvisadas. Gaste 1 material. Teste de PODER | OFÍCIO.",
+          "Pursue": "Prosseguir",
+          "PursueDesc": "Realize uma tarefa diferente não coberta por outras atividades de acampamento.",
+          "RestEarly": "Descansar Cedo",
+          "RestEarlyDesc": "Descanse enquanto outros trabalham para manter vigília durante o descanso noturno.",
+          "Salvage": "Recuperar",
+          "SalvageDesc": "Procure na área por materiais descartados. Teste de PODER | PERCEPÇÃO.",
+          "Scout": "Explorar",
+          "ScoutDesc": "Explore a região local. Teste de AGILIDADE | PERCEPÇÃO.",
+          "Survey": "Vistoriar",
+          "SurveyDesc": "Vistorie a área ao redor em busca de pontos de interesse. Teste de AGILIDADE | PERCEPÇÃO."
         }
       }
     }

@@ -98,7 +98,8 @@
         "Creature": "Creature",
         "Dungeon": "Dungeon",
         "Party": "Party",
-        "Haven": "Haven"
+        "Haven": "Haven",
+        "Region": "Region"
       },
       "Phase": {
         "Start": "Start",
@@ -296,6 +297,66 @@
           "Chasm": "Chasm",
           "Portal": "Portal",
           "Other": "Other"
+        }
+      },
+      "Travel": {
+        "Terrain": {
+          "Flat": "Flat",
+          "FlatExamples": "Desert, Plains, Woodland",
+          "Mixed": "Mixed",
+          "MixedExamples": "Forest, Hill, Swampland",
+          "Rough": "Rough",
+          "RoughExamples": "Caves, Mountains"
+        },
+        "Weather": {
+          "Clear": "Clear",
+          "Poor": "Poor",
+          "PoorExamples": "Heat wave, heavy rain, snow",
+          "Extreme": "Extreme",
+          "ExtremeExamples": "Blizzard, sandstorm"
+        },
+        "Period": {
+          "Morning": "Morning",
+          "Evening": "Evening",
+          "Night": "Night"
+        },
+        "Actions": {
+          "Advance": "Advance",
+          "AdvanceDesc": "Break camp and continue traveling. Gain 6 travel points to spend on hex movement.",
+          "Camp": "Camp",
+          "CampDesc": "Set up camp and perform camp activities. Each party member chooses one camp activity.",
+          "NightsRest": "Night's Rest",
+          "NightsRestDesc": "Rest for the night to recover. Must eat a ration. Triggers a hostility check."
+        },
+        "Camp": {
+          "Assist": "Assist",
+          "AssistDesc": "Help an ally with their camp activity.",
+          "CampAlchemy": "Camp Alchemy",
+          "CampAlchemyDesc": "Use an alchemy set to create a concoction. Spend 2 ingredients.",
+          "Cook": "Cook",
+          "CookDesc": "Cook an edible meal from ingredients on hand.",
+          "Craft": "Craft",
+          "CraftDesc": "Create a simple tool or equipment from what's on hand.",
+          "Forage": "Forage",
+          "ForageDesc": "Search for edible plant life and alchemy ingredients. MIGHT | NATURE check.",
+          "Fish": "Fish",
+          "FishDesc": "Fish for food near a body of water. Simple SPIRIT | NATURE check.",
+          "Hunt": "Hunt",
+          "HuntDesc": "Hunt wild game for food. AGILITY | NATURE check.",
+          "LiftSpirits": "Lift Spirits",
+          "LiftSpiritsDesc": "Bolster companions' spirits. SPIRIT | SPEECH check.",
+          "PrepareTorches": "Prepare Torches",
+          "PrepareTorchesDesc": "Craft makeshift torches. Spend 1 material. MIGHT | CRAFTING check.",
+          "Pursue": "Pursue",
+          "PursueDesc": "Pursue a different task not covered by other camp activities.",
+          "RestEarly": "Rest Early",
+          "RestEarlyDesc": "Rest while others work to keep watch during the night's rest.",
+          "Salvage": "Salvage",
+          "SalvageDesc": "Search the area for discarded materials. MIGHT | PERCEPTION check.",
+          "Scout": "Scout",
+          "ScoutDesc": "Explore the local region. AGILITY | PERCEPTION check.",
+          "Survey": "Survey",
+          "SurveyDesc": "Survey the surrounding area for points of interest. AGILITY | PERCEPTION check."
         }
       }
     }

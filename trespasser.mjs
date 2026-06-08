@@ -63,6 +63,10 @@ import { DUNGEON_CONFIG, ensureDungeonHelpers } from "./module/config/dungeon-co
 import { TrespasserDungeonSheet }  from "./module/sheets/actor-dungeon-sheet.mjs";
 import { TrespasserRoomSheet }     from "./module/sheets/item-room-sheet.mjs";
 import { DungeonTracker, registerDungeonTrackerHooks } from "./module/exploration/dungeon-tracker.mjs";
+
+// ── Travel Exploration imports ──────────────────────────────────────────────
+import { TrespasserRegionData }    from "./module/data/actor-region.mjs";
+import { TRAVEL_CONFIG }           from "./module/config/travel-config.mjs";
 import { TrespasserHavenData }   from "./module/data/actor-haven.mjs";
 import { TrespasserHirelingData } from "./module/data/item-hireling.mjs";
 import { TrespasserHavenSheet }   from "./module/sheets/actor-haven-sheet.mjs";
@@ -126,6 +130,7 @@ Hooks.once("init", async () => {
     },
     // Dungeon exploration config
     dungeon: DUNGEON_CONFIG,
+    travel: TRAVEL_CONFIG,
     plights: COMMON_PLIGHTS
   };
 
@@ -359,6 +364,7 @@ Hooks.once("init", async () => {
   CONFIG.Actor.dataModels.dungeon  = TrespasserDungeonData;
   CONFIG.Actor.dataModels.party    = TrespasserPartyData;
   CONFIG.Actor.dataModels.haven    = TrespasserHavenData;
+  CONFIG.Actor.dataModels.region   = TrespasserRegionData;
 
   CONFIG.Item.dataModels.armor = TrespasserArmorData;
   CONFIG.Item.dataModels.weapon = TrespasserWeaponData;

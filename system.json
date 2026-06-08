@@ -127,7 +127,8 @@
       "creature": {},
       "dungeon": {},
       "party": {},
-      "haven": {}
+      "haven": {},
+      "region": {}
     },
     "Item": {
       "item": {},
