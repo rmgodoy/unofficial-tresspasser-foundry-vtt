@@ -7,6 +7,8 @@
       "LastingStateReduced": "{name} retorna à intensidade duradoura de {intensity}.",
       "Item": {
         "DropDeedsOnly": "Apenas Habilidades podem ser soltas aqui.",
+        "Added": "{item} adicionado a {target}.",
+        "EffectMerged": "{effect} foi mesclado ao efeito existente em {target} (intensidade {intensity}).",
         "DropEffectsStatesOnly": "Apenas Efeitos ou Estados podem ser soltos aqui.",
         "AlreadyAdded": "{name} já foi adicionado.",
         "DropArmorOnly": "Apenas Efeitos e Estados podem ser aplicados em Armaduras.",
@@ -34,6 +36,7 @@
       },
       "Combat": {
         "NoTargets": "Nenhum alvo selecionado. Abortando.",
+        "RecordedTargetsGone": "Os alvos registrados neste cartão não estão mais na cena.",
         "NoTargetsAbort": "Nenhum alvo selecionado! Rolagem abortada, exibindo Acurácia básica para referência.",
         "NoTargetsDefault": "Nenhum alvo selecionado! Rolando contra CD 10 padrão.",
         "NotEnoughFocus": "Foco insuficiente para usar {name}. (Necessário {cost}, possui {current})",

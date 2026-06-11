@@ -101,7 +101,7 @@ export class TrespasserArmorSheet extends api.HandlebarsApplicationMixin(sheets.
 
   async _onDropItem(event) {
     event.preventDefault();
-    const data = TextEditor.getDragEventData(event);
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (!data || data.type !== "Item") return;
     
     const targetEl = event.currentTarget;

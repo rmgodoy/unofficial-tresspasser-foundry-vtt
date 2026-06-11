@@ -110,7 +110,7 @@ export class TrespasserStrongholdSheet extends api.HandlebarsApplicationMixin(sh
       ownerZone.addEventListener('dragleave', () => ownerZone.classList.remove('drag-over'));
       ownerZone.addEventListener('drop', async (ev) => {
         ownerZone.classList.remove('drag-over');
-        const data = TextEditor.getDragEventData(ev);
+        const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(ev);
         if (data.type !== "Actor") return;
         const sourceActor = await fromUuid(data.uuid);
         if (sourceActor?.type !== "character") {
@@ -131,7 +131,7 @@ export class TrespasserStrongholdSheet extends api.HandlebarsApplicationMixin(sh
       featuresZone.addEventListener('dragleave', () => featuresZone.classList.remove('drag-over'));
       featuresZone.addEventListener('drop', async (ev) => {
         featuresZone.classList.remove('drag-over');
-        const data = TextEditor.getDragEventData(ev);
+        const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(ev);
         if (data.type !== "Item") return;
         const sourceItem = await fromUuid(data.uuid);
         if (sourceItem?.type !== "feature") {

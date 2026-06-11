@@ -617,7 +617,6 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
    * @param {Object} [delta] - The update delta, if called from a hook.
    */
   async syncStrongholdBenefit(stronghold, delta = {}) {
-    console.warn("here");
     const actor = this.parent;
     if (stronghold.type !== "stronghold") return;
     

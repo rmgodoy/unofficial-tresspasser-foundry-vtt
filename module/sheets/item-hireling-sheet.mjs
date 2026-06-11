@@ -135,7 +135,7 @@ export class TrespasserHirelingSheet extends api.HandlebarsApplicationMixin(shee
     const targetList = dropZone.dataset.type; // "consume" or "produce"
     if (!targetList) return;
 
-    const data = TextEditor.getDragEventData(event);
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (data.type !== "Item") return;
 
     const sourceItem = await fromUuid(data.uuid);

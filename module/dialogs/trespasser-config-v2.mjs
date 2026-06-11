@@ -141,7 +141,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
    * @param {Event} event 
    */
   static async _onSubmit(event) {
-    const formData = new FormDataExtended(this.element).object;
+    const formData = new foundry.applications.ux.FormDataExtended(this.element).object;
     
     // Handle standard settings
     for ( let [key, val] of Object.entries(formData) ) {
