@@ -38,6 +38,12 @@
         "Disoriented": "O grupo está desorientado!",
         "ClearDisorientation": "Limpar Desorientação",
         "NextDay": "Próximo Dia",
+        "CampInProgress": "Atividades de Acampamento — Aguardando Seleções",
+        "CampWaiting": "Aguardando...",
+        "CampOverride": "Sobrescrever",
+        "CampConfirm": "Confirmar Acampamento",
+        "CampCancel": "Cancelar Acampamento",
+        "CampReprompt": "Solicitar ao jogador novamente",
         "Session": {
           "BeginTravel": "Iniciar Viagem",
           "EndTravel": "Encerrar Viagem",

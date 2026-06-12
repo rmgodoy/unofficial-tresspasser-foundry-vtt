@@ -185,6 +185,7 @@
         "PressingOnDetail": "Each party member without a mount loses 1 Endurance.",
         "NewDay": "Day {day}",
         "NightsRest": "The party takes a Night's Rest in {name}.",
+        "CampActivities": "Camp Activities",
         "NightHostilityCheck": "Night Hostility Check",
         "NightEncounterAmbush": "Encounter! No one was keeping watch — the enemy gets an automatic ambush!",
         "AutoAmbush": "Automatic Ambush!",

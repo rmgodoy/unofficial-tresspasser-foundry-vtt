@@ -185,6 +185,7 @@
         "PressingOnDetail": "Cada membro do grupo sem uma montaria perde 1 de Vigor.",
         "NewDay": "Dia {day}",
         "NightsRest": "O grupo faz um Descanso Noturno em {name}.",
+        "CampActivities": "Atividades de Acampamento",
         "NightHostilityCheck": "Teste de Hostilidade Noturna",
         "NightEncounterAmbush": "Encontro! Ninguém estava de vigia — o inimigo consegue uma emboscada automática!",
         "AutoAmbush": "Emboscada Automática!",

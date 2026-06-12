@@ -120,7 +120,11 @@
       "Item": {
         "ViewDetails": "View item details"
       },
-      "SkillCheckTitle": "{skill} Check",
+      "Camp": {
+        "Title": "{name} — Camp Activity",
+        "Prompt": "Choose a camp activity for {name} while the party camps in {region}.",
+        "Confirm": "Confirm Activity"
+      },
       "Travel": {
         "KeepingWatch": {
           "Title": "Night Watch",

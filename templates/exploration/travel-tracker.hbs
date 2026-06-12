@@ -138,6 +138,52 @@
   {{/if}}
 
   {{#if isGM}}{{#if isActive}}
+  {{#if isCampPending}}
+  <div class="travel-camp-pending">
+    <h3><i class="fas fa-campground"></i> {{localize "TRESPASSER.App.TravelTracker.CampInProgress"}}</h3>
+
+    <div class="camp-selections-list">
+      {{#each campSelections}}
+      <div class="camp-selection-entry {{#if isPending}}pending{{/if}}">
+        <img class="camp-selection-avatar" src="{{actorImg}}" alt="" />
+        <span class="camp-selection-name">{{actorName}}</span>
+        {{#if isPending}}
+        <span class="camp-selection-status pending">
+          <i class="fas fa-hourglass-half"></i> {{localize "TRESPASSER.App.TravelTracker.CampWaiting"}}
+        </span>
+        {{else}}
+        <span class="camp-selection-status chosen">
+          <i class="{{activityIcon}}"></i> {{activityLabel}}
+        </span>
+        {{/if}}
+        
+        {{#if ../isGM}}
+        <button type="button" class="camp-reprompt-btn" data-action="repromptCamp" data-actor-id="{{actorId}}" data-tooltip="{{localize 'TRESPASSER.App.TravelTracker.CampReprompt'}}">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+        <select class="camp-override-select" data-actor-id="{{actorId}}">
+          <option value="">— {{localize "TRESPASSER.App.TravelTracker.CampOverride"}} —</option>
+          {{#each ../campActivityChoices}}
+          <option value="{{key}}">{{label}}</option>
+          {{/each}}
+        </select>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+
+    {{#if isGM}}
+    <div class="camp-controls">
+      <button type="button" class="tracker-action-btn camp-confirm" data-action="confirmCamp" {{#unless allCampSelected}}disabled{{/unless}}>
+        <i class="fas fa-check"></i> {{localize "TRESPASSER.App.TravelTracker.CampConfirm"}}
+      </button>
+      <button type="button" class="tracker-action-btn camp-cancel" data-action="cancelCamp">
+        <i class="fas fa-xmark"></i> {{localize "TRESPASSER.App.TravelTracker.CampCancel"}}
+      </button>
+    </div>
+    {{/if}}
+  </div>
+  {{else}}
   <div class="tracker-actions-section">
     <h3>{{localize "TRESPASSER.App.TravelTracker.TravelActions"}}</h3>
     <div class="tracker-action-grid">
@@ -149,9 +195,13 @@
         <i class="fa-solid fa-bed"></i>
         <span>{{localize "TRESPASSER.Terms.Travel.Actions.NightsRest"}}</span>
       </button>
-      {{!-- Camp button will be added in TASK 8 --}}
+      <button type="button" class="tracker-action-btn" data-action="performCamp" data-tooltip="{{localize 'TRESPASSER.Terms.Travel.Actions.CampDesc'}}">
+        <i class="fa-solid fa-campground"></i>
+        <span>{{localize "TRESPASSER.Terms.Travel.Actions.Camp"}}</span>
+      </button>
     </div>
   </div>
+  {{/if}}
 
   {{!-- GM Nudgers --}}
   <div class="tracker-nudgers">

@@ -16,6 +16,12 @@ import {
   handleCancelPopup
 } from "../non-combat-helper.mjs";
 import { handleRemoveTemptFateButton } from "../../sheets/character/handlers-tempt-fate.mjs";
+import {
+  handleCampActivityRequest,
+  handleCampActivityResponse,
+  handleCampActivityCancel,
+  handleCampActivityConfirm
+} from "../../exploration/camp-activity-handler.mjs";
 
 /**
  * Helper class for handling custom socket events in the Trespasser system.
@@ -67,6 +73,14 @@ export class TrespasserSocket {
         return handleCancelPopup(data);
       case "REMOVE_TEMPT_FATE_BUTTON":
         return handleRemoveTemptFateButton(data);
+      case "CAMP_ACTIVITY_REQUEST":
+        return handleCampActivityRequest(data, senderId);
+      case "CAMP_ACTIVITY_RESPONSE":
+        return handleCampActivityResponse(data);
+      case "CAMP_ACTIVITY_CANCEL":
+        return handleCampActivityCancel(data);
+      case "CAMP_ACTIVITY_CONFIRM":
+        return handleCampActivityConfirm(data);
       default:
         // Ignore unknown types
         break;

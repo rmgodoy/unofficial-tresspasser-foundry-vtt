@@ -334,3 +334,284 @@ button[data-tool="travelTracker"]:hover {
   max-width: 150px;
 }
 
+/* Camp pending state */
+.travel-camp-pending {
+  padding: 8px 10px;
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.travel-camp-pending h3 {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  text-transform: uppercase;
+  color: var(--trp-gold-bright);
+  margin: 0 0 8px 0;
+  border-bottom: 1px solid var(--trp-border);
+  padding-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.camp-selections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.camp-selection-entry {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 6px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--trp-border);
+  border-radius: 3px;
+  min-height: 40px;
+}
+
+.camp-selection-entry.pending {
+  border-color: var(--trp-gold-dim);
+  animation: camp-pulse 2s infinite ease-in-out;
+}
+
+@keyframes camp-pulse {
+  0% { box-shadow: 0 0 2px rgba(255, 179, 0, 0.2); }
+  50% { box-shadow: 0 0 6px rgba(255, 179, 0, 0.5); }
+  100% { box-shadow: 0 0 2px rgba(255, 179, 0, 0.2); }
+}
+
+.camp-selection-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 3px;
+  border: 1px solid var(--trp-border);
+}
+
+.camp-selection-name {
+  font-weight: bold;
+  color: var(--trp-text-bright);
+  flex: 1;
+}
+
+.camp-selection-status {
+  font-size: var(--fs-11);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.camp-selection-status.pending {
+  color: var(--trp-gold);
+  font-style: italic;
+}
+
+.camp-selection-status.chosen {
+  color: var(--trp-green-bright);
+  font-weight: bold;
+}
+
+.camp-override-select {
+  max-width: 110px;
+  font-size: var(--fs-10);
+  height: 22px;
+  padding: 0 2px;
+}
+
+.camp-reprompt-btn {
+  background: transparent;
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-dim);
+  border-radius: var(--trp-radius-sm);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  transition: all 0.15s ease-in-out;
+}
+
+.camp-reprompt-btn:hover {
+  background: var(--trp-gold-overlay);
+  border-color: var(--trp-gold-dim);
+  color: var(--trp-gold-bright);
+  box-shadow: 0 0 4px var(--trp-shadow-gold);
+}
+
+.camp-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.camp-controls button {
+  flex: 1;
+}
+
+/* Camp activity dialog (player side) - resizable layout */
+.camp-dialog .window-content,
+.camp-dialog form,
+.camp-dialog .dialog-content,
+.camp-dialog .camp-activity-dialog,
+.camp-dialog .camp-activity-grid {
+  box-sizing: border-box !important;
+}
+
+.camp-dialog .window-content {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+}
+
+.camp-dialog form {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+  margin: 0 !important;
+  overflow: hidden !important;
+}
+
+.camp-dialog .dialog-content {
+  display: flex !important;
+  flex-direction: column !important;
+  flex: 1 !important;
+  min-height: 0 !important;
+}
+
+.camp-dialog form > footer,
+.camp-dialog .form-footer,
+.camp-dialog .dialog-footer,
+.camp-dialog .dialog-buttons {
+  flex-shrink: 0 !important;
+}
+
+.camp-dialog .camp-activity-dialog {
+  flex: 1 !important;
+  display: flex !important;
+  flex-direction: column !important;
+  min-height: 0 !important;
+  gap: 8px !important;
+}
+
+.camp-dialog .camp-activity-grid {
+  flex: 1 !important;
+  display: grid !important;
+  grid-template-columns: repeat(2, 1fr) !important;
+  gap: 8px !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+}
+
+
+.camp-activity-option {
+  cursor: pointer;
+  display: block;
+}
+
+.camp-activity-option input[type="radio"] {
+  display: none;
+}
+
+.camp-activity-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px 6px;
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 4px;
+  height: 100%;
+  transition: all 0.15s ease-in-out;
+}
+
+.camp-activity-card i {
+  font-size: var(--fs-18);
+  color: var(--trp-gold);
+  margin-bottom: 6px;
+}
+
+.camp-activity-name {
+  font-weight: bold;
+  font-size: var(--fs-12);
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.camp-activity-desc {
+  font-size: var(--fs-10);
+  color: var(--text-secondary);
+  line-height: 1.2;
+}
+
+.camp-activity-option:hover .camp-activity-card {
+  background: var(--bg-secondary-hover);
+  border-color: var(--trp-gold-dim);
+}
+
+.camp-activity-option input:checked + .camp-activity-card {
+  background: var(--trp-gold-overlay);
+  border-color: var(--trp-gold-bright);
+  box-shadow: 0 0 6px rgba(255, 179, 0, 0.4);
+}
+
+.camp-activity-option input:checked + .camp-activity-card i {
+  color: var(--trp-gold-bright);
+}
+
+/* Camp Results Chat Card */
+.trespasser-camp-results {
+  border-left: 3px solid var(--trp-gold-bright);
+  padding-left: 8px;
+}
+
+.trespasser-camp-results h3 {
+  margin: 0 0 6px;
+  font-size: var(--fs-14);
+  color: var(--trp-gold-bright);
+}
+
+.camp-results-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.camp-result-entry {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: var(--fs-12);
+  padding: 4px 0;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.camp-result-entry:last-child {
+  border-bottom: none;
+}
+
+.camp-result-name {
+  font-weight: bold;
+  color: var(--text-primary);
+}
+
+.camp-result-activity {
+  color: var(--trp-gold-bright);
+  font-weight: bold;
+}
+
+/* Layout override for Travel Tracker action grid buttons */
+.travel-tracker .tracker-action-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+

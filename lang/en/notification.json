@@ -84,7 +84,11 @@
         "NoEmbeddedItems": "Regions cannot contain embedded items."
       },
       "Travel": {
-        "CannotAdvanceAtNight": "Cannot advance at night. Take a Night's Rest first."
+        "CannotAdvanceAtNight": "Cannot advance at night. Take a Night's Rest first.",
+        "NoPartyFound": "No party actor found. Create a Party actor first.",
+        "NoPartyMembers": "No party members found.",
+        "CampNotAllSelected": "Not all party members have selected a camp activity.",
+        "CampRepromptSent": "Sent camp activity prompt to {name}."
       },
       "Rest": {
         "SpendRDLimited": "You tried to spend {spent} RD but only have {current}. Spending {current} instead.",

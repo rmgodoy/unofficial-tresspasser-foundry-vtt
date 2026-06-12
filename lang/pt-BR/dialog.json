@@ -120,7 +120,11 @@
       "Item": {
         "ViewDetails": "Ver detalhes do item"
       },
-      "SkillCheckTitle": "Teste de {skill}",
+      "Camp": {
+        "Title": "{name} — Atividade de Acampamento",
+        "Prompt": "Escolha uma atividade de acampamento para {name} enquanto o grupo acampa em {region}.",
+        "Confirm": "Confirmar Atividade"
+      },
       "Travel": {
         "KeepingWatch": {
           "Title": "Vigia Noturna",

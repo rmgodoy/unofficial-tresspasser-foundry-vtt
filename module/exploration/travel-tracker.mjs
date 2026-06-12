@@ -14,6 +14,8 @@
  */
 
 import { runTravelHostilityCheck, resolveEndOfRound } from "./encounter-resolution.mjs";
+import { startCampSelection, repromptMember } from "./camp-activity-handler.mjs";
+import { TrespasserSocket } from "../helpers/socket/socket.mjs";
 
 const { api } = foundry.applications;
 
@@ -42,7 +44,12 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
       adjustTravelPoints:   TravelTracker.#onAdjustTravelPoints,
       clearDisorientation:  TravelTracker.#onClearDisorientation,
       nextDay:              TravelTracker.#onNextDay,
-      performNightsRest:    TravelTracker.#onPerformNightsRest
+      performNightsRest:    TravelTracker.#onPerformNightsRest,
+      performCamp:          TravelTracker.#onPerformCamp,
+      confirmCamp:          TravelTracker.#onConfirmCamp,
+      cancelCamp:           TravelTracker.#onCancelCamp,
+      overrideCampActivity: TravelTracker.#onOverrideCampActivity,
+      repromptCamp:         TravelTracker.#onRepromptCamp
     }
   };
 
@@ -84,6 +91,12 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
 
   /** @type {Actor|null} The region currently in focus (UI pointer only). */
   region = null;
+
+  /** @type {boolean} Whether camp selection is in progress */
+  _campPending = false;
+
+  /** @type {Map<string, string|null>|null} actorId → activity key (null = pending) */
+  _campSelections = null;
 
   constructor(...args) {
     super(...args);
@@ -255,6 +268,31 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
         context.recentLog = log.slice(0, 5);
         context.hasMoreLog = log.length > 5;
       }
+    }
+
+    // Camp Pending Context
+    context.isCampPending = this._campPending;
+    if (this._campPending && this._campSelections) {
+      context.campSelections = [...this._campSelections].map(([actorId, activityKey]) => {
+        const actor = game.actors.get(actorId);
+        const activity = activityKey ? CONFIG.TRESPASSER.travel.campActivities[activityKey] : null;
+        return {
+          actorId,
+          actorName: actor?.name ?? "?",
+          actorImg: actor?.img ?? "",
+          activityKey,
+          activityLabel: activity ? game.i18n.localize(activity.label) : null,
+          activityIcon: activity?.icon ?? "",
+          isPending: activityKey === null
+        };
+      });
+      context.allCampSelected = context.campSelections.every(s => !s.isPending);
+
+      // Available activities for override dropdowns
+      context.campActivityChoices = Object.entries(CONFIG.TRESPASSER.travel.campActivities).map(([key, cfg]) => ({
+        key,
+        label: game.i18n.localize(cfg.label)
+      }));
     }
 
     return context;
@@ -543,6 +581,112 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     this.render();
   }
 
+  static async #onPerformCamp(event, target) {
+    if (!this.region || !game.user.isGM || this.sessionState !== "active") return;
+
+    // Get party members
+    const party = game.actors.find(a => a.type === "party");
+    if (!party) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Travel.NoPartyFound"));
+      return;
+    }
+    const memberIds = party.system.members ?? [];
+    const members = memberIds.map(id => game.actors.get(id)).filter(a => a?.type === "character");
+    if (members.length === 0) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Travel.NoPartyMembers"));
+      return;
+    }
+
+    // Start the camp selection flow
+    startCampSelection(this.region, members);
+  }
+
+  static async #onConfirmCamp(event, target) {
+    if (!this.region || !game.user.isGM || !this._campPending) return;
+
+    // Check all selections are made
+    const allSelected = [...this._campSelections.values()].every(v => v !== null);
+    if (!allSelected) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Travel.CampNotAllSelected"));
+      return;
+    }
+
+    // Build camp results chat card
+    const campConfig = CONFIG.TRESPASSER.travel.campActivities;
+    let content = `<div class="trespasser-camp-results">`;
+    content += `<h3><i class="fas fa-campground"></i> ${game.i18n.localize("TRESPASSER.Chat.Travel.CampActivities")}</h3>`;
+    content += `<div class="camp-results-list">`;
+    for (const [actorId, activityKey] of this._campSelections) {
+      const actor = game.actors.get(actorId);
+      const activity = campConfig[activityKey];
+      content += `<div class="camp-result-entry">
+        <span class="camp-result-name">${actor?.name ?? "?"}</span>
+        <span class="camp-result-activity"><i class="${activity?.icon ?? ""}"></i> ${game.i18n.localize(activity?.label ?? activityKey)}</span>
+      </div>`;
+    }
+    content += `</div></div>`;
+
+    await ChatMessage.create({
+      content,
+      speaker: ChatMessage.getSpeaker({ alias: this.region.name })
+    });
+
+    // Advance period
+    const system = this.region.system;
+    const periodOrder = ["morning", "evening", "night"];
+    const currentIndex = periodOrder.indexOf(system.currentPeriod ?? "morning");
+    const nextPeriod = periodOrder[Math.min(currentIndex + 1, 2)];
+
+    // Log
+    const dayLog = [...(system.dayLog ?? [])];
+    dayLog.push({
+      day: system.currentDay ?? 1,
+      action: game.i18n.localize("TRESPASSER.Terms.Travel.Actions.Camp"),
+      detail: `${this._campSelections.size} activities`
+    });
+
+    await this.region.update({
+      "system.currentPeriod": nextPeriod,
+      "system.dayLog": dayLog
+    });
+
+    // Clean up camp state
+    this._campPending = false;
+    this._campSelections = null;
+
+    // Notify other clients that camp is confirmed
+    TrespasserSocket.emit("CAMP_ACTIVITY_CONFIRM", { regionId: this.region.id });
+
+    this.render();
+  }
+
+  static async #onCancelCamp(event, target) {
+    if (!game.user.isGM) return;
+    this._campPending = false;
+    this._campSelections = null;
+    TrespasserSocket.emit("CAMP_ACTIVITY_CANCEL", { regionId: this.region?.id });
+    this.render();
+  }
+
+  static async #onOverrideCampActivity(event, target) {
+    if (!game.user.isGM || !this._campPending) return;
+    const actorId = target.dataset.actorId;
+    const activityKey = target.dataset.activityKey;
+    if (!actorId || !activityKey) return;
+    this._campSelections.set(actorId, activityKey);
+    this.render();
+  }
+
+  static async #onRepromptCamp(event, target) {
+    if (!game.user.isGM || !this._campPending) return;
+    const actorId = target.dataset.actorId;
+    if (!actorId) return;
+    repromptMember(actorId);
+    const actor = game.actors.get(actorId);
+    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Travel.CampRepromptSent", { name: actor?.name ?? "" }));
+  }
+
+
   /* -------------------------------------------- */
   /* Lifecycle                                    */
   /* -------------------------------------------- */
@@ -583,6 +727,19 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
         const weather = weatherSelect.value;
         if (weather) {
           await this.region.update({ "system.weather": weather });
+        }
+      });
+    }
+
+    // Camp override selects
+    const overrideSelects = this.element.querySelectorAll('.camp-override-select');
+    for (const select of overrideSelects) {
+      select.addEventListener('change', (ev) => {
+        const actorId = select.dataset.actorId;
+        const activityKey = select.value;
+        if (actorId && activityKey) {
+          this._campSelections?.set(actorId, activityKey);
+          this.render();
         }
       });
     }

@@ -38,6 +38,12 @@
         "Disoriented": "The party is disoriented!",
         "ClearDisorientation": "Clear Disorientation",
         "NextDay": "Next Day",
+        "CampInProgress": "Camp Activities — Waiting for Selections",
+        "CampWaiting": "Waiting...",
+        "CampOverride": "Override",
+        "CampConfirm": "Confirm Camp",
+        "CampCancel": "Cancel Camp",
+        "CampReprompt": "Prompt Player again",
         "Session": {
           "BeginTravel": "Begin Travel",
           "EndTravel": "End Travel",
