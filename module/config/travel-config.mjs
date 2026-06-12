@@ -32,19 +32,19 @@ export const TRAVEL_CONFIG = {
   },
 
   campActivities: {
-    assist:          { label: "TRESPASSER.Terms.Travel.Camp.Assist",          icon: "fa-solid fa-hands-helping",  description: "TRESPASSER.Terms.Travel.Camp.AssistDesc" },
-    campAlchemy:     { label: "TRESPASSER.Terms.Travel.Camp.CampAlchemy",     icon: "fa-solid fa-flask",          description: "TRESPASSER.Terms.Travel.Camp.CampAlchemyDesc" },
-    cook:            { label: "TRESPASSER.Terms.Travel.Camp.Cook",            icon: "fa-solid fa-utensils",       description: "TRESPASSER.Terms.Travel.Camp.CookDesc" },
-    craft:           { label: "TRESPASSER.Terms.Travel.Camp.Craft",           icon: "fa-solid fa-hammer",         description: "TRESPASSER.Terms.Travel.Camp.CraftDesc" },
-    forage:          { label: "TRESPASSER.Terms.Travel.Camp.Forage",          icon: "fa-solid fa-leaf",           description: "TRESPASSER.Terms.Travel.Camp.ForageDesc" },
-    fish:            { label: "TRESPASSER.Terms.Travel.Camp.Fish",            icon: "fa-solid fa-fish",           description: "TRESPASSER.Terms.Travel.Camp.FishDesc" },
-    hunt:            { label: "TRESPASSER.Terms.Travel.Camp.Hunt",            icon: "fa-solid fa-crosshairs",     description: "TRESPASSER.Terms.Travel.Camp.HuntDesc" },
-    liftSpirits:     { label: "TRESPASSER.Terms.Travel.Camp.LiftSpirits",     icon: "fa-solid fa-glass-cheers",   description: "TRESPASSER.Terms.Travel.Camp.LiftSpiritsDesc" },
-    prepareTorches:  { label: "TRESPASSER.Terms.Travel.Camp.PrepareTorches",  icon: "fa-solid fa-fire",           description: "TRESPASSER.Terms.Travel.Camp.PrepareTorchesDesc" },
-    pursue:          { label: "TRESPASSER.Terms.Travel.Camp.Pursue",          icon: "fa-solid fa-bullseye",       description: "TRESPASSER.Terms.Travel.Camp.PursueDesc" },
-    restEarly:       { label: "TRESPASSER.Terms.Travel.Camp.RestEarly",       icon: "fa-solid fa-clock",          description: "TRESPASSER.Terms.Travel.Camp.RestEarlyDesc" },
-    salvage:         { label: "TRESPASSER.Terms.Travel.Camp.Salvage",         icon: "fa-solid fa-recycle",        description: "TRESPASSER.Terms.Travel.Camp.SalvageDesc" },
-    scout:           { label: "TRESPASSER.Terms.Travel.Camp.Scout",           icon: "fa-solid fa-binoculars",     description: "TRESPASSER.Terms.Travel.Camp.ScoutDesc" },
-    survey:          { label: "TRESPASSER.Terms.Travel.Camp.Survey",          icon: "fa-solid fa-map",            description: "TRESPASSER.Terms.Travel.Camp.SurveyDesc" }
+    assist:          { label: "TRESPASSER.Terms.Travel.Camp.Assist",          icon: "fa-solid fa-hands-helping",  description: "TRESPASSER.Terms.Travel.Camp.AssistDesc", requiresTarget: true },
+    campAlchemy:     { label: "TRESPASSER.Terms.Travel.Camp.CampAlchemy",     icon: "fa-solid fa-flask",          description: "TRESPASSER.Terms.Travel.Camp.CampAlchemyDesc", check: { attribute: "intellect", skill: "alchemy" } },
+    cook:            { label: "TRESPASSER.Terms.Travel.Camp.Cook",            icon: "fa-solid fa-utensils",       description: "TRESPASSER.Terms.Travel.Camp.CookDesc", check: { attribute: "spirit", skill: "alchemy" } },
+    craft:           { label: "TRESPASSER.Terms.Travel.Camp.Craft",           icon: "fa-solid fa-hammer",         description: "TRESPASSER.Terms.Travel.Camp.CraftDesc", check: { attribute: "intellect", skill: "crafting" } },
+    forage:          { label: "TRESPASSER.Terms.Travel.Camp.Forage",          icon: "fa-solid fa-leaf",           description: "TRESPASSER.Terms.Travel.Camp.ForageDesc", check: { attribute: "mighty", skill: "nature" } },
+    fish:            { label: "TRESPASSER.Terms.Travel.Camp.Fish",            icon: "fa-solid fa-fish",           description: "TRESPASSER.Terms.Travel.Camp.FishDesc", check: { attribute: "spirit", skill: "nature" } },
+    hunt:            { label: "TRESPASSER.Terms.Travel.Camp.Hunt",            icon: "fa-solid fa-crosshairs",     description: "TRESPASSER.Terms.Travel.Camp.HuntDesc", check: { attribute: "agility", skill: "nature" } },
+    liftSpirits:     { label: "TRESPASSER.Terms.Travel.Camp.LiftSpirits",     icon: "fa-solid fa-glass-cheers",   description: "TRESPASSER.Terms.Travel.Camp.LiftSpiritsDesc", requiresTarget: true, check: { attribute: "spirit", skill: "speech" } },
+    prepareTorches:  { label: "TRESPASSER.Terms.Travel.Camp.PrepareTorches",  icon: "fa-solid fa-fire",           description: "TRESPASSER.Terms.Travel.Camp.PrepareTorchesDesc", check: { attribute: "mighty", skill: "crafting" } },
+    pursue:          { label: "TRESPASSER.Terms.Travel.Camp.Pursue",          icon: "fa-solid fa-bullseye",       description: "TRESPASSER.Terms.Travel.Camp.PursueDesc", judgeDetermined: true },
+    restEarly:       { label: "TRESPASSER.Terms.Travel.Camp.RestEarly",       icon: "fa-solid fa-clock",          description: "TRESPASSER.Terms.Travel.Camp.RestEarlyDesc", noRoll: true },
+    salvage:         { label: "TRESPASSER.Terms.Travel.Camp.Salvage",         icon: "fa-solid fa-recycle",        description: "TRESPASSER.Terms.Travel.Camp.SalvageDesc", check: { attribute: "mighty", skill: "perception" } },
+    scout:           { label: "TRESPASSER.Terms.Travel.Camp.Scout",           icon: "fa-solid fa-binoculars",     description: "TRESPASSER.Terms.Travel.Camp.ScoutDesc", check: { attribute: "agility", skill: "perception" } },
+    survey:          { label: "TRESPASSER.Terms.Travel.Camp.Survey",          icon: "fa-solid fa-map",            description: "TRESPASSER.Terms.Travel.Camp.SurveyDesc", check: { attribute: "agility", skill: "perception" } }
   }
 };

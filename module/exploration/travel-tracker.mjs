@@ -273,9 +273,18 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     // Camp Pending Context
     context.isCampPending = this._campPending;
     if (this._campPending && this._campSelections) {
-      context.campSelections = [...this._campSelections].map(([actorId, activityKey]) => {
+      context.campSelections = [...this._campSelections].map(([actorId, selection]) => {
+        const activityKey = selection ? (typeof selection === 'string' ? selection : selection.activityKey) : null;
+        const targetId = selection && typeof selection === 'object' ? selection.targetId : null;
         const actor = game.actors.get(actorId);
         const activity = activityKey ? CONFIG.TRESPASSER.travel.campActivities[activityKey] : null;
+        
+        let targetName = "";
+        if (targetId) {
+          const targetActor = game.actors.get(targetId);
+          if (targetActor) targetName = targetActor.name;
+        }
+
         return {
           actorId,
           actorName: actor?.name ?? "?",
@@ -283,6 +292,7 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
           activityKey,
           activityLabel: activity ? game.i18n.localize(activity.label) : null,
           activityIcon: activity?.icon ?? "",
+          targetName,
           isPending: activityKey === null
         };
       });
@@ -327,7 +337,7 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     await this.region.update({
       "system.currentDay": 1,
       "system.currentPeriod": "morning",
-      "system.travelPointsRemaining": CONFIG.TRESPASSER.travel.travelPointsPerAdvance,
+      "system.travelPointsRemaining": 0,
       "system.onRoad": false,
       "system.isDisoriented": false,
       "system.dayLog": [],
@@ -616,12 +626,21 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     let content = `<div class="trespasser-camp-results">`;
     content += `<h3><i class="fas fa-campground"></i> ${game.i18n.localize("TRESPASSER.Chat.Travel.CampActivities")}</h3>`;
     content += `<div class="camp-results-list">`;
-    for (const [actorId, activityKey] of this._campSelections) {
+    for (const [actorId, selection] of this._campSelections) {
+      const activityKey = typeof selection === 'string' ? selection : selection.activityKey;
+      const targetId = typeof selection === 'object' ? selection.targetId : null;
       const actor = game.actors.get(actorId);
       const activity = campConfig[activityKey];
+      
+      let targetName = "";
+      if (targetId) {
+        const targetActor = game.actors.get(targetId);
+        if (targetActor) targetName = ` (${targetActor.name})`;
+      }
+      
       content += `<div class="camp-result-entry">
         <span class="camp-result-name">${actor?.name ?? "?"}</span>
-        <span class="camp-result-activity"><i class="${activity?.icon ?? ""}"></i> ${game.i18n.localize(activity?.label ?? activityKey)}</span>
+        <span class="camp-result-activity"><i class="${activity?.icon ?? ""}"></i> ${game.i18n.localize(activity?.label ?? activityKey)}${targetName}</span>
       </div>`;
     }
     content += `</div></div>`;
@@ -650,12 +669,15 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
       "system.dayLog": dayLog
     });
 
+    // Notify other clients that camp is confirmed
+    TrespasserSocket.emit("CAMP_ACTIVITY_CONFIRM", { 
+      regionId: this.region.id,
+      selections: Object.fromEntries(this._campSelections)
+    });
+
     // Clean up camp state
     this._campPending = false;
     this._campSelections = null;
-
-    // Notify other clients that camp is confirmed
-    TrespasserSocket.emit("CAMP_ACTIVITY_CONFIRM", { regionId: this.region.id });
 
     this.render();
   }
@@ -673,7 +695,7 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     const actorId = target.dataset.actorId;
     const activityKey = target.dataset.activityKey;
     if (!actorId || !activityKey) return;
-    this._campSelections.set(actorId, activityKey);
+    this._campSelections.set(actorId, { activityKey, targetId: null });
     this.render();
   }
 
@@ -738,7 +760,7 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
         const actorId = select.dataset.actorId;
         const activityKey = select.value;
         if (actorId && activityKey) {
-          this._campSelections?.set(actorId, activityKey);
+          this._campSelections?.set(actorId, { activityKey, targetId: null });
           this.render();
         }
       });

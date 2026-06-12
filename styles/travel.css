@@ -539,11 +539,38 @@ button[data-tool="travelTracker"]:hover {
   margin-bottom: 6px;
 }
 
+.camp-activity-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+}
+
 .camp-activity-name {
   font-weight: bold;
   font-size: var(--fs-12);
   color: var(--text-primary);
-  margin-bottom: 4px;
+  line-height: 1;
+}
+
+.camp-check-pill {
+  background: var(--bg-primary);
+  color: var(--trp-gold);
+  border: 1px solid var(--trp-gold-dim);
+  border-radius: 12px;
+  padding: 2px 8px;
+  font-size: var(--fs-10);
+  font-family: var(--trp-font-header);
+  text-transform: uppercase;
+  font-weight: bold;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+}
+
+.camp-activity-option input:checked + .camp-activity-card .camp-check-pill {
+  background: var(--trp-gold);
+  color: var(--bg-primary);
+  border-color: var(--trp-gold-bright);
 }
 
 .camp-activity-desc {
