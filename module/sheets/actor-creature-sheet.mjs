@@ -166,12 +166,58 @@ export class TrespasserCreatureSheet extends api.HandlebarsApplicationMixin(shee
       const item = this.actor.items.get(el.dataset.itemId);
       item?.sheet.render(true);
     });
+
+    this.#bindItemDragHandlers();
+
+    // Fallback drop handling: core's v14 sheet pipeline does not reliably
+    // bind drop handlers to this sheet's markup, so accept item drops at
+    // the root. The handled-stamp prevents double-processing if core also
+    // routes the same event.
+    if (!this.element._trespasserRootDropBound) {
+      this.element._trespasserRootDropBound = true;
+      this.element.addEventListener("dragover", ev => ev.preventDefault());
+      this.element.addEventListener("drop", async ev => {
+        if (ev._trespasserItemDropHandled) return;
+        const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(ev);
+        if (data?.type !== "Item") return;
+        const item = await Item.implementation.fromDropData(data);
+        if (!item || item.parent === this.actor) return;
+        ev._trespasserItemDropHandled = true;
+        if (!this.actor.isOwner) return;
+        await this.actor.createEmbeddedDocuments("Item", [item.toObject()]);
+        // The creature sheet only displays some item types, so confirm the
+        // drop in a notification regardless of what was added.
+        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.Added", {
+          item: item.name, target: this.actor.name
+        }));
+      });
+    }
+  }
+
+  /**
+   * Make item rows draggable with standard Foundry drag data. Core's v14
+   * sheet drag-drop rework no longer binds drag handlers to system markup,
+   * so the sheet wires its own dragstart listeners.
+   */
+  #bindItemDragHandlers() {
+    for (const el of this.element.querySelectorAll('[draggable="true"]')) {
+      if (el._trespasserDragBound) continue;
+      el._trespasserDragBound = true;
+      el.addEventListener("dragstart", ev => {
+        const id = el.dataset.itemId ?? el.closest("[data-item-id]")?.dataset.itemId;
+        const item = id ? this.actor.items.get(id) : null;
+        if (!item) return;
+        ev.dataTransfer.setData("text/plain", JSON.stringify(item.toDragData()));
+      });
+    }
   }
 
   /** @override */
-  async _onDropItem(event, data) {
+  async _onDropItem(event, dropped) {
+    if (event._trespasserItemDropHandled) return false;
+    event._trespasserItemDropHandled = true;
     if (!this.actor.isOwner) return false;
-    return super._onDropItem(event, data);
+    return super._onDropItem(event, dropped);
   }
 
   async _onItemCreate(event) {
@@ -240,7 +286,7 @@ export class TrespasserCreatureSheet extends api.HandlebarsApplicationMixin(shee
     const item = this.actor.items.get(li.dataset.itemId);
     if (!item) return;
 
-    const enrichedRef = await TextEditor.enrichHTML(item.system.description, {
+    const enrichedRef = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.description, {
       async: true,
       secrets: item.isOwner,
       relativeTo: item

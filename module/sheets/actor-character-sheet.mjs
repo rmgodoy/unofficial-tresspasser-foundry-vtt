@@ -94,6 +94,8 @@ export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(she
         if (user.id === game.user.id) this.render();
       });
     }
+
+    this.#bindItemDragHandlers();
   }
 
   /** @override */
@@ -105,22 +107,87 @@ export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(she
     return super.close(options);
   }
 
-  /** @override */
-  async _onDropItem(event, data) {
-    // Allow transfers from other actors even if the user doesn't own the target.
-    // Prevent cloning from sidebar/compendiums if the user doesn't own the target.
-    if ( !this.actor.isOwner && (data.type !== "Item" || !data.actorId) ) return false;
+  /**
+   * Make item rows draggable with standard Foundry drag data. Core's v14
+   * sheet drag-drop rework no longer binds drag handlers to system markup,
+   * so the sheet wires its own dragstart listeners.
+   */
+  #bindItemDragHandlers() {
+    for (const el of this.element.querySelectorAll('[draggable="true"]')) {
+      if (el._trespasserDragBound) continue;
+      el._trespasserDragBound = true;
+      el.addEventListener("dragstart", ev => {
+        const id = el.dataset.itemId ?? el.closest("[data-item-id]")?.dataset.itemId;
+        const item = id ? this.actor.items.get(id) : null;
+        if (!item) return;
+        ev.dataTransfer.setData("text/plain", JSON.stringify(item.toDragData()));
+      });
+    }
+  }
 
-    // Resolve the source item document
-    let sourceItem = data.uuid ? await fromUuid(data.uuid) : null;
-    if (!sourceItem && data.actorId && data.id) {
-       const sourceActor = game.actors.get(data.actorId) || canvas.tokens.get(data.actorId)?.actor;
-       sourceItem = sourceActor?.items.get(data.id);
+  /** @override */
+  async _onDrop(event) {
+    // Haven withdrawals carry a custom payload without a uuid, which core's
+    // drop pipeline cannot resolve to an Item — handle them before it runs.
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+    if (data?.isHavenTransfer) return this.#onDropHavenTransfer(data);
+    return super._onDrop(event);
+  }
+
+  /**
+   * Withdraw an item dragged from a Haven's inventory.
+   * @param {object} data  The haven-transfer drag payload.
+   */
+  async #onDropHavenTransfer(data) {
+    const sourceHaven = game.actors.get(data.actorId);
+    if (!sourceHaven) return false;
+
+    const entry = sourceHaven.system.inventory[data.havenIndex];
+    if (!entry) return false;
+
+    const itemData = foundry.utils.duplicate(entry.item);
+    const qtyToTransfer = data.transferAll ? entry.quantity : 1;
+
+    const success = await addItemToActor(this.actor, itemData, qtyToTransfer);
+    console.log(`Trespasser | Haven Transfer: Item added to character: ${success}`);
+
+    if (success) {
+      console.log(`Trespasser | Haven Transfer: Emitting HAVEN_WITHDRAWAL socket for index ${data.havenIndex}`);
+      // Notify through socket to update Haven (handles permissions)
+      TrespasserSocket.emit("HAVEN_WITHDRAWAL", {
+        havenUuid: sourceHaven.uuid,
+        index: data.havenIndex,
+        targetActorUuid: this.actor.uuid,
+        transferAll: !!data.transferAll
+      });
+
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Transfer.Complete", {
+        item: entry.item.name,
+        target: this.actor.name
+      }));
     }
 
-    // Determine if this is a cross-actor transfer
-    // We check if the item has a parent and that parent is NOT the current actor.
-    const isTransfer = sourceItem && sourceItem.parent && (sourceItem.parent !== this.actor);
+    return false;
+  }
+
+  /** @override */
+  async _onDropItem(event, dropped) {
+    // Guard against the drop being processed twice if both core's pipeline
+    // and a fallback listener route the same event here.
+    if (event._trespasserItemDropHandled) return false;
+    event._trespasserItemDropHandled = true;
+
+    // v14 passes the resolved Item document; raw drag data is normalized
+    // here as well so the handler tolerates either calling convention.
+    const sourceItem = dropped instanceof Item
+      ? dropped
+      : await Item.implementation.fromDropData(dropped ?? {});
+
+    // A drop from another actor is a transfer, which the receiving user may
+    // accept without owning this sheet; anything else (sidebar/compendium
+    // cloning) still requires ownership.
+    const isTransfer = !!sourceItem?.parent && (sourceItem.parent !== this.actor);
+    if (!this.actor.isOwner && !isTransfer) return false;
 
     if (isTransfer) {
       // Trigger the unified transfer logic
@@ -128,46 +195,29 @@ export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(she
       return false; // Prevent duplicate handling
     }
 
-    // Special handling for Haven inventory transfers
-    if (data.isHavenTransfer) {
-      const sourceHaven = game.actors.get(data.actorId);
-      if (!sourceHaven) return false;
-      
-      const entry = sourceHaven.system.inventory[data.havenIndex];
-      if (!entry) return false;
+    // Dropping an item onto its own sheet reorders it
+    if (sourceItem && sourceItem.parent === this.actor) return this.#onSortItem(event, sourceItem);
 
-      const itemData = foundry.utils.duplicate(entry.item);
-      const qtyToTransfer = data.transferAll ? entry.quantity : 1;
-      
-      const success = await addItemToActor(this.actor, itemData, qtyToTransfer);
-      console.log(`Trespasser | _onDropItem (Haven Transfer): Item added to character: ${success}`);
+    if (!sourceItem) return super._onDropItem(event, dropped);
+    if (sourceItem.type === "calling")   return TrespasserCallingDialog.wait(sourceItem, this.actor);
+    if (sourceItem.type === "craft")     return TrespasserCraftDialog.wait(sourceItem, this.actor);
+    if (sourceItem.type === "past_life") return this._applyPastLife(sourceItem);
+    return super._onDropItem(event, dropped);
+  }
 
-      if (success) {
-        console.log(`Trespasser | _onDropItem (Haven Transfer): Emitting HAVEN_WITHDRAWAL socket for index ${data.havenIndex}`);
-        // Notify through socket to update Haven (handles permissions)
-        TrespasserSocket.emit("HAVEN_WITHDRAWAL", {
-          havenUuid: sourceHaven.uuid,
-          index: data.havenIndex,
-          targetActorUuid: this.actor.uuid,
-          transferAll: !!data.transferAll
-        });
-        
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Transfer.Complete", {
-          item: entry.item.name,
-          target: this.actor.name
-        }));
-      }
-      
-      return false;
-    }
+  /**
+   * Reorder an item dropped onto another row of the same sheet. Inventory
+   * lists render in sort order, so adjust sort values relative to the row
+   * under the drop point.
+   */
+  async #onSortItem(event, item) {
+    const targetEl = event.target?.closest?.("[data-item-id]");
+    const target = targetEl ? this.actor.items.get(targetEl.dataset.itemId) : null;
+    if (!target || target.id === item.id) return false;
 
-    const item = await Item.implementation.fromDropData(data);
-    if (!item) return super._onDropItem(event, data);
-
-    if (item.type === "calling") return TrespasserCallingDialog.wait(item, this.actor);
-    if (item.type === "craft")   return TrespasserCraftDialog.wait(item, this.actor);
-    if (item.type === "past_life") return this._applyPastLife(item);
-    return super._onDropItem(event, data);
+    const siblings = this.actor.items.filter(i => i.id !== item.id);
+    const updates = foundry.utils.performIntegerSort(item, { target, siblings });
+    return this.actor.updateEmbeddedDocuments("Item", updates.map(u => ({ _id: u.target.id, sort: u.update.sort })));
   }
 
   // ── Delegate methods (kept here so Foundry's .bind(this) chains work) ─────

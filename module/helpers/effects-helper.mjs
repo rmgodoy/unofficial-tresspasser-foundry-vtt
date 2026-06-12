@@ -911,7 +911,8 @@ export class TrespasserEffectsHelper {
       const ae = existingActiveEffects.find(ae => ae.getFlag("trespasser", "sourceItem") === item.id);
       
       const statusIconPath = item.system.statusIcon;
-      const matchingStatus = CONFIG.statusEffects.find(se => {
+      // Object.values handles both the v13 array and v14 object formats
+      const matchingStatus = Object.values(CONFIG.statusEffects).find(se => {
         const img = se.img || se.icon || se.src;
         return img === statusIconPath;
       });

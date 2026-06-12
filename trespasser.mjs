@@ -815,6 +815,25 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
     html.style.backgroundColor = "var(--trp-bg-dark)";
   }
 
+  // Resolve which tokens a chat-card action button should affect.
+  // Deed cards record the exact tokens that were hit in data-target-ids;
+  // cards without them fall back to the user's targets, then to controlled
+  // tokens. Never default to controlled-first: the attacker's own token is
+  // usually still selected after using a deed.
+  const resolveCardTargets = (btn) => {
+    const ids = (btn.dataset.targetIds ?? "").split(",").map(s => s.trim()).filter(Boolean);
+    if (ids.length) {
+      const tokens = ids.map(id => canvas.tokens.get(id)).filter(Boolean);
+      if (!tokens.length) ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.RecordedTargetsGone"));
+      return tokens;
+    }
+    const targeted = Array.from(game.user.targets);
+    if (targeted.length) return targeted;
+    if (canvas.tokens.controlled.length) return canvas.tokens.controlled;
+    ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
+    return [];
+  };
+
   html.querySelectorAll(".apply-effect-btn").forEach(btn => {
     btn.addEventListener("click", async (ev) => {
       ev.preventDefault();
@@ -830,11 +849,8 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
       const baseIntensity = !isNaN(itemIntensity) ? itemIntensity : (sourceItem.system.intensity || 0);
 
-      const tokens = canvas.tokens.controlled;
-      if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
-        return;
-      }
+      const tokens = resolveCardTargets(btn);
+      if (tokens.length === 0) return;
 
       for (const token of tokens) {
         const actor = token.actor;
@@ -895,13 +911,9 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       const rawDamage = parseInt(btn.dataset.damage);
       if (isNaN(rawDamage)) return;
 
-      // Prefer controlled tokens; fall back to targeted tokens
-      let tokens = canvas.tokens.controlled;
-      if (tokens.length === 0) tokens = Array.from(game.user.targets);
-      if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
-        return;
-      }
+      // Card-recorded hit targets take precedence, then targeted, then controlled
+      const tokens = resolveCardTargets(btn);
+      if (tokens.length === 0) return;
 
       // Identify attacker from message speaker
       const messageId = btn.closest(".message")?.dataset.messageId;
@@ -948,12 +960,8 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       const healAmount = parseInt(btn.dataset.damage);
       if (isNaN(healAmount)) return;
 
-      let tokens = canvas.tokens.controlled;
-      if (tokens.length === 0) tokens = Array.from(game.user.targets);
-      if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
-        return;
-      }
+      const tokens = resolveCardTargets(btn);
+      if (tokens.length === 0) return;
 
       for (const token of tokens) {
         const actor = token.actor;
@@ -1410,7 +1418,12 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
     );
     if (existing) {
       const currentIntensity = existing.system.intensity || 0;
-      existing.update({ "system.intensity": currentIntensity + intensityToApply });
+      const newIntensity = currentIntensity + intensityToApply;
+      existing.update({ "system.intensity": newIntensity });
+      // Merging is silent data-wise; tell the user what happened to their drop
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.EffectMerged", {
+        effect: item.name, target: actor.name, intensity: newIntensity
+      }));
       return false; // Cancel creation of the new item
     }
 
@@ -1773,7 +1786,14 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
 Hooks.on("refreshToken", (token) => {
   // Remove old passive-state sprites
   const existing = token.children.filter(c => c._trespasserPassiveState);
-  existing.forEach(c => { token.removeChild(c); c.destroy(); });
+  existing.forEach(c => {
+    if (c._trespasserTooltip) {
+      game.tooltip.dismissLockedTooltip(c._trespasserTooltip);
+      c._trespasserTooltip = null;
+    }
+    token.removeChild(c);
+    c.destroy();
+  });
 
   const states = token.document?.actor?.system?.passiveStates;
   if (!states) return;
@@ -1797,15 +1817,26 @@ Hooks.on("refreshToken", (token) => {
     sprite.y = padding + index * (iconSize + padding);
     sprite.alpha = 0.9;
     sprite._trespasserPassiveState = true;
-    
-    // Tooltip on hover
+
+    // Tooltip on hover. TooltipManager#activate requires an HTMLElement, so
+    // for a canvas sprite we place a locked tooltip above the icon instead.
     sprite.eventMode = "static";
     sprite.on("pointerover", () => {
+      if (sprite._trespasserTooltip) return;
       const label = game.i18n.localize(cfg.label);
       const desc = game.i18n.localize(cfg.description);
-      game.tooltip.activate(sprite, { text: `${label}: ${desc}`, direction: "UP" });
+      const bounds = sprite.getBounds();
+      const board = document.getElementById("board")?.getBoundingClientRect() ?? { top: 0, left: 0 };
+      const tip = game.tooltip.createLockedTooltip({ top: "0px", left: "0px" }, `${label}: ${desc}`);
+      tip.style.left = `${Math.round(board.left + bounds.x + (bounds.width - tip.offsetWidth) / 2)}px`;
+      tip.style.top = `${Math.round(board.top + bounds.y - tip.offsetHeight - 4)}px`;
+      sprite._trespasserTooltip = tip;
     });
-    sprite.on("pointerout", () => game.tooltip.deactivate());
+    sprite.on("pointerout", () => {
+      if (!sprite._trespasserTooltip) return;
+      game.tooltip.dismissLockedTooltip(sprite._trespasserTooltip);
+      sprite._trespasserTooltip = null;
+    });
 
     token.addChild(sprite);
   });

@@ -509,7 +509,8 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
 
   async _onDropActor(event, data) {
     if (!this.isEditable) return false;
-    const actor = await Actor.implementation.fromDropData(data);
+    // v14 passes the resolved Actor document; raw drag data still resolves
+    const actor = data instanceof Actor ? data : await Actor.implementation.fromDropData(data ?? {});
     if (!actor || actor.type !== "character") {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Party.DropCharactersOnly"));
       return false;

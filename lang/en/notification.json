@@ -7,6 +7,8 @@
       "LastingStateReduced": "{name} returns to lasting intensity {intensity}.",
       "Item": {
         "DropDeedsOnly": "Only Deeds can be dropped here.",
+        "Added": "Added {item} to {target}.",
+        "EffectMerged": "{effect} merged into the existing effect on {target} (intensity {intensity}).",
         "DropEffectsStatesOnly": "Only Effects or States can be dropped here.",
         "AlreadyAdded": "{name} has already been added.",
         "DropArmorOnly": "Only Effects and States can be applied to Armor.",
@@ -34,6 +36,7 @@
       },
       "Combat": {
         "NoTargets": "No targets selected. Aborting.",
+        "RecordedTargetsGone": "The targets recorded on this card are no longer on the scene.",
         "NoTargetsAbort": "No targets selected! Roll aborted, showing basic Accuracy for reference.",
         "NoTargetsDefault": "No targets selected! Rolling against default CD 10.",
         "NotEnoughFocus": "Insufficient Focus to use {name}. (Required {cost}, has {current})",

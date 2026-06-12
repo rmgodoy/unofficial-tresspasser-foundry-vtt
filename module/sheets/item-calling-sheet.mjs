@@ -151,7 +151,7 @@ export class TrespasserCallingSheet extends api.HandlebarsApplicationMixin(sheet
 
   async _onDropItem(event) {
     event.preventDefault();
-    const data = TextEditor.getDragEventData(event);
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (!data || data.type !== "Item") return;
 
     const listKey = event.currentTarget.dataset.list; // "talents" | "features" | "enhancements"

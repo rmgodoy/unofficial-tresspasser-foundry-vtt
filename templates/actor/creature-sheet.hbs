@@ -121,6 +121,31 @@
     <!-- Combat Effects -->
     {{> "systems/trespasser/templates/actor/parts/combat-effects.hbs"}}
 
+    <!-- Effects (Non-Combat) -->
+    <div class="effects-panel" style="margin-top: 15px; border-top: 2px solid var(--trp-border); padding-top: 10px;">
+      <h4>{{localize "TRESPASSER.Sheet.Character.NonCombatEffects"}}</h4>
+      <div class="effects-list">
+        {{#each activeEffects.nonCombat}}
+        {{#unless this.hiddenOnSheet}}
+        <div class="effect-row" data-item-id="{{this.id}}" style="display: flex; align-items: center; background: var(--trp-bg-overlay); margin-bottom: 5px; padding: 5px; border-radius: 4px;">
+          <div style="flex: 1;">
+            <b>{{this.name}}</b>{{#if (eq this.type "continuous")}} <span style="font-size: var(--fs-9); opacity: 0.7;">({{localize "TRESPASSER.App.System.Trigger.Continuous"}})</span>{{/if}}
+            <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Common.Info'}}"><i class="fas fa-info-circle"></i></a>
+            <a class="effect-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+            {{#if this.sourceName}} <span style="font-size: var(--fs-11); font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
+            (I: {{this.intensity}}) - {{this.target}}: {{this.modifier}}
+          </div>
+          <a class="item-control effect-remove" data-action="delete-effect" title="{{localize "TRESPASSER.Sheet.Common.Delete"}}">
+            <i class="fas fa-trash"></i>
+          </a>
+        </div>
+        {{/unless}}
+        {{else}}
+        <p class="notes">{{localize "TRESPASSER.Sheet.Character.NoNonCombatEffects"}}</p>
+        {{/each}}
+      </div>
+    </div>
+
     <!-- Deeds List -->
     <div class="deeds-section" style="margin-top: 15px;">
       <h3 class="section-title" style="margin-bottom: 0;">{{localize "TRESPASSER.Sheet.Combat.Deeds"}}</h3>

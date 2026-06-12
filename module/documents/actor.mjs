@@ -1,5 +1,6 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat } from './combat.mjs';
+import { messageVisibility } from "../helpers/compat.mjs";
 
 /**
  * Custom Actor document class for Trespasser TTRPG.
@@ -741,8 +742,8 @@ export class TrespasserActor extends Actor {
         const roll = new foundry.dice.Roll(expr);
         await roll.evaluate();
         const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
-        const rollMode = (this.type === "creature" && hideCreatureRolls) ? "gmroll" : "roll";
-        await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this }), flavor: flavorHtml }, { rollMode });
+        const visibility = messageVisibility((this.type === "creature" && hideCreatureRolls) ? "gm" : "public");
+        await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this }), flavor: flavorHtml }, visibility);
       } catch (e) {
         console.error(e);
         await ChatMessage.create({ speaker: ChatMessage.getSpeaker({ actor: this }), content: flavorHtml });
