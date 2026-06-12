@@ -42,7 +42,7 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
       adjustTravelPoints:   TravelTracker.#onAdjustTravelPoints,
       clearDisorientation:  TravelTracker.#onClearDisorientation,
       nextDay:              TravelTracker.#onNextDay,
-      performNightsRest:    TravelTracker.#onPerformNightsRest
+      // performNightsRest:    TravelTracker.#onPerformNightsRest
     }
   };
 
