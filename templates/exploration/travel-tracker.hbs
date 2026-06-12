@@ -105,7 +105,6 @@
 
   {{!-- Weather & Road --}}
   <div class="travel-conditions-bar">
-    {{#if isGM}}
     <div class="travel-condition">
       <label>{{localize "TRESPASSER.App.TravelTracker.Weather"}}:</label>
       <span class="travel-weather-badge weather-{{weather}}">{{weatherLabel}}</span>
@@ -114,15 +113,9 @@
       <label>{{localize "TRESPASSER.App.TravelTracker.OnRoad"}}:</label>
       <span>{{#if onRoad}}✓{{else}}✗{{/if}}</span>
     </div>
-    {{else}}
-    <div class="travel-condition">
-      <span class="travel-weather-badge weather-{{weather}}"><i class="fas fa-cloud"></i> {{weatherLabel}}</span>
-    </div>
-    {{/if}}
   </div>
 
-  {{!-- GM Controls: terrain reference --}}
-  {{#if isGM}}
+  {{!-- Terrain Cost Reference --}}
   <div class="travel-terrain-ref">
     <h4>{{localize "TRESPASSER.App.TravelTracker.TerrainCosts"}}</h4>
     <div class="travel-terrain-table">
@@ -135,7 +128,6 @@
       {{/each}}
     </div>
   </div>
-  {{/if}}
 
   {{#if isGM}}{{#if isActive}}
   {{#if isCampPending}}
