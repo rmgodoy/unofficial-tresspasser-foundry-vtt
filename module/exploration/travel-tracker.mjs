@@ -595,13 +595,13 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     if (!this.region || !game.user.isGM || this.sessionState !== "active") return;
 
     // Get party members
+    let members = [];
     const party = game.actors.find(a => a.type === "party");
-    if (!party) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Travel.NoPartyFound"));
-      return;
+    if (party && party.system.members?.length > 0) {
+      members = party.system.members.map(id => game.actors.get(id)).filter(a => a?.type === "character");
+    } else {
+      members = game.actors.filter(a => a.type === "character" && a.hasPlayerOwner);
     }
-    const memberIds = party.system.members ?? [];
-    const members = memberIds.map(id => game.actors.get(id)).filter(a => a?.type === "character");
     if (members.length === 0) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Travel.NoPartyMembers"));
       return;
