@@ -191,6 +191,7 @@
         "AutoAmbushDetail": "Ninguém estava de vigia. O grupo inimigo escolhe uma abordagem de emboscada. O grupo de personagens não faz teste de encontro.",
         "WatchKept": "Vigia feita",
         "NoWatch": "Sem vigia",
+        "NoEncounter": "Os arredores permanecem tranquilos.",
         "WayfindingCheck": "Teste de Rota",
         "WayfindingPrompt": "Um personagem deve fazer um teste de INTELLECT | NATURE vs DC {dc}. O Mestre também rola secretamente um d10.",
         "WayfindingSkill": "Perícia",

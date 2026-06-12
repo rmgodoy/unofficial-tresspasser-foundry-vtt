@@ -13,7 +13,7 @@
  * Player view: region name, day, period, road status.
  */
 
-import { runTravelHostilityCheck } from "./encounter-resolution.mjs";
+import { runTravelHostilityCheck, resolveEndOfRound } from "./encounter-resolution.mjs";
 
 const { api } = foundry.applications;
 
@@ -42,7 +42,7 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
       adjustTravelPoints:   TravelTracker.#onAdjustTravelPoints,
       clearDisorientation:  TravelTracker.#onClearDisorientation,
       nextDay:              TravelTracker.#onNextDay,
-      // performNightsRest:    TravelTracker.#onPerformNightsRest
+      performNightsRest:    TravelTracker.#onPerformNightsRest
     }
   };
 
@@ -446,6 +446,100 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
       </div>`,
       speaker: ChatMessage.getSpeaker({ alias: this.region.name })
     });
+    this.render();
+  }
+
+  static async #onPerformNightsRest(event, target) {
+    if (!this.region || !game.user.isGM || this.sessionState !== "active") return;
+
+    const system = this.region.system;
+
+    // Ask if anyone is keeping watch
+    const keepingWatch = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("TRESPASSER.Dialog.Travel.KeepingWatch.Title") },
+      content: `<p>${game.i18n.localize("TRESPASSER.Dialog.Travel.KeepingWatch.Content")}</p>`,
+      yes: { label: game.i18n.localize("TRESPASSER.Dialog.Travel.KeepingWatch.Yes"), icon: "fa-solid fa-eye" },
+      no: { label: game.i18n.localize("TRESPASSER.Dialog.Travel.KeepingWatch.No"), icon: "fa-solid fa-eye-slash" }
+    });
+
+    // If dialog was closed/cancelled, abort without consuming the action
+    if (keepingWatch === null) return;
+
+    // Run hostility check
+    if (keepingWatch) {
+      // Normal encounter check
+      await runTravelHostilityCheck(this.region);
+    } else {
+      // No watch — roll to determine if encounter, but it's auto-ambush
+      const hostilityTier = system.hostilityTier ?? 1;
+      const roll = await new Roll("1d10").evaluate();
+      const encountered = roll.total <= hostilityTier;
+
+      let content = `<div class="trespasser-encounter-check">`;
+      content += `<strong>${game.i18n.localize("TRESPASSER.Chat.Travel.NightHostilityCheck")}</strong>`;
+      content += `<div class="encounter-roll-result">`;
+      content += `<span class="encounter-die">d10: ${roll.total}</span>`;
+      content += ` vs `;
+      content += `<span class="encounter-alarm">${game.i18n.localize("TRESPASSER.Dungeon.Hostility")}: ${hostilityTier}</span>`;
+      content += `</div>`;
+
+      if (encountered) {
+        content += `<div class="encounter-triggered">${game.i18n.localize("TRESPASSER.Chat.Travel.NightEncounterAmbush")}</div>`;
+      } else {
+        content += `<div class="encounter-clear">${game.i18n.localize("TRESPASSER.Chat.Travel.NoEncounter")}</div>`;
+      }
+      content += `</div>`;
+
+      await ChatMessage.create({
+        content,
+        speaker: ChatMessage.getSpeaker({ alias: this.region.name }),
+        whisper: game.users.filter(u => u.isGM).map(u => u.id)
+      });
+
+      // If encounter occurred, post auto-ambush warning
+      if (encountered) {
+        // Still run the full encounter resolution for reaction/approach/table
+        // but note in chat that it's an ambush
+        await ChatMessage.create({
+          content: `<div class="trespasser-travel-action">
+            <strong><i class="fas fa-skull-crossbones"></i> ${game.i18n.localize("TRESPASSER.Chat.Travel.AutoAmbush")}</strong>
+            <div>${game.i18n.localize("TRESPASSER.Chat.Travel.AutoAmbushDetail")}</div>
+          </div>`,
+          speaker: ChatMessage.getSpeaker({ alias: this.region.name }),
+          whisper: game.users.filter(u => u.isGM).map(u => u.id)
+        });
+
+        // Resolve the rest of the encounter automatically (table draw, reaction, surprise DC, approaches)
+        await resolveEndOfRound(this.region, { context: "travel", forceEncounter: true });
+      }
+    }
+
+    // Post Night's Rest chat message
+    await ChatMessage.create({
+      content: `<div class="trespasser-travel-action">
+        <strong>${game.i18n.format("TRESPASSER.Chat.Travel.NightsRest", { name: this.region.name })}</strong>
+      </div>`,
+      speaker: ChatMessage.getSpeaker({ alias: this.region.name })
+    });
+
+    // Advance to next day
+    const currentDay = system.currentDay ?? 1;
+    const dayLog = [...(system.dayLog ?? [])];
+    dayLog.push({
+      day: currentDay,
+      action: game.i18n.localize("TRESPASSER.Terms.Travel.Actions.NightsRest"),
+      detail: keepingWatch
+        ? game.i18n.localize("TRESPASSER.Chat.Travel.WatchKept")
+        : game.i18n.localize("TRESPASSER.Chat.Travel.NoWatch")
+    });
+
+    await this.region.update({
+      "system.currentDay": currentDay + 1,
+      "system.currentPeriod": "morning",
+      "system.travelPointsRemaining": 0,
+      "system.dayLog": dayLog
+    });
+
     this.render();
   }
 

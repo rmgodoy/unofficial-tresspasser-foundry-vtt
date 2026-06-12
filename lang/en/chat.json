@@ -191,6 +191,7 @@
         "AutoAmbushDetail": "No one was keeping watch. The enemy group gets to choose an ambush approach. The party does not make an encounter check.",
         "WatchKept": "Watch kept",
         "NoWatch": "No watch",
+        "NoEncounter": "The surroundings remain quiet.",
         "WayfindingCheck": "Wayfinding Check",
         "WayfindingPrompt": "One character must make an INTELLECT | NATURE check vs DC {dc}. The Judge also secretly rolls a d10.",
         "WayfindingSkill": "Skill",

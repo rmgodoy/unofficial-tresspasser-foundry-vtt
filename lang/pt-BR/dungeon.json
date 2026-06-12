@@ -1,6 +1,7 @@
 {
   "TRESPASSER": {
     "Dungeon": {
+      "Hostility": "Hostilidade",
       "Round": "Rodada",
       "ActionsRemaining": "Ações Restantes",
       "DC": "CD",

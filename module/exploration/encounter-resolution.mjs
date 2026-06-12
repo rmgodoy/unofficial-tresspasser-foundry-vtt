@@ -29,46 +29,53 @@ export async function resolveEndOfRound(actor, options = {}) {
   const system = actor.system;
   const context = options.context ?? "dungeon";
 
-  let checkTarget;
-  let checkLabel;
+  let encountered = false;
 
-  if (context === "travel") {
-    // Travel: d10 vs hostility tier number
-    checkTarget = options.checkTarget ?? (system.hostilityTier ?? 1);
-    const tierConfig = CONFIG.TRESPASSER.dungeon.hostilityTiers[checkTarget];
-    checkLabel = options.checkLabel ?? `${game.i18n.localize("TRESPASSER.Dungeon.Hostility")}: ${game.i18n.localize(tierConfig?.label ?? "")}`;
+  if (options.forceEncounter) {
+    encountered = true;
   } else {
-    // Dungeon: d10 vs alarm
-    checkTarget = options.checkTarget ?? (system.alarm ?? 0);
-    checkLabel = options.checkLabel ?? `${game.i18n.localize("TRESPASSER.Dungeon.Alarm")}: ${checkTarget}`;
+    let checkTarget;
+    let checkLabel;
+
+    if (context === "travel") {
+      // Travel: d10 vs hostility tier number
+      checkTarget = options.checkTarget ?? (system.hostilityTier ?? 1);
+      const tierConfig = CONFIG.TRESPASSER.dungeon.hostilityTiers[checkTarget];
+      checkLabel = options.checkLabel ?? `${game.i18n.localize("TRESPASSER.Dungeon.Hostility")}: ${game.i18n.localize(tierConfig?.label ?? "")}`;
+    } else {
+      // Dungeon: d10 vs alarm
+      checkTarget = options.checkTarget ?? (system.alarm ?? 0);
+      checkLabel = options.checkLabel ?? `${game.i18n.localize("TRESPASSER.Dungeon.Alarm")}: ${checkTarget}`;
+    }
+
+    // Roll d10 vs checkTarget
+    const encounterRoll = await new Roll("1d10").evaluate();
+    encountered = encounterRoll.total <= checkTarget;
+
+    // Build the encounter check chat card
+    let checkContent = `<div class="trespasser-encounter-check">`;
+    checkContent += `<strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Check")}</strong>`;
+    checkContent += `<div class="encounter-roll-result">`;
+    checkContent += `<span class="encounter-die">d10: ${encounterRoll.total}</span>`;
+    checkContent += ` vs `;
+    checkContent += `<span class="encounter-alarm">${checkLabel}</span>`;
+    checkContent += `</div>`;
+
+    if (encountered) {
+      checkContent += `<div class="encounter-triggered">${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Triggered")}</div>`;
+    } else {
+      const clearKey = context === "travel" ? "TRESPASSER.Chat.Travel.NoEncounter" : "TRESPASSER.Chat.Dungeon.Encounter.NoEncounter";
+      checkContent += `<div class="encounter-clear">${game.i18n.localize(clearKey)}</div>`;
+    }
+    checkContent += `</div>`;
+
+    // Post the encounter check result
+    await ChatMessage.create({
+      content: checkContent,
+      speaker: ChatMessage.getSpeaker({ alias: actor.name }),
+      whisper: game.users.filter(u => u.isGM).map(u => u.id)
+    });
   }
-
-  // Roll d10 vs checkTarget
-  const encounterRoll = await new Roll("1d10").evaluate();
-  const encountered = encounterRoll.total <= checkTarget;
-
-  // Build the encounter check chat card
-  let checkContent = `<div class="trespasser-encounter-check">`;
-  checkContent += `<strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Check")}</strong>`;
-  checkContent += `<div class="encounter-roll-result">`;
-  checkContent += `<span class="encounter-die">d10: ${encounterRoll.total}</span>`;
-  checkContent += ` vs `;
-  checkContent += `<span class="encounter-alarm">${checkLabel}</span>`;
-  checkContent += `</div>`;
-
-  if (encountered) {
-    checkContent += `<div class="encounter-triggered">${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Triggered")}</div>`;
-  } else {
-    checkContent += `<div class="encounter-clear">${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.NoEncounter")}</div>`;
-  }
-  checkContent += `</div>`;
-
-  // Post the encounter check result
-  await ChatMessage.create({
-    content: checkContent,
-    speaker: ChatMessage.getSpeaker({ alias: actor.name }),
-    whisper: game.users.filter(u => u.isGM).map(u => u.id)
-  });
 
   if (!encountered) {
     return { encountered: false, result: null };
