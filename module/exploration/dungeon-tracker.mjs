@@ -187,6 +187,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     context.hasDungeon = !!this.dungeon;
     context.dungeonName = this.dungeon?.name ?? "";
     context.dungeonId = this.dungeon?.id ?? "";
+    context.activePartyName = game.trespasser.TrespasserPartyHelper?.getActiveParty()?.name ?? "";
 
     // Available dungeons (for the picker in idle state)
     if (context.isIdle && isGM) {
@@ -315,7 +316,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
    * @returns {Actor[]}
    */
   _getPartyMembers() {
-    const party = game.actors.find(a => a.type === "party");
+    const party = game.trespasser.TrespasserPartyHelper?.getActiveParty() || game.actors.find(a => a.type === "party");
     if (party) {
       const memberIds = party.system.members ?? [];
       return memberIds.map(id => game.actors.get(id)).filter(a => a?.type === "character");
@@ -384,7 +385,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     const activeSources = [];
 
     // Use party members if a party actor exists, otherwise all characters
-    const party = game.actors.find(a => a.type === "party");
+    const party = game.trespasser.TrespasserPartyHelper.getActiveParty();
     const characters = party
       ? (party.system.members ?? []).map(id => game.actors.get(id)).filter(a => a?.type === "character")
       : game.actors.filter(a => a.type === "character");

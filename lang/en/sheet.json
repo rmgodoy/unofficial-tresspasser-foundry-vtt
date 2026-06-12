@@ -598,6 +598,9 @@
         "DropFeaturesNote": "Drop feature items here to link them to this craft."
       },
       "Party": {
+        "ActiveParty": "Active Party",
+        "SetActiveParty": "Set as Active Party",
+        "ActivePartyHelp": "This party will be used for dungeon exploration and travel tracking.",
         "NamePlaceholder": "The Company of the Ashen Star",
         "Members": "Party Members",
         "NoMembers": "No members yet. Drag character actors here or use the picker below.",

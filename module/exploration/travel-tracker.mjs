@@ -189,6 +189,7 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
     context.hasRegion = !!this.region;
     context.regionName = this.region?.name ?? "";
     context.regionId = this.region?.id ?? "";
+    context.activePartyName = game.trespasser.TrespasserPartyHelper?.getActiveParty()?.name ?? "";
 
     // Available regions (for the picker in idle state)
     if (context.isIdle && isGM) {
@@ -596,7 +597,7 @@ export class TravelTracker extends api.HandlebarsApplicationMixin(api.Applicatio
 
     // Get party members
     let members = [];
-    const party = game.actors.find(a => a.type === "party");
+    const party = game.trespasser.TrespasserPartyHelper?.getActiveParty() || game.actors.find(a => a.type === "party");
     if (party && party.system.members?.length > 0) {
       members = party.system.members.map(id => game.actors.get(id)).filter(a => a?.type === "character");
     } else {

@@ -13,6 +13,7 @@
 
 const { api, sheets } = foundry.applications;
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { TrespasserPartyHelper } from "../helpers/party-helper.mjs";
 import { NonCombatSparkDialog, NonCombatShadowDialog } from "../dialogs/tempt-fate-dialogs.mjs";
 import * as NonCombatHelper from "../helpers/non-combat-helper.mjs";
 
@@ -25,7 +26,8 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
       removeMember: TrespasserPartySheet.#onRemoveMember,
       addMember: TrespasserPartySheet.#onAddMember,
       openMemberSheet: TrespasserPartySheet.#onOpenMemberSheet,
-      rollGroupCheck: TrespasserPartySheet.#onRollGroupCheck
+      rollGroupCheck: TrespasserPartySheet.#onRollGroupCheck,
+      setActiveParty: TrespasserPartySheet.onSetActiveParty
     },
     form: { submitOnChange: true },
     window: { resizable: true }
@@ -56,6 +58,7 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     context.system = system;
     context.editable = this.isEditable;
     context.isGM = game.user.isGM;
+    context.isActiveParty = game.settings.get("trespasser", "activePartyId") === actor.id;
 
     // Resolve member actors with full resource data
     const memberIds = system.members ?? [];
@@ -526,5 +529,14 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     await this.document.update({ "system.members": members });
     ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Party.MemberAdded", { name: actor.name }));
     return true;
+  }
+
+  /**
+   * Set this party as the active party for the world.
+   */
+  static async onSetActiveParty(event, target) {
+    if (!game.user.isGM) return;
+    await TrespasserPartyHelper.setActiveParty(this.document.id);
+    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Party.ActivePartySet", { name: this.document.name }));
   }
 }

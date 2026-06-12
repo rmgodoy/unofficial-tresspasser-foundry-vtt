@@ -598,6 +598,9 @@
         "DropFeaturesNote": "Arraste habilidades aqui para vinculá-las a este ofício."
       },
       "Party": {
+        "ActiveParty": "Grupo Ativo",
+        "SetActiveParty": "Definir como Grupo Ativo",
+        "ActivePartyHelp": "Este grupo será usado para exploração de masmorras e viagens.",
         "NamePlaceholder": "A Companhia da Estrela de Cinzas",
         "Members": "Membros do Grupo",
         "NoMembers": "Nenhum membro ainda. Arraste atores de personagens aqui ou use o seletor abaixo.",

@@ -55,6 +55,7 @@ import { executeTemptFateFlow } from "./module/sheets/character/handlers-tempt-f
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
 import { TrespasserPartySheet }   from "./module/sheets/actor-party-sheet.mjs";
+import { TrespasserPartyHelper }  from "./module/helpers/party-helper.mjs";
 
 // ── Dungeon Exploration imports ──────────────────────────────────────────────
 import { TrespasserDungeonData }   from "./module/data/actor-dungeon.mjs";
@@ -143,6 +144,27 @@ Hooks.once("init", async () => {
   };
 
   // Register settings
+  game.settings.register("trespasser", "activePartyId", {
+    name: "Active Party ID",
+    scope: "world",
+    config: false,
+    type: String,
+    default: "",
+    onChange: () => {
+      // Re-render open party sheets
+      game.actors.filter(a => a.type === "party").forEach(a => {
+        if (a.sheet?.rendered) a.sheet.render();
+      });
+      // Re-render trackers
+      if (game.trespasser?.TravelTracker?._instance) {
+        game.trespasser.TravelTracker._instance.render();
+      }
+      if (game.trespasser?.DungeonTracker?._instance) {
+        game.trespasser.DungeonTracker._instance.render();
+      }
+    }
+  });
+
   game.settings.register("trespasser", "showInitiativeInChat", {
     name: "TRESPASSER.Settings.Mechanics.InitiativeChat.Name",
     hint: "TRESPASSER.Settings.Mechanics.InitiativeChat.Hint",
@@ -592,6 +614,7 @@ Hooks.once("init", async () => {
   game.trespasser.ItemExporter = ItemExporter;
   game.trespasser.Config = TrespasserConfigV2;
   game.trespasser.EventClocks = EventClocksTracker;
+  game.trespasser.TrespasserPartyHelper = TrespasserPartyHelper;
   game.trespasser.NonCombatHelper = NonCombatHelper;
   game.trespasser.NonCombatSparkDialog = NonCombatSparkDialog;
   game.trespasser.NonCombatShadowDialog = NonCombatShadowDialog;

@@ -66,7 +66,7 @@
   <div class="tracker-header">
     <div class="tracker-header-info">
       <h2 class="tracker-dungeon-name">{{dungeonName}}</h2>
-      <span class="tracker-hostility">{{hostilityLabel}} (DC {{hostilityDC}})</span>
+      <span class="tracker-hostility">{{hostilityLabel}} (DC {{hostilityDC}}) {{#if activePartyName}}<span style="color: var(--trp-gold-dim); margin-left: 4px;">· <i class="fas fa-users" style="margin-left: 2px;"></i> {{activePartyName}}</span>{{/if}}</span>
     </div>
     {{#if isGM}}
     <div class="tracker-header-controls">

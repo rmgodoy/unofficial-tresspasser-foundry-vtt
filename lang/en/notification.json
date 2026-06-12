@@ -102,6 +102,7 @@
         "Pending": "Transfer request for {item} sent to {target}."
       },
       "Party": {
+        "ActivePartySet": "{name} is now the active party!",
         "NoMembers": "The party has no members.",
         "DropCharactersOnly": "Only character actors can be added to the party.",
         "AlreadyMember": "{name} is already a member of the party.",

@@ -8,6 +8,19 @@
       <input class="party-name" name="name" type="text" value="{{actor.name}}"
              placeholder="{{localize 'TRESPASSER.Sheet.Party.NamePlaceholder'}}" />
       <span class="party-member-count">{{members.length}} {{localize "TRESPASSER.Sheet.Party.Members"}}</span>
+      <div class="party-active-toggle" style="margin-top: 4px;">
+        {{#if isActiveParty}}
+          <span class="active-party-badge" title="{{localize 'TRESPASSER.Sheet.Party.ActivePartyHelp'}}" style="color: var(--trp-gold-bright); font-weight: bold; font-size: var(--fs-7);">
+            <i class="fas fa-star"></i> {{localize "TRESPASSER.Sheet.Party.ActiveParty"}}
+          </span>
+        {{else}}
+          {{#if isGM}}
+          <button type="button" class="set-active-party-btn" data-action="setActiveParty" style="padding: 2px 6px; font-size: var(--fs-8); line-height: 1;">
+            <i class="far fa-star"></i> {{localize "TRESPASSER.Sheet.Party.SetActiveParty"}}
+          </button>
+          {{/if}}
+        {{/if}}
+      </div>
     </div>
   </header>
 
