@@ -121,6 +121,14 @@
         "ViewDetails": "Ver detalhes do item"
       },
       "SkillCheckTitle": "Teste de {skill}",
+      "Travel": {
+        "KeepingWatch": {
+          "Title": "Vigia Noturna",
+          "Content": "Alguém no grupo está de vigia durante o descanso noturno? Um personagem de vigia não ganha os benefícios totais do descanso.",
+          "Yes": "Sim, de vigia",
+          "No": "Sem vigia"
+        }
+      },
       "Party": {
         "SelectAttribute": "Selecione um atributo para o teste de grupo.",
         "SelectParticipants": "Selecionar Participantes",

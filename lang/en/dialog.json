@@ -121,6 +121,14 @@
         "ViewDetails": "View item details"
       },
       "SkillCheckTitle": "{skill} Check",
+      "Travel": {
+        "KeepingWatch": {
+          "Title": "Night Watch",
+          "Content": "Is anyone in the party keeping watch during the night's rest? A character on watch does not gain the full benefits of rest.",
+          "Yes": "Yes, keeping watch",
+          "No": "No watch"
+        }
+      },
       "Party": {
         "SelectAttribute": "Select an attribute for the group check.",
         "SelectParticipants": "Select Participants",
