@@ -166,6 +166,7 @@
           "Label": "Encontro",
           "Reaction": "Reação",
           "Surprise": "Surpresa",
+          "SurpriseCheck": "Teste de {skill}",
           "Distance": "Distância",
           "DistanceRollHint": "Role 3d6 × 2 para a distância (em quadrados).",
           "Approach": "Abordagem",

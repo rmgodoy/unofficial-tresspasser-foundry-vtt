@@ -118,7 +118,7 @@ export async function resolveEndOfRound(actor, options = {}) {
   encounterContent += `<h3>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Title")}</h3>`;
   encounterContent += `<div class="encounter-description"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Label")}:</strong> ${encounterDescription}</div>`;
   encounterContent += `<div class="encounter-reaction"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Reaction")}:</strong> ${reactionLabel} (2d6: ${reactionTotal})</div>`;
-  encounterContent += `<div class="encounter-surprise"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Surprise")}:</strong> ${game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", {skill: "AGILITY | STEALTH"})} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</div>`;
+  encounterContent += `<div class="encounter-surprise"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Surprise")}:</strong> ${game.i18n.format("TRESPASSER.Chat.Dungeon.Encounter.SurpriseCheck", {skill: "AGILITY | STEALTH"})} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</div>`;
 
   // Distance suggestion
   encounterContent += `<div class="encounter-distance"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Distance")}</strong> ${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.DistanceRollHint")}</div>`;
