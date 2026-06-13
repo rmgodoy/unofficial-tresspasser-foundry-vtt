@@ -416,94 +416,118 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     }
 
     // Determine Group Sparks / Shadows
-    let chosenSparks = [];
-    let chosenShadows = [];
     const outcome = successes - failures;
+    const expectedSparks = outcome >= 2 ? 1 : 0;
+    const expectedShadows = outcome <= -2 ? 1 : 0;
 
-    if (outcome >= 2) {
-      // Prompt character with highest roll result
-      const highestRoll = results.reduce((max, curr) => curr.total > max.total ? curr : max, results[0]);
-      const ownerUser = game.users.find(u => !u.isGM && highestRoll.actor.testUserPermission(u, "OWNER") && u.active);
-      const requestId = foundry.utils.randomID();
-      
-      if (!ownerUser || ownerUser.id === game.user.id) {
-        chosenSparks = await NonCombatSparkDialog.wait(1, { actor: highestRoll.actor });
-      } else {
-        chosenSparks = await NonCombatHelper.requestPlayerSparks({
-          requestId,
-          targetUserId: ownerUser.id,
-          sparkCount: 1,
-          rollLabel: "Group Check Spark",
-          actorId: highestRoll.actor.id
-        });
+    // Helper to build HTML
+    const _buildHtml = (sparks, shadows) => {
+      let content = `<div class="trespasser-group-check">`;
+      content += `<h3>${game.i18n.localize("TRESPASSER.Chat.Party.GroupCheck")}: ${checkLabel}</h3>`;
+      content += `<p class="group-check-dc-line">${game.i18n.localize("TRESPASSER.Terms.Combat.DC")} ${dc}</p>`;
+      content += `<div class="group-check-results">`;
+      for (const r of results) {
+        const cls = r.success ? "success" : "failure";
+        let resultIndicator = r.success ? "✓" : "✗";
+        let isNat20Text = "";
+        if (r.isNat20) {
+          resultIndicator = "✓✓";
+          isNat20Text = ` <span style="font-size: var(--fs-9); color: var(--trp-gold-bright); font-weight: bold; text-transform: uppercase;">(Nat 20)</span>`;
+        }
+        content += `<div class="group-check-row ${cls}">`;
+        content += `<span class="group-check-name">${r.name}${isNat20Text}</span>`;
+        content += `<span class="group-check-roll">${r.formula}</span>`;
+        content += `<span class="group-check-total">${r.total}</span>`;
+        content += `<span class="group-check-result">${resultIndicator}</span>`;
+        content += `</div>`;
       }
-      chosenSparks = chosenSparks || [];
-    } else if (outcome <= -2) {
-      if (game.user.isGM) {
-        chosenShadows = await NonCombatShadowDialog.wait(1);
-      } else {
-        const requestId = foundry.utils.randomID();
-        chosenShadows = await NonCombatHelper.requestGMShadows({
-          requestId,
-          shadowCount: 1,
-          rollLabel: "Group Check Shadow"
-        });
-      }
-      chosenShadows = chosenShadows || [];
-    }
-
-    // Build chat output
-    let content = `<div class="trespasser-group-check">`;
-    content += `<h3>${game.i18n.localize("TRESPASSER.Chat.Party.GroupCheck")}: ${checkLabel}</h3>`;
-    content += `<p class="group-check-dc-line">${game.i18n.localize("TRESPASSER.Terms.Combat.DC")} ${dc}</p>`;
-    content += `<div class="group-check-results">`;
-    for (const r of results) {
-      const cls = r.success ? "success" : "failure";
-      let resultIndicator = r.success ? "✓" : "✗";
-      let isNat20Text = "";
-      if (r.isNat20) {
-        resultIndicator = "✓✓";
-        isNat20Text = ` <span style="font-size: var(--fs-9); color: var(--trp-gold-bright); font-weight: bold; text-transform: uppercase;">(Nat 20)</span>`;
-      }
-
-      content += `<div class="group-check-row ${cls}">`;
-      content += `<span class="group-check-name">${r.name}${isNat20Text}</span>`;
-      content += `<span class="group-check-roll">${r.formula}</span>`;
-      content += `<span class="group-check-total">${r.total}</span>`;
-      content += `<span class="group-check-result">${resultIndicator}</span>`;
       content += `</div>`;
-    }
-    content += `</div>`;
 
-    content += `<div class="group-check-summary" style="display: flex; flex-direction: column; gap: 4px;">`;
-    content += `<div><strong>Successes:</strong> ${successes} | <strong>Failures:</strong> ${failures}</div>`;
-    content += `<div><strong>Net Outcome:</strong> ${outcome >= 0 ? "+" + outcome : outcome}</div>`;
+      content += `<div class="group-check-summary" style="display: flex; flex-direction: column; gap: 4px;">`;
+      content += `<div><strong>Successes:</strong> ${successes} | <strong>Failures:</strong> ${failures}</div>`;
+      content += `<div><strong>Net Outcome:</strong> ${outcome >= 0 ? "+" + outcome : outcome}</div>`;
 
-    if (chosenSparks.length > 0) {
-      content += `<div class="group-check-sparks" style="margin-top: 4px; text-align: left;">`;
-      content += `<strong>Group Sparks:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
-      for (const spark of chosenSparks) {
-        content += `<li><span style="color:var(--trp-spark); font-weight:bold;"><i class="fas fa-sun"></i> ${spark.toUpperCase()}</span></li>`;
+      if (expectedSparks > 0 && sparks.length === 0) {
+        content += `<div style="color:var(--trp-spark); font-weight:bold; margin-top:4px;"><i class="fas fa-sun"></i> Pending Group Spark Selection</div>`;
       }
-      content += `</ul></div>`;
-    }
-
-    if (chosenShadows.length > 0) {
-      content += `<div class="group-check-shadows" style="margin-top: 4px; text-align: left;">`;
-      content += `<strong>Group Shadows:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
-      for (const shadow of chosenShadows) {
-        content += `<li><span style="color:var(--trp-shadow); font-weight:bold;"><i class="fas fa-moon"></i> ${shadow.toUpperCase()}</span></li>`;
+      if (expectedShadows > 0 && shadows.length === 0) {
+        content += `<div style="color:var(--trp-shadow); font-weight:bold; margin-top:4px;"><i class="fas fa-moon"></i> Pending Group Shadow Selection</div>`;
       }
-      content += `</ul></div>`;
-    }
 
-    content += `</div></div>`;
+      if (sparks.length > 0) {
+        content += `<div class="group-check-sparks" style="margin-top: 4px; text-align: left;">`;
+        content += `<strong>Group Sparks:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
+        for (const spark of sparks) {
+          content += `<li><span style="color:var(--trp-spark); font-weight:bold;"><i class="fas fa-sun"></i> ${spark.toUpperCase()}</span></li>`;
+        }
+        content += `</ul></div>`;
+      }
 
-    await ChatMessage.create({
-      content,
+      if (shadows.length > 0) {
+        content += `<div class="group-check-shadows" style="margin-top: 4px; text-align: left;">`;
+        content += `<strong>Group Shadows:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
+        for (const shadow of shadows) {
+          content += `<li><span style="color:var(--trp-shadow); font-weight:bold;"><i class="fas fa-moon"></i> ${shadow.toUpperCase()}</span></li>`;
+        }
+        content += `</ul></div>`;
+      }
+
+      content += `</div></div>`;
+      return content;
+    };
+
+    const msg = await ChatMessage.create({
+      content: _buildHtml([], []),
       speaker: ChatMessage.getSpeaker({ alias: this.document.name }),
       rolls: results.map(r => r.roll)
     });
+
+    if (expectedSparks > 0 || expectedShadows > 0) {
+      (async () => {
+        let finalSparks = [];
+        let finalShadows = [];
+
+        if (expectedSparks > 0) {
+          // Prompt character with highest roll result
+          const highestRoll = results.reduce((max, curr) => curr.total > max.total ? curr : max, results[0]);
+          const ownerUser = game.users.find(u => !u.isGM && highestRoll.actor.testUserPermission(u, "OWNER") && u.active);
+          const requestId = foundry.utils.randomID();
+          
+          if (!ownerUser || ownerUser.id === game.user.id) {
+            finalSparks = await NonCombatSparkDialog.wait(1, { actor: highestRoll.actor });
+          } else {
+            finalSparks = await NonCombatHelper.requestPlayerSparks({
+              requestId,
+              targetUserId: ownerUser.id,
+              sparkCount: 1,
+              rollLabel: "Group Check Spark",
+              actorId: highestRoll.actor.id
+            });
+          }
+          finalSparks = finalSparks || [];
+        } else if (expectedShadows > 0) {
+          if (game.user.isGM) {
+            finalShadows = await NonCombatShadowDialog.wait(1);
+          } else {
+            const requestId = foundry.utils.randomID();
+            finalShadows = await NonCombatHelper.requestGMShadows({
+              requestId,
+              shadowCount: 1,
+              rollLabel: "Group Check Shadow"
+            });
+          }
+          finalShadows = finalShadows || [];
+        }
+
+        const updates = { content: _buildHtml(finalSparks, finalShadows) };
+        if (game.user.isGM) {
+          await msg.update(updates);
+        } else {
+          const { TrespasserSocket } = game.trespasser || {};
+          TrespasserSocket?.emit("UPDATE_CHAT_MESSAGE", { messageId: msg.id, updates });
+        }
+      })();
+    }
   }
 
   /* -------------------------------------------- */
