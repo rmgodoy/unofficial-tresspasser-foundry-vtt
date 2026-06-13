@@ -11,11 +11,12 @@
  * sheet to add them, or use the dropdown picker.
  */
 
-const { api, sheets } = foundry.applications;
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserPartyHelper } from "../helpers/party-helper.mjs";
 import { NonCombatSparkDialog, NonCombatShadowDialog } from "../dialogs/tempt-fate-dialogs.mjs";
 import * as NonCombatHelper from "../helpers/non-combat-helper.mjs";
+
+const { api, sheets } = foundry.applications;
 
 export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
 
@@ -367,167 +368,29 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
       : null;
     const checkLabel = skillLabel ? `${attrLabel} | ${skillLabel}` : attrLabel;
 
-    // Roll for each member
-    let successes = 0;
-    let failures = 0;
+    // Create the pending Chat Message
     const results = [];
-    for (const actor of members) {
-      const data = actor.system;
-      const attrBase = data.attributes?.[attribute] ?? 0;
-      const staticBonus = data.bonuses?.[attribute] ?? 0;
-      
-      // Skill bonus if trained
-      const isTrained = skill && data.skills?.[skill] === true;
-      const skillBonus = isTrained ? (data.skill ?? 0) : 0;
-      
-      // Get triggered bonus and consume usage charges
-      const triggeredBonus = await TrespasserEffectsHelper.evaluateAttributeBonus(actor, attribute);
-      
-      const totalBonus = attrBase + staticBonus + skillBonus + triggeredBonus;
-      const formula = `1d20 + ${totalBonus}`;
-
-      const roll = new foundry.dice.Roll(formula);
-      await roll.evaluate();
-
-      const dieResult = roll.dice[0]?.results[0]?.result;
-      const isNat20 = dieResult === 20;
-      const isSuccess = roll.total >= dc || isNat20;
-
-      let contribSuccesses = 0;
-      let contribFailures = 0;
-
-      if (isSuccess) {
-        contribSuccesses = isNat20 ? 2 : 1;
-        successes += contribSuccesses;
-      } else {
-        contribFailures = 1;
-        failures += contribFailures;
-      }
-
-      results.push({
-        actor,
-        name: actor.name,
-        total: roll.total,
-        formula: roll.formula,
-        success: isSuccess,
-        isNat20,
-        roll
-      });
-    }
-
-    // Determine Group Sparks / Shadows
-    const outcome = successes - failures;
-    const expectedSparks = outcome >= 2 ? 1 : 0;
-    const expectedShadows = outcome <= -2 ? 1 : 0;
-
-    // Helper to build HTML
-    const _buildHtml = (sparks, shadows) => {
-      let content = `<div class="trespasser-group-check">`;
-      content += `<h3>${game.i18n.localize("TRESPASSER.Chat.Party.GroupCheck")}: ${checkLabel}</h3>`;
-      content += `<p class="group-check-dc-line">${game.i18n.localize("TRESPASSER.Terms.Combat.DC")} ${dc}</p>`;
-      content += `<div class="group-check-results">`;
-      for (const r of results) {
-        const cls = r.success ? "success" : "failure";
-        let resultIndicator = r.success ? "✓" : "✗";
-        let isNat20Text = "";
-        if (r.isNat20) {
-          resultIndicator = "✓✓";
-          isNat20Text = ` <span style="font-size: var(--fs-9); color: var(--trp-gold-bright); font-weight: bold; text-transform: uppercase;">(Nat 20)</span>`;
+    const messageFlags = {
+      trespasser: {
+        groupCheck: {
+          attribute,
+          skill,
+          dc,
+          checkLabel,
+          participants: members.map(m => m.id),
+          results: [],
+          status: "pending"
         }
-        content += `<div class="group-check-row ${cls}">`;
-        content += `<span class="group-check-name">${r.name}${isNat20Text}</span>`;
-        content += `<span class="group-check-roll">${r.formula}</span>`;
-        content += `<span class="group-check-total">${r.total}</span>`;
-        content += `<span class="group-check-result">${resultIndicator}</span>`;
-        content += `</div>`;
       }
-      content += `</div>`;
-
-      content += `<div class="group-check-summary" style="display: flex; flex-direction: column; gap: 4px;">`;
-      content += `<div><strong>Successes:</strong> ${successes} | <strong>Failures:</strong> ${failures}</div>`;
-      content += `<div><strong>Net Outcome:</strong> ${outcome >= 0 ? "+" + outcome : outcome}</div>`;
-
-      if (expectedSparks > 0 && sparks.length === 0) {
-        content += `<div style="color:var(--trp-spark); font-weight:bold; margin-top:4px;"><i class="fas fa-sun"></i> Pending Group Spark Selection</div>`;
-      }
-      if (expectedShadows > 0 && shadows.length === 0) {
-        content += `<div style="color:var(--trp-shadow); font-weight:bold; margin-top:4px;"><i class="fas fa-moon"></i> Pending Group Shadow Selection</div>`;
-      }
-
-      if (sparks.length > 0) {
-        content += `<div class="group-check-sparks" style="margin-top: 4px; text-align: left;">`;
-        content += `<strong>Group Sparks:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
-        for (const spark of sparks) {
-          content += `<li><span style="color:var(--trp-spark); font-weight:bold;"><i class="fas fa-sun"></i> ${spark.toUpperCase()}</span></li>`;
-        }
-        content += `</ul></div>`;
-      }
-
-      if (shadows.length > 0) {
-        content += `<div class="group-check-shadows" style="margin-top: 4px; text-align: left;">`;
-        content += `<strong>Group Shadows:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
-        for (const shadow of shadows) {
-          content += `<li><span style="color:var(--trp-shadow); font-weight:bold;"><i class="fas fa-moon"></i> ${shadow.toUpperCase()}</span></li>`;
-        }
-        content += `</ul></div>`;
-      }
-
-      content += `</div></div>`;
-      return content;
     };
 
-    const msg = await ChatMessage.create({
-      content: _buildHtml([], []),
+    const content = TrespasserPartyHelper.buildGroupCheckPendingHtml(checkLabel, dc, members.map(m => m.id), []);
+
+    await ChatMessage.create({
+      content,
       speaker: ChatMessage.getSpeaker({ alias: this.document.name }),
-      rolls: results.map(r => r.roll)
+      flags: messageFlags
     });
-
-    if (expectedSparks > 0 || expectedShadows > 0) {
-      (async () => {
-        let finalSparks = [];
-        let finalShadows = [];
-
-        if (expectedSparks > 0) {
-          // Prompt character with highest roll result
-          const highestRoll = results.reduce((max, curr) => curr.total > max.total ? curr : max, results[0]);
-          const ownerUser = game.users.find(u => !u.isGM && highestRoll.actor.testUserPermission(u, "OWNER") && u.active);
-          const requestId = foundry.utils.randomID();
-          
-          if (!ownerUser || ownerUser.id === game.user.id) {
-            finalSparks = await NonCombatSparkDialog.wait(1, { actor: highestRoll.actor });
-          } else {
-            finalSparks = await NonCombatHelper.requestPlayerSparks({
-              requestId,
-              targetUserId: ownerUser.id,
-              sparkCount: 1,
-              rollLabel: "Group Check Spark",
-              actorId: highestRoll.actor.id
-            });
-          }
-          finalSparks = finalSparks || [];
-        } else if (expectedShadows > 0) {
-          if (game.user.isGM) {
-            finalShadows = await NonCombatShadowDialog.wait(1);
-          } else {
-            const requestId = foundry.utils.randomID();
-            finalShadows = await NonCombatHelper.requestGMShadows({
-              requestId,
-              shadowCount: 1,
-              rollLabel: "Group Check Shadow"
-            });
-          }
-          finalShadows = finalShadows || [];
-        }
-
-        const updates = { content: _buildHtml(finalSparks, finalShadows) };
-        if (game.user.isGM) {
-          await msg.update(updates);
-        } else {
-          const { TrespasserSocket } = game.trespasser || {};
-          TrespasserSocket?.emit("UPDATE_CHAT_MESSAGE", { messageId: msg.id, updates });
-        }
-      })();
-    }
   }
 
   /* -------------------------------------------- */

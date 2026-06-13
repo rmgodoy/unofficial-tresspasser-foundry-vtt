@@ -51,6 +51,7 @@ import { COMMON_PLIGHTS }          from "./module/config/plight-config.mjs";
 import * as NonCombatHelper        from "./module/helpers/non-combat-helper.mjs";
 import { NonCombatSparkDialog, NonCombatShadowDialog } from "./module/dialogs/tempt-fate-dialogs.mjs";
 import { executeTemptFateFlow } from "./module/sheets/character/handlers-tempt-fate.mjs";
+import { TrespasserRollDialog } from "./module/dialogs/roll-dialog.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -1882,3 +1883,188 @@ Hooks.on("refreshToken", (token) => {
     token.addChild(sprite);
   });
 });
+
+/**
+ * Handle Group Check Roll buttons in chat messages
+ */
+Hooks.on("renderChatMessageHTML", (message, htmlElement, data) => {
+  const rollBtn = htmlElement.querySelector(".group-check-roll-btn");
+  if (rollBtn) {
+    rollBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      
+      const flags = message.flags.trespasser?.groupCheck;
+      if (!flags || flags.status === "completed") return;
+
+      const { attribute, skill, dc, checkLabel, participants, results } = flags;
+
+      // Find which participants the current user owns and hasn't rolled for
+      const ownedUnrolledActors = participants.map(id => game.actors.get(id))
+        .filter(actor => {
+          if (!actor) return false;
+          // Must own the actor
+          if (!actor.isOwner) return false;
+          // If GM, maybe don't automatically roll for everyone unless they click it?
+          // Actually, if a player clicks it, roll for all they own.
+          // If GM clicks it, it rolls for any unowned/unrolled characters? 
+          // Let's just say anyone who clicks it rolls for whatever they own.
+          const hasRolled = results.some(r => r.actorId === actor.id);
+          return !hasRolled;
+        });
+
+      if (ownedUnrolledActors.length === 0) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Party.NoPendingRolls"));
+        return;
+      }
+
+      // Roll for each owned actor
+      for (const actor of ownedUnrolledActors) {
+        const data = actor.system;
+        const attrBase = data.attributes?.[attribute] ?? 0;
+        const staticBonus = data.bonuses?.[attribute] ?? 0;
+        
+        const isTrained = skill && data.skills?.[skill] === true;
+        const skillBonus = isTrained ? (data.skill ?? 0) : 0;
+        
+        const effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, attribute, "use");
+
+        // Befuddled & Sickly checks
+        let attrVal = attrBase;
+        let attrBonus = staticBonus;
+        let finalEffectBonus = effectBonus;
+        let plightName = "";
+
+        if ((attribute === "intellect" || attribute === "spirit") && actor.system.hasPlight?.("befuddled")) {
+          plightName = "Befuddled";
+        } else if ((attribute === "mighty" || attribute === "agility") && actor.system.hasPlight?.("sickly")) {
+          plightName = "Sickly";
+        }
+
+        if (plightName) {
+          attrVal = 0;
+          attrBonus = 0;
+          finalEffectBonus = 0;
+          const attrLabel = game.i18n.localize(`TRESPASSER.Terms.Attribute.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
+          ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.AttributeSuppressed", { plight: plightName, attr: attrLabel }));
+        }
+        
+        const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, attribute);
+        const diceFormula = isAdv ? "2d20kh" : "1d20";
+
+        const rollData = {
+          dice: diceFormula,
+          bonuses: [
+            { label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`), value: attrVal },
+            { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: finalEffectBonus }
+          ]
+        };
+        if (skillBonus > 0) rollData.bonuses.push({ label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus });
+        if (attrBonus !== 0) rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
+
+        const result = await TrespasserRollDialog.wait({
+          ...rollData,
+          showCD: true,
+          cd: dc,
+          isNonCombat: false
+        }, { title: `${actor.name}: ${checkLabel}` });
+
+        if (!result) continue; // They cancelled the roll dialog, skip to next actor
+
+        let formula = `${diceFormula} + ${attrVal} + ${result.modifier}`;
+        if (attrBonus !== 0) formula += ` + ${attrBonus}`;
+        if (finalEffectBonus !== 0) formula += ` + ${finalEffectBonus}`;
+        if (skillBonus > 0) formula += ` + ${skillBonus}`;
+
+        const roll = new foundry.dice.Roll(formula);
+        await roll.evaluate();
+
+        const dieResult = roll.dice[0]?.results[0]?.result;
+        const isNat20 = dieResult === 20;
+        const isSuccess = roll.total >= dc || isNat20;
+
+        // Print individual roll to chat
+        const flavor = isAdv
+          ? game.i18n.format("TRESPASSER.Chat.Check.SkillCheckAdv", { name: actor.name, skill: checkLabel })
+          : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck", { name: actor.name, skill: checkLabel });
+        
+        await roll.toMessage({
+          speaker: ChatMessage.getSpeaker({ actor: actor }),
+          flavor: `${flavor}<p>${game.i18n.format("TRESPASSER.Chat.Check.VsCD", { cd: dc })}</p>`
+        });
+
+        await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: attribute });
+
+        const resultObj = {
+          actorId: actor.id,
+          name: actor.name,
+          total: roll.total,
+          formula: roll.formula,
+          success: isSuccess,
+          isNat20,
+          rollData: roll.toJSON()
+        };
+
+        const { TrespasserSocket } = game.trespasser || {};
+        TrespasserSocket?.emit("GROUP_CHECK_SUBMIT_ROLL", { messageId: message.id, result: resultObj });
+      }
+    });
+  }
+
+  const forceRollBtn = htmlElement.querySelector(".group-check-force-roll-btn");
+  if (forceRollBtn) {
+    if (!game.user.isGM) {
+      forceRollBtn.style.display = "none";
+    } else {
+      forceRollBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      
+      const flags = message.flags.trespasser?.groupCheck;
+      if (!flags || flags.status === "completed") return;
+
+      const { attribute, skill, dc, participants, results } = flags;
+      
+      // Find ALL participants who haven't rolled yet
+      const unrolledActors = participants.map(id => game.actors.get(id))
+        .filter(actor => actor && !results.some(r => r.actorId === actor.id));
+
+      if (unrolledActors.length === 0) {
+        // Just finalize if somehow there are no unrolled actors but it's not finalized
+        await game.trespasser.TrespasserPartyHelper.finalizeGroupCheck(message.id);
+        return;
+      }
+
+      for (const actor of unrolledActors) {
+        const data = actor.system;
+        const attrBase = data.attributes?.[attribute] ?? 0;
+        const staticBonus = data.bonuses?.[attribute] ?? 0;
+        const isTrained = skill && data.skills?.[skill] === true;
+        const skillBonus = isTrained ? (data.skill ?? 0) : 0;
+        const triggeredBonus = await TrespasserEffectsHelper.evaluateAttributeBonus(actor, attribute);
+        const totalBonus = attrBase + staticBonus + skillBonus + triggeredBonus;
+        
+        const formula = `1d20 + ${totalBonus}`;
+        const roll = new foundry.dice.Roll(formula);
+        await roll.evaluate();
+
+        const dieResult = roll.dice[0]?.results[0]?.result;
+        const isNat20 = dieResult === 20;
+        const isSuccess = roll.total >= dc || isNat20;
+
+        const resultObj = {
+          actorId: actor.id,
+          name: actor.name,
+          total: roll.total,
+          formula: roll.formula,
+          success: isSuccess,
+          isNat20,
+          rollData: roll.toJSON()
+        };
+
+        const { TrespasserSocket } = game.trespasser || {};
+        TrespasserSocket?.emit("GROUP_CHECK_SUBMIT_ROLL", { messageId: message.id, result: resultObj });
+      }
+    });
+    }
+  }
+});
+

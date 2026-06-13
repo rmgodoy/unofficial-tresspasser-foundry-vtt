@@ -40,4 +40,210 @@ export class TrespasserPartyHelper {
     
     await game.settings.set("trespasser", "activePartyId", actorId);
   }
+
+  /**
+   * Build the initial/pending HTML for a Group Check chat message.
+   */
+  static buildGroupCheckPendingHtml(checkLabel, dc, participants, results) {
+    let content = `<div class="trespasser-group-check">`;
+    content += `<h3>${game.i18n.localize("TRESPASSER.Chat.Party.GroupCheck")}: ${checkLabel}</h3>`;
+    content += `<p class="group-check-dc-line">${game.i18n.localize("TRESPASSER.Terms.Combat.DC")} ${dc}</p>`;
+    
+    content += `<div class="group-check-participants" style="margin-bottom: 8px;">`;
+    for (const actorId of participants) {
+      const actor = game.actors.get(actorId);
+      const hasRolled = results.some(r => r.actorId === actorId);
+      const statusIcon = hasRolled ? `<i class="fas fa-check" style="color:var(--trp-green);"></i>` : `<i class="fas fa-clock" style="color:var(--trp-gold);"></i>`;
+      content += `<div style="display:flex; justify-content:space-between; padding: 2px 0; border-bottom: 1px solid var(--trp-border-light);">
+        <span>${actor?.name ?? "Unknown"}</span>
+        <span>${statusIcon}</span>
+      </div>`;
+    }
+    content += `</div>`;
+
+    if (results.length < participants.length) {
+      content += `
+        <button type="button" class="group-check-roll-btn" style="width:100%; cursor:pointer; font-family:var(--trp-font-header); font-size:var(--fs-11); text-transform:uppercase; font-weight:bold; padding:6px; background:var(--trp-bg-panel); border:1px solid var(--trp-border); color:var(--trp-gold); margin-bottom: 4px;">
+          <i class="fas fa-dice"></i> Roll
+        </button>`;
+      
+      if (game.user.isGM) {
+        content += `
+          <button type="button" class="group-check-force-roll-btn" style="width:100%; cursor:pointer; font-family:var(--trp-font-header); font-size:var(--fs-10); text-transform:uppercase; padding:4px; background:var(--trp-bg-dark); border:1px solid var(--trp-red); color:var(--trp-red);">
+            <i class="fas fa-fast-forward"></i> Force Complete (GM)
+          </button>`;
+      }
+    } else {
+      content += `<p style="text-align: center; font-style: italic; color: var(--trp-text-dim);">Processing results...</p>`;
+    }
+
+    content += `</div>`;
+    return content;
+  }
+
+  /**
+   * Build the final HTML for a Group Check chat message.
+   */
+  static buildGroupCheckFinalHtml(checkLabel, dc, results, successes, failures, outcome, sparks, shadows) {
+    const expectedSparks = outcome >= 2 ? 1 : 0;
+    const expectedShadows = outcome <= -2 ? 1 : 0;
+
+    let content = `<div class="trespasser-group-check">`;
+    content += `<h3>${game.i18n.localize("TRESPASSER.Chat.Party.GroupCheck")}: ${checkLabel}</h3>`;
+    content += `<p class="group-check-dc-line">${game.i18n.localize("TRESPASSER.Terms.Combat.DC")} ${dc}</p>`;
+    content += `<div class="group-check-results">`;
+    for (const r of results) {
+      const cls = r.success ? "success" : "failure";
+      let resultIndicator = r.success ? "✓" : "✗";
+      let isNat20Text = "";
+      if (r.isNat20) {
+        resultIndicator = "✓✓";
+        isNat20Text = ` <span style="font-size: var(--fs-9); color: var(--trp-gold-bright); font-weight: bold; text-transform: uppercase;">(Nat 20)</span>`;
+      }
+      content += `<div class="group-check-row ${cls}">`;
+      content += `<span class="group-check-name">${r.name}${isNat20Text}</span>`;
+      content += `<span class="group-check-roll">${r.formula}</span>`;
+      content += `<span class="group-check-total">${r.total}</span>`;
+      content += `<span class="group-check-result">${resultIndicator}</span>`;
+      content += `</div>`;
+    }
+    content += `</div>`;
+
+    content += `<div class="group-check-summary" style="display: flex; flex-direction: column; gap: 4px;">`;
+    content += `<div><strong>Successes:</strong> ${successes} | <strong>Failures:</strong> ${failures}</div>`;
+    content += `<div><strong>Net Outcome:</strong> ${outcome >= 0 ? "+" + outcome : outcome}</div>`;
+
+    if (expectedSparks > 0 && sparks.length === 0) {
+      content += `<div style="color:var(--trp-spark); font-weight:bold; margin-top:4px;"><i class="fas fa-sun"></i> Pending Group Spark Selection</div>`;
+    }
+    if (expectedShadows > 0 && shadows.length === 0) {
+      content += `<div style="color:var(--trp-shadow); font-weight:bold; margin-top:4px;"><i class="fas fa-moon"></i> Pending Group Shadow Selection</div>`;
+    }
+
+    if (sparks.length > 0) {
+      content += `<div class="group-check-sparks" style="margin-top: 4px; text-align: left;">`;
+      content += `<strong>Group Sparks:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
+      for (const spark of sparks) {
+        content += `<li><span style="color:var(--trp-spark); font-weight:bold;"><i class="fas fa-sun"></i> ${spark.toUpperCase()}</span></li>`;
+      }
+      content += `</ul></div>`;
+    }
+
+    if (shadows.length > 0) {
+      content += `<div class="group-check-shadows" style="margin-top: 4px; text-align: left;">`;
+      content += `<strong>Group Shadows:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
+      for (const shadow of shadows) {
+        content += `<li><span style="color:var(--trp-shadow); font-weight:bold;"><i class="fas fa-moon"></i> ${shadow.toUpperCase()}</span></li>`;
+      }
+      content += `</ul></div>`;
+    }
+
+    content += `</div></div>`;
+    return content;
+  }
+
+  /**
+   * Finalize a group check (called on GM client).
+   */
+  static async finalizeGroupCheck(messageId) {
+    const msg = game.messages.get(messageId);
+    if (!msg) return;
+
+    const flags = msg.flags.trespasser?.groupCheck;
+    if (!flags) return;
+
+    const { checkLabel, dc, results } = flags;
+
+    let successes = 0;
+    let failures = 0;
+    for (const r of results) {
+      if (r.success) successes += r.isNat20 ? 2 : 1;
+      else failures += 1;
+    }
+
+    const outcome = successes - failures;
+    const expectedSparks = outcome >= 2 ? 1 : 0;
+    const expectedShadows = outcome <= -2 ? 1 : 0;
+
+    // Build immediate initial complete state
+    let content = this.buildGroupCheckFinalHtml(checkLabel, dc, results, successes, failures, outcome, [], []);
+    
+    // Convert serialized rolls back to roll instances for the chat message
+    const rollObjects = [];
+    for (const r of results) {
+       try {
+         const roll = foundry.dice.Roll.fromJSON(JSON.stringify(r.rollData));
+         rollObjects.push(roll);
+       } catch (e) {
+         console.warn("Could not deserialize roll", e);
+       }
+    }
+
+    const baseFlags = {
+      ...flags,
+      status: "completed",
+      successes,
+      failures,
+      outcome
+    };
+
+    const newMsg = await ChatMessage.create({ 
+      speaker: msg.speaker,
+      content, 
+      rolls: rollObjects,
+      flags: {
+        trespasser: {
+          groupCheck: baseFlags
+        }
+      }
+    });
+
+    await msg.delete();
+
+    // Handle sparks and shadows prompts
+    if (expectedSparks > 0 || expectedShadows > 0) {
+      const { NonCombatSparkDialog, NonCombatShadowDialog } = game.trespasser || {};
+      const NonCombatHelper = game.trespasser?.NonCombatHelper;
+      
+      (async () => {
+        let finalSparks = [];
+        let finalShadows = [];
+
+        if (expectedSparks > 0) {
+          const highestRoll = results.reduce((max, curr) => curr.total > max.total ? curr : max, results[0]);
+          const highestActor = game.actors.get(highestRoll.actorId);
+          const ownerUser = game.users.find(u => !u.isGM && highestActor?.testUserPermission(u, "OWNER") && u.active);
+          const requestId = foundry.utils.randomID();
+          
+          if (!ownerUser || ownerUser.id === game.user.id) {
+            finalSparks = await globalThis.trespasser.NonCombatSparkDialog.wait(1, { actor: highestActor });
+          } else {
+            finalSparks = await globalThis.trespasser.NonCombatHelper.requestPlayerSparks({
+              requestId,
+              targetUserId: ownerUser.id,
+              sparkCount: 1,
+              rollLabel: "Group Check Spark",
+              actorId: highestActor.id
+            });
+          }
+          finalSparks = finalSparks || [];
+        } else if (expectedShadows > 0) {
+          if (game.user.isGM) {
+            finalShadows = await globalThis.trespasser.NonCombatShadowDialog.wait(1);
+          } else {
+            const requestId = foundry.utils.randomID();
+            finalShadows = await globalThis.trespasser.NonCombatHelper.requestGMShadows({
+              requestId,
+              shadowCount: 1,
+              rollLabel: "Group Check Shadow"
+            });
+          }
+          finalShadows = finalShadows || [];
+        }
+
+        const updates = { content: this.buildGroupCheckFinalHtml(checkLabel, dc, results, successes, failures, outcome, finalSparks, finalShadows) };
+        await newMsg.update(updates);
+      })();
+    }
+  }
 }
