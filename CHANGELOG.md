@@ -2,6 +2,48 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.0] - 2026-06-13
+
+### Foundry V14 Support (@Smothmoth)
+- Upgraded the codebase for full Foundry V14 compatibility.
+- Migrated Character, Creature, Haven, Dungeon actors, and Item sheets/templates/helpers to ApplicationV2 framework patterns.
+- Refactored character sheet data handlers (`get-data.mjs`, `handlers-deed.mjs`, `handlers-talent.mjs`) to align with modern API structures.
+
+### Features
+- **Overland Travel Tracker**:
+  - **Data Model & Config**: Defined the Region actor data model and travel constants representing weather conditions, terrain travel point costs, and camp activities.
+  - **Region Actor Sheet**: Implemented Region sheet with Overview, Log, and Notes tabs. Supports map selection, terrain/weather dropdowns, hostility tier configuration, and RollTable drag-and-drop for encounter tables.
+  - **Travel Tracker HUD**: Created a new scene control tool to launch the Travel Tracker singleton UI, which supports start, pause, resume, and end travel states.
+  - **Status & Lifecycle**: Implemented a status bar visible to both GM and PC players showing the current day, period (Morning/Evening/Night), remaining travel points (represented as pips), active weather, road status, and a disorientation warning.
+  - **Encounter Resolution**: Refactored encounter logic to be generic, checking a d10 roll against hostility tiers for travel or alarm levels for dungeons, without affecting the dungeon tracker.
+  - **Advance Action**: Increments the period, awards travel points, prompts for Wayfinding checks, checks travel hostility, and warns about endurance loss when pressing on.
+  - **Night's Rest Action**: Advances the day tracker, resets travel points/period, and handles watch-keeping/ambush checks with chat notifications.
+  - **Camp Action**: Coordinates player camp activities (Assist, Forage, Hunt, Cook, etc.) via a multi-user socket cycle, offering custom player selection dialogs and GM override/AFK tools.
+  - **PC-Facing Updates**: Displays travel status, weather, and terrain reference costs to players on their UI (with GM controls hidden).
+  - **Camp Activity Targets**: Added support for selecting activity targets (e.g. assisting another player or targeting an actor) and notifies all clients of chosen actions.
+- **Active Party System Configuration**:
+  - Added an `activePartyId` system setting to specify the active adventuring party.
+  - Added a star badge toggle to the Party Sheet to quickly set or clear the active party status.
+  - Displays the active party's name in both Dungeon and Travel Tracker headers.
+  - Falls back to player-owned characters if no active party is selected.
+- **Player-Facing Counter Reactions**:
+  - Migrated the Counter Reaction prompt to be player-facing.
+  - Sends socket requests to character owners to accept/pass counter reactions on enemy attacks, returning the response to the GM to resolve damage.
+- **Interactive Spark/Shadow Distribution Rework**:
+  - Replaced immediate spark/shadow selection pop-ups with interactive chat buttons ("Distribute Sparks", "Distribute Shadows") for players and GMs to click at their convenience.
+  - Integrated this interactive flow with Group Checks, rendering initial success/failure reports in chat immediately while waiting for group spark/shadow distributions via sockets.
+  - Added a Roll Dialog toggle to customize prompting behavior per-roll.
+
+### Improvements & Configuration Options
+- Added configuration toggles for overland automation:
+  - `automateTravelTracker`: Toggle whether resolving camp activities automatically prompts player rolls.
+- Standardized group check auto-prompts to notify players immediately upon check creation.
+
+### Bug Fixes & Translations
+- Fixed English attribute translation ("Mighty" -> "Might").
+- Refactored chat card templates for surprise check and skill check localizations.
+- Added dialog and notification translations for the active party system, camp activity choices, and player counter reactions in English and pt-BR.
+
 ## [0.0.9] - 2026-06-06
 
 ### Features
