@@ -28,7 +28,8 @@
         "SkillBonus": "Skill Bonus",
         "SkillCheck": "Skill Check",
         "AttributeCheck": "Attribute Check",
-        "ActionRoll": "Roll"
+        "ActionRoll": "Roll",
+        "AskSparkShadow": "Pick Sparks/Shadows"
       },
       "Delete": {
         "ItemTitle": "Delete Item",

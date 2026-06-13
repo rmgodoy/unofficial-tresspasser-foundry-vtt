@@ -41,7 +41,8 @@ export async function onAttributeRoll(event, sheet) {
       { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
     ],
     showCD: true,
-    cd: 10
+    cd: 10,
+    isNonCombat: true
   }, { title: `${label} Check` });
 
   if (!result) return;
@@ -55,7 +56,7 @@ export async function onAttributeRoll(event, sheet) {
     : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck", { name: sheet.actor.name, skill: label });
   
   const cd = result.cd ?? 10;
-  const rollRes = await sheet._evaluateAndShowRoll(roll, flavor, cd, { attributeKey: attrKey, isNonCombat: true });
+  const rollRes = await sheet._evaluateAndShowRoll(roll, flavor, cd, { attributeKey: attrKey, isNonCombat: true, askSparkShadow: result.askSparkShadow });
   if (rollRes) await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: attrKey });
 }
 
@@ -206,7 +207,8 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
             const result = await TrespasserRollDialog.wait({
               ...rollData,
               showCD: true,
-              cd: 10
+              cd: 10,
+              isNonCombat: true
             }, { title: `${label} Check` });
 
             if (!result) return resolve(null); // Resolve with null if roll dialog canceled
@@ -222,7 +224,7 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
               : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck",    { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`;
             
             const finalCD = result.cd ?? 10;
-            const rollRes = await sheet._evaluateAndShowRoll(roll, flavorFull, finalCD, { skillKey, isNonCombat: true });
+            const rollRes = await sheet._evaluateAndShowRoll(roll, flavorFull, finalCD, { skillKey, isNonCombat: true, askSparkShadow: result.askSparkShadow });
             if (rollRes) await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: chosenAttr });
             
             resolve(roll);
@@ -290,9 +292,11 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
     }
 
     const promptNonCombatSparkShadow = game.settings.get("trespasser", "promptNonCombatSparkShadow");
+    const askSparkShadow = options.askSparkShadow === true;
+    const shouldPrompt = promptNonCombatSparkShadow && askSparkShadow;
 
     // 1. Sparks picker (Player who rolled)
-    if (sparks > 0 && promptNonCombatSparkShadow) {
+    if (sparks > 0 && shouldPrompt) {
       if (game.user.isGM || sheet.actor.isOwner) {
         // Local prompt
         chosenSparks = await NonCombatSparkDialog.wait(sparks, { actor: sheet.actor });
@@ -310,7 +314,7 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
     }
 
     // 2. Shadows picker (GM)
-    if (shadows > 0 && promptNonCombatSparkShadow) {
+    if (shadows > 0 && shouldPrompt) {
       if (game.user.isGM) {
         // Local GM prompt
         chosenShadows = await NonCombatShadowDialog.wait(shadows);
@@ -345,7 +349,7 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
         </div>`;
     }
 
-    if (!promptNonCombatSparkShadow && (sparks > 0 || shadows > 0)) {
+    if (!shouldPrompt && (sparks > 0 || shadows > 0)) {
       metrics += `
         <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
           <div class="metric spark"  style="color:var(--trp-spark);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks",  { count: sparks  })}</div>

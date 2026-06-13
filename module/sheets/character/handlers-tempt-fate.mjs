@@ -158,7 +158,8 @@ export async function executeTemptFateFlow(actor, skillKey, cd, originalMsgId) {
       { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
     ],
     showCD: true,
-    cd: cd
+    cd: cd,
+    isNonCombat: true
   };
   if (attrBonus !== 0) {
     rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
@@ -185,7 +186,8 @@ export async function executeTemptFateFlow(actor, skillKey, cd, originalMsgId) {
     isNonCombat: true,
     isTemptFate: true,
     temptShadow: chosenTemptShadow,
-    skillKey
+    skillKey,
+    askSparkShadow: result.askSparkShadow
   });
 
   // 5. Update the original chat message to remove the Tempt Fate button

@@ -20,6 +20,14 @@
             {{/each}}
         </div>
     </div>
+    {{#if showSparkShadowToggle}}
+    <div class="spark-shadow-toggle" style="display: flex; align-items: center; justify-content: space-between;">
+        <label for="askSparkShadowToggle" style="margin: 0;font-size: var(--fs-10); font-family: var(--trp-font-header); text-transform: uppercase; color: var(--trp-gold); cursor: pointer;">
+            {{localize "TRESPASSER.Dialog.Roll.AskSparkShadow"}}
+        </label>
+        <input type="checkbox" name="askSparkShadow" id="askSparkShadowToggle" style="margin: 0; cursor: pointer; width: 14px; height: 14px;" />
+    </div>
+    {{/if}}
 
     <div class="modifier-row">
         <div class="modifier-input">

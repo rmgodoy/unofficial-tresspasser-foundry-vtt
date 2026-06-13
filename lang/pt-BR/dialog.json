@@ -28,7 +28,8 @@
         "SkillBonus": "Bônus de Perícia",
         "SkillCheck": "Teste de Perícia",
         "AttributeCheck": "Teste de Atributo",
-        "ActionRoll": "Rolar"
+        "ActionRoll": "Rolar",
+        "AskSparkShadow": "Escolher Faíscas/Sombras"
       },
       "Delete": {
         "ItemTitle": "Excluir Item",

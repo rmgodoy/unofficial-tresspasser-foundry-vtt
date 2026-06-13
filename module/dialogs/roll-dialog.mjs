@@ -39,6 +39,10 @@ export class TrespasserRollDialog extends foundry.applications.api.HandlebarsApp
     context.bonuses = this.data.bonuses || [];
     context.showCD = this.data.showCD ?? false;
     context.cd = this.data.cd || 10;
+    
+    const promptConfig = game.settings.get("trespasser", "promptNonCombatSparkShadow");
+    context.showSparkShadowToggle = this.data.isNonCombat && promptConfig;
+    
     return context;
   }
 
@@ -47,7 +51,11 @@ export class TrespasserRollDialog extends foundry.applications.api.HandlebarsApp
     const modifier = parseInt(this.element.querySelector('input[name="modifier"]').value) || 0;
     const cdElement = this.element.querySelector('input[name="cd"]');
     const cd = cdElement ? (parseInt(cdElement.value) || 10) : null;
-    this.resolve({ modifier, cd });
+    
+    const toggleElement = this.element.querySelector('input[name="askSparkShadow"]');
+    const askSparkShadow = toggleElement ? toggleElement.checked : false;
+
+    this.resolve({ modifier, cd, askSparkShadow });
     this.close();
   }
 
