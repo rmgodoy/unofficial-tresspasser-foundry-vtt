@@ -81,6 +81,14 @@
         "AutoEndCombatOnRetreat": {
           "Name": "Encerrar combate automaticamente em recuo bem-sucedido",
           "Hint": "Se ativado, o combate terminará automaticamente quando o grupo recuar com sucesso. Se desativado, apenas uma mensagem é postada e o Mestre deve encerrar o combate manualmente."
+        },
+        "PromptNonCombatSparkShadow": {
+          "Name": "Perguntar por Centelhas/Sombras em Rolagens Fora de Combate",
+          "Hint": "Se ativado, o Mestre e os jogadores serão solicitados a escolher suas Centelhas e Sombras após uma rolagem de habilidade ou atributo fora de combate. Se desativado, a janela de seleção é ignorada e a quantidade de centelhas e sombras roladas é mostrada no cartão do chat."
+        },
+        "AutomateTravelTracker": {
+          "Name": "Automatizar Rolagens de Acampamento",
+          "Hint": "Se ativado, resolver o acampamento solicitará automaticamente que os jogadores rolem para as ações escolhidas. Se desativado, apenas as ações escolhidas serão mostradas no chat sem rolagens adicionais."
         }
       },
       "Visuals": {

@@ -28,7 +28,8 @@
         "SkillBonus": "Bônus de Perícia",
         "SkillCheck": "Teste de Perícia",
         "AttributeCheck": "Teste de Atributo",
-        "ActionRoll": "Rolar"
+        "ActionRoll": "Rolar",
+        "AskSparkShadow": "Escolher Faíscas/Sombras"
       },
       "Delete": {
         "ItemTitle": "Excluir Item",
@@ -40,7 +41,9 @@
         "ConfigTitle": "Redefinir Configuração?",
         "ConfigContent": "Isso retornará TODAS as configurações do Trespasser para seus valores padrão. Esta ação não pode ser desfeita.",
         "DungeonTitle": "Redefinir Masmorra",
-        "DungeonConfirm": "Isso apagará o registro de rodadas e redefinirá alarme, rodada, ações e sala atual de <strong>{name}</strong>. A masmorra voltará ao estado de nunca visitada. Esta ação não pode ser desfeita."
+        "DungeonConfirm": "Isso apagará o registro de rodadas e redefinirá alarme, rodada, ações e sala atual de <strong>{name}</strong>. A masmorra voltará ao estado de nunca visitada. Esta ação não pode ser desfeita.",
+        "RegionTitle": "Redefinir Região",
+        "RegionConfirm": "Redefinir \"{name}\" para um estado novo? Isso apagará o registro de viagem e todos os dados da sessão. Esta ação não pode ser desfeita."
       },
       "Transfer": {
         "Title": "Transferência de Item",
@@ -118,7 +121,19 @@
       "Item": {
         "ViewDetails": "Ver detalhes do item"
       },
-      "SkillCheckTitle": "Teste de {skill}",
+      "Camp": {
+        "Title": "{name} — Atividade de Acampamento",
+        "Prompt": "Escolha uma atividade de acampamento para {name} enquanto o grupo acampa em {region}.",
+        "Confirm": "Confirmar Atividade"
+      },
+      "Travel": {
+        "KeepingWatch": {
+          "Title": "Vigia Noturna",
+          "Content": "Alguém no grupo está de vigia durante o descanso noturno? Um personagem de vigia não ganha os benefícios totais do descanso.",
+          "Yes": "Sim, de vigia",
+          "No": "Sem vigia"
+        }
+      },
       "Party": {
         "SelectAttribute": "Selecione um atributo para o teste de grupo.",
         "SelectParticipants": "Selecionar Participantes",
@@ -131,8 +146,40 @@
       "TemptFate": {
         "Prompt": "Escolha uma sombra para adicionar à sua tentativa. A sombra é aplicada ao seu resultado mesmo em caso de sucesso.",
         "Tempt": "Desafiar o Destino",
-        "ChooseShadow": "Desafiar o Destino: Escolher Sombra",
-        "CheckTitle": "Desafiar o Destino: Teste de {skill}"
+        "ChooseShadow": "Desafiar o Destino: Escolha a Sombra",
+        "CheckTitle": "Desafiar o Destino: Teste de {skill}",
+        "ChooseAttrTitle": "Desafiar o Destino: Escolher Atributo",
+        "ChooseAttrPrompt": "Escolha um atributo para rolar com seu teste de {skill}."
+      },
+      "NonCombat": {
+        "SelectSparks": "Selecionar Centelhas",
+        "SelectShadows": "Selecionar Sombras",
+        "ChooseShadow": "Escolher Sombra",
+        "SparksPrompt": "Você rolou {count} centelha(s). Escolha exatamente {target} centelha(s) única(s) para colorir o resultado:",
+        "SingleShadowPrompt": "Escolha exatamente 1 sombra para aplicar ao resultado:",
+        "MultiShadowPrompt": "A rolagem gerou {count} sombra(s). Escolha exatamente {count} sombra(s) única(s) para aplicar:",
+        "SparkCannyLabel": "Sagaz",
+        "SparkCannyDesc": "Você executa a tarefa com cuidado e atenção. Você retém algo que esperava perder no esforço ou evita pagar o que parecia ser um custo necessário. Bane custoso.",
+        "SparkQuickLabel": "Rápido",
+        "SparkQuickDesc": "Você realiza em pouco tempo algo que deveria ter levado muito mais tempo, economizando um tempo valioso para seus companheiros. Bane lento.",
+        "SparkQuietLabel": "Silencioso",
+        "SparkQuietDesc": "Você passa despercebido por aqueles que poderiam se opor aos seus esforços. Você não atrai olhares hostis ou desperta atenção indesejada na masmorra ao seu redor. Bane barulhento.",
+        "SparkSafeLabel": "Seguro",
+        "SparkSafeDesc": "Mesmo que ferimentos parecessem uma certeza dada a tarefa em questão, você não sofre danos ao fazê-lo. Bane prejudicial.",
+        "SparkStrikingLabel": "Impressionante",
+        "SparkStrikingDesc": "Você demonstra uma habilidade tão impressionante em sua tentativa que influencia as pessoas ao seu redor. Talvez você inspire um aliado que observa ou ganhe o favor de alguém que duvidava de suas habilidades. Bane desanimador.",
+        "ShadowCostlyLabel": "Custoso",
+        "ShadowCostlyDesc": "Você perde algo de valor material. Talvez o tesouro tenha escorregado de sua mochila enquanto você saltava, ou sua ferramenta fiel finalmente foi levada longe demais.",
+        "ShadowSlowLabel": "Lento",
+        "ShadowSlowDesc": "A tarefa levou muito mais tempo do que você pensava, e você perdeu um tempo precioso que não podia se dar ao luxo de perder. As tochas piscam. Seu estômago ronca.",
+        "ShadowLoudLabel": "Barulhento",
+        "ShadowLoudDesc": "Você atrai a atenção para si mesmo com um ruído alto ou outra perturbação importante. Se os que estavam por perto não sabiam que você estava aqui, com certeza sabem agora.",
+        "ShadowHarmfulLabel": "Prejudicial",
+        "ShadowHarmfulDesc": "Você se machucou de alguma forma. Dependendo do que você tentou, o dano pode ser desde alguns arranhões até um ferimento que persiste por semanas.",
+        "ShadowDauntingLabel": "Desanimador",
+        "ShadowDauntingDesc": "Seu esforço foi tão humilhante que aqueles que o observaram questionam se você pertence a este lugar.",
+        "AfraidTooltip": "Amedrontado: Você não pode escolher as centelhas Rápido ou Impressionante",
+        "AngryTooltip": "Irritado: Você não pode escolher as centelhas Sagaz, Silencioso ou Seguro"
       },
       "EventClock": {
         "Name": "Nome do Relógio",

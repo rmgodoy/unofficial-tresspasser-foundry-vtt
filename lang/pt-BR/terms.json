@@ -100,7 +100,8 @@
         "Creature": "Criatura",
         "Dungeon": "Masmorra",
         "Party": "Grupo",
-        "Haven": "Abrigo"
+        "Haven": "Abrigo",
+        "Region": "Região"
       },
       "Phase": {
         "Start": "Início",
@@ -298,6 +299,67 @@
           "Chasm": "Abismo",
           "Portal": "Portal",
           "Other": "Outro"
+        }
+      },
+      "Travel": {
+        "Terrain": {
+          "Flat": "Plano",
+          "FlatExamples": "Deserto, Planícies, Bosque",
+          "Mixed": "Misto",
+          "MixedExamples": "Floresta, Colina, Pântano",
+          "Rough": "Acidentado",
+          "RoughExamples": "Cavernas, Montanhas"
+        },
+        "Weather": {
+          "Clear": "Limpo",
+          "Poor": "Ruim",
+          "PoorExamples": "Onda de calor, chuva forte, neve",
+          "Extreme": "Extremo",
+          "ExtremeExamples": "Nevasca, tempestade de areia"
+        },
+        "Period": {
+          "Morning": "Manhã",
+          "Evening": "Tarde",
+          "Night": "Noite"
+        },
+        "Actions": {
+          "Advance": "Avançar",
+          "AdvanceDesc": "Desmonte o acampamento e continue viajando. Ganhe 6 pontos de viagem para gastar no movimento do hexágono.",
+          "Camp": "Acampar",
+          "CampDesc": "Monte o acampamento e realize atividades de acampamento. Cada membro do grupo escolhe uma atividade.",
+          "NightsRest": "Descanso Noturno",
+          "NightsRestDesc": "Descanse durante a noite para se recuperar. Deve comer uma ração. Desencadeia um teste de hostilidade."
+        },
+        "Camp": {
+          "TargetAlly": "Aliado Alvo:",
+          "Assist": "Assistir",
+          "AssistDesc": "Você abre mão de realizar sua própria atividade de acampamento para ajudar um aliado com a dele. Descreva o que você faz para ajudar seu aliado. Se a atividade dele exigir um teste de perícia, ele ganha uma centelha adicional em um sucesso.",
+          "CampAlchemy": "Alquimia de Acampamento",
+          "CampAlchemyDesc": "Gaste 2 ingredientes. Em uma falha, eles são desperdiçados. Em um sucesso, crie uma mistura menor aleatória. Em uma centelha, escolha o que criar.",
+          "Cook": "Cozinhar",
+          "CookDesc": "Gaste 1 ingrediente. Em uma falha, o ingrediente é desperdiçado. Em um sucesso, crie uma ração fina.",
+          "Craft": "Artesanato",
+          "CraftDesc": "Gaste material (1 para ferramentas, mãos usadas para armas, índice de armadura para armaduras). Em uma falha, os materiais são desperdiçados. Em um sucesso, crie um equipamento rústico. Em uma centelha, crie um equipamento fino.",
+          "Forage": "Forragear",
+          "ForageDesc": "Em um sucesso, ganhe um ingrediente, mais um por centelha.",
+          "Fish": "Pescar",
+          "FishDesc": "Em um sucesso, ganhe uma ração rústica.",
+          "Hunt": "Caçar",
+          "HuntDesc": "Em um sucesso, ganhe uma ração rústica, mais uma por centelha. Em uma falha, perca 1 de resistência.",
+          "LiftSpirits": "Animar o Grupo",
+          "LiftSpiritsDesc": "Escolha um aliado, descreva o que você faz para elevar seus ânimos. Em um sucesso, remova um infortúnio de um aliado ou conceda a ele 1 de determinação. Para cada centelha, conceda este efeito a um aliado adicional.",
+          "PrepareTorches": "Preparar Tochas",
+          "PrepareTorchesDesc": "Gaste 1 material. Em um sucesso, crie três tochas rústicas, mais uma por centelha.",
+          "Pursue": "Prosseguir",
+          "PursueDesc": "Você realiza uma tarefa diferente não coberta pelas outras atividades de acampamento. O número alvo pode variar dependendo da tarefa em questão.",
+          "RestEarly": "Descansar Cedo",
+          "RestEarlyDesc": "Você deve comer uma ração. Depois, você ganha todos os benefícios de um descanso noturno e pode manter vigília sem penalidade.",
+          "Salvage": "Recuperar",
+          "SalvageDesc": "Em um sucesso, ganhe um material, mais um por centelha.",
+          "Scout": "Explorar",
+          "ScoutDesc": "Em um sucesso, escolha um benefício: O grupo ignora terreno misto/acidentado, o grupo não corre risco de se perder, ou o grupo ganha um bônus de +2 em testes de perícia de atividade de acampamento. Em uma falha, perca 1 de resistência.",
+          "Survey": "Vistoriar",
+          "SurveyDesc": "Em um sucesso, descubra todos os pontos de interesse no hexágono atual e em qualquer hexágono adjacente. O clima pode limitar sua capacidade de vistoriar."
         }
       }
     }

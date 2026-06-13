@@ -37,8 +37,9 @@ export class TrespasserEffectSheet extends api.HandlebarsApplicationMixin(sheets
     
     if (!system.durationConditions) system.durationConditions = [];
 
-    // Map default status effects
-    const statusEffects = CONFIG.statusEffects
+    // Map default status effects.
+    // Object.values handles both the v13 array and v14 object formats
+    const statusEffects = Object.values(CONFIG.statusEffects)
       .map(effect => {
         const id = effect.id;
         const img = effect.img || effect.icon || effect.src || "";
@@ -116,7 +117,7 @@ export class TrespasserEffectSheet extends api.HandlebarsApplicationMixin(sheets
 
   async _onDropItem(event) {
     event.preventDefault();
-    const data = TextEditor.getDragEventData(event);
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (data.type !== "Item") return;
     
     const sourceItem = await fromUuid(data.uuid);

@@ -455,6 +455,8 @@
           "AddFeature": "Add Feature",
           "Connections": "Connections",
           "Discovered": "Discovered",
+          "IsEntrance": "Entrance",
+          "LastVisited": "Last Visited",
           "SortOrder": "Sort Order",
           "RoomTrap": "Room Trap",
           "RoomTrapPresent": "Trap Present",
@@ -484,6 +486,19 @@
           "NeedsDungeon": "This room must belong to a dungeon to create connections.",
           "SameDungeon": "The dropped room must belong to the same dungeon."
         }
+      },
+      "Region": {
+        "Title": "Region",
+        "Hostility": "Hostility Tier",
+        "DefaultTerrain": "Default Terrain",
+        "Weather": "Weather",
+        "SessionState": "Session",
+        "CurrentDay": "Day",
+        "MapImage": "Map Image",
+        "Description": "Description",
+        "Encounters": "Encounters",
+        "DropTableHint": "Drag a Roll Table here to link encounters",
+        "NoLogEntries": "No travel log entries yet."
       },
       "Haven": {
         "NamePlaceholder": "Haven Name",
@@ -583,6 +598,9 @@
         "DropFeaturesNote": "Drop feature items here to link them to this craft."
       },
       "Party": {
+        "ActiveParty": "Active Party",
+        "SetActiveParty": "Set as Active Party",
+        "ActivePartyHelp": "This party will be used for dungeon exploration and travel tracking.",
         "NamePlaceholder": "The Company of the Ashen Star",
         "Members": "Party Members",
         "NoMembers": "No members yet. Drag character actors here or use the picker below.",

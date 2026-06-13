@@ -19,6 +19,11 @@
         <label for="room-discovered-{{item.id}}">{{localize "TRESPASSER.Sheet.Dungeon.Room.Discovered"}}</label>
       </div>
 
+      <div class="field-row checkbox-row">
+        <input type="checkbox" name="system.isEntrance" {{checked system.isEntrance}} id="room-isEntrance-{{item.id}}" />
+        <label for="room-isEntrance-{{item.id}}">{{localize "TRESPASSER.Sheet.Dungeon.Room.IsEntrance"}}</label>
+      </div>
+
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Dungeon.Room.SortOrder"}}</label>
         <input type="number" name="system.sortOrder" value="{{system.sortOrder}}" min="0" data-dtype="Number" />

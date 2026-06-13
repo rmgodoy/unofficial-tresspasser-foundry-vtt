@@ -38,14 +38,14 @@ export async function promptAttributeSelection(actor, skillKey) {
 
     foundry.applications.api.DialogV2.wait({
       window: {
-        title: `Tempt Fate: Choose Attribute`,
+        title: game.i18n.localize("TRESPASSER.Dialog.TemptFate.ChooseAttrTitle"),
         width: 400
       },
       classes: ["trespasser", "dialog"],
       content: `
         <div class="dialog-content" style="display:flex;flex-direction:column;gap:12px;padding:12px;">
           <p style="font-size:var(--fs-12);color:var(--trp-text-dim);margin:0 0 4px;">
-            Choose an attribute to roll with your ${label} check.
+            ${game.i18n.format("TRESPASSER.Dialog.TemptFate.ChooseAttrPrompt", { skill: label })}
           </p>
           <div class="trp-attr-pick" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
             ${formatAttrBtn("mighty", game.i18n.localize("TRESPASSER.Terms.Attribute.Mighty"))}
@@ -158,7 +158,8 @@ export async function executeTemptFateFlow(actor, skillKey, cd, originalMsgId) {
       { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
     ],
     showCD: true,
-    cd: cd
+    cd: cd,
+    isNonCombat: true
   };
   if (attrBonus !== 0) {
     rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });

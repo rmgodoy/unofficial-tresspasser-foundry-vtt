@@ -6,7 +6,9 @@ import {
 } from "./item-transfer.mjs";
 import { 
   handleDefenseRequest, 
-  handleDefenseResponse 
+  handleDefenseResponse,
+  handleCounterRequest,
+  handleCounterResponse
 } from "./defense-roll-handler.mjs";
 import {
   handleShadowsRequest,
@@ -16,6 +18,14 @@ import {
   handleCancelPopup
 } from "../non-combat-helper.mjs";
 import { handleRemoveTemptFateButton } from "../../sheets/character/handlers-tempt-fate.mjs";
+import {
+  handleCampActivityRequest,
+  handleCampActivityResponse,
+  handleCampActivityCancel,
+  handleCampActivityConfirm
+} from "../../exploration/camp-activity-handler.mjs";
+import { handleUpdateChatMessage } from "./chat-handler.mjs";
+import { handleGroupCheckSubmitRoll } from "./group-check-handler.mjs";
 
 /**
  * Helper class for handling custom socket events in the Trespasser system.
@@ -55,6 +65,10 @@ export class TrespasserSocket {
         return handleDefenseRequest(data, senderId);
       case "DEFENSE_RESPONSE":
         return handleDefenseResponse(data);
+      case "COUNTER_REQUEST":
+        return handleCounterRequest(data, senderId);
+      case "COUNTER_RESPONSE":
+        return handleCounterResponse(data);
       case "NON_COMBAT_SHADOWS_REQUEST":
         return handleShadowsRequest(data, senderId);
       case "NON_COMBAT_SHADOWS_RESPONSE":
@@ -67,6 +81,18 @@ export class TrespasserSocket {
         return handleCancelPopup(data);
       case "REMOVE_TEMPT_FATE_BUTTON":
         return handleRemoveTemptFateButton(data);
+      case "CAMP_ACTIVITY_REQUEST":
+        return handleCampActivityRequest(data, senderId);
+      case "CAMP_ACTIVITY_RESPONSE":
+        return handleCampActivityResponse(data);
+      case "CAMP_ACTIVITY_CANCEL":
+        return handleCampActivityCancel(data);
+      case "CAMP_ACTIVITY_CONFIRM":
+        return handleCampActivityConfirm(data);
+      case "UPDATE_CHAT_MESSAGE":
+        return handleUpdateChatMessage(data, senderId);
+      case "GROUP_CHECK_SUBMIT_ROLL":
+        return handleGroupCheckSubmitRoll(data, senderId);
       default:
         // Ignore unknown types
         break;

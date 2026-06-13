@@ -28,7 +28,8 @@
         "SkillBonus": "Skill Bonus",
         "SkillCheck": "Skill Check",
         "AttributeCheck": "Attribute Check",
-        "ActionRoll": "Roll"
+        "ActionRoll": "Roll",
+        "AskSparkShadow": "Pick Sparks/Shadows"
       },
       "Delete": {
         "ItemTitle": "Delete Item",
@@ -40,7 +41,9 @@
         "ConfigTitle": "Reset Configuration?",
         "ConfigContent": "This will revert ALL settings in the Trespasser configuration to their default values. This cannot be undone.",
         "DungeonTitle": "Reset Dungeon",
-        "DungeonConfirm": "This will erase the round log and reset alarm, round, actions, and current room for <strong>{name}</strong>. The dungeon will be returned to a never-visited state. This cannot be undone."
+        "DungeonConfirm": "This will erase the round log and reset alarm, round, actions, and current room for <strong>{name}</strong>. The dungeon will be returned to a never-visited state. This cannot be undone.",
+        "RegionTitle": "Reset Region",
+        "RegionConfirm": "Reset \"{name}\" to a fresh state? This will clear the travel log and all session data. This cannot be undone."
       },
       "Transfer": {
         "Title": "Item Transfer",
@@ -118,7 +121,19 @@
       "Item": {
         "ViewDetails": "View item details"
       },
-      "SkillCheckTitle": "{skill} Check",
+      "Camp": {
+        "Title": "{name} — Camp Activity",
+        "Prompt": "Choose a camp activity for {name} while the party camps in {region}.",
+        "Confirm": "Confirm Activity"
+      },
+      "Travel": {
+        "KeepingWatch": {
+          "Title": "Night Watch",
+          "Content": "Is anyone in the party keeping watch during the night's rest? A character on watch does not gain the full benefits of rest.",
+          "Yes": "Yes, keeping watch",
+          "No": "No watch"
+        }
+      },
       "Party": {
         "SelectAttribute": "Select an attribute for the group check.",
         "SelectParticipants": "Select Participants",
@@ -132,7 +147,39 @@
         "Prompt": "Choose a shadow to add to your attempt. The shadow is applied to your result even on a success.",
         "Tempt": "Tempt Fate",
         "ChooseShadow": "Tempt Fate: Choose Shadow",
-        "CheckTitle": "Tempt Fate: {skill} Check"
+        "CheckTitle": "Tempt Fate: {skill} Check",
+        "ChooseAttrTitle": "Tempt Fate: Choose Attribute",
+        "ChooseAttrPrompt": "Choose an attribute to roll with your {skill} check."
+      },
+      "NonCombat": {
+        "SelectSparks": "Select Sparks",
+        "SelectShadows": "Select Shadows",
+        "ChooseShadow": "Choose Shadow",
+        "SparksPrompt": "You rolled {count} spark(s). Choose exactly {target} unique spark(s) to color the outcome:",
+        "SingleShadowPrompt": "Choose exactly 1 shadow to apply to the outcome:",
+        "MultiShadowPrompt": "The roll generated {count} shadow(s). Choose exactly {count} unique shadow(s) to apply:",
+        "SparkCannyLabel": "Canny",
+        "SparkCannyDesc": "You perform the task with care and attention. You retain something you expected to lose in the effort or avoid paying what seemed like a necessary cost. Banishes costly.",
+        "SparkQuickLabel": "Quick",
+        "SparkQuickDesc": "You accomplish in short order something that should have taken much longer, saving all-valuable time for your companions. Banishes slow.",
+        "SparkQuietLabel": "Quiet",
+        "SparkQuietDesc": "You slip beneath the notice of those who might oppose your efforts. You don't draw notice from unfriendly eyes or arouse unwanted attention from the dungeon around you. Banishes loud.",
+        "SparkSafeLabel": "Safe",
+        "SparkSafeDesc": "Even though injury might have seemed a certainty given the task at hand, you suffer no harm doing it. Banishes harmful.",
+        "SparkStrikingLabel": "Striking",
+        "SparkStrikingDesc": "You display such impressive skill in your attempt that you influence those around you. Perhaps you inspire a watching ally or earn the favor of someone doubting your abilities. Banishes daunting.",
+        "ShadowCostlyLabel": "Costly",
+        "ShadowCostlyDesc": "You lose something of material value. Maybe the treasure slipped out of your pack as you leapt, or your faithful tool was finally pushed too far.",
+        "ShadowSlowLabel": "Slow",
+        "ShadowSlowDesc": "The task took much longer than you thought, and you've lost precious time you couldn't afford to lose. The torches flicker. Your stomach rumbles.",
+        "ShadowLoudLabel": "Loud",
+        "ShadowLoudDesc": "You draw attention to yourself with a loud noise or other major disruption. If those nearby didn't know you're here, they certainly do now.",
+        "ShadowHarmfulLabel": "Harmful",
+        "ShadowHarmfulDesc": "You hurt yourself in some fashion. Depending on what you tried, the harm could be anything from a few scratches to an injury that lingers for weeks.",
+        "ShadowDauntingLabel": "Daunting",
+        "ShadowDauntingDesc": "Your effort was so humiliating that those who observed it question whether you belong here in the first place.",
+        "AfraidTooltip": "Afraid: You cannot choose quick or striking sparks",
+        "AngryTooltip": "Angry: You cannot choose canny, quiet, or safe sparks"
       },
       "EventClock": {
         "Name": "Clock Name",

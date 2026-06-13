@@ -18,7 +18,9 @@
         "PrevailVsDC": "Total da Rolagem: {total} vs DC {dc}",
         "PrevailSuccess": "Prevalece contra <b>{name}</b> (Rolagem: {roll} vs {target}) — <b>Sucesso!</b>",
         "PrevailFailed": "Falhou em prevalecer contra <b>{name}</b> (Rolagem: {roll} vs {target}) — <b>Falha</b>",
-        "SluggishAutofail": "<strong>Lento:</strong> Falhou automaticamente no teste de iniciativa."
+        "SluggishAutofail": "<strong>Lento:</strong> Falhou automaticamente no teste de iniciativa.",
+        "TemptFateHeader": "Desafiar o Destino — {name} Intervém!",
+        "TemptFateShadow": "Sombra do Desafiar o Destino:"
       },
       "Combat": {
         "Defense": "Defesa",
@@ -27,6 +29,10 @@
         "Miss": "ERRO!",
         "Sparks": "Centelhas: {count}",
         "Shadows": "Sombras: {count}",
+        "SparksLabel": "Centelhas:",
+        "ShadowsLabel": "Sombras:",
+        "DistributeSparks": "Distribuir Centelhas ({count})",
+        "DistributeShadows": "Distribuir Sombras ({count})",
         "AttackMessage": "<strong>{name}</strong> ataca com <strong>{action}</strong>: {formula} = {total}. Dano Base: {damage}",
         "DamageMessage": "<strong>{name}</strong> causa <strong>{damage}</strong> de dano.",
         "TookDamage": "{name} sofreu {total} de dano.",
@@ -114,7 +120,19 @@
         "Succeeded": "Obtiveram Sucesso",
         "AllSucceed": "Todos Tiveram Sucesso!",
         "HalfMoreSucceed": "Sucesso!",
-        "FewerHalfSucceed": "Falha"
+        "FewerHalfSucceed": "Falha",
+        "Successes": "Sucessos: {count}",
+        "Failures": "Falhas: {count}",
+        "NetOutcome": "Resultado Final: {outcome}",
+        "PendingGroupSpark": "Seleção de Centelha de Grupo Pendente",
+        "PendingGroupShadow": "Seleção de Sombra de Grupo Pendente",
+        "GroupSparksLabel": "Centelhas de Grupo:",
+        "GroupShadowsLabel": "Sombras de Grupo:",
+        "DistributeGroupSparks": "Distribuir Centelhas de Grupo ({count})",
+        "DistributeGroupShadows": "Distribuir Sombras de Grupo ({count})",
+        "RollBtn": "Rolar",
+        "ForceCompleteBtn": "Forçar Conclusão (Mestre)",
+        "ProcessingResults": "Processando resultados..."
       },
       "Common": {
         "System": "Sistema",
@@ -166,6 +184,7 @@
           "Label": "Encontro",
           "Reaction": "Reação",
           "Surprise": "Surpresa",
+          "SurpriseCheck": "Teste de {skill}",
           "Distance": "Distância",
           "DistanceRollHint": "Role 3d6 × 2 para a distância (em quadrados).",
           "Approach": "Abordagem",
@@ -174,6 +193,37 @@
         "Log": {
           "UnexploredCount": "{count} salas não exploradas encontradas",
           "AlarmChange": "Alarme: {value}"
+        }
+      },
+      "Travel": {
+        "SessionStarted": "A viagem começa por {name}!",
+        "SessionDay1": "Dia 1 — Manhã",
+        "AdvanceAnnounce": "O grupo avança por {name}.",
+        "TravelPointsAwarded": "6 pontos de viagem concedidos.",
+        "PressingOn": "Forçando a Marcha!",
+        "PressingOnDetail": "Cada membro do grupo sem uma montaria perde 1 de Vigor.",
+        "NewDay": "Dia {day}",
+        "NightsRest": "O grupo faz um Descanso Noturno em {name}.",
+        "CampActivities": "Atividades de Acampamento",
+        "NightHostilityCheck": "Teste de Hostilidade Noturna",
+        "NightEncounterAmbush": "Encontro! Ninguém estava de vigia — o inimigo consegue uma emboscada automática!",
+        "AutoAmbush": "Emboscada Automática!",
+        "AutoAmbushDetail": "Ninguém estava de vigia. O grupo inimigo escolhe uma abordagem de emboscada. O grupo de personagens não faz teste de encontro.",
+        "WatchKept": "Vigia feita",
+        "NoWatch": "Sem vigia",
+        "NoEncounter": "Os arredores permanecem tranquilos.",
+        "WayfindingCheck": "Teste de Rota",
+        "WayfindingPrompt": "Um personagem deve fazer um teste de INTELLECT | NATURE vs DC {dc}. O Mestre também rola secretamente um d10.",
+        "WayfindingSkill": "Perícia",
+        "Wayfinding": {
+          "Spark": "Centelha (Recuperar o Rumo)",
+          "SparkDesc": "O grupo recupera o rumo imediatamente sem perda de tempo.",
+          "Success": "Sucesso (Desvio)",
+          "SuccessDesc": "Gasta metade dos pontos de viagem na direção errada, depois corrige o curso.",
+          "Failure": "Falha (Digressão Completa)",
+          "FailureDesc": "Gasta TODOS os pontos de viagem na direção errada, depois percebe o erro e recupera o rumo.",
+          "Shadow": "Sombra (Desorientação)",
+          "ShadowDesc": "O grupo viaja na direção errada sem saber. Continue errado nos próximos avanços até um teste de rota bem-sucedido."
         }
       },
       "Deed": {

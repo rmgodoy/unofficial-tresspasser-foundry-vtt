@@ -455,6 +455,8 @@
           "AddFeature": "Adicionar Característica",
           "Connections": "Conexões",
           "Discovered": "Descoberta",
+          "IsEntrance": "Entrada",
+          "LastVisited": "Última Visitada",
           "SortOrder": "Ordem de Exibição",
           "RoomTrap": "Armadilha da Sala",
           "RoomTrapPresent": "Armadilha Presente",
@@ -484,6 +486,19 @@
           "NeedsDungeon": "Esta sala deve pertencer a uma masmorra para criar conexões.",
           "SameDungeon": "A sala solta deve pertencer à mesma masmorra."
         }
+      },
+      "Region": {
+        "Title": "Região",
+        "Hostility": "Grau de Hostilidade",
+        "DefaultTerrain": "Terreno Padrão",
+        "Weather": "Clima",
+        "SessionState": "Sessão",
+        "CurrentDay": "Dia",
+        "MapImage": "Imagem do Mapa",
+        "Description": "Descrição",
+        "Encounters": "Encontros",
+        "DropTableHint": "Arraste uma Tabela de Rolagem para cá para vincular encontros",
+        "NoLogEntries": "Nenhum registro de viagem ainda."
       },
       "Haven": {
         "NamePlaceholder": "Nome do Abrigo",
@@ -583,6 +598,9 @@
         "DropFeaturesNote": "Arraste habilidades aqui para vinculá-las a este ofício."
       },
       "Party": {
+        "ActiveParty": "Grupo Ativo",
+        "SetActiveParty": "Definir como Grupo Ativo",
+        "ActivePartyHelp": "Este grupo será usado para exploração de masmorras e viagens.",
         "NamePlaceholder": "A Companhia da Estrela de Cinzas",
         "Members": "Membros do Grupo",
         "NoMembers": "Nenhum membro ainda. Arraste atores de personagens aqui ou use o seletor abaixo.",

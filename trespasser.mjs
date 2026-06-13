@@ -51,10 +51,12 @@ import { COMMON_PLIGHTS }          from "./module/config/plight-config.mjs";
 import * as NonCombatHelper        from "./module/helpers/non-combat-helper.mjs";
 import { NonCombatSparkDialog, NonCombatShadowDialog } from "./module/dialogs/tempt-fate-dialogs.mjs";
 import { executeTemptFateFlow } from "./module/sheets/character/handlers-tempt-fate.mjs";
+import { TrespasserRollDialog } from "./module/dialogs/roll-dialog.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
 import { TrespasserPartySheet }   from "./module/sheets/actor-party-sheet.mjs";
+import { TrespasserPartyHelper }  from "./module/helpers/party-helper.mjs";
 
 // ── Dungeon Exploration imports ──────────────────────────────────────────────
 import { TrespasserDungeonData }   from "./module/data/actor-dungeon.mjs";
@@ -63,6 +65,12 @@ import { DUNGEON_CONFIG, ensureDungeonHelpers } from "./module/config/dungeon-co
 import { TrespasserDungeonSheet }  from "./module/sheets/actor-dungeon-sheet.mjs";
 import { TrespasserRoomSheet }     from "./module/sheets/item-room-sheet.mjs";
 import { DungeonTracker, registerDungeonTrackerHooks } from "./module/exploration/dungeon-tracker.mjs";
+
+// ── Travel Exploration imports ──────────────────────────────────────────────
+import { TrespasserRegionData }    from "./module/data/actor-region.mjs";
+import { TRAVEL_CONFIG }           from "./module/config/travel-config.mjs";
+import { TrespasserRegionSheet }   from "./module/sheets/actor-region-sheet.mjs";
+import { TravelTracker, registerTravelTrackerHooks } from "./module/exploration/travel-tracker.mjs";
 import { TrespasserHavenData }   from "./module/data/actor-haven.mjs";
 import { TrespasserHirelingData } from "./module/data/item-hireling.mjs";
 import { TrespasserHavenSheet }   from "./module/sheets/actor-haven-sheet.mjs";
@@ -96,7 +104,13 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/dungeon/dungeon-rooms.hbs",
     "systems/trespasser/templates/dungeon/dungeon-log.hbs",
     "systems/trespasser/templates/dungeon/dungeon-notes.hbs",
+    // Region templates
+    "systems/trespasser/templates/region/region-tabs.hbs",
+    "systems/trespasser/templates/region/region-overview.hbs",
+    "systems/trespasser/templates/region/region-log.hbs",
+    "systems/trespasser/templates/region/region-notes.hbs",
     "systems/trespasser/templates/exploration/dungeon-tracker.hbs",
+    "systems/trespasser/templates/exploration/travel-tracker.hbs",
     "systems/trespasser/templates/exploration/haven-tracker.hbs",
     "systems/trespasser/templates/item/room-sheet.hbs",
     "systems/trespasser/templates/dialogs/non-combat-spark.hbs",
@@ -126,10 +140,32 @@ Hooks.once("init", async () => {
     },
     // Dungeon exploration config
     dungeon: DUNGEON_CONFIG,
+    travel: TRAVEL_CONFIG,
     plights: COMMON_PLIGHTS
   };
 
   // Register settings
+  game.settings.register("trespasser", "activePartyId", {
+    name: "Active Party ID",
+    scope: "world",
+    config: false,
+    type: String,
+    default: "",
+    onChange: () => {
+      // Re-render open party sheets
+      game.actors.filter(a => a.type === "party").forEach(a => {
+        if (a.sheet?.rendered) a.sheet.render();
+      });
+      // Re-render trackers
+      if (game.trespasser?.TravelTracker?._instance) {
+        game.trespasser.TravelTracker._instance.render();
+      }
+      if (game.trespasser?.DungeonTracker?._instance) {
+        game.trespasser.DungeonTracker._instance.render();
+      }
+    }
+  });
+
   game.settings.register("trespasser", "showInitiativeInChat", {
     name: "TRESPASSER.Settings.Mechanics.InitiativeChat.Name",
     hint: "TRESPASSER.Settings.Mechanics.InitiativeChat.Hint",
@@ -187,6 +223,15 @@ Hooks.once("init", async () => {
   game.settings.register("trespasser", "autoEndCombatOnRetreat", {
     name: "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Name",
     hint: "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
+  game.settings.register("trespasser", "automateTravelTracker", {
+    name: "TRESPASSER.Settings.Exploration.AutomateTravelTracker.Name",
+    hint: "TRESPASSER.Settings.Exploration.AutomateTravelTracker.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -359,6 +404,7 @@ Hooks.once("init", async () => {
   CONFIG.Actor.dataModels.dungeon  = TrespasserDungeonData;
   CONFIG.Actor.dataModels.party    = TrespasserPartyData;
   CONFIG.Actor.dataModels.haven    = TrespasserHavenData;
+  CONFIG.Actor.dataModels.region   = TrespasserRegionData;
 
   CONFIG.Item.dataModels.armor = TrespasserArmorData;
   CONFIG.Item.dataModels.weapon = TrespasserWeaponData;
@@ -409,6 +455,12 @@ Hooks.once("init", async () => {
     types: ["haven"],
     makeDefault: true,
     label: "Trespasser Haven Sheet",
+  });
+  // Region sheet (AppV2)
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserRegionSheet, {
+    types: ["region"],
+    makeDefault: true,
+    label: "Trespasser Region Sheet",
   });
 
   foundry.documents.collections.Items.unregisterSheet("core", foundry.appv1.sheets.ItemSheet);
@@ -555,6 +607,9 @@ Hooks.once("init", async () => {
   // Dungeon tracker scene control button
   registerDungeonTrackerHooks();
 
+  // Travel tracker scene control button
+  registerTravelTrackerHooks();
+
   // Haven tracker scene control button
   // registerHavenTrackerHooks();
   // TODO: implement Haven tracker scene control button
@@ -569,12 +624,14 @@ Hooks.once("init", async () => {
   game.trespasser.ItemExporter = ItemExporter;
   game.trespasser.Config = TrespasserConfigV2;
   game.trespasser.EventClocks = EventClocksTracker;
+  game.trespasser.TrespasserPartyHelper = TrespasserPartyHelper;
   game.trespasser.NonCombatHelper = NonCombatHelper;
   game.trespasser.NonCombatSparkDialog = NonCombatSparkDialog;
   game.trespasser.NonCombatShadowDialog = NonCombatShadowDialog;
   game.trespasser.TrespasserSocket = TrespasserSocket;
   game.trespasser.executeTemptFateFlow = executeTemptFateFlow;
   game.trespasser.DungeonTracker = DungeonTracker;
+  game.trespasser.TravelTracker = TravelTracker;
   globalThis.trespasser = game.trespasser;
 });
 
@@ -791,6 +848,25 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
     html.style.backgroundColor = "var(--trp-bg-dark)";
   }
 
+  // Resolve which tokens a chat-card action button should affect.
+  // Deed cards record the exact tokens that were hit in data-target-ids;
+  // cards without them fall back to the user's targets, then to controlled
+  // tokens. Never default to controlled-first: the attacker's own token is
+  // usually still selected after using a deed.
+  const resolveCardTargets = (btn) => {
+    const ids = (btn.dataset.targetIds ?? "").split(",").map(s => s.trim()).filter(Boolean);
+    if (ids.length) {
+      const tokens = ids.map(id => canvas.tokens.get(id)).filter(Boolean);
+      if (!tokens.length) ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.RecordedTargetsGone"));
+      return tokens;
+    }
+    const targeted = Array.from(game.user.targets);
+    if (targeted.length) return targeted;
+    if (canvas.tokens.controlled.length) return canvas.tokens.controlled;
+    ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
+    return [];
+  };
+
   html.querySelectorAll(".apply-effect-btn").forEach(btn => {
     btn.addEventListener("click", async (ev) => {
       ev.preventDefault();
@@ -806,11 +882,8 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
       const baseIntensity = !isNaN(itemIntensity) ? itemIntensity : (sourceItem.system.intensity || 0);
 
-      const tokens = canvas.tokens.controlled;
-      if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
-        return;
-      }
+      const tokens = resolveCardTargets(btn);
+      if (tokens.length === 0) return;
 
       for (const token of tokens) {
         const actor = token.actor;
@@ -871,13 +944,9 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       const rawDamage = parseInt(btn.dataset.damage);
       if (isNaN(rawDamage)) return;
 
-      // Prefer controlled tokens; fall back to targeted tokens
-      let tokens = canvas.tokens.controlled;
-      if (tokens.length === 0) tokens = Array.from(game.user.targets);
-      if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
-        return;
-      }
+      // Card-recorded hit targets take precedence, then targeted, then controlled
+      const tokens = resolveCardTargets(btn);
+      if (tokens.length === 0) return;
 
       // Identify attacker from message speaker
       const messageId = btn.closest(".message")?.dataset.messageId;
@@ -924,12 +993,8 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       const healAmount = parseInt(btn.dataset.damage);
       if (isNaN(healAmount)) return;
 
-      let tokens = canvas.tokens.controlled;
-      if (tokens.length === 0) tokens = Array.from(game.user.targets);
-      if (tokens.length === 0) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
-        return;
-      }
+      const tokens = resolveCardTargets(btn);
+      if (tokens.length === 0) return;
 
       for (const token of tokens) {
         const actor = token.actor;
@@ -946,8 +1011,62 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
     });
   });
 
-  // ── Select Shadows (GM Only) button ───────────────────────────────────────
-  html.querySelectorAll(".select-non-combat-shadows-btn").forEach(btn => {
+  // ── Distribute Sparks button ───────────────────────────────────────────────
+  html.querySelectorAll(".distribute-sparks-btn").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const messageEl = btn.closest(".message");
+      const messageId = messageEl?.dataset.messageId;
+      const message = game.messages.get(messageId);
+      if (!message) return;
+
+      const actorId = btn.dataset.actorId;
+      const actor = actorId ? game.actors.get(actorId) : null;
+
+      // Only the actor owner (or GM) can distribute sparks
+      if (actor && !actor.isOwner && !game.user.isGM) {
+        ui.notifications.warn("Only the character's owner can distribute sparks.");
+        return;
+      }
+
+      const sparkCount = parseInt(btn.dataset.sparkCount) || 1;
+      const chosenSparks = await NonCombatSparkDialog.wait(sparkCount, { actor });
+      if (!chosenSparks || chosenSparks.length === 0) return;
+
+      // Update message: replace button with chosen sparks list
+      const flags = foundry.utils.deepClone(message.flags.trespasser || {});
+      flags.chosenSparks = chosenSparks;
+
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(message.flavor || message.content, "text/html");
+      const btnEl = doc.querySelector(".distribute-sparks-btn");
+      if (btnEl) {
+        let sparkResults = `<div class="spark-results"><strong>${game.i18n.localize("TRESPASSER.Chat.Combat.SparksLabel")}</strong><ul>`;
+        for (const spark of chosenSparks) {
+          sparkResults += `<li><span style="color:var(--trp-spark);"><i class="fas fa-sun"></i> ${game.i18n.localize("TRESPASSER.Dialog.NonCombat.Spark" + spark.capitalize() + "Label")}</span></li>`;
+        }
+        sparkResults += `</ul></div>`;
+        const tempDiv = doc.createElement("div");
+        tempDiv.innerHTML = sparkResults;
+        btnEl.replaceWith(tempDiv.firstChild);
+      }
+
+      const updates = {
+        flavor: doc.body.innerHTML,
+        "flags.trespasser": flags
+      };
+
+      if (game.user.isGM) {
+        await message.update(updates);
+      } else {
+        const { TrespasserSocket } = game.trespasser || {};
+        TrespasserSocket?.emit("UPDATE_CHAT_MESSAGE", { messageId: message.id, updates });
+      }
+    });
+  });
+
+  // ── Distribute Shadows button (GM only) ───────────────────────────────────
+  html.querySelectorAll(".distribute-shadows-btn").forEach(btn => {
     if (!game.user.isGM) {
       btn.style.display = "none";
       return;
@@ -955,47 +1074,36 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
 
     btn.addEventListener("click", async (ev) => {
       ev.preventDefault();
-      const messageId = btn.closest(".message")?.dataset.messageId;
+      const messageEl = btn.closest(".message");
+      const messageId = messageEl?.dataset.messageId;
       const message = game.messages.get(messageId);
       if (!message) return;
 
       const shadowCount = parseInt(btn.dataset.shadowCount) || 1;
-      const chosenShadows = await game.trespasser.NonCombatShadowDialog.wait(shadowCount);
+      const chosenShadows = await NonCombatShadowDialog.wait(shadowCount);
       if (!chosenShadows || chosenShadows.length === 0) return;
 
-      // Update message content and flags
       const flags = foundry.utils.deepClone(message.flags.trespasser || {});
       const plightShadows = flags.plightShadows || [];
       const finalShadows = [...chosenShadows, ...plightShadows];
       flags.chosenShadows = finalShadows;
-      flags.showShadowButton = false;
 
-      let content = message.content;
-      let shadowResults = `<div class="shadow-results"><strong>Shadows:</strong><ul>`;
-      for (const shadow of finalShadows) {
-        shadowResults += `<li><span style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${shadow.capitalize()}</span></li>`;
-      }
-      shadowResults += `</ul></div>`;
-
-      // Modify HTML using DOMParser
       const parser = new DOMParser();
-      const doc = parser.parseFromString(content, "text/html");
-      const warningEl = doc.querySelector(".pending-shadows-warning");
-      const btnEl = doc.querySelector(".select-non-combat-shadows-btn");
-      const containerEl = doc.querySelector(".non-combat-roll-details");
-
-      if (containerEl) {
-        warningEl?.remove();
-        btnEl?.remove();
-        
-        // Append shadow results
+      const doc = parser.parseFromString(message.flavor || message.content, "text/html");
+      const btnEl = doc.querySelector(".distribute-shadows-btn");
+      if (btnEl) {
+        let shadowResults = `<div class="shadow-results"><strong>${game.i18n.localize("TRESPASSER.Chat.Combat.ShadowsLabel")}</strong><ul>`;
+        for (const shadow of finalShadows) {
+          shadowResults += `<li><span style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${game.i18n.localize("TRESPASSER.Dialog.NonCombat.Shadow" + shadow.capitalize() + "Label")}</span></li>`;
+        }
+        shadowResults += `</ul></div>`;
         const tempDiv = doc.createElement("div");
         tempDiv.innerHTML = shadowResults;
-        containerEl.appendChild(tempDiv.firstChild);
+        btnEl.replaceWith(tempDiv.firstChild);
       }
 
       await message.update({
-        content: doc.body.innerHTML,
+        flavor: doc.body.innerHTML,
         "flags.trespasser": flags
       });
     });
@@ -1386,7 +1494,12 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
     );
     if (existing) {
       const currentIntensity = existing.system.intensity || 0;
-      existing.update({ "system.intensity": currentIntensity + intensityToApply });
+      const newIntensity = currentIntensity + intensityToApply;
+      existing.update({ "system.intensity": newIntensity });
+      // Merging is silent data-wise; tell the user what happened to their drop
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.EffectMerged", {
+        effect: item.name, target: actor.name, intensity: newIntensity
+      }));
       return false; // Cancel creation of the new item
     }
 
@@ -1749,7 +1862,14 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
 Hooks.on("refreshToken", (token) => {
   // Remove old passive-state sprites
   const existing = token.children.filter(c => c._trespasserPassiveState);
-  existing.forEach(c => { token.removeChild(c); c.destroy(); });
+  existing.forEach(c => {
+    if (c._trespasserTooltip) {
+      game.tooltip.dismissLockedTooltip(c._trespasserTooltip);
+      c._trespasserTooltip = null;
+    }
+    token.removeChild(c);
+    c.destroy();
+  });
 
   const states = token.document?.actor?.system?.passiveStates;
   if (!states) return;
@@ -1773,16 +1893,309 @@ Hooks.on("refreshToken", (token) => {
     sprite.y = padding + index * (iconSize + padding);
     sprite.alpha = 0.9;
     sprite._trespasserPassiveState = true;
-    
-    // Tooltip on hover
+
+    // Tooltip on hover. TooltipManager#activate requires an HTMLElement, so
+    // for a canvas sprite we place a locked tooltip above the icon instead.
     sprite.eventMode = "static";
     sprite.on("pointerover", () => {
+      if (sprite._trespasserTooltip) return;
       const label = game.i18n.localize(cfg.label);
       const desc = game.i18n.localize(cfg.description);
-      game.tooltip.activate(sprite, { text: `${label}: ${desc}`, direction: "UP" });
+      const bounds = sprite.getBounds();
+      const board = document.getElementById("board")?.getBoundingClientRect() ?? { top: 0, left: 0 };
+      const tip = game.tooltip.createLockedTooltip({ top: "0px", left: "0px" }, `${label}: ${desc}`);
+      tip.style.left = `${Math.round(board.left + bounds.x + (bounds.width - tip.offsetWidth) / 2)}px`;
+      tip.style.top = `${Math.round(board.top + bounds.y - tip.offsetHeight - 4)}px`;
+      sprite._trespasserTooltip = tip;
     });
-    sprite.on("pointerout", () => game.tooltip.deactivate());
+    sprite.on("pointerout", () => {
+      if (!sprite._trespasserTooltip) return;
+      game.tooltip.dismissLockedTooltip(sprite._trespasserTooltip);
+      sprite._trespasserTooltip = null;
+    });
 
     token.addChild(sprite);
+  });
+});
+
+/**
+ * Prompt the current user to roll for any owned, unrolled actors in a pending group check.
+ * @param {string} messageId - The chat message ID containing the group check flags.
+ * @param {boolean} isAutoPrompt - Whether this is an automatic prompt on message creation.
+ */
+async function promptGroupCheckRoll(messageId, isAutoPrompt = false) {
+  const message = game.messages.get(messageId);
+  if (!message) return;
+
+  const flags = message.flags.trespasser?.groupCheck;
+  if (!flags || flags.status === "completed") return;
+
+  const { attribute, skill, dc, checkLabel, participants, results } = flags;
+
+  // Find which participants the current user owns and hasn't rolled for
+  const ownedUnrolledActors = participants.map(id => game.actors.get(id))
+    .filter(actor => {
+      if (!actor) return false;
+      const hasRolled = results.some(r => r.actorId === actor.id);
+      if (hasRolled) return false;
+      
+      if (game.user.isGM) {
+        // Do not auto-prompt the GM
+        if (isAutoPrompt) return false;
+      } else {
+        // Players only roll for actors they own
+        if (!actor.isOwner) return false;
+      }
+
+      return true;
+    });
+
+  if (ownedUnrolledActors.length === 0) {
+    if (!isAutoPrompt) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Party.NoPendingRolls") || "No pending rolls available for your owned characters.");
+    }
+    return;
+  }
+
+  // Roll for each owned actor
+  for (const actor of ownedUnrolledActors) {
+    const data = actor.system;
+    const attrBase = data.attributes?.[attribute] ?? 0;
+    const staticBonus = data.bonuses?.[attribute] ?? 0;
+    
+    const isTrained = skill && data.skills?.[skill] === true;
+    const skillBonus = isTrained ? (data.skill ?? 0) : 0;
+    
+    const effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, attribute, "use");
+
+    // Befuddled & Sickly checks
+    let attrVal = attrBase;
+    let attrBonus = staticBonus;
+    let finalEffectBonus = effectBonus;
+    let plightName = "";
+
+    if ((attribute === "intellect" || attribute === "spirit") && actor.system.hasPlight?.("befuddled")) {
+      plightName = "Befuddled";
+    } else if ((attribute === "mighty" || attribute === "agility") && actor.system.hasPlight?.("sickly")) {
+      plightName = "Sickly";
+    }
+
+    if (plightName) {
+      attrVal = 0;
+      attrBonus = 0;
+      finalEffectBonus = 0;
+      const attrLabel = game.i18n.localize(`TRESPASSER.Terms.Attribute.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.AttributeSuppressed", { plight: plightName, attr: attrLabel }));
+    }
+    
+    const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, attribute);
+    const diceFormula = isAdv ? "2d20kh" : "1d20";
+
+    const rollData = {
+      dice: diceFormula,
+      bonuses: [
+        { label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`), value: attrVal },
+        { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: finalEffectBonus }
+      ]
+    };
+    if (skillBonus > 0) rollData.bonuses.push({ label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus });
+    if (attrBonus !== 0) rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
+
+    const result = await TrespasserRollDialog.wait({
+      ...rollData,
+      showCD: true,
+      cd: dc,
+      isNonCombat: false
+    }, { title: `${actor.name}: ${checkLabel}` });
+
+    if (!result) continue; // They cancelled the roll dialog, skip to next actor
+
+    let formula = `${diceFormula} + ${attrVal} + ${result.modifier}`;
+    if (attrBonus !== 0) formula += ` + ${attrBonus}`;
+    if (finalEffectBonus !== 0) formula += ` + ${finalEffectBonus}`;
+    if (skillBonus > 0) formula += ` + ${skillBonus}`;
+
+    const roll = new foundry.dice.Roll(formula);
+    await roll.evaluate();
+
+    const dieResult = roll.dice[0]?.results[0]?.result;
+    const isNat20 = dieResult === 20;
+    const isSuccess = roll.total >= dc || isNat20;
+
+    // Print individual roll to chat
+    const flavor = isAdv
+      ? game.i18n.format("TRESPASSER.Chat.Check.SkillCheckAdv", { name: actor.name, skill: checkLabel })
+      : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck", { name: actor.name, skill: checkLabel });
+    
+    await roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor: actor }),
+      flavor: `${flavor}<p>${game.i18n.format("TRESPASSER.Chat.Check.VsCD", { cd: dc })}</p>`
+    });
+
+    await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: attribute });
+
+    const resultObj = {
+      actorId: actor.id,
+      name: actor.name,
+      total: roll.total,
+      formula: roll.formula,
+      success: isSuccess,
+      isNat20,
+      rollData: roll.toJSON()
+    };
+
+    const { TrespasserSocket } = game.trespasser || {};
+    TrespasserSocket?.emit("GROUP_CHECK_SUBMIT_ROLL", { messageId: message.id, result: resultObj });
+  }
+}
+
+/**
+ * Auto-prompt players to roll when a group check message is created.
+ */
+Hooks.on("createChatMessage", (message) => {
+  const flags = message.flags?.trespasser?.groupCheck;
+  if (!flags || flags.status !== "pending") return;
+  
+  // Delay slightly to ensure the message is fully rendered
+  setTimeout(() => promptGroupCheckRoll(message.id, true), 500);
+});
+
+/**
+ * Handle Group Check Roll buttons in chat messages
+ */
+Hooks.on("renderChatMessageHTML", (message, htmlElement, data) => {
+  const rollBtn = htmlElement.querySelector(".group-check-roll-btn");
+  if (rollBtn) {
+    rollBtn.addEventListener("click", async (event) => {
+      event.preventDefault();
+      await promptGroupCheckRoll(message.id);
+    });
+  }
+
+  const forceRollBtn = htmlElement.querySelector(".group-check-force-roll-btn");
+  if (forceRollBtn) {
+    if (!game.user.isGM) {
+      forceRollBtn.style.display = "none";
+    } else {
+      forceRollBtn.addEventListener("click", async (event) => {
+        event.preventDefault();
+      
+        const flags = message.flags.trespasser?.groupCheck;
+        if (!flags || flags.status === "completed") return;
+
+        const { attribute, skill, dc, participants, results } = flags;
+      
+        // Find ALL participants who haven't rolled yet
+        const unrolledActors = participants.map(id => game.actors.get(id))
+          .filter(actor => actor && !results.some(r => r.actorId === actor.id));
+
+        if (unrolledActors.length === 0) {
+          await game.trespasser.TrespasserPartyHelper.finalizeGroupCheck(message.id);
+          return;
+        }
+
+        for (const actor of unrolledActors) {
+          const data = actor.system;
+          const attrBase = data.attributes?.[attribute] ?? 0;
+          const staticBonus = data.bonuses?.[attribute] ?? 0;
+          const isTrained = skill && data.skills?.[skill] === true;
+          const skillBonus = isTrained ? (data.skill ?? 0) : 0;
+          const effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, attribute, "use");
+          const totalBonus = attrBase + staticBonus + skillBonus + effectBonus;
+        
+          const formula = `1d20 + ${totalBonus}`;
+          const roll = new foundry.dice.Roll(formula);
+          await roll.evaluate();
+
+          const dieResult = roll.dice[0]?.results[0]?.result;
+          const isNat20 = dieResult === 20;
+          const isSuccess = roll.total >= dc || isNat20;
+
+          const resultObj = {
+            actorId: actor.id,
+            name: actor.name,
+            total: roll.total,
+            formula: roll.formula,
+            success: isSuccess,
+            isNat20,
+            rollData: roll.toJSON()
+          };
+
+          const { TrespasserSocket } = game.trespasser || {};
+          TrespasserSocket?.emit("GROUP_CHECK_SUBMIT_ROLL", { messageId: message.id, result: resultObj });
+        }
+      });
+    }
+  }
+
+  // ── Group Check Distribute Sparks button ──────────────────────────────────
+  htmlElement.querySelectorAll(".distribute-group-sparks-btn").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const sparkCount = parseInt(btn.dataset.sparkCount) || 1;
+      
+      // Find the highest roller's actor for context
+      const flags = message.flags.trespasser?.groupCheck;
+      const results = flags?.results || [];
+      const highestRoll = results.reduce((max, curr) => curr.total > max.total ? curr : max, results[0]);
+      const actor = highestRoll ? game.actors.get(highestRoll.actorId) : null;
+
+      // Only actor owner or GM can pick sparks
+      if (actor && !actor.isOwner && !game.user.isGM) {
+        ui.notifications.warn("Only the highest roller's owner can distribute sparks.");
+        return;
+      }
+
+      const chosenSparks = await NonCombatSparkDialog.wait(sparkCount, { actor });
+      if (!chosenSparks || chosenSparks.length === 0) return;
+
+      // Rebuild the final HTML with sparks
+      const updatedContent = TrespasserPartyHelper.buildGroupCheckFinalHtml(
+        flags.checkLabel, flags.dc, results, 
+        flags.successes, flags.failures, flags.outcome,
+        chosenSparks, flags.chosenShadows || []
+      );
+
+      const updates = {
+        content: updatedContent,
+        "flags.trespasser.groupCheck.chosenSparks": chosenSparks
+      };
+
+      if (game.user.isGM) {
+        await message.update(updates);
+      } else {
+        const { TrespasserSocket } = game.trespasser || {};
+        TrespasserSocket?.emit("UPDATE_CHAT_MESSAGE", { messageId: message.id, updates });
+      }
+    });
+  });
+
+  // ── Group Check Distribute Shadows button (GM only) ───────────────────────
+  htmlElement.querySelectorAll(".distribute-group-shadows-btn").forEach(btn => {
+    if (!game.user.isGM) {
+      btn.style.display = "none";
+      return;
+    }
+
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const shadowCount = parseInt(btn.dataset.shadowCount) || 1;
+      const chosenShadows = await NonCombatShadowDialog.wait(shadowCount);
+      if (!chosenShadows || chosenShadows.length === 0) return;
+
+      const flags = message.flags.trespasser?.groupCheck;
+      const results = flags?.results || [];
+
+      const updatedContent = TrespasserPartyHelper.buildGroupCheckFinalHtml(
+        flags.checkLabel, flags.dc, results,
+        flags.successes, flags.failures, flags.outcome,
+        flags.chosenSparks || [], chosenShadows
+      );
+
+      await message.update({
+        content: updatedContent,
+        "flags.trespasser.groupCheck.chosenShadows": chosenShadows
+      });
+    });
   });
 });

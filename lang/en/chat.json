@@ -18,7 +18,9 @@
         "PrevailVsDC": "Roll Total: {total} vs DC {dc}",
         "PrevailSuccess": "Prevails against <b>{name}</b> (Roll: {roll} vs {target}) - <b>Success!</b>",
         "PrevailFailed": "Failed to prevail against <b>{name}</b> (Roll: {roll} vs {target}) - <b>Failed</b>",
-        "SluggishAutofail": "<strong>Sluggish:</strong> Auto-failed initiative check."
+        "SluggishAutofail": "<strong>Sluggish:</strong> Auto-failed initiative check.",
+        "TemptFateHeader": "Tempt Fate — {name} Intervenes!",
+        "TemptFateShadow": "Tempt Fate Shadow:"
       },
       "Combat": {
         "Defense": "Defense",
@@ -27,6 +29,10 @@
         "Miss": "MISS!",
         "Sparks": "Sparks: {count}",
         "Shadows": "Shadows: {count}",
+        "SparksLabel": "Sparks:",
+        "ShadowsLabel": "Shadows:",
+        "DistributeSparks": "Distribute Sparks ({count})",
+        "DistributeShadows": "Distribute Shadows ({count})",
         "AttackMessage": "<strong>{name}</strong> attacks with <strong>{action}</strong>: {formula} = {total}. Base Damage: {damage}",
         "DamageMessage": "<strong>{name}</strong> deals <strong>{damage}</strong> damage.",
         "TookDamage": "{name} took {total} damage.",
@@ -114,7 +120,19 @@
         "Succeeded": "Succeeded",
         "AllSucceed": "All Succeed!",
         "HalfMoreSucceed": "Success!",
-        "FewerHalfSucceed": "Failure"
+        "FewerHalfSucceed": "Failure",
+        "Successes": "Successes: {count}",
+        "Failures": "Failures: {count}",
+        "NetOutcome": "Net Outcome: {outcome}",
+        "PendingGroupSpark": "Pending Group Spark Selection",
+        "PendingGroupShadow": "Pending Group Shadow Selection",
+        "GroupSparksLabel": "Group Sparks:",
+        "GroupShadowsLabel": "Group Shadows:",
+        "DistributeGroupSparks": "Distribute Group Sparks ({count})",
+        "DistributeGroupShadows": "Distribute Group Shadows ({count})",
+        "RollBtn": "Roll",
+        "ForceCompleteBtn": "Force Complete (GM)",
+        "ProcessingResults": "Processing results..."
       },
       "Common": {
         "System": "System",
@@ -166,6 +184,7 @@
           "Label": "Encounter",
           "Reaction": "Reaction",
           "Surprise": "Surprise",
+          "SurpriseCheck": "{skill} Check",
           "Distance": "Distance",
           "DistanceRollHint": "Roll 3d6 × 2 for distance (in squares).",
           "Approach": "Approach",
@@ -174,6 +193,37 @@
         "Log": {
           "UnexploredCount": "{count} unexplored rooms found",
           "AlarmChange": "Alarm: {value}"
+        }
+      },
+      "Travel": {
+        "SessionStarted": "Travel begins through {name}!",
+        "SessionDay1": "Day 1 — Morning",
+        "AdvanceAnnounce": "The party advances through {name}.",
+        "TravelPointsAwarded": "6 travel points awarded.",
+        "PressingOn": "Pressing On!",
+        "PressingOnDetail": "Each party member without a mount loses 1 Endurance.",
+        "NewDay": "Day {day}",
+        "NightsRest": "The party takes a Night's Rest in {name}.",
+        "CampActivities": "Camp Activities",
+        "NightHostilityCheck": "Night Hostility Check",
+        "NightEncounterAmbush": "Encounter! No one was keeping watch — the enemy gets an automatic ambush!",
+        "AutoAmbush": "Automatic Ambush!",
+        "AutoAmbushDetail": "No one was keeping watch. The enemy group gets to choose an ambush approach. The party does not make an encounter check.",
+        "WatchKept": "Watch kept",
+        "NoWatch": "No watch",
+        "NoEncounter": "The surroundings remain quiet.",
+        "WayfindingCheck": "Wayfinding Check",
+        "WayfindingPrompt": "One character must make an INTELLECT | NATURE check vs DC {dc}. The Judge also secretly rolls a d10.",
+        "WayfindingSkill": "Skill",
+        "Wayfinding": {
+          "Spark": "Spark (Regain Heading)",
+          "SparkDesc": "The party regains heading immediately with no lost time.",
+          "Success": "Success (Detour)",
+          "SuccessDesc": "Spend half travel points going wrong direction, then correct course.",
+          "Failure": "Failure (Full Digression)",
+          "FailureDesc": "Spend ALL travel points going wrong direction, then realize mistake and regain heading.",
+          "Shadow": "Shadow (Disorientation)",
+          "ShadowDesc": "Party travels wrong direction unknowingly. Continue wrong on future advances until a successful wayfinding check."
         }
       },
       "Deed": {

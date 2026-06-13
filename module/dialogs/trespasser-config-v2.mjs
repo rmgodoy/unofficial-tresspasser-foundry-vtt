@@ -71,7 +71,8 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
       autoEndCombatOnRetreat: game.settings.get("trespasser", "autoEndCombatOnRetreat"),
       clockSize: game.settings.get("trespasser", "clockSize"),
       fontSizeBase: game.settings.get("trespasser", "fontSizeBase"),
-      showStatusEffectsOnTokens: game.settings.get("trespasser", "showStatusEffectsOnTokens")
+      showStatusEffectsOnTokens: game.settings.get("trespasser", "showStatusEffectsOnTokens"),
+      automateTravelTracker: game.settings.get("trespasser", "automateTravelTracker")
     };
 
     // Color settings
@@ -141,7 +142,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
    * @param {Event} event 
    */
   static async _onSubmit(event) {
-    const formData = new FormDataExtended(this.element).object;
+    const formData = new foundry.applications.ux.FormDataExtended(this.element).object;
     
     // Handle standard settings
     for ( let [key, val] of Object.entries(formData) ) {
@@ -189,6 +190,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
         "restrictAPFocusUsage", "groupCheckFullParty", "restrictHavenEditToLeader",
         "bypassHavenBuildingLimits", "disregardRangeOnAttack", "allowOutOfTurnMovement", "playerFacingInitiative", 
         "hideCreatureDamageRolls", "enableRetreatDialog", "showPerilInChat", "autoEndCombatOnRetreat", "confirmItemTransfer",
+        "automateTravelTracker",
         "clockSize", "fontSizeBase", "showStatusEffectsOnTokens",
         "colorBgDark", "colorBgPanel", "colorBgInput", "colorBgHeader", "colorBgSelect",
         "colorBorder", "colorBorderLight", "colorGold", "colorGoldDim", "colorGoldBright",

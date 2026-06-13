@@ -554,7 +554,7 @@ export class TrespasserCombat extends Combat {
     if (!game.settings.get("trespasser", "showPerilInChat")) return;
     
     const label = game.i18n.localize(combatInfo.perilLabel);
-    const content = await renderTemplate("systems/trespasser/templates/chat/peril-card.hbs", {
+    const content = await foundry.applications.handlebars.renderTemplate("systems/trespasser/templates/chat/peril-card.hbs", {
       total: combatInfo.perilTotal,
       label: label,
       heavy: combatInfo.heavy,
@@ -563,10 +563,8 @@ export class TrespasserCombat extends Combat {
     });
 
     await ChatMessage.create({
-      user: game.user.id,
       content: content,
-      flavor: game.i18n.localize("TRESPASSER.Terms.Combat.Peril"),
-      type: CONST.CHAT_MESSAGE_TYPES.OTHER
+      flavor: game.i18n.localize("TRESPASSER.Terms.Combat.Peril")
     });
   }
 
@@ -579,8 +577,7 @@ export class TrespasserCombat extends Combat {
     
     // Post attempt to chat
     await ChatMessage.create({
-      content: `<h3 style="color:var(--trp-gold-bright)">${game.i18n.localize("TRESPASSER.Chat.Retreat.Attempt")}</h3>`,
-      type: CONST.CHAT_MESSAGE_TYPES.OTHER
+      content: `<h3 style="color:var(--trp-gold-bright)">${game.i18n.localize("TRESPASSER.Chat.Retreat.Attempt")}</h3>`
     });
 
     if (playerFacingInit) {
@@ -634,8 +631,7 @@ export class TrespasserCombat extends Combat {
 
     if (success) {
       await ChatMessage.create({
-        content: `<h2 style="color:var(--trp-green-bright)">${game.i18n.format("TRESPASSER.Chat.Retreat.PartyEscaped", { successes, total: pcs.length })}</h2>`,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER
+        content: `<h2 style="color:var(--trp-green-bright)">${game.i18n.format("TRESPASSER.Chat.Retreat.PartyEscaped", { successes, total: pcs.length })}</h2>`
       });
       
       if (game.settings.get("trespasser", "autoEndCombatOnRetreat")) {
@@ -644,8 +640,7 @@ export class TrespasserCombat extends Combat {
       }
     } else {
       await ChatMessage.create({
-        content: `<h2 style="color:var(--trp-red)">${game.i18n.format("TRESPASSER.Chat.Retreat.PartyFailed", { successes, total: pcs.length, needed })}</h2>`,
-        type: CONST.CHAT_MESSAGE_TYPES.OTHER
+        content: `<h2 style="color:var(--trp-red)">${game.i18n.format("TRESPASSER.Chat.Retreat.PartyFailed", { successes, total: pcs.length, needed })}</h2>`
       });
     }
 

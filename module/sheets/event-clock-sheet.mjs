@@ -64,7 +64,7 @@ export class EventClockSheet extends api.HandlebarsApplicationMixin(api.Applicat
     context.clockFilled = filled;
 
     // Enrich description HTML
-    context.descriptionHTML = await TextEditor.enrichHTML(clock.description || "", {
+    context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(clock.description || "", {
         async: true,
         secrets: true
     });

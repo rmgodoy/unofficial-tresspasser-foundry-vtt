@@ -187,6 +187,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     context.hasDungeon = !!this.dungeon;
     context.dungeonName = this.dungeon?.name ?? "";
     context.dungeonId = this.dungeon?.id ?? "";
+    context.activePartyName = game.trespasser.TrespasserPartyHelper?.getActiveParty()?.name ?? "-";
 
     // Available dungeons (for the picker in idle state)
     if (context.isIdle && isGM) {
@@ -253,17 +254,36 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
       rooms.sort((a, b) => (a.system.sortOrder ?? 0) - (b.system.sortOrder ?? 0));
 
       const currentRoom = system.currentRoomId ? this.dungeon.items.get(system.currentRoomId) : null;
-      const connectedIds = new Set(currentRoom?.system.connections ?? []);
+      const connectedIds = new Set((currentRoom?.system.connections ?? []).map(c => c.roomId));
 
       context.rooms = rooms.map(r => ({
         _id: r.id,
         name: r.name,
         discovered: r.system.discovered,
         isCurrent: r.id === system.currentRoomId,
-        isConnected: connectedIds.has(r.id)
+        isConnected: connectedIds.has(r.id),
+        isEntrance: r.system.isEntrance ?? false
       }));
 
-      context.connectedRooms = context.rooms.filter(r => r.isConnected && !r.isCurrent);
+      if (!currentRoom) {
+        const entrances = context.rooms.filter(r => r.isEntrance);
+        const lastRoomId = system.lastRoomId;
+        const lastRoom = lastRoomId ? context.rooms.find(r => r._id === lastRoomId) : null;
+
+        const list = [];
+        if (lastRoom) {
+          lastRoom.isLastVisited = true;
+          list.push(lastRoom);
+        }
+        for (const entrance of entrances) {
+          if (entrance._id !== lastRoomId) {
+            list.push(entrance);
+          }
+        }
+        context.connectedRooms = list;
+      } else {
+        context.connectedRooms = context.rooms.filter(r => r.isConnected && !r.isCurrent);
+      }
 
       // Dungeon actions
       context.actions = Object.entries(dungeonConfig.actions).map(([key, action]) => ({
@@ -296,7 +316,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
    * @returns {Actor[]}
    */
   _getPartyMembers() {
-    const party = game.actors.find(a => a.type === "party");
+    const party = game.trespasser.TrespasserPartyHelper?.getActiveParty();
     if (party) {
       const memberIds = party.system.members ?? [];
       return memberIds.map(id => game.actors.get(id)).filter(a => a?.type === "character");
@@ -365,7 +385,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     const activeSources = [];
 
     // Use party members if a party actor exists, otherwise all characters
-    const party = game.actors.find(a => a.type === "party");
+    const party = game.trespasser.TrespasserPartyHelper.getActiveParty();
     const characters = party
       ? (party.system.members ?? []).map(id => game.actors.get(id)).filter(a => a?.type === "character")
       : game.actors.filter(a => a.type === "character");
@@ -479,6 +499,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
       "system.actionsRemaining": dungeonConfig.actionsPerRound,
       "system.alarm": 0,
       "system.currentRoomId": "",
+      "system.lastRoomId": "",
       "system.roundLog": [],
       "system.sessionState": "active"
     });
@@ -502,7 +523,10 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
   static async #onResumeSession(event, target) {
     if (!game.user.isGM || !this.dungeon) return;
     await this._pauseOtherActiveSessions();
-    await this.dungeon.update({ "system.sessionState": "active" });
+    await this.dungeon.update({
+      "system.sessionState": "active",
+      "system.currentRoomId": ""
+    });
     this.render();
   }
 
@@ -615,7 +639,10 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
       await room.update({ "system.discovered": true });
     }
 
-    await this.dungeon.update({ "system.currentRoomId": roomId });
+    await this.dungeon.update({
+      "system.currentRoomId": roomId,
+      "system.lastRoomId": roomId
+    });
     this.render();
   }
 

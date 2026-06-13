@@ -15,39 +15,67 @@
 
 /**
  * Run the full end-of-round encounter check sequence.
- * @param {Actor} dungeon - The dungeon actor
+ * Works for both dungeon (d10 vs alarm) and travel (d10 vs hostility tier) contexts.
+ *
+ * @param {Actor} actor - The dungeon or region actor
+ * @param {Object} [options={}]
+ * @param {string} [options.context="dungeon"] - "dungeon" or "travel"
+ * @param {number} [options.checkTarget] - Override: the value to roll against.
+ *        Defaults to actor.system.alarm for dungeons, or the hostility tier number for travel.
+ * @param {string} [options.checkLabel] - Override: label for the check target in the chat card.
  * @returns {Promise<{encountered: boolean, result: Object|null}>}
  */
-export async function resolveEndOfRound(dungeon) {
-  const system = dungeon.system;
-  const alarm = system.alarm ?? 0;
+export async function resolveEndOfRound(actor, options = {}) {
+  const system = actor.system;
+  const context = options.context ?? "dungeon";
 
-  // Roll d10 vs alarm
-  const encounterRoll = await new Roll("1d10").evaluate();
-  const encountered = encounterRoll.total <= alarm;
+  let encountered = false;
 
-  // Build the encounter check chat card
-  let checkContent = `<div class="trespasser-encounter-check">`;
-  checkContent += `<strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Check")}</strong>`;
-  checkContent += `<div class="encounter-roll-result">`;
-  checkContent += `<span class="encounter-die">d10: ${encounterRoll.total}</span>`;
-  checkContent += ` vs `;
-  checkContent += `<span class="encounter-alarm">${game.i18n.localize("TRESPASSER.Dungeon.Alarm")}: ${alarm}</span>`;
-  checkContent += `</div>`;
-
-  if (encountered) {
-    checkContent += `<div class="encounter-triggered">${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Triggered")}</div>`;
+  if (options.forceEncounter) {
+    encountered = true;
   } else {
-    checkContent += `<div class="encounter-clear">${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.NoEncounter")}</div>`;
-  }
-  checkContent += `</div>`;
+    let checkTarget;
+    let checkLabel;
 
-  // Post the encounter check result
-  await ChatMessage.create({
-    content: checkContent,
-    speaker: ChatMessage.getSpeaker({ alias: dungeon.name }),
-    whisper: game.users.filter(u => u.isGM).map(u => u.id)
-  });
+    if (context === "travel") {
+      // Travel: d10 vs hostility tier number
+      checkTarget = options.checkTarget ?? (system.hostilityTier ?? 1);
+      const tierConfig = CONFIG.TRESPASSER.dungeon.hostilityTiers[checkTarget];
+      checkLabel = options.checkLabel ?? `${game.i18n.localize("TRESPASSER.Dungeon.Hostility")}: ${game.i18n.localize(tierConfig?.label ?? "")}`;
+    } else {
+      // Dungeon: d10 vs alarm
+      checkTarget = options.checkTarget ?? (system.alarm ?? 0);
+      checkLabel = options.checkLabel ?? `${game.i18n.localize("TRESPASSER.Dungeon.Alarm")}: ${checkTarget}`;
+    }
+
+    // Roll d10 vs checkTarget
+    const encounterRoll = await new Roll("1d10").evaluate();
+    encountered = encounterRoll.total <= checkTarget;
+
+    // Build the encounter check chat card
+    let checkContent = `<div class="trespasser-encounter-check">`;
+    checkContent += `<strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Check")}</strong>`;
+    checkContent += `<div class="encounter-roll-result">`;
+    checkContent += `<span class="encounter-die">d10: ${encounterRoll.total}</span>`;
+    checkContent += ` vs `;
+    checkContent += `<span class="encounter-alarm">${checkLabel}</span>`;
+    checkContent += `</div>`;
+
+    if (encountered) {
+      checkContent += `<div class="encounter-triggered">${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Triggered")}</div>`;
+    } else {
+      const clearKey = context === "travel" ? "TRESPASSER.Chat.Travel.NoEncounter" : "TRESPASSER.Chat.Dungeon.Encounter.NoEncounter";
+      checkContent += `<div class="encounter-clear">${game.i18n.localize(clearKey)}</div>`;
+    }
+    checkContent += `</div>`;
+
+    // Post the encounter check result
+    await ChatMessage.create({
+      content: checkContent,
+      speaker: ChatMessage.getSpeaker({ alias: actor.name }),
+      whisper: game.users.filter(u => u.isGM).map(u => u.id)
+    });
+  }
 
   if (!encountered) {
     return { encountered: false, result: null };
@@ -84,13 +112,13 @@ export async function resolveEndOfRound(dungeon) {
   }));
 
   // 4. Build the full encounter card
-  const dc = getDungeonDC(dungeon);
+  const dc = getHostilityDC(actor);
 
   let encounterContent = `<div class="trespasser-encounter-card">`;
   encounterContent += `<h3>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Title")}</h3>`;
   encounterContent += `<div class="encounter-description"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Label")}:</strong> ${encounterDescription}</div>`;
   encounterContent += `<div class="encounter-reaction"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Reaction")}:</strong> ${reactionLabel} (2d6: ${reactionTotal})</div>`;
-  encounterContent += `<div class="encounter-surprise"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Surprise")}:</strong> ${game.i18n.format("TRESPASSER.Dialog.SkillCheckTitle", {skill: "AGILITY | STEALTH"})} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</div>`;
+  encounterContent += `<div class="encounter-surprise"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Surprise")}:</strong> ${game.i18n.format("TRESPASSER.Chat.Dungeon.Encounter.SurpriseCheck", {skill: "AGILITY | STEALTH"})} vs ${game.i18n.localize("TRESPASSER.Dungeon.DC")} ${dc}</div>`;
 
   // Distance suggestion
   encounterContent += `<div class="encounter-distance"><strong>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.Distance")}</strong> ${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.DistanceRollHint")}</div>`;
@@ -109,19 +137,21 @@ export async function resolveEndOfRound(dungeon) {
   // Post encounter card (GM only)
   await ChatMessage.create({
     content: encounterContent,
-    speaker: ChatMessage.getSpeaker({ alias: dungeon.name }),
+    speaker: ChatMessage.getSpeaker({ alias: actor.name }),
     whisper: game.users.filter(u => u.isGM).map(u => u.id)
   });
 
-  // 5. Reset alarm to 0
-  await dungeon.update({ "system.alarm": 0 });
+  // 5. Reset alarm (Dungeon context only)
+  if (context === "dungeon") {
+    await actor.update({ "system.alarm": 0 });
 
-  // Post alarm reset notification
-  await ChatMessage.create({
-    content: `<div class="trespasser-dungeon-action"><em>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.AlarmReset")}</em></div>`,
-    speaker: ChatMessage.getSpeaker({ alias: dungeon.name }),
-    whisper: game.users.filter(u => u.isGM).map(u => u.id)
-  });
+    // Post alarm reset notification
+    await ChatMessage.create({
+      content: `<div class="trespasser-dungeon-action"><em>${game.i18n.localize("TRESPASSER.Chat.Dungeon.Encounter.AlarmReset")}</em></div>`,
+      speaker: ChatMessage.getSpeaker({ alias: actor.name }),
+      whisper: game.users.filter(u => u.isGM).map(u => u.id)
+    });
+  }
 
   return {
     encountered: true,
@@ -160,21 +190,29 @@ function resolveReaction(total) {
 /* -------------------------------------------- */
 
 /**
- * Get the hostility DC for this dungeon.
- * @param {Actor} dungeon
+ * Get the hostility DC for this actor.
+ * @param {Actor} actor
  * @returns {number}
  */
-function getDungeonDC(dungeon) {
-  const tier = dungeon.system.hostilityTier ?? 1;
+function getHostilityDC(actor) {
+  const tier = actor.system.hostilityTier ?? 1;
   return CONFIG.TRESPASSER.dungeon.hostilityTiers[tier]?.dc ?? 10;
 }
 
 /**
- * Run a standalone encounter check (e.g., for fleeing the dungeon).
- * Same as end-of-round but doesn't increment alarm first.
- * @param {Actor} dungeon
+ * Run a standalone encounter check.
+ * @param {Actor} actor - The dungeon or region actor
+ * @param {Object} [options={}] - Same options as resolveEndOfRound
+ */
+export async function runEncounterCheck(actor, options = {}) {
+  return resolveEndOfRound(actor, options);
+}
+
+/**
+ * Run a hostility check for travel (d10 vs hostility tier).
+ * @param {Actor} region - The region actor
  * @returns {Promise<{encountered: boolean, result: Object|null}>}
  */
-export async function runEncounterCheck(dungeon) {
-  return resolveEndOfRound(dungeon);
+export async function runTravelHostilityCheck(region) {
+  return resolveEndOfRound(region, { context: "travel" });
 }

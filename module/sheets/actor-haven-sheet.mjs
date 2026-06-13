@@ -59,6 +59,12 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
   };
 
   tabGroups = { primary: "skills" };
+
+  /** @override */
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Actor.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
+  }
   
   /** @override */
   get isEditable() {
@@ -302,6 +308,17 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
       });
     });
 
+    // Fallback: accept item drops anywhere on the sheet, not only on the
+    // designated zones. Zone handlers stopPropagation, so drops that land
+    // on a zone are not handled twice. #onDrop reads dataset.action off the
+    // event's currentTarget, which is undefined here, routing the drop to
+    // the general inventory-deposit branch.
+    if (!this.element._trespasserRootDropBound) {
+      this.element._trespasserRootDropBound = true;
+      this.element.addEventListener('dragover', (ev) => ev.preventDefault());
+      this.element.addEventListener('drop', (ev) => this.#onDrop(ev));
+    }
+
     // Handle dragging items from inventory
     html.querySelectorAll('.inventory-item.item').forEach(li => {
       li.addEventListener('dragstart', (ev) => this.#onDragStart(ev));
@@ -320,6 +337,17 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
   /* Drag & Drop                                  */
   /* -------------------------------------------- */
 
+  /**
+   * Items enter a Haven only through #onDrop's deposit logic (custom
+   * inventory) or its embedded-type branch. Disable the default sheet
+   * behavior, which would create an embedded Item this sheet never
+   * displays — on v13, core's own drop pipeline runs alongside the
+   * sheet's listeners and would otherwise duplicate deposits.
+   */
+  async _onDropItem() {
+    return false;
+  }
+
   async #onDrop(event) {
     console.log("Trespasser | TrespasserHavenSheet.#onDrop: Entry");
     event.preventDefault();
@@ -327,7 +355,7 @@ export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.
     const zone = event.currentTarget;
     const action = zone.dataset.action;
     
-    const data = TextEditor.getDragEventData(event);
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     
     if (action === "dropLeader") {
       if (data.type !== "Actor") return;

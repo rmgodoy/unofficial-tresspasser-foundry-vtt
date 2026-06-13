@@ -2,10 +2,10 @@
   "id": "trespasser",
   "title": "Trespasser",
   "description": "A Foundry VTT system for the Trespasser TTRPG by Tundalus.",
-  "version": "0.0.9",
+  "version": "0.1.0",
   "compatibility": {
     "minimum": "13",
-    "verified": "13"
+    "verified": "14"
   },
   "authors": [
     {
@@ -127,7 +127,8 @@
       "creature": {},
       "dungeon": {},
       "party": {},
-      "haven": {}
+      "haven": {},
+      "region": {}
     },
     "Item": {
       "item": {},

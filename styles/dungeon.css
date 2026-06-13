@@ -70,11 +70,12 @@
 .trespasser.sheet.dungeon .dungeon-icon-tabs {
   justify-content: center;
   gap: 16px;
+  padding: 8px 12px !important;
 }
 
 .trespasser.sheet.dungeon .dungeon-icon-tabs .item {
   font-size: var(--fs-18);
-  padding: 0 !important;
+  padding: 6px 16px !important;
   border-right: none !important;
 }
 
@@ -1252,6 +1253,12 @@ select.dungeon-field-input option {
 
 .tracker-room-entry.undiscovered {
   opacity: 0.6;
+}
+
+.tracker-room-entry.last-visited .tracker-room-go {
+  border-color: var(--accent-gold);
+  color: var(--accent-gold);
+  background: var(--trp-gold-overlay, rgba(212, 175, 55, 0.15));
 }
 
 .tracker-room-go {

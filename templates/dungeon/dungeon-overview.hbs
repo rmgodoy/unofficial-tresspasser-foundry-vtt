@@ -19,8 +19,8 @@
         <div class="form-group">
           <label>{{localize "TRESPASSER.Sheet.Dungeon.HostilityTier"}}</label>
           <select class="dungeon-field-input" name="system.hostilityTier">
-            {{#each hostilityChoices as |label key|}}
-              <option value="{{key}}" {{#if (eq ../system.hostilityTier key)}}selected{{/if}}>{{label}}</option>
+            {{#each hostilityChoices}}
+              <option value="{{this.value}}" {{#if (eq ../system.hostilityTier this.value)}}selected{{/if}}>{{this.label}}</option>
             {{/each}}
           </select>
         </div>

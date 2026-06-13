@@ -7,6 +7,8 @@
  * are implemented directly.
  */
 
+import { messageVisibility } from "../helpers/compat.mjs";
+
 const { api, sheets } = foundry.applications;
 
 export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
@@ -48,6 +50,12 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
   };
 
   tabGroups = { primary: "overview" };
+
+  /** @override */
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Actor.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
+  }
 
   /* -------------------------------------------- */
   /* Context Preparation                          */
@@ -105,10 +113,10 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
     context.hostilityDC = tier.dc;
 
     // Dropdown choices
-    context.hostilityChoices = {};
-    for (const [key, val] of Object.entries(dungeonConfig.hostilityTiers)) {
-      context.hostilityChoices[key] = game.i18n.localize(val.label);
-    }
+    context.hostilityChoices = Object.entries(dungeonConfig.hostilityTiers).map(([key, val]) => ({
+      value: Number(key),
+      label: game.i18n.localize(val.label)
+    }));
     context.sizeChoices = {};
     for (const [key, val] of Object.entries(dungeonConfig.sizeCategories)) {
       context.sizeChoices[key] = game.i18n.localize(val);
@@ -165,7 +173,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
           }
           return {
             diceRange: rangeStr,
-            text: r.name || r.text || "—",
+            text: r.name || r.description || "—",
             img: r.img || null
           };
         });
@@ -276,6 +284,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
       "system.actionsRemaining": actionsPerRound,
       "system.alarm": 0,
       "system.currentRoomId": "",
+      "system.lastRoomId": "",
       "system.sessionState": "idle"
     });
   }
@@ -289,7 +298,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
     if (!tableId) return;
     const table = game.tables.get(tableId);
     if (!table) return;
-    await table.draw({ rollMode: CONST.DICE_ROLL_MODES.PRIVATE });
+    await table.draw(messageVisibility("gm"));
   }
 
   static async #onCreateEncounterTable(event, target) {
@@ -306,7 +315,7 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
   /* -------------------------------------------- */
 
   async _onDrop(event) {
-    const data = TextEditor.getDragEventData(event);
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (data?.type === "RollTable") {
       if (!this.isEditable) return false;
       const table = await RollTable.implementation.fromDropData(data);
@@ -319,7 +328,8 @@ export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheet
 
   async _onDropItem(event, data) {
     if (!this.isEditable) return false;
-    const item = await Item.implementation.fromDropData(data);
+    // v14 passes the resolved Item document; raw drag data still resolves
+    const item = data instanceof Item ? data : await Item.implementation.fromDropData(data ?? {});
     if (!item) return false;
 
     // Only allow room items on dungeons

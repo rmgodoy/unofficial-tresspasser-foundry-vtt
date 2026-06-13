@@ -19,6 +19,41 @@
           }
         }
       },
+      "TravelTracker": {
+        "Title": "Rastreador de Viagem",
+        "SelectRegion": "Selecionar Região",
+        "NoRegionFound": "Nenhuma região encontrada.",
+        "CreateRegionHint": "Crie um ator de Região para começar a viagem terrestre.",
+        "NoTravelInProgress": "Nenhuma viagem em andamento.",
+        "WaitingForGM": "Aguardando o Mestre iniciar a viagem.",
+        "Day": "Dia",
+        "Period": "Período",
+        "TravelPoints": "Pontos de Viagem",
+        "Weather": "Clima",
+        "OnRoad": "Na Estrada",
+        "TerrainCosts": "Custos de Terreno",
+        "TravelActions": "Ações de Viagem",
+        "RecentActivity": "Atividade Recente",
+        "TravelPaused": "Viagem Pausada",
+        "Disoriented": "O grupo está desorientado!",
+        "ClearDisorientation": "Limpar Desorientação",
+        "NextDay": "Próximo Dia",
+        "CampInProgress": "Atividades de Acampamento — Aguardando Seleções",
+        "CampWaiting": "Aguardando...",
+        "CampOverride": "Sobrescrever",
+        "CampConfirm": "Confirmar Acampamento",
+        "CampCancel": "Cancelar Acampamento",
+        "CampReprompt": "Solicitar ao jogador novamente",
+        "Session": {
+          "BeginTravel": "Iniciar Viagem",
+          "EndTravel": "Encerrar Viagem",
+          "Resume": "Retomar Viagem",
+          "State": {
+            "active": "Ativo",
+            "paused": "Pausado"
+          }
+        }
+      },
       "HavenTracker": {
         "Title": "Rastreador de Refúgio",
         "SelectHaven": "Selecionar Refúgio",
@@ -52,7 +87,8 @@
             "creature": "Criatura",
             "dungeon": "Masmorra",
             "party": "Grupo",
-            "haven": "Abrigo"
+            "haven": "Abrigo",
+            "region": "Região"
           },
           "Item": {
             "armor": "Armadura",

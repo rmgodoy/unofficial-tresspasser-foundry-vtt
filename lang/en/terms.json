@@ -28,7 +28,7 @@
         "Reaction": "Reaction"
       },
       "Attribute": {
-        "Mighty": "Mighty",
+        "Mighty": "Might",
         "Agility": "Agility",
         "Intellect": "Intellect",
         "Spirit": "Spirit",
@@ -98,7 +98,8 @@
         "Creature": "Creature",
         "Dungeon": "Dungeon",
         "Party": "Party",
-        "Haven": "Haven"
+        "Haven": "Haven",
+        "Region": "Region"
       },
       "Phase": {
         "Start": "Start",
@@ -296,6 +297,67 @@
           "Chasm": "Chasm",
           "Portal": "Portal",
           "Other": "Other"
+        }
+      },
+      "Travel": {
+        "Terrain": {
+          "Flat": "Flat",
+          "FlatExamples": "Desert, Plains, Woodland",
+          "Mixed": "Mixed",
+          "MixedExamples": "Forest, Hill, Swampland",
+          "Rough": "Rough",
+          "RoughExamples": "Caves, Mountains"
+        },
+        "Weather": {
+          "Clear": "Clear",
+          "Poor": "Poor",
+          "PoorExamples": "Heat wave, heavy rain, snow",
+          "Extreme": "Extreme",
+          "ExtremeExamples": "Blizzard, sandstorm"
+        },
+        "Period": {
+          "Morning": "Morning",
+          "Evening": "Evening",
+          "Night": "Night"
+        },
+        "Actions": {
+          "Advance": "Advance",
+          "AdvanceDesc": "Break camp and continue traveling. Gain 6 travel points to spend on hex movement.",
+          "Camp": "Camp",
+          "CampDesc": "Set up camp and perform camp activities. Each party member chooses one camp activity.",
+          "NightsRest": "Night's Rest",
+          "NightsRestDesc": "Rest for the night to recover. Must eat a ration. Triggers a hostility check."
+        },
+        "Camp": {
+          "TargetAlly": "Target Ally:",
+          "Assist": "Assist",
+          "AssistDesc": "You forgo performing your own camp activity to help an ally with their own. Describe what you do to help your ally. If their activity requires a skill check, they gain one additional spark on a success.",
+          "CampAlchemy": "Camp Alchemy",
+          "CampAlchemyDesc": "Spend 2 ingredients. On a failure, they are wasted. On a success, create a random lesser concoction. On a spark, choose what to create.",
+          "Cook": "Cook",
+          "CookDesc": "Spend 1 ingredient. On a failure, the ingredient is wasted. On a success, create a fine ration.",
+          "Craft": "Craft",
+          "CraftDesc": "Spend material (1 for tools, hands used for weapons, armor rating for armor). On a failure, materials are wasted. On a success, create crude equipment. On a spark, create fine equipment.",
+          "Forage": "Forage",
+          "ForageDesc": "On a success, gain one ingredient, plus one per spark.",
+          "Fish": "Fish",
+          "FishDesc": "On a success, gain one crude ration.",
+          "Hunt": "Hunt",
+          "HuntDesc": "On a success, gain one crude ration, plus one per spark. On a failure, lose 1 endurance.",
+          "LiftSpirits": "Lift Spirits",
+          "LiftSpiritsDesc": "Choose one ally, describe what you do to lift their spirits. On a success, remove a plight from one ally or grant them 1 resolve. For each spark, grant this effect to an additional ally.",
+          "PrepareTorches": "Prepare Torches",
+          "PrepareTorchesDesc": "Spend 1 material. On a success, create three crude torches, plus one per spark.",
+          "Pursue": "Pursue",
+          "PursueDesc": "You pursue a different task not covered by the other camp activities. The target number may vary depending on the task at hand.",
+          "RestEarly": "Rest Early",
+          "RestEarlyDesc": "You must eat a ration. Afterward, you gain all the benefits of a night's rest, and you can keep watch without penalty.",
+          "Salvage": "Salvage",
+          "SalvageDesc": "On a success, gain one material, plus one per spark.",
+          "Scout": "Scout",
+          "ScoutDesc": "On a success, choose one benefit: Party ignores mixed/rough terrain, Party has no risk of getting lost, or Party gains a +2 bonus to camp activity skill checks. On a failure, lose 1 endurance.",
+          "Survey": "Survey",
+          "SurveyDesc": "On a success, discover all points of interest in the current hex and any adjacent hexes. Weather may limit your ability to survey."
         }
       }
     }

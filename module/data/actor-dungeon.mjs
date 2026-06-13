@@ -36,6 +36,7 @@ export class TrespasserDungeonData extends foundry.abstract.TypeDataModel {
         choices: ["idle", "active", "paused"]
       }),
       currentRoomId: new fields.StringField({ initial: "" }),
+      lastRoomId: new fields.StringField({ initial: "" }),
       roundLog: new fields.ArrayField(new fields.SchemaField({
         round: new fields.NumberField({ integer: true }),
         action: new fields.StringField(),

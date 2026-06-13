@@ -142,3 +142,104 @@ export function resolveDefenseRoll(requestId, result) {
     pending.resolve(result);
   }
 }
+
+/**
+ * Called by GM: sends a counter reaction request to the owning player.
+ * Returns a Promise that resolves when the player responds.
+ */
+export async function requestPlayerCounterReaction(targetActorId, targetTokenId, creatureTokenId, weaponId, shadows) {
+  const targetActor = game.actors.get(targetActorId);
+  if (!targetActor) return false;
+
+  const ownerUser = game.users.find(u => !u.isGM && targetActor.testUserPermission(u, "OWNER") && u.active);
+  
+  if (!ownerUser) {
+    const targetToken = canvas.tokens.placeables.find(t => t.id === targetTokenId);
+    const creatureToken = creatureTokenId ? canvas.tokens.placeables.find(t => t.id === creatureTokenId) : null;
+    const weapon = targetActor.items.get(weaponId);
+    return _askCounterReactionLocally(targetToken, creatureToken, weapon, shadows);
+  }
+
+  const requestId = foundry.utils.randomID();
+  const promise = new Promise((resolve) => {
+    const timeout = setTimeout(() => {
+      _pendingDefenseRolls.delete(requestId);
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Chat.Combat.CounterTimeout", { name: targetActor.name }));
+      resolve(false);
+    }, 900000);
+    _pendingDefenseRolls.set(requestId, { resolve, timeout });
+  });
+
+  const { TrespasserSocket } = await import("./socket/socket.mjs");
+  TrespasserSocket.emit("COUNTER_REQUEST", {
+    requestId,
+    targetActorId,
+    targetTokenId,
+    targetUserId: ownerUser.id,
+    creatureTokenId,
+    weaponId,
+    shadows
+  });
+
+  ui.notifications.info(game.i18n.format("TRESPASSER.Chat.Combat.WaitingForCounter", { 
+    name: ownerUser.name 
+  }));
+
+  return promise;
+}
+
+/**
+ * Perform the counter reaction locally.
+ * Used both by the player (via socket) and as GM fallback.
+ */
+export async function _askCounterReactionLocally(targetToken, creatureToken, weapon, shadows) {
+  if (!targetToken || !weapon) return false;
+  const wDie = weapon.system.weaponDie || "d4";
+  const content = `<div class="trespasser-dialog">
+    <p>${game.i18n.format("TRESPASSER.Chat.Combat.CounterPrompt", {
+      defender: targetToken.name,
+      count: shadows,
+      die: wDie,
+      weapon: weapon.name,
+      creature: creatureToken?.name ?? "?"
+    })}</p>
+  </div>`;
+
+  const result = await foundry.applications.api.DialogV2.wait({
+    window: { title: game.i18n.localize("TRESPASSER.Chat.Combat.CounterReaction") },
+    classes: ["trespasser", "dialog"],
+    position: { width: 380 },
+    content,
+    buttons: [
+      {
+        action: "counter",
+        icon: "fas fa-shield-alt",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Accept"),
+        default: true,
+        callback: () => true
+      },
+      {
+        action: "pass",
+        icon: "fas fa-times",
+        label: game.i18n.localize("TRESPASSER.Global.Action.Pass"),
+        callback: () => false
+      }
+    ],
+    rejectClose: false,
+    close: () => false
+  });
+
+  return result;
+}
+
+/**
+ * Resolve a pending counter reaction request.
+ */
+export function resolveCounterReaction(requestId, result) {
+  const pending = _pendingDefenseRolls.get(requestId);
+  if (pending) {
+    clearTimeout(pending.timeout);
+    _pendingDefenseRolls.delete(requestId);
+    pending.resolve(result);
+  }
+}

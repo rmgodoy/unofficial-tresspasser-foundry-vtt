@@ -7,6 +7,8 @@
       "LastingStateReduced": "{name} retorna à intensidade duradoura de {intensity}.",
       "Item": {
         "DropDeedsOnly": "Apenas Habilidades podem ser soltas aqui.",
+        "Added": "{item} adicionado a {target}.",
+        "EffectMerged": "{effect} foi mesclado ao efeito existente em {target} (intensidade {intensity}).",
         "DropEffectsStatesOnly": "Apenas Efeitos ou Estados podem ser soltos aqui.",
         "AlreadyAdded": "{name} já foi adicionado.",
         "DropArmorOnly": "Apenas Efeitos e Estados podem ser aplicados em Armaduras.",
@@ -34,6 +36,7 @@
       },
       "Combat": {
         "NoTargets": "Nenhum alvo selecionado. Abortando.",
+        "RecordedTargetsGone": "Os alvos registrados neste cartão não estão mais na cena.",
         "NoTargetsAbort": "Nenhum alvo selecionado! Rolagem abortada, exibindo Acurácia básica para referência.",
         "NoTargetsDefault": "Nenhum alvo selecionado! Rolando contra CD 10 padrão.",
         "NotEnoughFocus": "Foco insuficiente para usar {name}. (Necessário {cost}, possui {current})",
@@ -77,6 +80,16 @@
         "ConnectionCreated": "Conexão com {name} criada.",
         "NoActionsRemaining": "Você não tem mais ações restantes neste round."
       },
+      "Region": {
+        "NoEmbeddedItems": "Regiões não podem conter itens embutidos."
+      },
+      "Travel": {
+        "CannotAdvanceAtNight": "Não é possível avançar à noite. Faça um Descanso Noturno primeiro.",
+        "NoPartyFound": "Nenhum ator de grupo encontrado. Crie um ator de Grupo primeiro.",
+        "NoPartyMembers": "Nenhum membro do grupo encontrado.",
+        "CampNotAllSelected": "Nem todos os membros do grupo selecionaram uma atividade de acampamento.",
+        "CampRepromptSent": "Solicitação de atividade de acampamento enviada para {name}."
+      },
       "Rest": {
         "SpendRDLimited": "Você tentou gastar {spent} DR mas possui apenas {current}. Gastando {current} em vez disso.",
         "NoRD": "Nenhum Dado de Recuperação disponível.",
@@ -89,6 +102,8 @@
         "Pending": "Pedido de transferência de {item} enviado para {target}."
       },
       "Party": {
+        "ActivePartySet": "{name} agora é o grupo ativo!",
+        "ActivePartyCleared": "{name} não é mais o grupo ativo.",
         "NoMembers": "O grupo não tem membros.",
         "DropCharactersOnly": "Apenas atores de personagens podem ser adicionados ao grupo.",
         "AlreadyMember": "{name} já é um membro do grupo.",

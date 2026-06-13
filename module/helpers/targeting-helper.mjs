@@ -15,9 +15,11 @@
  *
  * placeTemplate() returns { squares, templateDoc } or null.
  * squares = array of {x, y} top-left pixel positions.
- * templateDoc = MeasuredTemplateDocument (only for aura, for persistent visual).
+ * templateDoc = RegionDocument (only for aura, for persistent visual).
  * Use getTokensInSquares() for target resolution on all AOE types.
  */
+
+import { isAtLeastV14 } from "./compat.mjs";
 
 export class TargetingHelper {
 
@@ -30,7 +32,7 @@ export class TargetingHelper {
    * @param {Actor}  actor
    * @param {Token}  token   The caster's token
    * @param {object} deed    item.system of the deed
-   * @returns {Promise<{squares: Array<{x:number,y:number}>, templateDoc: MeasuredTemplateDocument|null}|null>}
+   * @returns {Promise<{squares: Array<{x:number,y:number}>, templateDoc: RegionDocument|null}|null>}
    */
   static async placeTemplate(actor, token, deed, activeWeapons = []) {
     const type = deed.targetType;
@@ -52,9 +54,9 @@ export class TargetingHelper {
       case "aura": {
         const squares = this.#computeBurstSquares(token, size, gridPx);
         let templateDoc = null;
-        // Aura persists visually using a MeasuredTemplate
+        // Aura persists visually using a token-attached Region emanation
         if (type === "aura") {
-          templateDoc = await this.#createAuraTemplate(token, size, gridPx);
+          templateDoc = await this.#createAuraRegion(token, size);
         }
         return { squares, templateDoc };
       }
@@ -346,15 +348,28 @@ export class TargetingHelper {
   }
 
   /**
-   * Create a persistent MeasuredTemplate for an aura (visual only).
-   * Uses a circle to approximate the square shape visually on the canvas.
+   * Create a persistent aura visual. MeasuredTemplates were removed in
+   * Foundry v14, where a token-attached Region emanation covers the same
+   * squares and follows the token; v13 keeps the original circle template.
    */
-  static async #createAuraTemplate(token, sizeInSquares, gridPx) {
+  static async #createAuraRegion(token, sizeInSquares) {
     const gridDist = canvas.dimensions?.distance || canvas.scene?.grid?.distance || 5;
-    // Use a circle with radius = size + 0.5 (to visually cover the grid squares)
-    const distance = (sizeInSquares + 0.5) * gridDist;
 
-    const templateData = {
+    if (isAtLeastV14()) {
+      // Emanation range extends outward from the token's edge in grid units
+      const range = sizeInSquares * gridDist;
+      const region = await CONFIG.Region.documentClass.createTokenEmanation(token.document, range, {
+        name: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Aura"),
+        color: "#5599ff",
+        visibility: CONST.REGION_VISIBILITY.ALWAYS,
+        flags: { trespasser: { autoPlaced: true, isAura: true } }
+      });
+      return region ?? null;
+    }
+
+    // v13: a circle with radius size + 0.5 visually covers the aura squares
+    const distance = (sizeInSquares + 0.5) * gridDist;
+    const [doc] = await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [{
       t: "circle",
       x: token.center.x,
       y: token.center.y,
@@ -362,9 +377,7 @@ export class TargetingHelper {
       direction: 0,
       fillColor: "#5599ff",
       flags: { trespasser: { autoPlaced: true, isAura: true } }
-    };
-
-    const [doc] = await canvas.scene.createEmbeddedDocuments("MeasuredTemplate", [templateData]);
+    }]);
     return doc;
   }
 

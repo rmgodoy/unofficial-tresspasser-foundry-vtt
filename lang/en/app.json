@@ -19,6 +19,41 @@
           }
         }
       },
+      "TravelTracker": {
+        "Title": "Travel Tracker",
+        "SelectRegion": "Select Region",
+        "NoRegionFound": "No regions found.",
+        "CreateRegionHint": "Create a Region actor to begin overland travel.",
+        "NoTravelInProgress": "No travel in progress.",
+        "WaitingForGM": "Waiting for the GM to begin travel.",
+        "Day": "Day",
+        "Period": "Period",
+        "TravelPoints": "Travel Points",
+        "Weather": "Weather",
+        "OnRoad": "On Road",
+        "TerrainCosts": "Terrain Costs",
+        "TravelActions": "Travel Actions",
+        "RecentActivity": "Recent Activity",
+        "TravelPaused": "Travel Paused",
+        "Disoriented": "The party is disoriented!",
+        "ClearDisorientation": "Clear Disorientation",
+        "NextDay": "Next Day",
+        "CampInProgress": "Camp Activities — Waiting for Selections",
+        "CampWaiting": "Waiting...",
+        "CampOverride": "Override",
+        "CampConfirm": "Confirm Camp",
+        "CampCancel": "Cancel Camp",
+        "CampReprompt": "Prompt Player again",
+        "Session": {
+          "BeginTravel": "Begin Travel",
+          "EndTravel": "End Travel",
+          "Resume": "Resume Travel",
+          "State": {
+            "active": "Active",
+            "paused": "Paused"
+          }
+        }
+      },
       "HavenTracker": {
         "Title": "Haven Tracker",
         "SelectHaven": "Select Haven",
@@ -52,7 +87,8 @@
             "creature": "Creature",
             "dungeon": "Dungeon",
             "party": "Party",
-            "haven": "Haven"
+            "haven": "Haven",
+            "region": "Region"
           },
           "Item": {
             "armor": "Armor",

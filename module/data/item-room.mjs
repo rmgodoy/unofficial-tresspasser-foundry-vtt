@@ -23,6 +23,7 @@ export class TrespasserRoomData extends foundry.abstract.TypeDataModel {
         hidden: new fields.BooleanField({ initial: false })
       })),
       discovered: new fields.BooleanField({ initial: false }),
+      isEntrance: new fields.BooleanField({ initial: false }),
       // Room trap: triggers when party enters via Explore (p.55)
       roomTrap: new fields.SchemaField({
         present: new fields.BooleanField({ initial: false }),

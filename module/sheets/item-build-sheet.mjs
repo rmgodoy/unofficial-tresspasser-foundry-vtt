@@ -141,7 +141,7 @@ export class TrespasserBuildSheet extends api.HandlebarsApplicationMixin(sheets.
       dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
       dropZone.addEventListener('drop', async (ev) => {
         dropZone.classList.remove('drag-over');
-        const data = TextEditor.getDragEventData(ev);
+        const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(ev);
         if (data.type !== "Item") return;
         const sourceItem = await fromUuid(data.uuid);
         if (sourceItem?.type !== "build") {

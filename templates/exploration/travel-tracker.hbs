@@ -1,0 +1,264 @@
+{{!-- Travel Tracker - Runtime overland travel interface --}}
+<div class="travel-tracker-content">
+
+  {{!-- IDLE STATE: Region picker + Start button --}}
+  {{#if isIdle}}
+  <div class="tracker-idle">
+    {{#if isGM}}
+      {{#if hasAvailableRegions}}
+      <div class="tracker-dungeon-picker">
+        <h3>{{localize "TRESPASSER.App.TravelTracker.SelectRegion"}}</h3>
+        <div class="tracker-dungeon-list">
+          {{#each availableRegions}}
+          <a class="tracker-dungeon-option {{#if selected}}selected{{/if}}" data-action="chooseRegion" data-region-id="{{_id}}">
+            <img class="tracker-dungeon-thumb" src="{{img}}" alt="" />
+            <span class="tracker-dungeon-option-name">{{name}}</span>
+            {{#if stateLabel}}<span class="tracker-dungeon-state state-{{state}}">{{stateLabel}}{{#if day}} · D{{day}}{{/if}}</span>{{/if}}
+            {{#if selected}}<i class="fas fa-check"></i>{{/if}}
+          </a>
+          {{/each}}
+        </div>
+      </div>
+
+      {{#if hasRegion}}
+      <div class="tracker-selected-info">
+        <span class="tracker-hostility">{{hostilityLabel}} (DC {{hostilityDC}})</span>
+      </div>
+      <div class="tracker-session-controls">
+        {{#if selectedIsResumable}}
+        <button type="button" class="tracker-start-btn resume" data-action="resumeSession">
+          <i class="fas fa-play"></i> {{localize "TRESPASSER.App.TravelTracker.Session.Resume"}}
+        </button>
+        {{else}}
+        <button type="button" class="tracker-start-btn" data-action="startSession">
+          <i class="fas fa-play"></i> {{localize "TRESPASSER.App.TravelTracker.Session.BeginTravel"}}
+        </button>
+        {{/if}}
+      </div>
+      {{/if}}
+
+      {{else}}
+      <div class="tracker-no-dungeon">
+        <p>{{localize "TRESPASSER.App.TravelTracker.NoRegionFound"}}</p>
+        <p class="tracker-hint">{{localize "TRESPASSER.App.TravelTracker.CreateRegionHint"}}</p>
+      </div>
+      {{/if}}
+
+    {{else}}
+    <div class="tracker-no-dungeon">
+      <p>{{localize "TRESPASSER.App.TravelTracker.NoTravelInProgress"}}</p>
+      <p class="tracker-hint">{{localize "TRESPASSER.App.TravelTracker.WaitingForGM"}}</p>
+    </div>
+    {{/if}}
+  </div>
+  {{/if}}
+
+  {{!-- ACTIVE / PAUSED STATE --}}
+  {{#unless isIdle}}
+  {{!-- Header --}}
+  <div class="tracker-header">
+    <div class="tracker-header-info">
+      <h2 class="tracker-dungeon-name">{{regionName}}</h2>
+      <span class="tracker-hostility">{{hostilityLabel}} (DC {{hostilityDC}}) {{#if activePartyName}}<span style="color: var(--trp-gold-dim); margin-left: 4px;">· <i class="fas fa-users" style="margin-left: 2px;"></i> {{activePartyName}}</span>{{/if}}</span>
+    </div>
+    {{#if isGM}}
+    <div class="tracker-header-controls">
+      <a data-action="switchRegion" data-tooltip="Switch Region"><i class="fas fa-arrows-left-right"></i></a>
+      <a data-action="openRegionSheet" data-tooltip="Open Region Sheet"><i class="fas fa-pen"></i></a>
+    </div>
+    {{/if}}
+  </div>
+
+  {{!-- Paused Banner --}}
+  {{#if isPaused}}
+  <div class="tracker-paused-banner">
+    <i class="fas fa-pause"></i> {{localize "TRESPASSER.App.TravelTracker.TravelPaused"}}
+  </div>
+  {{/if}}
+
+  {{!-- Disorientation Warning --}}
+  {{#if isDisoriented}}
+  <div class="travel-disoriented-banner">
+    <i class="fas fa-compass fa-spin"></i> {{localize "TRESPASSER.App.TravelTracker.Disoriented"}}
+  </div>
+  {{/if}}
+
+  {{!-- Status Bar --}}
+  <div class="tracker-status-bar">
+    <div class="tracker-stat">
+      <span class="tracker-stat-label">{{localize "TRESPASSER.App.TravelTracker.Day"}}</span>
+      <span class="tracker-stat-value">{{currentDay}}</span>
+    </div>
+    <div class="tracker-stat">
+      <span class="tracker-stat-label">{{localize "TRESPASSER.App.TravelTracker.Period"}}</span>
+      <span class="tracker-stat-value"><i class="{{periodIcon}}"></i> {{periodLabel}}</span>
+    </div>
+    <div class="tracker-stat">
+      <span class="tracker-stat-label">{{localize "TRESPASSER.App.TravelTracker.TravelPoints"}}</span>
+      <div class="tracker-action-pips">
+        {{#each travelPips}}
+        <span class="tracker-action-pip {{#if filled}}filled{{/if}}"></span>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+
+  {{!-- Weather & Road --}}
+  <div class="travel-conditions-bar">
+    <div class="travel-condition">
+      <label>{{localize "TRESPASSER.App.TravelTracker.Weather"}}:</label>
+      <span class="travel-weather-badge weather-{{weather}}">{{weatherLabel}}</span>
+    </div>
+    <div class="travel-condition">
+      <label>{{localize "TRESPASSER.App.TravelTracker.OnRoad"}}:</label>
+      <span>{{#if onRoad}}✓{{else}}✗{{/if}}</span>
+    </div>
+  </div>
+
+  {{!-- Terrain Cost Reference --}}
+  <div class="travel-terrain-ref">
+    <h4>{{localize "TRESPASSER.App.TravelTracker.TerrainCosts"}}</h4>
+    <div class="travel-terrain-table">
+      {{#each terrainCosts}}
+      <div class="travel-terrain-row">
+        <span class="terrain-label">{{label}}</span>
+        <span class="terrain-cost">{{totalCost}} TP</span>
+        <span class="terrain-examples">{{examples}}</span>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+
+  {{#if isGM}}{{#if isActive}}
+  {{#if isCampPending}}
+  <div class="travel-camp-pending">
+    <h3><i class="fas fa-campground"></i> {{localize "TRESPASSER.App.TravelTracker.CampInProgress"}}</h3>
+
+    <div class="camp-selections-list">
+      {{#each campSelections}}
+      <div class="camp-selection-entry {{#if isPending}}pending{{/if}}">
+        <img class="camp-selection-avatar" src="{{actorImg}}" alt="" />
+        <span class="camp-selection-name">{{actorName}}</span>
+        {{#if isPending}}
+        <span class="camp-selection-status pending">
+          <i class="fas fa-hourglass-half"></i> {{localize "TRESPASSER.App.TravelTracker.CampWaiting"}}
+        </span>
+        {{else}}
+        <span class="camp-selection-status chosen">
+          <i class="{{activityIcon}}"></i> {{activityLabel}}{{#if targetName}} ({{targetName}}){{/if}}
+        </span>
+        {{/if}}
+        
+        {{#if ../isGM}}
+        <button type="button" class="camp-reprompt-btn" data-action="repromptCamp" data-actor-id="{{actorId}}" data-tooltip="{{localize 'TRESPASSER.App.TravelTracker.CampReprompt'}}">
+          <i class="fas fa-sync-alt"></i>
+        </button>
+        <select class="camp-override-select" data-actor-id="{{actorId}}">
+          <option value="">— {{localize "TRESPASSER.App.TravelTracker.CampOverride"}} —</option>
+          {{#each ../campActivityChoices}}
+          <option value="{{key}}">{{label}}</option>
+          {{/each}}
+        </select>
+        {{/if}}
+      </div>
+      {{/each}}
+    </div>
+
+    {{#if isGM}}
+    <div class="camp-controls">
+      <button type="button" class="tracker-action-btn camp-confirm" data-action="confirmCamp" {{#unless allCampSelected}}disabled{{/unless}}>
+        <i class="fas fa-check"></i> {{localize "TRESPASSER.App.TravelTracker.CampConfirm"}}
+      </button>
+      <button type="button" class="tracker-action-btn camp-cancel" data-action="cancelCamp">
+        <i class="fas fa-xmark"></i> {{localize "TRESPASSER.App.TravelTracker.CampCancel"}}
+      </button>
+    </div>
+    {{/if}}
+  </div>
+  {{else}}
+  <div class="tracker-actions-section">
+    <h3>{{localize "TRESPASSER.App.TravelTracker.TravelActions"}}</h3>
+    <div class="tracker-action-grid">
+      <button type="button" class="tracker-action-btn" data-action="performAdvance" data-tooltip="{{localize 'TRESPASSER.Terms.Travel.Actions.AdvanceDesc'}}">
+        <i class="fa-solid fa-route"></i>
+        <span>{{localize "TRESPASSER.Terms.Travel.Actions.Advance"}}</span>
+      </button>
+      <button type="button" class="tracker-action-btn" data-action="performNightsRest" data-tooltip="{{localize 'TRESPASSER.Terms.Travel.Actions.NightsRestDesc'}}">
+        <i class="fa-solid fa-bed"></i>
+        <span>{{localize "TRESPASSER.Terms.Travel.Actions.NightsRest"}}</span>
+      </button>
+      <button type="button" class="tracker-action-btn" data-action="performCamp" data-tooltip="{{localize 'TRESPASSER.Terms.Travel.Actions.CampDesc'}}">
+        <i class="fa-solid fa-campground"></i>
+        <span>{{localize "TRESPASSER.Terms.Travel.Actions.Camp"}}</span>
+      </button>
+    </div>
+  </div>
+  {{/if}}
+
+  {{!-- GM Nudgers --}}
+  <div class="tracker-nudgers">
+    <button type="button" class="tracker-nudger" data-action="adjustTravelPoints" data-delta="-1" data-tooltip="Spend 1 TP">
+      <i class="fas fa-minus"></i> TP
+    </button>
+    <button type="button" class="tracker-nudger" data-action="adjustTravelPoints" data-delta="1" data-tooltip="Gain 1 TP">
+      <i class="fas fa-plus"></i> TP
+    </button>
+    <button type="button" class="tracker-nudger" data-action="toggleRoad" data-tooltip="Toggle road travel">
+      <i class="fas fa-road"></i> {{localize "TRESPASSER.App.TravelTracker.OnRoad"}}
+    </button>
+    {{#if isDisoriented}}
+    <button type="button" class="tracker-nudger" data-action="clearDisorientation" data-tooltip="Clear disorientation">
+      <i class="fas fa-compass"></i> {{localize "TRESPASSER.App.TravelTracker.ClearDisorientation"}}
+    </button>
+    {{/if}}
+    <button type="button" class="tracker-nudger" data-action="nextDay" data-tooltip="Advance to next day">
+      <i class="fas fa-forward-step"></i> {{localize "TRESPASSER.App.TravelTracker.NextDay"}}
+    </button>
+  </div>
+
+  {{!-- Weather Selector --}}
+  <div class="travel-weather-selector">
+    <label>{{localize "TRESPASSER.App.TravelTracker.Weather"}}:</label>
+    <select class="travel-weather-select">
+      {{#each weatherChoices}}
+      <option value="{{@key}}" {{#if (eq @key ../weather)}}selected{{/if}}>{{this}}</option>
+      {{/each}}
+    </select>
+  </div>
+  {{/if}}{{/if}}
+
+  {{!-- Session Controls --}}
+  {{#if isGM}}
+  <div class="tracker-session-controls">
+    {{#if isActive}}
+    <button type="button" class="tracker-session-btn end" data-action="endSession">
+      <i class="fas fa-stop"></i> {{localize "TRESPASSER.App.TravelTracker.Session.EndTravel"}}
+    </button>
+    {{/if}}
+    {{#if isPaused}}
+    <button type="button" class="tracker-session-btn resume" data-action="resumeSession">
+      <i class="fas fa-play"></i> {{localize "TRESPASSER.App.TravelTracker.Session.Resume"}}
+    </button>
+    {{/if}}
+  </div>
+  {{/if}}
+
+  {{!-- Recent Log --}}
+  {{#if recentLog.length}}
+  <div class="tracker-log-section">
+    <h3>{{localize "TRESPASSER.App.TravelTracker.RecentActivity"}}</h3>
+    <div class="tracker-log-entries">
+      {{#each recentLog}}
+      <div class="tracker-log-entry">
+        <span class="tracker-log-round">D{{day}}</span>
+        <span class="tracker-log-action">{{action}}</span>
+        {{#if detail}}<span class="tracker-log-detail">{{detail}}</span>{{/if}}
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
+  {{/unless}}
+
+</div>
