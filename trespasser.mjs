@@ -237,6 +237,15 @@ Hooks.once("init", async () => {
     default: true
   });
 
+  game.settings.register("trespasser", "automateTravelTracker", {
+    name: "TRESPASSER.Settings.Exploration.AutomateTravelTracker.Name",
+    hint: "TRESPASSER.Settings.Exploration.AutomateTravelTracker.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
   game.settings.register("trespasser", "restrictHUDActions", {
     name: "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Name",
     hint: "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Hint",

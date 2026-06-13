@@ -344,7 +344,10 @@ export async function handleCampActivityConfirm(data) {
 
     if (activityConfig.check) {
       // Trigger automated roll
-      await performCampRoll(actor, activityConfig, activityKey, hostilityDC, assists);
+      const automate = game.settings.get("trespasser", "automateTravelTracker");
+      if (automate) {
+        await performCampRoll(actor, activityConfig, activityKey, hostilityDC, assists);
+      }
     }
   }
 }
