@@ -64,17 +64,17 @@ export class TrespasserPartyHelper {
     if (results.length < participants.length) {
       content += `
         <button type="button" class="group-check-roll-btn" style="width:100%; cursor:pointer; font-family:var(--trp-font-header); font-size:var(--fs-11); text-transform:uppercase; font-weight:bold; padding:6px; background:var(--trp-bg-panel); border:1px solid var(--trp-border); color:var(--trp-gold); margin-bottom: 4px;">
-          <i class="fas fa-dice"></i> Roll
+          <i class="fas fa-dice"></i> ${game.i18n.localize("TRESPASSER.Chat.Party.RollBtn")}
         </button>`;
       
       if (game.user.isGM) {
         content += `
           <button type="button" class="group-check-force-roll-btn" style="width:100%; cursor:pointer; font-family:var(--trp-font-header); font-size:var(--fs-10); text-transform:uppercase; padding:4px; background:var(--trp-bg-dark); border:1px solid var(--trp-red); color:var(--trp-red);">
-            <i class="fas fa-fast-forward"></i> Force Complete (GM)
+            <i class="fas fa-fast-forward"></i> ${game.i18n.localize("TRESPASSER.Chat.Party.ForceCompleteBtn")}
           </button>`;
       }
     } else {
-      content += `<p style="text-align: center; font-style: italic; color: var(--trp-text-dim);">Processing results...</p>`;
+      content += `<p style="text-align: center; font-style: italic; color: var(--trp-text-dim);">${game.i18n.localize("TRESPASSER.Chat.Party.ProcessingResults")}</p>`;
     }
 
     content += `</div>`;
@@ -110,30 +110,38 @@ export class TrespasserPartyHelper {
     content += `</div>`;
 
     content += `<div class="group-check-summary" style="display: flex; flex-direction: column; gap: 4px;">`;
-    content += `<div><strong>Successes:</strong> ${successes} | <strong>Failures:</strong> ${failures}</div>`;
-    content += `<div><strong>Net Outcome:</strong> ${outcome >= 0 ? "+" + outcome : outcome}</div>`;
+    content += `<div><strong>${game.i18n.format("TRESPASSER.Chat.Party.Successes", { count: successes })}</strong> | <strong>${game.i18n.format("TRESPASSER.Chat.Party.Failures", { count: failures })}</strong></div>`;
+    content += `<div><strong>${game.i18n.format("TRESPASSER.Chat.Party.NetOutcome", { outcome: outcome >= 0 ? "+" + outcome : outcome })}</strong></div>`;
 
     if (expectedSparks > 0 && sparks.length === 0) {
-      content += `<div style="color:var(--trp-spark); font-weight:bold; margin-top:4px;"><i class="fas fa-sun"></i> Pending Group Spark Selection</div>`;
+      content += `<div style="color:var(--trp-spark); font-weight:bold; margin-top:4px;"><i class="fas fa-sun"></i> ${game.i18n.localize("TRESPASSER.Chat.Party.PendingGroupSpark")}</div>`;
+      content += `
+        <button type="button" class="distribute-group-sparks-btn" data-spark-count="${expectedSparks}" style="width:100%;cursor:pointer;font-family:var(--trp-font-header);font-size:var(--fs-11);text-transform:uppercase;font-weight:bold;padding:6px;background:var(--trp-bg-panel);border:1px solid var(--trp-spark);color:var(--trp-spark);margin-top:4px;">
+          <i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Party.DistributeGroupSparks", { count: expectedSparks })}
+        </button>`;
     }
     if (expectedShadows > 0 && shadows.length === 0) {
-      content += `<div style="color:var(--trp-shadow); font-weight:bold; margin-top:4px;"><i class="fas fa-moon"></i> Pending Group Shadow Selection</div>`;
+      content += `<div style="color:var(--trp-shadow); font-weight:bold; margin-top:4px;"><i class="fas fa-moon"></i> ${game.i18n.localize("TRESPASSER.Chat.Party.PendingGroupShadow")}</div>`;
+      content += `
+        <button type="button" class="distribute-group-shadows-btn" data-shadow-count="${expectedShadows}" style="width:100%;cursor:pointer;font-family:var(--trp-font-header);font-size:var(--fs-11);text-transform:uppercase;font-weight:bold;padding:6px;background:var(--trp-bg-panel);border:1px solid var(--trp-shadow);color:var(--trp-shadow);margin-top:4px;">
+          <i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Party.DistributeGroupShadows", { count: expectedShadows })}
+        </button>`;
     }
 
     if (sparks.length > 0) {
       content += `<div class="group-check-sparks" style="margin-top: 4px; text-align: left;">`;
-      content += `<strong>Group Sparks:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
+      content += `<strong>${game.i18n.localize("TRESPASSER.Chat.Party.GroupSparksLabel")}</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
       for (const spark of sparks) {
-        content += `<li><span style="color:var(--trp-spark); font-weight:bold;"><i class="fas fa-sun"></i> ${spark.toUpperCase()}</span></li>`;
+        content += `<li><span style="color:var(--trp-spark); font-weight:bold;"><i class="fas fa-sun"></i> ${game.i18n.localize("TRESPASSER.Dialog.NonCombat.Spark" + spark.capitalize() + "Label").toUpperCase()}</span></li>`;
       }
       content += `</ul></div>`;
     }
 
     if (shadows.length > 0) {
       content += `<div class="group-check-shadows" style="margin-top: 4px; text-align: left;">`;
-      content += `<strong>Group Shadows:</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
+      content += `<strong>${game.i18n.localize("TRESPASSER.Chat.Party.GroupShadowsLabel")}</strong><ul style="margin: 2px 0 0; padding-left: 15px;">`;
       for (const shadow of shadows) {
-        content += `<li><span style="color:var(--trp-shadow); font-weight:bold;"><i class="fas fa-moon"></i> ${shadow.toUpperCase()}</span></li>`;
+        content += `<li><span style="color:var(--trp-shadow); font-weight:bold;"><i class="fas fa-moon"></i> ${game.i18n.localize("TRESPASSER.Dialog.NonCombat.Shadow" + shadow.capitalize() + "Label").toUpperCase()}</span></li>`;
       }
       content += `</ul></div>`;
     }
@@ -162,8 +170,6 @@ export class TrespasserPartyHelper {
     }
 
     const outcome = successes - failures;
-    const expectedSparks = outcome >= 2 ? 1 : 0;
-    const expectedShadows = outcome <= -2 ? 1 : 0;
 
     // Build immediate initial complete state
     let content = this.buildGroupCheckFinalHtml(checkLabel, dc, results, successes, failures, outcome, [], []);
@@ -199,51 +205,5 @@ export class TrespasserPartyHelper {
     });
 
     await msg.delete();
-
-    // Handle sparks and shadows prompts
-    if (expectedSparks > 0 || expectedShadows > 0) {
-      const { NonCombatSparkDialog, NonCombatShadowDialog } = game.trespasser || {};
-      const NonCombatHelper = game.trespasser?.NonCombatHelper;
-      
-      (async () => {
-        let finalSparks = [];
-        let finalShadows = [];
-
-        if (expectedSparks > 0) {
-          const highestRoll = results.reduce((max, curr) => curr.total > max.total ? curr : max, results[0]);
-          const highestActor = game.actors.get(highestRoll.actorId);
-          const ownerUser = game.users.find(u => !u.isGM && highestActor?.testUserPermission(u, "OWNER") && u.active);
-          const requestId = foundry.utils.randomID();
-          
-          if (!ownerUser || ownerUser.id === game.user.id) {
-            finalSparks = await globalThis.trespasser.NonCombatSparkDialog.wait(1, { actor: highestActor });
-          } else {
-            finalSparks = await globalThis.trespasser.NonCombatHelper.requestPlayerSparks({
-              requestId,
-              targetUserId: ownerUser.id,
-              sparkCount: 1,
-              rollLabel: "Group Check Spark",
-              actorId: highestActor.id
-            });
-          }
-          finalSparks = finalSparks || [];
-        } else if (expectedShadows > 0) {
-          if (game.user.isGM) {
-            finalShadows = await globalThis.trespasser.NonCombatShadowDialog.wait(1);
-          } else {
-            const requestId = foundry.utils.randomID();
-            finalShadows = await globalThis.trespasser.NonCombatHelper.requestGMShadows({
-              requestId,
-              shadowCount: 1,
-              rollLabel: "Group Check Shadow"
-            });
-          }
-          finalShadows = finalShadows || [];
-        }
-
-        const updates = { content: this.buildGroupCheckFinalHtml(checkLabel, dc, results, successes, failures, outcome, finalSparks, finalShadows) };
-        await newMsg.update(updates);
-      })();
-    }
   }
 }

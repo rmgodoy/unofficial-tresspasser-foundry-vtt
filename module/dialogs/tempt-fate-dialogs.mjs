@@ -40,11 +40,11 @@ export class NonCombatSparkDialog extends foundry.applications.api.HandlebarsApp
     const hasAngry = this.actor?.system?.hasPlight?.("angry");
 
     const optionData = [
-      { key: "canny", label: "Canny", desc: "You perform the task with care and attention. You retain something you expected to lose in the effort or avoid paying what seemed like a necessary cost. Banishes costly." },
-      { key: "quick", label: "Quick", desc: "You accomplish in short order something that should have taken much longer, saving all-valuable time for your companions. Banishes slow." },
-      { key: "quiet", label: "Quiet", desc: "You slip beneath the notice of those who might oppose your efforts. You don't draw notice from unfriendly eyes or arouse unwanted attention from the dungeon around you. Banishes loud." },
-      { key: "safe", label: "Safe", desc: "Even though injury might have seemed a certainty given the task at hand, you suffer no harm doing it. Banishes harmful." },
-      { key: "striking", label: "Striking", desc: "You display such impressive skill in your attempt that you influence those around you. Perhaps you inspire a watching ally or earn the favor of someone doubting your abilities. Banishes daunting." }
+      { key: "canny", label: game.i18n.localize("TRESPASSER.Dialog.NonCombat.SparkCannyLabel"), desc: game.i18n.localize("TRESPASSER.Dialog.NonCombat.SparkCannyDesc") },
+      { key: "quick", label: game.i18n.localize("TRESPASSER.Dialog.NonCombat.SparkQuickLabel"), desc: game.i18n.localize("TRESPASSER.Dialog.NonCombat.SparkQuickDesc") },
+      { key: "quiet", label: game.i18n.localize("TRESPASSER.Dialog.NonCombat.SparkQuietLabel"), desc: game.i18n.localize("TRESPASSER.Dialog.NonCombat.SparkQuietDesc") },
+      { key: "safe", label: game.i18n.localize("TRESPASSER.Dialog.NonCombat.SparkSafeLabel"), desc: game.i18n.localize("TRESPASSER.Dialog.NonCombat.SparkSafeDesc") },
+      { key: "striking", label: game.i18n.localize("TRESPASSER.Dialog.NonCombat.SparkStrikingLabel"), desc: game.i18n.localize("TRESPASSER.Dialog.NonCombat.SparkStrikingDesc") }
     ];
 
     let disabledCount = 0;
@@ -54,10 +54,10 @@ export class NonCombatSparkDialog extends foundry.applications.api.HandlebarsApp
 
       if (hasAfraid && (opt.key === "quick" || opt.key === "striking")) {
         disabled = true;
-        tooltip = "Afraid: You cannot choose quick or striking sparks";
+        tooltip = game.i18n.localize("TRESPASSER.Dialog.NonCombat.AfraidTooltip");
       } else if (hasAngry && (opt.key === "canny" || opt.key === "quiet" || opt.key === "safe")) {
         disabled = true;
-        tooltip = "Angry: You cannot choose canny, quiet, or safe sparks";
+        tooltip = game.i18n.localize("TRESPASSER.Dialog.NonCombat.AngryTooltip");
       }
 
       if (disabled) disabledCount++;
@@ -71,7 +71,7 @@ export class NonCombatSparkDialog extends foundry.applications.api.HandlebarsApp
 
     const maxSelectable = Math.max(0, optionData.length - disabledCount);
     const targetCount = Math.min(this.sparkCount, maxSelectable);
-    context.promptText = `You rolled ${this.sparkCount} spark(s). Choose exactly ${targetCount} unique spark(s) to color the outcome:`;
+    context.promptText = game.i18n.format("TRESPASSER.Dialog.NonCombat.SparksPrompt", { count: this.sparkCount, target: targetCount });
 
     return context;
   }
@@ -130,7 +130,7 @@ export class NonCombatSparkDialog extends foundry.applications.api.HandlebarsApp
         resolve,
         ...options,
         window: {
-          title: options.title || "Select Sparks"
+          title: options.title || game.i18n.localize("TRESPASSER.Dialog.NonCombat.SelectSparks")
         }
       });
 
@@ -183,17 +183,17 @@ export class NonCombatShadowDialog extends foundry.applications.api.HandlebarsAp
     context.singleSelect = this.singleSelect;
     
     context.promptText = this.customPrompt || (this.singleSelect
-      ? "Choose exactly 1 shadow to apply to the outcome:"
-      : `The roll generated ${this.shadowCount} shadow(s). Choose exactly ${this.shadowCount} unique shadow(s) to apply:`);
+      ? game.i18n.localize("TRESPASSER.Dialog.NonCombat.SingleShadowPrompt")
+      : game.i18n.format("TRESPASSER.Dialog.NonCombat.MultiShadowPrompt", { count: this.shadowCount }));
     
     context.confirmLabel = this.customConfirmLabel || game.i18n.localize("TRESPASSER.Global.Action.Confirm");
 
     context.options = [
-      { key: "costly", label: "Costly", desc: "You lose something of material value. Maybe the treasure slipped out of your pack as you leapt, or your faithful tool was finally pushed too far." },
-      { key: "slow", label: "Slow", desc: "The task took much longer than you thought, and you've lost precious time you couldn't afford to lose. The torches flicker. Your stomach rumbles." },
-      { key: "loud", label: "Loud", desc: "You draw attention to yourself with a loud noise or other major disruption. If those nearby didn't know you're here, they certainly do now." },
-      { key: "harmful", label: "Harmful", desc: "You hurt yourself in some fashion. Depending on what you tried, the harm could be anything from a few scratches to an injury that lingers for weeks." },
-      { key: "daunting", label: "Daunting", desc: "Your effort was so humiliating that those who observed it question whether you belong here in the first place." }
+      { key: "costly", label: game.i18n.localize("TRESPASSER.Dialog.NonCombat.ShadowCostlyLabel"), desc: game.i18n.localize("TRESPASSER.Dialog.NonCombat.ShadowCostlyDesc") },
+      { key: "slow", label: game.i18n.localize("TRESPASSER.Dialog.NonCombat.ShadowSlowLabel"), desc: game.i18n.localize("TRESPASSER.Dialog.NonCombat.ShadowSlowDesc") },
+      { key: "loud", label: game.i18n.localize("TRESPASSER.Dialog.NonCombat.ShadowLoudLabel"), desc: game.i18n.localize("TRESPASSER.Dialog.NonCombat.ShadowLoudDesc") },
+      { key: "harmful", label: game.i18n.localize("TRESPASSER.Dialog.NonCombat.ShadowHarmfulLabel"), desc: game.i18n.localize("TRESPASSER.Dialog.NonCombat.ShadowHarmfulDesc") },
+      { key: "daunting", label: game.i18n.localize("TRESPASSER.Dialog.NonCombat.ShadowDauntingLabel"), desc: game.i18n.localize("TRESPASSER.Dialog.NonCombat.ShadowDauntingDesc") }
     ];
     return context;
   }
@@ -278,7 +278,7 @@ export class NonCombatShadowDialog extends foundry.applications.api.HandlebarsAp
 
   static async wait(shadowCount, options={}) {
     const singleSelect = options.singleSelect ?? (shadowCount === 1);
-    const title = options.title || (singleSelect ? "Choose Shadow" : "Select Shadows");
+    const title = options.title || (singleSelect ? game.i18n.localize("TRESPASSER.Dialog.NonCombat.ChooseShadow") : game.i18n.localize("TRESPASSER.Dialog.NonCombat.SelectShadows"));
 
     return new Promise((resolve) => {
       const dialog = new NonCombatShadowDialog({

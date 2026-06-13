@@ -18,7 +18,9 @@
         "PrevailVsDC": "Total da Rolagem: {total} vs DC {dc}",
         "PrevailSuccess": "Prevalece contra <b>{name}</b> (Rolagem: {roll} vs {target}) — <b>Sucesso!</b>",
         "PrevailFailed": "Falhou em prevalecer contra <b>{name}</b> (Rolagem: {roll} vs {target}) — <b>Falha</b>",
-        "SluggishAutofail": "<strong>Lento:</strong> Falhou automaticamente no teste de iniciativa."
+        "SluggishAutofail": "<strong>Lento:</strong> Falhou automaticamente no teste de iniciativa.",
+        "TemptFateHeader": "Desafiar o Destino — {name} Intervém!",
+        "TemptFateShadow": "Sombra do Desafiar o Destino:"
       },
       "Combat": {
         "Defense": "Defesa",
@@ -27,6 +29,10 @@
         "Miss": "ERRO!",
         "Sparks": "Centelhas: {count}",
         "Shadows": "Sombras: {count}",
+        "SparksLabel": "Centelhas:",
+        "ShadowsLabel": "Sombras:",
+        "DistributeSparks": "Distribuir Centelhas ({count})",
+        "DistributeShadows": "Distribuir Sombras ({count})",
         "AttackMessage": "<strong>{name}</strong> ataca com <strong>{action}</strong>: {formula} = {total}. Dano Base: {damage}",
         "DamageMessage": "<strong>{name}</strong> causa <strong>{damage}</strong> de dano.",
         "TookDamage": "{name} sofreu {total} de dano.",
@@ -114,7 +120,19 @@
         "Succeeded": "Obtiveram Sucesso",
         "AllSucceed": "Todos Tiveram Sucesso!",
         "HalfMoreSucceed": "Sucesso!",
-        "FewerHalfSucceed": "Falha"
+        "FewerHalfSucceed": "Falha",
+        "Successes": "Sucessos: {count}",
+        "Failures": "Falhas: {count}",
+        "NetOutcome": "Resultado Final: {outcome}",
+        "PendingGroupSpark": "Seleção de Centelha de Grupo Pendente",
+        "PendingGroupShadow": "Seleção de Sombra de Grupo Pendente",
+        "GroupSparksLabel": "Centelhas de Grupo:",
+        "GroupShadowsLabel": "Sombras de Grupo:",
+        "DistributeGroupSparks": "Distribuir Centelhas de Grupo ({count})",
+        "DistributeGroupShadows": "Distribuir Sombras de Grupo ({count})",
+        "RollBtn": "Rolar",
+        "ForceCompleteBtn": "Forçar Conclusão (Mestre)",
+        "ProcessingResults": "Processando resultados..."
       },
       "Common": {
         "System": "Sistema",

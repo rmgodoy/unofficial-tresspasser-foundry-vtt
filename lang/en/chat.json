@@ -18,7 +18,9 @@
         "PrevailVsDC": "Roll Total: {total} vs DC {dc}",
         "PrevailSuccess": "Prevails against <b>{name}</b> (Roll: {roll} vs {target}) - <b>Success!</b>",
         "PrevailFailed": "Failed to prevail against <b>{name}</b> (Roll: {roll} vs {target}) - <b>Failed</b>",
-        "SluggishAutofail": "<strong>Sluggish:</strong> Auto-failed initiative check."
+        "SluggishAutofail": "<strong>Sluggish:</strong> Auto-failed initiative check.",
+        "TemptFateHeader": "Tempt Fate — {name} Intervenes!",
+        "TemptFateShadow": "Tempt Fate Shadow:"
       },
       "Combat": {
         "Defense": "Defense",
@@ -27,6 +29,10 @@
         "Miss": "MISS!",
         "Sparks": "Sparks: {count}",
         "Shadows": "Shadows: {count}",
+        "SparksLabel": "Sparks:",
+        "ShadowsLabel": "Shadows:",
+        "DistributeSparks": "Distribute Sparks ({count})",
+        "DistributeShadows": "Distribute Shadows ({count})",
         "AttackMessage": "<strong>{name}</strong> attacks with <strong>{action}</strong>: {formula} = {total}. Base Damage: {damage}",
         "DamageMessage": "<strong>{name}</strong> deals <strong>{damage}</strong> damage.",
         "TookDamage": "{name} took {total} damage.",
@@ -114,7 +120,19 @@
         "Succeeded": "Succeeded",
         "AllSucceed": "All Succeed!",
         "HalfMoreSucceed": "Success!",
-        "FewerHalfSucceed": "Failure"
+        "FewerHalfSucceed": "Failure",
+        "Successes": "Successes: {count}",
+        "Failures": "Failures: {count}",
+        "NetOutcome": "Net Outcome: {outcome}",
+        "PendingGroupSpark": "Pending Group Spark Selection",
+        "PendingGroupShadow": "Pending Group Shadow Selection",
+        "GroupSparksLabel": "Group Sparks:",
+        "GroupShadowsLabel": "Group Shadows:",
+        "DistributeGroupSparks": "Distribute Group Sparks ({count})",
+        "DistributeGroupShadows": "Distribute Group Shadows ({count})",
+        "RollBtn": "Roll",
+        "ForceCompleteBtn": "Force Complete (GM)",
+        "ProcessingResults": "Processing results..."
       },
       "Common": {
         "System": "System",

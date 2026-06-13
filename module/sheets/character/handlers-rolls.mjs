@@ -56,7 +56,7 @@ export async function onAttributeRoll(event, sheet) {
     : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck", { name: sheet.actor.name, skill: label });
   
   const cd = result.cd ?? 10;
-  const rollRes = await sheet._evaluateAndShowRoll(roll, flavor, cd, { attributeKey: attrKey, isNonCombat: true, askSparkShadow: result.askSparkShadow });
+  const rollRes = await sheet._evaluateAndShowRoll(roll, flavor, cd, { attributeKey: attrKey, isNonCombat: true });
   if (rollRes) await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: attrKey });
 }
 
@@ -224,7 +224,7 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
               : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck",    { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`;
             
             const finalCD = result.cd ?? 10;
-            const rollRes = await sheet._evaluateAndShowRoll(roll, flavorFull, finalCD, { skillKey, isNonCombat: true, askSparkShadow: result.askSparkShadow });
+            const rollRes = await sheet._evaluateAndShowRoll(roll, flavorFull, finalCD, { skillKey, isNonCombat: true });
             if (rollRes) await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: chosenAttr });
             
             resolve(roll);
@@ -254,7 +254,6 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
   if (options.isNonCombat) {
     // Determine sparks and shadows count
     if (isNatural20) {
-      // Auto-success and +1 extra spark
       diff = Math.max(0, diff);
       sparks = Math.floor(diff / 5) + 1;
       shadows = 0;
@@ -273,8 +272,6 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
     sparks = Math.min(5, sparks);
     shadows = Math.min(5, shadows);
 
-    const requestId = foundry.utils.randomID();
-
     // Plight shadows in Dungeon Frame (non-group checks only)
     const plightShadows = [];
     const hasActiveDungeon = game.actors.some(a => a.type === "dungeon" && a.system.sessionState === "active");
@@ -288,84 +285,21 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
       }
     }
 
-    const promptNonCombatSparkShadow = game.settings.get("trespasser", "promptNonCombatSparkShadow");
-    const askSparkShadow = options.askSparkShadow === true;
-    const shouldPrompt = promptNonCombatSparkShadow && askSparkShadow;
-
-    const baseMessageData = _buildRollMessageFlavor(flavor, cd, diff, sheet, options, {
-      requestId, sparks, shadows, chosenSparks: [], chosenShadows: [], plightShadows, showShadowButton: false, shouldPrompt
+    const messageData = _buildRollMessageFlavor(flavor, cd, diff, sheet, options, {
+      sparks, shadows, chosenSparks: [], chosenShadows: [], plightShadows
     });
 
-    const msg = await roll.toMessage({
+    await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-      flavor: baseMessageData.flavorHtml,
+      flavor: messageData.flavorHtml,
       flags: {
-        trespasser: baseMessageData.flags
+        trespasser: messageData.flags
       }
     });
 
-    if (shouldPrompt && (sparks > 0 || shadows > 0)) {
-      // Launch async flow for prompting
-      (async () => {
-        let chosenSparks = [];
-        let chosenShadows = [];
-        let showShadowButton = false;
-
-        // 1. Sparks picker (Player who rolled)
-        if (sparks > 0) {
-          if (game.user.isGM || sheet.actor.isOwner) {
-            chosenSparks = await NonCombatSparkDialog.wait(sparks, { actor: sheet.actor });
-          } else {
-            chosenSparks = await NonCombatHelper.requestPlayerSparks({
-              requestId,
-              targetUserId: game.user.id,
-              sparkCount: sparks,
-              rollLabel: flavor,
-              actorId: sheet.actor.id
-            });
-          }
-          chosenSparks = chosenSparks || [];
-        }
-
-        // 2. Shadows picker (GM)
-        if (shadows > 0) {
-          if (game.user.isGM) {
-            chosenShadows = await NonCombatShadowDialog.wait(shadows);
-          } else {
-            chosenShadows = await NonCombatHelper.requestGMShadows({
-              requestId,
-              shadowCount: shadows,
-              rollLabel: flavor
-            });
-          }
-          if (!chosenShadows || chosenShadows.length === 0) {
-            showShadowButton = true;
-            chosenShadows = [];
-          }
-        }
-
-        // Re-generate flavor and update
-        const updatedData = _buildRollMessageFlavor(flavor, cd, diff, sheet, options, {
-          requestId, sparks, shadows, chosenSparks, chosenShadows, plightShadows, showShadowButton, shouldPrompt
-        });
-
-        const updates = {
-          flavor: updatedData.flavorHtml,
-          "flags.trespasser": updatedData.flags
-        };
-
-        if (game.user.isGM) {
-          await msg.update(updates);
-        } else {
-          const { TrespasserSocket } = game.trespasser || {};
-          TrespasserSocket?.emit("UPDATE_CHAT_MESSAGE", { messageId: msg.id, updates });
-        }
-      })();
-    }
-
     return roll;
   } else {
-    // Combat / other rolls fallback (existing code)
+    // Combat / other rolls fallback
     if (diff >= 0) sparks  = Math.floor(diff / 5);
     else           shadows = Math.floor(Math.abs(diff) / 5);
 
@@ -388,59 +322,57 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
 }
 
 function _buildRollMessageFlavor(baseFlavor, cd, diff, sheet, options, metricsData) {
-  const { requestId, sparks, shadows, chosenSparks, chosenShadows, plightShadows, showShadowButton, shouldPrompt } = metricsData;
-  const finalShadows = [...chosenShadows, ...plightShadows];
+  const { sparks, shadows, chosenSparks, chosenShadows, plightShadows } = metricsData;
+  const allShadows = [...chosenShadows, ...plightShadows];
 
-  let metrics = `<div class="non-combat-roll-details" data-request-id="${requestId}">`;
+  let metrics = `<div class="non-combat-roll-details">`;
   
   if (options.isTemptFate && options.temptShadow) {
     metrics += `
       <div class="tempt-fate-shadow-results" style="margin-bottom: 5px;">
-        <strong>Tempt Fate Shadow:</strong>
+        <strong>${game.i18n.localize("TRESPASSER.Chat.Check.TemptFateShadow")}</strong>
         <ul>
-          <li><span style="color:var(--trp-shadow); font-weight:bold;"><i class="fas fa-moon"></i> ${options.temptShadow.toUpperCase()}</span></li>
+          <li><span style="color:var(--trp-shadow); font-weight:bold;"><i class="fas fa-moon"></i> ${game.i18n.localize("TRESPASSER.Dialog.NonCombat.Shadow" + options.temptShadow.capitalize() + "Label").toUpperCase()}</span></li>
         </ul>
       </div>`;
   }
 
-  // Show the amounts of sparks/shadows if we don't prompt, OR if we do prompt but choices haven't been made yet
-  const hasSparks = chosenSparks.length > 0;
-  const hasShadows = chosenShadows.length > 0;
-  const choicesPending = shouldPrompt && (!hasSparks && !hasShadows) && (sparks > 0 || shadows > 0);
-
-  if (!shouldPrompt || choicesPending) {
-    if (sparks > 0 || shadows > 0) {
-      metrics += `
-        <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
-          <div class="metric spark"  style="color:var(--trp-spark);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks",  { count: sparks  })}</div>
-          <div class="metric shadow" style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: shadows })}</div>
-        </div>`;
-    }
-  }
-
-  if (hasSparks) {
-    metrics += `<div class="spark-results"><strong>Sparks:</strong><ul>`;
-    for (const spark of chosenSparks) {
-      metrics += `<li><span style="color:var(--trp-spark);"><i class="fas fa-sun"></i> ${spark.capitalize()}</span></li>`;
-    }
-    metrics += `</ul></div>`;
-  }
-  
-  if (finalShadows.length > 0) {
-    metrics += `<div class="shadow-results"><strong>Shadows:</strong><ul>`;
-    for (const shadow of finalShadows) {
-      metrics += `<li><span style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${shadow.capitalize()}</span></li>`;
-    }
-    metrics += `</ul></div>`;
-  }
-
-  if (showShadowButton) {
+  // Always show spark/shadow counts
+  if (sparks > 0 || shadows > 0) {
     metrics += `
-      <div class="pending-shadows-warning" style="margin-top:5px;color:var(--trp-red);font-weight:bold;">
-        <i class="fas fa-exclamation-triangle"></i> Pending GM Shadow Selections
-      </div>
-      <button type="button" class="select-non-combat-shadows-btn" data-shadow-count="${shadows}" style="margin-top:5px;width:100%;cursor:pointer;font-family:var(--trp-font-header);font-size:var(--fs-11);text-transform:uppercase;font-weight:bold;padding:6px;background:var(--trp-bg-panel);border:1px solid var(--trp-border);color:var(--trp-gold);">
-        <i class="fas fa-moon"></i> Select Shadows (GM Only)
+      <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
+        <div class="metric spark"  style="color:var(--trp-spark);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks",  { count: sparks  })}</div>
+        <div class="metric shadow" style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: shadows })}</div>
+      </div>`;
+  }
+
+  // Show chosen sparks if already selected
+  if (chosenSparks.length > 0) {
+    metrics += `<div class="spark-results"><strong>${game.i18n.localize("TRESPASSER.Chat.Combat.SparksLabel")}</strong><ul>`;
+    for (const spark of chosenSparks) {
+      metrics += `<li><span style="color:var(--trp-spark);"><i class="fas fa-sun"></i> ${game.i18n.localize("TRESPASSER.Dialog.NonCombat.Spark" + spark.capitalize() + "Label")}</span></li>`;
+    }
+    metrics += `</ul></div>`;
+  } else if (sparks > 0) {
+    // Show distribute sparks button
+    metrics += `
+      <button type="button" class="distribute-sparks-btn" data-spark-count="${sparks}" data-actor-id="${sheet.actor?.id ?? ""}" style="width:100%;cursor:pointer;font-family:var(--trp-font-header);font-size:var(--fs-11);text-transform:uppercase;font-weight:bold;padding:6px;background:var(--trp-bg-panel);border:1px solid var(--trp-spark);color:var(--trp-spark);margin-bottom:4px;">
+        <i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.DistributeSparks", { count: sparks })}
+      </button>`;
+  }
+
+  // Show chosen shadows if already selected
+  if (allShadows.length > 0) {
+    metrics += `<div class="shadow-results"><strong>${game.i18n.localize("TRESPASSER.Chat.Combat.ShadowsLabel")}</strong><ul>`;
+    for (const shadow of allShadows) {
+      metrics += `<li><span style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${game.i18n.localize("TRESPASSER.Dialog.NonCombat.Shadow" + shadow.capitalize() + "Label")}</span></li>`;
+    }
+    metrics += `</ul></div>`;
+  } else if (shadows > 0) {
+    // Show distribute shadows button (GM only, hidden via renderChatMessageHTML hook)
+    metrics += `
+      <button type="button" class="distribute-shadows-btn" data-shadow-count="${shadows}" style="width:100%;cursor:pointer;font-family:var(--trp-font-header);font-size:var(--fs-11);text-transform:uppercase;font-weight:bold;padding:6px;background:var(--trp-bg-panel);border:1px solid var(--trp-shadow);color:var(--trp-shadow);margin-bottom:4px;">
+        <i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.DistributeShadows", { count: shadows })}
       </button>`;
   }
 
@@ -460,7 +392,7 @@ function _buildRollMessageFlavor(baseFlavor, cd, diff, sheet, options, metricsDa
 
   let finalFlavor = baseFlavor;
   if (options.isTemptFate) {
-    finalFlavor = `<div class="tempt-fate-header" style="border-bottom:1px solid var(--trp-border);margin-bottom:6px;padding-bottom:4px;"><strong style="font-family:var(--trp-font-header);color:var(--trp-gold-bright);text-transform:uppercase;font-size:var(--fs-12);"><i class="fas fa-dice"></i> Tempt Fate — ${sheet.actor.name} Intervenes!</strong></div>${baseFlavor}`;
+    finalFlavor = `<div class="tempt-fate-header" style="border-bottom:1px solid var(--trp-border);margin-bottom:6px;padding-bottom:4px;"><strong style="font-family:var(--trp-font-header);color:var(--trp-gold-bright);text-transform:uppercase;font-size:var(--fs-12);"><i class="fas fa-dice"></i> ${game.i18n.format("TRESPASSER.Chat.Check.TemptFateHeader", { name: sheet.actor.name })}</strong></div>${baseFlavor}`;
   }
 
   const flavorHtml = `${finalFlavor}<p>${game.i18n.format("TRESPASSER.Chat.Check.VsCD", { cd })}</p>${metrics}${temptFateButton}`;
@@ -469,14 +401,13 @@ function _buildRollMessageFlavor(baseFlavor, cd, diff, sheet, options, metricsDa
     isTemptFate: !!options.isTemptFate,
     temptShadow: options.temptShadow || null,
     skillKey: options.skillKey || null,
-    actorId: sheet.actor.id,
+    actorId: sheet.actor?.id,
     cd: cd,
     sparksCount: sparks,
     shadowsCount: shadows,
     chosenSparks,
-    chosenShadows: finalShadows,
-    plightShadows,
-    showShadowButton
+    chosenShadows: allShadows,
+    plightShadows
   };
 
   return { flavorHtml, flags };
