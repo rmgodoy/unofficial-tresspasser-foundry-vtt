@@ -11,7 +11,7 @@ import { TrespasserCombat }        from "../../documents/combat.mjs";
 import { TrespasserRollDialog }    from "../../dialogs/roll-dialog.mjs";
 import { TargetingHelper }         from "../../helpers/targeting-helper.mjs";
 import { askSparkDialog }          from "../../dialogs/spark-dialog.mjs";
-import { requestPlayerDefenseRoll } from "../../helpers/defense-roll-helper.mjs";
+import { requestPlayerDefenseRoll, requestPlayerCounterReaction } from "../../helpers/defense-roll-helper.mjs";
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -697,7 +697,7 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
 
       if (canCounter && targetActor.type === "character") {
         // Floating promise so it doesn't block the Promise.all resolution for other targets
-        _askCounterReaction(targetToken, creatureToken, weapon, shadows).then(async (counterAccepted) => {
+        requestPlayerCounterReaction(targetActor.id, targetToken.id, creatureToken?.id, weapon.id, shadows).then(async (counterAccepted) => {
           if (counterAccepted) {
             // Roll counter damage: shadows × weapon die
             const wDie = weapon.system.weaponDie || "d4";
@@ -739,55 +739,7 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// Counter reaction prompt
-// ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * Prompt the defender to use their counter reaction.
- * @param {Token} defenderToken
- * @param {Token} creatureToken
- * @param {Item} weapon  The defender's melee weapon
- * @param {number} shadows  Number of shadows (= counter dice)
- * @returns {Promise<boolean>}
- */
-async function _askCounterReaction(defenderToken, creatureToken, weapon, shadows) {
-  const wDie = weapon.system.weaponDie || "d4";
-  const content = `<div class="trespasser-dialog">
-    <p>${game.i18n.format("TRESPASSER.Chat.Combat.CounterPrompt", {
-      defender: defenderToken.name,
-      count: shadows,
-      die: wDie,
-      weapon: weapon.name,
-      creature: creatureToken?.name ?? "?"
-    })}</p>
-  </div>`;
-
-  const result = await foundry.applications.api.DialogV2.wait({
-    window: { title: game.i18n.localize("TRESPASSER.Chat.Combat.CounterReaction") },
-    classes: ["trespasser", "dialog"],
-    position: { width: 380 },
-    content,
-    buttons: [
-      {
-        action: "counter",
-        icon: "fas fa-shield-alt",
-        label: game.i18n.localize("TRESPASSER.Global.Action.Accept"),
-        default: true,
-        callback: () => true
-      },
-      {
-        action: "pass",
-        icon: "fas fa-times",
-        label: game.i18n.localize("TRESPASSER.Global.Action.Pass"),
-        callback: () => false
-      }
-    ],
-    rejectClose: false,
-    close: () => false
-  });
-
-  return result;
-}
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Deed phase chat output

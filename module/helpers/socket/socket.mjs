@@ -6,7 +6,9 @@ import {
 } from "./item-transfer.mjs";
 import { 
   handleDefenseRequest, 
-  handleDefenseResponse 
+  handleDefenseResponse,
+  handleCounterRequest,
+  handleCounterResponse
 } from "./defense-roll-handler.mjs";
 import {
   handleShadowsRequest,
@@ -63,6 +65,10 @@ export class TrespasserSocket {
         return handleDefenseRequest(data, senderId);
       case "DEFENSE_RESPONSE":
         return handleDefenseResponse(data);
+      case "COUNTER_REQUEST":
+        return handleCounterRequest(data, senderId);
+      case "COUNTER_RESPONSE":
+        return handleCounterResponse(data);
       case "NON_COMBAT_SHADOWS_REQUEST":
         return handleShadowsRequest(data, senderId);
       case "NON_COMBAT_SHADOWS_RESPONSE":
