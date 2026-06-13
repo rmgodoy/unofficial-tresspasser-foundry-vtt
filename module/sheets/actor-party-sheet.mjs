@@ -536,7 +536,14 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
    */
   static async onSetActiveParty(event, target) {
     if (!game.user.isGM) return;
-    await TrespasserPartyHelper.setActiveParty(this.document.id);
-    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Party.ActivePartySet", { name: this.document.name }));
+    
+    const currentActiveId = game.settings.get("trespasser", "activePartyId");
+    if (currentActiveId === this.document.id) {
+      await TrespasserPartyHelper.setActiveParty("");
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Party.ActivePartyCleared", { name: this.document.name }));
+    } else {
+      await TrespasserPartyHelper.setActiveParty(this.document.id);
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Party.ActivePartySet", { name: this.document.name }));
+    }
   }
 }

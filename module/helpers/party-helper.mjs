@@ -19,8 +19,8 @@ export class TrespasserPartyHelper {
       }
     }
 
-    // Fallback: Just get the first party found
-    return game.actors.find(a => a.type === "party") || null;
+    // Fallback: No active party
+    return null;
   }
 
   /**
@@ -29,6 +29,12 @@ export class TrespasserPartyHelper {
    */
   static async setActiveParty(actorId) {
     if (!game.user.isGM) return;
+
+    if (!actorId) {
+      await game.settings.set("trespasser", "activePartyId", "");
+      return;
+    }
+
     const actor = game.actors.get(actorId);
     if (!actor || actor.type !== "party") return;
     

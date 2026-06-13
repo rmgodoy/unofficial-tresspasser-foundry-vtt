@@ -103,6 +103,7 @@
       },
       "Party": {
         "ActivePartySet": "{name} agora é o grupo ativo!",
+        "ActivePartyCleared": "{name} não é mais o grupo ativo.",
         "NoMembers": "O grupo não tem membros.",
         "DropCharactersOnly": "Apenas atores de personagens podem ser adicionados ao grupo.",
         "AlreadyMember": "{name} já é um membro do grupo.",

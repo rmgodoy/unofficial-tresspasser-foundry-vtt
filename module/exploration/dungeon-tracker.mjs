@@ -187,7 +187,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
     context.hasDungeon = !!this.dungeon;
     context.dungeonName = this.dungeon?.name ?? "";
     context.dungeonId = this.dungeon?.id ?? "";
-    context.activePartyName = game.trespasser.TrespasserPartyHelper?.getActiveParty()?.name ?? "";
+    context.activePartyName = game.trespasser.TrespasserPartyHelper?.getActiveParty()?.name ?? "-";
 
     // Available dungeons (for the picker in idle state)
     if (context.isIdle && isGM) {
@@ -316,7 +316,7 @@ export class DungeonTracker extends api.HandlebarsApplicationMixin(api.Applicati
    * @returns {Actor[]}
    */
   _getPartyMembers() {
-    const party = game.trespasser.TrespasserPartyHelper?.getActiveParty() || game.actors.find(a => a.type === "party");
+    const party = game.trespasser.TrespasserPartyHelper?.getActiveParty();
     if (party) {
       const memberIds = party.system.members ?? [];
       return memberIds.map(id => game.actors.get(id)).filter(a => a?.type === "character");
