@@ -81,6 +81,10 @@
         "AutoEndCombatOnRetreat": {
           "Name": "Auto-end combat on successful retreat",
           "Hint": "If enabled, combat will automatically end when the party successfully retreats. If disabled, only a message is posted and the GM must end combat manually."
+        },
+        "PromptNonCombatSparkShadow": {
+          "Name": "Prompt Spark/Shadow Picker for Non-Combat Rolls",
+          "Hint": "If enabled, the GM and players will be prompted to pick their Spark and Shadow after a non-combat skill or attribute roll. If disabled, the prompt is skipped and the amount of sparks and shadows rolled is shown in the chat card."
         }
       },
       "Visuals": {

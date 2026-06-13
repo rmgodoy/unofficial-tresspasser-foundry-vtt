@@ -228,6 +228,15 @@ Hooks.once("init", async () => {
     default: true
   });
 
+  game.settings.register("trespasser", "promptNonCombatSparkShadow", {
+    name: "TRESPASSER.Settings.Exploration.PromptNonCombatSparkShadow.Name",
+    hint: "TRESPASSER.Settings.Exploration.PromptNonCombatSparkShadow.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
   game.settings.register("trespasser", "restrictHUDActions", {
     name: "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Name",
     hint: "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Hint",

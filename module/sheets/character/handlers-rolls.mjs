@@ -289,8 +289,10 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
       }
     }
 
+    const promptNonCombatSparkShadow = game.settings.get("trespasser", "promptNonCombatSparkShadow");
+
     // 1. Sparks picker (Player who rolled)
-    if (sparks > 0) {
+    if (sparks > 0 && promptNonCombatSparkShadow) {
       if (game.user.isGM || sheet.actor.isOwner) {
         // Local prompt
         chosenSparks = await NonCombatSparkDialog.wait(sparks, { actor: sheet.actor });
@@ -308,7 +310,7 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
     }
 
     // 2. Shadows picker (GM)
-    if (shadows > 0) {
+    if (shadows > 0 && promptNonCombatSparkShadow) {
       if (game.user.isGM) {
         // Local GM prompt
         chosenShadows = await NonCombatShadowDialog.wait(shadows);
@@ -340,6 +342,14 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
           <ul>
             <li><span style="color:var(--trp-shadow); font-weight:bold;"><i class="fas fa-moon"></i> ${options.temptShadow.toUpperCase()}</span></li>
           </ul>
+        </div>`;
+    }
+
+    if (!promptNonCombatSparkShadow && (sparks > 0 || shadows > 0)) {
+      metrics += `
+        <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
+          <div class="metric spark"  style="color:var(--trp-spark);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks",  { count: sparks  })}</div>
+          <div class="metric shadow" style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: shadows })}</div>
         </div>`;
     }
 
