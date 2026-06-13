@@ -22,6 +22,7 @@ import {
   handleCampActivityCancel,
   handleCampActivityConfirm
 } from "../../exploration/camp-activity-handler.mjs";
+import { handleUpdateChatMessage } from "./chat-handler.mjs";
 
 /**
  * Helper class for handling custom socket events in the Trespasser system.
@@ -81,6 +82,8 @@ export class TrespasserSocket {
         return handleCampActivityCancel(data);
       case "CAMP_ACTIVITY_CONFIRM":
         return handleCampActivityConfirm(data);
+      case "UPDATE_CHAT_MESSAGE":
+        return handleUpdateChatMessage(data, senderId);
       default:
         // Ignore unknown types
         break;
