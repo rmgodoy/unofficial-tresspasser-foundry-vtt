@@ -41,6 +41,7 @@ import { TrespasserCraftData }      from "./module/data/item-craft.mjs";
 import { TrespasserCraftSheet }     from "./module/sheets/item-craft-sheet.mjs";
 import { TrespasserPastLifeData }  from "./module/data/item-past-life.mjs";
 import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mjs";
+import { TrespasserTerrainData }   from "./module/data/item-terrain.mjs";
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
@@ -425,6 +426,7 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.build = TrespasserBuildData;
   CONFIG.Item.dataModels.stronghold = TrespasserStrongholdData;
   CONFIG.Item.dataModels.plight = TrespasserPlightData;
+  CONFIG.Item.dataModels.terrain = TrespasserTerrainData;
 
   // Sheets
   foundry.documents.collections.Actors.unregisterSheet("core", foundry.appv1.sheets.ActorSheet);
