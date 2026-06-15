@@ -1,0 +1,68 @@
+<section class="tab details scrollable {{tab.cssClass}}" data-group="primary" data-tab="details">
+  <div class="deed-details">
+    <div class="details-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.Category"}}</label>
+        <select name="system.category">
+          {{selectOptions config.categories selected=system.category}}
+        </select>
+      </div>
+      
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.Dimensions"}}</label>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <input type="number" name="system.width" value="{{system.width}}" step="1" class="select-on-focus" />
+          <span>&times;</span>
+          <input type="number" name="system.height" value="{{system.height}}" step="1" class="select-on-focus" />
+        </div>
+      </div>
+      
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.CenterMode"}}</label>
+        <select name="system.centerMode">
+          {{selectOptions config.centerModes selected=system.centerMode}}
+        </select>
+      </div>
+      
+      {{#if (eq system.centerMode "actor")}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.CenterActorId"}}</label>
+          <input type="text" name="system.centerActorId" value="{{system.centerActorId}}" />
+        </div>
+      {{/if}}
+      
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.TerrainImage"}}</label>
+        <file-picker type="image" name="system.terrainImage" value="{{system.terrainImage}}"></file-picker>
+      </div>
+
+      {{#if showTerrainDamage}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.TerrainDamage"}}</label>
+          <input type="number" name="system.terrainDamage" value="{{system.terrainDamage}}" step="1" class="select-on-focus" />
+        </div>
+      {{/if}}
+
+      {{#if showExtraMovementCost}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.ExtraMovementCost"}}</label>
+          <input type="number" name="system.extraMovementCost" value="{{system.extraMovementCost}}" step="1" class="select-on-focus" />
+        </div>
+      {{/if}}
+      
+      {{#if showSlippery}}
+        <div class="field-row checkbox-row">
+          <input type="checkbox" name="system.slippery" {{checked system.slippery}} id="terrain-slippery-{{item.id}}" />
+          <label for="terrain-slippery-{{item.id}}">{{localize "TRESPASSER.Sheet.Terrain.Fields.Slippery"}}</label>
+        </div>
+      {{/if}}
+
+      {{#if showDestructible}}
+        <div class="field-row checkbox-row">
+          <input type="checkbox" name="system.destructible" {{checked system.destructible}} id="terrain-destructible-{{item.id}}" />
+          <label for="terrain-destructible-{{item.id}}">{{localize "TRESPASSER.Sheet.Terrain.Fields.Destructible"}}</label>
+        </div>
+      {{/if}}
+    </div>
+  </div>
+</section>

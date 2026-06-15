@@ -371,6 +371,38 @@
           "FromInjury": "Effect from Injury - cannot be prevailed against"
         }
       },
+      "Terrain": {
+        "Categories": {
+          "DifficultTerrain": "Difficult Terrain",
+          "Obstacle": "Obstacle",
+          "Wall": "Wall",
+          "Field": "Field",
+          "LightCloud": "Light Cloud",
+          "HeavyCloud": "Heavy Cloud"
+        },
+        "CenterModes": {
+          "Fixed": "Fixed Point",
+          "Actor": "Actor Centered"
+        },
+        "Fields": {
+          "Category": "Category",
+          "Dimensions": "Dimensions (W x H)",
+          "CenterMode": "Center Mode",
+          "CenterActorId": "Center Actor ID",
+          "TerrainImage": "Terrain Image",
+          "TerrainDamage": "Terrain Damage",
+          "ExtraMovementCost": "Extra Movement Cost",
+          "Slippery": "Slippery",
+          "Destructible": "Destructible"
+        },
+        "Phases": {
+          "onEnter": "On Enter Effects",
+          "onMove": "On Move Effects"
+        },
+        "Sections": {
+          "TerrainEffects": "Terrain Effects"
+        }
+      },
       "Dungeon": {
         "Name": "Dungeon Name",
         "NamePlaceholder": "The Forsaken Depths",

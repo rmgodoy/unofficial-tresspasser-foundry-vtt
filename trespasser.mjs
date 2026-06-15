@@ -42,6 +42,7 @@ import { TrespasserCraftSheet }     from "./module/sheets/item-craft-sheet.mjs";
 import { TrespasserPastLifeData }  from "./module/data/item-past-life.mjs";
 import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mjs";
 import { TrespasserTerrainData }   from "./module/data/item-terrain.mjs";
+import { TrespasserTerrainSheet }  from "./module/sheets/item-terrain-sheet.mjs";
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
 import { TrespasserConfigV2 } from "./module/dialogs/trespasser-config-v2.mjs";
@@ -114,6 +115,10 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/exploration/travel-tracker.hbs",
     "systems/trespasser/templates/exploration/haven-tracker.hbs",
     "systems/trespasser/templates/item/room-sheet.hbs",
+    "systems/trespasser/templates/item/terrain/header.hbs",
+    "systems/trespasser/templates/item/terrain/tabs.hbs",
+    "systems/trespasser/templates/item/terrain/details.hbs",
+    "systems/trespasser/templates/item/terrain/effects.hbs",
     "systems/trespasser/templates/dialogs/non-combat-spark.hbs",
     "systems/trespasser/templates/dialogs/non-combat-shadow.hbs"
   ]);
@@ -541,6 +546,11 @@ Hooks.once("init", async () => {
     types: ["past_life"],
     makeDefault: true,
     label: "Trespasser Past Life Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserTerrainSheet, {
+    types: ["terrain"],
+    makeDefault: true,
+    label: "Trespasser Terrain Sheet",
   });
   // Room sheet (AppV2 — coexists with AppV1 sheets)
   foundry.documents.collections.Items.registerSheet("trespasser", TrespasserRoomSheet, {

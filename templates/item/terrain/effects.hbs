@@ -1,0 +1,34 @@
+<section class="tab effects deed-effects effects-body scrollable {{tab.cssClass}}" style="padding-top: 16px;" data-group="primary" data-tab="effects">
+  <h3 class="effects-heading">{{localize "TRESPASSER.Sheet.Terrain.Sections.TerrainEffects"}}</h3>
+
+  {{#each phases as |phase|}}
+  <div class="effect-block {{#if @last}}effect-block--last{{/if}}">
+    <h4 class="effect-block__label">{{phase.label}}</h4>
+
+    <div class="effect-block__row">
+      {{!-- Drop zone --}}
+      <div class="applied-effects-list" data-phase="{{phase.key}}">
+        {{#each phase.effects as |effect|}}
+          <div class="effect-chip" data-index="{{effect.index}}" data-uuid="{{effect.uuid}}">
+            <img src="{{effect.img}}" title="{{effect.name}}" />
+            <span class="name">{{effect.name}}</span>
+            <div class="intensity-box">
+              <span class="label">{{localize "TRESPASSER.Sheet.Common.IntensityShort"}}</span>
+              <input type="number"
+                     class="effect-intensity-input"
+                     name="system.{{phase.key}}Effects.{{effect.index}}.intensity"
+                     value="{{effect.intensity}}" />
+            </div>
+            <div class="controls">
+              <a data-action="editEffect" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+              <a data-action="removeEffect" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
+            </div>
+          </div>
+        {{else}}
+          <span class="drop-placeholder">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</span>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  {{/each}}
+</section>
