@@ -1,5 +1,6 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { showRetreatDialog } from "../dialogs/retreat-dialog.mjs";
+import { TerrainHelper } from "../helpers/terrain-helper.mjs";
 
 /**
  * Custom Combat class for Trespasser TTRPG.
@@ -371,9 +372,10 @@ export class TrespasserCombat extends Combat {
       }
 
       // Reset per-turn flags
-      const token = c.token;
-      if (token?.document?.clearMovementHistory) {
-        await token.document.clearMovementHistory();
+      // c.token returns a TokenDocument in Foundry V14 (not a Token placeable)
+      const tokenDoc = c.token;
+      if (tokenDoc?.clearMovementHistory) {
+        await tokenDoc.clearMovementHistory();
       }
       
       await c.update({
@@ -381,13 +383,30 @@ export class TrespasserCombat extends Combat {
         "flags.trespasser.moveActionTaken": false,
         "flags.trespasser.movementAllowed": 0,
         "flags.trespasser.movementUsed": 0,
-        "flags.trespasser.movementHistory": token?.document?.movementHistory ?? [],
+        "flags.trespasser.movementHistory": tokenDoc?.movementHistory ?? [],
         "flags.trespasser.usedExpensiveDeed": false,
         "flags.trespasser.usedHUDActions": []
       });
 
+      if (tokenDoc) {
+        await tokenDoc.update({
+          "flags.trespasser.-=terrainEnteredThisTurn": null,
+          "flags.trespasser.-=terrainSquaresVisitedThisTurn": null,
+          "flags.trespasser.-=slipperyCheckedThisTurn": null
+        });
+      }
+
+      // Resolve existing effects BEFORE terrain adds new ones
       if (c.actor) {
         await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-turn");
+      }
+
+      // Fire onStartTurn terrain events for tokens inside terrain regions
+      if (tokenDoc) {
+        const terrainRegions = TerrainHelper.getTerrainRegionsContainingToken(tokenDoc);
+        for (const region of terrainRegions) {
+          await TerrainHelper.onTokenStartTurnInTerrain(tokenDoc, region);
+        }
       }
     }
   }

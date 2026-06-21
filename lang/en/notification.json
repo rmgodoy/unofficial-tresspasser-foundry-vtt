@@ -83,6 +83,16 @@
       "Region": {
         "NoEmbeddedItems": "Regions cannot contain embedded items."
       },
+      "Terrain": {
+        "DamageTaken": "{name} takes {damage} terrain damage from {terrain}!",
+        "EffectApplied": "{name} is affected by {effect} from {terrain}.",
+        "SlipperyPrompt": "{name} enters slippery terrain! Rolling AGILITY | ACROBATICS vs 10...",
+        "SlipperySuccess": "{name} keeps their footing on the slippery terrain (rolled {total} vs 10).",
+        "SlipperyFail": "{name} slips on the terrain! (rolled {total} vs 10) — they should gain Toppled and lose remaining movement.",
+        "StartTurnEffect": "{name} starts their turn in {terrain}.",
+        "DifficultTerrainCost": "Moving into difficult terrain costs +{cost} extra movement point(s).",
+        "MovementSummary": "{name} moved through terrain"
+      },
       "Travel": {
         "CannotAdvanceAtNight": "Cannot advance at night. Take a Night's Rest first.",
         "NoPartyFound": "No party actor found. Create a Party actor first.",

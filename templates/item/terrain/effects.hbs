@@ -18,6 +18,10 @@
                      class="effect-intensity-input"
                      name="system.{{phase.key}}Effects.{{effect.index}}.intensity"
                      value="{{effect.intensity}}" />
+              <input type="hidden" name="system.{{phase.key}}Effects.{{effect.index}}.uuid" value="{{effect.uuid}}" />
+              <input type="hidden" name="system.{{phase.key}}Effects.{{effect.index}}.type" value="{{effect.type}}" />
+              <input type="hidden" name="system.{{phase.key}}Effects.{{effect.index}}.name" value="{{effect.name}}" />
+              <input type="hidden" name="system.{{phase.key}}Effects.{{effect.index}}.img" value="{{effect.img}}" />
             </div>
             <div class="controls">
               <a data-action="editEffect" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>

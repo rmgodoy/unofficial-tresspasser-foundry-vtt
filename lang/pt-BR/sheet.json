@@ -371,6 +371,39 @@
           "FromInjury": "Efeito de Ferimento — não se pode prevalecer contra"
         }
       },
+      "Terrain": {
+        "Categories": {
+          "DifficultTerrain": "Terreno Difícil",
+          "Obstacle": "Obstáculo",
+          "Wall": "Parede",
+          "Field": "Campo",
+          "LightCloud": "Nuvem Leve",
+          "HeavyCloud": "Nuvem Densa"
+        },
+        "CenterModes": {
+          "Fixed": "Ponto Fixo",
+          "Actor": "Centralizado no Ator"
+        },
+        "Fields": {
+          "Category": "Categoria",
+          "Dimensions": "Dimensões (L x A)",
+          "CenterMode": "Modo de Centro",
+          "CenterActorId": "ID do Ator Central",
+          "TerrainImage": "Imagem do Terreno",
+          "TerrainDamage": "Dano de Terreno",
+          "ExtraMovementCost": "Custo Extra de Movimento",
+          "Slippery": "Escorregadio",
+          "Destructible": "Destrutível"
+        },
+        "Phases": {
+          "onEnter": "Efeitos ao Entrar",
+          "onMove": "Efeitos ao Mover",
+          "onStartTurn": "Efeitos no Início do Turno"
+        },
+        "Sections": {
+          "TerrainEffects": "Efeitos de Terreno"
+        }
+      },
       "Dungeon": {
         "Name": "Nome da Masmorra",
         "NamePlaceholder": "As Profundezas Esquecidas",

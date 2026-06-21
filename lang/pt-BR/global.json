@@ -115,7 +115,8 @@
         "hireling": "Servo",
         "build": "Construção",
         "stronghold": "Fortaleza",
-        "plight": "Aflição"
+        "plight": "Aflição",
+        "terrain": "Terreno"
       }
     }
   }

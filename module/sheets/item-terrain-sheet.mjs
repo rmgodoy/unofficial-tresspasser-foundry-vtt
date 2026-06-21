@@ -38,6 +38,12 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
 
   tabGroups = { primary: "details" };
 
+  /** @override */
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Item.${this.document.type}`);
+    return `${typeLabel}: ${this.document.name}`;
+  }
+
   _prepareTabs(parts) {
     const tabs = {};
     for (const [id, config] of Object.entries(this.constructor.TABS)) {
@@ -99,7 +105,7 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
     context.showSlippery = (cat === "field");
     context.showDestructible = (cat === "obstacle");
 
-    const phases = ["onEnter", "onMove"];
+    const phases = ["onEnter", "onMove", "onStartTurn"];
     context.phases = phases.map(key => ({
       key,
       label: game.i18n.localize(`TRESPASSER.Sheet.Terrain.Phases.${key}`),

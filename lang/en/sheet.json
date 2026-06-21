@@ -397,7 +397,8 @@
         },
         "Phases": {
           "onEnter": "On Enter Effects",
-          "onMove": "On Move Effects"
+          "onMove": "On Move Effects",
+          "onStartTurn": "On Start Turn Effects"
         },
         "Sections": {
           "TerrainEffects": "Terrain Effects"

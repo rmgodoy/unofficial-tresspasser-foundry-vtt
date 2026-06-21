@@ -115,7 +115,8 @@
         "hireling": "Hireling",
         "build": "Building",
         "stronghold": "Stronghold",
-        "plight": "Plight"
+        "plight": "Plight",
+        "terrain": "Terrain"
       }
     }
   }

@@ -1,3 +1,5 @@
+import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
+
 export class TerrainHelper {
   
   static TERRAIN_COLORS = {
@@ -15,9 +17,8 @@ export class TerrainHelper {
    * @param {Object} dropPosition - {x, y} coordinates of the drop.
    */
   static async placeTerrainOnCanvas(terrainItem, dropPosition) {
-    console.log("here 1")
     if (!canvas.ready || !terrainItem) return;
-    console.log("here 2")
+
     const gridSize = canvas.grid.size;
     const sys = terrainItem.system;
     
@@ -86,6 +87,15 @@ export class TerrainHelper {
       name: terrainItem.name,
       shapes: [shape],
       color: color,
+      behaviors: [{
+        type: "executeScript",
+        name: "Terrain Tracking",
+        system: {
+          events: ["tokenEnter"],
+          source: `const tokenDoc = event.data.token || event.data; console.log("here");
+if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behavior, region, tokenDoc);`
+        }
+      }],
       flags: {
         trespasser: {
           terrain: terrainItem.toObject(),
@@ -223,6 +233,546 @@ export class TerrainHelper {
 
     tempItem.sheet.render(true);
   }
+
+  // ── Event Processing ────────────────────────────────────────────────────────
+
+  /**
+   * Called when a token first enters a terrain region this turn.
+   * Applies onEnterEffects once per region per turn.
+   * @param {TokenDocument} token - The token or token document.
+   * @param {RegionDocument} region - The region document.
+   */
+  static async onTokenEnterTerrain(token, region) {
+    if (!token || !region) return;
+    const terrainData = region.flags?.trespasser?.terrain;
+    if (!terrainData) return;
+
+    // Normalize: accept both Token placeables and TokenDocuments
+    const tokenDoc = token.document ?? token;
+    const actor = tokenDoc.actor;
+    if (!actor) return;
+
+    // Check if we already entered this region this turn
+    const enteredThisTurn = tokenDoc.flags?.trespasser?.terrainEnteredThisTurn || {};
+    if (enteredThisTurn[region.id]) return;
+
+    // Mark this region as entered this turn
+    await tokenDoc.setFlag("trespasser", `terrainEnteredThisTurn.${region.id}`, true);
+
+    const sys = terrainData.system;
+
+    // An actor-centered terrain should not affect the actor it is centered on
+    if (sys.centerMode === "actor" && sys.centerActorId === actor.id) return;
+
+    // Apply onEnter effects
+    if (sys.onEnterEffects && sys.onEnterEffects.length > 0) {
+      for (const eff of sys.onEnterEffects) {
+        await this.#applyEffect(actor, eff, region.name);
+      }
+    }
+
+    // Notify about difficult terrain movement cost
+    if ((sys.category === "difficult_terrain" || sys.category === "field") && sys.extraMovementCost > 0) {
+      ui.notifications.info(
+        game.i18n.format("TRESPASSER.Notification.Terrain.DifficultTerrainCost", {
+          cost: sys.extraMovementCost
+        })
+      );
+    }
+  }
+
+  /**
+   * Called at the start of a combat turn for a token that is inside a terrain region.
+   * Applies onStartTurnEffects.
+   * @param {TokenDocument} tokenDoc - The token document.
+   * @param {RegionDocument} region - The terrain region.
+   */
+  static async onTokenStartTurnInTerrain(tokenDoc, region) {
+    if (!tokenDoc || !region) return;
+    const terrainData = region.flags?.trespasser?.terrain;
+    if (!terrainData) return;
+
+    const actor = tokenDoc.actor;
+    if (!actor) return;
+
+    const sys = terrainData.system;
+
+    // An actor-centered terrain should not affect the actor it is centered on
+    if (sys.centerMode === "actor" && sys.centerActorId === actor.id) return;
+
+    // Apply onStartTurn effects
+    if (sys.onStartTurnEffects && sys.onStartTurnEffects.length > 0) {
+      ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor }),
+        content: game.i18n.format("TRESPASSER.Notification.Terrain.StartTurnEffect", {
+          name: tokenDoc.name,
+          terrain: region.name
+        }),
+        flavor: `🌍 ${region.name}`
+      });
+
+      for (const eff of sys.onStartTurnEffects) {
+        await this.#applyEffect(actor, eff, region.name);
+      }
+    }
+  }
+
+  // ── Terrain Queries ─────────────────────────────────────────────────────────
+
+  /**
+   * Get all terrain regions that contain a given token.
+   * Uses Foundry's built-in region.tokens set when available, falls back to point-in-region.
+   * @param {TokenDocument} tokenDoc - The token document.
+   * @returns {RegionDocument[]} Array of terrain regions containing the token.
+   */
+  static getTerrainRegionsContainingToken(tokenDoc) {
+    const scene = tokenDoc.parent;
+    if (!scene) return [];
+
+    const gridSize = scene.grid.size;
+    const tokenCenterX = tokenDoc.x + ((tokenDoc.width || 1) * gridSize / 2);
+    const tokenCenterY = tokenDoc.y + ((tokenDoc.height || 1) * gridSize / 2);
+
+    return scene.regions.filter(r => {
+      const terrainData = r.flags?.trespasser?.terrain;
+      if (!terrainData) return false;
+      
+      const sys = terrainData.system;
+      // An actor-centered terrain should not affect the actor it is centered on
+      if (sys.centerMode === "actor" && sys.centerActorId === tokenDoc.actor?.id) return false;
+
+      return this.#isPointInRegion(tokenCenterX, tokenCenterY, r, gridSize);
+    });
+  }
+
+  // ── Terrain Movement ────────────────────────────────────────────────────────
+  static _movementQueues = new Map();
+
+  /**
+   * Enqueue a movement segment and debounce its processing.
+   * This combines split token updates (e.g. from crossing region boundaries) into one path.
+   * @param {TokenDocument} tokenDoc 
+   * @param {number} oldX 
+   * @param {number} oldY 
+   * @param {number} newX 
+   * @param {number} newY 
+   */
+  static async processTokenMovement(tokenDoc, oldX, oldY, newX, newY) {
+    const scene = tokenDoc.parent;
+    if (!scene || !canvas.ready) return;
+
+    if (!this._movementQueues.has(tokenDoc.id)) {
+      this._movementQueues.set(tokenDoc.id, []);
+    }
+    this._movementQueues.get(tokenDoc.id).push({ oldX, oldY, newX, newY });
+
+    if (!this._debounceMovementProcess) {
+      this._debounceMovementProcess = foundry.utils.debounce(() => this._processQueuedMovements(), 250);
+    }
+    this._debounceMovementProcess();
+  }
+
+  static async _processQueuedMovements() {
+    for (const [tokenId, segments] of this._movementQueues.entries()) {
+      if (segments.length === 0) continue;
+      
+      const tokenDoc = game.scenes.active?.tokens.get(tokenId);
+      if (!tokenDoc) continue;
+
+      await this._calculateBatchedMovement(tokenDoc, segments);
+    }
+    this._movementQueues.clear();
+  }
+
+  /**
+   * Traces the full grid path across all accumulated segments,
+   * then batches terrain damage per region and applies it in one update.
+   * @param {TokenDocument} tokenDoc 
+   * @param {Array<{oldX, oldY, newX, newY}>} segments 
+   */
+  static async _calculateBatchedMovement(tokenDoc, segments) {
+    const scene = tokenDoc.parent;
+    if (!scene) return;
+
+    const actor = tokenDoc.actor;
+    if (!actor) return;
+
+    const gridSize = scene.grid.size;
+    const tokenW = (tokenDoc.width || 1) * gridSize;
+    const tokenH = (tokenDoc.height || 1) * gridSize;
+
+    // Combine all segments into one long path of squares
+    const fullPath = [];
+    for (const seg of segments) {
+      const oldGridX = Math.floor((seg.oldX + tokenW / 2) / gridSize);
+      const oldGridY = Math.floor((seg.oldY + tokenH / 2) / gridSize);
+      const newGridX = Math.floor((seg.newX + tokenW / 2) / gridSize);
+      const newGridY = Math.floor((seg.newY + tokenH / 2) / gridSize);
+      
+      const segPath = this.#getGridPath(oldGridX, oldGridY, newGridX, newGridY);
+      segPath.shift(); // Remove starting square of each segment
+      
+      // Ensure we don't duplicate identical squares if segments overlap at junction
+      for (const sq of segPath) {
+        if (!fullPath.some(existing => existing.x === sq.x && existing.y === sq.y)) {
+          fullPath.push(sq);
+        }
+      }
+    }
+    
+    if (fullPath.length === 0) return;
+
+    // Load current per-turn tracking state into memory to avoid per-square setFlag calls
+    const visitedState = foundry.utils.deepClone(
+      tokenDoc.flags?.trespasser?.terrainSquaresVisitedThisTurn || {}
+    );
+    let slipperyChecked = tokenDoc.flags?.trespasser?.slipperyCheckedThisTurn || false;
+
+    // Accumulators
+    const terrainDamageMap = new Map(); // regionId → { damage, name }
+    const effectsToApply = [];          // { eff, terrainName }
+    let slipperyCheckRegion = null;     // first slippery region encountered
+
+    // Walk each square in the path
+    for (const square of fullPath) {
+      const squareKey = `${square.x},${square.y}`;
+      const squareCenterX = (square.x + 0.5) * gridSize;
+      const squareCenterY = (square.y + 0.5) * gridSize;
+
+      for (const region of scene.regions) {
+        const terrainData = region.flags?.trespasser?.terrain;
+        if (!terrainData) continue;
+        if (!this.#isPointInRegion(squareCenterX, squareCenterY, region, gridSize)) continue;
+
+        const sys = terrainData.system;
+
+        // An actor-centered terrain should not affect the actor it is centered on
+        if (sys.centerMode === "actor" && sys.centerActorId === actor.id) continue;
+
+        // Check if already visited this square this turn
+        if (!visitedState[region.id]) visitedState[region.id] = [];
+        if (visitedState[region.id].includes(squareKey)) continue;
+        visitedState[region.id].push(squareKey);
+
+        // Accumulate terrain damage
+        if (sys.terrainDamage > 0) {
+          if (!terrainDamageMap.has(region.id)) {
+            terrainDamageMap.set(region.id, { damage: 0, name: region.name });
+          }
+          terrainDamageMap.get(region.id).damage += sys.terrainDamage;
+        }
+
+        // Slippery check — capture first occurrence (once per turn)
+        if (sys.category === "field" && sys.slippery && !slipperyChecked && !slipperyCheckRegion) {
+          slipperyChecked = true;
+          slipperyCheckRegion = region;
+        }
+
+        // Collect onMove effects
+        if (sys.onMoveEffects?.length > 0) {
+          for (const eff of sys.onMoveEffects) {
+            effectsToApply.push({ eff, terrainName: region.name });
+          }
+        }
+      }
+    }
+
+    // Batch-update tracking flags in one call
+    const flagUpdates = {
+      "flags.trespasser.terrainSquaresVisitedThisTurn": visitedState
+    };
+    if (slipperyChecked && !tokenDoc.flags?.trespasser?.slipperyCheckedThisTurn) {
+      flagUpdates["flags.trespasser.slipperyCheckedThisTurn"] = true;
+    }
+    await tokenDoc.update(flagUpdates);
+
+    // Nothing to report — bail early
+    if (terrainDamageMap.size === 0 && effectsToApply.length === 0 && !slipperyCheckRegion) return;
+
+    // Group effects by UUID and sum their intensities
+    const groupedEffects = new Map(); // uuid → { eff, totalIntensity, terrainNames }
+    for (const { eff, terrainName } of effectsToApply) {
+      if (groupedEffects.has(eff.uuid)) {
+        const existing = groupedEffects.get(eff.uuid);
+        existing.totalIntensity += (eff.intensity || 1);
+        existing.terrainNames.add(terrainName);
+      } else {
+        groupedEffects.set(eff.uuid, {
+          eff,
+          totalIntensity: eff.intensity || 1,
+          terrainNames: new Set([terrainName])
+        });
+      }
+    }
+
+    // Batch-create effect items on the actor with summed intensities
+    for (const [uuid, data] of groupedEffects) {
+      const sourceEffect = await fromUuid(uuid);
+      if (!sourceEffect) continue;
+      const effectData = sourceEffect.toObject();
+      effectData.system.intensity = data.totalIntensity;
+      delete effectData._id;
+      await Item.createDocuments([effectData], { parent: actor });
+    }
+
+    // Apply accumulated terrain damage — one HP update
+    let totalDamage = 0;
+    if (terrainDamageMap.size > 0) {
+      for (const [, data] of terrainDamageMap) {
+        totalDamage += data.damage;
+      }
+      const newHp = Math.max(0, actor.system.health - totalDamage);
+      await actor.update({ "system.health": newHp });
+    }
+
+    // Build and post ONE combined summary chat message
+    if (terrainDamageMap.size > 0 || groupedEffects.size > 0) {
+      await this.#postMovementSummary(tokenDoc, actor, terrainDamageMap, groupedEffects);
+    }
+
+    // Handle slippery check (after summary, since the prompt is interactive)
+    if (slipperyCheckRegion) {
+      await this.#handleSlipperyCheck(tokenDoc, actor, slipperyCheckRegion);
+    }
+  }
+
+  // ── Cleanup ─────────────────────────────────────────────────────────────────
+
+  /**
+   * Clean up regions spawned in combat when combat ends.
+   */
+  static async cleanupCombatTerrains() {
+    const scenes = game.scenes.contents;
+    for (const scene of scenes) {
+      const regionsToDelete = scene.regions.filter(r => {
+        const flags = r.flags?.trespasser || {};
+        return flags.spawnedInCombat === true && !flags.linkedEffectId;
+      }).map(r => r.id);
+      
+      if (regionsToDelete.length > 0) {
+        await scene.deleteEmbeddedDocuments("Region", regionsToDelete);
+      }
+    }
+  }
+
+  /**
+   * Clean up regions linked to an effect when it is deleted.
+   * @param {Item} effectItem 
+   */
+  static async onEffectDeleted(effectItem) {
+    if (!effectItem) return;
+    const effectId = effectItem.id;
+    const effectUuid = effectItem.uuid;
+
+    const scenes = game.scenes.contents;
+    for (const scene of scenes) {
+      const regionsToDelete = scene.regions.filter(r => {
+        const linkedId = r.flags?.trespasser?.linkedEffectId;
+        return linkedId === effectId || linkedId === effectUuid;
+      }).map(r => r.id);
+      
+      if (regionsToDelete.length > 0) {
+        await scene.deleteEmbeddedDocuments("Region", regionsToDelete);
+      }
+    }
+  }
+
+  // ── Private Helpers ─────────────────────────────────────────────────────────
+
+  /**
+   * Post a single combined chat message summarizing all terrain damage and effects
+   * from a token's movement through terrain regions.
+   * @param {TokenDocument} tokenDoc - The token document.
+   * @param {Actor} actor - The actor.
+   * @param {Map} terrainDamageMap - regionId → { damage, name }.
+   * @param {Map} groupedEffects - uuid → { eff, totalIntensity, terrainNames }.
+   */
+  static async #postMovementSummary(tokenDoc, actor, terrainDamageMap, groupedEffects) {
+    const lines = [];
+
+    // Terrain damage lines
+    for (const [, data] of terrainDamageMap) {
+      lines.push(`<li><span style="color:var(--trp-red, #c44);">⚡ ${data.damage} ${game.i18n.localize("TRESPASSER.Sheet.Terrain.Fields.TerrainDamage")}</span> — ${data.name}</li>`);
+    }
+
+    // Effect lines with summed intensity
+    for (const [, data] of groupedEffects) {
+      const img = data.eff.img ? `<img src="${data.eff.img}" width="16" height="16" style="border:none; vertical-align:middle; margin-right:4px;">` : "";
+      const terrains = [...data.terrainNames].join(", ");
+      lines.push(`<li>${img}<strong>${data.eff.name}</strong> (${data.totalIntensity}) — ${terrains}</li>`);
+    }
+
+    const content = `<ul style="list-style:none; padding:0; margin:0;">${lines.join("")}</ul>`;
+
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content,
+      flavor: `🌍 ${game.i18n.format("TRESPASSER.Notification.Terrain.MovementSummary", { name: tokenDoc.name })}`
+    });
+  }
+
+  /**
+   * Apply an effect from the terrain's effect array to an actor.
+   * @param {Actor} actor - The target actor.
+   * @param {Object} eff - The effect data {uuid, type, name, img, intensity}.
+   * @param {string} terrainName - The terrain region name for chat messages.
+   */
+  static async #applyEffect(actor, eff, terrainName) {
+    const sourceEffect = await fromUuid(eff.uuid);
+    if (!sourceEffect) return;
+
+    const effectData = sourceEffect.toObject();
+    effectData.system.intensity = eff.intensity || sourceEffect.system.intensity;
+    delete effectData._id;
+    await Item.createDocuments([effectData], { parent: actor });
+
+    ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content: game.i18n.format("TRESPASSER.Notification.Terrain.EffectApplied", {
+        name: actor.name,
+        effect: eff.name,
+        terrain: terrainName
+      }),
+      flavor: `🌍 ${terrainName}`
+    });
+  }
+
+  /**
+   * Handle the slippery terrain check for a token.
+   * Prompts an AGILITY | ACROBATICS vs 10 check using TrespasserRollDialog.
+   * Posts result to chat only (toppled to be defined later).
+   * @param {TokenDocument} tokenDoc 
+   * @param {Actor} actor 
+   * @param {RegionDocument} region 
+   */
+  static async #handleSlipperyCheck(tokenDoc, actor, region) {
+    // Attributes are plain NumberFields: actor.system.attributes.agility = 3
+    const agilityBase = actor.system.attributes?.agility ?? 0;
+    // Effect/permanent bonuses from the derived bonuses field
+    const agilityBonus = actor.system.bonuses?.agility ?? 0;
+    const totalAgility = agilityBase + agilityBonus;
+
+    // Skills are BooleanFields: actor.system.skills.acrobatics = true/false
+    // When trained, the skill bonus is actor.system.skill (the proficiency bonus)
+    const isAcrobaticsTrained = actor.system.skills?.acrobatics === true;
+    const acrobaticsBonus = isAcrobaticsTrained ? (actor.system.skill ?? 0) : 0;
+
+    const totalBonus = totalAgility + acrobaticsBonus;
+
+    // Prompt the player with the roll dialog
+    const result = await TrespasserRollDialog.wait({
+      dice: "1d20",
+      bonuses: [
+        { label: game.i18n.localize("TRESPASSER.Terms.Attribute.Agility"), value: totalAgility },
+        { label: game.i18n.localize("TRESPASSER.Terms.Skill.Acrobatics"), value: acrobaticsBonus }
+      ],
+      showCD: true,
+      cd: 10
+    }, {
+      title: game.i18n.format("TRESPASSER.Notification.Terrain.SlipperyPrompt", { name: tokenDoc.name })
+    });
+
+    // If user cancelled the dialog, skip the check
+    if (!result) return;
+
+    const modifier = result.modifier || 0;
+    const cd = result.cd || 10;
+
+    // Roll
+    const roll = new foundry.dice.Roll(`1d20 + ${totalBonus} + ${modifier}`);
+    await roll.evaluate();
+
+    const total = roll.total;
+    const success = total >= cd;
+
+    // Post roll to chat
+    await roll.toMessage({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      flavor: game.i18n.format("TRESPASSER.Notification.Terrain.SlipperyPrompt", { name: tokenDoc.name })
+    });
+
+    // Post result to chat
+    if (success) {
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor }),
+        content: game.i18n.format("TRESPASSER.Notification.Terrain.SlipperySuccess", {
+          name: tokenDoc.name,
+          total: total
+        }),
+        flavor: `🧊 ${region.name}`
+      });
+    } else {
+      await ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor }),
+        content: game.i18n.format("TRESPASSER.Notification.Terrain.SlipperyFail", {
+          name: tokenDoc.name,
+          total: total
+        }),
+        flavor: `🧊 ${region.name}`
+      });
+    }
+  }
+
+  /**
+   * Trace a grid path between two grid coordinates using Bresenham's line algorithm.
+   * Returns all grid cells along the straight line from start to end (inclusive).
+   * @param {number} x0 - Start grid X.
+   * @param {number} y0 - Start grid Y.
+   * @param {number} x1 - End grid X.
+   * @param {number} y1 - End grid Y.
+   * @returns {{x: number, y: number}[]} Array of grid coordinates.
+   */
+  static #getGridPath(x0, y0, x1, y1) {
+    const path = [];
+    const dx = Math.abs(x1 - x0);
+    const dy = Math.abs(y1 - y0);
+    const sx = x0 < x1 ? 1 : -1;
+    const sy = y0 < y1 ? 1 : -1;
+    let err = dx - dy;
+
+    let cx = x0;
+    let cy = y0;
+    while (true) {
+      path.push({ x: cx, y: cy });
+      if (cx === x1 && cy === y1) break;
+      const e2 = 2 * err;
+      if (e2 > -dy) { err -= dy; cx += sx; }
+      if (e2 < dx) { err += dx; cy += sy; }
+    }
+    return path;
+  }
+
+  /**
+   * Check if a point is inside a region's shapes.
+   * @param {number} px - Point X coordinate (canvas pixels).
+   * @param {number} py - Point Y coordinate (canvas pixels).
+   * @param {RegionDocument} region - The region document.
+   * @param {number} gridSize - The grid square size in pixels.
+   * @returns {boolean}
+   */
+  static #isPointInRegion(px, py, region, gridSize) {
+    for (const shape of region.shapes) {
+      if (shape.type === "rectangle") {
+        if (px >= shape.x && px <= shape.x + shape.width &&
+            py >= shape.y && py <= shape.y + shape.height) {
+          return true;
+        }
+      } else if (shape.type === "emanation" && shape.base) {
+        // For emanation shapes attached to tokens, compute the bounds
+        // The emanation with radius 0 is just the base shape around the token
+        const baseX = shape.base.x;
+        const baseY = shape.base.y;
+        const baseW = (shape.base.width || 1) * gridSize;
+        const baseH = (shape.base.height || 1) * gridSize;
+        const radius = (shape.radius || 0) * gridSize;
+        if (px >= baseX - radius && px <= baseX + baseW + radius &&
+            py >= baseY - radius && py <= baseY + baseH + radius) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
 }
 
 Hooks.on("dropCanvasData", (canvasWrapper, data) => {
@@ -234,5 +784,3 @@ Hooks.on("dropCanvasData", (canvasWrapper, data) => {
     }
   }
 });
-
-

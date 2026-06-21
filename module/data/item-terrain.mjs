@@ -30,7 +30,16 @@ export class TrespasserTerrainData extends foundry.abstract.TypeDataModel {
         img: new StringField({ initial: "" }),
         intensity: new NumberField({ initial: 1, min: 1, integer: true })
       })),
+
       onMoveEffects: new ArrayField(new SchemaField({
+        uuid: new StringField({ initial: "" }),
+        type: new StringField({ initial: "" }),
+        name: new StringField({ initial: "" }),
+        img: new StringField({ initial: "" }),
+        intensity: new NumberField({ initial: 1, min: 1, integer: true })
+      })),
+
+      onStartTurnEffects: new ArrayField(new SchemaField({
         uuid: new StringField({ initial: "" }),
         type: new StringField({ initial: "" }),
         name: new StringField({ initial: "" }),

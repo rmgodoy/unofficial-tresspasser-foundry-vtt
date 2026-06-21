@@ -2214,3 +2214,25 @@ Hooks.on("renderChatMessageHTML", (message, htmlElement, data) => {
     });
   });
 });
+
+/* -------------------------------------------- */
+/*  Terrain Event Hooks                         */
+/* -------------------------------------------- */
+
+Hooks.on("regionBehaviorTokenEnter", async (behavior, region, token) => {
+  if (game.trespasser?.TerrainHelper) {
+    await game.trespasser.TerrainHelper.onTokenEnterTerrain(token, region);
+  }
+});
+
+Hooks.on("deleteCombat", async (combat, options, userId) => {
+  if (game.user.id === userId && game.trespasser?.TerrainHelper) {
+    await game.trespasser.TerrainHelper.cleanupCombatTerrains();
+  }
+});
+
+Hooks.on("deleteItem", async (item, options, userId) => {
+  if (game.user.id === userId && game.trespasser?.TerrainHelper) {
+    await game.trespasser.TerrainHelper.onEffectDeleted(item);
+  }
+});

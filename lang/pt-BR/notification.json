@@ -83,6 +83,16 @@
       "Region": {
         "NoEmbeddedItems": "Regiões não podem conter itens embutidos."
       },
+      "Terrain": {
+        "DamageTaken": "{name} sofre {damage} de dano de terreno de {terrain}!",
+        "EffectApplied": "{name} é afetado por {effect} de {terrain}.",
+        "SlipperyPrompt": "{name} entra em um terreno escorregadio! Rolando AGILIDADE | ACROBACIA vs 10...",
+        "SlipperySuccess": "{name} mantém o equilíbrio no terreno escorregadio (rolou {total} vs 10).",
+        "SlipperyFail": "{name} escorrega no terreno! (rolou {total} vs 10) — deve receber Caído e perder o resto do movimento.",
+        "StartTurnEffect": "{name} inicia o turno em {terrain}.",
+        "DifficultTerrainCost": "Mover-se para terreno difícil custa +{cost} ponto(s) de movimento extra.",
+        "MovementSummary": "{name} moveu-se pelo terreno"
+      },
       "Travel": {
         "CannotAdvanceAtNight": "Não é possível avançar à noite. Faça um Descanso Noturno primeiro.",
         "NoPartyFound": "Nenhum ator de grupo encontrado. Crie um ator de Grupo primeiro.",
