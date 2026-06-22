@@ -461,6 +461,67 @@
   color: var(--trp-text-bright);
 }
 
+.terrain-drop-zone {
+  background: var(--trp-bg-overlay);
+  border: 1px dashed var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 6px 10px;
+  min-height: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  flex: 1;
+}
+
+.terrain-chip {
+  display: flex;
+  align-items: center;
+  background: var(--trp-bg-overlay);
+  border: 1px solid var(--trp-border);
+  border-radius: 4px;
+  padding: 4px 6px;
+  gap: 8px;
+  font-size: var(--fs-12);
+  transition: border-color 0.1s;
+}
+
+.terrain-chip:hover {
+  border-color: var(--trp-gold-dim);
+}
+
+.terrain-chip img {
+  width: 20px;
+  height: 20px;
+  border: none;
+  object-fit: cover;
+}
+
+.terrain-chip .name {
+  font-family: var(--trp-font-body);
+  font-weight: bold;
+  color: var(--trp-text-bright);
+}
+
+.terrain-chip .controls {
+  display: flex;
+  gap: 6px;
+  margin-left: 4px;
+}
+
+.terrain-chip .controls a {
+  cursor: pointer;
+  font-size: var(--fs-12);
+  transition: color 0.1s;
+}
+
+.terrain-chip .controls .edit { color: var(--trp-gold); }
+.terrain-chip .controls .remove { color: var(--trp-red-dim); }
+
+.terrain-chip .controls a:hover {
+  color: var(--trp-text-bright);
+}
+
 /* ── Deed Sheet (AppV2) ──────────────────────────────── */
 
 /* Make the deed sheet's window-content and form a flex column */
@@ -706,8 +767,15 @@
   margin-top: 4px;
 }
 
-.deed-effects .effect-block__damage {
+.deed-effects .effect-block__damage-group {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.deed-effects .effect-block__damage {
+  width: 100%;
 }
 
 .deed-effects .effect-block__weapon-toggle {

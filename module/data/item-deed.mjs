@@ -21,7 +21,20 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
         img: new fields.StringField({ required: true }),
         intensity: new fields.NumberField({ initial: 1, min: 0 })
       }), { initial: [] }),
-      appliesWeaponEffects: new fields.BooleanField({ initial: false })
+      appliesWeaponEffects: new fields.BooleanField({ initial: false }),
+      forcedMovement: new fields.SchemaField({
+        type: new fields.StringField({ initial: "", blank: true, choices: ["", "push", "pull", "sweep", "shove", "drag"] }),
+        distance: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        mode: new fields.StringField({ initial: "additive", choices: ["additive", "replace"] })
+      }),
+      terrainSpawn: new fields.SchemaField({
+        uuid: new fields.StringField({ initial: "" }),
+        type: new fields.StringField({ initial: "" }),
+        name: new fields.StringField({ initial: "" }),
+        img: new fields.StringField({ initial: "" }),
+        placement: new fields.StringField({ initial: "", blank: true, choices: ["", "on_target", "on_self", "choose", "aura"] }),
+        linkedEffectUuid: new fields.StringField({ initial: "" })
+      })
     });
 
     return {

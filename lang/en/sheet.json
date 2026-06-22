@@ -281,6 +281,23 @@
             "ClosePath": "Close Path",
             "Aura": "Aura"
           },
+          "ForcedMovementTypeChoices": {
+            "Push": "Push",
+            "Pull": "Pull",
+            "Sweep": "Sweep",
+            "Shove": "Shove",
+            "Drag": "Drag"
+          },
+          "ForcedMovementModeChoices": {
+            "Additive": "Additive",
+            "Replace": "Replace"
+          },
+          "TerrainPlacementChoices": {
+            "OnTarget": "On Target",
+            "OnSelf": "On Self",
+            "Choose": "Choose Location",
+            "Aura": "Aura"
+          },
           "EffectTypeChoices": {
             "Continuous": "Continuous",
             "OnTrigger": "On Trigger"
@@ -293,6 +310,8 @@
           "Effect": "effect...",
           "Description": "No description provided.",
           "DropEffects": "Drop Effects here",
+          "DropTerrain": "Drop Terrain here",
+          "LinkedEffectUuid": "Linked Effect UUID",
           "DropDeeds": "Drop Deeds here",
           "DropIncantations": "Drop Incantations here",
           "DropTalents": "Drop Talents here",
@@ -326,6 +345,8 @@
         },
         "Sections": {
           "DeedEffects": "Deed Effects",
+          "ForcedMovement": "Forced Movement",
+          "TerrainSpawn": "Terrain Spawn",
           "ArmorEffects": "Armor Effects",
           "WeaponEffects": "Weapon Effects",
           "EnhancementEffects": "Enhancement Effects",

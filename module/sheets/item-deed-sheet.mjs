@@ -17,6 +17,8 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
       switchTab:    TrespasserDeedSheet.#onSwitchTab,
       removeEffect: TrespasserDeedSheet.#onRemoveEffect,
       editEffect:   TrespasserDeedSheet.#onEditEffect,
+      removeTerrain: TrespasserDeedSheet.#onRemoveTerrain,
+      editTerrain:  TrespasserDeedSheet.#onEditTerrain,
     },
     form: { submitOnChange: true },
     window: { resizable: true }
@@ -50,6 +52,10 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
   };
 
   tabGroups = { primary: "card" };
+
+  get title() {
+    return `${game.i18n.localize("TYPES.Item.deed")}: ${this.document.name}`;
+  }
 
   /* -------------------------------------------- */
   /* Tab Management                                */
@@ -129,6 +135,23 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
         path:        game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Path"),
         close_path:  game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.ClosePath"),
         aura:        game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Aura")
+      },
+      forcedMovementTypes: {
+        push: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ForcedMovementTypeChoices.Push"),
+        pull: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ForcedMovementTypeChoices.Pull"),
+        sweep: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ForcedMovementTypeChoices.Sweep"),
+        shove: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ForcedMovementTypeChoices.Shove"),
+        drag: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ForcedMovementTypeChoices.Drag")
+      },
+      forcedMovementModes: {
+        additive: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ForcedMovementModeChoices.Additive"),
+        replace: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ForcedMovementModeChoices.Replace")
+      },
+      terrainPlacementChoices: {
+        on_target: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnTarget"),
+        on_self: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnSelf"),
+        choose: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Choose"),
+        aura: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Aura")
       }
     };
 
@@ -181,6 +204,13 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
     for (const zone of dropZones) {
       zone.addEventListener("dragover", (ev) => ev.preventDefault());
       zone.addEventListener("drop", this.#onDropEffect.bind(this));
+    }
+
+    // Register native drag-drop on terrain drop zones
+    const terrainDropZones = this.element.querySelectorAll(".terrain-drop-zone");
+    for (const zone of terrainDropZones) {
+      zone.addEventListener("dragover", (ev) => ev.preventDefault());
+      zone.addEventListener("drop", this.#onDropTerrain.bind(this));
     }
 
     // Auto-select text on focus for specific inputs
@@ -316,5 +346,69 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
     };
 
     tempItem.sheet.render(true);
+  }
+
+  /* -------------------------------------------- */
+  /* Terrain Handlers                              */
+  /* -------------------------------------------- */
+
+  async #onDropTerrain(event) {
+    event.preventDefault();
+    const phase = event.currentTarget.dataset.phase;
+    if (!phase) return;
+
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer.getData("text/plain"));
+    } catch {
+      return;
+    }
+
+    if (data.type !== "Item") return;
+
+    const droppedItem = await fromUuid(data.uuid);
+    if (!droppedItem) return;
+
+    // Only allow Terrain items
+    if (droppedItem.type !== "terrain") {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnlyTerrains"));
+      return;
+    }
+
+    await this.document.update({
+      [`system.effects.${phase}.terrainSpawn.uuid`]: droppedItem.uuid,
+      [`system.effects.${phase}.terrainSpawn.type`]: droppedItem.type,
+      [`system.effects.${phase}.terrainSpawn.name`]: droppedItem.name,
+      [`system.effects.${phase}.terrainSpawn.img`]: droppedItem.img
+    });
+  }
+
+  static async #onRemoveTerrain(event, target) {
+    const list = target.closest(".terrain-drop-zone");
+    if (!list) return;
+
+    const phase = list.dataset.phase;
+    if (!phase) return;
+
+    await this.document.update({
+      [`system.effects.${phase}.terrainSpawn.uuid`]: "",
+      [`system.effects.${phase}.terrainSpawn.type`]: "",
+      [`system.effects.${phase}.terrainSpawn.name`]: "",
+      [`system.effects.${phase}.terrainSpawn.img`]: ""
+    });
+  }
+
+  static async #onEditTerrain(event, target) {
+    const list = target.closest(".terrain-drop-zone");
+    if (!list) return;
+
+    const phase = list.dataset.phase;
+    if (!phase) return;
+
+    const uuid = this.document.system.effects[phase].terrainSpawn.uuid;
+    if (uuid) {
+      const item = await fromUuid(uuid);
+      if (item) item.sheet.render(true);
+    }
   }
 }

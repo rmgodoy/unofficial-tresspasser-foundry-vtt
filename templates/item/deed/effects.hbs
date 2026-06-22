@@ -14,22 +14,24 @@
     </div>
 
     <div class="effect-block__row">
-      {{!-- Damage formula --}}
-      <div class="field-row effect-block__damage">
-        <input type="text"
-               name="system.effects.{{phase.key}}.damage"
-               value="{{phase.data.damage}}"
-               placeholder="{{localize 'TRESPASSER.Sheet.Common.Damage'}}"
-               class="select-on-focus" />
-      </div>
+      <div class="effect-block__damage-group">
+        {{!-- Damage formula --}}
+        <div class="field-row effect-block__damage">
+          <input type="text"
+                 name="system.effects.{{phase.key}}.damage"
+                 value="{{phase.data.damage}}"
+                 placeholder="{{localize 'TRESPASSER.Sheet.Common.Damage'}}"
+                 class="select-on-focus" />
+        </div>
 
-      {{!-- Weapon effects checkbox --}}
-      <label class="effect-block__weapon-toggle">
-        <input type="checkbox"
-               name="system.effects.{{phase.key}}.appliesWeaponEffects"
-               {{checked phase.data.appliesWeaponEffects}} />
-        {{localize "TRESPASSER.Sheet.Item.Sections.WeaponEffects"}}
-      </label>
+        {{!-- Weapon effects checkbox --}}
+        <label class="effect-block__weapon-toggle">
+          <input type="checkbox"
+                 name="system.effects.{{phase.key}}.appliesWeaponEffects"
+                 {{checked phase.data.appliesWeaponEffects}} />
+          {{localize "TRESPASSER.Sheet.Item.Sections.WeaponEffects"}}
+        </label>
+      </div>
 
       {{!-- Drop zone --}}
       <div class="applied-effects-list" data-phase="{{phase.key}}">
@@ -38,15 +40,15 @@
             <img src="{{effect.img}}" title="{{effect.name}}" />
             <span class="name">{{effect.name}}</span>
             <div class="intensity-box">
-              <span class="label">{{localize "TRESPASSER.Sheet.Common.IntensityShort"}}</span>
-              <input type="number"
-                     class="effect-intensity-input"
-                     name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.intensity"
-                     value="{{effect.intensity}}" />
-              <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.uuid" value="{{effect.uuid}}" />
-              <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.type" value="{{effect.type}}" />
-              <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.name" value="{{effect.name}}" />
-              <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.img" value="{{effect.img}}" />
+               <span class="label">{{localize "TRESPASSER.Sheet.Common.IntensityShort"}}</span>
+               <input type="number"
+                      class="effect-intensity-input"
+                      name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.intensity"
+                      value="{{effect.intensity}}" />
+               <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.uuid" value="{{effect.uuid}}" />
+               <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.type" value="{{effect.type}}" />
+               <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.name" value="{{effect.name}}" />
+               <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.img" value="{{effect.img}}" />
             </div>
             <div class="controls">
               <a data-action="editEffect" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
@@ -56,6 +58,47 @@
         {{else}}
           <span class="drop-placeholder">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</span>
         {{/each}}
+      </div>
+
+      {{!-- Forced Movement --}}
+      <div class="field-row full-width forced-movement-row">
+        <span class="label">{{localize "TRESPASSER.Sheet.Item.Sections.ForcedMovement"}}</span>
+        <select name="system.effects.{{phase.key}}.forcedMovement.type">
+          {{selectOptions @root.config.forcedMovementTypes selected=phase.data.forcedMovement.type blank=""}}
+        </select>
+        <input type="number" 
+               name="system.effects.{{phase.key}}.forcedMovement.distance"
+               value="{{phase.data.forcedMovement.distance}}"
+               placeholder="{{localize 'TRESPASSER.Sheet.Common.Distance'}}" />
+        <select name="system.effects.{{phase.key}}.forcedMovement.mode">
+          {{selectOptions @root.config.forcedMovementModes selected=phase.data.forcedMovement.mode}}
+        </select>
+      </div>
+
+      {{!-- Terrain Spawn --}}
+      <div class="field-row full-width terrain-spawn-row">
+        <span class="label">{{localize "TRESPASSER.Sheet.Item.Sections.TerrainSpawn"}}</span>
+        <div class="terrain-drop-zone" data-phase="{{phase.key}}">
+          {{#if phase.data.terrainSpawn.uuid}}
+            <div class="terrain-chip" data-uuid="{{phase.data.terrainSpawn.uuid}}">
+              <img src="{{phase.data.terrainSpawn.img}}" title="{{phase.data.terrainSpawn.name}}" />
+              <span class="name">{{phase.data.terrainSpawn.name}}</span>
+              <div class="controls">
+                <a data-action="editTerrain" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+                <a data-action="removeTerrain" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
+              </div>
+            </div>
+          {{else}}
+            <span class="drop-placeholder">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropTerrain"}}</span>
+          {{/if}}
+        </div>
+        <select name="system.effects.{{phase.key}}.terrainSpawn.placement">
+          {{selectOptions @root.config.terrainPlacementChoices selected=phase.data.terrainSpawn.placement blank=""}}
+        </select>
+        <input type="text"
+               name="system.effects.{{phase.key}}.terrainSpawn.linkedEffectUuid"
+               value="{{phase.data.terrainSpawn.linkedEffectUuid}}"
+               placeholder="{{localize 'TRESPASSER.Sheet.Item.Placeholder.LinkedEffectUuid'}}" />
       </div>
     </div>
   </div>
