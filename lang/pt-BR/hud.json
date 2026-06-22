@@ -22,7 +22,8 @@
         "Wait": "Esperar",
         "AttemptDeed": "Tentar Habilidade",
         "UseConcoction": "Usar Concoção",
-        "TakeAim": "Mirar"
+        "TakeAim": "Mirar",
+        "ForceMove": "Movimento Forçado"
       },
       "Movement": {
         "Used": "Movimento Usado",

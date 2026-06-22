@@ -1,6 +1,7 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../documents/combat.mjs";
 import { TrespasserRollDialog }    from "../dialogs/roll-dialog.mjs";
+import { ForcedMovementHelper }    from "../helpers/forced-movement-helper.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -134,7 +135,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             takeAimOptions: this._getTakeAimOptions(ap),
             vaultRange: this._getVaultRange(),
             canVault: (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("vault")),
-            canWait: (ap >= 1 || !restrictAPF) && (game.combat?.getFlag("trespasser", "activePhase") === TrespasserCombat.PHASES.EARLY) && !hasLateTurn
+            canWait: (ap >= 1 || !restrictAPF) && (game.combat?.getFlag("trespasser", "activePhase") === TrespasserCombat.PHASES.EARLY) && !hasLateTurn,
+            canForceMove: game.user.isGM
         };
 
         // Clear active panel if its action is no longer available
@@ -151,6 +153,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if ( this._activePanel === "rummage"       && !context.canRummage     ) this._activePanel = null;
         if ( this._activePanel === "throw"         && !context.canThrow       ) this._activePanel = null;
         if ( this._activePanel === "vault"         && !context.canVault       ) this._activePanel = null;
+        if ( this._activePanel === "force-move"    && !context.canForceMove   ) this._activePanel = null;
 
         return context;
     }
@@ -424,6 +427,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                     break;
                 case "execute-wait":
                     this._executeWait();
+                    break;
+                case "execute-force-move":
+                    this._executeForceMove();
                     break;
                 case "modify-ap":
                     this._modifyAP(ev);
@@ -1194,6 +1200,27 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             name: this._token.name, 
             ap: newAP 
         }));
+        this.render();
+    }
+
+    async _executeForceMove() {
+        const typeSelect = this.element.querySelector('[name="force-move-type"]');
+        const distanceInput = this.element.querySelector('[name="force-move-distance"]');
+        if (!typeSelect || !distanceInput || !this._token) return;
+
+        const type = typeSelect.value;
+        const distance = parseInt(distanceInput.value) || 0;
+
+        if (distance > 0) {
+            await ForcedMovementHelper.executeForcedMovement(
+                this._token, 
+                [this._token], 
+                type, 
+                distance
+            );
+        }
+
+        this._activePanel = null;
         this.render();
     }
 }

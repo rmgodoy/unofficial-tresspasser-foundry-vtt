@@ -15,8 +15,9 @@ export class TerrainHelper {
    * Handle dropping a Terrain item onto the canvas.
    * @param {Item} terrainItem - The Terrain Item document.
    * @param {Object} dropPosition - {x, y} coordinates of the drop.
+   * @param {Object} options - Additional flags like spawnedInCombat.
    */
-  static async placeTerrainOnCanvas(terrainItem, dropPosition) {
+  static async placeTerrainOnCanvas(terrainItem, dropPosition, options = {}) {
     if (!canvas.ready || !terrainItem) return;
 
     const gridSize = canvas.grid.size;
@@ -100,7 +101,10 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
         trespasser: {
           terrain: terrainItem.toObject(),
           centerActorId: centerActorId,
-          centerTokenId: centerTokenId
+          centerTokenId: centerTokenId,
+          spawnedInCombat: options.spawnedInCombat,
+          linkedEffectId: options.linkedEffectId,
+          casterActorId: options.casterActorId
         }
       }
     };
@@ -232,6 +236,98 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     };
 
     tempItem.sheet.render(true);
+  }
+
+  /**
+   * Spawn a terrain from a deed.
+   * @param {Item} terrainItem 
+   * @param {Object} spawnConfig 
+   * @param {TokenDocument} sourceToken 
+   * @param {TokenDocument[]} targets 
+   * @param {Object} options 
+   */
+  static async spawnTerrainFromDeed(terrainItem, spawnConfig, sourceToken, targets, options = {}) {
+    if (!canvas.ready || !terrainItem) return;
+    const placement = spawnConfig.placement;
+    if (!placement) return;
+
+    let targetPositions = [];
+    const gridSize = canvas.grid.size;
+
+    let itemToSpawn = terrainItem;
+
+    if (placement === "on_self") {
+      targetPositions.push({ x: sourceToken.x + (sourceToken.w || gridSize)/2, y: sourceToken.y + (sourceToken.h || gridSize)/2 });
+    } else if (placement === "on_target") {
+      for (const t of targets) {
+        if (t) targetPositions.push({ x: t.x + (t.w || gridSize)/2, y: t.y + (t.h || gridSize)/2 });
+      }
+    } else if (placement === "choose") {
+      const bannerHtml = await foundry.applications.handlebars.renderTemplate("systems/trespasser/templates/hud/forced-movement-banner.hbs", {
+        title: game.i18n.format("TRESPASSER.Notification.Combat.PlaceTerrain", { name: terrainItem.name }),
+        damageText: ""
+      });
+      const bannerEl = $(bannerHtml);
+      $("body").append(bannerEl);
+
+      const position = await new Promise(resolve => {
+        const layer = canvas.interface;
+        const view = canvas.app.view;
+        const w = (terrainItem.system.width || 1) * gridSize;
+        const h = (terrainItem.system.height || 1) * gridSize;
+        
+        const colorHex = TerrainHelper.TERRAIN_COLORS[terrainItem.system.category] || "#ffffff";
+        const color = Number(colorHex.replace("#", "0x"));
+        
+        let preview = new PIXI.Graphics();
+        preview.beginFill(color, 0.4);
+        preview.lineStyle(2, color, 0.8);
+        preview.drawRect(0, 0, w, h);
+        preview.endFill();
+        layer.addChild(preview);
+
+        const pixiMoveHandler = (event) => {
+          const localPos = event.getLocalPosition(canvas.stage);
+          const snappedX = Math.round((localPos.x - w / 2) / gridSize) * gridSize;
+          const snappedY = Math.round((localPos.y - h / 2) / gridSize) * gridSize;
+          preview.position.set(snappedX, snappedY);
+        };
+
+        const clickHandler = (event) => {
+          if (event.button !== 0) return;
+          cleanup();
+          resolve({ x: canvas.mousePosition.x, y: canvas.mousePosition.y });
+        };
+        
+        const rightClickHandler = (event) => {
+          event.preventDefault();
+          cleanup();
+          resolve(null);
+        };
+
+        const cleanup = () => {
+          bannerEl.remove();
+          canvas.stage.off("globalpointermove", pixiMoveHandler);
+          view.removeEventListener("pointerdown", clickHandler);
+          view.removeEventListener("contextmenu", rightClickHandler);
+          layer.removeChild(preview);
+          preview.destroy();
+        };
+
+        canvas.stage.on("globalpointermove", pixiMoveHandler);
+        view.addEventListener("pointerdown", clickHandler);
+        view.addEventListener("contextmenu", rightClickHandler);
+      });
+      
+      if (position) targetPositions.push(position);
+    } else if (placement === "aura") {
+      itemToSpawn = terrainItem.clone({ "system.centerMode": "actor", "system.centerActorId": sourceToken.actor.id }, { keepId: true });
+      targetPositions.push({ x: sourceToken.x + (sourceToken.w || gridSize)/2, y: sourceToken.y + (sourceToken.h || gridSize)/2 });
+    }
+
+    for (const pos of targetPositions) {
+      await this.placeTerrainOnCanvas(itemToSpawn, pos, options);
+    }
   }
 
   // ── Event Processing ────────────────────────────────────────────────────────

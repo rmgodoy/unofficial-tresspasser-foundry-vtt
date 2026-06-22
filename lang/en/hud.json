@@ -22,7 +22,8 @@
         "Wait": "Wait",
         "AttemptDeed": "Attempt Deed",
         "UseConcoction": "Use Concoction",
-        "TakeAim": "Take Aim"
+        "TakeAim": "Take Aim",
+        "ForceMove": "Force Move"
       },
       "Movement": {
         "Used": "Movement Used",

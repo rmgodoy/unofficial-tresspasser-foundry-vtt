@@ -12,8 +12,26 @@ import { TrespasserRollDialog }    from "../../dialogs/roll-dialog.mjs";
 import { TargetingHelper }         from "../../helpers/targeting-helper.mjs";
 import { askSparkDialog }          from "../../dialogs/spark-dialog.mjs";
 import { requestPlayerDefenseRoll, requestPlayerCounterReaction } from "../../helpers/defense-roll-helper.mjs";
+import { ForcedMovementHelper }      from "../../helpers/forced-movement-helper.mjs";
+import { TerrainHelper }             from "../../helpers/terrain-helper.mjs";
 
-
+function computeForcedMovement(effects, activePhases) {
+  let totalDist = 0;
+  let finalType = "";
+  for (const p of activePhases) {
+    const fm = effects?.[p]?.forcedMovement;
+    if (fm && fm.type) {
+      if (fm.mode === "replace") {
+        totalDist = fm.distance || 0;
+        finalType = fm.type;
+      } else {
+        totalDist += (fm.distance || 0);
+        if (fm.type) finalType = fm.type;
+      }
+    }
+  }
+  return { type: finalType, distance: totalDist };
+}
 // ─────────────────────────────────────────────────────────────────────────────
 // Deed card chat message
 // ─────────────────────────────────────────────────────────────────────────────
@@ -429,6 +447,43 @@ export async function onDeedRoll(event, sheet) {
 
   if (!isCreature) {
     for (const weapon of fragileItems) await sheet._runDepletionCheck(weapon);
+  }
+
+  // ── 11e. Forced Movement ──────────────────────────────────────────────
+  const activePhases = ["start", "before", "base"];
+  if (anyHit || !isAttack || targets.length === 0) {
+    activePhases.push("hit");
+    const showSpark = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark);
+    if (showSpark) activePhases.push("spark");
+  }
+  activePhases.push("after", "end");
+
+  const totalForcedMovement = computeForcedMovement(effects, activePhases);
+  if (totalForcedMovement.type && totalForcedMovement.distance > 0) {
+    const hitTargetTokens = results
+      .filter(r => r.isHit)
+      .map(r => canvas.tokens.get(r.tokenId))
+      .filter(Boolean);
+    
+    if (hitTargetTokens.length > 0) {
+      await ForcedMovementHelper.executeForcedMovement(
+        sourceToken, hitTargetTokens, 
+        totalForcedMovement.type, totalForcedMovement.distance
+      );
+    }
+  }
+
+  // ── 11f. Terrain Spawning ──────────────────────────────────────────────
+  for (const phase of activePhases) {
+    const spawn = effects?.[phase]?.terrainSpawn;
+    if (!spawn?.uuid) continue;
+    const terrainItem = await fromUuid(spawn.uuid);
+    if (!terrainItem) continue;
+    await TerrainHelper.spawnTerrainFromDeed(terrainItem, spawn, sourceToken, targets, {
+      spawnedInCombat: true,
+      linkedEffectId: spawn.linkedEffectUuid || null,
+      casterActorId: sheet.actor.id
+    });
   }
 
   // ── 12. Cleanup AOE template (unless aura, which persists) ──────────────

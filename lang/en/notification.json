@@ -70,7 +70,8 @@
         "PlaceBlast": "Place Blast {size}: click to place, right-click to cancel.",
         "PlaceCloseBlast": "Place Close Blast {size}: click adjacent to your token, right-click to cancel.",
         "PlacePath": "Place Path {size}: click squares to draw path, double-click to confirm, right-click to undo.",
-        "PlaceClosePath": "Place Close Path {size}: start adjacent to your token, double-click to confirm, right-click to undo."
+        "PlaceClosePath": "Place Close Path {size}: start adjacent to your token, double-click to confirm, right-click to undo.",
+        "PlaceTerrain": "Place {name}: click to place."
       },
       "Dungeon": {
         "NeedsDungeon": "This room must be in a Dungeon to add connections.",

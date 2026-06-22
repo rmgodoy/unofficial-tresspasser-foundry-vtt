@@ -341,6 +341,34 @@
                     </div>
                 </button>
             </div>
+            <!-- FORCE MOVE (GM ONLY) -->
+            {{#if canForceMove}}
+            <div class="hud-action-group">
+                <button class="hud-action-btn force-move" data-action="toggle-panel" data-panel="force-move" style="border-color: #e74c3c; color: #e74c3c;">
+                    <span class="btn-text"><i class="fas fa-meteor"></i> {{localize "TRESPASSER.HUD.Action.ForceMove"}}</span>
+                    <div class="btn-icons">
+                        <div class="action-icon"></div>
+                    </div>
+                </button>
+                <div class="hud-sub-panel hidden" id="panel-force-move" style="border-color: #e74c3c;">
+                    <div class="field-row">
+                        <label>Type</label>
+                        <select name="force-move-type">
+                            <option value="push">{{localize "TRESPASSER.HUD.ForcedMovement.Types.push"}}</option>
+                            <option value="pull">{{localize "TRESPASSER.HUD.ForcedMovement.Types.pull"}}</option>
+                            <option value="sweep">{{localize "TRESPASSER.HUD.ForcedMovement.Types.sweep"}}</option>
+                            <option value="shove">{{localize "TRESPASSER.HUD.ForcedMovement.Types.shove"}}</option>
+                            <option value="drag">{{localize "TRESPASSER.HUD.ForcedMovement.Types.drag"}}</option>
+                        </select>
+                    </div>
+                    <div class="field-row">
+                        <label>Distance</label>
+                        <input type="number" name="force-move-distance" value="1" min="1" max="10" style="width: 40px; text-align: center; background: rgba(0,0,0,0.5); color: white; border: 1px solid var(--trp-border);" />
+                    </div>
+                    <button class="action-confirm-btn" data-action="execute-force-move" style="background: rgba(231, 76, 60, 0.2); border-color: #c0392b; color: #ff7675;">{{localize "TRESPASSER.HUD.Confirm"}}</button>
+                </div>
+            </div>
+            {{/if}}
         </div>
     </div>
     {{/if}}
