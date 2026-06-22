@@ -63,6 +63,20 @@
         "3": "fragile or cracked stone",
         "4": "solid stone",
         "5": "metal"
+      },
+      "ForcedMovement": {
+        "BannerTitle": "⟶ {type}: Choose path for {name} ({remaining} remaining)",
+        "BannerDamage": "Collision: {damage}/10 damage",
+        "TargetsTitle": "Order Targets",
+        "TargetOrderTip": "Drag to set resolution order.",
+        "Confirm": "Confirm Order",
+        "Types": {
+          "push": "PUSH",
+          "pull": "PULL",
+          "sweep": "SWEEP",
+          "shove": "SHOVE",
+          "drag": "DRAG"
+        }
       }
     }
   }

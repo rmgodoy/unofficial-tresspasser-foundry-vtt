@@ -44,6 +44,7 @@ import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mj
 import { TrespasserTerrainData }   from "./module/data/item-terrain.mjs";
 import { TrespasserTerrainSheet }  from "./module/sheets/item-terrain-sheet.mjs";
 import { TerrainHelper }           from "./module/helpers/terrain-helper.mjs";
+import { ForcedMovementHelper }    from "./module/helpers/forced-movement-helper.mjs";
 import "./module/helpers/region-sync-helper.mjs";
 import { ItemExporter }            from "./module/helpers/item-exporter.mjs";
 import { TrespasserCombatTracker } from "./module/sheets/combat-tracker.mjs";
@@ -640,6 +641,7 @@ Hooks.once("init", async () => {
   game.trespasser.EventClocks = EventClocksTracker;
   game.trespasser.TrespasserPartyHelper = TrespasserPartyHelper;
   game.trespasser.TerrainHelper = TerrainHelper;
+  game.trespasser.ForcedMovementHelper = ForcedMovementHelper;
   game.trespasser.NonCombatHelper = NonCombatHelper;
   game.trespasser.NonCombatSparkDialog = NonCombatSparkDialog;
   game.trespasser.NonCombatShadowDialog = NonCombatShadowDialog;

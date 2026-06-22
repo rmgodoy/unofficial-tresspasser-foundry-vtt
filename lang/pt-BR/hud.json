@@ -63,6 +63,20 @@
         "3": "pedra frágil ou rachada",
         "4": "pedra sólida",
         "5": "metal"
+      },
+      "ForcedMovement": {
+        "BannerTitle": "⟶ {type}: Escolha o caminho para {name} ({remaining} restantes)",
+        "BannerDamage": "Colisão: {damage}/10 dano",
+        "TargetsTitle": "Ordenar Alvos",
+        "TargetOrderTip": "Arraste para definir a ordem de resolução.",
+        "Confirm": "Confirmar Ordem",
+        "Types": {
+          "push": "EMPURRÃO",
+          "pull": "PUXÃO",
+          "sweep": "VARREDURA",
+          "shove": "EMPURRÃO BRUSCO",
+          "drag": "ARRASTAR"
+        }
       }
     }
   }

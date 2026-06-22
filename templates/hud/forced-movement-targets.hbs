@@ -1,0 +1,14 @@
+<div class="forced-movement-targets-panel">
+  <h3>{{localize "TRESPASSER.HUD.ForcedMovement.TargetsTitle"}}</h3>
+  <p class="hint">{{localize "TRESPASSER.HUD.ForcedMovement.TargetOrderTip"}}</p>
+  <div class="target-list" id="forced-movement-target-list">
+    {{#each targets}}
+    <div class="target-item" data-target-id="{{this.id}}" draggable="true">
+      <i class="fas fa-grip-lines drag-handle"></i>
+      <img src="{{this.img}}" alt="{{this.name}}">
+      <span>{{this.name}}</span>
+    </div>
+    {{/each}}
+  </div>
+  <button type="button" class="confirm-btn"><i class="fas fa-check"></i> {{localize "TRESPASSER.HUD.ForcedMovement.Confirm"}}</button>
+</div>
