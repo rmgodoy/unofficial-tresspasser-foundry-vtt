@@ -154,36 +154,48 @@ export class ForcedMovementHelper {
       if (result && result.path.length > 0) {
         ui.notifications.info(`Path selected for ${movingToken.name} with ${result.path.length} steps.`);
         
-        const lastSq = result.path[result.path.length - 1];
         const gridSize = canvas.scene.grid.size;
         
         const movingInitialX = Math.floor(movingToken.center.x / gridSize);
         const movingInitialY = Math.floor(movingToken.center.y / gridSize);
         
-        const deltaX = lastSq.x - movingInitialX;
-        const deltaY = lastSq.y - movingInitialY;
+        // Calculate the explicit step-by-step path for moving token
+        const movingPath = result.path.map(sq => ({
+          x: movingToken.document.x + ((sq.x - movingInitialX) * gridSize),
+          y: movingToken.document.y + ((sq.y - movingInitialY) * gridSize)
+        }));
 
-        const movingNewX = movingToken.document.x + (deltaX * gridSize);
-        const movingNewY = movingToken.document.y + (deltaY * gridSize);
-        
+        const lastMovingSq = movingPath[movingPath.length - 1];
+
         const updates = [{
           _id: movingToken.id,
-          x: movingNewX,
-          y: movingNewY
+          x: lastMovingSq.x,
+          y: lastMovingSq.y
         }];
+
+        let compoundPath = null;
 
         if (movementType === this.TYPES.SHOVE || movementType === this.TYPES.DRAG) {
           const otherToken = (movementType === this.TYPES.SHOVE) ? sourceToken : targetToken;
           
-          const otherNewX = otherToken.document.x + (deltaX * gridSize);
-          const otherNewY = otherToken.document.y + (deltaY * gridSize);
+          // The other token follows the exact same relative step-by-step path
+          compoundPath = result.path.map(sq => ({
+            x: otherToken.document.x + ((sq.x - movingInitialX) * gridSize),
+            y: otherToken.document.y + ((sq.y - movingInitialY) * gridSize)
+          }));
+          
+          const lastOtherSq = compoundPath[compoundPath.length - 1];
           
           updates.push({
             _id: otherToken.id,
-            x: otherNewX,
-            y: otherNewY
+            x: lastOtherSq.x,
+            y: lastOtherSq.y
           });
         }
+
+        // Add explicit paths to result for future tasks (e.g. step-by-step animation and collision)
+        result.movingPath = movingPath;
+        if (compoundPath) result.compoundPath = compoundPath;
 
         await canvas.scene.updateEmbeddedDocuments("Token", updates);
       }
