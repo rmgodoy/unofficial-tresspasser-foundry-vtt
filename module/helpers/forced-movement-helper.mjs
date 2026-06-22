@@ -151,55 +151,94 @@ export class ForcedMovementHelper {
       }
 
       const result = await this.#selectForcedPath(movingToken, referenceToken, movementType, distance);
-      if (result && result.path.length > 0) {
-        ui.notifications.info(`Path selected for ${movingToken.name} with ${result.path.length} steps.`);
-        
-        const gridSize = canvas.scene.grid.size;
-        
-        const movingInitialX = Math.floor(movingToken.center.x / gridSize);
-        const movingInitialY = Math.floor(movingToken.center.y / gridSize);
-        
-        // Calculate the explicit step-by-step path for moving token
-        const movingPath = result.path.map(sq => ({
-          x: movingToken.document.x + ((sq.x - movingInitialX) * gridSize),
-          y: movingToken.document.y + ((sq.y - movingInitialY) * gridSize)
-        }));
-
-        const lastMovingSq = movingPath[movingPath.length - 1];
-
-        const updates = [{
-          _id: movingToken.id,
-          x: lastMovingSq.x,
-          y: lastMovingSq.y
-        }];
-
-        let compoundPath = null;
-
-        if (movementType === this.TYPES.SHOVE || movementType === this.TYPES.DRAG) {
-          const otherToken = (movementType === this.TYPES.SHOVE) ? sourceToken : targetToken;
+      if (result) {
+        if (result.path.length > 0) {
+          ui.notifications.info(`Path selected for ${movingToken.name} with ${result.path.length} steps.`);
           
-          // The other token follows the exact same relative step-by-step path
-          compoundPath = result.path.map(sq => ({
-            x: otherToken.document.x + ((sq.x - movingInitialX) * gridSize),
-            y: otherToken.document.y + ((sq.y - movingInitialY) * gridSize)
+          const gridSize = canvas.scene.grid.size;
+          
+          const movingInitialX = Math.floor(movingToken.center.x / gridSize);
+          const movingInitialY = Math.floor(movingToken.center.y / gridSize);
+          
+          // Calculate the explicit step-by-step path for moving token
+          const movingPath = result.path.map(sq => ({
+            x: movingToken.document.x + ((sq.x - movingInitialX) * gridSize),
+            y: movingToken.document.y + ((sq.y - movingInitialY) * gridSize)
           }));
-          
-          const lastOtherSq = compoundPath[compoundPath.length - 1];
-          
-          updates.push({
-            _id: otherToken.id,
-            x: lastOtherSq.x,
-            y: lastOtherSq.y
-          });
+
+          let otherToken = null;
+          let compoundPath = null;
+
+          if (movementType === this.TYPES.SHOVE || movementType === this.TYPES.DRAG) {
+            otherToken = (movementType === this.TYPES.SHOVE) ? sourceToken : targetToken;
+            
+            // The other token follows the exact same relative step-by-step path
+            compoundPath = result.path.map(sq => ({
+              x: otherToken.document.x + ((sq.x - movingInitialX) * gridSize),
+              y: otherToken.document.y + ((sq.y - movingInitialY) * gridSize)
+            }));
+          }
+
+          // Add explicit paths to result for future tasks (e.g. step-by-step animation and collision)
+          result.movingPath = movingPath;
+          if (compoundPath) result.compoundPath = compoundPath;
+
+          await this.#animateTokenAlongPath(movingToken, movingPath, otherToken, compoundPath);
         }
 
-        // Add explicit paths to result for future tasks (e.g. step-by-step animation and collision)
-        result.movingPath = movingPath;
-        if (compoundPath) result.compoundPath = compoundPath;
-
-        await canvas.scene.updateEmbeddedDocuments("Token", updates);
+        await this.#postCollisionDamage(targetToken, result.collisions, result.totalDamage);
       }
     }
+  }
+
+  static async #animateTokenAlongPath(movingToken, movingPath, otherToken = null, compoundPath = null) {
+    if (!movingPath || movingPath.length === 0) return;
+
+    for (let i = 0; i < movingPath.length; i++) {
+      const updates = [{
+        _id: movingToken.id,
+        x: movingPath[i].x,
+        y: movingPath[i].y
+      }];
+
+      if (otherToken && compoundPath && compoundPath[i]) {
+        updates.push({
+          _id: otherToken.id,
+          x: compoundPath[i].x,
+          y: compoundPath[i].y
+        });
+      }
+
+      await canvas.scene.updateEmbeddedDocuments("Token", updates);
+      await new Promise(resolve => setTimeout(resolve, 300));
+    }
+  }
+
+  static async #postCollisionDamage(targetToken, collisions, totalDamage) {
+    if (!collisions || collisions.length === 0 || totalDamage <= 0) return;
+
+    const actor = targetToken.actor;
+    if (!actor) return;
+
+    const newHp = Math.max(0, actor.system.health - totalDamage);
+    await actor.update({ "system.health": newHp });
+
+    const lines = collisions.map(c => {
+      if (c.type === "wall") {
+        return `<li><span style="color:var(--trp-red, #c44);">⚡ ${c.damage} Damage</span> — Wall Collision</li>`;
+      } else if (c.type === "obstacle") {
+        return `<li><span style="color:var(--trp-red, #c44);">⚡ ${c.damage} Damage</span> — Obstacle Collision (${c.region.name})</li>`;
+      }
+      return "";
+    }).filter(Boolean);
+
+    const content = `<ul style="list-style:none; padding:0; margin:0;">${lines.join("")}</ul>`;
+    
+    await ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content,
+      flavor: `💥 Forced Movement Collision (${totalDamage} Total Damage)`
+    });
   }
 
   static async #showTargetOrderPanel(targets) {
@@ -214,6 +253,7 @@ export class ForcedMovementHelper {
       let remainingSquares = distance;
       let path = [];
       let totalDamage = 0;
+      let collisions = [];
       
       const gridSize = canvas.scene.grid.size;
       const initialPos = { 
@@ -247,10 +287,22 @@ export class ForcedMovementHelper {
 
       // Graphics for overlay
       const overlay = new PIXI.Graphics();
+      // Make overlay interactive to catch clicks before they hit tokens
+      overlay.eventMode = "static";
+      overlay.interactive = true; 
+      overlay.zIndex = 9999;
       canvas.interface.addChild(overlay);
 
       const drawOverlay = () => {
         overlay.clear();
+
+        // Draw invisible background to capture all clicks
+        if (canvas.dimensions) {
+          overlay.beginFill(0x000000, 0.0);
+          overlay.drawRect(0, 0, canvas.dimensions.width, canvas.dimensions.height);
+          overlay.endFill();
+        }
+
         if (remainingSquares <= 0) return;
 
         const validSquares = this.#getValidSquares(movingToken, currentPos, movementType, path, initialPos, referenceToken);
@@ -278,11 +330,12 @@ export class ForcedMovementHelper {
         bannerEl.remove();
         canvas.interface.removeChild(overlay);
         overlay.destroy();
-        canvas.stage.off("pointerdown", onClick);
         canvas.app.view.removeEventListener("contextmenu", onRightClick);
       };
 
-      const onClick = (event) => {
+      const onClick = async (event) => {
+        event.stopPropagation(); // Stop click from reaching tokens below
+
         if (remainingSquares <= 0) return;
         
         const pos = event.data.getLocalPosition(canvas.app.stage);
@@ -293,15 +346,35 @@ export class ForcedMovementHelper {
         const isValid = validSquares.some(sq => sq.x === gridX && sq.y === gridY);
         
         if (isValid) {
-          path.push({x: gridX, y: gridY});
-          currentPos = {x: gridX, y: gridY};
-          remainingSquares--;
+          const collision = this.#checkCollisionAtSquare(gridX, gridY, gridSize, movingToken.id);
+
+          if (collision.type === "wall") {
+            const damage = Math.min(10 - totalDamage, 2 * remainingSquares);
+            totalDamage += damage;
+            collisions.push({ type: "wall", damage });
+            remainingSquares = 0; // stop path here
+          } else if (collision.type === "creature") {
+            collisions.push({ type: "creature", token: collision.token });
+            remainingSquares = 0; // stop path here
+          } else {
+            path.push({x: gridX, y: gridY});
+            currentPos = {x: gridX, y: gridY};
+            remainingSquares--;
+
+            if (collision.type === "obstacle") {
+              const damage = Math.min(10 - totalDamage, 2);
+              totalDamage += damage;
+              collisions.push({ type: "obstacle", damage, region: collision.region });
+              await TerrainHelper.transformObstacleToRubble(collision.region);
+            }
+          }
+
           updateBanner();
           drawOverlay();
           
           if (remainingSquares <= 0) {
             cleanup();
-            resolve({ path, collisions: [], totalDamage });
+            resolve({ path, collisions, totalDamage });
           }
         }
       };
@@ -328,7 +401,7 @@ export class ForcedMovementHelper {
       drawOverlay();
       
       // Setup listeners
-      canvas.stage.on("pointerdown", onClick);
+      overlay.on("pointerdown", onClick);
       canvas.app.view.addEventListener("contextmenu", onRightClick);
     });
   }
@@ -374,5 +447,35 @@ export class ForcedMovementHelper {
       }
     }
     return valid;
+  }
+
+  static #checkCollisionAtSquare(x, y, gridPx, movingTokenId) {
+    const cx = (x + 0.5) * gridPx;
+    const cy = (y + 0.5) * gridPx;
+    
+    const tokens = canvas.scene.tokens.filter(t => t.id !== movingTokenId && !t.hidden);
+    for (const t of tokens) {
+      const tw = (t.width || 1) * gridPx;
+      const th = (t.height || 1) * gridPx;
+      if (cx >= t.x && cx <= t.x + tw && cy >= t.y && cy <= t.y + th) {
+        return { type: "creature", token: t };
+      }
+    }
+
+    const regions = TerrainHelper.getTerrainAtSquare(x, y, gridPx);
+    for (const r of regions) {
+      const cat = r.flags?.trespasser?.terrain?.system?.category;
+      if (cat === "wall") {
+        return { type: "wall", region: r };
+      }
+    }
+    for (const r of regions) {
+      const cat = r.flags?.trespasser?.terrain?.system?.category;
+      if (cat === "obstacle") {
+        return { type: "obstacle", region: r };
+      }
+    }
+
+    return { type: "none" };
   }
 }

@@ -92,7 +92,7 @@ export class TerrainHelper {
         name: "Terrain Tracking",
         system: {
           events: ["tokenEnter"],
-          source: `const tokenDoc = event.data.token || event.data; console.log("here");
+          source: `const tokenDoc = event.data.token || event.data;
 if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behavior, region, tokenDoc);`
         }
       }],
@@ -343,6 +343,67 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
 
       return this.#isPointInRegion(tokenCenterX, tokenCenterY, r, gridSize);
     });
+  }
+
+  /**
+   * Get all terrain regions at a specific grid square.
+   * @param {number} x - Grid X coordinate
+   * @param {number} y - Grid Y coordinate
+   * @param {number} gridPx - Grid size in pixels
+   * @returns {RegionDocument[]}
+   */
+  static getTerrainAtSquare(x, y, gridPx) {
+    if (!canvas.ready) return [];
+    const px = (x + 0.5) * gridPx;
+    const py = (y + 0.5) * gridPx;
+    
+    return canvas.scene.regions.filter(r => {
+      const terrainData = r.flags?.trespasser?.terrain;
+      if (!terrainData) return false;
+      return this.#isPointInRegion(px, py, r, gridPx);
+    });
+  }
+
+  /**
+   * Transform an obstacle into difficult terrain (rubble).
+   * @param {RegionDocument} region - The region to transform.
+   */
+  static async transformObstacleToRubble(region) {
+    if (!region || !canvas.scene) return;
+    const terrainData = region.flags?.trespasser?.terrain;
+    if (!terrainData || terrainData.system.category !== "obstacle") return;
+    
+    const sys = terrainData.system;
+    if (!sys.destructible) return;
+
+    // Update region flags to difficult terrain
+    const newTerrainData = foundry.utils.deepClone(terrainData);
+    newTerrainData.system.category = "difficult_terrain";
+    const rubbleText = game.i18n.localize("TRESPASSER.Terrain.Rubble") || "Rubble";
+    newTerrainData.name = `${terrainData.name} (${rubbleText})`;
+    
+    const color = this.TERRAIN_COLORS.difficult_terrain;
+    const updates = {
+      _id: region.id,
+      name: newTerrainData.name,
+      color: color,
+      "flags.trespasser.terrain": newTerrainData
+    };
+
+    await canvas.scene.updateEmbeddedDocuments("Region", [updates]);
+
+    const drawingId = region.flags?.trespasser?.drawingId;
+    if (drawingId) {
+      const drawing = canvas.scene.drawings.get(drawingId);
+      if (drawing) {
+        await canvas.scene.updateEmbeddedDocuments("Drawing", [{
+          _id: drawingId,
+          text: newTerrainData.name,
+          fillColor: color,
+          strokeColor: color
+        }]);
+      }
+    }
   }
 
   // ── Terrain Movement ────────────────────────────────────────────────────────

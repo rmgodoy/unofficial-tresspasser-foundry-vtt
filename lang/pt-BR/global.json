@@ -118,6 +118,9 @@
         "plight": "Aflição",
         "terrain": "Terreno"
       }
+    },
+    "Terrain": {
+      "Rubble": "Escombros"
     }
   }
 }

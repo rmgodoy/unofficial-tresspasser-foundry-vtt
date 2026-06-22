@@ -118,6 +118,9 @@
         "plight": "Plight",
         "terrain": "Terrain"
       }
+    },
+    "Terrain": {
+      "Rubble": "Rubble"
     }
   }
 }
