@@ -12,6 +12,141 @@ export class MovementOverlay {
     static isValidTarget = false;
     static validVaultSquares = [];
 
+    static showInformativeOverlay(token, baseMove, moveCost) {
+        if (!token) return;
+        this.clearInformativeOverlay();
+
+        this.graphics = this.graphics || new PIXI.Graphics();
+        canvas.controls.addChild(this.graphics);
+
+        const startX = token.x;
+        const startY = token.y;
+        const sizeX = canvas.grid.sizeX || canvas.grid.size;
+        const sizeY = canvas.grid.sizeY || canvas.grid.size;
+
+        const maxRange = baseMove + 2 * moveCost;
+
+        // BFS: {gridX, gridY, dist}
+        const gridX = Math.floor(startX / sizeX);
+        const gridY = Math.floor(startY / sizeY);
+
+        const queue = [{ gx: gridX, gy: gridY, dist: 0 }];
+        const visited = new Map();
+        visited.set(`${gridX},${gridY}`, 0);
+
+        const directions = [
+            { dx: 0, dy: -1 }, { dx: 1, dy: -1 }, { dx: 1, dy: 0 }, { dx: 1, dy: 1 },
+            { dx: 0, dy: 1 }, { dx: -1, dy: 1 }, { dx: -1, dy: 0 }, { dx: -1, dy: -1 }
+        ];
+
+        while (queue.length > 0) {
+            const current = queue.shift();
+
+            if (current.dist >= maxRange) continue;
+
+            for (const dir of directions) {
+                const nx = current.gx + dir.dx;
+                const ny = current.gy + dir.dy;
+
+                // Center points for collision
+                const p1 = { x: (current.gx + 0.5) * sizeX, y: (current.gy + 0.5) * sizeY };
+                const p2 = { x: (nx + 0.5) * sizeX, y: (ny + 0.5) * sizeY };
+
+                // 1. Native Wall Collision
+                let wallCollision = false;
+                if (CONFIG.Canvas.polygonBackends?.move?.testCollision) {
+                    wallCollision = CONFIG.Canvas.polygonBackends.move.testCollision(p1, p2, { mode: "any" });
+                } else if (canvas.walls?.checkCollision) {
+                    wallCollision = canvas.walls.checkCollision(new Ray(p1, p2), { type: "move", mode: "any" });
+                }
+
+                if (wallCollision) continue;
+
+                // 2. Token Collision (cannot move through enemy tokens unless dead, for now just ignore all tokens or apply +1 cost)
+                // Actually, rules say "taking tokens into account". Usually moving through token is +1 cost or blocked. Let's just say it's valid to move through but maybe costs more.
+                // The requirements say "taking walls, terrain, and tokens into account".
+                // We will treat difficult terrain and tokens as +1 extra move cost for simplicity, or just 1 base cost.
+                // In Trespasser, difficult terrain is usually 2 squares of movement.
+                let stepCost = 1;
+
+                // Check terrain
+                if (game.trespasser?.TerrainHelper) {
+                    const regions = game.trespasser.TerrainHelper.getTerrainAtSquare(nx, ny, sizeX);
+                    for (const r of regions) {
+                        const sys = r.flags?.trespasser?.terrain?.system;
+                        const cat = sys?.category;
+                        if (cat === "wall" || cat === "obstacle") {
+                            wallCollision = true;
+                            break;
+                        }
+                        if (cat === "difficult_terrain") {
+                            stepCost += 1;
+                        } else if (cat === "field" && sys?.extraMovementCost > 0) {
+                            stepCost += sys.extraMovementCost;
+                        }
+                    }
+                }
+                
+                if (wallCollision) continue;
+
+                // Check tokens
+                const tokens = canvas.scene.tokens.filter(t => t.id !== token.id && !t.hidden);
+                for (const t of tokens) {
+                    const tw = (t.width || 1) * sizeX;
+                    const th = (t.height || 1) * sizeY;
+                    // p2 is the center of the destination square
+                    if (p2.x >= t.x && p2.x <= t.x + tw && p2.y >= t.y && p2.y <= t.y + th) {
+                        if (t.disposition !== token.document.disposition) {
+                            wallCollision = true;
+                            break;
+                        }
+                    }
+                }
+
+                if (wallCollision) continue;
+
+                const newDist = current.dist + stepCost;
+                const key = `${nx},${ny}`;
+
+                if (newDist <= maxRange) {
+                    if (!visited.has(key) || visited.get(key) > newDist) {
+                        visited.set(key, newDist);
+                        queue.push({ gx: nx, gy: ny, dist: newDist });
+                    }
+                }
+            }
+        }
+
+        this.graphics.clear();
+        for (const [key, dist] of visited.entries()) {
+            if (dist === 0) continue;
+            const [xStr, yStr] = key.split(",");
+            const x = parseInt(xStr) * sizeX;
+            const y = parseInt(yStr) * sizeY;
+
+            let color = 0x00FF00;
+            let alpha = 0.2;
+
+            if (dist > baseMove + moveCost) {
+                color = 0xFF8800; // Orange
+            } else if (dist > baseMove) {
+                color = 0xFFFF00; // Yellow
+            }
+
+            this.graphics.beginFill(color, alpha);
+            this.graphics.lineStyle(2, color, 0.5);
+            this.graphics.drawRect(x, y, sizeX, sizeY);
+            this.graphics.endFill();
+        }
+    }
+
+    static clearInformativeOverlay() {
+        if (this.mode === "vault") return; // don't clear if vaulting
+        if (this.graphics) {
+            this.graphics.clear();
+        }
+    }
+
     static init() {
         Hooks.on("canvasReady", () => {
             if (this.graphics && !this.graphics.destroyed) {

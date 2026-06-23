@@ -371,7 +371,15 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (activeToken) {
             this._token = activeToken;
             this.render({force: true});
+        } else {
+            if (MovementOverlay) MovementOverlay.clearInformativeOverlay();
         }
+    }
+
+    /** @override */
+    close(options) {
+        if (MovementOverlay) MovementOverlay.clearInformativeOverlay();
+        return super.close(options);
     }
 
     /** @override */
@@ -484,14 +492,32 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
     _togglePanel(panelId) {
         const panels = this.element.querySelectorAll(".hud-sub-panel");
+        let panelNowOpen = false;
         panels.forEach(p => {
             if (p.id === `panel-${panelId}`) {
                 const isHidden = p.classList.toggle("hidden");
                 this._activePanel = isHidden ? null : panelId;
+                if (!isHidden) panelNowOpen = true;
             } else {
                 p.classList.add("hidden");
             }
         });
+
+        // Trigger informative overlay for Move
+        if (panelId === "move") {
+            const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
+            if (panelNowOpen && restrictMovement && this._token) {
+                const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
+                const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
+                const speed = baseSpeed + bonusSpeed;
+                const vaultRange = this._getVaultRange();
+                MovementOverlay.showInformativeOverlay(this._token, speed, vaultRange);
+            } else {
+                MovementOverlay.clearInformativeOverlay();
+            }
+        } else {
+            MovementOverlay.clearInformativeOverlay();
+        }
     }
 
     async _executeDefend() {
