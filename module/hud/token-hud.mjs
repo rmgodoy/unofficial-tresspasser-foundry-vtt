@@ -538,11 +538,13 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (panelId === "move") {
             const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
             if (panelNowOpen && restrictMovement && this._token) {
+                const combatant = this._getCombatant();
+                const availableAP = combatant?.getFlag("trespasser", "actionPoints") ?? 3;
                 const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
                 const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
                 const speed = baseSpeed + bonusSpeed;
                 const vaultRange = this._getVaultRange();
-                MovementOverlay.showInformativeOverlay(this._token, speed, vaultRange);
+                MovementOverlay.showInformativeOverlay(this._token, speed, vaultRange, availableAP);
             } else {
                 MovementOverlay.clearInformativeOverlay();
                 MovementOverlay.deactivate();

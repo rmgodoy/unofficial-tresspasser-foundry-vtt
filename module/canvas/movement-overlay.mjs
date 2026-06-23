@@ -17,7 +17,7 @@ export class MovementOverlay {
     static hoveredSquare = null;
     static currentPath = [];
 
-    static showInformativeOverlay(token, baseMove, moveCost) {
+    static showInformativeOverlay(token, baseMove, moveCost, availableAP = 3) {
         if (!token) return;
         this.clearInformativeOverlay();
 
@@ -27,7 +27,8 @@ export class MovementOverlay {
         const sizeX = canvas.grid.sizeX || canvas.grid.size;
         const sizeY = canvas.grid.sizeY || canvas.grid.size;
 
-        const maxRange = baseMove + 2 * moveCost;
+        const extraAP = Math.min(2, Math.max(0, availableAP - 1));
+        const maxRange = baseMove + extraAP * moveCost;
 
         // Temporary set token for collision checks inside the calculation
         const prevToken = this.token;
@@ -48,8 +49,10 @@ export class MovementOverlay {
             let alpha = 0.2;
 
             if (val.dist > baseMove + moveCost) {
+                if (extraAP < 2) continue;
                 color = 0xFF8800; // Orange
             } else if (val.dist > baseMove) {
+                if (extraAP < 1) continue;
                 color = 0xFFFF00; // Yellow
             }
 
