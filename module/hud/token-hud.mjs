@@ -67,6 +67,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const moveActionTaken = combatant.getFlag("trespasser", "moveActionTaken") ?? false;
         const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
         const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
+        const movePointsLeft = movementAllowed - movementUsed;
         const movementHistory = combatant.getFlag("trespasser", "movementHistory") ?? [];
         const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
         const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
@@ -95,6 +96,15 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             !c.defeated
         );
 
+        let canMove = (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("move"));
+        if (moveActionTaken && movePointsLeft > 0) canMove = true;
+        if (moveActionTaken && movePointsLeft <= 0) canMove = false;
+
+        let moveBtnLabel = game.i18n.localize("TRESPASSER.HUD.Action.Move");
+        if (moveActionTaken) {
+            moveBtnLabel = `Move (${movePointsLeft})`;
+        }
+
         const context = {
             inCombat: true,
             isGM: game.user.isGM,
@@ -105,7 +115,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             allies: this._getNearbyAllies(),
             canDefend:      (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("defend")),
             canHelp:        (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("help")) && this._getNearbyAllies().length > 0,
-            canMove:        (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("move")),
+            canMove:        canMove,
+            moveBtnLabel:   moveBtnLabel,
             canUndo:        movementHistory.length > 1,
             canPrevail:     (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("prevail")) && states.length > 0,
             canAttemptDeed: (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("attempt-deed")) && deeds.length > 0 && (!restrictAPF || !usedActions.has("maneuver") || focus >= 2),
@@ -507,16 +518,26 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (panelId === "move") {
             const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
             if (panelNowOpen && restrictMovement && this._token) {
-                const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
-                const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
-                const speed = baseSpeed + bonusSpeed;
-                const vaultRange = this._getVaultRange();
-                MovementOverlay.showInformativeOverlay(this._token, speed, vaultRange);
+                const combatant = this._getCombatant();
+                const moveActionTaken = combatant?.getFlag("trespasser", "moveActionTaken");
+                if (moveActionTaken) {
+                    const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+                    const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
+                    MovementOverlay.activateMoveMode(this._token, movementAllowed - movementUsed);
+                } else {
+                    const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
+                    const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
+                    const speed = baseSpeed + bonusSpeed;
+                    const vaultRange = this._getVaultRange();
+                    MovementOverlay.showInformativeOverlay(this._token, speed, vaultRange);
+                }
             } else {
                 MovementOverlay.clearInformativeOverlay();
+                MovementOverlay.deactivate();
             }
         } else {
             MovementOverlay.clearInformativeOverlay();
+            MovementOverlay.deactivate();
         }
     }
 
@@ -692,7 +713,13 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         await TrespasserCombat.recordHUDAction(this._token.actor, "move");
 
-        this._activePanel = null;
+        const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
+        if (restrictMovement) {
+            MovementOverlay.activateMoveMode(this._token, dist);
+        } else {
+            this._activePanel = null;
+        }
+
         this.render();
     }
 
