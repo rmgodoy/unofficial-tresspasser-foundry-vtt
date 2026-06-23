@@ -389,11 +389,9 @@ export class TrespasserCombat extends Combat {
       });
 
       if (tokenDoc) {
-        await tokenDoc.update({
-          "flags.trespasser.-=terrainEnteredThisTurn": null,
-          "flags.trespasser.-=terrainSquaresVisitedThisTurn": null,
-          "flags.trespasser.-=slipperyCheckedThisTurn": null
-        });
+        await tokenDoc.unsetFlag("trespasser", "terrainEnteredThisTurn");
+        await tokenDoc.unsetFlag("trespasser", "terrainSquaresVisitedThisTurn");
+        await tokenDoc.unsetFlag("trespasser", "slipperyCheckedThisTurn");
       }
 
       // Resolve existing effects BEFORE terrain adds new ones

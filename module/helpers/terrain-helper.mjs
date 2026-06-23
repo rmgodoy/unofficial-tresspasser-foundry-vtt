@@ -514,14 +514,14 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
    * @param {number} newX 
    * @param {number} newY 
    */
-  static async processTokenMovement(tokenDoc, oldX, oldY, newX, newY) {
+  static async processTokenMovement(tokenDoc, oldX, oldY, newX, newY, isJump = false) {
     const scene = tokenDoc.parent;
     if (!scene || !canvas.ready) return;
 
     if (!this._movementQueues.has(tokenDoc.id)) {
       this._movementQueues.set(tokenDoc.id, []);
     }
-    this._movementQueues.get(tokenDoc.id).push({ oldX, oldY, newX, newY });
+    this._movementQueues.get(tokenDoc.id).push({ oldX, oldY, newX, newY, isJump });
 
     if (!this._debounceMovementProcess) {
       this._debounceMovementProcess = foundry.utils.debounce(() => this._processQueuedMovements(), 250);
@@ -558,21 +558,34 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     const tokenW = (tokenDoc.width || 1) * gridSize;
     const tokenH = (tokenDoc.height || 1) * gridSize;
 
-    // Combine all segments into one long path of squares
     const fullPath = [];
-    for (const seg of segments) {
-      const oldGridX = Math.floor((seg.oldX + tokenW / 2) / gridSize);
-      const oldGridY = Math.floor((seg.oldY + tokenH / 2) / gridSize);
-      const newGridX = Math.floor((seg.newX + tokenW / 2) / gridSize);
-      const newGridY = Math.floor((seg.newY + tokenH / 2) / gridSize);
-      
-      const segPath = this.#getGridPath(oldGridX, oldGridY, newGridX, newGridY);
-      segPath.shift(); // Remove starting square of each segment
-      
-      // Ensure we don't duplicate identical squares if segments overlap at junction
-      for (const sq of segPath) {
-        if (!fullPath.some(existing => existing.x === sq.x && existing.y === sq.y)) {
-          fullPath.push(sq);
+
+    // Check if the overall batched movement was a jump
+    const isBatchedJump = segments.some(seg => seg.isJump);
+
+    if (isBatchedJump) {
+      // If it's a jump, ignore all intermediate routing entirely. 
+      // Only the final destination of the very last segment matters!
+      const lastSeg = segments[segments.length - 1];
+      const newGridX = Math.floor((lastSeg.newX + tokenW / 2) / gridSize);
+      const newGridY = Math.floor((lastSeg.newY + tokenH / 2) / gridSize);
+      fullPath.push({ x: newGridX, y: newGridY });
+    } else {
+      // Walk: Combine all segments into one long path of squares
+      for (const seg of segments) {
+        const oldGridX = Math.floor((seg.oldX + tokenW / 2) / gridSize);
+        const oldGridY = Math.floor((seg.oldY + tokenH / 2) / gridSize);
+        const newGridX = Math.floor((seg.newX + tokenW / 2) / gridSize);
+        const newGridY = Math.floor((seg.newY + tokenH / 2) / gridSize);
+        
+        const segPath = this.#getGridPath(oldGridX, oldGridY, newGridX, newGridY);
+        segPath.shift(); // Remove starting square of each segment
+        
+        // Ensure we don't duplicate identical squares if segments overlap at junction
+        for (const sq of segPath) {
+          if (!fullPath.some(existing => existing.x === sq.x && existing.y === sq.y)) {
+            fullPath.push(sq);
+          }
         }
       }
     }

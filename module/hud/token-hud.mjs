@@ -2,6 +2,7 @@ import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../documents/combat.mjs";
 import { TrespasserRollDialog }    from "../dialogs/roll-dialog.mjs";
 import { ForcedMovementHelper }    from "../helpers/forced-movement-helper.mjs";
+import { MovementOverlay }         from "../canvas/movement-overlay.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -1124,25 +1125,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         const range = this._getVaultRange();
 
-        await combatant.update({
-            "flags.trespasser.actionPoints": Math.max(0, currentAP - 1),
-            "flags.trespasser.moveActionTaken": true,
-            "flags.trespasser.movementAllowed": range,
-            "flags.trespasser.movementUsed": 0,
-            "flags.trespasser.isVaulting": true,
-            "flags.trespasser.vaultStartPos": { x: this._token.document.x, y: this._token.document.y }
-        });
-
-        ChatMessage.create({
-            speaker: ChatMessage.getSpeaker({ token: this._token }),
-            content: game.i18n.format("TRESPASSER.Chat.Action.VaultMessage", {
-                name: this._token.name,
-                action: game.i18n.localize("TRESPASSER.HUD.Action.Vault"),
-                range: range
-            })
-        });
-
-        await TrespasserCombat.recordHUDAction(this._token.actor, "vault");
+        // Delegate to MovementOverlay for interactive placement
+        MovementOverlay.activateVaultMode(this._token, range);
 
         this._activePanel = null;
         this.render();

@@ -86,9 +86,11 @@ import { TrespasserStrongholdData } from "./module/data/item-stronghold.mjs";
 import { TrespasserStrongholdSheet } from "./module/sheets/item-stronghold-sheet.mjs";
 import { registerHavenTrackerHooks } from "./module/exploration/haven-tracker.mjs";
 import { EventClocksTracker, registerEventClocksHooks } from "./module/exploration/event-clocks-tracker.mjs";
+import { MovementOverlay } from "./module/canvas/movement-overlay.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
+  MovementOverlay.init();
 
   // Load partial templates
   await foundry.applications.handlebars.loadTemplates([
@@ -2222,8 +2224,9 @@ Hooks.on("renderChatMessageHTML", (message, htmlElement, data) => {
 /* -------------------------------------------- */
 
 Hooks.on("regionBehaviorTokenEnter", async (behavior, region, token) => {
+  const tokenDoc = token.document ?? token;
   if (game.trespasser?.TerrainHelper) {
-    await game.trespasser.TerrainHelper.onTokenEnterTerrain(token, region);
+    await game.trespasser.TerrainHelper.onTokenEnterTerrain(tokenDoc, region);
   }
 });
 
