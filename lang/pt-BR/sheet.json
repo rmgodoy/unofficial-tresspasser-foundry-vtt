@@ -248,7 +248,7 @@
           "Thrown": "Arremesso",
           "Fragile": "Frágil",
           "TargetAttribute": "Atributo Alvo",
-          "IntensityNote": "Você pode usar @intensity em sua expressão de modificador.",
+          "IntensityNote": "Você pode usar <Int> em sua expressão de modificador.",
           "TargetLabel": "Rótulo do Alvo",
           "AccuracyVs": "Precisão vs.",
           "Tiers": {
@@ -331,7 +331,7 @@
           "EnhancementEffects": "Efeitos de Aprimoramento",
           "OilEffects": "Efeitos de Óleo",
           "LinkedEffects": "Efeitos Vinculados",
-          "CounterEffects": "Efeitos de Contra-ataque",
+          "CounterEffects": "Efeitos Opostos",
           "LinkedDeeds": "Habilidades Vinculadas",
           "MagicTraits": "Traços Mágicos",
           "Features": "Características",
