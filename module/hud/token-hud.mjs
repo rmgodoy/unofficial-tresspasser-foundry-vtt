@@ -502,6 +502,26 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
     }
 
     _togglePanel(panelId) {
+        if (panelId === "move") {
+            const combatant = this._getCombatant();
+            const moveActionTaken = combatant?.getFlag("trespasser", "moveActionTaken");
+            const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
+            
+            if (moveActionTaken && restrictMovement) {
+                const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+                const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
+                const pointsLeft = movementAllowed - movementUsed;
+                
+                if (pointsLeft > 0) {
+                    MovementOverlay.activateMoveMode(this._token, pointsLeft);
+                    // Ensure other panels are closed
+                    this.element.querySelectorAll(".hud-sub-panel").forEach(p => p.classList.add("hidden"));
+                    this._activePanel = null;
+                    return;
+                }
+            }
+        }
+
         const panels = this.element.querySelectorAll(".hud-sub-panel");
         let panelNowOpen = false;
         panels.forEach(p => {
@@ -518,19 +538,11 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (panelId === "move") {
             const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
             if (panelNowOpen && restrictMovement && this._token) {
-                const combatant = this._getCombatant();
-                const moveActionTaken = combatant?.getFlag("trespasser", "moveActionTaken");
-                if (moveActionTaken) {
-                    const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
-                    const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
-                    MovementOverlay.activateMoveMode(this._token, movementAllowed - movementUsed);
-                } else {
-                    const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
-                    const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
-                    const speed = baseSpeed + bonusSpeed;
-                    const vaultRange = this._getVaultRange();
-                    MovementOverlay.showInformativeOverlay(this._token, speed, vaultRange);
-                }
+                const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
+                const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
+                const speed = baseSpeed + bonusSpeed;
+                const vaultRange = this._getVaultRange();
+                MovementOverlay.showInformativeOverlay(this._token, speed, vaultRange);
             } else {
                 MovementOverlay.clearInformativeOverlay();
                 MovementOverlay.deactivate();

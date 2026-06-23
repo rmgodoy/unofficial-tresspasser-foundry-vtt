@@ -661,8 +661,64 @@ export class MovementOverlay {
             } else {
                 // Execute move (Task 5 hook)
                 if (this.isValidTarget) {
-                    // Task 5 will handle actual movement
-                    ui.notifications.info("Ready to move token to destination! (Waiting for Task 5)");
+                    const fullPath = [];
+                    for (const wp of this.waypoints) {
+                        if (wp.path) fullPath.push(...wp.path);
+                    }
+                    if (this.currentPath) fullPath.push(...this.currentPath);
+
+                    // Filter out consecutive duplicates and the starting position
+                    const uniquePath = [];
+                    const startX = this.token.x;
+                    const startY = this.token.y;
+
+                    for (const pt of fullPath) {
+                        // Skip the very first position if it's where we already are
+                        if (uniquePath.length === 0 && pt.x === startX && pt.y === startY) continue;
+                        
+                        if (uniquePath.length > 0) {
+                            const last = uniquePath[uniquePath.length - 1];
+                            if (last.x === pt.x && last.y === pt.y) continue;
+                        }
+                        uniquePath.push(pt);
+                    }
+
+                    const node = this.visitedMoveMap.get(`${gridX},${gridY}`);
+                    const lastCost = this.waypoints.length > 0 ? this.waypoints[this.waypoints.length - 1].accumulatedCost : 0;
+                    const totalCost = lastCost + node.dist;
+
+                    const tokenRef = this.token;
+                    const tokenDoc = this.token.document;
+                    const combatant = game.combat?.combatants.find(c => c.tokenId === tokenDoc.id);
+
+                    this.deactivate();
+
+                    (async () => {
+                        // Temporarily bypass the preUpdateToken hook to avoid false positive blocks during intermediate path steps
+                        globalThis._trespasserUndoSet ??= new Set();
+                        globalThis._trespasserUndoSet.add(tokenDoc.id);
+                        
+                        try {
+                            for (const pt of uniquePath) {
+                                await tokenDoc.update({x: pt.x, y: pt.y});
+                                
+                                // Wait for animation to complete
+                                if (tokenRef.animationContexts?.size > 0) {
+                                    const promises = Array.from(tokenRef.animationContexts.values()).map(ctx => ctx.promise);
+                                    await Promise.allSettled(promises);
+                                } else if (tokenRef._animation) {
+                                    await tokenRef._animation;
+                                } else {
+                                    await new Promise(r => setTimeout(r, 200));
+                                }
+                            }
+
+                            // movementUsed is natively updated by the `updateToken` hook in trespasser.mjs
+                            // based on the token's movementHistory, so we don't need to manually deduct it here.
+                        } finally {
+                            globalThis._trespasserUndoSet.delete(tokenDoc.id);
+                        }
+                    })();
                 }
             }
         }
