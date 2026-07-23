@@ -72,6 +72,12 @@ export async function onDeedRoll(event, sheet) {
   const item = sheet.actor.items.get(el.dataset.itemId);
   if (!item) return;
 
+  if (item.type === "bdeed") {
+    const { BDeedExecutor } = await import("../../helpers/bdeed-executor.mjs");
+    const executor = new BDeedExecutor(item, sheet.actor);
+    return await executor.execute();
+  }
+
   const isAttack  = item.system.actionType !== "support";
   const isCreature = sheet.actor.type === "creature";
 

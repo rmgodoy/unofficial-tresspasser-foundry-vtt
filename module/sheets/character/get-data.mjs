@@ -6,6 +6,7 @@
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { PASSIVE_STATES } from "../../config/state-config.mjs";
 import { COMMON_PLIGHTS } from "../../config/plight-config.mjs";
+import { prepareDeedDisplayData } from "../../helpers/deed-display-helper.mjs";
 
 export async function getCharacterData(sheet, options = {}) {
   const actor   = sheet.actor;
@@ -144,41 +145,9 @@ export async function getCharacterData(sheet, options = {}) {
     if (callingSource) item.callingSource = callingSource;
   }
 
-  // Group deeds by tier
-  const allDeeds = actor.items.filter(i => i.type === "deed").map(d => {
-    const deedData = d.toObject ? d.toObject(false) : d.toJSON();
-    deedData.id = d.id;
-
-    const tier = deedData.system.tier;
-    let baseCost = deedData.system.focusCost;
-    if (baseCost === null || baseCost === undefined) {
-      if (tier === "heavy") baseCost = 2;
-      else if (tier === "mighty") baseCost = 4;
-      else baseCost = 0;
-    }
-
-    let costIncrease = deedData.system.focusIncrease;
-    if (costIncrease === null || costIncrease === undefined) {
-      if (tier === "heavy" || tier === "mighty") costIncrease = 1;
-      else costIncrease = 0;
-    }
-
-    const bonusCost = deedData.system.bonusCost || 0;
-    const uses      = deedData.system.uses || 0;
-    deedData.displayCost = baseCost + bonusCost;
-    deedData.showCost    = deedData.displayCost > 0;
-    deedData.hasUses     = costIncrease > 0;
-
-    if (deedData.hasUses) {
-      deedData.usesCheckboxes = Array.from({ length: 3 }, (_, i) => ({ index: i + 1, checked: i < uses }));
-    }
-
-    const linkedSource = d.flags?.trespasser?.linkedSource;
-    if (linkedSource && sourceMapByUuid[linkedSource]) {
-      deedData.sourceName = sourceMapByUuid[linkedSource];
-    }
-
-    return deedData;
+  // Group deeds and bdeeds by tier
+  const allDeeds = actor.items.filter(i => i.type === "deed" || i.type === "bdeed").map(d => {
+    return prepareDeedDisplayData(d, sourceMapByUuid);
   });
 
   context.deedsGrouped = {

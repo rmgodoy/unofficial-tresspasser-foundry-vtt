@@ -69,6 +69,88 @@ export class TrespasserActor extends Actor {
   }
 
   /**
+   * Animate token shake on canvas when taking damage.
+   * @param {Token} token
+   */
+  static async animateTokenShake(token) {
+    if (!token || (!token.mesh && !token.icon)) return;
+    const mesh = token.mesh || token.icon;
+    const startX = mesh.x;
+
+    const keyframes = [
+      { dx: -10, duration: 40 },
+      { dx: 10, duration: 40 },
+      { dx: -8, duration: 40 },
+      { dx: 8, duration: 40 },
+      { dx: -4, duration: 40 },
+      { dx: 4, duration: 40 },
+      { dx: 0, duration: 40 }
+    ];
+
+    for (const k of keyframes) {
+      mesh.x = startX + k.dx;
+      await new Promise(r => setTimeout(r, k.duration));
+    }
+    mesh.x = startX;
+  }
+
+  /**
+   * Animate floating red damage text (scrolling combat text) over damaged token.
+   * @param {Token} token
+   * @param {number} amount
+   */
+  static animateDamageText(token, amount) {
+    if (!token || !amount) return;
+    const center = token.center || { x: token.x + canvas.grid.size / 2, y: token.y + canvas.grid.size / 2 };
+
+    const textOptions = {
+      anchorU: 0.5,
+      anchorV: 0.5,
+      direction: 1, // Float upward
+      duration: 1200,
+      jitter: 0.25,
+      fill: "#ff2a2a",
+      stroke: "#000000",
+      strokeThickness: 5,
+      fontSize: 32,
+      fontWeight: "bold"
+    };
+
+    if (canvas.interface?.createScrollingText) {
+      canvas.interface.createScrollingText(center, `-${amount}`, textOptions);
+    } else if (canvas.hud?.createScrollingText) {
+      canvas.hud.createScrollingText(center, `-${amount}`, textOptions);
+    }
+  }
+
+  /**
+   * Apply damage to this actor (Character or Creature), updating system.health,
+   * and triggering token shake + floating red damage text on canvas.
+   * @param {number} amount - Amount of damage to apply
+   * @param {object} [options]
+   * @returns {Promise<number>} New health value
+   */
+  async applyDamage(amount, options = {}) {
+    const damageNum = Math.max(0, Number(amount) || 0);
+    if (damageNum <= 0) return this.system.health;
+
+    const currentHealth = this.system.health ?? this.system.hp?.value ?? this.system.hp ?? 0;
+    const maxHealth = this.system.max_health ?? this.system.hp?.max ?? currentHealth;
+    const newHealth = Math.clamp(currentHealth - damageNum, 0, maxHealth);
+
+    await this.update({ "system.health": newHealth });
+
+    // Trigger visual token animations on canvas (token shake & floating red damage text)
+    const token = this.token?.object || canvas.tokens?.placeables.find(t => t.actor?.id === this.id);
+    if (token) {
+      TrespasserActor.animateTokenShake(token);
+      TrespasserActor.animateDamageText(token, damageNum);
+    }
+
+    return newHealth;
+  }
+
+  /**
    * Helper to get total occupancy of unequipped inventory items.
    */
   _getUsedInventorySlots() {

@@ -223,24 +223,32 @@ export class ForcedMovementHelper {
     const actor = targetToken.actor;
     if (!actor) return;
 
-    const newHp = Math.max(0, actor.system.health - totalDamage);
-    await actor.update({ "system.health": newHp });
+    if (typeof actor.applyDamage === "function") {
+      await actor.applyDamage(totalDamage);
+    } else {
+      const newHp = Math.max(0, actor.system.health - totalDamage);
+      await actor.update({ "system.health": newHp });
+    }
 
     const lines = collisions.map(c => {
+      const dmgStr = game.i18n.format("TRESPASSER.Chat.Collision.Damage", { damage: c.damage }) || `${c.damage} Damage`;
       if (c.type === "wall") {
-        return `<li><span style="color:var(--trp-red, #c44);">⚡ ${c.damage} Damage</span> — Wall Collision</li>`;
+        const wallLabel = game.i18n.localize("TRESPASSER.Chat.Collision.Wall") || "Wall Collision";
+        return `<li><span style="color:var(--trp-red, #c44);">⚡ ${dmgStr}</span> — ${wallLabel}</li>`;
       } else if (c.type === "obstacle") {
-        return `<li><span style="color:var(--trp-red, #c44);">⚡ ${c.damage} Damage</span> — Obstacle Collision (${c.region.name})</li>`;
+        const obstacleLabel = game.i18n.format("TRESPASSER.Chat.Collision.Obstacle", { name: c.region?.name || "Obstacle" }) || `Obstacle Collision (${c.region?.name || "Obstacle"})`;
+        return `<li><span style="color:var(--trp-red, #c44);">⚡ ${dmgStr}</span> — ${obstacleLabel}</li>`;
       }
       return "";
     }).filter(Boolean);
 
     const content = `<ul style="list-style:none; padding:0; margin:0;">${lines.join("")}</ul>`;
+    const flavor = game.i18n.format("TRESPASSER.Chat.Collision.Flavor", { total: totalDamage }) || `💥 Forced Movement Collision (${totalDamage} Total Damage)`;
     
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor }),
       content,
-      flavor: `💥 Forced Movement Collision (${totalDamage} Total Damage)`
+      flavor
     });
   }
 

@@ -53,6 +53,12 @@
         "ImpactBonus": "Bônus de Impacto",
         "ImpactBonusDesc": "+{count} movimento forçado."
       },
+      "Collision": {
+        "Flavor": "💥 Colisão por Movimento Forçado ({total} de Dano Total)",
+        "Damage": "{damage} de Dano",
+        "Wall": "Colisão com Parede",
+        "Obstacle": "Colisão com Obstáculo ({name})"
+      },
       "Action": {
         "UsedItem": "Usou {name}",
         "SpendRD": "{name} gastou {count} DR para recuperar PV",

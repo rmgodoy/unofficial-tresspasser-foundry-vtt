@@ -15,17 +15,16 @@
                   </div>
                 </div>
                 <div class="deed-slot-subheader">
-                  {{capitalize this.system.type}} {{capitalize this.system.actionType}} {{localize "TRESPASSER.Sheet.Combat.Vs"}} {{this.system.accuracyTest}} | {{this.system.target}}
+                  {{capitalize this.displayType}} {{capitalize this.system.actionType}} {{localize "TRESPASSER.Sheet.Combat.Vs"}} {{this.displayVersus}} | {{this.displayTarget}}
                 </div>
                 
                 {{!-- Render specific effect descriptions if they exist --}}
                 <div class="deed-slot-descriptions" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: 4px; border-top: 1px dotted var(--trp-border-light); padding-top: 2px;">
                   {{#each (array "start" "before" "base" "hit" "spark" "after" "end") as |phase|}}
-                    {{#with (lookup ../system.effects phase) as |pData|}}
-                      {{#if (or pData.description pData.appliedEffects.length)}}
+                    {{#with (lookup ../phaseDescriptions phase) as |desc|}}
+                      {{#if desc}}
                         <div style="margin-bottom: 2px;">
-                          <em style="color: var(--trp-gold-dim); font-size: var(--fs-11); text-transform: uppercase;">{{localize (concat "TRESPASSER.Terms.DeedPhases." (capitalize phase))}}</em>: 
-                          {{#if pData.description}}{{pData.description}}{{/if}}
+                          <em style="color: var(--trp-gold-dim); font-size: var(--fs-11); text-transform: uppercase;">{{localize (concat "TRESPASSER.Terms.DeedPhases." (capitalize phase))}}</em>: {{desc}}
                         </div>
                       {{/if}}
                     {{/with}}

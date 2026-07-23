@@ -43,61 +43,6 @@ export class BDeedBehaviorHandler {
   }
 
   /**
-   * Animate token shake on canvas when taking damage.
-   * @param {Token} token
-   */
-  static async animateTokenShake(token) {
-    if (!token || (!token.mesh && !token.icon)) return;
-    const mesh = token.mesh || token.icon;
-    const startX = mesh.x;
-
-    const keyframes = [
-      { dx: -10, duration: 40 },
-      { dx: 10, duration: 40 },
-      { dx: -8, duration: 40 },
-      { dx: 8, duration: 40 },
-      { dx: -4, duration: 40 },
-      { dx: 4, duration: 40 },
-      { dx: 0, duration: 40 }
-    ];
-
-    for (const k of keyframes) {
-      mesh.x = startX + k.dx;
-      await new Promise(r => setTimeout(r, k.duration));
-    }
-    mesh.x = startX;
-  }
-
-  /**
-   * Animate floating red damage text (scrolling combat text) over damaged token.
-   * @param {Token} token
-   * @param {number} amount
-   */
-  static animateDamageText(token, amount) {
-    if (!token || !amount) return;
-    const center = token.center || { x: token.x + canvas.grid.size / 2, y: token.y + canvas.grid.size / 2 };
-
-    const textOptions = {
-      anchorU: 0.5,
-      anchorV: 0.5,
-      direction: 1, // Float upward
-      duration: 1200,
-      jitter: 0.25,
-      fill: "#ff2a2a",
-      stroke: "#000000",
-      strokeThickness: 5,
-      fontSize: 32,
-      fontWeight: "bold"
-    };
-
-    if (canvas.interface?.createScrollingText) {
-      canvas.interface.createScrollingText(center, `-${amount}`, textOptions);
-    } else if (canvas.hud?.createScrollingText) {
-      canvas.hud.createScrollingText(center, `-${amount}`, textOptions);
-    }
-  }
-
-  /**
    * Helper to replace <sd> (Skill Die) and <wd> (Weapon Die) placeholders in roll formulas.
    * @param {string} expr - e.g. "2d6 + 1<sd> + <wd>"
    * @param {Actor} [actor]
@@ -271,19 +216,7 @@ export class BDeedBehaviorHandler {
     for (const targetToken of validTargets) {
       const targetActor = targetToken.actor || (targetToken instanceof Actor ? targetToken : null);
       if (!targetActor) continue;
-
-      const currentHealth = targetActor.system?.health ?? targetActor.system?.hp?.value ?? targetActor.system?.hp ?? 0;
-      const maxHealth = targetActor.system?.max_health ?? targetActor.system?.hp?.max ?? currentHealth;
-      const newHealth = Math.clamp(currentHealth - damageTotal, 0, maxHealth);
-
-      await targetActor.update({ "system.health": newHealth });
-
-      // Resolve canvas token object for animations
-      const canvasToken = targetToken instanceof Token ? targetToken : (canvas.tokens?.placeables.find(t => t.id === targetToken.id || t.actor?.id === targetActor.id));
-      if (canvasToken) {
-        this.animateTokenShake(canvasToken);
-        this.animateDamageText(canvasToken, damageTotal);
-      }
+      await targetActor.applyDamage(damageTotal);
     }
 
     const rollHtml = await roll.render();

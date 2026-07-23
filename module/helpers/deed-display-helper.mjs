@@ -1,0 +1,105 @@
+/**
+ * deed-display-helper.mjs
+ * Shared helpers for formatting Deeds and BDeeds for sheet presentation.
+ */
+
+/**
+ * Format BDeed target description based on selectTarget behavior count.
+ * @param {object} system - BDeed item system data
+ * @returns {string}
+ */
+export function formatBDeedTarget(system) {
+  if (!system || !system.phases) return "Self";
+  const selectBehaviors = [];
+  const phaseKeys = ["start", "before", "base", "hit", "spark", "after", "end"];
+  for (const pKey of phaseKeys) {
+    const phase = system.phases[pKey];
+    if (phase && Array.isArray(phase.behaviors)) {
+      for (const b of phase.behaviors) {
+        if (b.type === "selectTarget") selectBehaviors.push(b);
+      }
+    }
+  }
+
+  if (selectBehaviors.length > 1) return "Special";
+  if (selectBehaviors.length === 0) return "Self";
+
+  const params = selectBehaviors[0].params || {};
+  const mode = params.targetMode || "creatures";
+
+  if (mode === "self") return "Self";
+  if (mode === "creatures") {
+    const count = parseInt(params.targetCount) || 1;
+    return `${count} ${count === 1 ? "Creature" : "Creatures"}`;
+  }
+  if (mode === "aoe") {
+    const type = (params.aoeType || "blast").charAt(0).toUpperCase() + (params.aoeType || "blast").slice(1);
+    const size = parseInt(params.aoeSize) || 1;
+    return `${type} ${size} sq`;
+  }
+  return "Self";
+}
+
+/**
+ * Prepare standardized display data for a Deed or BDeed item document.
+ * @param {Item} d - The Item document
+ * @param {object} [sourceMapByUuid] - Optional UUID to feature name map
+ * @returns {object}
+ */
+export function prepareDeedDisplayData(d, sourceMapByUuid = {}) {
+  const deedData = d.toObject ? d.toObject(false) : d.toJSON();
+  deedData.id = d.id;
+  deedData.isBDeed = d.type === "bdeed";
+
+  const tier = deedData.system.tier || "light";
+  let baseCost = deedData.system.focusCost;
+  if (baseCost === null || baseCost === undefined) {
+    if (tier === "heavy") baseCost = 2;
+    else if (tier === "mighty") baseCost = 4;
+    else baseCost = 0;
+  }
+
+  let costIncrease = deedData.system.focusIncrease;
+  if (costIncrease === null || costIncrease === undefined) {
+    if (tier === "heavy" || tier === "mighty") costIncrease = 1;
+    else costIncrease = 0;
+  }
+
+  const bonusCost = deedData.system.bonusCost || 0;
+  const uses = deedData.system.uses || 0;
+  deedData.displayCost = baseCost + bonusCost;
+  deedData.showCost = deedData.displayCost > 0;
+  deedData.hasUses = costIncrease > 0;
+
+  if (deedData.hasUses) {
+    deedData.usesCheckboxes = Array.from({ length: 3 }, (_, i) => ({ index: i + 1, checked: i < uses }));
+  }
+
+  const linkedSource = d.flags?.trespasser?.linkedSource;
+  if (linkedSource && sourceMapByUuid[linkedSource]) {
+    deedData.sourceName = sourceMapByUuid[linkedSource];
+  }
+
+  // Normalized subheader fields
+  deedData.displayType = deedData.system.abilityType || deedData.system.type || "deed";
+  deedData.displayVersus = deedData.system.versus || deedData.system.accuracyTest || "Guard";
+
+  if (deedData.isBDeed) {
+    deedData.displayTarget = formatBDeedTarget(deedData.system);
+  } else {
+    deedData.displayTarget = deedData.system.target || "Self";
+  }
+
+  // Normalized phase descriptions map
+  const phaseKeys = ["start", "before", "base", "hit", "spark", "after", "end"];
+  deedData.phaseDescriptions = {};
+  for (const pKey of phaseKeys) {
+    if (deedData.isBDeed) {
+      deedData.phaseDescriptions[pKey] = deedData.system.phases?.[pKey]?.description || "";
+    } else {
+      deedData.phaseDescriptions[pKey] = deedData.system.effects?.[pKey]?.description || "";
+    }
+  }
+
+  return deedData;
+}

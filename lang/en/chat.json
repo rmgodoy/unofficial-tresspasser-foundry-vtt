@@ -53,6 +53,12 @@
         "ImpactBonus": "Impact Bonus",
         "ImpactBonusDesc": "+{count} forced movement."
       },
+      "Collision": {
+        "Flavor": "💥 Forced Movement Collision ({total} Total Damage)",
+        "Damage": "{damage} Damage",
+        "Wall": "Wall Collision",
+        "Obstacle": "Obstacle Collision ({name})"
+      },
       "Action": {
         "UsedItem": "Used {name}",
         "SpendRD": "{name} spent {count} RD to recover HP",
