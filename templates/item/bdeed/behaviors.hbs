@@ -1,7 +1,65 @@
-<section class="tab behaviors scrollable {{tab.cssClass}}" data-group="primary" data-tab="behaviors">
+<section class="tab behaviors scrollable {{tab.cssClass}}" data-group="primary" data-tab="behaviors" {{#unless tab.active}}hidden{{/unless}}>
   <div class="bdeed-behaviors">
-    <p class="notes" style="padding: 16px; text-align: center; color: var(--trp-text-dim, #a09070);">
-      Behavior authoring controls coming in Task 4.
-    </p>
+    {{#each phases}}
+    <div class="phase-accordion {{#if expanded}}expanded{{/if}}">
+      <div class="phase-header" data-action="togglePhase" data-phase="{{key}}">
+        <i class="fas fa-chevron-{{#if expanded}}down{{else}}right{{/if}}"></i>
+        <h3>{{label}}</h3>
+        <span class="behavior-count">{{behaviors.length}}</span>
+      </div>
+
+      {{#if expanded}}
+      <div class="phase-body">
+        <!-- Phase description -->
+        <div class="form-group phase-description-group">
+          <label>{{localize "TRESPASSER.Sheet.Header.Description"}}</label>
+          <textarea name="system.phases.{{key}}.description" rows="2" placeholder="{{localize 'TRESPASSER.Sheet.Item.Placeholder.Description'}}">{{description}}</textarea>
+        </div>
+
+        <!-- Behavior cards -->
+        <div class="behavior-list">
+          {{#each behaviors}}
+          <div class="behavior-card" data-behavior-id="{{id}}">
+            <div class="behavior-card-header">
+              <span class="behavior-type-label"><i class="fas fa-cube"></i> {{typeLabel}}</span>
+              <div class="behavior-card-actions">
+                {{#unless isFirst}}
+                <button type="button" data-action="moveBehaviorUp" data-phase="{{../key}}" data-behavior-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.BDeed.Behavior.MoveUp'}}">
+                  <i class="fas fa-arrow-up"></i>
+                </button>
+                {{/unless}}
+                {{#unless isLast}}
+                <button type="button" data-action="moveBehaviorDown" data-phase="{{../key}}" data-behavior-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.BDeed.Behavior.MoveDown'}}">
+                  <i class="fas fa-arrow-down"></i>
+                </button>
+                {{/unless}}
+                <button type="button" data-action="removeBehavior" data-phase="{{../key}}" data-behavior-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.BDeed.Behavior.Remove'}}">
+                  <i class="fas fa-trash"></i>
+                </button>
+              </div>
+            </div>
+            <!-- Params editor: type-specific fields will be added in Task 5 -->
+            <div class="behavior-params">
+              <em>Parameters will appear here based on behavior type.</em>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+
+        <!-- Add behavior dropdown -->
+        <div class="add-behavior-row">
+          <select class="add-behavior-select">
+            {{#each ../behaviorTypeChoices}}
+            <option value="{{value}}">{{label}}</option>
+            {{/each}}
+          </select>
+          <button type="button" data-action="addBehavior" data-phase="{{key}}">
+            <i class="fas fa-plus"></i> {{localize "TRESPASSER.Sheet.BDeed.Behavior.Add"}}
+          </button>
+        </div>
+      </div>
+      {{/if}}
+    </div>
+    {{/each}}
   </div>
 </section>
