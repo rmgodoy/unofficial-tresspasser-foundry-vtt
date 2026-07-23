@@ -315,7 +315,7 @@ export async function onDeedRoll(event, sheet) {
             const terrainItem = await fromUuid(phaseData.terrainSpawn.uuid);
             if (terrainItem) {
               const options = { spawnedInCombat: true, casterActorId: sheet.actor.id };
-              if (phaseData.terrainSpawnMode === "on_path" && phaseContext.pathSquares) {
+              if (phaseData.terrainSpawn?.placement === "on_path" && phaseContext.pathSquares) {
                 options.pathSquares = phaseContext.pathSquares;
               }
               const dropPos = sourceToken ? { x: sourceToken.center.x, y: sourceToken.center.y } : { x: 0, y: 0 };
@@ -410,7 +410,7 @@ export async function onDeedRoll(event, sheet) {
             const terrainItem = await fromUuid(phaseData.terrainSpawn.uuid);
             if (terrainItem) {
               const options = { spawnedInCombat: true, casterActorId: sheet.actor.id };
-              if (phaseData.terrainSpawnMode === "on_path" && phaseContext.pathSquares) {
+              if (phaseData.terrainSpawn?.placement === "on_path" && phaseContext.pathSquares) {
                 options.pathSquares = phaseContext.pathSquares;
               }
               const dropPos = sourceToken ? { x: sourceToken.center.x, y: sourceToken.center.y } : { x: 0, y: 0 };

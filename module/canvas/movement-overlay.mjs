@@ -364,11 +364,12 @@ export class MovementOverlay {
         return this.mode !== null;
     }
 
-    static activateVaultMode(token, maxRange) {
+    static activateVaultMode(token, maxRange, options = {}) {
         if (!token) return;
         this.mode = "vault";
         this.token = token;
         this.maxRange = maxRange;
+        this.options = options;
         this.isValidTarget = false;
 
         document.body.style.cursor = "crosshair";
@@ -389,6 +390,7 @@ export class MovementOverlay {
         this.mode = null;
         this.token = null;
         this.maxRange = null;
+        this.options = null;
         this.movePoints = 0;
         this.isValidTarget = false;
         this.validVaultSquares = [];
@@ -599,7 +601,7 @@ export class MovementOverlay {
             const tokenDoc = this.token.document;
             const combatant = game.combat?.combatants.find(c => c.tokenId === tokenDoc.id);
 
-            if (combatant) {
+            if (combatant && !this.options?.free) {
                 const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
                 await combatant.update({
                     "flags.trespasser.actionPoints": Math.max(0, currentAP - 1),
@@ -624,7 +626,9 @@ export class MovementOverlay {
             });
             
             if (game.trespasser && game.trespasser.tokenHUD) game.trespasser.tokenHUD.render();
+            const targetToken = this.token;
             this.deactivate();
+            Hooks.callAll("trespasserVaultComplete", targetToken, snapped);
 
         } else if (this.mode === "move") {
             const gridX = Math.floor(destination.x / sizeX);
@@ -730,7 +734,12 @@ export class MovementOverlay {
     static _onClickRight(ev) {
         if (this.isActive) {
             ev.preventDefault();
+            const mode = this.mode;
+            const targetToken = this.token;
             this.deactivate();
+            if (mode === "vault") {
+                Hooks.callAll("trespasserVaultCancelled", targetToken);
+            }
         }
     }
 }

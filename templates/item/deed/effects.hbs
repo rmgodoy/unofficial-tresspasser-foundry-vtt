@@ -2,7 +2,7 @@
   <h3 class="effects-heading">{{localize "TRESPASSER.Sheet.Item.Sections.DeedEffects"}}</h3>
 
   {{#each phases as |phase|}}
-  <div class="effect-block {{#if @last}}effect-block--last{{/if}}">
+  <div class="effect-block {{#if @last}}effect-block--last{{/if}}" data-phase="{{phase.key}}">
     <h4 class="effect-block__label">{{phase.label}}</h4>
 
     {{!-- Description --}}
@@ -120,26 +120,26 @@
       <div class="phase-actions-list" data-phase="{{phase.key}}">
         {{#each phase.phaseActions as |action|}}
           <div class="phase-action-row field-row" data-index="{{action.index}}">
-            <select name="system.effects.{{../phase.key}}.phaseActions.{{action.index}}.type">
+            <select name="system.effects.{{phase.key}}.phaseActions.{{action.index}}.type">
               {{selectOptions @root.config.phaseActionTypes selected=action.type}}
             </select>
             
             {{#if (eq action.type "movement")}}
-              <select name="system.effects.{{../phase.key}}.phaseActions.{{action.index}}.movementType">
+              <select name="system.effects.{{phase.key}}.phaseActions.{{action.index}}.movementType">
                 {{selectOptions @root.config.movementTypes selected=action.movementType}}
               </select>
-              <select name="system.effects.{{../phase.key}}.phaseActions.{{action.index}}.movementShape">
+              <select name="system.effects.{{phase.key}}.phaseActions.{{action.index}}.movementShape">
                 {{selectOptions @root.config.movementShapes selected=action.movementShape}}
               </select>
               <input type="number" 
-                     name="system.effects.{{../phase.key}}.phaseActions.{{action.index}}.movementDistance"
+                     name="system.effects.{{phase.key}}.phaseActions.{{action.index}}.movementDistance"
                      value="{{action.movementDistance}}"
                      placeholder="{{localize 'TRESPASSER.Sheet.Common.Distance'}}" />
             {{/if}}
 
             {{#if (eq action.type "selfEffect")}}
               <input type="text"
-                     name="system.effects.{{../phase.key}}.phaseActions.{{action.index}}.effectUuid"
+                     name="system.effects.{{phase.key}}.phaseActions.{{action.index}}.effectUuid"
                      value="{{action.effectUuid}}"
                      placeholder="Effect UUID" />
             {{/if}}

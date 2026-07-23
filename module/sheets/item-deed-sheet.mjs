@@ -217,6 +217,28 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
   }
 
   /* -------------------------------------------- */
+  /* Form Submission                              */
+  /* -------------------------------------------- */
+
+  async _processSubmitData(event, form, submitData) {
+    const phases = ["start", "before", "base", "hit", "spark", "after", "end"];
+    if (submitData.system?.effects) {
+      for (const phase of phases) {
+        const pData = submitData.system.effects[phase];
+        if (pData) {
+          if (pData.phaseActions && typeof pData.phaseActions === "object" && !Array.isArray(pData.phaseActions)) {
+            pData.phaseActions = Object.values(pData.phaseActions);
+          }
+          if (pData.appliedEffects && typeof pData.appliedEffects === "object" && !Array.isArray(pData.appliedEffects)) {
+            pData.appliedEffects = Object.values(pData.appliedEffects);
+          }
+        }
+      }
+    }
+    return super._processSubmitData(event, form, submitData);
+  }
+
+  /* -------------------------------------------- */
   /* Lifecycle                                     */
   /* -------------------------------------------- */
 

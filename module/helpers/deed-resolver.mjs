@@ -163,12 +163,15 @@ export class DeedResolver {
         ui.notifications.info(
           game.i18n.format("TRESPASSER.Notification.Combat.PlaceClosePath", { size: distance })
         );
-        const result = await TargetingHelper.placeTemplate(
-          actor, sourceToken, {
-            targetType: "close_path",
-            targetSize: distance
-          }
-        );
+        // Mock deed object: phase action paths are unrestricted by weapon range,
+        // so we pass type: "versatile" and range: null to bypass getMaxRangeSq cleanly.
+        const mockDeed = {
+          type: "versatile",
+          range: null,
+          targetType: "close_path",
+          targetSize: distance
+        };
+        const result = await TargetingHelper.placeTemplate(actor, sourceToken, mockDeed);
         if (!result) return; // Cancelled
         destinationSquares = result.squares;
         // Store path squares in context for `on_path` terrain placement
@@ -180,12 +183,15 @@ export class DeedResolver {
         ui.notifications.info(
           game.i18n.format("TRESPASSER.Notification.Combat.PlacePath", { size: distance })
         );
-        const result = await TargetingHelper.placeTemplate(
-          actor, sourceToken, {
-            targetType: "path",
-            targetSize: distance
-          }
-        );
+        // Mock deed object: phase action paths are unrestricted by weapon range,
+        // so we pass type: "versatile" and range: null to bypass getMaxRangeSq cleanly.
+        const mockDeed = {
+          type: "versatile",
+          range: null,
+          targetType: "path",
+          targetSize: distance
+        };
+        const result = await TargetingHelper.placeTemplate(actor, sourceToken, mockDeed);
         if (!result) return;
         destinationSquares = result.squares;
         context.pathSquares = result.squares;
@@ -196,7 +202,7 @@ export class DeedResolver {
       default: {
         // Vault-style: show valid destinations and let player pick
         const jumpResult = await new Promise((resolve) => {
-          MovementOverlay.activateVaultMode(sourceToken, distance);
+          MovementOverlay.activateVaultMode(sourceToken, distance, { free: true });
           // Listen for the vault completion
           Hooks.once("trespasserVaultComplete", (token, destination) => {
             resolve(destination);
