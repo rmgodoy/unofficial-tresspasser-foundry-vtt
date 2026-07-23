@@ -10,6 +10,7 @@ import { TrespasserWeaponData }    from "./module/data/item-weapon.mjs";
 import { TrespasserRationsData }   from "./module/data/item-rations.mjs";
 import { TrespasserEffectData }    from "./module/data/item-effect.mjs";
 import { TrespasserDeedData }      from "./module/data/item-deed.mjs";
+import { TrespasserBDeedData }     from "./module/data/item-bdeed.mjs";
 import { TrespasserFeatureData }   from "./module/data/item-feature.mjs";
 import { TrespasserTalentData }    from "./module/data/item-talent.mjs";
 import { TrespasserIncantationData } from "./module/data/item-incantation.mjs";
@@ -421,6 +422,7 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.rations = TrespasserRationsData;
   CONFIG.Item.dataModels.effect = TrespasserEffectData;
   CONFIG.Item.dataModels.deed = TrespasserDeedData;
+  CONFIG.Item.dataModels.bdeed = TrespasserBDeedData;
   CONFIG.Item.dataModels.feature = TrespasserFeatureData;
   CONFIG.Item.dataModels.talent = TrespasserTalentData;
   CONFIG.Item.dataModels.incantation = TrespasserIncantationData;
