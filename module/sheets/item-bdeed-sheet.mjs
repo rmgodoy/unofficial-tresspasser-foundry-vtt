@@ -2,6 +2,46 @@ import { BEHAVIOR_TYPES } from "../data/item-bdeed.mjs";
 
 const { api, sheets } = foundry.applications;
 
+export const DEFAULT_PARAMS = {
+  selectTarget: {
+    targetMode: "creatures",
+    targetCount: 1,
+    aoeType: "blast",
+    aoeSize: 1
+  },
+  applyDamage: {
+    expression: ""
+  },
+  applyEffects: {
+    effects: [],
+    appliesWeaponEffects: false
+  },
+  modifyBehavior: {
+    targetPhase: "base",
+    targetBehaviorId: "",
+    property: "damage",
+    modifier: ""
+  },
+  spawnTerrain: {
+    terrainUuid: "",
+    terrainName: "",
+    terrainImg: "",
+    placement: "on_target"
+  },
+  moveTerrain: {
+    terrainBehaviorId: ""
+  },
+  moveSource: {
+    movementType: "walk",
+    distance: 1
+  },
+  forceMoveTargets: {
+    type: "push",
+    distance: 1
+  },
+  clearTargets: {}
+};
+
 export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
 
   /**
@@ -14,14 +54,20 @@ export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.
     classes: ["trespasser", "sheet", "item", "bdeed", "item-sheet"],
     position: { width: 620, height: 720 },
     actions: {
-      switchTab:        TrespasserBDeedSheet.#onSwitchTab,
-      togglePhase:      TrespasserBDeedSheet.#onTogglePhase,
-      addBehavior:      TrespasserBDeedSheet.#onAddBehavior,
-      removeBehavior:   TrespasserBDeedSheet.#onRemoveBehavior,
-      moveBehaviorUp:   TrespasserBDeedSheet.#onMoveBehaviorUp,
-      moveBehaviorDown: TrespasserBDeedSheet.#onMoveBehaviorDown,
+      switchTab:             TrespasserBDeedSheet.#onSwitchTab,
+      togglePhase:           TrespasserBDeedSheet.#onTogglePhase,
+      addBehavior:           TrespasserBDeedSheet.#onAddBehavior,
+      removeBehavior:        TrespasserBDeedSheet.#onRemoveBehavior,
+      moveBehaviorUp:        TrespasserBDeedSheet.#onMoveBehaviorUp,
+      moveBehaviorDown:      TrespasserBDeedSheet.#onMoveBehaviorDown,
+      removeBehaviorEffect:  TrespasserBDeedSheet.#onRemoveBehaviorEffect,
+      copyBehaviorId:        TrespasserBDeedSheet.#onCopyBehaviorId,
     },
-    form: { submitOnChange: true },
+    form: {
+      handler: TrespasserBDeedSheet.#onSubmit,
+      submitOnChange: true,
+      closeOnSubmit: false
+    },
     window: { resizable: true }
   };
 
@@ -131,13 +177,17 @@ export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.
         label: game.i18n.localize(`TRESPASSER.Sheet.BDeed.Phase.${key.charAt(0).toUpperCase() + key.slice(1)}`),
         expanded: this._expandedPhases.has(key),
         description: phaseData.description ?? "",
-        behaviors: rawBehaviors.map((b, i) => ({
-          ...b,
-          index: i,
-          typeLabel: game.i18n.localize(`TRESPASSER.Sheet.BDeed.Behavior.Type.${b.type}`) || b.type,
-          isFirst: i === 0,
-          isLast: i === rawBehaviors.length - 1
-        }))
+        behaviors: rawBehaviors.map((b, i) => {
+          const mergedParams = { ...(DEFAULT_PARAMS[b.type] ?? {}), ...(b.params ?? {}) };
+          return {
+            ...b,
+            params: mergedParams,
+            index: i,
+            typeLabel: game.i18n.localize(`TRESPASSER.Sheet.BDeed.Behavior.Type.${b.type}`) || b.type,
+            isFirst: i === 0,
+            isLast: i === rawBehaviors.length - 1
+          };
+        })
       };
     });
 
@@ -157,6 +207,98 @@ export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.
     for (const input of selectOnFocus) {
       input.addEventListener("focus", (ev) => ev.currentTarget.select());
     }
+
+    const effectDropZones = this.element.querySelectorAll(".behavior-effect-drop");
+    for (const zone of effectDropZones) {
+      zone.addEventListener("dragover", (ev) => ev.preventDefault());
+      zone.addEventListener("drop", this.#onDropBehaviorEffect.bind(this));
+    }
+
+    const terrainDropZones = this.element.querySelectorAll(".behavior-terrain-drop");
+    for (const zone of terrainDropZones) {
+      zone.addEventListener("dragover", (ev) => ev.preventDefault());
+      zone.addEventListener("drop", this.#onDropBehaviorTerrain.bind(this));
+    }
+  }
+
+  async #onDropBehaviorEffect(event) {
+    event.preventDefault();
+    const zone = event.currentTarget;
+    const phaseKey = zone.dataset.phase;
+    const behaviorId = zone.dataset.behaviorId;
+    if (!phaseKey || !behaviorId) return;
+
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer.getData("text/plain"));
+    } catch {
+      return;
+    }
+
+    if (data.type !== "Item") return;
+    const droppedItem = await fromUuid(data.uuid);
+    if (!droppedItem) return;
+
+    if (droppedItem.type !== "effect" && droppedItem.type !== "state" && droppedItem.type !== "plight") {
+      ui.notifications.warn("Dropped item must be an Effect, State, or Plight.");
+      return;
+    }
+
+    const phasesData = foundry.utils.deepClone(this.document.system.phases);
+    const behavior = phasesData[phaseKey]?.behaviors?.find(b => b.id === behaviorId);
+    if (!behavior) return;
+
+    behavior.params = behavior.params || {};
+    behavior.params.effects = behavior.params.effects || [];
+    behavior.params.effects.push({
+      uuid: droppedItem.uuid,
+      name: droppedItem.name,
+      img: droppedItem.img,
+      intensity: 1
+    });
+
+    await this.document.update({ "system.phases": phasesData });
+  }
+
+  async #onDropBehaviorTerrain(event) {
+    event.preventDefault();
+    const zone = event.currentTarget;
+    const phaseKey = zone.dataset.phase;
+    const behaviorId = zone.dataset.behaviorId;
+    if (!phaseKey || !behaviorId) return;
+
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer.getData("text/plain"));
+    } catch {
+      return;
+    }
+
+    if (data.type !== "Item") return;
+    const droppedItem = await fromUuid(data.uuid);
+    if (!droppedItem) return;
+
+    if (droppedItem.type !== "terrain") {
+      ui.notifications.warn("Dropped item must be a Terrain item.");
+      return;
+    }
+
+    const phasesData = foundry.utils.deepClone(this.document.system.phases);
+    const behavior = phasesData[phaseKey]?.behaviors?.find(b => b.id === behaviorId);
+    if (!behavior) return;
+
+    behavior.params = behavior.params || {};
+    behavior.params.terrainUuid = droppedItem.uuid;
+    behavior.params.terrainName = droppedItem.name;
+    behavior.params.terrainImg = droppedItem.img;
+
+    await this.document.update({ "system.phases": phasesData });
+  }
+
+  // ── Form Submission Handler ──────────────────────────────────────────────────
+
+  static async #onSubmit(event, form, formData) {
+    await this.document.update(formData.object);
   }
 
   // ── Action Handlers ──────────────────────────────────────────────────────────
@@ -196,7 +338,7 @@ export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.
     phasesData[phaseKey].behaviors.push({
       id: foundry.utils.randomID(),
       type: type,
-      params: {}
+      params: foundry.utils.deepClone(DEFAULT_PARAMS[type] ?? {})
     });
 
     await this.document.update({ "system.phases": phasesData });
@@ -251,5 +393,35 @@ export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.
       behaviors[idx + 1] = temp;
       await this.document.update({ "system.phases": phasesData });
     }
+  }
+
+  static async #onRemoveBehaviorEffect(event, target) {
+    event.preventDefault();
+    const phaseKey = target.dataset.phase;
+    const behaviorId = target.dataset.behaviorId;
+    const effectIndex = parseInt(target.dataset.effectIndex);
+    if (!phaseKey || !behaviorId || isNaN(effectIndex)) return;
+
+    const phasesData = foundry.utils.deepClone(this.document.system.phases);
+    const behavior = phasesData[phaseKey]?.behaviors?.find(b => b.id === behaviorId);
+    if (behavior?.params?.effects) {
+      behavior.params.effects.splice(effectIndex, 1);
+      await this.document.update({ "system.phases": phasesData });
+    }
+  }
+
+  static async #onCopyBehaviorId(event, target) {
+    event.preventDefault();
+    event.stopPropagation();
+    const id = target.dataset.behaviorId;
+    if (!id) return;
+
+    if (navigator.clipboard) {
+      await navigator.clipboard.writeText(id);
+    } else if (game.clipboard?.copyPlainText) {
+      game.clipboard.copyPlainText(id);
+    }
+
+    ui.notifications.info(`Copied behavior ID "${id}" to clipboard.`);
   }
 }

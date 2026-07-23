@@ -20,8 +20,15 @@
         <div class="behavior-list">
           {{#each behaviors}}
           <div class="behavior-card" data-behavior-id="{{id}}">
+            <input type="hidden" name="system.phases.{{../key}}.behaviors.{{@index}}.id" value="{{id}}"/>
+            <input type="hidden" name="system.phases.{{../key}}.behaviors.{{@index}}.type" value="{{type}}"/>
             <div class="behavior-card-header">
-              <span class="behavior-type-label"><i class="fas fa-cube"></i> {{typeLabel}}</span>
+              <span class="behavior-type-label">
+                <i class="fas fa-cube"></i> {{typeLabel}}
+                <span class="behavior-id-badge" data-action="copyBehaviorId" data-behavior-id="{{id}}" title="Click to copy ID">
+                  <i class="fas fa-copy"></i> #{{id}}
+                </span>
+              </span>
               <div class="behavior-card-actions">
                 {{#unless isFirst}}
                 <button type="button" data-action="moveBehaviorUp" data-phase="{{../key}}" data-behavior-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.BDeed.Behavior.MoveUp'}}">
@@ -38,9 +45,8 @@
                 </button>
               </div>
             </div>
-            <!-- Params editor: type-specific fields will be added in Task 5 -->
             <div class="behavior-params">
-              <em>Parameters will appear here based on behavior type.</em>
+              {{> "systems/trespasser/templates/item/bdeed/behavior-params.hbs" phaseKey=../key index=@index }}
             </div>
           </div>
           {{/each}}

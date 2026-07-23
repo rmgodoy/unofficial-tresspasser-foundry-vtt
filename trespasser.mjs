@@ -126,7 +126,8 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/item/terrain/tabs.hbs",
     "systems/trespasser/templates/item/terrain/details.hbs",
     "systems/trespasser/templates/dialogs/non-combat-spark.hbs",
-    "systems/trespasser/templates/dialogs/non-combat-shadow.hbs"
+    "systems/trespasser/templates/dialogs/non-combat-shadow.hbs",
+    "systems/trespasser/templates/item/bdeed/behavior-params.hbs"
   ]);
 
   // Register custom document classes

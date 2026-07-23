@@ -254,6 +254,23 @@
           "Details": "Details",
           "Behaviors": "Behaviors",
           "CardPreview": "Card Preview"
+        },
+        "Params": {
+          "TargetMode": "Target Mode",
+          "TargetCount": "Target Count",
+          "AoEType": "AoE Type",
+          "AoESize": "AoE Size",
+          "DamageExpression": "Damage Formula",
+          "TargetPhase": "Target Phase",
+          "TargetBehaviorId": "Target Behavior ID",
+          "Property": "Property",
+          "Modifier": "Modifier",
+          "Placement": "Placement",
+          "TerrainBehaviorId": "Terrain Behavior ID",
+          "MovementType": "Movement Type",
+          "Distance": "Distance",
+          "ForceMoveType": "Force Move Type",
+          "ClearTargetsHint": "Clears target list, allowing subsequent phases to acquire new targets."
         }
       },
       "Item": {

@@ -252,6 +252,23 @@
           "Details": "Detalhes",
           "Behaviors": "Comportamentos",
           "CardPreview": "Prévia da Carta"
+        },
+        "Params": {
+          "TargetMode": "Modo de Alvo",
+          "TargetCount": "Contagem de Alvos",
+          "AoEType": "Tipo de Área",
+          "AoESize": "Tamanho da Área",
+          "DamageExpression": "Fórmula de Dano",
+          "TargetPhase": "Fase Alvo",
+          "TargetBehaviorId": "ID do Comportamento Alvo",
+          "Property": "Propriedade",
+          "Modifier": "Modificador",
+          "Placement": "Posicionamento",
+          "TerrainBehaviorId": "ID do Comportamento de Terreno",
+          "MovementType": "Tipo de Movimento",
+          "Distance": "Distância",
+          "ForceMoveType": "Tipo de Movimento Forçado",
+          "ClearTargetsHint": "Limpa a lista de alvos, permitindo que fases posteriores selecionem novos alvos."
         }
       },
       "Item": {

@@ -2,11 +2,13 @@
    BDEED SHEET STYLES
    ═══════════════════════════════════════════════════ */
 
+.bdeed-details,
 .bdeed-behaviors {
-  padding: 12px;
+  padding: 16px 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 12px;
+  box-sizing: border-box;
 }
 
 /* Phase Accordion */
@@ -212,4 +214,136 @@
 .add-behavior-row button:hover {
   background: var(--trp-bg-select, #3a3228);
   border-color: var(--trp-gold, #c9a84c);
+}
+
+/* Behavior Parameter Editors */
+.param-row-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 8px;
+  align-items: center;
+}
+
+.behavior-id-badge {
+  font-size: 10px;
+  font-family: monospace;
+  color: var(--trp-text-dim, #a09070);
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 1px 6px;
+  border-radius: 3px;
+  cursor: pointer;
+  user-select: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  transition: all 0.15s ease;
+}
+
+.behavior-id-badge:hover {
+  background: var(--trp-gold-dim, #a88840);
+  color: var(--trp-bg-dark, #1a1714);
+  border-color: var(--trp-gold, #c9a84c);
+}
+
+.behavior-params-form {
+  padding-top: 4px;
+}
+
+.drop-zone {
+  border: 1px dashed var(--trp-border-light, #5c4f3a);
+  border-radius: 4px;
+  padding: 8px 12px;
+  text-align: center;
+  color: var(--trp-text-dim, #a09070);
+  background: rgba(0, 0, 0, 0.2);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.drop-zone:hover {
+  border-color: var(--trp-gold, #c9a84c);
+  color: var(--trp-gold-bright, #e8c96b);
+  background: rgba(201, 168, 76, 0.05);
+}
+
+.effect-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.effect-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--trp-bg-panel, #23201c);
+  border: 1px solid var(--trp-border, #4a3f2f);
+  border-radius: 14px;
+  padding: 2px 8px 2px 4px;
+  font-size: 12px;
+}
+
+.effect-chip img {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.effect-chip .chip-name {
+  font-weight: 600;
+  color: var(--trp-text, #ddd0aa);
+}
+
+.effect-chip .intensity-label {
+  font-size: 10px;
+  color: var(--trp-text-dim, #a09070);
+  margin-left: 2px;
+}
+
+.effect-chip input[type="number"] {
+  width: 42px;
+  height: 22px;
+  padding: 1px 4px;
+  text-align: center;
+  font-size: 11px;
+}
+
+.effect-chip button {
+  background: transparent;
+  border: none;
+  color: var(--trp-red-dim, #922c2c);
+  cursor: pointer;
+  padding: 0 2px;
+}
+
+.effect-chip button:hover {
+  color: var(--trp-red, #ff5252);
+}
+
+.terrain-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.terrain-chip img {
+  width: 24px;
+  height: 24px;
+  border-radius: 3px;
+  object-fit: cover;
+}
+
+.hint-text {
+  margin: 0;
+  padding: 4px 0;
+  font-size: 12px;
+  font-style: italic;
+  color: var(--trp-text-dim, #a09070);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }

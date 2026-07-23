@@ -1,0 +1,200 @@
+<div class="behavior-params-form">
+  {{#if (eq type "selectTarget")}}
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetMode"}}</label>
+        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetMode">
+          <option value="self" {{#if (eq params.targetMode "self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Personal"}}</option>
+          <option value="creatures" {{#if (eq params.targetMode "creatures")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Creature"}}</option>
+          <option value="aoe" {{#if (eq params.targetMode "aoe")}}selected{{/if}}>Area of Effect</option>
+        </select>
+      </div>
+
+      {{#if (eq params.targetMode "creatures")}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetCount"}}</label>
+          <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetCount"
+                 value="{{params.targetCount}}" min="1" step="1" class="select-on-focus"/>
+        </div>
+      {{/if}}
+
+      {{#if (eq params.targetMode "aoe")}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.BDeed.Params.AoEType"}}</label>
+          <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.aoeType">
+            <option value="blast" {{#if (eq params.aoeType "blast")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Blast"}}</option>
+            <option value="close_blast" {{#if (eq params.aoeType "close_blast")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.CloseBlast"}}</option>
+            <option value="burst" {{#if (eq params.aoeType "burst")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Burst"}}</option>
+            <option value="melee_burst" {{#if (eq params.aoeType "melee_burst")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.MeleeBurst"}}</option>
+            <option value="path" {{#if (eq params.aoeType "path")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Path"}}</option>
+            <option value="close_path" {{#if (eq params.aoeType "close_path")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.ClosePath"}}</option>
+            <option value="aura" {{#if (eq params.aoeType "aura")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Aura"}}</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.BDeed.Params.AoESize"}}</label>
+          <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.aoeSize"
+                 value="{{params.aoeSize}}" min="1" step="1" class="select-on-focus"/>
+        </div>
+      {{/if}}
+    </div>
+  {{/if}}
+
+  {{#if (eq type "applyDamage")}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Sheet.BDeed.Params.DamageExpression"}}</label>
+      <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
+             value="{{params.expression}}" placeholder="e.g. 2d6+STR"/>
+    </div>
+  {{/if}}
+
+  {{#if (eq type "applyEffects")}}
+    <div class="behavior-effects-section">
+      <div class="field-row checkbox-row weapon-effects-toggle" style="margin-bottom: 6px;">
+        <input type="checkbox"
+               name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.appliesWeaponEffects"
+               {{#if params.appliesWeaponEffects}}checked{{/if}}
+               id="bdeed-weapon-effects-{{phaseKey}}-{{index}}"/>
+        <label for="bdeed-weapon-effects-{{phaseKey}}-{{index}}">
+          {{localize "TRESPASSER.Sheet.Item.Sections.WeaponEffects"}}
+        </label>
+      </div>
+      <div class="behavior-effect-drop drop-zone" data-phase="{{phaseKey}}" data-behavior-id="{{id}}">
+        <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}
+      </div>
+      {{#if params.effects.length}}
+        <div class="effect-chips-list">
+          {{#each params.effects}}
+          <div class="effect-chip">
+            <input type="hidden" name="system.phases.{{../phaseKey}}.behaviors.{{../index}}.params.effects.{{@index}}.uuid" value="{{uuid}}"/>
+            <input type="hidden" name="system.phases.{{../phaseKey}}.behaviors.{{../index}}.params.effects.{{@index}}.name" value="{{name}}"/>
+            <input type="hidden" name="system.phases.{{../phaseKey}}.behaviors.{{../index}}.params.effects.{{@index}}.img" value="{{img}}"/>
+            <img src="{{img}}" title="{{name}}"/>
+            <span class="chip-name">{{name}}</span>
+            <label class="intensity-label">Int:</label>
+            <input type="number" name="system.phases.{{../phaseKey}}.behaviors.{{../index}}.params.effects.{{@index}}.intensity"
+                   value="{{intensity}}" min="0" step="1" class="select-on-focus"/>
+            <button type="button" data-action="removeBehaviorEffect" data-phase="{{../phaseKey}}" data-behavior-id="{{../id}}" data-effect-index="{{@index}}" title="Remove Effect">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+          {{/each}}
+        </div>
+      {{/if}}
+    </div>
+  {{/if}}
+
+  {{#if (eq type "modifyBehavior")}}
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetPhase"}}</label>
+        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetPhase">
+          <option value="start" {{#if (eq params.targetPhase "start")}}selected{{/if}}>Start</option>
+          <option value="before" {{#if (eq params.targetPhase "before")}}selected{{/if}}>Before</option>
+          <option value="base" {{#if (eq params.targetPhase "base")}}selected{{/if}}>Base</option>
+          <option value="hit" {{#if (eq params.targetPhase "hit")}}selected{{/if}}>Hit</option>
+          <option value="spark" {{#if (eq params.targetPhase "spark")}}selected{{/if}}>Spark</option>
+          <option value="after" {{#if (eq params.targetPhase "after")}}selected{{/if}}>After</option>
+          <option value="end" {{#if (eq params.targetPhase "end")}}selected{{/if}}>End</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetBehaviorId"}}</label>
+        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetBehaviorId"
+               value="{{params.targetBehaviorId}}" placeholder="Behavior ID"/>
+      </div>
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.Property"}}</label>
+        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.property">
+          <option value="damage" {{#if (eq params.property "damage")}}selected{{/if}}>Damage</option>
+          <option value="intensity" {{#if (eq params.property "intensity")}}selected{{/if}}>Intensity</option>
+          <option value="size" {{#if (eq params.property "size")}}selected{{/if}}>Size</option>
+          <option value="distance" {{#if (eq params.property "distance")}}selected{{/if}}>Distance</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.Modifier"}}</label>
+        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.modifier"
+               value="{{params.modifier}}" placeholder="e.g. +1d6, +1, *2"/>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if (eq type "spawnTerrain")}}
+    <div class="behavior-terrain-section">
+      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.terrainUuid" value="{{params.terrainUuid}}"/>
+      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.terrainName" value="{{params.terrainName}}"/>
+      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.terrainImg" value="{{params.terrainImg}}"/>
+      <div class="behavior-terrain-drop drop-zone" data-phase="{{phaseKey}}" data-behavior-id="{{id}}">
+        {{#if params.terrainName}}
+          <div class="terrain-chip">
+            <img src="{{params.terrainImg}}" title="{{params.terrainName}}"/>
+            <span>{{params.terrainName}}</span>
+          </div>
+        {{else}}
+          <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropTerrain"}}
+        {{/if}}
+      </div>
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.Placement"}}</label>
+        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.placement">
+          <option value="on_target" {{#if (eq params.placement "on_target")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnTarget"}}</option>
+          <option value="on_self" {{#if (eq params.placement "on_self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnSelf"}}</option>
+          <option value="choose" {{#if (eq params.placement "choose")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Choose"}}</option>
+        </select>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if (eq type "moveTerrain")}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Sheet.BDeed.Params.TerrainBehaviorId"}}</label>
+      <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.terrainBehaviorId"
+             value="{{params.terrainBehaviorId}}" placeholder="Spawn Terrain Behavior ID (optional)"/>
+    </div>
+  {{/if}}
+
+  {{#if (eq type "moveSource")}}
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.MovementType"}}</label>
+        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.movementType">
+          <option value="walk" {{#if (eq params.movementType "walk")}}selected{{/if}}>Walk</option>
+          <option value="jump" {{#if (eq params.movementType "jump")}}selected{{/if}}>Jump</option>
+          <option value="teleport" {{#if (eq params.movementType "teleport")}}selected{{/if}}>Teleport</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.Distance"}}</label>
+        <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distance"
+               value="{{params.distance}}" min="1" step="1" class="select-on-focus"/>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if (eq type "forceMoveTargets")}}
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.ForceMoveType"}}</label>
+        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.type">
+          <option value="push" {{#if (eq params.type "push")}}selected{{/if}}>{{localize "TRESPASSER.Terms.ForcedMovement.Push"}}</option>
+          <option value="pull" {{#if (eq params.type "pull")}}selected{{/if}}>{{localize "TRESPASSER.Terms.ForcedMovement.Pull"}}</option>
+          <option value="sweep" {{#if (eq params.type "sweep")}}selected{{/if}}>{{localize "TRESPASSER.Terms.ForcedMovement.Sweep"}}</option>
+          <option value="shove" {{#if (eq params.type "shove")}}selected{{/if}}>{{localize "TRESPASSER.Terms.ForcedMovement.Shove"}}</option>
+          <option value="drag" {{#if (eq params.type "drag")}}selected{{/if}}>{{localize "TRESPASSER.Terms.ForcedMovement.Drag"}}</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.Distance"}}</label>
+        <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distance"
+               value="{{params.distance}}" min="1" step="1" class="select-on-focus"/>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if (eq type "clearTargets")}}
+    <p class="hint-text">
+      <i class="fas fa-info-circle"></i> {{localize "TRESPASSER.Sheet.BDeed.Params.ClearTargetsHint"}}
+    </p>
+  {{/if}}
+</div>
