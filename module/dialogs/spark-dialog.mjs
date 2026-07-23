@@ -103,13 +103,18 @@ export async function askSparkDialog(results) {
  */
 function _parseSparkChoices(element, sparkTargets, maxSparks) {
   const layerChoices = [];
+  let deedSparkLayer = null;
 
   for (let layer = 1; layer <= maxSparks; layer++) {
     const checked = element.querySelector(`input[name="spark-layer-${layer}"]:checked`);
-    layerChoices.push(checked ? checked.value : null);
+    const val = checked ? checked.value : null;
+    layerChoices.push(val);
+    if (val === "deed") {
+      deedSparkLayer = layer;
+    }
   }
 
-  let applyDeedSpark = false;
+  let applyDeedSpark = deedSparkLayer !== null;
   let impactBonus = 0;
   let potencyBonus = 0;
   let powerBonusDice = 0;
@@ -127,11 +132,10 @@ function _parseSparkChoices(element, sparkTargets, maxSparks) {
       switch (choice) {
         case "deed":
           targetChoices.deed = true;
-          applyDeedSpark = true;
           break;
         case "impact":
           targetChoices.impact += 1;
-          impactBonus += 2; // +2 forced movement per impact
+          impactBonus += 2;
           break;
         case "potency":
           targetChoices.potency += 1;
@@ -149,6 +153,7 @@ function _parseSparkChoices(element, sparkTargets, maxSparks) {
 
   return {
     applyDeedSpark,
+    deedSparkLayer,
     impactBonus,
     potencyBonus,
     powerBonusDice,

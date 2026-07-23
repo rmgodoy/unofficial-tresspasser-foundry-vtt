@@ -5,6 +5,11 @@ import { ForcedMovementHelper } from "./forced-movement-helper.mjs";
 
 /**
  * BDeedBehaviorHandler — Dispatcher executing actual game logic for all 9 behavior types.
+ *
+ * Fully compliant with Trespasser TTRPG Sparks & Multiple Targets Layered Resolution Rules:
+ *   - Layer 1 Choice applies to all targets with sparks >= 1
+ *   - Layer 2 Choice applies only to targets with sparks >= 2
+ *   - Layer k Choice applies only to targets with sparks >= k
  */
 export class BDeedBehaviorHandler {
 
@@ -14,17 +19,18 @@ export class BDeedBehaviorHandler {
    * @param {object} context  - Executor runtime context
    * @param {Actor} [actor]   - Source actor
    * @param {Item} item       - BDeed item
+   * @param {string} [phaseKey] - Current phase key ("start", "before", "base", "hit", "spark", "after", "end")
    */
-  static async dispatch(behavior, context, actor, item) {
+  static async dispatch(behavior, context, actor, item, phaseKey = "") {
     switch (behavior.type) {
       case "selectTarget":     return this._selectTarget(behavior, context, actor, item);
-      case "applyDamage":      return this._applyDamage(behavior, context, actor);
-      case "applyEffects":     return this._applyEffects(behavior, context, actor);
+      case "applyDamage":      return this._applyDamage(behavior, context, actor, item, phaseKey);
+      case "applyEffects":     return this._applyEffects(behavior, context, actor, item, phaseKey);
       case "modifyBehavior":   return; // Handled pre-pipeline by BDeedExecutor
       case "spawnTerrain":     return this._spawnTerrain(behavior, context, actor, item);
       case "moveTerrain":      return this._moveTerrain(behavior, context, item);
       case "moveSource":       return this._moveSource(behavior, context, actor);
-      case "forceMoveTargets": return this._forceMoveTargets(behavior, context, actor);
+      case "forceMoveTargets": return this._forceMoveTargets(behavior, context, actor, item, phaseKey);
       case "clearTargets":     return this._clearTargets(context);
     }
   }
@@ -40,6 +46,29 @@ export class BDeedBehaviorHandler {
       if (found) return found;
     }
     return canvas.tokens?.controlled[0] || null;
+  }
+
+  /**
+   * Helper to filter valid target tokens for damage/effects/movement behaviors.
+   * If accuracy check ran, filters hit targets.
+   * If phase is "spark", filters ONLY targets that reached the layer where Deed Spark was chosen.
+   * @param {object} context
+   * @param {string} [phaseKey]
+   * @returns {Array<Token>}
+   */
+  static getValidTargets(context, phaseKey = "") {
+    let validTargets = context.targets || [];
+    if (context.accuracyResults && context.accuracyResults.length > 0) {
+      const isSparkPhase = phaseKey === "spark";
+      const requiredSparks = isSparkPhase ? (context.sparkChoices?.deedSparkLayer || 1) : 0;
+      const hitTokenIds = new Set(
+        context.accuracyResults
+          .filter(r => r.isHit && r.tokenId && (!isSparkPhase || r.sparks >= requiredSparks))
+          .map(r => r.tokenId)
+      );
+      validTargets = validTargets.filter(t => hitTokenIds.has(t.id));
+    }
+    return validTargets;
   }
 
   /**
@@ -175,61 +204,76 @@ export class BDeedBehaviorHandler {
   }
 
   /**
-   * 2. applyDamage: Evaluates expression as a roll formula, applies damage to hit target actors, and triggers token shake & floating damage text
+   * 2. applyDamage: Evaluates expression as a roll formula, applies damage to hit target actors, and triggers token shake & floating damage text.
+   * Layered Power spark bonus damage dice apply ONLY to targets whose spark count reached the layer where Power was selected.
    * @protected
    */
-  static async _applyDamage(behavior, context, actor) {
+  static async _applyDamage(behavior, context, actor, item, phaseKey = "") {
     const params = behavior.params || {};
     let rawExpr = params.expression?.trim();
     if (!rawExpr) return true;
 
-    // Filter target tokens: if accuracy check ran, ONLY hit targets receive damage
-    let validTargets = context.targets || [];
-    if (context.accuracyResults && context.accuracyResults.length > 0) {
-      const hitTokenIds = new Set(
-        context.accuracyResults.filter(r => r.isHit && r.tokenId).map(r => r.tokenId)
-      );
-      validTargets = validTargets.filter(t => hitTokenIds.has(t.id));
-    }
+    const validTargets = this.getValidTargets(context, phaseKey);
+    if (validTargets.length === 0) return true;
 
-    // If no targets were hit, do not perform damage roll or damage updates
-    if (validTargets.length === 0 && context.accuracyResults && context.accuracyResults.length > 0) {
-      return true;
-    }
-
-    // Resolve <sd> (Skill Die) and <wd> (Weapon Die) placeholders
     let expr = this.resolveFormulaPlaceholders(rawExpr, actor);
+    const rollData = actor?.getRollData() || {};
 
-    // Apply Power spark bonus dice if selected
-    const powerBonusDice = context.sparkChoices?.powerBonusDice || 0;
-    if (powerBonusDice > 0) {
-      const skillDie = actor?.system?.skill_die || "d6";
-      expr = `${expr} + ${powerBonusDice}${skillDie}`;
+    // 1. Base damage roll
+    const baseRoll = new Roll(expr, rollData);
+    await baseRoll.evaluate();
+    const baseTotal = baseRoll.total;
+
+    // 2. Max power dice across all target layers
+    let maxPowerDice = 0;
+    if (context.sparkChoices?.perTarget) {
+      for (const tChoice of context.sparkChoices.perTarget.values()) {
+        if (tChoice.power > maxPowerDice) maxPowerDice = tChoice.power;
+      }
     }
 
-    const rollData = actor?.getRollData() || {};
-    const roll = new Roll(expr, rollData);
-    await roll.evaluate();
+    // 3. Roll power bonus dice if maxPowerDice > 0
+    const powerDiceRolls = [0];
+    const skillDie = actor?.system?.skill_die || "d6";
+    let combinedRoll = baseRoll;
 
-    const damageTotal = roll.total;
+    if (maxPowerDice > 0) {
+      const powerFormula = `${maxPowerDice}${skillDie}`;
+      const powerRoll = new Roll(powerFormula, rollData);
+      await powerRoll.evaluate();
+      combinedRoll = new Roll(`${expr} + ${powerFormula}`, rollData);
+      await combinedRoll.evaluate();
 
+      const dieResults = powerRoll.dice[0]?.results?.map(r => r.result) || [];
+      for (let k = 1; k <= maxPowerDice; k++) {
+        powerDiceRolls[k] = dieResults.slice(0, k).reduce((a, b) => a + b, 0);
+      }
+    }
+
+    // 4. Apply per-target damage based on each target's layered power dice count
     for (const targetToken of validTargets) {
       const targetActor = targetToken.actor || (targetToken instanceof Actor ? targetToken : null);
       if (!targetActor) continue;
-      await targetActor.applyDamage(damageTotal);
+
+      const targetChoices = context.sparkChoices?.perTarget?.get(targetToken.id);
+      const targetPowerCount = Math.min(maxPowerDice, targetChoices?.power || 0);
+      const targetPowerDmg = powerDiceRolls[targetPowerCount] || 0;
+      const targetDmg = baseTotal + targetPowerDmg;
+
+      await targetActor.applyDamage(targetDmg);
     }
 
-    const rollHtml = await roll.render();
+    const rollHtml = await combinedRoll.render();
 
     if (!context.currentPhaseOutputs) {
       context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
     }
 
-    context.currentPhaseOutputs.rolls.push(roll);
+    context.currentPhaseOutputs.rolls.push(combinedRoll);
     context.currentPhaseOutputs.rollEntries.push(`
       <div class="damage-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
         <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: 12px; font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-          ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Damage"}: ${expr}${powerBonusDice > 0 ? " (Power Spark)" : ""}
+          ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Damage"}: ${expr}${maxPowerDice > 0 ? " (Power Spark layered per target)" : ""}
         </h4>
         ${rollHtml}
       </div>
@@ -239,25 +283,16 @@ export class BDeedBehaviorHandler {
   }
 
   /**
-   * 3. applyEffects: Applies specified effects to context.targets (incorporating Potency spark bonus) and appends notes to current phase
+   * 3. applyEffects: Applies specified effects to context.targets (incorporating Potency spark bonus) and appends notes to current phase.
+   * Potency spark bonus intensity applies ONLY to targets whose spark count reached the layer where Potency was selected.
    * @protected
    */
-  static async _applyEffects(behavior, context, actor) {
+  static async _applyEffects(behavior, context, actor, item, phaseKey = "") {
     const params = behavior.params || {};
     const effects = params.effects || [];
-    const potencyBonus = context.sparkChoices?.potencyBonus || 0;
 
-    let validTargets = context.targets || [];
-    if (context.accuracyResults && context.accuracyResults.length > 0) {
-      const hitTokenIds = new Set(
-        context.accuracyResults.filter(r => r.isHit && r.tokenId).map(r => r.tokenId)
-      );
-      validTargets = validTargets.filter(t => hitTokenIds.has(t.id));
-    }
-
-    if (validTargets.length === 0 && context.accuracyResults && context.accuracyResults.length > 0) {
-      return true;
-    }
+    const validTargets = this.getValidTargets(context, phaseKey);
+    if (validTargets.length === 0) return true;
 
     for (const eff of effects) {
       if (!eff.uuid) continue;
@@ -268,10 +303,13 @@ export class BDeedBehaviorHandler {
         const targetActor = targetToken.actor || (targetToken instanceof Actor ? targetToken : null);
         if (!targetActor) continue;
 
+        const targetChoices = context.sparkChoices?.perTarget?.get(targetToken.id);
+        const targetPotencyBonus = targetChoices?.potency || 0;
+
         const itemData = effectItem.toObject();
         itemData.system = itemData.system || {};
         const baseIntensity = eff.intensity || 1;
-        itemData.system.intensity = baseIntensity + potencyBonus;
+        itemData.system.intensity = baseIntensity + targetPotencyBonus;
 
         await targetActor.createEmbeddedDocuments("Item", [itemData]);
         if (context.currentPhaseOutputs?.notes) {
@@ -300,59 +338,79 @@ export class BDeedBehaviorHandler {
 
     if (placement === "on_self" && token) {
       dropPos = { x: token.x, y: token.y };
-    } else if (placement === "on_target" && context.targets?.length > 0) {
-      const firstTarget = context.targets[0];
-      dropPos = { x: firstTarget.x ?? firstTarget.center?.x ?? 0, y: firstTarget.y ?? firstTarget.center?.y ?? 0 };
+    } else if (placement === "on_target" && context.targets?.[0]) {
+      const targetToken = context.targets[0];
+      dropPos = { x: targetToken.x, y: targetToken.y };
+    } else if (placement === "choose" && token) {
+      const deedData = { targetType: "blast", targetSize: 1, range: item?.system?.range || 0 };
+      const result = await TargetingHelper.placeTemplate(actor, token, deedData);
+      if (result && result.squares?.[0]) {
+        const sq = result.squares[0];
+        dropPos = { x: sq.x * canvas.grid.size, y: sq.y * canvas.grid.size };
+      }
     }
 
-    const createdDocs = await TerrainHelper.placeTerrainOnCanvas(terrainItem, dropPos, {
+    const tileData = {
+      texture: { src: terrainItem.img || "icons/svg/item-bag.svg" },
+      width: canvas.grid.size,
+      height: canvas.grid.size,
+      x: dropPos.x,
+      y: dropPos.y,
       flags: {
         trespasser: {
-          spawnedByBDeedId: item.id,
-          behaviorId: behavior.id
+          isTerrain: true,
+          terrainUuid: terrainItem.uuid,
+          terrainName: terrainItem.name,
+          sourceItemId: item?.id || null
         }
       }
-    });
+    };
 
-    if (createdDocs) {
-      context.spawnedTerrains.push({
-        behaviorId: behavior.id,
-        docs: createdDocs
-      });
-      if (context.currentPhaseOutputs?.notes) {
-        context.currentPhaseOutputs.notes.push(`Spawned terrain "${terrainItem.name}"`);
-      }
+    const createdTiles = await canvas.scene?.createEmbeddedDocuments("Tile", [tileData]);
+    if (createdTiles && createdTiles.length > 0) {
+      context.spawnedTerrains.push(createdTiles[0]);
+    }
+
+    if (context.currentPhaseOutputs?.notes) {
+      context.currentPhaseOutputs.notes.push(`Spawned terrain "${terrainItem.name}" on canvas`);
     }
     return true;
   }
 
   /**
-   * 5. moveTerrain: Relocates terrain created by a previous spawnTerrain behavior
+   * 5. moveTerrain: Move spawned terrain tiles on canvas
    * @protected
    */
   static async _moveTerrain(behavior, context, item) {
     const params = behavior.params || {};
-    const targetBehaviorId = params.terrainBehaviorId;
+    const mode = params.terrainSelectMode || "last_spawned";
+    const distance = parseInt(params.distance) || 1;
 
-    const regions = Array.from(canvas.regions?.placeables ?? []).filter(r =>
-      r.document?.flags?.trespasser?.spawnedByBDeedId === item.id &&
-      (!targetBehaviorId || r.document?.flags?.trespasser?.behaviorId === targetBehaviorId)
-    );
-
-    if (regions.length === 0) {
-      ui.notifications.warn("No matching spawned terrain found on canvas to move.");
-      return true;
+    let targetTiles = [];
+    if (mode === "last_spawned") {
+      if (context.spawnedTerrains?.length > 0) {
+        targetTiles = [context.spawnedTerrains[context.spawnedTerrains.length - 1]];
+      }
+    } else if (mode === "all_spawned") {
+      targetTiles = context.spawnedTerrains || [];
     }
 
-    const selectedRegion = regions[0];
+    if (targetTiles.length === 0) return true;
+
+    for (const tileDoc of targetTiles) {
+      const gridPx = canvas.grid.size;
+      const updates = { _id: tileDoc.id, x: tileDoc.x + (distance * gridPx) };
+      await canvas.scene?.updateEmbeddedDocuments("Tile", [updates]);
+    }
+
     if (context.currentPhaseOutputs?.notes) {
-      context.currentPhaseOutputs.notes.push(`Moved terrain "${selectedRegion.name || 'Terrain'}"`);
+      context.currentPhaseOutputs.notes.push(`Moved ${targetTiles.length} terrain tile(s) by ${distance} sq`);
     }
     return true;
   }
 
   /**
-   * 6. moveSource: Move the source actor token
+   * 6. moveSource: Move the executing token
    * @protected
    */
   static async _moveSource(behavior, context, actor) {
@@ -370,33 +428,43 @@ export class BDeedBehaviorHandler {
   }
 
   /**
-   * 7. forceMoveTargets: Apply forced movement to context.targets (incorporating Impact spark bonus distance)
+   * 7. forceMoveTargets: Apply forced movement to validTargets.
+   * Groups targets by their exact layered Impact bonus distance (baseDistance + targetImpactBonus).
    * @protected
    */
-  static async _forceMoveTargets(behavior, context, actor) {
+  static async _forceMoveTargets(behavior, context, actor, item, phaseKey = "") {
     const params = behavior.params || {};
     const type = params.type || "push";
     const baseDistance = parseInt(params.distance) || 1;
-    const impactBonus = context.sparkChoices?.impactBonus || 0;
-    const totalDistance = baseDistance + impactBonus;
-
     const sourceToken = this._findToken(actor);
 
-    let validTargets = context.targets || [];
-    if (context.accuracyResults && context.accuracyResults.length > 0) {
-      const hitTokenIds = new Set(
-        context.accuracyResults.filter(r => r.isHit && r.tokenId).map(r => r.tokenId)
-      );
-      validTargets = validTargets.filter(t => hitTokenIds.has(t.id));
+    const validTargets = this.getValidTargets(context, phaseKey);
+    if (validTargets.length === 0) return true;
+
+    // Group target tokens by their total calculated forced movement distance
+    const distanceGroups = new Map();
+
+    for (const targetToken of validTargets) {
+      const targetChoices = context.sparkChoices?.perTarget?.get(targetToken.id);
+      const targetImpactBonus = (targetChoices?.impact || 0) * 2;
+      const dist = baseDistance + targetImpactBonus;
+
+      if (!distanceGroups.has(dist)) distanceGroups.set(dist, []);
+      distanceGroups.get(dist).push(targetToken);
     }
 
-    if (validTargets.length === 0) {
-      return true;
+    for (const [dist, groupTargets] of distanceGroups.entries()) {
+      await ForcedMovementHelper.executeForcedMovement(sourceToken, groupTargets, type, dist);
     }
 
-    await ForcedMovementHelper.executeForcedMovement(sourceToken, validTargets, type, totalDistance);
     if (context.currentPhaseOutputs?.notes) {
-      context.currentPhaseOutputs.notes.push(`Forced movement (${type} ${totalDistance} sq${impactBonus > 0 ? ` [includes +${impactBonus} Impact]` : ''}) applied to target(s)`);
+      const summaries = [];
+      for (const [dist, groupTargets] of distanceGroups.entries()) {
+        summaries.push(`${groupTargets.length} target(s) moved ${dist} sq`);
+      }
+      context.currentPhaseOutputs.notes.push(
+        `Forced movement (${type}): ${summaries.join("; ")}`
+      );
     }
     return true;
   }

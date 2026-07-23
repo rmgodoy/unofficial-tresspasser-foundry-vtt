@@ -45,10 +45,11 @@ export class BDeedExecutor {
   }
 
   /**
-   * Resolve Action Point (AP) usage, prompt if necessary, deduct combatant AP, and compute AP accuracy bonus.
+   * Validate Focus and AP resources without mutating documents or deducting flags.
+   * Prompts for AP usage if necessary.
    * @protected
    */
-  async _resolveAPUsage() {
+  async _validateResources() {
     if (!this.actor) return true;
 
     const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
@@ -67,25 +68,94 @@ export class BDeedExecutor {
         apSpent = Math.max(1, parseInt(this.options.apSpent) || 1);
       } else if (availableAP > 1) {
         apSpent = await askAPDialog(availableAP);
-        if (apSpent === null || apSpent === undefined) return false; // User cancelled
+        if (apSpent === null || apSpent === undefined) return false; // User cancelled AP dialog
       }
 
       apBonus = (apSpent - 1) * 2;
-      await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - apSpent));
+    }
+
+    const usedActions = new Set(combatant?.getFlag("trespasser", "usedHUDActions") ?? []);
+    const surcharge = usedActions.has("maneuver") ? 2 : 0;
+
+    const tier = (this.system.tier || "light").toLowerCase();
+    let baseCost = this.system.focusCost;
+    if (baseCost === null || baseCost === undefined) {
+      if (tier === "heavy") baseCost = 2;
+      else if (tier === "mighty") baseCost = 4;
+      else baseCost = 0;
+    }
+
+    let costIncrease = this.system.focusIncrease;
+    if (costIncrease === null || costIncrease === undefined) {
+      costIncrease = (tier === "heavy" || tier === "mighty") ? 1 : 0;
+    }
+
+    const currentBonusCost = this.system.bonusCost || 0;
+    const currentUses = this.system.uses || 0;
+    const totalFocusCost = baseCost + currentBonusCost + surcharge;
+
+    if (totalFocusCost > 0) {
+      const currentFocus = this.actor.system.combat?.focus ?? 0;
+      if (restrictAPF && currentFocus < totalFocusCost) {
+        ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Combat.NotEnoughFocus", {
+          name: this.item.name,
+          cost: totalFocusCost,
+          current: currentFocus
+        }));
+        return false;
+      }
     }
 
     this.context.apSpent = apSpent;
     this.context.apBonus = apBonus;
+    this.context.totalFocusCost = totalFocusCost;
+    this.context.costIncrease = costIncrease;
+    this.context.currentBonusCost = currentBonusCost;
+    this.context.currentUses = currentUses;
+
     return true;
+  }
+
+  /**
+   * Commit AP, Focus, and Item Uses deductions to database after successful pipeline execution.
+   * @protected
+   */
+  async _commitResourceUsage() {
+    if (!this.actor) return;
+
+    const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
+
+    // 1. Deduct AP from combatant flags
+    if (combatant && this.context.apSpent > 0) {
+      const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+      await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - this.context.apSpent));
+    }
+
+    // 2. Deduct Focus from actor combat state
+    if (this.context.totalFocusCost > 0) {
+      const currentFocus = this.actor.system.combat?.focus ?? 0;
+      const newFocus = Math.max(0, currentFocus - this.context.totalFocusCost);
+      await this.actor.update({ "system.combat.focus": newFocus });
+    }
+
+    // 3. Increment uses and update bonusCost on item document
+    if (this.context.costIncrease > 0) {
+      const newUses = (this.context.currentUses || 0) + 1;
+      const newBonusCost = (this.context.currentBonusCost || 0) + this.context.costIncrease;
+      await this.item.update({
+        "system.uses": newUses,
+        "system.bonusCost": newBonusCost
+      });
+    }
   }
 
   /**
    * Execute the full BDeed pipeline sequentially.
    */
   async execute() {
-    // Resolve AP usage and AP bonus accuracy prior to phase execution
-    const apOk = await this._resolveAPUsage();
-    if (apOk === false) return;
+    // Step 0: Validate AP and Focus upfront before pipeline starts (no mutations yet)
+    const valid = await this._validateResources();
+    if (valid === false) return;
 
     // Deep clone phase data so mutations don't alter the database document
     this.phases = foundry.utils.deepClone(this.system.phases ?? {});
@@ -97,12 +167,21 @@ export class BDeedExecutor {
     this._applyModifications();
 
     // Step 3: Sequential phase processing
+    let cancelled = false;
     const phaseOrder = ["start", "before", "base", "hit", "spark", "after", "end"];
     for (const phaseKey of phaseOrder) {
       if (this._shouldSkipPhase(phaseKey)) continue;
       this.context.activePhases.push(phaseKey);
       const res = await this._executePhase(phaseKey);
-      if (res === false) break; // User cancelled execution or target selection
+      if (res === false) {
+        cancelled = true;
+        break; // User cancelled execution or target selection
+      }
+    }
+
+    // If execution was cancelled (e.g. template target selection or roll dialog cancelled), do NOT commit resources!
+    if (!cancelled) {
+      await this._commitResourceUsage();
     }
 
     // Step 4: Clear targets after pipeline execution so next execution starts fresh
@@ -595,7 +674,7 @@ export class BDeedExecutor {
    */
   async _executeBehavior(behavior, phaseKey) {
     console.log(`[BDeedExecutor] Phase "${phaseKey}" — Executing behavior "${behavior.type}" (${behavior.id}):`, behavior.params);
-    return await BDeedBehaviorHandler.dispatch(behavior, this.context, this.actor, this.item);
+    return await BDeedBehaviorHandler.dispatch(behavior, this.context, this.actor, this.item, phaseKey);
   }
 
   /**

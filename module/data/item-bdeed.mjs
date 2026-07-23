@@ -60,6 +60,19 @@ export class TrespasserBDeedData extends foundry.abstract.TypeDataModel {
         initial: null,
         nullable: true
       }),
+      focusIncrease: new fields.NumberField({
+        initial: null,
+        nullable: true
+      }),
+      bonusCost: new fields.NumberField({
+        initial: null,
+        nullable: true
+      }),
+      uses: new fields.NumberField({
+        initial: 0,
+        min: 0,
+        integer: true
+      }),
       range: new fields.NumberField({
         initial: null,
         min: 0,
