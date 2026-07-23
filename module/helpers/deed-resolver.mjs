@@ -151,7 +151,7 @@ export class DeedResolver {
    */
   static async #executeMovementAction(action, sourceToken, actor, context) {
     const distance = action.movementDistance || 0;
-    if (distance <= 0) return;
+    if (!sourceToken || distance <= 0) return;
 
     const gridPx = canvas.grid.size;
 
@@ -202,15 +202,17 @@ export class DeedResolver {
       default: {
         // Vault-style: show valid destinations and let player pick
         const jumpResult = await new Promise((resolve) => {
-          MovementOverlay.activateVaultMode(sourceToken, distance, { free: true, phaseAction: true });
-          // Listen for the vault completion
-          Hooks.once("trespasserVaultComplete", (token, destination) => {
+          const onComplete = (token, destination) => {
+            Hooks.off("trespasserVaultCancelled", onCancel);
             resolve(destination);
-          });
-          // Also listen for cancellation
-          Hooks.once("trespasserVaultCancelled", () => {
+          };
+          const onCancel = () => {
+            Hooks.off("trespasserVaultComplete", onComplete);
             resolve(null);
-          });
+          };
+          Hooks.once("trespasserVaultComplete", onComplete);
+          Hooks.once("trespasserVaultCancelled", onCancel);
+          MovementOverlay.activateVaultMode(sourceToken, distance, { free: true, phaseAction: true });
         });
         if (!jumpResult) return;
         destinationSquares = [jumpResult];

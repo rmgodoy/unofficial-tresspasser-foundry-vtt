@@ -366,11 +366,13 @@ export class MovementOverlay {
 
     static activateVaultMode(token, maxRange, options = {}) {
         if (!token) return;
+        if (this.isActive) this.deactivate();
         this.mode = "vault";
         this.token = token;
         this.maxRange = maxRange;
         this.options = options;
         this.isValidTarget = false;
+        this._isCompleting = false;
 
         document.body.style.cursor = "crosshair";
 
@@ -387,6 +389,10 @@ export class MovementOverlay {
     }
 
     static deactivate() {
+        const prevMode = this.mode;
+        const targetToken = this.token;
+        const isCompleting = this._isCompleting;
+
         this.mode = null;
         this.token = null;
         this.maxRange = null;
@@ -396,6 +402,7 @@ export class MovementOverlay {
         this.validVaultSquares = [];
         this.waypoints = [];
         this.currentPath = [];
+        this._isCompleting = false;
 
         if (this.graphics) this.graphics.clear();
         if (this.pathLineGraphics) this.pathLineGraphics.clear();
@@ -412,6 +419,10 @@ export class MovementOverlay {
         }
         if (canvas.app && canvas.app.view) {
             canvas.app.view.removeEventListener("contextmenu", this._onClickRight);
+        }
+
+        if (prevMode === "vault" && !isCompleting && targetToken) {
+            Hooks.callAll("trespasserVaultCancelled", targetToken);
         }
     }
 
@@ -620,14 +631,17 @@ export class MovementOverlay {
                 await TrespasserCombat.recordHUDAction(this.token.actor, "vault");
             }
 
-            await tokenDoc.update({x: snapped.x, y: snapped.y}, { 
-                animation: { movement: "jump" },
-                movementAction: "jump",
-                trespasserPhaseAction: !!(this.options?.phaseAction || this.options?.free)
-            });
+            if (!this.options?.phaseAction) {
+                await tokenDoc.update({x: snapped.x, y: snapped.y}, { 
+                    animation: { movement: "jump" },
+                    movementAction: "jump",
+                    trespasserPhaseAction: !!(this.options?.phaseAction || this.options?.free)
+                });
+            }
             
             if (game.trespasser && game.trespasser.tokenHUD) game.trespasser.tokenHUD.render();
             const targetToken = this.token;
+            this._isCompleting = true;
             this.deactivate();
             Hooks.callAll("trespasserVaultComplete", targetToken, snapped);
 
@@ -751,12 +765,7 @@ export class MovementOverlay {
     static _onClickRight(ev) {
         if (this.isActive) {
             ev.preventDefault();
-            const mode = this.mode;
-            const targetToken = this.token;
             this.deactivate();
-            if (mode === "vault") {
-                Hooks.callAll("trespasserVaultCancelled", targetToken);
-            }
         }
     }
 }
