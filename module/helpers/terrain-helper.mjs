@@ -105,6 +105,7 @@ export class TerrainHelper {
       name: terrainItem.name,
       shapes: shapes,
       color: color,
+      visibility: CONST.REGION_VISIBILITY.ALWAYS,
       behaviors: [{
         type: "executeScript",
         name: "Terrain Tracking",
@@ -127,78 +128,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     };
 
     const createdRegions = await canvas.scene.createEmbeddedDocuments("Region", [regionData]);
-    const region = createdRegions[0];
-
-    // Create drawings for all shapes (except emanation which tracks token)
-    const drawingsData = [];
-    if (sys.centerMode !== "actor") {
-      for (let i = 0; i < shapes.length; i++) {
-        const shp = shapes[i];
-        drawingsData.push({
-          shape: {
-            type: "r",
-            width: shp.width,
-            height: shp.height
-          },
-          x: shp.x,
-          y: shp.y,
-          fillType: sys.terrainImage ? 2 : 1,
-          fillColor: color,
-          fillAlpha: 0.4,
-          strokeWidth: 2,
-          strokeColor: color,
-          strokeAlpha: 0.8,
-          texture: sys.terrainImage || "",
-          text: i === 0 ? terrainItem.name : "", // Only label the first drawing
-          fontSize: 24,
-          textColor: "#ffffff",
-          textAlpha: 0.8,
-          flags: {
-            trespasser: {
-              isTerrainVisual: true,
-              regionId: region.id
-            }
-          }
-        });
-      }
-    } else if (centerTokenId) {
-      const token = canvas.tokens.get(centerTokenId);
-      if (token) {
-        const tokenCenterX = token.x + (token.w / 2);
-        const tokenCenterY = token.y + (token.h / 2);
-        const drawingX = Math.round((tokenCenterX - w / 2) / gridSize) * gridSize;
-        const drawingY = Math.round((tokenCenterY - h / 2) / gridSize) * gridSize;
-        
-        drawingsData.push({
-          shape: { type: "r", width: w, height: h },
-          x: drawingX,
-          y: drawingY,
-          fillType: sys.terrainImage ? 2 : 1,
-          fillColor: color,
-          fillAlpha: 0.4,
-          strokeWidth: 2,
-          strokeColor: color,
-          strokeAlpha: 0.8,
-          texture: sys.terrainImage || "",
-          text: terrainItem.name,
-          fontSize: 24,
-          textColor: "#ffffff",
-          textAlpha: 0.8,
-          flags: {
-            trespasser: {
-              isTerrainVisual: true,
-              regionId: region.id
-            }
-          }
-        });
-      }
-    }
-
-    if (drawingsData.length > 0) {
-      const createdDrawings = await canvas.scene.createEmbeddedDocuments("Drawing", drawingsData);
-      const drawingIds = createdDrawings.map(d => d.id);
-      await region.update({ "flags.trespasser.drawingIds": drawingIds });
-    }
+    return createdRegions[0];
   }
 
   /**
@@ -531,19 +461,6 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     };
 
     await canvas.scene.updateEmbeddedDocuments("Region", [updates]);
-
-    const drawingId = region.flags?.trespasser?.drawingId;
-    if (drawingId) {
-      const drawing = canvas.scene.drawings.get(drawingId);
-      if (drawing) {
-        await canvas.scene.updateEmbeddedDocuments("Drawing", [{
-          _id: drawingId,
-          text: newTerrainData.name,
-          fillColor: color,
-          strokeColor: color
-        }]);
-      }
-    }
   }
 
   // ── Terrain Movement ────────────────────────────────────────────────────────
