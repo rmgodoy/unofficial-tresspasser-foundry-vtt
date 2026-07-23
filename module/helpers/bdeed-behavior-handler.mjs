@@ -48,6 +48,15 @@ export class BDeedBehaviorHandler {
     return canvas.tokens?.controlled[0] || null;
   }
 
+  static getTokenDisplayName(target) {
+    if (!target) return "Target";
+    const actor = target.actor || (target instanceof Actor ? target : null);
+    if (actor?.name) return actor.name;
+    if (target.document?.name) return target.document.name;
+    if (target.name) return target.name;
+    return "Target";
+  }
+
   /**
    * Helper to filter valid target tokens for damage/effects/movement behaviors.
    * If accuracy check ran, filters hit targets.
@@ -250,17 +259,27 @@ export class BDeedBehaviorHandler {
       }
     }
 
-    // 4. Apply per-target damage based on each target's layered power dice count
+    // 4. Apply per-target damage based on each target's layered power dice count & build chat output lines
+    const targetDamageLines = [];
     for (const targetToken of validTargets) {
       const targetActor = targetToken.actor || (targetToken instanceof Actor ? targetToken : null);
       if (!targetActor) continue;
 
+      const tokenName = BDeedBehaviorHandler.getTokenDisplayName(targetToken);
       const targetChoices = context.sparkChoices?.perTarget?.get(targetToken.id);
       const targetPowerCount = Math.min(maxPowerDice, targetChoices?.power || 0);
       const targetPowerDmg = powerDiceRolls[targetPowerCount] || 0;
       const targetDmg = baseTotal + targetPowerDmg;
 
       await targetActor.applyDamage(targetDmg);
+
+      const powerBonusLabel = targetPowerCount > 0 ? ` <span style="font-size:10px; color:#e8c96b;">(+${targetPowerDmg} Power)</span>` : "";
+      targetDamageLines.push(`
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-top:4px; padding-top:3px; border-top:1px dotted var(--trp-border-light, #5c4f3a);">
+          <span><strong>${tokenName}</strong>${powerBonusLabel}</span>
+          <span style="color:#ff5252; font-weight:bold;">⚡ ${targetDmg} ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Dano"}</span>
+        </div>
+      `);
     }
 
     const rollHtml = await combinedRoll.render();
@@ -273,9 +292,12 @@ export class BDeedBehaviorHandler {
     context.currentPhaseOutputs.rollEntries.push(`
       <div class="damage-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
         <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: 12px; font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-          ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Damage"}: ${expr}${maxPowerDice > 0 ? " (Power Spark layered per target)" : ""}
+          ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Damage"}: ${expr}${maxPowerDice > 0 ? " (Power Spark)" : ""}
         </h4>
         ${rollHtml}
+        <div class="target-damage-results" style="margin-top: 6px;">
+          ${targetDamageLines.join("")}
+        </div>
       </div>
     `);
 
@@ -313,7 +335,8 @@ export class BDeedBehaviorHandler {
 
         await targetActor.createEmbeddedDocuments("Item", [itemData]);
         if (context.currentPhaseOutputs?.notes) {
-          context.currentPhaseOutputs.notes.push(`Applied effect "${effectItem.name}" (Intensity ${itemData.system.intensity}) to ${targetActor.name}`);
+          const tokenName = BDeedBehaviorHandler.getTokenDisplayName(targetToken);
+          context.currentPhaseOutputs.notes.push(`Applied effect "${effectItem.name}" (Intensity ${itemData.system.intensity}) to ${tokenName}`);
         }
       }
     }

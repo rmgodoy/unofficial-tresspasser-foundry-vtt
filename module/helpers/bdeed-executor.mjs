@@ -406,7 +406,7 @@ export class BDeedExecutor {
         if (!targetActor) continue;
 
         const statKey = versus.toLowerCase(); // "guard" or "resist"
-        const tokenName = targetToken?.name || targetToken?.document?.name || targetActor?.name || "Target";
+        const tokenName = BDeedBehaviorHandler.getTokenDisplayName(targetToken);
         let defTotal = 10;
         let diceResult = 10;
 
@@ -563,7 +563,7 @@ export class BDeedExecutor {
 
     for (const targetToken of actualTargets) {
       const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
-      const tokenName = targetToken?.name || targetToken?.document?.name || targetActor?.name || null;
+      const tokenName = targetToken ? BDeedBehaviorHandler.getTokenDisplayName(targetToken) : null;
       let dc = 10;
 
       // Support deeds automatically have DC 10
@@ -712,7 +712,17 @@ export class BDeedExecutor {
 
     content += `</div>`;
 
-    const speaker = this.actor ? ChatMessage.getSpeaker({ actor: this.actor }) : ChatMessage.getSpeaker();
+    const sourceToken = this.actor?.token?.object ||
+                        canvas.tokens?.controlled.find(t => t.actor?.id === this.actor?.id) ||
+                        canvas.tokens?.placeables.find(t => t.actor?.id === this.actor?.id);
+
+    const alias = sourceToken ? BDeedBehaviorHandler.getTokenDisplayName(sourceToken) : BDeedBehaviorHandler.getTokenDisplayName(this.actor);
+
+    const speaker = sourceToken
+      ? ChatMessage.getSpeaker({ token: sourceToken.document || sourceToken, actor: this.actor, alias })
+      : (this.actor ? ChatMessage.getSpeaker({ actor: this.actor, alias }) : ChatMessage.getSpeaker({ alias }));
+    speaker.alias = alias;
+
     await ChatMessage.create({
       speaker,
       content,

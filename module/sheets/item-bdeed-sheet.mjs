@@ -1,5 +1,4 @@
 import { BEHAVIOR_TYPES } from "../data/item-bdeed.mjs";
-import { BDeedExecutor } from "../helpers/bdeed-executor.mjs";
 
 const { api, sheets } = foundry.applications;
 
@@ -62,8 +61,7 @@ export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.
       moveBehaviorUp:        TrespasserBDeedSheet.#onMoveBehaviorUp,
       moveBehaviorDown:      TrespasserBDeedSheet.#onMoveBehaviorDown,
       removeBehaviorEffect:  TrespasserBDeedSheet.#onRemoveBehaviorEffect,
-      copyBehaviorId:        TrespasserBDeedSheet.#onCopyBehaviorId,
-      useBDeed:              TrespasserBDeedSheet.#onUseBDeed,
+      copyBehaviorId:        TrespasserBDeedSheet.#onCopyBehaviorId
     },
     form: {
       handler: TrespasserBDeedSheet.#onSubmit,
@@ -425,11 +423,5 @@ export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.
     }
 
     ui.notifications.info(`Copied behavior ID "${id}" to clipboard.`);
-  }
-
-  static async #onUseBDeed(event, target) {
-    event.preventDefault();
-    const executor = new BDeedExecutor(this.document, this.document.actor);
-    await executor.execute();
   }
 }
