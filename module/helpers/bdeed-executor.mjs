@@ -1,3 +1,9 @@
+import { BDeedBehaviorHandler } from "./bdeed-behavior-handler.mjs";
+import { TrespasserEffectsHelper } from "./effects-helper.mjs";
+import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
+import { askSparkDialog } from "../dialogs/spark-dialog.mjs";
+import { requestPlayerDefenseRoll } from "./defense-roll-helper.mjs";
+
 /**
  * BDeedExecutor — Runtime pipeline executor for Behavior-Driven Deeds (BDeed) in Trespasser TTRPG.
  *
@@ -11,7 +17,7 @@ export class BDeedExecutor {
    */
   constructor(bdeedItem, actor) {
     this.item = bdeedItem;
-    this.actor = actor || bdeedItem.actor;
+    this.actor = actor || bdeedItem.actor || canvas.tokens?.controlled[0]?.actor || game.user.character || null;
     this.system = bdeedItem.system;
 
     /**
@@ -24,7 +30,11 @@ export class BDeedExecutor {
       modifications: [],
       rollResult: null,
       isHit: false,
-      isSpark: false
+      isSpark: false,
+      maxSparks: 0,
+      sparkChoices: null,
+      accuracyResults: [],
+      currentPhaseOutputs: null
     };
   }
 
@@ -46,7 +56,14 @@ export class BDeedExecutor {
     for (const phaseKey of phaseOrder) {
       if (this._shouldSkipPhase(phaseKey)) continue;
       this.context.activePhases.push(phaseKey);
-      await this._executePhase(phaseKey);
+      const res = await this._executePhase(phaseKey);
+      if (res === false) break; // User cancelled execution or target selection
+    }
+
+    // Step 4: Clear targets after pipeline execution so next execution starts fresh
+    this.context.targets = [];
+    if (game.user.targets.size > 0) {
+      game.user.updateTokenTargets([]);
     }
   }
 
@@ -151,6 +168,23 @@ export class BDeedExecutor {
   }
 
   /**
+   * Find the first behavior matching a given type across phases.
+   * @param {string} type
+   * @returns {object|null}
+   * @protected
+   */
+  _findBehaviorByType(type) {
+    const phaseOrder = ["start", "before", "base", "hit", "spark", "after", "end"];
+    for (const pKey of phaseOrder) {
+      const phase = this.phases[pKey];
+      if (!phase || !phase.behaviors) continue;
+      const found = phase.behaviors.find(b => b.type === type);
+      if (found) return found;
+    }
+    return null;
+  }
+
+  /**
    * Determine if a phase should be skipped during pipeline execution.
    * @param {string} phaseKey
    * @returns {boolean}
@@ -180,72 +214,347 @@ export class BDeedExecutor {
   async _executePhase(phaseKey) {
     const phase = this.phases[phaseKey];
 
-    // Base phase triggers accuracy check
+    // Initialize phase output container for consolidated single card rendering
+    this.context.currentPhaseOutputs = {
+      rolls: [],
+      rollEntries: [],
+      notes: [],
+      accuracyHtml: ""
+    };
+
+    // Base phase triggers target selection (if not already done) and accuracy check
     if (phaseKey === "base") {
-      await this._resolveAccuracyCheck();
+      const continueExecution = await this._resolveAccuracyCheck();
+      if (continueExecution === false) return false;
     }
 
     // Execute each behavior in order
     for (const behavior of phase.behaviors || []) {
-      await this._executeBehavior(behavior, phaseKey);
+      if (behavior._alreadyExecuted) continue;
+      const result = await this._executeBehavior(behavior, phaseKey);
+      if (result === false) return false;
     }
 
-    // Post dedicated chat card for this active phase
+    // Post single consolidated chat card for this active phase
     await this._postPhaseCard(phaseKey, phase);
   }
 
   /**
-   * Perform Base phase accuracy check.
+   * Perform Base phase accuracy check matching legacy Deed logic.
+   * If creature attacking PC characters, prompts the player owner via websocket socket to roll defense.
    * @protected
    */
   async _resolveAccuracyCheck() {
+    const isAttack = this.system.actionType !== "support";
     const versus = this.system.versus ?? "Guard";
-    let dc = 10;
 
-    // Resolve DC from selected targets if versus Guard/Resist
-    const targets = Array.from(game.user.targets);
-    if (targets.length > 0) {
-      const targetActor = targets[0].actor;
-      if (targetActor) {
-        if (versus === "Guard") {
-          dc = targetActor.system.guard ?? 10;
-        } else if (versus === "Resist") {
-          dc = targetActor.system.resist ?? 10;
-        }
+    // 1. Ensure target selection runs FIRST before accuracy DC calculation
+    if ((!this.context.targets || this.context.targets.length === 0) && isAttack) {
+      const selectBehavior = this._findBehaviorByType("selectTarget");
+      if (selectBehavior && !selectBehavior._alreadyExecuted) {
+        selectBehavior._alreadyExecuted = true;
+        const selectRes = await BDeedBehaviorHandler.dispatch(selectBehavior, this.context, this.actor, this.item);
+        if (selectRes === false) return false; // Target selection cancelled
       }
     }
 
-    const roll = new Roll("1d20");
-    await roll.evaluate();
+    const isCreatureAttacker = this.actor?.type === "creature";
 
-    const total = roll.total;
-    const isHit = total >= dc;
-    const isSpark = roll.dice[0]?.results[0]?.result === 20 || total >= dc + 5;
+    // ─────────────────────────────────────────────────────────────────────────
+    // Creature Attacking Characters (Player-Facing Defense Roll via Socket)
+    // ─────────────────────────────────────────────────────────────────────────
+    if (isCreatureAttacker && isAttack) {
+      const creatureEffBonus = this.actor ? TrespasserEffectsHelper.getAttributeBonus(this.actor, "accuracy", "use") : 0;
+      const creatureAccuracy = this.actor?.system?.combat?.accuracy ?? 0;
+      const creatureDC = creatureAccuracy + creatureEffBonus;
 
-    this.context.rollResult = roll;
-    this.context.isHit = isHit;
-    this.context.isSpark = isSpark;
-    this.context.dc = dc;
+      let anyHit = false;
+      let maxSparks = 0;
+      const results = [];
+
+      const targetList = (this.context.targets && this.context.targets.length > 0)
+        ? this.context.targets
+        : Array.from(game.user.targets);
+
+      for (const targetToken of targetList) {
+        const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
+        if (!targetActor) continue;
+
+        const statKey = versus.toLowerCase(); // "guard" or "resist"
+        const tokenName = targetToken?.name || targetToken?.document?.name || targetActor?.name || "Target";
+        let defTotal = 10;
+        let diceResult = 10;
+
+        if (targetActor.type === "creature") {
+          // NPC vs NPC: compare creature DC vs target creature stat directly
+          const totalDef = targetActor.system?.combat?.[statKey] ?? 10;
+          const defEffBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");
+          defTotal = totalDef + defEffBonus;
+        } else {
+          // Player character target: prompt player via websocket socket to roll defense
+          const defResult = await requestPlayerDefenseRoll({
+            targetActorId: targetActor.id,
+            targetTokenId: targetToken.id,
+            statKey,
+            creatureDC,
+            deedName: this.item.name,
+            creatureName: this.actor.name
+          });
+
+          if (!defResult) return false; // Player cancelled defense roll
+
+          defTotal = defResult.total;
+          diceResult = defResult.diceResult;
+        }
+
+        const isHit = creatureDC >= defTotal;
+        if (isHit) anyHit = true;
+
+        const diff = creatureDC - defTotal;
+        let sparks = 0;
+        let shadows = 0;
+        if (diff >= 0) sparks = Math.floor(diff / 5);
+        else shadows = Math.floor(Math.abs(diff) / 5);
+
+        if (diceResult === 20) sparks += 1;
+        if (diceResult === 1) shadows += 1;
+
+        // Sparks cancel Shadows
+        const net = sparks - shadows;
+        sparks = Math.max(0, net);
+        shadows = Math.max(0, -net);
+
+        if (sparks > maxSparks) maxSparks = sparks;
+
+        results.push({
+          tokenId: targetToken?.id ?? null,
+          tokenName,
+          actorId: targetActor?.id ?? null,
+          isHit,
+          sparks,
+          shadows,
+          rollTotal: defTotal,
+          dc: creatureDC
+        });
+      }
+
+      let sparkChoices = null;
+      if (maxSparks > 0 && anyHit) {
+        sparkChoices = await askSparkDialog(results);
+      }
+
+      const applySparkPhase = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark !== false);
+
+      this.context.isHit = anyHit;
+      this.context.isSpark = applySparkPhase;
+      this.context.maxSparks = maxSparks;
+      this.context.sparkChoices = sparkChoices;
+      this.context.accuracyResults = results;
+
+      // Post creature defense roll results HTML
+      let resultsHtml = "";
+      for (const res of results) {
+        resultsHtml += `
+          <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong>${res.tokenName} <span style="font-size:10px;color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs DC: ${res.dc})</span></strong>
+              <span class="${res.isHit ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${res.isHit ? '#4fc3f7' : '#ff5252'};">${res.isHit ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!") : (game.i18n.localize("TRESPASSER.Chat.Combat.Miss") || "ERRO!")}</span>
+            </div>
+            <div style="display:flex;gap:10px;font-size:11px;margin-top:2px;">
+              <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
+              <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
+            </div>
+          </div>`;
+      }
+
+      if (!this.context.currentPhaseOutputs) {
+        this.context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
+      }
+
+      this.context.currentPhaseOutputs.accuracyHtml = `
+        <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
+          <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: 12px; font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
+            ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: this.item.name })} (Creature Attack DC: ${creatureDC})
+          </h4>
+          ${resultsHtml}
+        </div>`;
+
+      return true;
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // Character Attacking (Player Roll vs Target CD/DC)
+    // ─────────────────────────────────────────────────────────────────────────
+    const isAdv = this.actor ? TrespasserEffectsHelper.hasAdvantage(this.actor, "accuracy") : false;
+    const effectBonus = this.actor ? TrespasserEffectsHelper.getAttributeBonus(this.actor, "accuracy", "use") : 0;
+    const totalAccuracy = this.actor?.system?.combat?.accuracy ?? 0;
+    const baseAccuracy = totalAccuracy - effectBonus;
+    const diceFormula = isAdv ? "2d20kh" : "1d20";
+
+    const rollDialogData = {
+      dice: diceFormula,
+      bonuses: [
+        { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Accuracy") || "Accuracy", value: baseAccuracy },
+        { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus") || "Effect Bonus", value: effectBonus }
+      ]
+    };
+
+    // Prompt user with Trespasser Roll Dialog
+    const dialogResult = await TrespasserRollDialog.wait({
+      ...rollDialogData,
+      showCD: false
+    }, { title: `${this.item.name} Roll` });
+
+    if (!dialogResult) return false; // User cancelled roll dialog
+
+    const userModifier = dialogResult.modifier || 0;
+    const totalBonuses = `${baseAccuracy} + ${effectBonus} + ${userModifier}`;
+    const formula = isAdv ? `2d20kh + ${totalBonuses}` : `1d20 + ${totalBonuses}`;
+
+    const rollData = this.actor?.getRollData() || {};
+    const accRoll = new foundry.dice.Roll(formula, rollData);
+    await accRoll.evaluate();
+
+    const rollTotal = accRoll.total;
+    const diceResult = accRoll.dice[0]?.results?.find(r => r.active)?.result ?? accRoll.dice[0]?.results[0]?.result ?? 10;
+
+    let anyHit = false;
+    let maxSparks = 0;
+    const results = [];
+
+    // Evaluate selected targets from context.targets
+    const targetList = (this.context.targets && this.context.targets.length > 0)
+      ? this.context.targets
+      : Array.from(game.user.targets);
+
+    const actualTargets = isAttack && targetList.length > 0 ? targetList : [null];
+
+    for (const targetToken of actualTargets) {
+      const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
+      const tokenName = targetToken?.name || targetToken?.document?.name || targetActor?.name || null;
+      let dc = 10;
+
+      // Support deeds automatically have DC 10
+      if (!isAttack || versus === "10" || !versus) {
+        dc = 10;
+      } else if (targetActor) {
+        const statKey = versus.toLowerCase(); // "guard" or "resist"
+        const totalDef = targetActor.system?.combat?.[statKey] ?? 10;
+        const effBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");
+        const targetCD = totalDef + effBonus;
+        dc = targetActor.type === "character" ? targetCD + 10 : targetCD;
+      }
+
+      let isHit = rollTotal >= dc;
+      if (diceResult === 20) isHit = true;
+      if (isHit) anyHit = true;
+
+      const diff = rollTotal - dc;
+      let sparks = 0;
+      let shadows = 0;
+      if (diff >= 0) sparks = Math.floor(diff / 5);
+      else shadows = Math.floor(Math.abs(diff) / 5);
+
+      if (diceResult === 20) sparks += 1;
+      if (diceResult === 1) shadows += 1;
+
+      // Sparks cancel Shadows
+      const net = sparks - shadows;
+      sparks = Math.max(0, net);
+      shadows = Math.max(0, -net);
+
+      if (sparks > maxSparks) maxSparks = sparks;
+
+      results.push({
+        tokenId: targetToken?.id ?? null,
+        tokenName,
+        actorId: targetActor?.id ?? null,
+        isHit,
+        sparks,
+        shadows,
+        rollTotal,
+        dc
+      });
+    }
+
+    // Spark selection dialog prompt when sparks are generated
+    let sparkChoices = null;
+    if (maxSparks > 0 && anyHit) {
+      sparkChoices = await askSparkDialog(results);
+    }
+
+    const applySparkPhase = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark !== false);
+
+    this.context.rollResult = accRoll;
+    this.context.isHit = anyHit;
+    this.context.isSpark = applySparkPhase;
+    this.context.maxSparks = maxSparks;
+    this.context.sparkChoices = sparkChoices;
+    this.context.accuracyResults = results;
+
+    const rollHtml = await accRoll.render();
+
+    let resultsHtml = "";
+    for (const res of results) {
+      if (res.tokenName) {
+        resultsHtml += `
+          <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <strong>${res.tokenName} <span style="font-size:10px;color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs ${game.i18n.localize("TRESPASSER.Sheet.Combat." + versus)}: ${res.dc})</span></strong>
+              <span class="${res.isHit ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${res.isHit ? '#4fc3f7' : '#ff5252'};">${res.isHit ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!") : (game.i18n.localize("TRESPASSER.Chat.Combat.Miss") || "ERRO!")}</span>
+            </div>
+            <div style="display:flex;gap:10px;font-size:11px;margin-top:2px;">
+              <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
+              <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
+            </div>
+          </div>`;
+      } else {
+        resultsHtml += `
+          <div class="incantation-metrics" style="display:flex;gap:10px;margin:8px 0;font-weight:bold;">
+            <div style="color:#e8c96b;"><i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</div>
+            <div style="color:#922c2c;"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</div>
+          </div>`;
+      }
+    }
+
+    if (!this.context.currentPhaseOutputs) {
+      this.context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
+    }
+
+    this.context.currentPhaseOutputs.rolls.push(accRoll);
+    this.context.currentPhaseOutputs.accuracyHtml = `
+      <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
+        <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: 12px; font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
+          ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: this.item.name })}${isAdv ? " (Adv)" : ""}
+        </h4>
+        ${rollHtml}
+        ${resultsHtml}
+      </div>`;
+
+    return true;
   }
 
   /**
-   * Execute an individual behavior (stub for Task 6 — full dispatch in Task 7).
+   * Execute an individual behavior.
    * @param {object} behavior
    * @param {string} phaseKey
    * @protected
    */
   async _executeBehavior(behavior, phaseKey) {
     console.log(`[BDeedExecutor] Phase "${phaseKey}" — Executing behavior "${behavior.type}" (${behavior.id}):`, behavior.params);
+    return await BDeedBehaviorHandler.dispatch(behavior, this.context, this.actor, this.item);
   }
 
   /**
-   * Post a dedicated chat card for an active phase.
+   * Post a single consolidated chat card for an active phase containing description, accuracy roll, damage rolls, and behavior notes.
    * @param {string} phaseKey
    * @param {object} phase
    * @protected
    */
   async _postPhaseCard(phaseKey, phase) {
     const phaseLabel = game.i18n.localize(`TRESPASSER.Sheet.BDeed.Phase.${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)}`);
+    const outputs = this.context.currentPhaseOutputs || { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
+
     let content = `<div class="bdeed-phase-card" style="border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px; padding: 10px; background: var(--trp-bg-panel, #23201c); color: var(--trp-text, #ddd0aa);">
       <h3 style="margin: 0 0 6px 0; color: var(--trp-gold-bright, #e8c96b); font-family: var(--trp-font-header, 'Cinzel', serif); font-size: 14px; border-bottom: 1px solid var(--trp-gold-dim, #a88840); padding-bottom: 4px;">
         ${this.item.name} — ${phaseLabel}
@@ -255,21 +564,27 @@ export class BDeedExecutor {
       content += `<p style="margin: 6px 0; font-size: 13px; font-style: italic;">${phase.description}</p>`;
     }
 
-    if (phaseKey === "base" && this.context.rollResult) {
-      content += `<div class="roll-result-box" style="margin-top: 8px; padding: 6px 8px; background: var(--trp-bg-dark, #1a1714); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 3px; font-size: 12px; display: flex; align-items: center; justify-content: space-between;">
-        <span><strong>${game.i18n.localize("TRESPASSER.Sheet.Combat.Accuracy") || "Accuracy"}:</strong> ${this.context.rollResult.total} (vs ${this.system.versus} ${this.context.dc})</span>
-        <span>
-          ${this.context.isHit ? "<strong style='color: #4fc3f7;'>HIT</strong>" : "<strong style='color: #ff5252;'>MISS</strong>"}
-          ${this.context.isSpark ? " <strong style='color: #e8c96b;'>✨ SPARK!</strong>" : ""}
-        </span>
+    if (outputs.accuracyHtml) {
+      content += outputs.accuracyHtml;
+    }
+
+    if (outputs.rollEntries && outputs.rollEntries.length > 0) {
+      content += outputs.rollEntries.join("");
+    }
+
+    if (outputs.notes && outputs.notes.length > 0) {
+      content += `<div class="phase-notes" style="margin-top: 8px; padding-top: 4px; border-top: 1px dashed var(--trp-border, #4a3f2f); font-size: 12px; color: var(--trp-text-dim, #a09070);">
+        ${outputs.notes.map(n => `<div>• ${n}</div>`).join("")}
       </div>`;
     }
 
     content += `</div>`;
 
+    const speaker = this.actor ? ChatMessage.getSpeaker({ actor: this.actor }) : ChatMessage.getSpeaker();
     await ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
+      speaker,
       content,
+      rolls: outputs.rolls || [],
       flags: { trespasser: { bdeedId: this.item.id, phase: phaseKey } }
     });
   }

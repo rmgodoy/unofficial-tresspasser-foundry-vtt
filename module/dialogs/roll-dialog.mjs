@@ -38,7 +38,7 @@ export class TrespasserRollDialog extends foundry.applications.api.HandlebarsApp
     context.dice = this.data.dice || "1d20";
     context.bonuses = this.data.bonuses || [];
     context.showCD = this.data.showCD ?? false;
-    context.cd = this.data.cd || 10;
+    context.cd = this.data.cd ?? 10;
     
     return context;
   }
@@ -47,7 +47,8 @@ export class TrespasserRollDialog extends foundry.applications.api.HandlebarsApp
     event.preventDefault();
     const modifier = parseInt(this.element.querySelector('input[name="modifier"]').value) || 0;
     const cdElement = this.element.querySelector('input[name="cd"]');
-    const cd = cdElement ? (parseInt(cdElement.value) || 10) : null;
+    const parsedCd = cdElement ? parseInt(cdElement.value) : null;
+    const cd = (parsedCd !== null && !isNaN(parsedCd)) ? parsedCd : 10;
 
     this.resolve({ modifier, cd });
     this.close();

@@ -1,0 +1,29 @@
+<div class="target-selection-content" style="padding: 12px; display: flex; flex-direction: column; gap: 10px;">
+  <p class="hint-text" style="margin: 0; font-size: 13px; color: var(--trp-text, #ddd0aa);">
+    Select up to <strong>{{maxCount}}</strong> target token(s) on the canvas.
+  </p>
+
+  {{#if targets.length}}
+    <div class="targeted-tokens-list" style="display: flex; flex-direction: column; gap: 4px; max-height: 150px; overflow-y: auto; background: rgba(0,0,0,0.3); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px; padding: 6px;">
+      {{#each targets}}
+        <div class="target-chip" style="display: flex; align-items: center; gap: 8px; font-size: 12px;">
+          <img src="{{img}}" style="width: 24px; height: 24px; border-radius: 50%; object-fit: cover;"/>
+          <span style="font-weight: 600; color: var(--trp-gold-bright, #e8c96b);">{{name}}</span>
+        </div>
+      {{/each}}
+    </div>
+  {{else}}
+    <div class="empty-targets-warning" style="font-size: 12px; font-style: italic; color: var(--trp-text-dim, #a09070); padding: 8px; text-align: center; border: 1px dashed var(--trp-border, #4a3f2f); border-radius: 4px;">
+      No tokens targeted on canvas yet. Click token(s) to target.
+    </div>
+  {{/if}}
+
+  <div class="dialog-buttons" style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px;">
+    <button type="button" data-action="cancel" style="padding: 4px 12px; font-size: 12px; background: transparent; border: 1px solid var(--trp-border, #4a3f2f); color: var(--trp-text-dim, #a09070); border-radius: 3px; cursor: pointer;">
+      Cancel
+    </button>
+    <button type="button" data-action="confirm" style="padding: 4px 14px; font-size: 12px; font-weight: bold; background: var(--trp-bg-header, #1e1b17); border: 1px solid var(--trp-gold, #c9a84c); color: var(--trp-gold-bright, #e8c96b); border-radius: 3px; cursor: pointer;">
+      Confirm ({{targetCount}}/{{maxCount}})
+    </button>
+  </div>
+</div>

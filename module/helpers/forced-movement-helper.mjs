@@ -519,7 +519,7 @@ export class ForcedMovementHelper {
 
     // 1. Try canvas.walls.checkCollision with mode: "any"
     try {
-      const RayClass = globalThis.Ray || foundry.canvas?.Ray;
+      const RayClass = foundry.canvas.geometry.Ray || globalThis.Ray;
       const ray = RayClass ? new RayClass(p0, p1) : { A: p0, B: p1 };
       const res = canvas.walls.checkCollision(ray, { type: "move", mode: "any" });
       if (res === true) return true;
