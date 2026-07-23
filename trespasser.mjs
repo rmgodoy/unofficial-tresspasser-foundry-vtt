@@ -123,7 +123,6 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/item/terrain/header.hbs",
     "systems/trespasser/templates/item/terrain/tabs.hbs",
     "systems/trespasser/templates/item/terrain/details.hbs",
-    "systems/trespasser/templates/item/terrain/effects.hbs",
     "systems/trespasser/templates/dialogs/non-combat-spark.hbs",
     "systems/trespasser/templates/dialogs/non-combat-shadow.hbs"
   ]);

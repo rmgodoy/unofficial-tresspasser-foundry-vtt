@@ -14,6 +14,7 @@
 
 import { TargetingHelper } from "./targeting-helper.mjs";
 import { MovementOverlay } from "../canvas/movement-overlay.mjs";
+import { TerrainHelper } from "./terrain-helper.mjs";
 
 export class DeedResolver {
 
@@ -141,6 +142,30 @@ export class DeedResolver {
         // This is a marker that says "spawn terrain NOW in this phase"
         context.spawnTerrainNow = true;
         break;
+    }
+  }
+
+  /**
+   * Spawns terrain triggered by a phaseAction terrainSpawn marker.
+   * @param {object} phaseData - Phase data object containing terrainSpawn info
+   * @param {Token} sourceToken - The caster's token
+   * @param {Actor} actor - The caster actor
+   * @param {object} context - Resolution context (pathSquares, etc.)
+   */
+  static async executePhaseTerrainSpawn(phaseData, sourceToken, actor, context = {}) {
+    if (!context?.spawnTerrainNow) return;
+    context.spawnTerrainNow = false;
+
+    if (phaseData?.terrainSpawn?.uuid) {
+      const terrainItem = await fromUuid(phaseData.terrainSpawn.uuid);
+      if (terrainItem) {
+        const options = { spawnedInCombat: true, casterActorId: actor.id };
+        if (phaseData.terrainSpawn?.placement === "on_path" && context.pathSquares) {
+          options.pathSquares = context.pathSquares;
+        }
+        const dropPos = sourceToken ? { x: sourceToken.center.x, y: sourceToken.center.y } : { x: 0, y: 0 };
+        await TerrainHelper.placeTerrainOnCanvas(terrainItem, dropPos, options);
+      }
     }
   }
 

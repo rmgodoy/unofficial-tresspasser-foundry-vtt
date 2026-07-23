@@ -292,20 +292,7 @@ export async function onDeedRoll(event, sheet) {
     if (phaseData?.phaseActions?.length > 0) {
       for (const action of phaseData.phaseActions) {
         await DeedResolver.executePhaseAction(action, sourceToken, sheet.actor, phaseContext);
-        if (phaseContext.spawnTerrainNow) {
-          phaseContext.spawnTerrainNow = false;
-          if (phaseData.terrainSpawn?.uuid) {
-            const terrainItem = await fromUuid(phaseData.terrainSpawn.uuid);
-            if (terrainItem) {
-              const options = { spawnedInCombat: true, casterActorId: sheet.actor.id };
-              if (phaseData.terrainSpawn?.placement === "on_path" && phaseContext.pathSquares) {
-                options.pathSquares = phaseContext.pathSquares;
-              }
-              const dropPos = sourceToken ? { x: sourceToken.center.x, y: sourceToken.center.y } : { x: 0, y: 0 };
-              await TerrainHelper.placeTerrainOnCanvas(terrainItem, dropPos, options);
-            }
-          }
-        }
+        await DeedResolver.executePhaseTerrainSpawn(phaseData, sourceToken, sheet.actor, phaseContext);
       }
     }
   }
@@ -379,26 +366,12 @@ export async function onDeedRoll(event, sheet) {
 
   const activePhasesRest = activePhases.filter(p => ["base", "hit", "spark", "after", "end"].includes(p));
 
-  // Execute in-phase actions sequentially across rest phases
   for (const phaseKey of activePhasesRest) {
     const phaseData = effects[phaseKey];
     if (phaseData?.phaseActions?.length > 0) {
       for (const action of phaseData.phaseActions) {
         await DeedResolver.executePhaseAction(action, sourceToken, sheet.actor, phaseContext);
-        if (phaseContext.spawnTerrainNow) {
-          phaseContext.spawnTerrainNow = false;
-          if (phaseData.terrainSpawn?.uuid) {
-            const terrainItem = await fromUuid(phaseData.terrainSpawn.uuid);
-            if (terrainItem) {
-              const options = { spawnedInCombat: true, casterActorId: sheet.actor.id };
-              if (phaseData.terrainSpawn?.placement === "on_path" && phaseContext.pathSquares) {
-                options.pathSquares = phaseContext.pathSquares;
-              }
-              const dropPos = sourceToken ? { x: sourceToken.center.x, y: sourceToken.center.y } : { x: 0, y: 0 };
-              await TerrainHelper.placeTerrainOnCanvas(terrainItem, dropPos, options);
-            }
-          }
-        }
+        await DeedResolver.executePhaseTerrainSpawn(phaseData, sourceToken, sheet.actor, phaseContext);
       }
     }
   }
