@@ -845,7 +845,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const tierLabels = { light: "L", heavy: "H", mighty: "M", special: "S" };
 
         return this._token.actor.items
-            .filter(i => i.type === "deed")
+            .filter(i => i.type === "deed" || i.type === "bdeed")
             .map(d => {
                 const tier = d.system.tier?.toLowerCase() || "light";
                 let focusCost = d.system.focusCost;
@@ -879,6 +879,16 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
         const deedId  = deedSelect.value;
         const apSpent = parseInt(apSelect.value) || 1;
+        const item    = this._token.actor?.items.get(deedId);
+
+        if (item && item.type === "bdeed") {
+            const { BDeedExecutor } = await import("../helpers/bdeed-executor.mjs");
+            const executor = new BDeedExecutor(item, this._token.actor, { apSpent });
+            await executor.execute();
+            this._activePanel = null;
+            this.render();
+            return;
+        }
 
         // Build a mock sheet compatible with onDeedRoll
         const mockSheet = {

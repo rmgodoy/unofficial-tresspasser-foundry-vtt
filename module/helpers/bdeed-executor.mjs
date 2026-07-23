@@ -3,6 +3,8 @@ import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 import { askSparkDialog } from "../dialogs/spark-dialog.mjs";
 import { requestPlayerDefenseRoll } from "./defense-roll-helper.mjs";
+import { TrespasserCombat } from "../documents/combat.mjs";
+import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 
 /**
  * BDeedExecutor — Runtime pipeline executor for Behavior-Driven Deeds (BDeed) in Trespasser TTRPG.
@@ -14,11 +16,13 @@ export class BDeedExecutor {
   /**
    * @param {Item} bdeedItem - The BDeed Item document.
    * @param {Actor} [actor]  - The owning Actor document.
+   * @param {object} [options] - Additional options (e.g. apSpent from HUD)
    */
-  constructor(bdeedItem, actor) {
+  constructor(bdeedItem, actor, options = {}) {
     this.item = bdeedItem;
     this.actor = actor || bdeedItem.actor || canvas.tokens?.controlled[0]?.actor || game.user.character || null;
     this.system = bdeedItem.system;
+    this.options = options || {};
 
     /**
      * Shared runtime context passed across all phases.
@@ -34,14 +38,55 @@ export class BDeedExecutor {
       maxSparks: 0,
       sparkChoices: null,
       accuracyResults: [],
-      currentPhaseOutputs: null
+      currentPhaseOutputs: null,
+      apSpent: 1,
+      apBonus: 0
     };
+  }
+
+  /**
+   * Resolve Action Point (AP) usage, prompt if necessary, deduct combatant AP, and compute AP accuracy bonus.
+   * @protected
+   */
+  async _resolveAPUsage() {
+    if (!this.actor) return true;
+
+    const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
+    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+    let apSpent = 1;
+    let apBonus = 0;
+
+    if (combatant) {
+      const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+      if (restrictAPF && availableAP < 1) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
+        return false;
+      }
+
+      if (this.options.apSpent !== undefined && this.options.apSpent !== null) {
+        apSpent = Math.max(1, parseInt(this.options.apSpent) || 1);
+      } else if (availableAP > 1) {
+        apSpent = await askAPDialog(availableAP);
+        if (apSpent === null || apSpent === undefined) return false; // User cancelled
+      }
+
+      apBonus = (apSpent - 1) * 2;
+      await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - apSpent));
+    }
+
+    this.context.apSpent = apSpent;
+    this.context.apBonus = apBonus;
+    return true;
   }
 
   /**
    * Execute the full BDeed pipeline sequentially.
    */
   async execute() {
+    // Resolve AP usage and AP bonus accuracy prior to phase execution
+    const apOk = await this._resolveAPUsage();
+    if (apOk === false) return;
+
     // Deep clone phase data so mutations don't alter the database document
     this.phases = foundry.utils.deepClone(this.system.phases ?? {});
 
@@ -247,6 +292,7 @@ export class BDeedExecutor {
   async _resolveAccuracyCheck() {
     const isAttack = this.system.actionType !== "support";
     const versus = this.system.versus ?? "Guard";
+    const apBonus = this.context.apBonus || 0;
 
     // 1. Ensure target selection runs FIRST before accuracy DC calculation
     if ((!this.context.targets || this.context.targets.length === 0) && isAttack) {
@@ -266,7 +312,7 @@ export class BDeedExecutor {
     if (isCreatureAttacker && isAttack) {
       const creatureEffBonus = this.actor ? TrespasserEffectsHelper.getAttributeBonus(this.actor, "accuracy", "use") : 0;
       const creatureAccuracy = this.actor?.system?.combat?.accuracy ?? 0;
-      const creatureDC = creatureAccuracy + creatureEffBonus;
+      const creatureDC = creatureAccuracy + creatureEffBonus + apBonus;
 
       let anyHit = false;
       let maxSparks = 0;
@@ -399,6 +445,13 @@ export class BDeedExecutor {
       ]
     };
 
+    if (apBonus > 0) {
+      rollDialogData.bonuses.push({
+        label: game.i18n.localize("TRESPASSER.Chat.Check.AccuracyFromAP") || "Accuracy from Extra Effort",
+        value: apBonus
+      });
+    }
+
     // Prompt user with Trespasser Roll Dialog
     const dialogResult = await TrespasserRollDialog.wait({
       ...rollDialogData,
@@ -408,7 +461,7 @@ export class BDeedExecutor {
     if (!dialogResult) return false; // User cancelled roll dialog
 
     const userModifier = dialogResult.modifier || 0;
-    const totalBonuses = `${baseAccuracy} + ${effectBonus} + ${userModifier}`;
+    const totalBonuses = `${baseAccuracy} + ${effectBonus} + ${apBonus} + ${userModifier}`;
     const formula = isAdv ? `2d20kh + ${totalBonuses}` : `1d20 + ${totalBonuses}`;
 
     const rollData = this.actor?.getRollData() || {};
