@@ -507,10 +507,16 @@ export async function onDeedRoll(event, sheet) {
       .filter(Boolean);
     
     if (hitTargetTokens.length > 0) {
-      await ForcedMovementHelper.executeForcedMovement(
-        sourceToken, hitTargetTokens, 
-        finalForcedMovement.type, finalForcedMovement.distance
-      );
+      for (const targetToken of hitTargetTokens) {
+        const targetSparks = sparkChoices?.perTarget?.get(targetToken.id);
+        const impactAdd = targetSparks ? (targetSparks.impact * 2) : (sparkChoices?.impactBonus ?? 0);
+        const totalDistance = finalForcedMovement.distance + impactAdd;
+
+        await ForcedMovementHelper.executeForcedMovement(
+          sourceToken, [targetToken], 
+          finalForcedMovement.type, totalDistance
+        );
+      }
     }
   }
 
