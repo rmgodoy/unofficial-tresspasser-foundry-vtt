@@ -32,7 +32,7 @@ class TargetOrderingPanel extends (HandlebarsApplicationMixin ? HandlebarsApplic
 
   async _prepareContext(options) {
     return {
-      targets: this.targets.map(t => ({ id: t.id, name: t.name, img: t.document.texture.src }))
+      targets: this.targets.map(t => ({ id: t.id, name: t.actor?.name || t.name, img: t.document?.texture?.src || t.texture?.src || "icons/svg/mystery-man.svg" }))
     };
   }
 
@@ -156,7 +156,7 @@ export class ForcedMovementHelper {
       const result = await this.#selectForcedPath(movingToken, referenceToken, movementType, distance, options);
       if (result) {
         if (result.path.length > 0) {
-          ui.notifications.info(`Path selected for ${movingToken.name} with ${result.path.length} steps.`);
+          ui.notifications.info(`Path selected for ${movingToken.actor?.name || movingToken.name} with ${result.path.length} steps.`);
           
           const gridSize = canvas.scene.grid.size;
           

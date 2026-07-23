@@ -48,6 +48,12 @@ export class BDeedBehaviorHandler {
     return canvas.tokens?.controlled[0] || null;
   }
 
+  /**
+   * Safely resolve the display name for a token or actor target.
+   * Priority: Synthetic actor name > Token document name > Prototype token name > Actor name
+   * @param {Token|TokenDocument|Actor} target
+   * @returns {string}
+   */
   static getTokenDisplayName(target) {
     if (!target) return "Target";
     const actor = target.actor || (target instanceof Actor ? target : null);
@@ -215,6 +221,7 @@ export class BDeedBehaviorHandler {
   /**
    * 2. applyDamage: Evaluates expression as a roll formula, applies damage to hit target actors, and triggers token shake & floating damage text.
    * Layered Power spark bonus damage dice apply ONLY to targets whose spark count reached the layer where Power was selected.
+   * Uses terms from evaluated rolls so rendered dice match calculated damage totals exactly.
    * @protected
    */
   static async _applyDamage(behavior, context, actor, item, phaseKey = "") {
@@ -241,7 +248,7 @@ export class BDeedBehaviorHandler {
       }
     }
 
-    // 3. Roll power bonus dice if maxPowerDice > 0
+    // 3. Roll power bonus dice if maxPowerDice > 0 using terms to avoid double-rolling
     const powerDiceRolls = [0];
     const skillDie = actor?.system?.skill_die || "d6";
     let combinedRoll = baseRoll;
@@ -250,13 +257,20 @@ export class BDeedBehaviorHandler {
       const powerFormula = `${maxPowerDice}${skillDie}`;
       const powerRoll = new Roll(powerFormula, rollData);
       await powerRoll.evaluate();
-      combinedRoll = new Roll(`${expr} + ${powerFormula}`, rollData);
-      await combinedRoll.evaluate();
 
       const dieResults = powerRoll.dice[0]?.results?.map(r => r.result) || [];
       for (let k = 1; k <= maxPowerDice; k++) {
         powerDiceRolls[k] = dieResults.slice(0, k).reduce((a, b) => a + b, 0);
       }
+
+      // Combine baseRoll and powerRoll terms into a single evaluated roll without re-evaluating dice
+      combinedRoll = Roll.fromTerms([
+        ...baseRoll.terms,
+        new foundry.dice.terms.OperatorTerm({ operator: "+" }),
+        ...powerRoll.terms
+      ]);
+      combinedRoll._evaluated = true;
+      combinedRoll._total = baseRoll.total + powerRoll.total;
     }
 
     // 4. Apply per-target damage based on each target's layered power dice count & build chat output lines
