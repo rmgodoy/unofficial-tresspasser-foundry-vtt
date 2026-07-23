@@ -212,7 +212,7 @@ export class ForcedMovementHelper {
         });
       }
 
-      await canvas.scene.updateEmbeddedDocuments("Token", updates);
+      await canvas.scene.updateEmbeddedDocuments("Token", updates, { trespasserForcedMovement: true });
       await new Promise(resolve => setTimeout(resolve, 300));
     }
   }

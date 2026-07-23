@@ -1271,7 +1271,12 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
     return; // Out-of-phase movement — don't track distance
   }
 
-  // GMs bypass the action/limit checks but their in-phase moves are tracked
+  // Bypass Move Action checks for PhaseActions, forced movement, or explicitly exempted movements
+  if (options.trespasserPhaseAction || options.trespasserForcedMovement || options.trespasserIgnoreMoveAction) {
+    return;
+  }
+
+  // GMs bypass the action/limit checks but their in-phase moves are tracked if it's a move action
   const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
   if (game.user.isGM || !restrictMovement) {
     options.trespasserTrack = true;
@@ -1285,7 +1290,7 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
   }
 
   const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
-  const movementUsed = _calculateTokenMovementDistance(tokenDoc);
+  const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
   const isVaulting = combatant.getFlag("trespasser", "isVaulting") ?? false;
   
   // Calculate distance of the proposed move
@@ -1336,29 +1341,36 @@ Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
   const activePhase = game.combat.getFlag("trespasser", "activePhase");
   if (combatant.initiative !== activePhase) return;
 
-  // Sync flags with native movement history
-  const totalDist = _calculateTokenMovementDistance(tokenDoc);
-  
-  await combatant.update({
-    "flags.trespasser.movementUsed": totalDist,
-    "flags.trespasser.movementHistory": tokenDoc.movementHistory,
-    "flags.trespasser.hasMovedThisTurn": totalDist > 0,
-    "flags.trespasser.isVaulting": false
-  });
-
-  // Trigger movement effects if this was a valid tracked move (not an undo)
-  if (options.trespasserTrack && combatant.actor) {
+  if (options.trespasserTrack) {
     const dist = options.trespasserMoveDist || 0;
-    
-    // 1. First move of the turn trigger
-    if (options.trespasserIsFirstMove && dist > 0) {
-      await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
-    }
+    const currentUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+    const newUsed = currentUsed + dist;
 
-    // 2. Continuous movement trigger (once per square)
-    for (let i = 0; i < dist; i++) {
-      await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+    await combatant.update({
+      "flags.trespasser.movementUsed": newUsed,
+      "flags.trespasser.movementHistory": tokenDoc.movementHistory,
+      "flags.trespasser.hasMovedThisTurn": true,
+      "flags.trespasser.isVaulting": false
+    });
+
+    if (combatant.actor) {
+      // 1. First move of the turn trigger
+      if (options.trespasserIsFirstMove && dist > 0) {
+        await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
+      }
+
+      // 2. Continuous movement trigger (once per square)
+      for (let i = 0; i < dist; i++) {
+        await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+      }
     }
+  } else {
+    // Non-Move action updates (PhaseActions, Forced Movement, GM repositioning)
+    await combatant.update({
+      "flags.trespasser.movementHistory": tokenDoc.movementHistory,
+      "flags.trespasser.hasMovedThisTurn": true,
+      "flags.trespasser.isVaulting": false
+    });
   }
 
   // Re-render the HUD so the Undo button appears immediately after moving

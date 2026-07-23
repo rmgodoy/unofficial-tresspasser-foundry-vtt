@@ -622,7 +622,8 @@ export class MovementOverlay {
 
             await tokenDoc.update({x: snapped.x, y: snapped.y}, { 
                 animation: { movement: "jump" },
-                movementAction: "jump"
+                movementAction: "jump",
+                trespasserPhaseAction: !!(this.options?.phaseAction || this.options?.free)
             });
             
             if (game.trespasser && game.trespasser.tokenHUD) game.trespasser.tokenHUD.render();
@@ -720,8 +721,24 @@ export class MovementOverlay {
                                 }
                             }
 
-                            // movementUsed is natively updated by the `updateToken` hook in trespasser.mjs
-                            // based on the token's movementHistory, so we don't need to manually deduct it here.
+                            if (combatant) {
+                                const currentUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+                                const newUsed = currentUsed + totalCost;
+                                await combatant.update({
+                                    "flags.trespasser.movementUsed": newUsed,
+                                    "flags.trespasser.hasMovedThisTurn": true
+                                });
+
+                                if (combatant.actor) {
+                                    const isFirst = (currentUsed === 0);
+                                    if (isFirst && totalCost > 0) {
+                                        await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
+                                    }
+                                    for (let i = 0; i < totalCost; i++) {
+                                        await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+                                    }
+                                }
+                            }
                         } finally {
                             globalThis._trespasserUndoSet.delete(tokenDoc.id);
                         }

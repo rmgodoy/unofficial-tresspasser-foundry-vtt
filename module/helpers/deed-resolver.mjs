@@ -202,7 +202,7 @@ export class DeedResolver {
       default: {
         // Vault-style: show valid destinations and let player pick
         const jumpResult = await new Promise((resolve) => {
-          MovementOverlay.activateVaultMode(sourceToken, distance, { free: true });
+          MovementOverlay.activateVaultMode(sourceToken, distance, { free: true, phaseAction: true });
           // Listen for the vault completion
           Hooks.once("trespasserVaultComplete", (token, destination) => {
             resolve(destination);
@@ -231,7 +231,7 @@ export class DeedResolver {
 
     await tokenDoc.update(
       { x: finalSquare.x, y: finalSquare.y },
-      { movementAction, animate: true }
+      { movementAction, animate: true, trespasserPhaseAction: true }
     );
 
     // Post chat message about the movement
