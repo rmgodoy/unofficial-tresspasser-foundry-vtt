@@ -31,6 +31,7 @@ import { TrespasserRationsSheet }   from "./module/sheets/item-rations-sheet.mjs
 import { TrespasserEffectSheet }    from "./module/sheets/item-effect-sheet.mjs";
 import { TrespasserPlightSheet }    from "./module/sheets/item-plight-sheet.mjs";
 import { TrespasserDeedSheet }      from "./module/sheets/item-deed-sheet.mjs";
+import { TrespasserBDeedSheet }     from "./module/sheets/item-bdeed-sheet.mjs";
 import { TrespasserFeatureSheet }   from "./module/sheets/item-feature-sheet.mjs";
 import { TrespasserTalentSheet }    from "./module/sheets/item-talent-sheet.mjs";
 import { TrespasserIncantationSheet } from "./module/sheets/item-incantation-sheet.mjs";
@@ -507,6 +508,11 @@ Hooks.once("init", async () => {
     types: ["deed"],
     makeDefault: true,
     label: "Trespasser Deed Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserBDeedSheet, {
+    types: ["bdeed"],
+    makeDefault: true,
+    label: "Trespasser BDeed Sheet",
   });
   foundry.documents.collections.Items.registerSheet("trespasser", TrespasserFeatureSheet, {
     types: ["feature"],
