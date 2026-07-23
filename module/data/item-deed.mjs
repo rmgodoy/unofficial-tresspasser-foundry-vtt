@@ -13,7 +13,14 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
 
     const phaseSchema = () => new fields.SchemaField({
       description: new fields.StringField({ initial: "" }),
+
+      // ── Damage (with additive/replace) ───────────────────────────
       damage: new fields.StringField({ initial: "" }),
+      damageMode: new fields.StringField({
+        initial: "additive", choices: ["additive", "replace"]
+      }),
+
+      // ── Effects (with additive/replace) ──────────────────────────
       appliedEffects: new fields.ArrayField(new fields.SchemaField({
         uuid: new fields.StringField({ required: true }),
         type: new fields.StringField({ required: true }),
@@ -21,20 +28,55 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
         img: new fields.StringField({ required: true }),
         intensity: new fields.NumberField({ initial: 1, min: 0 })
       }), { initial: [] }),
+      appliedEffectsMode: new fields.StringField({
+        initial: "additive", choices: ["additive", "replace"]
+      }),
       appliesWeaponEffects: new fields.BooleanField({ initial: false }),
+
+      // ── Forced Movement (existing, already has mode) ─────────────
       forcedMovement: new fields.SchemaField({
         type: new fields.StringField({ initial: "", blank: true, choices: ["", "push", "pull", "sweep", "shove", "drag"] }),
         distance: new fields.NumberField({ initial: 0, min: 0, integer: true }),
         mode: new fields.StringField({ initial: "additive", choices: ["additive", "replace"] })
       }),
+
+      // ── Terrain Spawn (with additive/replace) ────────────────────
       terrainSpawn: new fields.SchemaField({
         uuid: new fields.StringField({ initial: "" }),
         type: new fields.StringField({ initial: "" }),
         name: new fields.StringField({ initial: "" }),
         img: new fields.StringField({ initial: "" }),
-        placement: new fields.StringField({ initial: "", blank: true, choices: ["", "on_target", "on_self", "choose", "aura"] }),
+        placement: new fields.StringField({
+          initial: "", blank: true,
+          choices: ["", "on_target", "on_self", "choose", "aura", "on_path"]
+        }),
         linkedEffectUuid: new fields.StringField({ initial: "" })
-      })
+      }),
+      terrainSpawnMode: new fields.StringField({
+        initial: "additive", choices: ["additive", "replace"]
+      }),
+
+      // ── Phase Actions (ordered in-phase actions) ─────────────────
+      phaseActions: new fields.ArrayField(new fields.SchemaField({
+        type: new fields.StringField({
+          initial: "", choices: ["", "movement", "selfEffect", "terrainSpawn"]
+        }),
+        // For "movement": how the token moves
+        movementType: new fields.StringField({
+          initial: "", choices: ["", "jump", "teleport", "walk"]
+        }),
+        // Shape of the movement path:
+        //   "straight"   — vault-style destination picker within range
+        //   "close_path" — player draws a path starting adjacent to token
+        //   "path"       — player draws a path anywhere within range
+        movementShape: new fields.StringField({
+          initial: "straight", choices: ["straight", "close_path", "path"]
+        }),
+        movementDistance: new fields.NumberField({ initial: 0, min: 0, integer: true }),
+        // For "selfEffect": apply an effect to self
+        effectUuid: new fields.StringField({ initial: "" }),
+        effectIntensity: new fields.NumberField({ initial: 0, min: 0 })
+      }), { initial: [] })
     });
 
     return {

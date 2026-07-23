@@ -1,0 +1,115 @@
+<section class="tab behaviors terrain-behaviors scrollable {{tab.cssClass}}" style="padding-top: 16px;" data-group="primary" data-tab="behaviors">
+  <h3 class="effects-heading">{{localize "TRESPASSER.Sheet.Terrain.Sections.TerrainBehaviors"}}</h3>
+
+  {{#each behaviors as |behavior|}}
+  <div class="effect-block behavior-block" data-behavior-index="{{behavior.index}}">
+    <div class="behavior-header">
+      <div class="field-row" style="flex: 1;">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.Trigger"}}</label>
+        <select name="system.behaviors.{{behavior.index}}.trigger">
+          {{selectOptions @root.config.triggers selected=behavior.trigger}}
+        </select>
+      </div>
+      <div class="field-row" style="flex: 1;">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.Action"}}</label>
+        <select name="system.behaviors.{{behavior.index}}.action">
+          {{selectOptions @root.config.actions selected=behavior.action}}
+        </select>
+      </div>
+      <div class="field-row checkbox-row" style="flex: 0;">
+        <input type="checkbox"
+               name="system.behaviors.{{behavior.index}}.onlyOnFirstEntry"
+               {{checked behavior.onlyOnFirstEntry}}
+               id="behavior-once-{{behavior.index}}" />
+        <label for="behavior-once-{{behavior.index}}">{{localize "TRESPASSER.Sheet.Terrain.Fields.OncePerTurn"}}</label>
+      </div>
+      <div class="controls">
+        <a data-action="removeBehavior" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
+      </div>
+    </div>
+
+    {{!-- Apply Effect fields --}}
+    {{#if behavior.isApplyEffect}}
+    <div class="behavior-detail behavior-effect-drop" data-behavior-index="{{behavior.index}}">
+      {{#if behavior.effectUuid}}
+        <div class="effect-chip">
+          <img src="{{behavior.effectImg}}" title="{{behavior.effectName}}" />
+          <span class="name">{{behavior.effectName}}</span>
+          <div class="intensity-box">
+            <span class="label">{{localize "TRESPASSER.Sheet.Common.IntensityShort"}}</span>
+            <input type="text"
+                   name="system.behaviors.{{behavior.index}}.effectIntensity"
+                   value="{{behavior.effectIntensity}}"
+                   placeholder="1"
+                   class="select-on-focus" style="width: 50px;" />
+          </div>
+          <input type="hidden" name="system.behaviors.{{behavior.index}}.effectUuid" value="{{behavior.effectUuid}}" />
+          <input type="hidden" name="system.behaviors.{{behavior.index}}.effectName" value="{{behavior.effectName}}" />
+          <input type="hidden" name="system.behaviors.{{behavior.index}}.effectImg" value="{{behavior.effectImg}}" />
+        </div>
+      {{else}}
+        <span class="drop-placeholder">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</span>
+      {{/if}}
+    </div>
+    {{/if}}
+
+    {{!-- Forced Movement fields --}}
+    {{#if behavior.isForcedMovement}}
+    <div class="behavior-detail" style="display: flex; gap: 8px; flex-wrap: wrap;">
+      <div class="field-row" style="flex: 1; min-width: 100px;">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.FMType"}}</label>
+        <select name="system.behaviors.{{behavior.index}}.forcedMovementType">
+          {{selectOptions @root.config.fmTypes selected=behavior.forcedMovementType}}
+        </select>
+      </div>
+      <div class="field-row" style="flex: 0; min-width: 80px;">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.FMDistance"}}</label>
+        <input type="text"
+               name="system.behaviors.{{behavior.index}}.forcedMovementDistance"
+               value="{{behavior.forcedMovementDistance}}"
+               placeholder="0 or <Int>"
+               class="select-on-focus" />
+      </div>
+      <div class="field-row" style="flex: 1; min-width: 140px;">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.FMDirection"}}</label>
+        <select name="system.behaviors.{{behavior.index}}.forcedMovementDirection">
+          {{selectOptions @root.config.fmDirections selected=behavior.forcedMovementDirection}}
+        </select>
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- Damage fields --}}
+    {{#if behavior.isDamage}}
+    <div class="behavior-detail">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.DamageFormula"}}</label>
+        <input type="text"
+               name="system.behaviors.{{behavior.index}}.damageFormula"
+               value="{{behavior.damageFormula}}"
+               placeholder="2d6, <sd>, <Int>, etc."
+               class="select-on-focus" />
+      </div>
+    </div>
+    {{/if}}
+
+    {{!-- Script fields --}}
+    {{#if behavior.isScript}}
+    <div class="behavior-detail">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.Script"}}</label>
+        <textarea name="system.behaviors.{{behavior.index}}.script"
+                  rows="4"
+                  placeholder="// actor, terrain, region, context available">{{behavior.script}}</textarea>
+      </div>
+    </div>
+    {{/if}}
+  </div>
+  {{/each}}
+
+  <div class="add-behavior-row">
+    <a data-action="addBehavior" class="add-btn">
+      <i class="fas fa-plus"></i> {{localize "TRESPASSER.Sheet.Terrain.Actions.AddBehavior"}}
+    </a>
+  </div>
+</section>

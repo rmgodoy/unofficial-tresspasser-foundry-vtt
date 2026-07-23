@@ -1,0 +1,3 @@
+- Apply Potencia nos sparks pra aumentar o Forced Movement
+- Arrumar placement de terreno com opcao de `onTarget`
+- Terreno as Path ou outros formatos

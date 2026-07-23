@@ -19,6 +19,8 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
       editEffect:   TrespasserDeedSheet.#onEditEffect,
       removeTerrain: TrespasserDeedSheet.#onRemoveTerrain,
       editTerrain:  TrespasserDeedSheet.#onEditTerrain,
+      addPhaseAction: TrespasserDeedSheet.#onAddPhaseAction,
+      removePhaseAction: TrespasserDeedSheet.#onRemovePhaseAction
     },
     form: { submitOnChange: true },
     window: { resizable: true }
@@ -151,7 +153,27 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
         on_target: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnTarget"),
         on_self: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnSelf"),
         choose: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Choose"),
-        aura: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Aura")
+        aura: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Aura"),
+        on_path: "On Path"
+      },
+      resolutionModes: {
+        additive: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ForcedMovementModeChoices.Additive"),
+        replace: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ForcedMovementModeChoices.Replace")
+      },
+      phaseActionTypes: {
+        movement: "Movement",
+        selfEffect: "Self Effect",
+        terrainSpawn: "Terrain Spawn"
+      },
+      movementTypes: {
+        walk: "Walk",
+        jump: "Jump",
+        teleport: "Teleport"
+      },
+      movementShapes: {
+        straight: "Straight",
+        path: "Path",
+        close_path: "Close Path"
       }
     };
 
@@ -168,6 +190,9 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
       data: item.system.effects?.[key] ?? {},
       effects: (item.system.effects?.[key]?.appliedEffects ?? []).map((e, i) => ({
         ...e, index: i
+      })),
+      phaseActions: (item.system.effects?.[key]?.phaseActions ?? []).map((a, i) => ({
+        ...a, index: i
       }))
     }));
 
@@ -384,17 +409,67 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
   }
 
   static async #onRemoveTerrain(event, target) {
+    const chip = target.closest(".terrain-chip");
     const list = target.closest(".terrain-drop-zone");
-    if (!list) return;
+    if (!chip || !list) return;
 
     const phase = list.dataset.phase;
     if (!phase) return;
 
     await this.document.update({
-      [`system.effects.${phase}.terrainSpawn.uuid`]: "",
-      [`system.effects.${phase}.terrainSpawn.type`]: "",
-      [`system.effects.${phase}.terrainSpawn.name`]: "",
-      [`system.effects.${phase}.terrainSpawn.img`]: ""
+      [`system.effects.${phase}.terrainSpawn`]: {
+        uuid: "",
+        name: "",
+        img: "",
+        placement: "choose",
+        linkedEffectUuid: ""
+      }
+    });
+  }
+
+  /* -------------------------------------------- */
+  /* Phase Action Handlers                        */
+  /* -------------------------------------------- */
+
+  static async #onAddPhaseAction(event, target) {
+    const block = target.closest(".effect-block");
+    const phase = block.dataset.phase;
+    if (!phase) return;
+
+    const currentActions = foundry.utils.deepClone(
+      this.document.system.effects[phase].phaseActions
+    ) || [];
+
+    currentActions.push({
+      type: "movement",
+      movementType: "jump",
+      movementShape: "straight",
+      movementDistance: 0,
+      effectUuid: ""
+    });
+
+    await this.document.update({
+      [`system.effects.${phase}.phaseActions`]: currentActions
+    });
+  }
+
+  static async #onRemovePhaseAction(event, target) {
+    const row = target.closest(".phase-action-row");
+    if (!row) return;
+
+    const index = parseInt(row.dataset.index);
+    const block = row.closest(".effect-block");
+    const phase = block.dataset.phase;
+    if (isNaN(index) || !phase) return;
+
+    const currentActions = foundry.utils.deepClone(
+      this.document.system.effects[phase].phaseActions
+    ) || [];
+
+    currentActions.splice(index, 1);
+
+    await this.document.update({
+      [`system.effects.${phase}.phaseActions`]: currentActions
     });
   }
 

@@ -131,8 +131,11 @@ class TargetOrderingPanel extends (HandlebarsApplicationMixin ? HandlebarsApplic
 export class ForcedMovementHelper {
   static TYPES = { PUSH: "push", PULL: "pull", SWEEP: "sweep", SHOVE: "shove", DRAG: "drag" };
 
-  static async executeForcedMovement(sourceToken, targets, movementType, distance) {
-    if (!sourceToken || !targets || targets.length === 0 || distance <= 0) return;
+  static async executeForcedMovement(sourceToken, targets, movementType, distance, options = {}) {
+    if (!targets || targets.length === 0 || distance <= 0) return;
+
+    // sourceToken can be null if direction is caster_choice or along_terrain_path
+    if (!sourceToken && (!options.direction || (options.direction !== "caster_choice" && options.direction !== "along_terrain_path"))) return;
 
     let orderedTargets = targets;
     if (targets.length > 1 && ApplicationV2) {
@@ -150,7 +153,7 @@ export class ForcedMovementHelper {
         referenceToken = targetToken;
       }
 
-      const result = await this.#selectForcedPath(movingToken, referenceToken, movementType, distance);
+      const result = await this.#selectForcedPath(movingToken, referenceToken, movementType, distance, options);
       if (result) {
         if (result.path.length > 0) {
           ui.notifications.info(`Path selected for ${movingToken.name} with ${result.path.length} steps.`);
@@ -248,7 +251,7 @@ export class ForcedMovementHelper {
     });
   }
 
-  static async #selectForcedPath(movingToken, referenceToken, movementType, distance) {
+  static async #selectForcedPath(movingToken, referenceToken, movementType, distance, options = {}) {
     return new Promise(async (resolve) => {
       let remainingSquares = distance;
       let path = [];
@@ -305,7 +308,7 @@ export class ForcedMovementHelper {
 
         if (remainingSquares <= 0) return;
 
-        const validSquares = this.#getValidSquares(movingToken, currentPos, movementType, path, initialPos, referenceToken);
+        const validSquares = this.#getValidSquares(movingToken, currentPos, movementType, path, initialPos, referenceToken, options);
         
         overlay.beginFill(0x00ff00, 0.3);
         overlay.lineStyle(2, 0x00ff00, 0.8);
@@ -342,7 +345,7 @@ export class ForcedMovementHelper {
         const gridX = Math.floor(pos.x / gridSize);
         const gridY = Math.floor(pos.y / gridSize);
 
-        const validSquares = this.#getValidSquares(movingToken, currentPos, movementType, path, initialPos, referenceToken);
+        const validSquares = this.#getValidSquares(movingToken, currentPos, movementType, path, initialPos, referenceToken, options);
         const isValid = validSquares.some(sq => sq.x === gridX && sq.y === gridY);
         
         if (isValid) {
@@ -406,15 +409,17 @@ export class ForcedMovementHelper {
     });
   }
 
-  static #getValidSquares(movingToken, currentPos, movementType, existingPath, targetInitialPos, referenceToken) {
+  static #getValidSquares(movingToken, currentPos, movementType, existingPath, targetInitialPos, referenceToken, options = {}) {
     const valid = [];
     const gridSize = canvas.scene.grid.size;
-    const refPos = {
+    
+    // Some modes don't have a reference token (like along_terrain_path if caster is null)
+    const refPos = referenceToken ? {
       x: Math.floor(referenceToken.center.x / gridSize),
       y: Math.floor(referenceToken.center.y / gridSize)
-    };
+    } : null;
 
-    const currentDist = Math.max(Math.abs(currentPos.x - refPos.x), Math.abs(currentPos.y - refPos.y));
+    const currentDist = refPos ? Math.max(Math.abs(currentPos.x - refPos.x), Math.abs(currentPos.y - refPos.y)) : 0;
 
     // Adjacent squares to currentPos
     const directions = [
@@ -424,7 +429,6 @@ export class ForcedMovementHelper {
 
     for (const dir of directions) {
       const testPos = { x: currentPos.x + dir.dx, y: currentPos.y + dir.dy };
-      const testDist = Math.max(Math.abs(testPos.x - refPos.x), Math.abs(testPos.y - refPos.y));
 
       // Don't go back to a square we already visited in this path
       if (existingPath.some(sq => sq.x === testPos.x && sq.y === testPos.y)) continue;
@@ -432,14 +436,50 @@ export class ForcedMovementHelper {
       if (testPos.x === targetInitialPos.x && testPos.y === targetInitialPos.y) continue;
 
       let isValid = false;
-      if (movementType === this.TYPES.PUSH || movementType === this.TYPES.SHOVE || movementType === this.TYPES.DRAG) {
-        isValid = testDist > currentDist;
-      } else if (movementType === this.TYPES.PULL) {
-        isValid = testDist < currentDist;
-      } else if (movementType === this.TYPES.SWEEP) {
-        isValid = true; // Any adjacent is fine
+
+      // Check explicit direction overrides
+      if (options.direction) {
+        if (options.direction === "caster_choice") {
+          isValid = true;
+        } else if (options.direction === "along_terrain_path" && options.pathSquares) {
+          const inTerrain = options.pathSquares.some(sq => sq.x === testPos.x && sq.y === testPos.y);
+          if (inTerrain) {
+            // Must also be away from origin if referenceToken exists
+            if (refPos) {
+              const testDist = Math.max(Math.abs(testPos.x - refPos.x), Math.abs(testPos.y - refPos.y));
+              isValid = testDist > currentDist;
+            } else {
+              isValid = true;
+            }
+          }
+        } else if (options.direction === "toward_origin" && refPos) {
+          const testDist = Math.max(Math.abs(testPos.x - refPos.x), Math.abs(testPos.y - refPos.y));
+          isValid = testDist < currentDist;
+        } else if (options.direction === "away_from_origin" && refPos) {
+          const testDist = Math.max(Math.abs(testPos.x - refPos.x), Math.abs(testPos.y - refPos.y));
+          isValid = testDist > currentDist;
+        } else if (options.direction === "path_direction" && options.pathSquares) {
+          // Assuming pathSquares are ordered, find current index and only allow higher indices
+          const currentIdx = options.pathSquares.findIndex(sq => sq.x === currentPos.x && sq.y === currentPos.y);
+          const testIdx = options.pathSquares.findIndex(sq => sq.x === testPos.x && sq.y === testPos.y);
+          isValid = testIdx > currentIdx;
+        }
       } else {
-        isValid = testDist > currentDist; // Fallback to push
+        // Fallback to movement type if no explicit direction provided
+        if (refPos) {
+          const testDist = Math.max(Math.abs(testPos.x - refPos.x), Math.abs(testPos.y - refPos.y));
+          if (movementType === this.TYPES.PUSH || movementType === this.TYPES.SHOVE || movementType === this.TYPES.DRAG) {
+            isValid = testDist > currentDist;
+          } else if (movementType === this.TYPES.PULL) {
+            isValid = testDist < currentDist;
+          } else if (movementType === this.TYPES.SWEEP) {
+            isValid = true; // Any adjacent is fine
+          } else {
+            isValid = testDist > currentDist; // Fallback to push
+          }
+        } else {
+           isValid = true; // No reference to push/pull against
+        }
       }
 
       if (isValid) {

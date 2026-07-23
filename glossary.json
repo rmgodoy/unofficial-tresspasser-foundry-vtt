@@ -1,0 +1,158 @@
+[
+  {
+    "source": "Deed",
+    "target": "Habilidade"
+  },
+  {
+    "source": "Spark",
+    "target": "Centelha"
+  },
+  {
+    "source": "Haven",
+    "target": "Abrigo"
+  },
+  {
+    "source": "Hireling",
+    "target": "Servo"
+  },
+  {
+    "source": "Plight",
+    "target": "Aflição"
+  },
+  {
+    "source": "Rummage",
+    "target": "Organizar"
+  },
+  {
+    "source": "Tempt Fate",
+    "target": "Desafiar o Destino"
+  },
+  {
+    "source": "Resolve",
+    "target": "Determinação"
+  },
+  {
+    "source": "Endurance",
+    "target": "Vigor"
+  },
+  {
+    "source": "Might",
+    "target": "Poder"
+  },
+  {
+    "source": "Tinkering",
+    "target": "Engenhosidade"
+  },
+  {
+    "source": "Speech",
+    "target": "Lábia"
+  },
+  {
+    "source": "Crafting",
+    "target": "Ofício"
+  },
+  {
+    "source": "Calling",
+    "target": "Vocação"
+  },
+  {
+    "source": "Underling",
+    "target": "Subalterno"
+  },
+  {
+    "source": "Paragon",
+    "target": "Exemplar"
+  },
+  {
+    "source": "Tyrant",
+    "target": "Tirano"
+  },
+  {
+    "source": "Enforcer",
+    "target": "Executor"
+  },
+  {
+    "source": "Harrier",
+    "target": "Assolador"
+  },
+  {
+    "source": "Hellion",
+    "target": "Turbulento"
+  },
+  {
+    "source": "Stalker",
+    "target": "Espreitador"
+  },
+  {
+    "source": "Blast",
+    "target": "Explosão (Blast)"
+  },
+  {
+    "source": "Burst",
+    "target": "Erupção (Burst)"
+  },
+  {
+    "source": "Melee Burst",
+    "target": "Erupção Corpo-a-corpo (Melee Burst)"
+  },
+  {
+    "source": "Path",
+    "target": "Caminho (Path)"
+  },
+  {
+    "source": "Close Path",
+    "target": "Caminho Próximo (Close Path)"
+  },
+  {
+    "source": "Lift Spirits",
+    "target": "Animar o Grupo"
+  },
+  {
+    "source": "Survey",
+    "target": "Vistoriar"
+  },
+  {
+    "source": "Harrowing",
+    "target": "Dilacerante"
+  },
+  {
+    "source": "Canny",
+    "target": "Esperto"
+  },
+  {
+    "source": "Striking",
+    "target": "Impressionante"
+  },
+  {
+    "source": "Daunting",
+    "target": "Desanimador"
+  },
+  {
+    "source": "Costly",
+    "target": "Caro"
+  },
+  {
+    "source": "Harmful",
+    "target": "Prejudicial"
+  },
+  {
+    "source": "Depletion",
+    "target": "Depleção"
+  },
+  {
+    "source": "Recovery Dice",
+    "target": "Dados de Recuperação"
+  },
+  {
+    "source": "Skill Die",
+    "target": "Dado de Perícia"
+  },
+  {
+    "source": "Stronghold",
+    "target": "Fortaleza"
+  },
+  {
+    "source": "Vault",
+    "target": "Saltar"
+  }
+]

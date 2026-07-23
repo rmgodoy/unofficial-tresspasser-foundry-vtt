@@ -1,4 +1,6 @@
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
+import { ForcedMovementHelper } from "./forced-movement-helper.mjs";
+import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 
 export class TerrainHelper {
   
@@ -30,13 +32,28 @@ export class TerrainHelper {
     const h = heightSq * gridSize;
 
     // If not dropped on an actor, calculate standard rectangle centered on mouse
-    let shape = {
-      type: "rectangle",
-      x: Math.round((dropPosition.x - w / 2) / gridSize) * gridSize,
-      y: Math.round((dropPosition.y - h / 2) / gridSize) * gridSize,
-      width: w,
-      height: h
-    };
+    let shapes = [];
+    
+    if (options.pathSquares && options.pathSquares.length > 0) {
+      // Path placement: one 1x1 shape per square
+      for (const sq of options.pathSquares) {
+        shapes.push({
+          type: "rectangle",
+          x: sq.x * gridSize,
+          y: sq.y * gridSize,
+          width: gridSize,
+          height: gridSize
+        });
+      }
+    } else {
+      shapes.push({
+        type: "rectangle",
+        x: Math.round((dropPosition.x - w / 2) / gridSize) * gridSize,
+        y: Math.round((dropPosition.y - h / 2) / gridSize) * gridSize,
+        width: w,
+        height: h
+      });
+    }
 
     let centerActorId = sys.centerActorId;
     let centerTokenId = "";
@@ -58,7 +75,7 @@ export class TerrainHelper {
         
         // When attaching to a token, use the native Emanation shape with radius 0 (sharp rectangle)
         // We set the base width/height to the terrain's dimensions so the size is exactly the terrain size.
-        shape = {
+        shapes = [{
           type: "emanation",
           radius: 0,
           hole: false,
@@ -72,21 +89,21 @@ export class TerrainHelper {
             shape: 4,
             hole: false
           }
-        };
+        }];
       } else {
         ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTokenOnCanvas"));
         return;
       }
     }
 
-    const tx = shape.x ?? Math.floor(dropPosition.x / gridSize) * gridSize;
-    const ty = shape.y ?? Math.floor(dropPosition.y / gridSize) * gridSize;
+    const tx = shapes[0]?.x ?? Math.floor(dropPosition.x / gridSize) * gridSize;
+    const ty = shapes[0]?.y ?? Math.floor(dropPosition.y / gridSize) * gridSize;
 
     const color = this.TERRAIN_COLORS[sys.category] || "#ffffff";
 
     const regionData = {
       name: terrainItem.name,
-      shapes: [shape],
+      shapes: shapes,
       color: color,
       behaviors: [{
         type: "executeScript",
@@ -109,56 +126,79 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
       }
     };
 
-    let drawingX = tx;
-    let drawingY = ty;
+    const createdRegions = await canvas.scene.createEmbeddedDocuments("Region", [regionData]);
+    const region = createdRegions[0];
 
-    if (sys.centerMode === "actor" && centerTokenId) {
+    // Create drawings for all shapes (except emanation which tracks token)
+    const drawingsData = [];
+    if (sys.centerMode !== "actor") {
+      for (let i = 0; i < shapes.length; i++) {
+        const shp = shapes[i];
+        drawingsData.push({
+          shape: {
+            type: "r",
+            width: shp.width,
+            height: shp.height
+          },
+          x: shp.x,
+          y: shp.y,
+          fillType: sys.terrainImage ? 2 : 1,
+          fillColor: color,
+          fillAlpha: 0.4,
+          strokeWidth: 2,
+          strokeColor: color,
+          strokeAlpha: 0.8,
+          texture: sys.terrainImage || "",
+          text: i === 0 ? terrainItem.name : "", // Only label the first drawing
+          fontSize: 24,
+          textColor: "#ffffff",
+          textAlpha: 0.8,
+          flags: {
+            trespasser: {
+              isTerrainVisual: true,
+              regionId: region.id
+            }
+          }
+        });
+      }
+    } else if (centerTokenId) {
       const token = canvas.tokens.get(centerTokenId);
       if (token) {
         const tokenCenterX = token.x + (token.w / 2);
         const tokenCenterY = token.y + (token.h / 2);
-        drawingX = Math.round((tokenCenterX - w / 2) / gridSize) * gridSize;
-        drawingY = Math.round((tokenCenterY - h / 2) / gridSize) * gridSize;
+        const drawingX = Math.round((tokenCenterX - w / 2) / gridSize) * gridSize;
+        const drawingY = Math.round((tokenCenterY - h / 2) / gridSize) * gridSize;
         
-        regionData.attachment = { token: token.document };
+        drawingsData.push({
+          shape: { type: "r", width: w, height: h },
+          x: drawingX,
+          y: drawingY,
+          fillType: sys.terrainImage ? 2 : 1,
+          fillColor: color,
+          fillAlpha: 0.4,
+          strokeWidth: 2,
+          strokeColor: color,
+          strokeAlpha: 0.8,
+          texture: sys.terrainImage || "",
+          text: terrainItem.name,
+          fontSize: 24,
+          textColor: "#ffffff",
+          textAlpha: 0.8,
+          flags: {
+            trespasser: {
+              isTerrainVisual: true,
+              regionId: region.id
+            }
+          }
+        });
       }
     }
 
-    const drawingData = {
-      shape: {
-        type: "r",
-        width: w,
-        height: h
-      },
-      x: drawingX,
-      y: drawingY,
-      fillType: sys.terrainImage ? 2 : 1, // 2: Pattern (image), 1: Solid
-      fillColor: color,
-      fillAlpha: 0.4,
-      strokeWidth: 2,
-      strokeColor: color,
-      strokeAlpha: 0.8,
-      texture: sys.terrainImage || "",
-      text: terrainItem.name,
-      fontSize: 24,
-      textColor: "#ffffff",
-      textAlpha: 0.8,
-      flags: {
-        trespasser: {
-          isTerrainVisual: true
-        }
-      }
-    };
-
-    const createdRegions = await canvas.scene.createEmbeddedDocuments("Region", [regionData]);
-    const region = createdRegions[0];
-
-    drawingData.flags.trespasser.regionId = region.id;
-
-    const createdDrawings = await canvas.scene.createEmbeddedDocuments("Drawing", [drawingData]);
-    const drawing = createdDrawings[0];
-
-    await region.update({ "flags.trespasser.drawingId": drawing.id });
+    if (drawingsData.length > 0) {
+      const createdDrawings = await canvas.scene.createEmbeddedDocuments("Drawing", drawingsData);
+      const drawingIds = createdDrawings.map(d => d.id);
+      await region.update({ "flags.trespasser.drawingIds": drawingIds });
+    }
   }
 
   /**
@@ -334,7 +374,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
 
   /**
    * Called when a token first enters a terrain region this turn.
-   * Applies onEnterEffects once per region per turn.
+   * Executes behaviors with trigger "onEnter".
    * @param {TokenDocument} token - The token or token document.
    * @param {RegionDocument} region - The region document.
    */
@@ -360,10 +400,12 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     // An actor-centered terrain should not affect the actor it is centered on
     if (sys.centerMode === "actor" && sys.centerActorId === actor.id) return;
 
-    // Apply onEnter effects
-    if (sys.onEnterEffects && sys.onEnterEffects.length > 0) {
-      for (const eff of sys.onEnterEffects) {
-        await this.#applyEffect(actor, eff, region.name);
+    // Execute onEnter behaviors
+    const onEnterBehaviors = (sys.behaviors || []).filter(b => b.trigger === "onEnter");
+    if (onEnterBehaviors.length > 0) {
+      const context = this.#buildBehaviorContext(region);
+      for (const behavior of onEnterBehaviors) {
+        await this.executeBehavior(behavior, actor, region, context);
       }
     }
 
@@ -379,7 +421,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
 
   /**
    * Called at the start of a combat turn for a token that is inside a terrain region.
-   * Applies onStartTurnEffects.
+   * Executes behaviors with trigger "onStartTurn".
    * @param {TokenDocument} tokenDoc - The token document.
    * @param {RegionDocument} region - The terrain region.
    */
@@ -396,8 +438,9 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     // An actor-centered terrain should not affect the actor it is centered on
     if (sys.centerMode === "actor" && sys.centerActorId === actor.id) return;
 
-    // Apply onStartTurn effects
-    if (sys.onStartTurnEffects && sys.onStartTurnEffects.length > 0) {
+    // Execute onStartTurn behaviors
+    const onStartBehaviors = (sys.behaviors || []).filter(b => b.trigger === "onStartTurn");
+    if (onStartBehaviors.length > 0) {
       ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor }),
         content: game.i18n.format("TRESPASSER.Notification.Terrain.StartTurnEffect", {
@@ -407,8 +450,9 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
         flavor: `🌍 ${region.name}`
       });
 
-      for (const eff of sys.onStartTurnEffects) {
-        await this.#applyEffect(actor, eff, region.name);
+      const context = this.#buildBehaviorContext(region);
+      for (const behavior of onStartBehaviors) {
+        await this.executeBehavior(behavior, actor, region, context);
       }
     }
   }
@@ -638,10 +682,25 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
           slipperyCheckRegion = region;
         }
 
-        // Collect onMove effects
-        if (sys.onMoveEffects?.length > 0) {
-          for (const eff of sys.onMoveEffects) {
-            effectsToApply.push({ eff, terrainName: region.name });
+        // Collect onMove behaviors
+        const onMoveBehaviors = (sys.behaviors || []).filter(b => b.trigger === "onMove");
+        for (const behavior of onMoveBehaviors) {
+          if (behavior.action === "applyEffect" && behavior.effectUuid) {
+            // Collect applyEffect behaviors as legacy-compatible effects for batching
+            const intensity = this.resolveIntPlaceholder(behavior.effectIntensity, region);
+            effectsToApply.push({
+              eff: {
+                uuid: behavior.effectUuid,
+                name: behavior.effectName,
+                img: behavior.effectImg,
+                intensity: parseInt(intensity) || 1
+              },
+              terrainName: region.name
+            });
+          } else {
+            // Non-effect behaviors execute inline
+            const context = this.#buildBehaviorContext(region);
+            await this.executeBehavior(behavior, actor, region, context);
           }
         }
       }
@@ -727,6 +786,8 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
 
   /**
    * Clean up regions linked to an effect when it is deleted.
+   * Checks both the legacy linkedEffectId flag AND the new linkedEffectKey
+   * on the terrain data.
    * @param {Item} effectItem 
    */
   static async onEffectDeleted(effectItem) {
@@ -737,14 +798,172 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     const scenes = game.scenes.contents;
     for (const scene of scenes) {
       const regionsToDelete = scene.regions.filter(r => {
-        const linkedId = r.flags?.trespasser?.linkedEffectId;
-        return linkedId === effectId || linkedId === effectUuid;
+        const flags = r.flags?.trespasser;
+        if (!flags) return false;
+
+        // Check legacy linkedEffectId flag
+        const linkedId = flags.linkedEffectId;
+        if (linkedId === effectId || linkedId === effectUuid) return true;
+
+        // Check new linkedEffectKey on terrain data
+        const terrainLinkedKey = flags.terrain?.system?.linkedEffectKey;
+        if (terrainLinkedKey && (terrainLinkedKey === effectId || terrainLinkedKey === effectUuid)) return true;
+
+        return false;
       }).map(r => r.id);
       
       if (regionsToDelete.length > 0) {
         await scene.deleteEmbeddedDocuments("Region", regionsToDelete);
       }
     }
+  }
+
+  // ── Behavior Execution ──────────────────────────────────────────────────────
+
+  /**
+   * Execute a single terrain behavior action.
+   * @param {object} behavior - A behavior entry from the terrain's behaviors array.
+   * @param {Actor} actor - The affected actor.
+   * @param {RegionDocument} terrainRegion - The terrain region document.
+   * @param {object} context - Execution context { casterActor, linkedIntensity, pathSquares }.
+   */
+  static async executeBehavior(behavior, actor, terrainRegion, context = {}) {
+    const { casterActor, linkedIntensity } = context;
+
+    switch (behavior.action) {
+      case "applyEffect": {
+        const uuid = behavior.effectUuid;
+        if (!uuid) return;
+        const sourceEffect = await fromUuid(uuid);
+        if (!sourceEffect) return;
+        const effectData = sourceEffect.toObject();
+        const intensity = this.resolveIntPlaceholder(behavior.effectIntensity, terrainRegion);
+        effectData.system.intensity = parseInt(intensity) || 0;
+        delete effectData._id;
+        await Item.createDocuments([effectData], { parent: actor });
+
+        ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({ actor }),
+          content: game.i18n.format("TRESPASSER.Notification.Terrain.EffectApplied", {
+            name: actor.name,
+            effect: behavior.effectName || sourceEffect.name,
+            terrain: terrainRegion.name
+          }),
+          flavor: `🌍 ${terrainRegion.name}`
+        });
+        break;
+      }
+
+      case "forcedMovement": {
+        const distStr = this.resolveIntPlaceholder(behavior.forcedMovementDistance, terrainRegion);
+        const distance = parseInt(distStr) || 0;
+        if (distance <= 0) return;
+
+        const token = actor.token?.object ||
+          canvas.tokens.placeables.find(t => t.actor?.id === actor.id);
+        if (!token) return;
+
+        // Execute the forced movement with direction mode
+        await ForcedMovementHelper.executeForcedMovement(
+          null, [token],
+          behavior.forcedMovementType, distance,
+          {
+            direction: behavior.forcedMovementDirection,
+            terrainRegion,
+            pathSquares: terrainRegion.flags?.trespasser?.pathSquares
+          }
+        );
+        break;
+      }
+
+      case "damage": {
+        let formula = this.resolveIntPlaceholder(behavior.damageFormula, terrainRegion);
+        // Resolve <sd>, <wd> placeholders
+        const resolveActor = casterActor || actor;
+        formula = TrespasserEffectsHelper.replacePlaceholders(formula, resolveActor);
+        if (!formula) return;
+
+        const roll = new foundry.dice.Roll(formula);
+        await roll.evaluate();
+
+        // Apply damage to actor
+        const currentHp = actor.system.health ?? 0;
+        const newHp = Math.max(0, currentHp - roll.total);
+        await actor.update({ "system.health": newHp });
+
+        await roll.toMessage({
+          speaker: ChatMessage.getSpeaker({ actor }),
+          flavor: `🌍 ${terrainRegion.name} — ${game.i18n.localize("TRESPASSER.Sheet.Terrain.Fields.TerrainDamage")}`
+        });
+        break;
+      }
+
+      case "script": {
+        if (behavior.script) {
+          try {
+            const fn = new Function("actor", "terrain", "region", "context", behavior.script);
+            await fn(actor, terrainRegion.flags?.trespasser?.terrain, terrainRegion, context);
+          } catch (e) {
+            console.error("Trespasser | Terrain script error", e);
+          }
+        }
+        break;
+      }
+    }
+  }
+
+  /**
+   * Resolve the <Int> placeholder in a string using the terrain's linked effect intensity.
+   * @param {string} str - The string potentially containing "<Int>".
+   * @param {RegionDocument} terrainRegion - The terrain region document.
+   * @returns {string} The resolved string.
+   */
+  static resolveIntPlaceholder(str, terrainRegion) {
+    if (!str || typeof str !== "string") return str || "0";
+    if (!str.includes("<Int>") && !str.includes("<int>")) return str;
+
+    const intensity = this.getLinkedIntensity(terrainRegion);
+    return str.replace(/<Int>/gi, String(intensity));
+  }
+
+  /**
+   * Get the dynamic intensity from the terrain's linked effect on the caster.
+   * @param {RegionDocument} terrainRegion - The terrain region document.
+   * @returns {number} The current intensity of the linked effect, or 0.
+   */
+  static getLinkedIntensity(terrainRegion) {
+    const flags = terrainRegion.flags?.trespasser;
+    if (!flags) return 0;
+
+    // Check the terrain data's linkedEffectKey
+    const linkedKey = flags.terrain?.system?.linkedEffectKey;
+    const casterActorId = flags.casterActorId;
+    if (!linkedKey || !casterActorId) return 0;
+
+    const casterActor = game.actors.get(casterActorId);
+    if (!casterActor) return 0;
+
+    // Find the effect on the caster by ID or UUID
+    const effect = casterActor.items.find(i =>
+      i.type === "effect" && (i.id === linkedKey || i.uuid === linkedKey)
+    );
+    return effect?.system?.intensity || 0;
+  }
+
+  /**
+   * Build the behavior execution context from a terrain region's flags.
+   * @param {RegionDocument} region
+   * @returns {object}
+   * @private
+   */
+  static #buildBehaviorContext(region) {
+    const flags = region.flags?.trespasser || {};
+    const casterActorId = flags.casterActorId;
+    return {
+      casterActor: casterActorId ? game.actors.get(casterActorId) : null,
+      linkedIntensity: this.getLinkedIntensity(region),
+      pathSquares: flags.pathSquares || []
+    };
   }
 
   // ── Private Helpers ─────────────────────────────────────────────────────────

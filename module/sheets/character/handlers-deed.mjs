@@ -14,6 +14,8 @@ import { askSparkDialog }          from "../../dialogs/spark-dialog.mjs";
 import { requestPlayerDefenseRoll, requestPlayerCounterReaction } from "../../helpers/defense-roll-helper.mjs";
 import { ForcedMovementHelper }      from "../../helpers/forced-movement-helper.mjs";
 import { TerrainHelper }             from "../../helpers/terrain-helper.mjs";
+import { DeedResolver }              from "../../helpers/deed-resolver.mjs";
+import { messageVisibility }         from "../../helpers/compat.mjs";
 
 function computeForcedMovement(effects, activePhases) {
   let totalDist = 0;
@@ -298,6 +300,32 @@ export async function onDeedRoll(event, sheet) {
   const effects      = item.system.effects || {};
   const fragileItems = new Set();
   const phaseOptions = { fragileItems };
+  const phaseContext = {};
+
+  const activePhasesStart = DeedResolver.getActivePhases(effects, false, 0, isAttack, false).filter(p => ["start", "before"].includes(p));
+  
+  for (const phaseKey of activePhasesStart) {
+    const phaseData = effects[phaseKey];
+    if (phaseData?.phaseActions?.length > 0) {
+      for (const action of phaseData.phaseActions) {
+        await DeedResolver.executePhaseAction(action, sourceToken, sheet.actor, phaseContext);
+        if (phaseContext.spawnTerrainNow) {
+          phaseContext.spawnTerrainNow = false;
+          if (phaseData.terrainSpawn?.uuid) {
+            const terrainItem = await fromUuid(phaseData.terrainSpawn.uuid);
+            if (terrainItem) {
+              const options = { spawnedInCombat: true, casterActorId: sheet.actor.id };
+              if (phaseData.terrainSpawnMode === "on_path" && phaseContext.pathSquares) {
+                options.pathSquares = phaseContext.pathSquares;
+              }
+              const dropPos = sourceToken ? { x: sourceToken.center.x, y: sourceToken.center.y } : { x: 0, y: 0 };
+              await TerrainHelper.placeTerrainOnCanvas(terrainItem, dropPos, options);
+            }
+          }
+        }
+      }
+    }
+  }
 
   await sheet._postDeedPhase("Start",  effects.start,  sheet.actor, item, phaseOptions);
   await sheet._postDeedPhase("Before", effects.before, sheet.actor, item, phaseOptions);
@@ -362,6 +390,38 @@ export async function onDeedRoll(event, sheet) {
   // ── 11. Base/Hit/Spark/After/End phases + depletion ──────────────────────
   const commonOptions = { ...phaseOptions, anyHit, maxSparks, results, sparkChoices };
 
+  const showSpark = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark);
+  const activePhasesRest = DeedResolver.getActivePhases(effects, anyHit, maxSparks, isAttack, showSpark).filter(p => ["base", "hit", "spark", "after", "end"].includes(p));
+
+  // Determine which phase is the "primary" one to post the consolidated damage/terrain/fm
+  // For simplicity we will still output per-phase descriptions, but consolidate damage/fm/terrain
+  // into the FIRST active phase of the rest (usually Base or Hit), OR we just let resolvePhases compute it
+  // and we post it at the end. Actually, wait: the user asked to resolve damage/effects/terrain additively.
+  // We'll let postDeedPhase handle it if we pass it, but wait! We haven't refactored postDeedPhase to use resolvePhases.
+  // Instead, let's just run phase actions in order:
+  for (const phaseKey of activePhasesRest) {
+    const phaseData = effects[phaseKey];
+    if (phaseData?.phaseActions?.length > 0) {
+      for (const action of phaseData.phaseActions) {
+        await DeedResolver.executePhaseAction(action, sourceToken, sheet.actor, phaseContext);
+        if (phaseContext.spawnTerrainNow) {
+          phaseContext.spawnTerrainNow = false;
+          if (phaseData.terrainSpawn?.uuid) {
+            const terrainItem = await fromUuid(phaseData.terrainSpawn.uuid);
+            if (terrainItem) {
+              const options = { spawnedInCombat: true, casterActorId: sheet.actor.id };
+              if (phaseData.terrainSpawnMode === "on_path" && phaseContext.pathSquares) {
+                options.pathSquares = phaseContext.pathSquares;
+              }
+              const dropPos = sourceToken ? { x: sourceToken.center.x, y: sourceToken.center.y } : { x: 0, y: 0 };
+              await TerrainHelper.placeTerrainOnCanvas(terrainItem, dropPos, options);
+            }
+          }
+        }
+      }
+    }
+  }
+
   // Base always fires (miss AND hit) for attack deeds
   await sheet._postDeedPhase("Base", effects.base, sheet.actor, item, commonOptions);
 
@@ -372,7 +432,6 @@ export async function onDeedRoll(event, sheet) {
     });
 
     // Spark phase: only fire if deed spark was chosen, or if no dialog was shown
-    const showSpark = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark);
     if (showSpark) {
       const sparkTargets = results.filter(r => r.sparks > 0);
       await sheet._postDeedPhase("Spark", effects.spark, sheet.actor, item, {
@@ -414,11 +473,11 @@ export async function onDeedRoll(event, sheet) {
     </div>`;
 
     const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
-    const rollMode = (sheet.actor.type === "creature" && hideCreatureRolls) ? "gmroll" : "roll";
+    const mode = (sheet.actor.type === "creature" && hideCreatureRolls) ? "gm" : "public";
     await powerRoll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
       flavor: powerFlavor
-    }, { rollMode });
+    }, messageVisibility(mode));
   }
 
   // ── 11c. Potency bonus chat message ──────────────────────────────────────
@@ -894,11 +953,11 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
         </button>
       </div>`;
       const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
-      const rollMode = (actor.type === "creature" && hideCreatureRolls) ? "gmroll" : "roll";
+      const mode = (actor.type === "creature" && hideCreatureRolls) ? "gm" : "public";
       await rollObj.toMessage({
         speaker: ChatMessage.getSpeaker({ actor }),
         flavor: flavorHtml + applyHealBtns
-      }, { rollMode });
+      }, messageVisibility(mode));
       return;
     }
   }

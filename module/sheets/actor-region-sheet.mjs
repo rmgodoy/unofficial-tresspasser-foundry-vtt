@@ -6,6 +6,7 @@
  */
 
 const { api, sheets } = foundry.applications;
+import { messageVisibility } from "../helpers/compat.mjs";
 
 export class TrespasserRegionSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
 
@@ -187,7 +188,7 @@ export class TrespasserRegionSheet extends api.HandlebarsApplicationMixin(sheets
     if (!tableId) return;
     const table = game.tables.get(tableId);
     if (!table) return;
-    await table.draw({ rollMode: CONST.DICE_ROLL_MODES.PRIVATE });
+    await table.draw(messageVisibility("gm"));
   }
 
   static async #onCreateEncounterTable(event, target) {

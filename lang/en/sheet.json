@@ -40,7 +40,9 @@
         "Events": "Events",
         "Progression": "Progression",
         "Effects": "Effects",
-        "Card": "Card"
+        "Card": "Card",
+        "Map": "Map",
+        "Behaviors": "Behaviors"
       },
       "Common": {
         "AddItem": "Add Item",
@@ -414,15 +416,60 @@
           "TerrainDamage": "Terrain Damage",
           "ExtraMovementCost": "Extra Movement Cost",
           "Slippery": "Slippery",
-          "Destructible": "Destructible"
+          "Destructible": "Destructible",
+          "Trigger": "Trigger",
+          "Action": "Action",
+          "OncePerTurn": "Once Per Turn",
+          "FMType": "Forced Movement Type",
+          "FMDistance": "Distance",
+          "FMDirection": "Direction",
+          "DamageFormula": "Damage Formula",
+          "Script": "Custom Script",
+          "RegionColor": "Region Color",
+          "LinkedEffectKey": "Linked Effect Key",
+          "Interactable": "Interactable",
+          "InteractLabel": "Interact Label",
+          "ActionCost": "Action Cost",
+          "ActionType": "Action Type",
+          "MoveDistance": "Move Distance",
+          "MoveEffect": "Move Effect"
+        },
+        "Placeholders": {
+          "LinkedEffectKey": "ID or UUID (Optional)",
+          "InteractLabel": "e.g., Push Rock"
         },
         "Phases": {
           "onEnter": "On Enter Effects",
           "onMove": "On Move Effects",
           "onStartTurn": "On Start Turn Effects"
         },
+        "Triggers": {
+          "OnEnter": "On Enter",
+          "OnMove": "On Move",
+          "OnStartTurn": "On Start Turn",
+          "OnCreation": "On Creation"
+        },
+        "Actions": {
+          "ApplyEffect": "Apply Effect",
+          "ForcedMovement": "Forced Movement",
+          "Damage": "Damage",
+          "Script": "Custom Script",
+          "AddBehavior": "Add Behavior"
+        },
+        "Directions": {
+          "AwayFromOrigin": "Away From Origin",
+          "AlongTerrainPath": "Along Terrain Path",
+          "TowardOrigin": "Toward Origin",
+          "CasterChoice": "Caster's Choice",
+          "PathDirection": "Path Direction"
+        },
+        "InteractActions": {
+          "MoveTerrain": "Move Terrain",
+          "DestroyTerrain": "Destroy Terrain"
+        },
         "Sections": {
-          "TerrainEffects": "Terrain Effects"
+          "TerrainEffects": "Terrain Effects",
+          "TerrainBehaviors": "Terrain Behaviors"
         }
       },
       "Dungeon": {

@@ -22,6 +22,9 @@
                  value="{{phase.data.damage}}"
                  placeholder="{{localize 'TRESPASSER.Sheet.Common.Damage'}}"
                  class="select-on-focus" />
+          <select name="system.effects.{{phase.key}}.damageMode">
+            {{selectOptions @root.config.resolutionModes selected=phase.data.damageMode}}
+          </select>
         </div>
 
         {{!-- Weapon effects checkbox --}}
@@ -58,6 +61,11 @@
         {{else}}
           <span class="drop-placeholder">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</span>
         {{/each}}
+      </div>
+      <div class="field-row full-width">
+        <select name="system.effects.{{phase.key}}.appliedEffectsMode" style="width: 120px; margin-left: auto;">
+          {{selectOptions @root.config.resolutionModes selected=phase.data.appliedEffectsMode}}
+        </select>
       </div>
 
       {{!-- Forced Movement --}}
@@ -99,6 +107,46 @@
                name="system.effects.{{phase.key}}.terrainSpawn.linkedEffectUuid"
                value="{{phase.data.terrainSpawn.linkedEffectUuid}}"
                placeholder="{{localize 'TRESPASSER.Sheet.Item.Placeholder.LinkedEffectUuid'}}" />
+        <select name="system.effects.{{phase.key}}.terrainSpawnMode">
+          {{selectOptions @root.config.resolutionModes selected=phase.data.terrainSpawnMode}}
+        </select>
+      </div>
+
+      {{!-- Phase Actions --}}
+      <div class="field-row full-width phase-actions-header">
+        <span class="label">Phase Actions (Before Damage/Effects)</span>
+        <a data-action="addPhaseAction" title="Add Phase Action"><i class="fas fa-plus"></i></a>
+      </div>
+      <div class="phase-actions-list" data-phase="{{phase.key}}">
+        {{#each phase.phaseActions as |action|}}
+          <div class="phase-action-row field-row" data-index="{{action.index}}">
+            <select name="system.effects.{{../phase.key}}.phaseActions.{{action.index}}.type">
+              {{selectOptions @root.config.phaseActionTypes selected=action.type}}
+            </select>
+            
+            {{#if (eq action.type "movement")}}
+              <select name="system.effects.{{../phase.key}}.phaseActions.{{action.index}}.movementType">
+                {{selectOptions @root.config.movementTypes selected=action.movementType}}
+              </select>
+              <select name="system.effects.{{../phase.key}}.phaseActions.{{action.index}}.movementShape">
+                {{selectOptions @root.config.movementShapes selected=action.movementShape}}
+              </select>
+              <input type="number" 
+                     name="system.effects.{{../phase.key}}.phaseActions.{{action.index}}.movementDistance"
+                     value="{{action.movementDistance}}"
+                     placeholder="{{localize 'TRESPASSER.Sheet.Common.Distance'}}" />
+            {{/if}}
+
+            {{#if (eq action.type "selfEffect")}}
+              <input type="text"
+                     name="system.effects.{{../phase.key}}.phaseActions.{{action.index}}.effectUuid"
+                     value="{{action.effectUuid}}"
+                     placeholder="Effect UUID" />
+            {{/if}}
+
+            <a data-action="removePhaseAction" title="Remove"><i class="fas fa-trash"></i></a>
+          </div>
+        {{/each}}
       </div>
     </div>
   </div>

@@ -63,6 +63,63 @@
           <label for="terrain-destructible-{{item.id}}">{{localize "TRESPASSER.Sheet.Terrain.Fields.Destructible"}}</label>
         </div>
       {{/if}}
+
+      {{!-- Region Color --}}
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.RegionColor"}}</label>
+        <input type="color" name="system.regionColor" value="{{system.regionColor}}" />
+      </div>
+
+      <hr/>
+
+      {{!-- Linked Effect Key --}}
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.LinkedEffectKey"}}</label>
+        <input type="text" name="system.linkedEffectKey" value="{{system.linkedEffectKey}}"
+               placeholder="{{localize 'TRESPASSER.Sheet.Terrain.Placeholders.LinkedEffectKey'}}" />
+      </div>
+
+      <hr/>
+
+      {{!-- Interactable Section --}}
+      <div class="field-row checkbox-row">
+        <input type="checkbox" name="system.interactable" {{checked system.interactable}} id="terrain-interactable-{{item.id}}" />
+        <label for="terrain-interactable-{{item.id}}">{{localize "TRESPASSER.Sheet.Terrain.Fields.Interactable"}}</label>
+      </div>
+
+      {{#if system.interactable}}
+        <div class="interact-config" style="margin-left: 16px; border-left: 2px solid var(--trp-border, #444); padding-left: 12px;">
+          <div class="field-row">
+            <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.InteractLabel"}}</label>
+            <input type="text" name="system.interactAction.label" value="{{system.interactAction.label}}"
+                   placeholder="{{localize 'TRESPASSER.Sheet.Terrain.Placeholders.InteractLabel'}}" />
+          </div>
+          <div class="field-row">
+            <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.ActionCost"}}</label>
+            <input type="number" name="system.interactAction.actionCost" value="{{system.interactAction.actionCost}}"
+                   step="1" min="0" class="select-on-focus" />
+          </div>
+          <div class="field-row">
+            <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.ActionType"}}</label>
+            <select name="system.interactAction.actionType">
+              {{selectOptions config.interactActionTypes selected=system.interactAction.actionType}}
+            </select>
+          </div>
+          {{#if (eq system.interactAction.actionType "moveTerrain")}}
+            <div class="field-row">
+              <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.MoveDistance"}}</label>
+              <input type="number" name="system.interactAction.moveDistance" value="{{system.interactAction.moveDistance}}"
+                     step="1" min="0" class="select-on-focus" />
+            </div>
+            <div class="field-row">
+              <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.MoveEffect"}}</label>
+              <select name="system.interactAction.moveEffect">
+                {{selectOptions config.moveEffects selected=system.interactAction.moveEffect}}
+              </select>
+            </div>
+          {{/if}}
+        </div>
+      {{/if}}
     </div>
   </div>
 </section>

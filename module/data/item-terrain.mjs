@@ -22,31 +22,78 @@ export class TrespasserTerrainData extends foundry.abstract.TypeDataModel {
       }),
       centerActorId: new StringField({ initial: "" }),
       terrainImage: new FilePathField({ categories: ["IMAGE"] }),
-      
-      onEnterEffects: new ArrayField(new SchemaField({
-        uuid: new StringField({ initial: "" }),
-        type: new StringField({ initial: "" }),
-        name: new StringField({ initial: "" }),
-        img: new StringField({ initial: "" }),
-        intensity: new NumberField({ initial: 1, min: 1, integer: true })
+
+      // ── Behaviors: structured terrain actions ────────────────────
+      behaviors: new ArrayField(new SchemaField({
+        trigger: new StringField({
+          initial: "onEnter",
+          choices: ["onEnter", "onMove", "onStartTurn", "onCreation"]
+        }),
+
+        // ── Action type ──────────────────────────────────────────
+        action: new StringField({
+          initial: "applyEffect",
+          choices: ["applyEffect", "forcedMovement", "damage", "script"]
+        }),
+
+        // ── For applyEffect ──────────────────────────────────────
+        effectUuid: new StringField({ initial: "" }),
+        effectName: new StringField({ initial: "" }),
+        effectImg: new StringField({ initial: "" }),
+        // String so it can be "1", "<Int>", etc.
+        effectIntensity: new StringField({ initial: "1" }),
+
+        // ── For forcedMovement ───────────────────────────────────
+        forcedMovementType: new StringField({
+          initial: "", blank: true,
+          choices: ["", "push", "pull", "sweep", "shove", "drag"]
+        }),
+        // String: can be "2", "<Int>", etc.
+        forcedMovementDistance: new StringField({ initial: "0" }),
+        forcedMovementDirection: new StringField({
+          initial: "away_from_origin",
+          choices: [
+            "away_from_origin",
+            "along_terrain_path",
+            "toward_origin",
+            "caster_choice",
+            "path_direction"
+          ]
+        }),
+
+        // ── For damage ───────────────────────────────────────────
+        // Supports "<sd>", "<wd>", "<Int>", "2d6", etc.
+        damageFormula: new StringField({ initial: "" }),
+
+        // ── For script (escape hatch) ────────────────────────────
+        script: new StringField({ initial: "" }),
+
+        // ── Condition ────────────────────────────────────────────
+        // Whether this behavior only fires once per turn per creature
+        onlyOnFirstEntry: new BooleanField({ initial: true })
       })),
 
-      onMoveEffects: new ArrayField(new SchemaField({
-        uuid: new StringField({ initial: "" }),
-        type: new StringField({ initial: "" }),
-        name: new StringField({ initial: "" }),
-        img: new StringField({ initial: "" }),
-        intensity: new NumberField({ initial: 1, min: 1, integer: true })
-      })),
+      // ── Interactability (for moveable terrains) ──────────────────
+      interactable: new BooleanField({ initial: false }),
+      interactAction: new SchemaField({
+        label: new StringField({ initial: "" }),
+        actionCost: new NumberField({ initial: 1, min: 0, integer: true }),
+        actionType: new StringField({
+          initial: "", blank: true,
+          choices: ["", "moveTerrain", "destroyTerrain", "script"]
+        }),
+        moveDistance: new NumberField({ initial: 0, min: 0, integer: true }),
+        moveEffect: new StringField({
+          initial: "", blank: true,
+          choices: ["", "push", "shove"]
+        })
+      }),
 
-      onStartTurnEffects: new ArrayField(new SchemaField({
-        uuid: new StringField({ initial: "" }),
-        type: new StringField({ initial: "" }),
-        name: new StringField({ initial: "" }),
-        img: new StringField({ initial: "" }),
-        intensity: new NumberField({ initial: 1, min: 1, integer: true })
-      })),
-      
+      // ── Dynamic intensity source ─────────────────────────────────
+      // Terrain reads <Int> from the caster's effect with this UUID.
+      // When the linked effect is removed (prevailed), terrain auto-deletes.
+      linkedEffectKey: new StringField({ initial: "" }),
+
       regionColor: new StringField({ initial: "" })
     };
   }
