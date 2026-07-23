@@ -17,23 +17,6 @@ import { TerrainHelper }             from "../../helpers/terrain-helper.mjs";
 import { DeedResolver }              from "../../helpers/deed-resolver.mjs";
 import { messageVisibility }         from "../../helpers/compat.mjs";
 
-function computeForcedMovement(effects, activePhases) {
-  let totalDist = 0;
-  let finalType = "";
-  for (const p of activePhases) {
-    const fm = effects?.[p]?.forcedMovement;
-    if (fm && fm.type) {
-      if (fm.mode === "replace") {
-        totalDist = fm.distance || 0;
-        finalType = fm.type;
-      } else {
-        totalDist += (fm.distance || 0);
-        if (fm.type) finalType = fm.type;
-      }
-    }
-  }
-  return { type: finalType, distance: totalDist };
-}
 // ─────────────────────────────────────────────────────────────────────────────
 // Deed card chat message
 // ─────────────────────────────────────────────────────────────────────────────
@@ -391,14 +374,12 @@ export async function onDeedRoll(event, sheet) {
   const commonOptions = { ...phaseOptions, anyHit, maxSparks, results, sparkChoices };
 
   const showSpark = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark);
-  const activePhasesRest = DeedResolver.getActivePhases(effects, anyHit, maxSparks, isAttack, showSpark).filter(p => ["base", "hit", "spark", "after", "end"].includes(p));
+  const activePhases = DeedResolver.getActivePhases(effects, anyHit, maxSparks, isAttack, showSpark);
+  const { finalDamage, finalEffects, finalTerrainSpawn, finalForcedMovement } = DeedResolver.resolvePhases(effects, activePhases);
 
-  // Determine which phase is the "primary" one to post the consolidated damage/terrain/fm
-  // For simplicity we will still output per-phase descriptions, but consolidate damage/fm/terrain
-  // into the FIRST active phase of the rest (usually Base or Hit), OR we just let resolvePhases compute it
-  // and we post it at the end. Actually, wait: the user asked to resolve damage/effects/terrain additively.
-  // We'll let postDeedPhase handle it if we pass it, but wait! We haven't refactored postDeedPhase to use resolvePhases.
-  // Instead, let's just run phase actions in order:
+  const activePhasesRest = activePhases.filter(p => ["base", "hit", "spark", "after", "end"].includes(p));
+
+  // Execute in-phase actions sequentially across rest phases
   for (const phaseKey of activePhasesRest) {
     const phaseData = effects[phaseKey];
     if (phaseData?.phaseActions?.length > 0) {
@@ -422,28 +403,65 @@ export async function onDeedRoll(event, sheet) {
     }
   }
 
-  // Base always fires (miss AND hit) for attack deeds
-  await sheet._postDeedPhase("Base", effects.base, sheet.actor, item, commonOptions);
+  // Determine primary phase for consolidated damage & effects output
+  let primaryPhase = null;
+  if (activePhasesRest.includes("hit") && (anyHit || !isAttack || targets.length === 0)) {
+    primaryPhase = "hit";
+  } else if (activePhasesRest.includes("base")) {
+    primaryPhase = "base";
+  } else if (activePhasesRest.length > 0) {
+    primaryPhase = activePhasesRest[0];
+  }
 
-  // Hit and Spark only on success (or for support deeds / no targets)
-  if (anyHit || !isAttack || targets.length === 0) {
-    await sheet._postDeedPhase("Hit",  effects.hit,  sheet.actor, item, {
-      ...commonOptions, targetIds: results.filter(r => r.isHit).map(r => r.tokenId)
+  // Post phases with consolidated damage and effects on primary phase
+  if (activePhasesRest.includes("base")) {
+    const isPrimary = (primaryPhase === "base");
+    await sheet._postDeedPhase("Base", effects.base, sheet.actor, item, {
+      ...commonOptions,
+      resolvedDamage: isPrimary ? finalDamage : null,
+      resolvedEffects: isPrimary ? finalEffects : []
+    });
+  }
+
+  if (activePhasesRest.includes("hit") && (anyHit || !isAttack || targets.length === 0)) {
+    const isPrimary = (primaryPhase === "hit");
+    await sheet._postDeedPhase("Hit", effects.hit, sheet.actor, item, {
+      ...commonOptions,
+      targetIds: results.filter(r => r.isHit).map(r => r.tokenId),
+      resolvedDamage: isPrimary ? finalDamage : null,
+      resolvedEffects: isPrimary ? finalEffects : []
     });
 
-    // Spark phase: only fire if deed spark was chosen, or if no dialog was shown
-    if (showSpark) {
+    if (showSpark && activePhasesRest.includes("spark")) {
+      const isPrimarySpark = (primaryPhase === "spark");
       const sparkTargets = results.filter(r => r.sparks > 0);
       await sheet._postDeedPhase("Spark", effects.spark, sheet.actor, item, {
         ...commonOptions,
         title: maxSparks > 1 ? `Spark (x${maxSparks})` : "Spark",
-        targetIds: sparkTargets.map(r => r.tokenId)
+        targetIds: sparkTargets.map(r => r.tokenId),
+        resolvedDamage: isPrimarySpark ? finalDamage : null,
+        resolvedEffects: isPrimarySpark ? finalEffects : []
       });
     }
   }
 
-  await sheet._postDeedPhase("After", effects.after, sheet.actor, item, commonOptions);
-  await sheet._postDeedPhase("End",   effects.end,   sheet.actor, item, commonOptions);
+  if (activePhasesRest.includes("after")) {
+    const isPrimary = (primaryPhase === "after");
+    await sheet._postDeedPhase("After", effects.after, sheet.actor, item, {
+      ...commonOptions,
+      resolvedDamage: isPrimary ? finalDamage : null,
+      resolvedEffects: isPrimary ? finalEffects : []
+    });
+  }
+
+  if (activePhasesRest.includes("end")) {
+    const isPrimary = (primaryPhase === "end");
+    await sheet._postDeedPhase("End", effects.end, sheet.actor, item, {
+      ...commonOptions,
+      resolvedDamage: isPrimary ? finalDamage : null,
+      resolvedEffects: isPrimary ? finalEffects : []
+    });
+  }
 
   // ── 11b. Separate Power bonus damage roll ────────────────────────────────
   const powerDice = sparkChoices?.powerBonusDice ?? 0;
@@ -509,16 +527,7 @@ export async function onDeedRoll(event, sheet) {
   }
 
   // ── 11e. Forced Movement ──────────────────────────────────────────────
-  const activePhases = ["start", "before", "base"];
-  if (anyHit || !isAttack || targets.length === 0) {
-    activePhases.push("hit");
-    const showSpark = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark);
-    if (showSpark) activePhases.push("spark");
-  }
-  activePhases.push("after", "end");
-
-  const totalForcedMovement = computeForcedMovement(effects, activePhases);
-  if (totalForcedMovement.type && totalForcedMovement.distance > 0) {
+  if (finalForcedMovement.type && finalForcedMovement.distance > 0) {
     const hitTargetTokens = results
       .filter(r => r.isHit)
       .map(r => canvas.tokens.get(r.tokenId))
@@ -527,22 +536,21 @@ export async function onDeedRoll(event, sheet) {
     if (hitTargetTokens.length > 0) {
       await ForcedMovementHelper.executeForcedMovement(
         sourceToken, hitTargetTokens, 
-        totalForcedMovement.type, totalForcedMovement.distance
+        finalForcedMovement.type, finalForcedMovement.distance
       );
     }
   }
 
   // ── 11f. Terrain Spawning ──────────────────────────────────────────────
-  for (const phase of activePhases) {
-    const spawn = effects?.[phase]?.terrainSpawn;
-    if (!spawn?.uuid) continue;
-    const terrainItem = await fromUuid(spawn.uuid);
-    if (!terrainItem) continue;
-    await TerrainHelper.spawnTerrainFromDeed(terrainItem, spawn, sourceToken, targets, {
-      spawnedInCombat: true,
-      linkedEffectId: spawn.linkedEffectUuid || null,
-      casterActorId: sheet.actor.id
-    });
+  if (finalTerrainSpawn?.uuid) {
+    const terrainItem = await fromUuid(finalTerrainSpawn.uuid);
+    if (terrainItem) {
+      await TerrainHelper.spawnTerrainFromDeed(terrainItem, finalTerrainSpawn, sourceToken, targets, {
+        spawnedInCombat: true,
+        linkedEffectId: finalTerrainSpawn.linkedEffectUuid || null,
+        casterActorId: sheet.actor.id
+      });
+    }
   }
 
   // ── 12. Cleanup AOE template (unless aura, which persists) ──────────────
@@ -859,13 +867,19 @@ async function rollCreatureDeed(item, sheet, targets, apBonus) {
 // Deed phase chat output
 // ─────────────────────────────────────────────────────────────────────────────
 
-export async function postDeedPhase(phaseName, phaseData, actor, item, options, sheet) {
+export async function postDeedPhase(phaseName, phaseData, actor, item, options = {}, sheet) {
   const pData = phaseData || {};
   let finalEffects = [];
   
-  if (pData.appliedEffects) finalEffects = Array.from(pData.appliedEffects).map(e => ({...e}));
+  if (options.resolvedEffects !== undefined) {
+    if (Array.isArray(options.resolvedEffects)) {
+      finalEffects = Array.from(options.resolvedEffects).map(e => ({ ...e }));
+    }
+  } else if (pData.appliedEffects) {
+    finalEffects = Array.from(pData.appliedEffects).map(e => ({ ...e }));
+  }
 
-  const activeWeapons = sheet._getActiveWeapons();
+  const activeWeapons = sheet?._getActiveWeapons ? sheet._getActiveWeapons() : [];
 
   const validWeaponDeedTypes = ["melee", "missile", "versatile", "innate"];
   const isWeaponDeed = validWeaponDeedTypes.includes(item?.system?.type);
@@ -895,7 +909,12 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
     }
   }
 
-  const hasDamage      = pData.damage      && pData.damage.trim()      !== "";
+  let targetDamage = pData.damage;
+  if (options.resolvedDamage !== undefined) {
+    targetDamage = options.resolvedDamage;
+  }
+
+  const hasDamage      = targetDamage && targetDamage.trim() !== "";
   const hasDescription = pData.description && pData.description.trim() !== "";
   const hasEffects     = finalEffects.length > 0;
 
@@ -914,7 +933,7 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
   flavorHtml += `</div>`;
 
   if (hasDamage) {
-    let parsedDamage = phaseData.damage;
+    let parsedDamage = targetDamage;
     const skillDie  = actor.system.skill_die || "d6";
     let weaponDie   = "d4";
 
