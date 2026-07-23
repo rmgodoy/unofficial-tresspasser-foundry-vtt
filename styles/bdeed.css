@@ -347,3 +347,28 @@
   align-items: center;
   gap: 6px;
 }
+
+/* Use BDeed Button */
+.use-bdeed-btn {
+  background: var(--trp-bg-header, #1e1b17);
+  border: 1px solid var(--trp-gold, #c9a84c);
+  color: var(--trp-gold-bright, #e8c96b);
+  padding: 6px 14px;
+  height: 32px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: var(--trp-font-header, 'Cinzel', serif);
+  font-size: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.use-bdeed-btn:hover {
+  background: var(--trp-gold-dim, #a88840);
+  color: var(--trp-bg-dark, #1a1714);
+}

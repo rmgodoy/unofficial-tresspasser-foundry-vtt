@@ -6,13 +6,16 @@
     <h1 class="item-title">
       <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"/>
     </h1>
-    <div class="item-header-meta">
-      <div class="field-row">
+    <div class="item-header-meta" style="display: flex; gap: 12px; align-items: flex-end; margin-top: 4px;">
+      <div class="field-row" style="flex: 1;">
         <label>{{localize "TRESPASSER.Sheet.BDeed.Tier"}}</label>
         <select name="system.tier">
           {{selectOptions config.tiers selected=system.tier}}
         </select>
       </div>
+      <button type="button" class="use-bdeed-btn" data-action="useBDeed" title="{{localize 'TRESPASSER.Sheet.Combat.UseDeed'}}">
+        <i class="fas fa-dice-d20"></i> {{localize "TRESPASSER.Sheet.Combat.UseDeed"}}
+      </button>
     </div>
   </div>
 </header>
