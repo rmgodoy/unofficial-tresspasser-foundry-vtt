@@ -128,7 +128,11 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     };
 
     const createdRegions = await canvas.scene.createEmbeddedDocuments("Region", [regionData]);
-    return createdRegions[0];
+    const createdRegion = createdRegions[0];
+    if (createdRegion) {
+      await this.onTerrainCreated(createdRegion, options);
+    }
+    return createdRegion;
   }
 
   /**
@@ -301,6 +305,54 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
   }
 
   // ── Event Processing ────────────────────────────────────────────────────────
+
+  /**
+   * Called immediately after a terrain region is created on canvas.
+   * Executes behaviors with trigger "onCreation".
+   * @param {RegionDocument} region - The created region document.
+   * @param {Object} options - Options passed during creation.
+   */
+  static async onTerrainCreated(region, options = {}) {
+    if (!region) return;
+    const terrainData = region.flags?.trespasser?.terrain;
+    if (!terrainData) return;
+
+    const sys = terrainData.system;
+    const onCreationBehaviors = (sys.behaviors || []).filter(b => b.trigger === "onCreation");
+    if (onCreationBehaviors.length === 0) return;
+
+    const context = this.#buildBehaviorContext(region);
+    context.options = options;
+
+    const scene = region.parent;
+    if (!scene) return;
+
+    const gridSize = scene.grid.size;
+    const tokensInRegion = (scene.tokens || []).filter(t => {
+      if (!t.actor) return false;
+      // Skip actor-centered terrain's center actor
+      if (sys.centerMode === "actor" && sys.centerActorId === t.actor.id) return false;
+
+      const tokenCenterX = t.x + ((t.width || 1) * gridSize / 2);
+      const tokenCenterY = t.y + ((t.height || 1) * gridSize / 2);
+      return this.#isPointInRegion(tokenCenterX, tokenCenterY, region, gridSize);
+    });
+
+    for (const behavior of onCreationBehaviors) {
+      if (behavior.action === "script") {
+        const targetActor = tokensInRegion.length === 1 ? tokensInRegion[0].actor : null;
+        await this.executeBehavior(behavior, targetActor, region, context);
+      } else {
+        if (tokensInRegion.length > 0) {
+          for (const tokenDoc of tokensInRegion) {
+            await this.executeBehavior(behavior, tokenDoc.actor, region, context);
+          }
+        } else {
+          await this.executeBehavior(behavior, null, region, context);
+        }
+      }
+    }
+  }
 
   /**
    * Called when a token first enters a terrain region this turn.
@@ -749,6 +801,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
 
     switch (behavior.action) {
       case "applyEffect": {
+        if (!actor) return;
         const uuid = behavior.effectUuid;
         if (!uuid) return;
         const sourceEffect = await fromUuid(uuid);
@@ -794,6 +847,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
       }
 
       case "damage": {
+        if (!actor) return;
         let formula = this.resolveIntPlaceholder(behavior.damageFormula, terrainRegion);
         // Resolve <sd>, <wd> placeholders
         const resolveActor = casterActor || actor;

@@ -1,6 +1,13 @@
 {
   "TRESPASSER": {
     "Terms": {
+      "ForcedMovement": {
+        "Push": "Empurrar",
+        "Pull": "Puxar",
+        "Sweep": "Varrer",
+        "Shove": "Empurrão",
+        "Drag": "Arrastar"
+      },
       "Status": {
         "None": "Nenhum"
       },

@@ -134,8 +134,8 @@ export class ForcedMovementHelper {
   static async executeForcedMovement(sourceToken, targets, movementType, distance, options = {}) {
     if (!targets || targets.length === 0 || distance <= 0) return;
 
-    // sourceToken can be null if direction is caster_choice or along_terrain_path
-    if (!sourceToken && (!options.direction || (options.direction !== "caster_choice" && options.direction !== "along_terrain_path"))) return;
+    // sourceToken can be null if direction or terrainRegion is provided
+    if (!sourceToken && !options.direction && !options.terrainRegion) return;
 
     let orderedTargets = targets;
     if (targets.length > 1 && ApplicationV2) {
@@ -349,7 +349,7 @@ export class ForcedMovementHelper {
         const isValid = validSquares.some(sq => sq.x === gridX && sq.y === gridY);
         
         if (isValid) {
-          const collision = this.#checkCollisionAtSquare(gridX, gridY, gridSize, movingToken.id);
+          const collision = this.#checkCollisionAtSquare(gridX, gridY, gridSize, movingToken.id, currentPos);
 
           if (collision.type === "wall") {
             const damage = Math.min(10 - totalDamage, 2 * remainingSquares);
@@ -413,11 +413,33 @@ export class ForcedMovementHelper {
     const valid = [];
     const gridSize = canvas.scene.grid.size;
     
-    // Some modes don't have a reference token (like along_terrain_path if caster is null)
-    const refPos = referenceToken ? {
-      x: Math.floor(referenceToken.center.x / gridSize),
-      y: Math.floor(referenceToken.center.y / gridSize)
-    } : null;
+    // Determine reference position (from reference token or terrain region center)
+    let refPos = null;
+    if (referenceToken) {
+      refPos = {
+        x: Math.floor(referenceToken.center.x / gridSize),
+        y: Math.floor(referenceToken.center.y / gridSize)
+      };
+    } else if (options.terrainRegion) {
+      const region = options.terrainRegion;
+      const shape = region.shapes?.[0];
+      if (shape) {
+        let cx = 0, cy = 0;
+        if (shape.type === "rectangle") {
+          cx = shape.x + (shape.width / 2);
+          cy = shape.y + (shape.height / 2);
+        } else if (shape.type === "emanation" && shape.base) {
+          const baseW = (shape.base.width || 1) * gridSize;
+          const baseH = (shape.base.height || 1) * gridSize;
+          cx = shape.base.x + (baseW / 2);
+          cy = shape.base.y + (baseH / 2);
+        }
+        refPos = {
+          x: Math.floor(cx / gridSize),
+          y: Math.floor(cy / gridSize)
+        };
+      }
+    }
 
     const currentDist = refPos ? Math.max(Math.abs(currentPos.x - refPos.x), Math.abs(currentPos.y - refPos.y)) : 0;
 
@@ -489,11 +511,45 @@ export class ForcedMovementHelper {
     return valid;
   }
 
-  static #checkCollisionAtSquare(x, y, gridPx, movingTokenId) {
+  static #testNativeWallCollision(fromPos, toX, toY, gridPx) {
+    if (!fromPos || !canvas.ready || !canvas.walls) return false;
+    
+    const p0 = { x: (fromPos.x + 0.5) * gridPx, y: (fromPos.y + 0.5) * gridPx };
+    const p1 = { x: (toX + 0.5) * gridPx, y: (toY + 0.5) * gridPx };
+
+    // 1. Try canvas.walls.checkCollision with mode: "any"
+    try {
+      const RayClass = globalThis.Ray || foundry.canvas?.Ray;
+      const ray = RayClass ? new RayClass(p0, p1) : { A: p0, B: p1 };
+      const res = canvas.walls.checkCollision(ray, { type: "move", mode: "any" });
+      if (res === true) return true;
+      if (Array.isArray(res) && res.length > 0) return true;
+    } catch (e) {}
+
+    // 2. Try polygonBackends move testCollision
+    try {
+      const backend = CONFIG.Canvas.polygonBackends?.move || CONFIG.Canvas.polygonBackends?.sight;
+      if (backend?.testCollision) {
+        const res = backend.testCollision(p0, p1, { type: "move", mode: "any" });
+        if (res === true) return true;
+        if (Array.isArray(res) && res.length > 0) return true;
+      }
+    } catch (e) {}
+
+    return false;
+  }
+
+  static #checkCollisionAtSquare(x, y, gridPx, movingTokenId, fromPos = null) {
     const cx = (x + 0.5) * gridPx;
     const cy = (y + 0.5) * gridPx;
     
-    const tokens = canvas.scene.tokens.filter(t => t.id !== movingTokenId && !t.hidden);
+    // 1. Native Foundry Wall collision check
+    if (fromPos && this.#testNativeWallCollision(fromPos, x, y, gridPx)) {
+      return { type: "wall", isNative: true };
+    }
+
+    // 2. Creature collision check
+    const tokens = canvas.scene?.tokens?.filter(t => t.id !== movingTokenId && !t.hidden) || [];
     for (const t of tokens) {
       const tw = (t.width || 1) * gridPx;
       const th = (t.height || 1) * gridPx;
@@ -502,6 +558,7 @@ export class ForcedMovementHelper {
       }
     }
 
+    // 3. Custom Terrain Region Wall & Obstacle check
     const regions = TerrainHelper.getTerrainAtSquare(x, y, gridPx);
     for (const r of regions) {
       const cat = r.flags?.trespasser?.terrain?.system?.category;

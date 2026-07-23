@@ -1,6 +1,13 @@
 {
   "TRESPASSER": {
     "Terms": {
+      "ForcedMovement": {
+        "Push": "Push",
+        "Pull": "Pull",
+        "Sweep": "Sweep",
+        "Shove": "Shove",
+        "Drag": "Drag"
+      },
       "Status": {
         "None": "None"
       },

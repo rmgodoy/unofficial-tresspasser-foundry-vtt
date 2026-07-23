@@ -1,4 +1,5 @@
 import { TrespasserCombat } from "../documents/combat.mjs";
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
  * Handles rendering of movement and jump overlays.
