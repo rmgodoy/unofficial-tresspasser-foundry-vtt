@@ -214,6 +214,46 @@
         "WeekRestAll": "Descanso de uma Semana: Todos os recursos totalmente recuperados.",
         "RestingTitle": "Descansando ({type})"
       },
+      "BDeed": {
+        "Tier": "Grau",
+        "ActionType": "Tipo de Ação",
+        "AbilityType": "Tipo de Habilidade",
+        "Versus": "Versus",
+        "FocusCost": "Custo de Foco",
+        "Range": "Alcance",
+        "Phase": {
+          "Start": "Início",
+          "Before": "Antes",
+          "Base": "Base",
+          "Hit": "Acerto",
+          "Spark": "Faísca",
+          "After": "Depois",
+          "End": "Fim"
+        },
+        "Behavior": {
+          "Label": "Comportamento",
+          "Add": "Adicionar Comportamento",
+          "Remove": "Remover",
+          "MoveUp": "Mover para Cima",
+          "MoveDown": "Mover para Baixo",
+          "Type": {
+            "selectTarget": "Selecionar Alvo",
+            "applyDamage": "Aplicar Dano ao Alvo",
+            "applyEffects": "Aplicar Efeitos ao Alvo",
+            "modifyBehavior": "Modificar Comportamento",
+            "spawnTerrain": "Criar Terreno",
+            "moveTerrain": "Mover Terreno",
+            "moveSource": "Mover Ator de Origem",
+            "forceMoveTargets": "Forçar Movimento dos Alvos",
+            "clearTargets": "Limpar Alvos"
+          }
+        },
+        "Tabs": {
+          "Details": "Detalhes",
+          "Behaviors": "Comportamentos",
+          "CardPreview": "Prévia da Carta"
+        }
+      },
       "Item": {
         "Details": {
           "ItemType": "Tipo de Item",

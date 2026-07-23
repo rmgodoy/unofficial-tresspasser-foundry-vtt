@@ -216,6 +216,46 @@
         "WeekRestAll": "Week's Rest: All resources fully recovered.",
         "RestingTitle": "Resting ({type})"
       },
+      "BDeed": {
+        "Tier": "Tier",
+        "ActionType": "Action Type",
+        "AbilityType": "Ability Type",
+        "Versus": "Versus",
+        "FocusCost": "Focus Cost",
+        "Range": "Range",
+        "Phase": {
+          "Start": "Start",
+          "Before": "Before",
+          "Base": "Base",
+          "Hit": "Hit",
+          "Spark": "Spark",
+          "After": "After",
+          "End": "End"
+        },
+        "Behavior": {
+          "Label": "Behavior",
+          "Add": "Add Behavior",
+          "Remove": "Remove",
+          "MoveUp": "Move Up",
+          "MoveDown": "Move Down",
+          "Type": {
+            "selectTarget": "Select Target",
+            "applyDamage": "Apply Damage to Target",
+            "applyEffects": "Apply Effects to Target",
+            "modifyBehavior": "Modify Behavior",
+            "spawnTerrain": "Spawn Terrain",
+            "moveTerrain": "Move Terrain",
+            "moveSource": "Move Source Actor",
+            "forceMoveTargets": "Force Move Targets",
+            "clearTargets": "Clear Targets"
+          }
+        },
+        "Tabs": {
+          "Details": "Details",
+          "Behaviors": "Behaviors",
+          "CardPreview": "Card Preview"
+        }
+      },
       "Item": {
         "Details": {
           "ItemType": "Item Type",
