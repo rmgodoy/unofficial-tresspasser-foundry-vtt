@@ -240,6 +240,7 @@
           "MoveDown": "Move Down",
           "Type": {
             "selectTarget": "Select Target",
+            "selectArea": "Select Area",
             "applyDamage": "Apply Damage to Target",
             "applyEffects": "Apply Effects to Target",
             "modifyBehavior": "Modify Behavior",
@@ -258,8 +259,30 @@
         "Params": {
           "TargetMode": "Target Mode",
           "TargetCount": "Target Count",
+          "SquareCount": "Square Count",
           "AoEType": "AoE Type",
           "AoESize": "AoE Size",
+          "AreaRelation": "Area Relation",
+          "AreaBehaviorId": "Area Behavior ID",
+          "DestinationMode": "Destination Mode",
+          "IgnoreSelf": "Ignore Self",
+          "IgnoreSourceSquare": "Ignore Source Square",
+          "TargetModeChoices": {
+            "Creature": "Creature",
+            "Personal": "Personal",
+            "AoE": "Area of Effect",
+            "SelectedArea": "Selected Area",
+            "Squares": "Squares"
+          },
+          "AreaRelationChoices": {
+            "Inside": "Inside Area",
+            "Adjacent": "Adjacent to Area",
+            "InsideAndAdjacent": "Inside & Adjacent"
+          },
+          "DestinationModeChoices": {
+            "Distance": "Distance / Manual",
+            "SelectedArea": "Selected Area"
+          },
           "DamageExpression": "Damage Formula",
           "TargetPhase": "Target Phase",
           "TargetBehaviorId": "Target Behavior ID",
@@ -355,6 +378,7 @@
             "OnTarget": "On Target",
             "OnSelf": "On Self",
             "Choose": "Choose Location",
+            "SelectedArea": "Selected Area",
             "Aura": "Aura"
           },
           "EffectTypeChoices": {

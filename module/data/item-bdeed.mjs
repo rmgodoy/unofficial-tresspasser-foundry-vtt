@@ -4,6 +4,7 @@
 
 export const BEHAVIOR_TYPES = [
   "selectTarget",
+  "selectArea",
   "applyDamage",
   "applyEffects",
   "modifyBehavior",

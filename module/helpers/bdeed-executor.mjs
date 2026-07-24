@@ -29,6 +29,8 @@ export class BDeedExecutor {
      */
     this.context = {
       targets: [],
+      area: null,
+      areas: new Map(),
       spawnedTerrains: [],
       activePhases: [],
       modifications: [],
@@ -184,11 +186,12 @@ export class BDeedExecutor {
       await this._commitResourceUsage();
     }
 
-    // Step 4: Clear targets after pipeline execution so next execution starts fresh
+    // Step 4: Clear targets and area highlights after pipeline execution so next execution starts fresh
     this.context.targets = [];
     if (game.user.targets.size > 0) {
       game.user.updateTokenTargets([]);
     }
+    BDeedBehaviorHandler.clearAreaHighlight(this.context);
   }
 
   /**

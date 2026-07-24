@@ -24,6 +24,7 @@ export class BDeedBehaviorHandler {
   static async dispatch(behavior, context, actor, item, phaseKey = "") {
     switch (behavior.type) {
       case "selectTarget":     return this._selectTarget(behavior, context, actor, item);
+      case "selectArea":       return this._selectArea(behavior, context, actor, item);
       case "applyDamage":      return this._applyDamage(behavior, context, actor, item, phaseKey);
       case "applyEffects":     return this._applyEffects(behavior, context, actor, item, phaseKey);
       case "modifyBehavior":   return; // Handled pre-pipeline by BDeedExecutor
@@ -32,6 +33,56 @@ export class BDeedBehaviorHandler {
       case "moveSource":       return this._moveSource(behavior, context, actor);
       case "forceMoveTargets": return this._forceMoveTargets(behavior, context, actor, item, phaseKey);
       case "clearTargets":     return this._clearTargets(context);
+    }
+  }
+
+  /**
+   * Helper to resolve the targeted area from runtime context.
+   * Checks for specific areaBehaviorId match, falling back to context.area (latest).
+   * @param {object} context
+   * @param {object} [params]
+   * @returns {object|null}
+   */
+  static _resolveArea(context, params = {}) {
+    if (params.areaBehaviorId && context.areas?.has(params.areaBehaviorId)) {
+      return context.areas.get(params.areaBehaviorId);
+    }
+    return context.area;
+  }
+
+  /**
+   * Render or update visual grid highlights for the currently selected area in context.
+   * @param {object} context
+   */
+  static renderAreaHighlight(context) {
+    this.clearAreaHighlight(context);
+    if (!context?.area?.squares || context.area.squares.length === 0) return;
+
+    const layerName = "bdeedSelectArea";
+    if (canvas.grid?.addHighlightLayer && canvas.grid?.highlightPosition) {
+      try {
+        canvas.grid.addHighlightLayer(layerName);
+        for (const sq of context.area.squares) {
+          canvas.grid.highlightPosition(layerName, { x: sq.x, y: sq.y, color: 0x3399ff, border: 0x0066cc });
+        }
+      } catch (err) {
+        console.warn("[BDeedBehaviorHandler] Could not draw area highlight:", err);
+      }
+    }
+  }
+
+  /**
+   * Clear canvas grid highlights for selected area.
+   * @param {object} context
+   */
+  static clearAreaHighlight(context) {
+    const layerName = "bdeedSelectArea";
+    if (canvas.grid?.clearHighlightLayer) {
+      try {
+        canvas.grid.clearHighlightLayer(layerName);
+      } catch (err) {
+        // Ignored
+      }
     }
   }
 
@@ -216,6 +267,151 @@ export class BDeedBehaviorHandler {
       ui.notifications.info(`AoE targeted ${tokensInAoE.length} token(s).`);
       return true;
     }
+
+    if (mode === "area") {
+      const targetArea = this._resolveArea(context, params);
+      if (!targetArea || !targetArea.squares || targetArea.squares.length === 0) {
+        ui.notifications.warn("No selected area found for target selection.");
+        return false;
+      }
+
+      const areaRelation = params.areaRelation || "inside";
+      const gridPx = canvas.grid.size;
+      const baseSquares = targetArea.squares;
+      const targetSqMap = new Map();
+
+      for (const sq of baseSquares) {
+        if (areaRelation === "inside" || areaRelation === "insideAndAdjacent") {
+          targetSqMap.set(`${sq.x},${sq.y}`, sq);
+        }
+        if (areaRelation === "adjacent" || areaRelation === "insideAndAdjacent") {
+          for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+              if (dx === 0 && dy === 0) continue;
+              const adjSq = { x: sq.x + dx * gridPx, y: sq.y + dy * gridPx };
+              const key = `${adjSq.x},${adjSq.y}`;
+              if (areaRelation === "adjacent") {
+                const isInside = baseSquares.some(s => s.x === adjSq.x && s.y === adjSq.y);
+                if (!isInside) targetSqMap.set(key, adjSq);
+              } else {
+                targetSqMap.set(key, adjSq);
+              }
+            }
+          }
+        }
+      }
+
+      const evalSquares = Array.from(targetSqMap.values());
+      let selectedTargets = TargetingHelper.getTokensInSquares(evalSquares, gridPx);
+
+      if (params.ignoreSelf) {
+        const sourceToken = this._findToken(actor);
+        if (sourceToken) {
+          selectedTargets = selectedTargets.filter(t => t.id !== sourceToken.id);
+        }
+      }
+
+      context.targets = selectedTargets;
+      if (game.user.updateTokenTargets) {
+        game.user.updateTokenTargets(selectedTargets.map(t => t.id));
+      }
+      ui.notifications.info(`Targeted ${selectedTargets.length} token(s) based on selected area (${areaRelation}).`);
+      return true;
+    }
+  }
+
+  /**
+   * 1b. selectArea: Target mode "squares" or "aoe"
+   * Saves the grid squares directly to context.area.
+   * @protected
+   */
+  static async _selectArea(behavior, context, actor, item) {
+    const params = behavior.params || {};
+    const mode = params.targetMode || "squares";
+    const token = this._findToken(actor);
+
+    if (!token) {
+      ui.notifications.warn("No token found on canvas for area selection.");
+      return false;
+    }
+
+    if (mode === "squares") {
+      const maxCount = parseInt(params.targetCount) || 1;
+      const selectedSquares = [];
+
+      for (let i = 0; i < maxCount; i++) {
+        ui.notifications.info(`Select square ${i + 1} of ${maxCount} (Right-click canvas to finish selection early).`);
+
+        const deedData = {
+          targetType: "blast",
+          targetSize: 1,
+          range: item?.system?.range || 0
+        };
+
+        const result = await TargetingHelper.placeTemplate(actor, token, deedData);
+
+        if (!result || !result.squares || result.squares.length === 0) {
+          break;
+        }
+
+        const sq = result.squares[0];
+        if (!selectedSquares.some(s => s.x === sq.x && s.y === sq.y)) {
+          selectedSquares.push(sq);
+        }
+      }
+
+      if (selectedSquares.length === 0) {
+        ui.notifications.info("Area selection cancelled.");
+        return false;
+      }
+
+      const areaData = {
+        id: behavior.id,
+        squares: selectedSquares,
+        type: "squares",
+        size: selectedSquares.length,
+        isPath: false
+      };
+      if (!context.areas) context.areas = new Map();
+      context.areas.set(behavior.id, areaData);
+      context.area = areaData;
+      this.renderAreaHighlight(context);
+      ui.notifications.info(`Selected ${selectedSquares.length} square(s).`);
+      return true;
+    }
+
+    if (mode === "aoe") {
+      const aoeType = params.aoeType || "blast";
+      const aoeSize = parseInt(params.aoeSize) || 1;
+      const deedData = {
+        targetType: aoeType,
+        targetSize: aoeSize,
+        range: item?.system?.range || 0
+      };
+
+      const result = await TargetingHelper.placeTemplate(actor, token, deedData);
+      if (!result || !result.squares || result.squares.length === 0) {
+        ui.notifications.info("AoE area selection cancelled.");
+        return false;
+      }
+
+      const isPath = (aoeType === "path" || aoeType === "close_path");
+      const areaData = {
+        id: behavior.id,
+        squares: result.squares,
+        type: aoeType,
+        size: aoeSize,
+        isPath
+      };
+      if (!context.areas) context.areas = new Map();
+      context.areas.set(behavior.id, areaData);
+      context.area = areaData;
+      this.renderAreaHighlight(context);
+      ui.notifications.info(`Selected area shape "${aoeType}" (${result.squares.length} squares).`);
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -369,8 +565,39 @@ export class BDeedBehaviorHandler {
     if (!terrainItem) return true;
 
     const placement = params.placement || "on_target";
-    let dropPos = { x: canvas.stage?.width / 2 || 0, y: canvas.stage?.height / 2 || 0 };
 
+    if (placement === "selected_area") {
+      const targetArea = this._resolveArea(context, params);
+      if (!targetArea || !targetArea.squares || targetArea.squares.length === 0) {
+        ui.notifications.warn("No selected area found for terrain placement.");
+        return false;
+      }
+      const gridPx = canvas.grid.size;
+      let evalSquares = targetArea.squares;
+
+      if (params.ignoreSourceSquare) {
+        const sourceToken = this._findToken(actor);
+        if (sourceToken) {
+          evalSquares = evalSquares.filter(sq => !(sq.x === sourceToken.x && sq.y === sourceToken.y));
+        }
+      }
+
+      const gridSquares = evalSquares.map(sq => ({ x: Math.floor(sq.x / gridPx), y: Math.floor(sq.y / gridPx) }));
+      const created = await TerrainHelper.placeTerrainOnCanvas(terrainItem, { x: 0, y: 0 }, { pathSquares: gridSquares });
+      if (created) {
+        if (Array.isArray(created)) {
+          context.spawnedTerrains.push(...created);
+        } else {
+          context.spawnedTerrains.push(created);
+        }
+      }
+      if (context.currentPhaseOutputs?.notes) {
+        context.currentPhaseOutputs.notes.push(`Spawned terrain "${terrainItem.name}" on selected area`);
+      }
+      return true;
+    }
+
+    let dropPos = { x: canvas.stage?.width / 2 || 0, y: canvas.stage?.height / 2 || 0 };
     const token = this._findToken(actor);
 
     if (placement === "on_self" && token) {
@@ -452,11 +679,63 @@ export class BDeedBehaviorHandler {
    */
   static async _moveSource(behavior, context, actor) {
     const params = behavior.params || {};
+    const destinationMode = params.destinationMode || "distance";
     const movementType = params.movementType || "walk";
-    const distance = parseInt(params.distance) || 1;
 
     const token = this._findToken(actor);
     if (!token) return true;
+
+    if (destinationMode === "selectedArea") {
+      const targetArea = this._resolveArea(context, params);
+      if (!targetArea || !targetArea.squares || targetArea.squares.length === 0) {
+        ui.notifications.warn("No selected area found for character movement.");
+        return false;
+      }
+
+      let destSq = null;
+
+      if (targetArea.isPath === true) {
+        destSq = targetArea.squares[targetArea.squares.length - 1];
+      } else {
+        ui.notifications.info("Choose a square within the selected area for movement destination.");
+        const deedData = { targetType: "blast", targetSize: 1, range: 0 };
+
+        while (!destSq) {
+          const result = await TargetingHelper.placeTemplate(actor, token, deedData);
+          if (!result || !result.squares || result.squares.length === 0) {
+            ui.notifications.info("Movement cancelled.");
+            return false;
+          }
+
+          const pickedSq = result.squares[0];
+          const isValid = targetArea.squares.some(s => s.x === pickedSq.x && s.y === pickedSq.y);
+          if (isValid) {
+            destSq = pickedSq;
+          } else {
+            ui.notifications.warn("Please select a square inside the highlighted area.");
+          }
+        }
+      }
+
+      const destPos = { x: destSq.x, y: destSq.y };
+
+      if (movementType === "teleport") {
+        await token.document.update({ x: destPos.x, y: destPos.y });
+      } else if (movementType === "walk" && targetArea.isPath === true) {
+        for (const sq of targetArea.squares) {
+          await token.document.update({ x: sq.x, y: sq.y }, { animate: true });
+        }
+      } else {
+        await token.document.update({ x: destPos.x, y: destPos.y }, { animate: true });
+      }
+
+      if (context.currentPhaseOutputs?.notes) {
+        context.currentPhaseOutputs.notes.push(`Moved source (${movementType}) to selected area square`);
+      }
+      return true;
+    }
+
+    const distance = parseInt(params.distance) || 1;
 
     if (context.currentPhaseOutputs?.notes) {
       context.currentPhaseOutputs.notes.push(`Move source (${movementType}, ${distance} sq)`);

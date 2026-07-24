@@ -16,7 +16,7 @@ export function formatBDeedTarget(system) {
     const phase = system.phases[pKey];
     if (phase && Array.isArray(phase.behaviors)) {
       for (const b of phase.behaviors) {
-        if (b.type === "selectTarget") selectBehaviors.push(b);
+        if (b.type === "selectTarget" || b.type === "selectArea") selectBehaviors.push(b);
       }
     }
   }
@@ -24,18 +24,26 @@ export function formatBDeedTarget(system) {
   if (selectBehaviors.length > 1) return "Special";
   if (selectBehaviors.length === 0) return "Self";
 
-  const params = selectBehaviors[0].params || {};
-  const mode = params.targetMode || "creatures";
+  const behavior = selectBehaviors[0];
+  const params = behavior.params || {};
+  const mode = params.targetMode || (behavior.type === "selectArea" ? "squares" : "creatures");
 
   if (mode === "self") return "Self";
   if (mode === "creatures") {
     const count = parseInt(params.targetCount) || 1;
     return `${count} ${count === 1 ? "Creature" : "Creatures"}`;
   }
+  if (mode === "squares") {
+    const count = parseInt(params.targetCount) || 1;
+    return `${count} ${count === 1 ? "Square" : "Squares"}`;
+  }
   if (mode === "aoe") {
     const type = (params.aoeType || "blast").charAt(0).toUpperCase() + (params.aoeType || "blast").slice(1);
     const size = parseInt(params.aoeSize) || 1;
     return `${type} ${size} sq`;
+  }
+  if (mode === "area") {
+    return "Selected Area";
   }
   return "Self";
 }

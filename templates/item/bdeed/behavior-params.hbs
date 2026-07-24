@@ -4,15 +4,81 @@
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetMode"}}</label>
         <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetMode">
-          <option value="self" {{#if (eq params.targetMode "self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Personal"}}</option>
-          <option value="creatures" {{#if (eq params.targetMode "creatures")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Creature"}}</option>
-          <option value="aoe" {{#if (eq params.targetMode "aoe")}}selected{{/if}}>Area of Effect</option>
+          <option value="self" {{#if (eq params.targetMode "self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetModeChoices.Personal"}}</option>
+          <option value="creatures" {{#if (eq params.targetMode "creatures")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetModeChoices.Creature"}}</option>
+          <option value="aoe" {{#if (eq params.targetMode "aoe")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetModeChoices.AoE"}}</option>
+          <option value="area" {{#if (eq params.targetMode "area")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetModeChoices.SelectedArea"}}</option>
         </select>
       </div>
 
       {{#if (eq params.targetMode "creatures")}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetCount"}}</label>
+          <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetCount"
+                 value="{{params.targetCount}}" min="1" step="1" class="select-on-focus"/>
+        </div>
+      {{/if}}
+
+      {{#if (eq params.targetMode "aoe")}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.BDeed.Params.AoEType"}}</label>
+          <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.aoeType">
+            <option value="blast" {{#if (eq params.aoeType "blast")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Blast"}}</option>
+            <option value="close_blast" {{#if (eq params.aoeType "close_blast")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.CloseBlast"}}</option>
+            <option value="burst" {{#if (eq params.aoeType "burst")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Burst"}}</option>
+            <option value="melee_burst" {{#if (eq params.aoeType "melee_burst")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.MeleeBurst"}}</option>
+            <option value="path" {{#if (eq params.aoeType "path")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Path"}}</option>
+            <option value="close_path" {{#if (eq params.aoeType "close_path")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.ClosePath"}}</option>
+            <option value="aura" {{#if (eq params.aoeType "aura")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Aura"}}</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.BDeed.Params.AoESize"}}</label>
+          <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.aoeSize"
+                 value="{{params.aoeSize}}" min="1" step="1" class="select-on-focus"/>
+        </div>
+      {{/if}}
+
+      {{#if (eq params.targetMode "area")}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.BDeed.Params.AreaRelation"}}</label>
+          <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaRelation">
+            <option value="inside" {{#if (or (eq params.areaRelation "inside") (not params.areaRelation))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.BDeed.Params.AreaRelationChoices.Inside"}}</option>
+            <option value="adjacent" {{#if (eq params.areaRelation "adjacent")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.BDeed.Params.AreaRelationChoices.Adjacent"}}</option>
+            <option value="insideAndAdjacent" {{#if (eq params.areaRelation "insideAndAdjacent")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.BDeed.Params.AreaRelationChoices.InsideAndAdjacent"}}</option>
+          </select>
+        </div>
+        <div class="field-row checkbox-row" style="margin-top: 4px;">
+          <input type="checkbox"
+                 name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.ignoreSelf"
+                 {{#if params.ignoreSelf}}checked{{/if}}
+                 id="bdeed-ignore-self-{{phaseKey}}-{{index}}"/>
+          <label for="bdeed-ignore-self-{{phaseKey}}-{{index}}">
+            {{localize "TRESPASSER.Sheet.BDeed.Params.IgnoreSelf"}}
+          </label>
+        </div>
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.BDeed.Params.AreaBehaviorId"}}</label>
+          <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaBehaviorId"
+                 value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
+        </div>
+      {{/if}}
+    </div>
+  {{/if}}
+
+  {{#if (eq type "selectArea")}}
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetMode"}}</label>
+        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetMode">
+          <option value="squares" {{#if (or (eq params.targetMode "squares") (not params.targetMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetModeChoices.Squares"}}</option>
+          <option value="aoe" {{#if (eq params.targetMode "aoe")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.BDeed.Params.TargetModeChoices.AoE"}}</option>
+        </select>
+      </div>
+
+      {{#if (or (eq params.targetMode "squares") (not params.targetMode))}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.BDeed.Params.SquareCount"}}</label>
           <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetCount"
                  value="{{params.targetCount}}" min="1" step="1" class="select-on-focus"/>
         </div>
@@ -141,8 +207,25 @@
           <option value="on_target" {{#if (eq params.placement "on_target")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnTarget"}}</option>
           <option value="on_self" {{#if (eq params.placement "on_self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnSelf"}}</option>
           <option value="choose" {{#if (eq params.placement "choose")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Choose"}}</option>
+          <option value="selected_area" {{#if (eq params.placement "selected_area")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.SelectedArea"}}</option>
         </select>
       </div>
+      {{#if (eq params.placement "selected_area")}}
+        <div class="field-row checkbox-row" style="margin-top: 4px;">
+          <input type="checkbox"
+                 name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.ignoreSourceSquare"
+                 {{#if params.ignoreSourceSquare}}checked{{/if}}
+                 id="bdeed-ignore-source-{{phaseKey}}-{{index}}"/>
+          <label for="bdeed-ignore-source-{{phaseKey}}-{{index}}">
+            {{localize "TRESPASSER.Sheet.BDeed.Params.IgnoreSourceSquare"}}
+          </label>
+        </div>
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.BDeed.Params.AreaBehaviorId"}}</label>
+          <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaBehaviorId"
+                 value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
+        </div>
+      {{/if}}
     </div>
   {{/if}}
 
@@ -157,6 +240,13 @@
   {{#if (eq type "moveSource")}}
     <div class="param-row-grid">
       <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.DestinationMode"}}</label>
+        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.destinationMode">
+          <option value="distance" {{#if (or (eq params.destinationMode "distance") (not params.destinationMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.BDeed.Params.DestinationModeChoices.Distance"}}</option>
+          <option value="selectedArea" {{#if (eq params.destinationMode "selectedArea")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.BDeed.Params.DestinationModeChoices.SelectedArea"}}</option>
+        </select>
+      </div>
+      <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.BDeed.Params.MovementType"}}</label>
         <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.movementType">
           <option value="walk" {{#if (eq params.movementType "walk")}}selected{{/if}}>Walk</option>
@@ -164,11 +254,20 @@
           <option value="teleport" {{#if (eq params.movementType "teleport")}}selected{{/if}}>Teleport</option>
         </select>
       </div>
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.BDeed.Params.Distance"}}</label>
-        <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distance"
-               value="{{params.distance}}" min="1" step="1" class="select-on-focus"/>
-      </div>
+      {{#if (eq params.destinationMode "selectedArea")}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.BDeed.Params.AreaBehaviorId"}}</label>
+          <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaBehaviorId"
+                 value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
+        </div>
+      {{/if}}
+      {{#unless (eq params.destinationMode "selectedArea")}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.BDeed.Params.Distance"}}</label>
+          <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distance"
+                 value="{{params.distance}}" min="1" step="1" class="select-on-focus"/>
+        </div>
+      {{/unless}}
     </div>
   {{/if}}
 

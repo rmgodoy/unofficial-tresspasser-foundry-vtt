@@ -7,6 +7,14 @@ export const DEFAULT_PARAMS = {
     targetMode: "creatures",
     targetCount: 1,
     aoeType: "blast",
+    aoeSize: 1,
+    areaRelation: "inside",
+    ignoreSelf: false
+  },
+  selectArea: {
+    targetMode: "squares",
+    targetCount: 1,
+    aoeType: "blast",
     aoeSize: 1
   },
   applyDamage: {
@@ -26,12 +34,14 @@ export const DEFAULT_PARAMS = {
     terrainUuid: "",
     terrainName: "",
     terrainImg: "",
-    placement: "on_target"
+    placement: "on_target",
+    ignoreSourceSquare: false
   },
   moveTerrain: {
     terrainBehaviorId: ""
   },
   moveSource: {
+    destinationMode: "distance",
     movementType: "walk",
     distance: 1
   },

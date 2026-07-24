@@ -238,6 +238,7 @@
           "MoveDown": "Mover para Baixo",
           "Type": {
             "selectTarget": "Selecionar Alvo",
+            "selectArea": "Selecionar Área",
             "applyDamage": "Aplicar Dano ao Alvo",
             "applyEffects": "Aplicar Efeitos ao Alvo",
             "modifyBehavior": "Modificar Comportamento",
@@ -256,8 +257,30 @@
         "Params": {
           "TargetMode": "Modo de Alvo",
           "TargetCount": "Contagem de Alvos",
+          "SquareCount": "Contagem de Quadrados",
           "AoEType": "Tipo de Área",
           "AoESize": "Tamanho da Área",
+          "AreaRelation": "Relação com a Área",
+          "AreaBehaviorId": "ID do Comportamento de Área",
+          "DestinationMode": "Modo de Destino",
+          "IgnoreSelf": "Ignorar Origem",
+          "IgnoreSourceSquare": "Ignorar Quadrado da Origem",
+          "TargetModeChoices": {
+            "Creature": "Criatura",
+            "Personal": "Pessoal",
+            "AoE": "Área de Efeito",
+            "SelectedArea": "Área Selecionada",
+            "Squares": "Quadrados"
+          },
+          "AreaRelationChoices": {
+            "Inside": "Dentro da Área",
+            "Adjacent": "Adjacente à Área",
+            "InsideAndAdjacent": "Dentro e Adjacente"
+          },
+          "DestinationModeChoices": {
+            "Distance": "Distância / Manual",
+            "SelectedArea": "Área Selecionada"
+          },
           "DamageExpression": "Fórmula de Dano",
           "TargetPhase": "Fase Alvo",
           "TargetBehaviorId": "ID do Comportamento Alvo",
