@@ -68,6 +68,57 @@ export class TrespasserActor extends Actor {
     return roll;
   }
 
+  /** Map tracking pending damage amounts and debounced animation functions per token */
+  static _tokenDamageAnimState = new Map();
+
+  /**
+   * Queue debounced damage animation for a token.
+   * Batches multiple rapid damage calls into a single sum animation (shake + floating text).
+   * @param {Token} token
+   * @param {number} amount
+   */
+  static queueDamageAnimation(token, amount) {
+    if (!token || (!token.mesh && !token.icon) || !amount) return;
+    const tokenId = token.id;
+
+    if (!this._tokenDamageAnimState) this._tokenDamageAnimState = new Map();
+
+    let state = this._tokenDamageAnimState.get(tokenId);
+    if (!state) {
+      state = {
+        pendingDamage: 0,
+        debounceFn: null
+      };
+      state.debounceFn = foundry.utils.debounce(() => this._playDebouncedAnimation(token), 250);
+      this._tokenDamageAnimState.set(tokenId, state);
+    }
+
+    state.pendingDamage += amount;
+    state.debounceFn();
+  }
+
+  /**
+   * Plays the batched damage animation (shake + total scrolling text) for a token.
+   * @param {Token} token
+   * @private
+   */
+  static async _playDebouncedAnimation(token) {
+    const tokenId = token?.id;
+    if (!tokenId) return;
+
+    const state = this._tokenDamageAnimState?.get(tokenId);
+    if (!state || state.pendingDamage <= 0) return;
+
+    const totalAmount = state.pendingDamage;
+    state.pendingDamage = 0;
+
+    // 1. Spawn single scrolling text with summed total damage
+    this.animateDamageText(token, totalAmount);
+
+    // 2. Perform single token shake animation
+    await this.animateTokenShake(token);
+  }
+
   /**
    * Animate token shake on canvas when taking damage.
    * @param {Token} token
@@ -140,11 +191,10 @@ export class TrespasserActor extends Actor {
 
     await this.update({ "system.health": newHealth });
 
-    // Trigger visual token animations on canvas (token shake & floating red damage text)
+    // Queue debounced animation for canvas (sums damage across rapid calls into one single animation)
     const token = this.token?.object || canvas.tokens?.placeables.find(t => t.actor?.id === this.id);
     if (token) {
-      TrespasserActor.animateTokenShake(token);
-      TrespasserActor.animateDamageText(token, damageNum);
+      TrespasserActor.queueDamageAnimation(token, damageNum);
     }
 
     return newHealth;

@@ -719,8 +719,12 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
       for (const [, data] of terrainDamageMap) {
         totalDamage += data.damage;
       }
-      const newHp = Math.max(0, actor.system.health - totalDamage);
-      await actor.update({ "system.health": newHp });
+      if (typeof actor.applyDamage === "function") {
+        await actor.applyDamage(totalDamage);
+      } else {
+        const newHp = Math.max(0, (actor.system.health ?? 0) - totalDamage);
+        await actor.update({ "system.health": newHp });
+      }
     }
 
     // Build and post ONE combined summary chat message
@@ -857,10 +861,14 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
         const roll = new foundry.dice.Roll(formula);
         await roll.evaluate();
 
-        // Apply damage to actor
-        const currentHp = actor.system.health ?? 0;
-        const newHp = Math.max(0, currentHp - roll.total);
-        await actor.update({ "system.health": newHp });
+        // Apply damage to actor via actor.applyDamage (updates health and triggers shake + floating text)
+        if (typeof actor.applyDamage === "function") {
+          await actor.applyDamage(roll.total);
+        } else {
+          const currentHp = actor.system.health ?? 0;
+          const newHp = Math.max(0, currentHp - roll.total);
+          await actor.update({ "system.health": newHp });
+        }
 
         await roll.toMessage({
           speaker: ChatMessage.getSpeaker({ actor }),
