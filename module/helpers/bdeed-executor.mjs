@@ -365,13 +365,15 @@ export class BDeedExecutor {
   async _executePhase(phaseKey) {
     const phase = this.phases[phaseKey];
 
-    // Initialize phase output container for consolidated single card rendering
-    this.context.currentPhaseOutputs = {
-      rolls: [],
-      rollEntries: [],
-      notes: [],
-      accuracyHtml: ""
-    };
+    // Initialize phase output container for consolidated single card rendering (if not already set by accuracy check)
+    if (!this.context.currentPhaseOutputs) {
+      this.context.currentPhaseOutputs = {
+        rolls: [],
+        rollEntries: [],
+        notes: [],
+        accuracyHtml: ""
+      };
+    }
 
     // Execute each behavior in order
     for (const behavior of phase.behaviors || []) {

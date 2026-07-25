@@ -581,7 +581,16 @@ export class BDeedBehaviorHandler {
       if (params.ignoreSourceSquare) {
         const sourceToken = this._findToken(actor);
         if (sourceToken) {
-          evalSquares = evalSquares.filter(sq => !(sq.x === sourceToken.x && sq.y === sourceToken.y));
+          const srcX = context.sourcePosition?.x ?? sourceToken.document?.x ?? sourceToken.x;
+          const srcY = context.sourcePosition?.y ?? sourceToken.document?.y ?? sourceToken.y;
+          const srcGx = Math.floor(srcX / gridPx);
+          const srcGy = Math.floor(srcY / gridPx);
+
+          evalSquares = evalSquares.filter(sq => {
+            const sqGx = Math.floor(sq.x / gridPx);
+            const sqGy = Math.floor(sq.y / gridPx);
+            return !(sqGx === srcGx && sqGy === srcGy);
+          });
         }
       }
 
@@ -688,6 +697,46 @@ export class BDeedBehaviorHandler {
     const token = this._findToken(actor);
     if (!token) return true;
 
+    /**
+     * Set the token's movementAction to the desired type before moving,
+     * then reset to previous/default ("walk") after the move completes.
+     * @param {string|null} actionName
+     * @param {Function} moveFn - Async function performing the actual position update(s).
+     */
+    const withMovementAction = async (actionName, moveFn) => {
+      const currentAction = token.document.movementAction;
+      const shouldChange = Boolean(actionName && currentAction !== actionName);
+      if (shouldChange) {
+        try {
+          await canvas.scene.updateEmbeddedDocuments("Token", [
+            { _id: token.document.id, movementAction: actionName }
+          ]);
+          canvas.tokens.recalculatePlannedMovementPaths();
+        } catch (err) {
+          console.warn("[BDeedBehaviorHandler] Could not update movementAction:", err);
+        }
+      }
+      try {
+        await moveFn();
+      } finally {
+        if (shouldChange) {
+          try {
+            await canvas.scene.updateEmbeddedDocuments("Token", [
+              { _id: token.document.id, movementAction: currentAction || "walk" }
+            ]);
+            canvas.tokens.recalculatePlannedMovementPaths();
+          } catch (err) {
+            // Ignored
+          }
+        }
+      }
+    };
+
+    // Map behavior movementType to Foundry's native movementAction names (null for teleport as teleport is not a valid movementAction schema choice)
+    const actionName = movementType === "jump" ? "fly"
+                     : movementType === "walk" ? "walk"
+                     : null;
+
     if (destinationMode === "selectedArea") {
       const targetArea = this._resolveArea(context, params);
       if (!targetArea || !targetArea.squares || targetArea.squares.length === 0) {
@@ -722,15 +771,15 @@ export class BDeedBehaviorHandler {
 
       const destPos = { x: destSq.x, y: destSq.y };
 
-      if (movementType === "teleport") {
-        await token.document.update({ x: destPos.x, y: destPos.y });
-      } else if (movementType === "walk" && targetArea.isPath === true) {
-        for (const sq of targetArea.squares) {
-          await token.document.update({ x: sq.x, y: sq.y }, { animate: true });
+      await withMovementAction(actionName, async () => {
+        if (movementType === "walk" && targetArea.isPath === true) {
+          for (const sq of targetArea.squares) {
+            await token.document.update({ x: sq.x, y: sq.y }, { animate: true });
+          }
+        } else {
+          await token.document.update({ x: destPos.x, y: destPos.y }, { animate: movementType !== "teleport" });
         }
-      } else {
-        await token.document.update({ x: destPos.x, y: destPos.y }, { animate: true });
-      }
+      });
       context.sourcePosition = { x: destPos.x, y: destPos.y };
 
       if (context.currentPhaseOutputs?.notes) {
@@ -763,11 +812,9 @@ export class BDeedBehaviorHandler {
       return false; // Cancel execution if player cancels movement
     }
 
-    if (movementType === "teleport") {
-      await token.document.update({ x: destPos.x, y: destPos.y });
-    } else {
-      await token.document.update({ x: destPos.x, y: destPos.y }, { animate: true });
-    }
+    await withMovementAction(actionName, async () => {
+      await token.document.update({ x: destPos.x, y: destPos.y }, { animate: movementType !== "teleport" });
+    });
     context.sourcePosition = { x: destPos.x, y: destPos.y };
 
     if (context.currentPhaseOutputs?.notes) {
