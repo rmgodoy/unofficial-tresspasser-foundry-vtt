@@ -383,6 +383,8 @@ export class TrespasserCombat extends Combat {
         "flags.trespasser.moveActionTaken": false,
         "flags.trespasser.movementAllowed": 0,
         "flags.trespasser.movementUsed": 0,
+        "flags.trespasser.moveActionMovements": [],
+        "flags.trespasser.moveActionCost": 0,
         "flags.trespasser.movementHistory": tokenDoc?.movementHistory ?? [],
         "flags.trespasser.usedExpensiveDeed": false,
         "flags.trespasser.usedHUDActions": []

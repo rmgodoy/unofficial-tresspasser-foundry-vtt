@@ -69,6 +69,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
         const movePointsLeft = movementAllowed - movementUsed;
         const movementHistory = combatant.getFlag("trespasser", "movementHistory") ?? [];
+        const moveActionMovements = combatant.getFlag("trespasser", "moveActionMovements") ?? [];
         const baseSpeed = this._token.actor?.system.combat?.speed ?? 5;
         const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(this._token.actor, "speed");
         const speed = baseSpeed + bonusSpeed;
@@ -117,7 +118,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             canHelp:        (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("help")) && this._getNearbyAllies().length > 0,
             canMove:        canMove,
             moveBtnLabel:   moveBtnLabel,
-            canUndo:        movementHistory.length > 1,
+            canUndo:        moveActionMovements.length > 0,
             canPrevail:     (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("prevail")) && states.length > 0,
             canAttemptDeed: (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("attempt-deed")) && deeds.length > 0 && (!restrictAPF || !usedActions.has("maneuver") || focus >= 2),
             canUseConcoction: (ap >= 1 || !restrictAPF) && concoctions.length > 0 && (!restrictHUD || !usedActions.has("use-concoction")),
@@ -717,7 +718,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             "flags.trespasser.actionPoints": Math.max(0, currentAP - cost),
             "flags.trespasser.moveActionTaken": true,
             "flags.trespasser.movementAllowed": dist,
-            "flags.trespasser.movementUsed": 0
+            "flags.trespasser.movementUsed": 0,
+            "flags.trespasser.moveActionCost": cost,
+            "flags.trespasser.moveActionMovements": []
         });
 
         ChatMessage.create({
@@ -740,32 +743,60 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
     async _undoMove() {
         if (!this._token) return;
 
-        const tokenDoc = this._token.document;
-        // Native movement history check
-        if ((tokenDoc.movementHistory?.length ?? 0) <= 1) return;
+        const combatant = this._getCombatant();
+        if (!combatant) return;
 
-        // Use Foundry's native undo — this handles position AND the yellow path visualization correctly
-        // Add to bypass set so our preUpdateToken hook doesn't block this as an illegal move
+        const tokenDoc = this._token.document;
+        const moveActionMovements = Array.from(combatant.getFlag("trespasser", "moveActionMovements") ?? []);
+
+        if (moveActionMovements.length === 0) return;
+
+        const lastMove = moveActionMovements.pop();
+        if (!lastMove || !lastMove.from) return;
+
         globalThis._trespasserUndoSet ??= new Set();
         globalThis._trespasserUndoSet.add(tokenDoc.id);
+
         try {
-            await tokenDoc.revertRecordedMovement();
-        } 
-        catch (e) {
-            console.error("Trespasser | Error undoing movement:", e);
-        }
-        finally {
+            await tokenDoc.update({ x: lastMove.from.x, y: lastMove.from.y });
+
+            if (tokenDoc.clearMovementHistory) {
+                await tokenDoc.clearMovementHistory();
+            }
+
+            const currentUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+            const stepDist = lastMove.distance ?? 0;
+            const newUsed = Math.max(0, currentUsed - stepDist);
+
+            if (moveActionMovements.length === 0) {
+                // All moves in this Move action have been undone — refund AP and reset action
+                const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+                const cost = combatant.getFlag("trespasser", "moveActionCost") ?? 1;
+
+                await combatant.update({
+                    "flags.trespasser.actionPoints": currentAP + cost,
+                    "flags.trespasser.moveActionTaken": false,
+                    "flags.trespasser.movementAllowed": 0,
+                    "flags.trespasser.movementUsed": 0,
+                    "flags.trespasser.moveActionMovements": [],
+                    "flags.trespasser.moveActionCost": 0
+                });
+
+                await TrespasserCombat.removeHUDAction(this._token.actor, "move");
+            } else {
+                // Partial undo — step popped, adjust movementUsed and keep remaining history
+                await combatant.update({
+                    "flags.trespasser.movementUsed": newUsed,
+                    "flags.trespasser.moveActionMovements": moveActionMovements
+                });
+            }
+        } catch (e) {
+            console.error("Trespasser | Error undoing Move action step:", e);
+        } finally {
             globalThis._trespasserUndoSet.delete(tokenDoc.id);
         }
 
-        const combatant = this._getCombatant();
-        const usedActions = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
-        
-        if(usedActions.has("move")) {
-            await TrespasserCombat.removeHUDAction(this._token.actor, "move");
-        }
-
-        // HUD will be re-rendered by the updateToken hook
+        this.render();
     }
 
     async _executePrevail() {

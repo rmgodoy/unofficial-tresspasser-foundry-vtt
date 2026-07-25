@@ -1279,33 +1279,39 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
     return; // Out-of-phase movement — don't track distance
   }
 
-  // Bypass Move Action checks for PhaseActions, forced movement, or explicitly exempted movements
-  if (options.trespasserPhaseAction || options.trespasserForcedMovement || options.trespasserIgnoreMoveAction) {
-    return;
-  }
-
-  // GMs bypass the action/limit checks but their in-phase moves are tracked if it's a move action
-  const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
-  if (game.user.isGM || !restrictMovement) {
-    options.trespasserTrack = true;
-    return;
-  }
-
-  const moveActionTaken = combatant.getFlag("trespasser", "moveActionTaken") ?? false;
-  if (!moveActionTaken) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.MoveActionRequired"));
-      return false;
-  }
-
-  const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
-  const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
-  const isVaulting = combatant.getFlag("trespasser", "isVaulting") ?? false;
-  
   // Calculate distance of the proposed move
   const start  = { x: tokenDoc.x,             y: tokenDoc.y };
   const end    = { x: changed.x ?? tokenDoc.x, y: changed.y ?? tokenDoc.y };
   const distRaw = canvas.grid.measurePath([start, end]).distance;
   const dist    = Math.round(distRaw / canvas.dimensions.distance);
+
+  // Bypass Move Action checks for PhaseActions, forced movement, or explicitly exempted movements
+  if (options.trespasserPhaseAction || options.trespasserForcedMovement || options.trespasserIgnoreMoveAction) {
+    return;
+  }
+
+  // GMs bypass the action/limit checks if Move action was taken or restrictMovement setting is false
+  const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
+  const moveActionTaken = combatant.getFlag("trespasser", "moveActionTaken") ?? false;
+  if (!restrictMovement || (game.user.isGM && moveActionTaken)) {
+    options.trespasserTrack = true;
+    options.trespasserMoveDist = dist;
+    options.trespasserFrom = start;
+    options.trespasserTo = end;
+    return;
+  }
+
+  if (!moveActionTaken) {
+      if (!game.user.isGM) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.MoveActionRequired"));
+        return false;
+      }
+      return; // GM manual reposition when Move action is not active
+  }
+
+  const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
+  const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+  const isVaulting = combatant.getFlag("trespasser", "isVaulting") ?? false;
 
   if (isVaulting) {
       const startPos = combatant.getFlag("trespasser", "vaultStartPos") || start;
@@ -1326,6 +1332,8 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
 
   options.trespasserTrack = true;
   options.trespasserMoveDist = dist;
+  options.trespasserFrom = start;
+  options.trespasserTo = end;
   options.trespasserIsFirstMove = (movementUsed === 0);
 });
 
@@ -1353,9 +1361,19 @@ Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
     const dist = options.trespasserMoveDist || 0;
     const currentUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
     const newUsed = currentUsed + dist;
+    const moveActionMovements = Array.from(combatant.getFlag("trespasser", "moveActionMovements") ?? []);
+
+    if (options.trespasserFrom && options.trespasserTo) {
+      moveActionMovements.push({
+        from: options.trespasserFrom,
+        to: options.trespasserTo,
+        distance: dist
+      });
+    }
 
     await combatant.update({
       "flags.trespasser.movementUsed": newUsed,
+      "flags.trespasser.moveActionMovements": moveActionMovements,
       "flags.trespasser.movementHistory": tokenDoc.movementHistory,
       "flags.trespasser.hasMovedThisTurn": true,
       "flags.trespasser.isVaulting": false
@@ -1373,8 +1391,9 @@ Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
       }
     }
   } else {
-    // Non-Move action updates (PhaseActions, Forced Movement, GM repositioning)
+    // Non-Move action updates (PhaseActions, Forced Movement, GM repositioning) — clear undo history
     await combatant.update({
+      "flags.trespasser.moveActionMovements": [],
       "flags.trespasser.movementHistory": tokenDoc.movementHistory,
       "flags.trespasser.hasMovedThisTurn": true,
       "flags.trespasser.isVaulting": false

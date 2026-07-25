@@ -740,8 +740,16 @@ export class MovementOverlay {
                             if (combatant) {
                                 const currentUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
                                 const newUsed = currentUsed + totalCost;
+                                const moveActionMovements = Array.from(combatant.getFlag("trespasser", "moveActionMovements") ?? []);
+                                const endPt = uniquePath.length > 0 ? uniquePath[uniquePath.length - 1] : { x: startX, y: startY };
+                                moveActionMovements.push({
+                                    from: { x: startX, y: startY },
+                                    to: { x: endPt.x, y: endPt.y },
+                                    distance: totalCost
+                                });
                                 await combatant.update({
                                     "flags.trespasser.movementUsed": newUsed,
+                                    "flags.trespasser.moveActionMovements": moveActionMovements,
                                     "flags.trespasser.hasMovedThisTurn": true
                                 });
 
