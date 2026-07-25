@@ -25,6 +25,7 @@
       "Combat": {
         "Defense": "Defense",
         "AccuracyRoll": "{name} Accuracy Roll",
+        "NoTargetsSkipped": "No targets available — accuracy check and hit/spark phases skipped.",
         "Hit": "HIT!",
         "Miss": "MISS!",
         "Sparks": "Sparks: {count}",

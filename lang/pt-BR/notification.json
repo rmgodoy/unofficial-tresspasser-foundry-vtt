@@ -39,6 +39,7 @@
         "RecordedTargetsGone": "Os alvos registrados neste cartão não estão mais na cena.",
         "NoTargetsAbort": "Nenhum alvo selecionado! Rolagem abortada, exibindo Acurácia básica para referência.",
         "NoTargetsDefault": "Nenhum alvo selecionado! Rolando contra CD 10 padrão.",
+        "NoTargetsSkippingAccuracy": "Nenhum alvo disponível. Pulando verificação de acurácia e fases de acerto e centelhas.",
         "NotEnoughFocus": "Foco insuficiente para usar {name}. (Necessário {cost}, possui {current})",
         "NotEnoughEndurance": "Vigor insuficiente para usar {name}. (Necessário {cost}, possui {current})",
         "NotEnoughAP": "Você não tem Pontos de Ação suficientes!",

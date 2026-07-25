@@ -182,13 +182,9 @@ export async function onDeedRoll(event, sheet) {
       ui.notifications.warn(validation.message);
       return;
     }
-    if (isAttack && targets.length === 0) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargetsDefault"));
-      return;
-    }
 
     // Range validation
-    if (sourceToken) {
+    if (sourceToken && targets.length > 0) {
       let rangeCheck = { valid: true };
       
       if (isCreature) {
@@ -229,7 +225,7 @@ export async function onDeedRoll(event, sheet) {
 
   // ── 4.5. Roll Dialog (Characters only) ────────────────────────────────────
   let userModifier = 0;
-  if (!isCreature) {
+  if (!isCreature && targets.length > 0) {
     const isAdv          = TrespasserEffectsHelper.hasAdvantage(sheet.actor, "accuracy");
     const effectBonus    = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, "accuracy", "use");
     const totalAccuracy  = sheet.actor.system.combat.accuracy ?? 0;
@@ -318,7 +314,9 @@ export async function onDeedRoll(event, sheet) {
   // ── 8. Roll (dispatch to actor-type specific handler) ─────────────────────
   let anyHit = false, maxSparks = 0, results = [];
 
-  if (isCreature) {
+  if (targets.length === 0) {
+    ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargetsSkippingAccuracy"));
+  } else if (isCreature) {
     ({ anyHit, maxSparks, results } = await rollCreatureDeed(item, sheet, targets, apBonus));
   } else {
     ({ anyHit, maxSparks, results } = await rollCharacterDeed(item, sheet, targets, apBonus, totalCost, userModifier));

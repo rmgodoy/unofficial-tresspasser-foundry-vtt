@@ -25,6 +25,7 @@
       "Combat": {
         "Defense": "Defesa",
         "AccuracyRoll": "Rolagem de Acurácia de {name}",
+        "NoTargetsSkipped": "Nenhum alvo disponível — verificação de acurácia e fases de acerto/centelha puladas.",
         "Hit": "ACERTO!",
         "Miss": "ERRO!",
         "Sparks": "Centelhas: {count}",

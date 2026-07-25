@@ -39,6 +39,7 @@
         "RecordedTargetsGone": "The targets recorded on this card are no longer on the scene.",
         "NoTargetsAbort": "No targets selected! Roll aborted, showing basic Accuracy for reference.",
         "NoTargetsDefault": "No targets selected! Rolling against default CD 10.",
+        "NoTargetsSkippingAccuracy": "No targets available. Skipping accuracy check and hit/spark phases.",
         "NotEnoughFocus": "Insufficient Focus to use {name}. (Required {cost}, has {current})",
         "NotEnoughEndurance": "Insufficient Endurance to use {name}. (Required {cost}, has {current})",
         "NotEnoughAP": "You do not have enough Action Points!",

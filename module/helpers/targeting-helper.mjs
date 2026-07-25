@@ -132,13 +132,6 @@ export class TargetingHelper {
   static validateTargets(targets, deed, sourceToken) {
     const targetArr = Array.from(targets);
 
-    if (deed.actionType !== "support" && targetArr.length === 0) {
-      return {
-        valid: false,
-        message: game.i18n.localize("TRESPASSER.Notification.Combat.NoTargetsDefault")
-      };
-    }
-
     const maxTargets = deed.targetCount ?? 1;
     if (targetArr.length > maxTargets) {
       return {

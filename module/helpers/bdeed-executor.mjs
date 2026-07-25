@@ -397,13 +397,41 @@ export class BDeedExecutor {
     const apBonus = this.context.apBonus || 0;
 
     // 1. Ensure target selection runs FIRST before accuracy DC calculation
-    if ((!this.context.targets || this.context.targets.length === 0) && isAttack) {
+    if (!this.context.targets || this.context.targets.length === 0) {
       const selectBehavior = this._findBehaviorByType("selectTarget");
       if (selectBehavior && !selectBehavior._alreadyExecuted) {
         selectBehavior._alreadyExecuted = true;
         const selectRes = await BDeedBehaviorHandler.dispatch(selectBehavior, this.context, this.actor, this.item);
         if (selectRes === false) return false; // Target selection cancelled
       }
+    }
+
+    // 2. Check if there are any targets available. If none, skip accuracy check and hit/spark phases.
+    const targetList = (this.context.targets && this.context.targets.length > 0)
+      ? this.context.targets
+      : Array.from(game.user.targets);
+
+    if (targetList.length === 0) {
+      ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargetsSkippingAccuracy"));
+      this.context.isHit = false;
+      this.context.isSpark = false;
+      this.context.maxSparks = 0;
+      this.context.sparkChoices = null;
+      this.context.accuracyResults = [];
+
+      if (!this.context.currentPhaseOutputs) {
+        this.context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
+      }
+      this.context.currentPhaseOutputs.accuracyHtml = `
+        <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
+          <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: 12px; font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
+            ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: this.item.name })}
+          </h4>
+          <div style="font-size: 11px; color: var(--trp-text-dim, #a09070); font-style: italic; margin-top: 4px;">
+            ${game.i18n.localize("TRESPASSER.Chat.Combat.NoTargetsSkipped")}
+          </div>
+        </div>`;
+      return true;
     }
 
     const isCreatureAttacker = this.actor?.type === "creature";
@@ -420,9 +448,6 @@ export class BDeedExecutor {
       let maxSparks = 0;
       const results = [];
 
-      const targetList = (this.context.targets && this.context.targets.length > 0)
-        ? this.context.targets
-        : Array.from(game.user.targets);
 
       for (const targetToken of targetList) {
         const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
@@ -577,10 +602,6 @@ export class BDeedExecutor {
     let maxSparks = 0;
     const results = [];
 
-    // Evaluate selected targets from context.targets
-    const targetList = (this.context.targets && this.context.targets.length > 0)
-      ? this.context.targets
-      : Array.from(game.user.targets);
 
     const actualTargets = isAttack && targetList.length > 0 ? targetList : [null];
 
