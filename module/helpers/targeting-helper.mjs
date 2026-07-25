@@ -34,7 +34,7 @@ export class TargetingHelper {
    * @param {object} deed    item.system of the deed
    * @returns {Promise<{squares: Array<{x:number,y:number}>, templateDoc: RegionDocument|null}|null>}
    */
-  static async placeTemplate(actor, token, deed, activeWeapons = []) {
+  static async placeTemplate(actor, token, deed, activeWeapons = [], options = {}) {
     const type = deed.targetType;
     const size = deed.targetSize ?? 1;
     const gridPx = canvas.grid.size;
@@ -52,7 +52,7 @@ export class TargetingHelper {
 
       case "burst":
       case "aura": {
-        const squares = this.#computeBurstSquares(token, size, gridPx);
+        const squares = this.#computeBurstSquares(token, size, gridPx, options.originOverride);
         let templateDoc = null;
         // Aura persists visually using a token-attached Region emanation
         if (type === "aura") {
@@ -63,7 +63,7 @@ export class TargetingHelper {
 
       case "melee_burst": {
         const reach = this.#getMeleeReach(actor);
-        const squares = this.#computeBurstSquares(token, reach, gridPx);
+        const squares = this.#computeBurstSquares(token, reach, gridPx, options.originOverride);
         return { squares, templateDoc: null };
       }
 
@@ -330,14 +330,20 @@ export class TargetingHelper {
    * @param {number} gridPx
    * @returns {Array<{x: number, y: number}>}
    */
-  static #computeBurstSquares(token, size, gridPx) {
-    const tokenTopLeft = { x: token.document.x, y: token.document.y };
+  static #computeBurstSquares(token, size, gridPx, originOverride = null) {
+    const tokenTopLeft = originOverride
+      ? { x: originOverride.x, y: originOverride.y }
+      : { x: token.document.x, y: token.document.y };
     const tokenW = token.document.width ?? 1;
     const tokenH = token.document.height ?? 1;
 
     const squares = [];
     for (let dx = -size; dx < tokenW + size; dx++) {
       for (let dy = -size; dy < tokenH + size; dy++) {
+        // Caster's own occupied space is white/unaffected in burst patterns
+        const isCasterSpace = dx >= 0 && dx < tokenW && dy >= 0 && dy < tokenH;
+        if (isCasterSpace) continue;
+
         squares.push({
           x: tokenTopLeft.x + dx * gridPx,
           y: tokenTopLeft.y + dy * gridPx

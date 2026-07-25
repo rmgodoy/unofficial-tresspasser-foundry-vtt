@@ -29,6 +29,7 @@ export class BDeedExecutor {
      */
     this.context = {
       callStack: this.options.callStack || new Set(),
+      sourcePosition: this.options.sourcePosition || null,
       targets: [],
       area: null,
       areas: new Map(),
@@ -204,8 +205,8 @@ export class BDeedExecutor {
 
     // Step 4: Clear targets and area highlights after pipeline execution so next execution starts fresh
     this.context.targets = [];
-    if (game.user.targets.size > 0) {
-      game.user.updateTokenTargets([]);
+    if (game.user?.targets?.size > 0) {
+      await game.user.updateTokenTargets([]);
     }
     BDeedBehaviorHandler.clearAreaHighlight(this.context);
   }

@@ -433,25 +433,63 @@ export class MovementOverlay {
         const sizeX = canvas.grid.sizeX || canvas.grid.size;
         const sizeY = canvas.grid.sizeY || canvas.grid.size;
         
-        const directions = [
-            {dx: 0, dy: -1}, {dx: 1, dy: -1}, {dx: 1, dy: 0}, {dx: 1, dy: 1},
-            {dx: 0, dy: 1}, {dx: -1, dy: 1}, {dx: -1, dy: 0}, {dx: -1, dy: -1}
-        ];
-        
         this.validVaultSquares = [];
-        
-        for (const dir of directions) {
-            for (let d = 1; d <= this.maxRange; d++) {
-                const destPoint = {
-                    x: tokenCenter.x + dir.dx * d * sizeX,
-                    y: tokenCenter.y + dir.dy * d * sizeY
-                };
-                
+        const movementType = (this.options?.movementType || "jump").toLowerCase();
+
+        if (movementType === "teleport") {
+            const startGx = Math.floor(tokenCenter.x / sizeX);
+            const startGy = Math.floor(tokenCenter.y / sizeY);
+
+            for (let dx = -this.maxRange; dx <= this.maxRange; dx++) {
+                for (let dy = -this.maxRange; dy <= this.maxRange; dy++) {
+                    if (dx === 0 && dy === 0) continue;
+                    const dist = Math.max(Math.abs(dx), Math.abs(dy));
+                    if (dist <= this.maxRange) {
+                        const destPoint = {
+                            x: (startGx + dx + 0.5) * sizeX,
+                            y: (startGy + dy + 0.5) * sizeY
+                        };
+                        this.validVaultSquares.push({
+                            x: destPoint.x,
+                            y: destPoint.y,
+                            distance: dist
+                        });
+                    }
+                }
+            }
+        } else if (movementType === "walk") {
+            const visited = this._calculateDistancesFrom(this.token.x, this.token.y, this.maxRange);
+            for (const [key, val] of visited.entries()) {
+                if (val.dist === 0) continue;
+                const [gxStr, gyStr] = key.split(",");
+                const gx = parseInt(gxStr);
+                const gy = parseInt(gyStr);
                 this.validVaultSquares.push({
-                    x: destPoint.x,
-                    y: destPoint.y,
-                    distance: d
+                    x: (gx + 0.5) * sizeX,
+                    y: (gy + 0.5) * sizeY,
+                    distance: val.dist
                 });
+            }
+        } else {
+            // "jump" or straight-line rays
+            const directions = [
+                {dx: 0, dy: -1}, {dx: 1, dy: -1}, {dx: 1, dy: 0}, {dx: 1, dy: 1},
+                {dx: 0, dy: 1}, {dx: -1, dy: 1}, {dx: -1, dy: 0}, {dx: -1, dy: -1}
+            ];
+            
+            for (const dir of directions) {
+                for (let d = 1; d <= this.maxRange; d++) {
+                    const destPoint = {
+                        x: tokenCenter.x + dir.dx * d * sizeX,
+                        y: tokenCenter.y + dir.dy * d * sizeY
+                    };
+                    
+                    this.validVaultSquares.push({
+                        x: destPoint.x,
+                        y: destPoint.y,
+                        distance: d
+                    });
+                }
             }
         }
     }

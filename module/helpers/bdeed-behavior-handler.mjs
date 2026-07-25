@@ -253,7 +253,9 @@ export class BDeedBehaviorHandler {
         return false;
       }
 
-      const result = await TargetingHelper.placeTemplate(actor, token, deedData);
+      const result = await TargetingHelper.placeTemplate(actor, token, deedData, [], {
+        originOverride: context.sourcePosition || null
+      });
       if (!result || !result.squares) {
         ui.notifications.info("AoE template placement cancelled.");
         return false;
@@ -729,6 +731,7 @@ export class BDeedBehaviorHandler {
       } else {
         await token.document.update({ x: destPos.x, y: destPos.y }, { animate: true });
       }
+      context.sourcePosition = { x: destPos.x, y: destPos.y };
 
       if (context.currentPhaseOutputs?.notes) {
         context.currentPhaseOutputs.notes.push(`Moved source (${movementType}) to selected area square`);
@@ -736,10 +739,39 @@ export class BDeedBehaviorHandler {
       return true;
     }
 
+    // destinationMode === "distance"
     const distance = parseInt(params.distance) || 1;
 
+    // Prompt player to select destination square on canvas
+    const { MovementOverlay } = await import("../canvas/movement-overlay.mjs");
+    const destPos = await new Promise((resolve) => {
+      const onComplete = (targetToken, destination) => {
+        Hooks.off("trespasserVaultCancelled", onCancel);
+        resolve(destination);
+      };
+      const onCancel = () => {
+        Hooks.off("trespasserVaultComplete", onComplete);
+        resolve(null);
+      };
+      Hooks.once("trespasserVaultComplete", onComplete);
+      Hooks.once("trespasserVaultCancelled", onCancel);
+      MovementOverlay.activateVaultMode(token, distance, { free: true, phaseAction: true, movementType: movementType });
+    });
+
+    if (!destPos) {
+      ui.notifications.info("Source movement cancelled.");
+      return false; // Cancel execution if player cancels movement
+    }
+
+    if (movementType === "teleport") {
+      await token.document.update({ x: destPos.x, y: destPos.y });
+    } else {
+      await token.document.update({ x: destPos.x, y: destPos.y }, { animate: true });
+    }
+    context.sourcePosition = { x: destPos.x, y: destPos.y };
+
     if (context.currentPhaseOutputs?.notes) {
-      context.currentPhaseOutputs.notes.push(`Move source (${movementType}, ${distance} sq)`);
+      context.currentPhaseOutputs.notes.push(`Moved source (${movementType}, ${distance} sq)`);
     }
     return true;
   }
@@ -787,11 +819,14 @@ export class BDeedBehaviorHandler {
   }
 
   /**
-   * 8. clearTargets: Reset context.targets
+   * 8. clearTargets: Reset context.targets and canvas token targets
    * @protected
    */
   static async _clearTargets(context) {
     context.targets = [];
+    if (game.user?.targets?.size > 0) {
+      await game.user.updateTokenTargets([]);
+    }
     if (context.currentPhaseOutputs?.notes) {
       context.currentPhaseOutputs.notes.push("Cleared target list");
     }
@@ -802,6 +837,7 @@ export class BDeedBehaviorHandler {
    * 9. executeDeed: Execute another auxiliary deed document as a sub-routine.
    * Runs as a free sub-action (0 AP, 0 Focus, 0 Uses deduction) and presents its own phase chat cards.
    * Safeguarded against circular/recursive calls.
+   * Clears canvas targets before and after execution so sub-deeds retain independent targets.
    * @protected
    */
   static async _executeDeed(behavior, context, actor) {
@@ -831,17 +867,26 @@ export class BDeedBehaviorHandler {
 
     callStack.add(subDeedItem.id);
 
+    // Clear canvas targets so sub-deed starts with clean target selection
+    if (game.user?.targets?.size > 0) {
+      await game.user.updateTokenTargets([]);
+    }
+
     try {
       const { BDeedExecutor } = await import("./bdeed-executor.mjs");
       const subExecutor = new BDeedExecutor(subDeedItem, actor, {
         isSubDeed: true,
-        callStack
+        callStack,
+        sourcePosition: context.sourcePosition || null
       });
       await subExecutor.execute();
     } catch (err) {
       console.error("[BDeedBehaviorHandler] Error executing sub-deed:", err);
     } finally {
       callStack.delete(subDeedItem.id);
+      if (game.user?.targets?.size > 0) {
+        await game.user.updateTokenTargets([]);
+      }
     }
 
     if (context.currentPhaseOutputs?.notes) {
