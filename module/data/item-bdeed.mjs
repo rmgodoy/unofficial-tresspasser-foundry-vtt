@@ -12,7 +12,8 @@ export const BEHAVIOR_TYPES = [
   "moveTerrain",
   "moveSource",
   "forceMoveTargets",
-  "clearTargets"
+  "clearTargets",
+  "executeDeed"
 ];
 
 export class TrespasserBDeedData extends foundry.abstract.TypeDataModel {
@@ -34,6 +35,7 @@ export class TrespasserBDeedData extends foundry.abstract.TypeDataModel {
 
     const phaseSchema = () => new fields.SchemaField({
       description: new fields.StringField({ initial: "" }),
+      skipPhase: new fields.BooleanField({ initial: false }),
       behaviors: new fields.ArrayField(
         behaviorSchema(),
         { initial: [] }

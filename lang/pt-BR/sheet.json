@@ -230,6 +230,7 @@
           "After": "Depois",
           "End": "Fim"
         },
+        "SkipPhase": "Pular Fase",
         "Behavior": {
           "Label": "Comportamento",
           "Add": "Adicionar Comportamento",
@@ -246,7 +247,8 @@
             "moveTerrain": "Mover Terreno",
             "moveSource": "Mover Ator de Origem",
             "forceMoveTargets": "Forçar Movimento dos Alvos",
-            "clearTargets": "Limpar Alvos"
+            "clearTargets": "Limpar Alvos",
+            "executeDeed": "Executar Façanha Auxiliar"
           }
         },
         "Tabs": {
@@ -373,6 +375,7 @@
           "Effect": "efeito...",
           "Description": "Nenhuma descrição fornecida.",
           "DropEffects": "Solte Efeitos aqui",
+          "DropDeed": "Solte Façanha aqui",
           "DropDeeds": "Solte Habilidades aqui",
           "DropIncantations": "Solte Encantamentos aqui",
           "DropTalents": "Solte Talentos aqui",

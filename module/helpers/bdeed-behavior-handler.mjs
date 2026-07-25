@@ -33,6 +33,7 @@ export class BDeedBehaviorHandler {
       case "moveSource":       return this._moveSource(behavior, context, actor);
       case "forceMoveTargets": return this._forceMoveTargets(behavior, context, actor, item, phaseKey);
       case "clearTargets":     return this._clearTargets(context);
+      case "executeDeed":      return this._executeDeed(behavior, context, actor);
     }
   }
 
@@ -794,6 +795,59 @@ export class BDeedBehaviorHandler {
     if (context.currentPhaseOutputs?.notes) {
       context.currentPhaseOutputs.notes.push("Cleared target list");
     }
+    return true;
+  }
+
+  /**
+   * 9. executeDeed: Execute another auxiliary deed document as a sub-routine.
+   * Runs as a free sub-action (0 AP, 0 Focus, 0 Uses deduction) and presents its own phase chat cards.
+   * Safeguarded against circular/recursive calls.
+   * @protected
+   */
+  static async _executeDeed(behavior, context, actor) {
+    const params = behavior.params || {};
+    const deedUuid = params.deedUuid;
+    if (!deedUuid) {
+      ui.notifications.warn("No auxiliary Deed linked for executeDeed behavior.");
+      return true;
+    }
+
+    let subDeedItem = await fromUuid(deedUuid);
+    if (!subDeedItem && actor) {
+      subDeedItem = actor.items?.get(deedUuid) || actor.items?.find(i => i.uuid === deedUuid || i.id === deedUuid);
+    }
+
+    if (!subDeedItem) {
+      ui.notifications.warn(`Could not find linked Deed item (${deedUuid}).`);
+      return true;
+    }
+
+    // Safeguard against circular calls / stack overflow
+    const callStack = context.callStack || new Set();
+    if (callStack.has(subDeedItem.id) || callStack.size >= 10) {
+      ui.notifications.warn(`Circular deed execution detected: "${subDeedItem.name}" is already in the call stack.`);
+      return true;
+    }
+
+    callStack.add(subDeedItem.id);
+
+    try {
+      const { BDeedExecutor } = await import("./bdeed-executor.mjs");
+      const subExecutor = new BDeedExecutor(subDeedItem, actor, {
+        isSubDeed: true,
+        callStack
+      });
+      await subExecutor.execute();
+    } catch (err) {
+      console.error("[BDeedBehaviorHandler] Error executing sub-deed:", err);
+    } finally {
+      callStack.delete(subDeedItem.id);
+    }
+
+    if (context.currentPhaseOutputs?.notes) {
+      context.currentPhaseOutputs.notes.push(`Executed auxiliary deed "${subDeedItem.name}"`);
+    }
+
     return true;
   }
 }

@@ -232,6 +232,7 @@
           "After": "After",
           "End": "End"
         },
+        "SkipPhase": "Skip Phase",
         "Behavior": {
           "Label": "Behavior",
           "Add": "Add Behavior",
@@ -248,7 +249,8 @@
             "moveTerrain": "Move Terrain",
             "moveSource": "Move Source Actor",
             "forceMoveTargets": "Force Move Targets",
-            "clearTargets": "Clear Targets"
+            "clearTargets": "Clear Targets",
+            "executeDeed": "Execute Auxiliary Deed"
           }
         },
         "Tabs": {
@@ -394,6 +396,7 @@
           "Description": "No description provided.",
           "DropEffects": "Drop Effects here",
           "DropTerrain": "Drop Terrain here",
+          "DropDeed": "Drop Deed here",
           "LinkedEffectUuid": "Linked Effect UUID",
           "DropDeeds": "Drop Deeds here",
           "DropIncantations": "Drop Incantations here",

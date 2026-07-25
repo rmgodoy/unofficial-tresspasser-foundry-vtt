@@ -28,6 +28,7 @@ export class BDeedExecutor {
      * Shared runtime context passed across all phases.
      */
     this.context = {
+      callStack: this.options.callStack || new Set(),
       targets: [],
       area: null,
       areas: new Map(),
@@ -40,6 +41,7 @@ export class BDeedExecutor {
       maxSparks: 0,
       sparkChoices: null,
       accuracyResults: [],
+      accuracyResolved: false,
       currentPhaseOutputs: null,
       apSpent: 1,
       apBonus: 0
@@ -52,6 +54,7 @@ export class BDeedExecutor {
    * @protected
    */
   async _validateResources() {
+    if (this.options.isSubDeed) return true;
     if (!this.actor) return true;
 
     const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
@@ -123,6 +126,7 @@ export class BDeedExecutor {
    * @protected
    */
   async _commitResourceUsage() {
+    if (this.options.isSubDeed) return;
     if (!this.actor) return;
 
     const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
@@ -172,6 +176,18 @@ export class BDeedExecutor {
     let cancelled = false;
     const phaseOrder = ["start", "before", "base", "hit", "spark", "after", "end"];
     for (const phaseKey of phaseOrder) {
+      if (phaseKey === "hit") {
+        const needsAccuracy = this._hasContent("hit") || this._hasContent("spark");
+        if (needsAccuracy && !this.context.accuracyResolved) {
+          this.context.accuracyResolved = true;
+          const accRes = await this._resolveAccuracyCheck();
+          if (accRes === false) {
+            cancelled = true;
+            break;
+          }
+        }
+      }
+
       if (this._shouldSkipPhase(phaseKey)) continue;
       this.context.activePhases.push(phaseKey);
       const res = await this._executePhase(phaseKey);
@@ -312,25 +328,32 @@ export class BDeedExecutor {
   }
 
   /**
+   * Determine if a phase has any active content (description or behaviors).
+   * @param {string} phaseKey
+   * @returns {boolean}
+   * @protected
+   */
+  _hasContent(phaseKey) {
+    const phase = this.phases[phaseKey];
+    if (!phase || phase.skipPhase) return false;
+    const hasDesc = Boolean(phase.description && phase.description.trim());
+    const hasBehaviors = Boolean(phase.behaviors && phase.behaviors.length > 0);
+    return hasDesc || hasBehaviors;
+  }
+
+  /**
    * Determine if a phase should be skipped during pipeline execution.
    * @param {string} phaseKey
    * @returns {boolean}
    * @protected
    */
   _shouldSkipPhase(phaseKey) {
+    const phase = this.phases[phaseKey];
+    if (phase?.skipPhase) return true;
     if (phaseKey === "hit" && !this.context.isHit) return true;
     if (phaseKey === "spark" && !this.context.isSpark) return true;
 
-    const phase = this.phases[phaseKey];
-    if (!phase) return true;
-
-    const hasDesc = Boolean(phase.description && phase.description.trim());
-    const hasBehaviors = Boolean(phase.behaviors && phase.behaviors.length > 0);
-
-    // Skip empty phases (no description AND no behaviors)
-    if (!hasDesc && !hasBehaviors) return true;
-
-    return false;
+    return !this._hasContent(phaseKey);
   }
 
   /**
@@ -348,12 +371,6 @@ export class BDeedExecutor {
       notes: [],
       accuracyHtml: ""
     };
-
-    // Base phase triggers target selection (if not already done) and accuracy check
-    if (phaseKey === "base") {
-      const continueExecution = await this._resolveAccuracyCheck();
-      if (continueExecution === false) return false;
-    }
 
     // Execute each behavior in order
     for (const behavior of phase.behaviors || []) {

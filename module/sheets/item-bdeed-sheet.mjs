@@ -49,7 +49,12 @@ export const DEFAULT_PARAMS = {
     type: "push",
     distance: 1
   },
-  clearTargets: {}
+  clearTargets: {},
+  executeDeed: {
+    deedUuid: "",
+    deedName: "",
+    deedImg: ""
+  }
 };
 
 export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
@@ -187,6 +192,7 @@ export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.
         label: game.i18n.localize(`TRESPASSER.Sheet.BDeed.Phase.${key.charAt(0).toUpperCase() + key.slice(1)}`),
         expanded: this._expandedPhases.has(key),
         description: phaseData.description ?? "",
+        skipPhase: phaseData.skipPhase ?? false,
         behaviors: rawBehaviors.map((b, i) => {
           const mergedParams = { ...(DEFAULT_PARAMS[b.type] ?? {}), ...(b.params ?? {}) };
           return {
@@ -228,6 +234,12 @@ export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.
     for (const zone of terrainDropZones) {
       zone.addEventListener("dragover", (ev) => ev.preventDefault());
       zone.addEventListener("drop", this.#onDropBehaviorTerrain.bind(this));
+    }
+
+    const deedDropZones = this.element.querySelectorAll(".behavior-deed-drop");
+    for (const zone of deedDropZones) {
+      zone.addEventListener("dragover", (ev) => ev.preventDefault());
+      zone.addEventListener("drop", this.#onDropBehaviorDeed.bind(this));
     }
   }
 
@@ -301,6 +313,41 @@ export class TrespasserBDeedSheet extends api.HandlebarsApplicationMixin(sheets.
     behavior.params.terrainUuid = droppedItem.uuid;
     behavior.params.terrainName = droppedItem.name;
     behavior.params.terrainImg = droppedItem.img;
+
+    await this.document.update({ "system.phases": phasesData });
+  }
+
+  async #onDropBehaviorDeed(event) {
+    event.preventDefault();
+    const zone = event.currentTarget;
+    const phaseKey = zone.dataset.phase;
+    const behaviorId = zone.dataset.behaviorId;
+    if (!phaseKey || !behaviorId) return;
+
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer.getData("text/plain"));
+    } catch {
+      return;
+    }
+
+    if (data.type !== "Item") return;
+    const droppedItem = await fromUuid(data.uuid);
+    if (!droppedItem) return;
+
+    if (droppedItem.type !== "bdeed" && droppedItem.type !== "deed") {
+      ui.notifications.warn("Dropped item must be a Deed item.");
+      return;
+    }
+
+    const phasesData = foundry.utils.deepClone(this.document.system.phases);
+    const behavior = phasesData[phaseKey]?.behaviors?.find(b => b.id === behaviorId);
+    if (!behavior) return;
+
+    behavior.params = behavior.params || {};
+    behavior.params.deedUuid = droppedItem.uuid;
+    behavior.params.deedName = droppedItem.name;
+    behavior.params.deedImg = droppedItem.img;
 
     await this.document.update({ "system.phases": phasesData });
   }

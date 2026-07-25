@@ -12,7 +12,13 @@
       <div class="phase-body">
         <!-- Phase description -->
         <div class="form-group phase-description-group">
-          <label>{{localize "TRESPASSER.Sheet.Header.Description"}}</label>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+            <label style="margin:0;">{{localize "TRESPASSER.Sheet.Header.Description"}}</label>
+            <label style="font-size:11px; color:var(--trp-text-dim, #a09070); display:flex; align-items:center; gap:4px; font-weight:normal; cursor:pointer;">
+              <input type="checkbox" name="system.phases.{{key}}.skipPhase" {{#if skipPhase}}checked{{/if}}/>
+              {{localize "TRESPASSER.Sheet.BDeed.SkipPhase"}}
+            </label>
+          </div>
           <textarea name="system.phases.{{key}}.description" rows="2" placeholder="{{localize 'TRESPASSER.Sheet.Item.Placeholder.Description'}}">{{description}}</textarea>
         </div>
 

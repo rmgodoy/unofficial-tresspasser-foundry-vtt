@@ -296,4 +296,22 @@
       <i class="fas fa-info-circle"></i> {{localize "TRESPASSER.Sheet.BDeed.Params.ClearTargetsHint"}}
     </p>
   {{/if}}
+
+  {{#if (eq type "executeDeed")}}
+    <div class="behavior-deed-section">
+      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.deedUuid" value="{{params.deedUuid}}"/>
+      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.deedName" value="{{params.deedName}}"/>
+      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.deedImg" value="{{params.deedImg}}"/>
+      <div class="behavior-deed-drop drop-zone" data-phase="{{phaseKey}}" data-behavior-id="{{id}}">
+        {{#if params.deedName}}
+          <div class="deed-chip" style="display:flex; align-items:center; gap:8px;">
+            <img src="{{params.deedImg}}" title="{{params.deedName}}" style="width:24px; height:24px; border:none; object-fit:contain;"/>
+            <span style="font-weight:bold; font-size:12px;">{{params.deedName}}</span>
+          </div>
+        {{else}}
+          <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropDeed"}}
+        {{/if}}
+      </div>
+    </div>
+  {{/if}}
 </div>
