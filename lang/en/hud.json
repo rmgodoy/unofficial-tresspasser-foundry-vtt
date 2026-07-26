@@ -32,6 +32,9 @@
         "Label": "sq",
         "OverlayInstruction": "{points} sq remaining. Click square to select destination, Ctrl+Click for waypoint."
       },
+      "Vault": {
+        "OverlayInstruction": "Range: {range} sq. Click square to select destination."
+      },
       "Resource": {
         "APCost": "AP Cost",
         "ExtraAP": "AP to spend",
