@@ -1,5 +1,6 @@
 import { TerrainHelper } from "./terrain-helper.mjs";
 import { MovementHelper } from "./movement-helper.mjs";
+import { CanvasInputSession } from "../canvas/canvas-input-session.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications?.api || {};
 
@@ -285,7 +286,8 @@ export class ForcedMovementHelper {
       let path = [];
       let totalDamage = 0;
       let collisions = [];
-      
+      const historyStack = [];
+
       const gridSize = canvas.scene.grid.size;
       const initialPos = { 
         x: Math.floor(movingToken.center.x / gridSize), 
@@ -294,146 +296,194 @@ export class ForcedMovementHelper {
       let currentPos = { ...initialPos };
 
       const typeKey = Object.values(this.TYPES).includes(movementType) ? movementType : "push";
+      const typeLabel = game.i18n.localize(`TRESPASSER.HUD.ForcedMovement.Types.${typeKey}`);
 
-      const bannerHtml = await foundry.applications.handlebars.renderTemplate("systems/trespasser/templates/hud/forced-movement-banner.hbs", {
-        title: game.i18n.format("TRESPASSER.HUD.ForcedMovement.BannerTitle", {
-          type: game.i18n.localize(`TRESPASSER.HUD.ForcedMovement.Types.${typeKey}`),
-          name: movingToken.name,
-          remaining: remainingSquares
-        }),
-        damageText: game.i18n.format("TRESPASSER.HUD.ForcedMovement.BannerDamage", { damage: totalDamage })
-      });
-      
-      const bannerEl = $(bannerHtml);
-      $("body").append(bannerEl);
-
-      const updateBanner = () => {
-        bannerEl.find(".fm-title").text(game.i18n.format("TRESPASSER.HUD.ForcedMovement.BannerTitle", {
-          type: game.i18n.localize(`TRESPASSER.HUD.ForcedMovement.Types.${typeKey}`),
-          name: movingToken.name,
-          remaining: remainingSquares
-        }));
-        bannerEl.find(".fm-damage").text(game.i18n.format("TRESPASSER.HUD.ForcedMovement.BannerDamage", { damage: totalDamage }));
-      };
-
-      // Graphics for overlay
-      const overlay = new PIXI.Graphics();
-      // Make overlay interactive to catch clicks before they hit tokens
-      overlay.eventMode = "static";
-      overlay.interactive = true; 
-      overlay.zIndex = 9999;
-      canvas.interface.addChild(overlay);
+      const overlayGraphics = new PIXI.Graphics();
+      canvas.controls.addChild(overlayGraphics);
 
       const drawOverlay = () => {
-        overlay.clear();
+        overlayGraphics.clear();
 
-        // Draw invisible background to capture all clicks
-        if (canvas.dimensions) {
-          overlay.beginFill(0x000000, 0.0);
-          overlay.drawRect(0, 0, canvas.dimensions.width, canvas.dimensions.height);
-          overlay.endFill();
-        }
-
-        if (remainingSquares <= 0) return;
-
-        const validSquares = this.#getValidSquares(movingToken, currentPos, movementType, path, initialPos, referenceToken, options);
-        
-        overlay.beginFill(0x00ff00, 0.3);
-        overlay.lineStyle(2, 0x00ff00, 0.8);
-        
-        for (const sq of validSquares) {
-          overlay.drawRect(sq.x * gridSize, sq.y * gridSize, gridSize, gridSize);
-        }
-        overlay.endFill();
-        
-        // Draw the path so far
-        if (path.length > 0) {
-          overlay.beginFill(0x0000ff, 0.4);
-          overlay.lineStyle(2, 0x0000ff, 0.8);
-          for (const sq of path) {
-             overlay.drawRect(sq.x * gridSize, sq.y * gridSize, gridSize, gridSize);
-          }
-          overlay.endFill();
-        }
-      };
-
-      const cleanup = () => {
-        bannerEl.remove();
-        canvas.interface.removeChild(overlay);
-        overlay.destroy();
-        canvas.app.view.removeEventListener("contextmenu", onRightClick);
-      };
-
-      const onClick = async (event) => {
-        event.stopPropagation(); // Stop click from reaching tokens below
-
-        if (remainingSquares <= 0) return;
-        
-        const pos = event.data.getLocalPosition(canvas.app.stage);
-        const gridX = Math.floor(pos.x / gridSize);
-        const gridY = Math.floor(pos.y / gridSize);
-
-        const validSquares = this.#getValidSquares(movingToken, currentPos, movementType, path, initialPos, referenceToken, options);
-        const isValid = validSquares.some(sq => sq.x === gridX && sq.y === gridY);
-        
-        if (isValid) {
-          const collision = this.#checkCollisionAtSquare(gridX, gridY, gridSize, movingToken.id, currentPos);
-
-          if (collision.type === "wall") {
-            const damage = Math.min(10 - totalDamage, 2 * remainingSquares);
-            totalDamage += damage;
-            collisions.push({ type: "wall", damage });
-            remainingSquares = 0; // stop path here
-          } else if (collision.type === "creature") {
-            collisions.push({ type: "creature", token: collision.token });
-            remainingSquares = 0; // stop path here
-          } else {
-            path.push({x: gridX, y: gridY});
-            currentPos = {x: gridX, y: gridY};
-            remainingSquares--;
-
-            if (collision.type === "obstacle") {
-              const damage = Math.min(10 - totalDamage, 2);
-              totalDamage += damage;
-              collisions.push({ type: "obstacle", damage, region: collision.region });
-              await TerrainHelper.transformObstacleToRubble(collision.region);
-            }
-          }
-
-          updateBanner();
-          drawOverlay();
+        // 1. Draw valid next steps if remainingSquares > 0
+        if (remainingSquares > 0) {
+          const validSquares = this.#getValidSquares(movingToken, currentPos, movementType, path, initialPos, referenceToken, options);
           
-          if (remainingSquares <= 0) {
-            cleanup();
-            resolve({ path, collisions, totalDamage });
+          overlayGraphics.beginFill(0x00FF00, 0.3);
+          overlayGraphics.lineStyle(2, 0x00FF00, 0.8);
+          
+          for (const sq of validSquares) {
+            overlayGraphics.drawRect(sq.x * gridSize, sq.y * gridSize, gridSize, gridSize);
+          }
+          overlayGraphics.endFill();
+        }
+
+        // 2. ALWAYS draw the path selected so far (even when remainingSquares reaches 0!)
+        if (path.length > 0) {
+          overlayGraphics.beginFill(0x0000FF, 0.4);
+          overlayGraphics.lineStyle(2, 0x0000FF, 0.8);
+          for (const sq of path) {
+             overlayGraphics.drawRect(sq.x * gridSize, sq.y * gridSize, gridSize, gridSize);
+          }
+          overlayGraphics.endFill();
+        }
+
+        // 3. Highlight collision tile (wall or creature collision) in red if present
+        if (collisions.length > 0 && historyStack.length > 0) {
+          const lastRecord = historyStack[historyStack.length - 1];
+          if (lastRecord.pos && (lastRecord.damageAdded > 0 || lastRecord.collisionsAdded.some(c => c.type === "creature" || c.type === "wall"))) {
+            overlayGraphics.beginFill(0xFF0000, 0.5);
+            overlayGraphics.lineStyle(3, 0xFF0000, 1.0);
+            overlayGraphics.drawRect(lastRecord.pos.x * gridSize, lastRecord.pos.y * gridSize, gridSize, gridSize);
+            overlayGraphics.endFill();
           }
         }
       };
 
-      const onRightClick = (event) => {
-        event.preventDefault();
-        if (path.length > 0) {
-          path.pop();
-          if (path.length > 0) {
-            currentPos = path[path.length - 1];
-          } else {
-            currentPos = { ...initialPos };
-          }
-          remainingSquares++;
-          updateBanner();
-          drawOverlay();
-        } else {
-          // If path is empty, cancel the movement
-          cleanup();
-          resolve({ path: [], collisions: [], totalDamage: 0 });
+      const cleanupGraphics = () => {
+        if (overlayGraphics && !overlayGraphics.destroyed) {
+          overlayGraphics.clear();
+          overlayGraphics.destroy();
+        }
+      };
+
+      const updateOverlayText = () => {
+        if (CanvasInputSession.activeSession) {
+          const title = game.i18n.format("TRESPASSER.HUD.ForcedMovement.BannerTitle", {
+            type: typeLabel,
+            name: movingToken.name,
+            remaining: remainingSquares
+          });
+          const details = game.i18n.format("TRESPASSER.HUD.ForcedMovement.BannerDamage", { damage: totalDamage });
+          CanvasInputSession.activeSession.updateOverlay({
+            title,
+            details,
+            showUndo: historyStack.length > 0,
+            canUndo: historyStack.length > 0,
+            canConfirm: true
+          });
         }
       };
 
       drawOverlay();
-      
-      // Setup listeners
-      overlay.on("pointerdown", onClick);
-      canvas.app.view.addEventListener("contextmenu", onRightClick);
+
+      const initialTitle = game.i18n.format("TRESPASSER.HUD.ForcedMovement.BannerTitle", {
+        type: typeLabel,
+        name: movingToken.name,
+        remaining: remainingSquares
+      });
+      const initialDetails = game.i18n.format("TRESPASSER.HUD.ForcedMovement.BannerDamage", { damage: totalDamage });
+
+      await CanvasInputSession.start({
+        title: initialTitle,
+        details: initialDetails,
+        icon: "fas fa-compress-arrows-alt",
+        showConfirm: true,
+        canConfirm: true,
+        showUndo: false,
+        canUndo: false,
+        showCancel: true,
+        onPointerMove: () => {
+          drawOverlay();
+        },
+        onClick: async (ev) => {
+          if (remainingSquares <= 0) return;
+
+          let pos;
+          if (typeof ev.getLocalPosition === "function") {
+            pos = ev.getLocalPosition(canvas.app.stage);
+          } else if (ev.data && typeof ev.data.getLocalPosition === "function") {
+            pos = ev.data.getLocalPosition(canvas.app.stage);
+          } else if (ev.interactionData && ev.interactionData.origin) {
+            pos = ev.interactionData.origin;
+          }
+          if (!pos) return;
+
+          const gridX = Math.floor(pos.x / gridSize);
+          const gridY = Math.floor(pos.y / gridSize);
+
+          const validSquares = this.#getValidSquares(movingToken, currentPos, movementType, path, initialPos, referenceToken, options);
+          const isValid = validSquares.some(sq => sq.x === gridX && sq.y === gridY);
+
+          if (isValid) {
+            const collision = this.#checkCollisionAtSquare(gridX, gridY, gridSize, movingToken.id, currentPos);
+            const stepRecord = {
+              pos: { x: gridX, y: gridY },
+              damageAdded: 0,
+              collisionsAdded: [],
+              prevRemaining: remainingSquares,
+              wasPathStep: false
+            };
+
+            if (collision.type === "wall") {
+              const damage = Math.min(10 - totalDamage, 2 * remainingSquares);
+              totalDamage += damage;
+              const col = { type: "wall", damage };
+              collisions.push(col);
+              stepRecord.damageAdded = damage;
+              stepRecord.collisionsAdded.push(col);
+              remainingSquares = 0;
+            } else if (collision.type === "creature") {
+              const col = { type: "creature", token: collision.token };
+              collisions.push(col);
+              stepRecord.collisionsAdded.push(col);
+              remainingSquares = 0;
+            } else {
+              path.push({ x: gridX, y: gridY });
+              currentPos = { x: gridX, y: gridY };
+              remainingSquares--;
+              stepRecord.wasPathStep = true;
+
+              if (collision.type === "obstacle") {
+                const damage = Math.min(10 - totalDamage, 2);
+                totalDamage += damage;
+                const col = { type: "obstacle", damage, region: collision.region };
+                collisions.push(col);
+                stepRecord.damageAdded = damage;
+                stepRecord.collisionsAdded.push(col);
+                await TerrainHelper.transformObstacleToRubble(collision.region);
+              }
+            }
+
+            historyStack.push(stepRecord);
+            drawOverlay();
+            updateOverlayText();
+          }
+        },
+        onUndo: () => {
+          if (historyStack.length === 0) return;
+          const lastStep = historyStack.pop();
+          if (lastStep.damageAdded) totalDamage -= lastStep.damageAdded;
+          if (lastStep.collisionsAdded && lastStep.collisionsAdded.length > 0) {
+            for (const col of lastStep.collisionsAdded) {
+              const idx = collisions.indexOf(col);
+              if (idx !== -1) collisions.splice(idx, 1);
+            }
+          }
+
+          // Only pop from path if this step actually added a square to path
+          if (lastStep.wasPathStep && path.length > 0) {
+            path.pop();
+          }
+
+          if (path.length > 0) {
+            currentPos = { ...path[path.length - 1] };
+          } else {
+            currentPos = { ...initialPos };
+          }
+          remainingSquares = lastStep.prevRemaining;
+
+          drawOverlay();
+          updateOverlayText();
+        },
+        onConfirm: () => {
+          cleanupGraphics();
+          resolve({ path, collisions, totalDamage });
+        },
+        onCancel: () => {
+          cleanupGraphics();
+          resolve({ path: [], collisions: [], totalDamage: 0 });
+        }
+      });
     });
   }
 
