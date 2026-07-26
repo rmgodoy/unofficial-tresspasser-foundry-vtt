@@ -319,7 +319,7 @@ export async function handleCampActivityConfirm(data) {
       if (targetActor) targetName = targetActor.name;
     }
     
-    let assistText = assists > 0 ? ` <div style="margin-top: 5px; color: var(--trp-spark); font-weight: bold; font-size: 0.9em;">[+${assists} Assist${assists > 1 ? 's' : ''}]</div>` : "";
+    let assistText = assists > 0 ? ` <div style="margin-top: 5px; color: var(--trp-spark); font-weight: bold; font-size: var(--fs-13);">[+${assists} Assist${assists > 1 ? 's' : ''}]</div>` : "";
 
     const descriptiveText = targetName 
       ? `<strong>${actor.name}</strong> chose to <strong>${label}</strong> targeting <strong>${targetName}</strong>.`
@@ -327,10 +327,10 @@ export async function handleCampActivityConfirm(data) {
 
     const content = `
       <div class="trespasser-travel-action">
-        <div style="margin-bottom: 5px; font-size: 1.1em;">
+        <div style="margin-bottom: 5px; font-size: var(--fs-15);">
           <i class="${icon}"></i> ${descriptiveText}
         </div>
-        <div style="font-size: 0.9em; font-style: italic; color: var(--trp-text-dim);">
+        <div style="font-size: var(--fs-13); font-style: italic; color: var(--trp-text-dim);">
           ${game.i18n.localize(activityConfig.description)}
         </div>
         ${assistText}
@@ -456,7 +456,7 @@ async function performCampRoll(actor, activityConfig, activityKey, dc, assists) 
   sparks = Math.min(5, sparks);
   shadows = Math.min(5, shadows);
 
-  const flavorWithAssist = assists > 0 ? `${flavorFull}<div style="font-size:0.9em;color:var(--trp-spark);margin-top:2px;">[+${assists} Assist${assists > 1 ? 's' : ''}]</div>` : flavorFull;
+  const flavorWithAssist = assists > 0 ? `${flavorFull}<div style="font-size: var(--fs-13);color:var(--trp-spark);margin-top:2px;">[+${assists} Assist${assists > 1 ? 's' : ''}]</div>` : flavorFull;
 
   // We can format a simplified chat card since the full sheet._evaluateAndShowRoll is complex to invoke standalone.
   // We'll construct a simple chat message matching the style.

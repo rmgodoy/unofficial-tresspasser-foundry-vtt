@@ -424,10 +424,10 @@ export class BDeedExecutor {
       }
       this.context.currentPhaseOutputs.accuracyHtml = `
         <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
-          <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: 12px; font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
+          <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
             ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: this.item.name })}
           </h4>
-          <div style="font-size: 11px; color: var(--trp-text-dim, #a09070); font-style: italic; margin-top: 4px;">
+          <div style="font-size: var(--fs-11); color: var(--trp-text-dim, #a09070); font-style: italic; margin-top: 4px;">
             ${game.i18n.localize("TRESPASSER.Chat.Combat.NoTargetsSkipped")}
           </div>
         </div>`;
@@ -530,10 +530,10 @@ export class BDeedExecutor {
         resultsHtml += `
           <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <strong>${res.tokenName} <span style="font-size:10px;color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs DC: ${res.dc})</span></strong>
+              <strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs DC: ${res.dc})</span></strong>
               <span class="${res.isHit ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${res.isHit ? '#4fc3f7' : '#ff5252'};">${res.isHit ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!") : (game.i18n.localize("TRESPASSER.Chat.Combat.Miss") || "ERRO!")}</span>
             </div>
-            <div style="display:flex;gap:10px;font-size:11px;margin-top:2px;">
+            <div style="display:flex;gap:10px;font-size: var(--fs-11);margin-top:2px;">
               <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
               <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
             </div>
@@ -546,7 +546,7 @@ export class BDeedExecutor {
 
       this.context.currentPhaseOutputs.accuracyHtml = `
         <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
-          <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: 12px; font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
+          <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
             ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: this.item.name })} (Creature Attack DC: ${creatureDC})
           </h4>
           ${resultsHtml}
@@ -676,10 +676,10 @@ export class BDeedExecutor {
         resultsHtml += `
           <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
-              <strong>${res.tokenName} <span style="font-size:10px;color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs ${game.i18n.localize("TRESPASSER.Sheet.Combat." + versus)}: ${res.dc})</span></strong>
+              <strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs ${game.i18n.localize("TRESPASSER.Sheet.Combat." + versus)}: ${res.dc})</span></strong>
               <span class="${res.isHit ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${res.isHit ? '#4fc3f7' : '#ff5252'};">${res.isHit ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!") : (game.i18n.localize("TRESPASSER.Chat.Combat.Miss") || "ERRO!")}</span>
             </div>
-            <div style="display:flex;gap:10px;font-size:11px;margin-top:2px;">
+            <div style="display:flex;gap:10px;font-size: var(--fs-11);margin-top:2px;">
               <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
               <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
             </div>
@@ -700,7 +700,7 @@ export class BDeedExecutor {
     this.context.currentPhaseOutputs.rolls.push(accRoll);
     this.context.currentPhaseOutputs.accuracyHtml = `
       <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
-        <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: 12px; font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
+        <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
           ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: this.item.name })}${isAdv ? " (Adv)" : ""}
         </h4>
         ${rollHtml}
@@ -732,12 +732,12 @@ export class BDeedExecutor {
     const outputs = this.context.currentPhaseOutputs || { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
 
     let content = `<div class="bdeed-phase-card" style="border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px; padding: 10px; background: var(--trp-bg-panel, #23201c); color: var(--trp-text, #ddd0aa);">
-      <h3 style="margin: 0 0 6px 0; color: var(--trp-gold-bright, #e8c96b); font-family: var(--trp-font-header, 'Cinzel', serif); font-size: 14px; border-bottom: 1px solid var(--trp-gold-dim, #a88840); padding-bottom: 4px;">
+      <h3 style="margin: 0 0 6px 0; color: var(--trp-gold-bright, #e8c96b); font-family: var(--trp-font-header, 'Cinzel', serif); font-size: var(--fs-14); border-bottom: 1px solid var(--trp-gold-dim, #a88840); padding-bottom: 4px;">
         ${this.item.name} — ${phaseLabel}
       </h3>`;
 
     if (phase.description) {
-      content += `<p style="margin: 6px 0; font-size: 13px; font-style: italic;">${phase.description}</p>`;
+      content += `<p style="margin: 6px 0; font-size: var(--fs-13); font-style: italic;">${phase.description}</p>`;
     }
 
     if (outputs.accuracyHtml) {
@@ -749,7 +749,7 @@ export class BDeedExecutor {
     }
 
     if (outputs.notes && outputs.notes.length > 0) {
-      content += `<div class="phase-notes" style="margin-top: 8px; padding-top: 4px; border-top: 1px dashed var(--trp-border, #4a3f2f); font-size: 12px; color: var(--trp-text-dim, #a09070);">
+      content += `<div class="phase-notes" style="margin-top: 8px; padding-top: 4px; border-top: 1px dashed var(--trp-border, #4a3f2f); font-size: var(--fs-12); color: var(--trp-text-dim, #a09070);">
         ${outputs.notes.map(n => `<div>• ${n}</div>`).join("")}
       </div>`;
     }

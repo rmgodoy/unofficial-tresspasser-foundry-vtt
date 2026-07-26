@@ -18,12 +18,12 @@
 }
 
 #forced-movement-banner .fm-title {
-  font-size: 1.2rem;
+  font-size: var(--fs-16);
   font-weight: bold;
 }
 
 #forced-movement-banner .fm-damage {
-  font-size: 1rem;
+  font-size: var(--fs-14);
   color: #ff6666;
   margin-top: 5px;
 }
@@ -48,7 +48,7 @@
 }
 
 .forced-movement-targets-panel .hint {
-  font-size: 0.9rem;
+  font-size: var(--fs-13);
   color: #bbb;
   text-align: center;
   margin-top: -5px;
@@ -93,7 +93,7 @@
 
 .forced-movement-targets-panel .target-item span {
   font-family: var(--font-primary);
-  font-size: 1rem;
+  font-size: var(--fs-14);
   pointer-events: none;
 }
 
@@ -107,7 +107,7 @@
   border-radius: 3px;
   transition: all 0.2s;
   font-family: var(--font-primary);
-  font-size: 1rem;
+  font-size: var(--fs-14);
 }
 
 .forced-movement-targets-panel .confirm-btn:hover {

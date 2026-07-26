@@ -994,7 +994,7 @@
 .combat-stat-speed .speed-bonus-value {
   color: var(--trp-gold-bright);
   font-weight: bold;
-  font-size: 0.95em;
+  font-size: var(--fs-13);
   min-width: 24px;
   text-align: center;
 }

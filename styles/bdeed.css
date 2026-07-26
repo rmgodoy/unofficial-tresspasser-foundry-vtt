@@ -60,7 +60,7 @@
   background: var(--trp-bg-dark, #1a1714);
   border: 1px solid var(--trp-border, #4a3f2f);
   color: var(--trp-text-dim, #a09070);
-  font-size: 11px;
+  font-size: var(--fs-11);
   font-weight: bold;
   padding: 2px 8px;
   border-radius: 10px;
@@ -83,7 +83,7 @@
 }
 
 .phase-description-group label {
-  font-size: 11px;
+  font-size: var(--fs-11);
   color: var(--trp-text-dim, #a09070);
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -97,7 +97,7 @@
   border-radius: 3px;
   padding: 6px;
   font-family: inherit;
-  font-size: 13px;
+  font-size: var(--fs-13);
   resize: vertical;
 }
 
@@ -126,7 +126,7 @@
 
 .behavior-type-label {
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--fs-13);
   color: var(--trp-gold-bright, #e8c96b);
   display: flex;
   align-items: center;
@@ -149,7 +149,7 @@
   padding: 2px 6px;
   border-radius: 3px;
   cursor: pointer;
-  font-size: 11px;
+  font-size: var(--fs-11);
   line-height: 1;
   transition: all 0.15s ease;
 }
@@ -166,7 +166,7 @@
 }
 
 .behavior-params {
-  font-size: 12px;
+  font-size: var(--fs-12);
   color: var(--trp-text-dim, #a09070);
   padding-top: 4px;
   border-top: 1px dashed var(--trp-border, #4a3f2f);
@@ -189,7 +189,7 @@
   height: 32px;
   line-height: 1.4;
   border-radius: 3px;
-  font-size: 13px;
+  font-size: var(--fs-13);
   box-sizing: border-box;
 }
 
@@ -201,7 +201,7 @@
   height: 32px;
   border-radius: 3px;
   cursor: pointer;
-  font-size: 12px;
+  font-size: var(--fs-12);
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -225,7 +225,7 @@
 }
 
 .behavior-id-badge {
-  font-size: 10px;
+  font-size: var(--fs-10);
   font-family: monospace;
   color: var(--trp-text-dim, #a09070);
   background: rgba(255, 255, 255, 0.05);
@@ -257,7 +257,7 @@
   text-align: center;
   color: var(--trp-text-dim, #a09070);
   background: rgba(0, 0, 0, 0.2);
-  font-size: 12px;
+  font-size: var(--fs-12);
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -283,7 +283,7 @@
   border: 1px solid var(--trp-border, #4a3f2f);
   border-radius: 14px;
   padding: 2px 8px 2px 4px;
-  font-size: 12px;
+  font-size: var(--fs-12);
 }
 
 .effect-chip img {
@@ -299,7 +299,7 @@
 }
 
 .effect-chip .intensity-label {
-  font-size: 10px;
+  font-size: var(--fs-10);
   color: var(--trp-text-dim, #a09070);
   margin-left: 2px;
 }
@@ -309,7 +309,7 @@
   height: 22px;
   padding: 1px 4px;
   text-align: center;
-  font-size: 11px;
+  font-size: var(--fs-11);
 }
 
 .effect-chip button {
@@ -340,7 +340,7 @@
 .hint-text {
   margin: 0;
   padding: 4px 0;
-  font-size: 12px;
+  font-size: var(--fs-12);
   font-style: italic;
   color: var(--trp-text-dim, #a09070);
   display: flex;
@@ -358,7 +358,7 @@
   border-radius: 4px;
   cursor: pointer;
   font-family: var(--trp-font-header, 'Cinzel', serif);
-  font-size: 12px;
+  font-size: var(--fs-12);
   font-weight: 700;
   display: flex;
   align-items: center;

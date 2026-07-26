@@ -306,7 +306,7 @@
         {{#if params.deedName}}
           <div class="deed-chip" style="display:flex; align-items:center; gap:8px;">
             <img src="{{params.deedImg}}" title="{{params.deedName}}" style="width:24px; height:24px; border:none; object-fit:contain;"/>
-            <span style="font-weight:bold; font-size:12px;">{{params.deedName}}</span>
+            <span style="font-weight:bold; font-size:var(--fs-12);">{{params.deedName}}</span>
           </div>
         {{else}}
           <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropDeed"}}

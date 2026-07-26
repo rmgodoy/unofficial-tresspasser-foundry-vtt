@@ -486,9 +486,9 @@ export class BDeedBehaviorHandler {
 
       await targetActor.applyDamage(targetDmg);
 
-      const powerBonusLabel = targetPowerCount > 0 ? ` <span style="font-size:10px; color:#e8c96b;">(+${targetPowerDmg} Power)</span>` : "";
+      const powerBonusLabel = targetPowerCount > 0 ? ` <span style="font-size: var(--fs-10); color:#e8c96b;">(+${targetPowerDmg} Power)</span>` : "";
       targetDamageLines.push(`
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-top:4px; padding-top:3px; border-top:1px dotted var(--trp-border-light, #5c4f3a);">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size: var(--fs-12); margin-top:4px; padding-top:3px; border-top:1px dotted var(--trp-border-light, #5c4f3a);">
           <span><strong>${tokenName}</strong>${powerBonusLabel}</span>
           <span style="color:#ff5252; font-weight:bold;">⚡ ${targetDmg} ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Dano"}</span>
         </div>
@@ -504,7 +504,7 @@ export class BDeedBehaviorHandler {
     context.currentPhaseOutputs.rolls.push(combinedRoll);
     context.currentPhaseOutputs.rollEntries.push(`
       <div class="damage-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
-        <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: 12px; font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
+        <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
           ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Damage"}: ${expr}${maxPowerDice > 0 ? " (Power Spark)" : ""}
         </h4>
         ${rollHtml}
