@@ -28,7 +28,7 @@ Hooks.on("updateToken", (tokenDocument, changes, options, userId) => {
     const newY = changes.y ?? tokenDocument.y;
     // Check if it's a native jump/teleport using Foundry's movementAction
     const actionType = options.movementAction || tokenDocument.movementAction;
-    const isJump = actionType === "jump" || actionType === "teleport";
+    const isJump = actionType === "jump" || actionType === "teleport" || actionType === "blink";
     TerrainHelper.processTokenMovement(tokenDocument, oldPos.x, oldPos.y, newX, newY, isJump);
   }
 });
