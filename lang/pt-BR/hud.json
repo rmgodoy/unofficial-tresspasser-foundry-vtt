@@ -23,7 +23,11 @@
         "AttemptDeed": "Tentar Habilidade",
         "UseConcoction": "Usar Concoção",
         "TakeAim": "Mirar",
-        "ForceMove": "Movimento Forçado"
+        "ForceMove": "Movimento Forçado",
+        "Blast": "Explosão",
+        "CloseBlast": "Explosão Próxima",
+        "Path": "Caminho",
+        "ClosePath": "Caminho Próximo"
       },
       "Movement": {
         "Used": "Movimento Usado",
@@ -34,6 +38,13 @@
       },
       "Vault": {
         "OverlayInstruction": "Alcance: {range} qd. Clique no quadrado para selecionar o destino."
+      },
+      "AoE": {
+        "BlastInstruction": "Explosão {size}: Clique no quadrado para selecionar a origem.",
+        "CloseBlastInstruction": "Explosão Próxima {size}: Clique no quadrado adjacente ao conjurador.",
+        "PathInitialInstruction": "Caminho {size}: Clique no quadrado inicial para iniciar o caminho.",
+        "ClosePathInitialInstruction": "Caminho Próximo {size}: Clique no quadrado adjacente ao conjurador para iniciar.",
+        "PathStepInstruction": "Caminho ({current}/{max}): Clique no quadrado ortogonal adjacente."
       },
       "Resource": {
         "APCost": "Custo de PA",

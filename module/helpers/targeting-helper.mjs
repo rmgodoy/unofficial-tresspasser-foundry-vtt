@@ -20,6 +20,8 @@
  */
 
 import { isAtLeastV14 } from "./compat.mjs";
+import { CanvasInputSession } from "../canvas/canvas-input-session.mjs";
+import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs";
 
 export class TargetingHelper {
 
@@ -43,11 +45,9 @@ export class TargetingHelper {
 
     switch (type) {
       case "blast":
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.PlaceBlast", { size }));
         return this.#placeBlast(token, size, gridPx, false, maxRangeSq);
 
       case "close_blast":
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.PlaceCloseBlast", { size }));
         return this.#placeBlast(token, size, gridPx, true);
 
       case "burst":
@@ -68,11 +68,9 @@ export class TargetingHelper {
       }
 
       case "path":
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.PlacePath", { size }));
         return this.#placePath(token, size, gridPx, false);
 
       case "close_path":
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.PlaceClosePath", { size }));
         return this.#placePath(token, size, gridPx, true);
 
       default:
@@ -161,88 +159,152 @@ export class TargetingHelper {
    * @returns {Promise<{squares, templateDoc: null}|null>}
    */
   static async #placeBlast(token, size, gridPx, close, maxRangeSq = null) {
-    return new Promise((resolve) => {
-      const highlights = [];
+    return new Promise(async (resolve) => {
       const layer = canvas.interface;
+      let selectedOrigin = null;
+      let hoveredOrigin = null;
       let currentSquares = [];
-      // DOM events for clicks (bypass token interception),
-      // PIXI globalpointermove for accurate coordinate tracking.
-      const view = canvas.app.view;
-      let lastCanvasPos = { x: 0, y: 0 };
+      const highlights = [];
 
-      const drawPreview = (topLeftX, topLeftY) => {
+      const redrawPreview = () => {
         for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
         highlights.length = 0;
         currentSquares = [];
 
-        for (let dx = 0; dx < size; dx++) {
-          for (let dy = 0; dy < size; dy++) {
-            const sq = { x: topLeftX + dx * gridPx, y: topLeftY + dy * gridPx };
-            currentSquares.push(sq);
+        const gfx = new PIXI.Graphics();
 
-            const gfx = new PIXI.Graphics();
-            gfx.beginFill(0xff9955, 0.35);
-            gfx.lineStyle(2, 0xff9955, 0.8);
-            gfx.drawRect(sq.x, sq.y, gridPx, gridPx);
-            gfx.endFill();
-            layer.addChild(gfx);
-            highlights.push(gfx);
+        // 1. Draw selected origin if set (in gold/placed style)
+        if (selectedOrigin) {
+          for (let dx = 0; dx < size; dx++) {
+            for (let dy = 0; dy < size; dy++) {
+              currentSquares.push({ x: selectedOrigin.x + dx * gridPx, y: selectedOrigin.y + dy * gridPx });
+            }
           }
+          CanvasSelectionRenderer.drawPlacedOrigin(gfx, currentSquares, gridPx);
         }
-      };
 
-      const pixiMoveHandler = (event) => {
-        lastCanvasPos = event.getLocalPosition(canvas.stage);
-        const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
-        const offsetX = snapped.x - Math.floor(size / 2) * gridPx;
-        const offsetY = snapped.y - Math.floor(size / 2) * gridPx;
-        drawPreview(offsetX, offsetY);
-      };
-
-      const clickHandler = (event) => {
-        if (event.button !== 0) return; // left click only
-        if (currentSquares.length === 0) return;
-
-        if (close) {
-          if (!this.#isBlastAdjacentToToken(currentSquares, token, gridPx)) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.BlastMustBeAdjacent"));
-            return;
-          }
-        } else if (maxRangeSq !== null && maxRangeSq !== undefined && maxRangeSq > 0) {
-          const tokenSquares = this.#getTokenOccupiedSquares(token, gridPx);
-          const distSq = this.#getMinSquareDistance(currentSquares, tokenSquares, gridPx);
-          if (distSq > maxRangeSq) {
-            ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
-              name: game.i18n.localize("TRESPASSER.Notification.Combat.TargetTypeBlast"),
-              range: maxRangeSq,
-              distance: distSq
-            }));
-            const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
-            if (!disregardRange) return;
+        // 2. Draw active mouse hover overlay (in standard green selection style)
+        if (hoveredOrigin) {
+          const isSame = selectedOrigin && hoveredOrigin.x === selectedOrigin.x && hoveredOrigin.y === selectedOrigin.y;
+          if (!isSame) {
+            const hoverSquares = [];
+            for (let dx = 0; dx < size; dx++) {
+              for (let dy = 0; dy < size; dy++) {
+                hoverSquares.push({ x: hoveredOrigin.x + dx * gridPx, y: hoveredOrigin.y + dy * gridPx });
+              }
+            }
+            CanvasSelectionRenderer.drawCandidateSquares(gfx, hoverSquares, gridPx);
           }
         }
 
-        cleanup();
-        resolve({ squares: [...currentSquares], templateDoc: null });
-      };
-
-      const rightClickHandler = (event) => {
-        event.preventDefault();
-        cleanup();
-        resolve(null);
+        layer.addChild(gfx);
+        highlights.push(gfx);
       };
 
       const cleanup = () => {
-        canvas.stage.off("globalpointermove", pixiMoveHandler);
-        view.removeEventListener("mousedown", clickHandler);
-        view.removeEventListener("contextmenu", rightClickHandler);
         for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
         highlights.length = 0;
       };
 
-      canvas.stage.on("globalpointermove", pixiMoveHandler);
-      view.addEventListener("mousedown", clickHandler);
-      view.addEventListener("contextmenu", rightClickHandler);
+      const title = close 
+        ? (game.i18n.has("TRESPASSER.HUD.Action.CloseBlast") ? game.i18n.localize("TRESPASSER.HUD.Action.CloseBlast") : `Close Blast ${size}`)
+        : (game.i18n.has("TRESPASSER.HUD.Action.Blast") ? game.i18n.localize("TRESPASSER.HUD.Action.Blast") : `Blast ${size}`);
+
+      const details = close
+        ? game.i18n.format("TRESPASSER.HUD.AoE.CloseBlastInstruction", { size })
+        : game.i18n.format("TRESPASSER.HUD.AoE.BlastInstruction", { size });
+
+      await CanvasInputSession.start({
+        title,
+        details,
+        icon: "fas fa-bullseye",
+        showConfirm: true,
+        canConfirm: false,
+        showUndo: false,
+        canUndo: false,
+        showCancel: true,
+        onPointerMove: (ev) => {
+          let lastCanvasPos;
+          if (typeof ev.getLocalPosition === "function") {
+            lastCanvasPos = ev.getLocalPosition(canvas.stage);
+          } else if (ev.data && typeof ev.data.getLocalPosition === "function") {
+            lastCanvasPos = ev.data.getLocalPosition(canvas.stage);
+          } else if (ev.interactionData && ev.interactionData.origin) {
+            lastCanvasPos = ev.interactionData.origin;
+          }
+          if (!lastCanvasPos) return;
+
+          const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
+          const offsetX = snapped.x - Math.floor(size / 2) * gridPx;
+          const offsetY = snapped.y - Math.floor(size / 2) * gridPx;
+          hoveredOrigin = { x: offsetX, y: offsetY };
+          redrawPreview();
+        },
+        onClick: (ev) => {
+          let lastCanvasPos;
+          if (typeof ev.getLocalPosition === "function") {
+            lastCanvasPos = ev.getLocalPosition(canvas.stage);
+          } else if (ev.data && typeof ev.data.getLocalPosition === "function") {
+            lastCanvasPos = ev.data.getLocalPosition(canvas.stage);
+          } else if (ev.interactionData && ev.interactionData.origin) {
+            lastCanvasPos = ev.interactionData.origin;
+          }
+          if (!lastCanvasPos) return;
+
+          const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
+          const offsetX = snapped.x - Math.floor(size / 2) * gridPx;
+          const offsetY = snapped.y - Math.floor(size / 2) * gridPx;
+
+          const testSquares = [];
+          for (let dx = 0; dx < size; dx++) {
+            for (let dy = 0; dy < size; dy++) {
+              testSquares.push({ x: offsetX + dx * gridPx, y: offsetY + dy * gridPx });
+            }
+          }
+
+          if (close) {
+            if (!this.#isBlastAdjacentToToken(testSquares, token, gridPx)) {
+              ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.BlastMustBeAdjacent"));
+              return;
+            }
+          } else if (maxRangeSq !== null && maxRangeSq !== undefined && maxRangeSq > 0) {
+            const tokenSquares = this.#getTokenOccupiedSquares(token, gridPx);
+            const distSq = this.#getMinSquareDistance(testSquares, tokenSquares, gridPx);
+            if (distSq > maxRangeSq) {
+              ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
+                name: game.i18n.localize("TRESPASSER.Notification.Combat.TargetTypeBlast"),
+                range: maxRangeSq,
+                distance: distSq
+              }));
+              const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
+              if (!disregardRange) return;
+            }
+          }
+
+          // Check for second click (double click) on already selected origin -> auto confirm!
+          if (selectedOrigin && selectedOrigin.x === offsetX && selectedOrigin.y === offsetY) {
+            cleanup();
+            if (CanvasInputSession.activeSession) CanvasInputSession.activeSession.confirm();
+            resolve({ squares: [...currentSquares], templateDoc: null });
+            return;
+          }
+
+          selectedOrigin = { x: offsetX, y: offsetY };
+          redrawPreview();
+
+          if (CanvasInputSession.activeSession) {
+            CanvasInputSession.activeSession.updateOverlay({ canConfirm: true });
+          }
+        },
+        onConfirm: () => {
+          cleanup();
+          resolve({ squares: [...currentSquares], templateDoc: null });
+        },
+        onCancel: () => {
+          cleanup();
+          resolve(null);
+        }
+      });
     });
   }
 
@@ -383,30 +445,22 @@ export class TargetingHelper {
   /* -------------------------------------------- */
   /* Private — Path (sequential square selection)  */
   /* -------------------------------------------- */
-
   /**
    * Interactive path placement. Click any reachable square to auto-draw the
    * shortest orthogonal path to it. Right-click undoes the last segment,
    * double-click confirms early. Directional arrows show path flow.
-   * @returns {Promise<{squares, templateDoc: null}|null>}
+   * @returns {Promise<{squares: Array, templateDoc: null}|null>}
    */
   static async #placePath(token, maxSquares, gridPx, close) {
-    return new Promise((resolve) => {
+    return new Promise(async (resolve) => {
       const squares = [];
       const highlights = [];
+      const candidateHighlights = [];
+      let hoveredSquare = null;
       const layer = canvas.interface;
-      const view = canvas.app.view;
-      let lastCanvasPos = { x: 0, y: 0 };
-
-      // Track canvas-space mouse position via PIXI (accurate coords),
-      // DOM events handle clicks (bypass token interception).
-      const pixiMoveHandler = (event) => {
-        lastCanvasPos = event.getLocalPosition(canvas.stage);
-      };
 
       const sqKey = (s) => `${s.x},${s.y}`;
 
-      // Check if adding sq to the current path would form a 2×2 block
       const forms2x2 = (testSquares, sq) => {
         const all = [...testSquares, sq];
         for (const s of all) {
@@ -418,217 +472,268 @@ export class TargetingHelper {
         return false;
       };
 
-      const isAdjacent = (a, b) => {
+      const isOrthogonalAdjacent = (a, b) => {
         const dx = Math.abs(a.x - b.x);
         const dy = Math.abs(a.y - b.y);
         return (dx === gridPx && dy === 0) || (dx === 0 && dy === gridPx);
       };
 
-      // BFS to find shortest orthogonal path from `from` to `to`,
-      // respecting the 2×2 constraint and avoiding already-placed squares.
-      // Returns array of intermediate squares (excluding `from`, including `to`), or null.
-      const findPath = (from, to, existingSquares, maxSteps) => {
-        if (sqKey(from) === sqKey(to)) return null;
-        const visited = new Set(existingSquares.map(sqKey));
-        visited.add(sqKey(from));
-        const queue = [{ pos: from, trail: [] }];
-        const dirs = [
-          { dx: gridPx, dy: 0 }, { dx: -gridPx, dy: 0 },
-          { dx: 0, dy: gridPx }, { dx: 0, dy: -gridPx }
-        ];
-        while (queue.length > 0) {
-          const { pos, trail } = queue.shift();
-          for (const d of dirs) {
-            const next = { x: pos.x + d.dx, y: pos.y + d.dy };
-            const key = sqKey(next);
-            if (visited.has(key)) continue;
-            const newTrail = [...trail, next];
-            if (newTrail.length > maxSteps) continue;
-            // Check 2×2 constraint incrementally
-            const testSquares = [...existingSquares, ...newTrail.slice(0, -1)];
-            if (forms2x2(testSquares, next)) continue;
-            if (key === sqKey(to)) return newTrail;
-            visited.add(key);
-            queue.push({ pos: next, trail: newTrail });
+      const isAdjacentToCasterToken = (sq, tokenObj) => {
+        const tokenTopLeft = { x: tokenObj.document.x, y: tokenObj.document.y };
+        const tokenW = tokenObj.document.width ?? 1;
+        const tokenH = tokenObj.document.height ?? 1;
+
+        for (let tx = 0; tx < tokenW; tx++) {
+          for (let ty = 0; ty < tokenH; ty++) {
+            const tsq = { x: tokenTopLeft.x + tx * gridPx, y: tokenTopLeft.y + ty * gridPx };
+            const dx = Math.abs(sq.x - tsq.x);
+            const dy = Math.abs(sq.y - tsq.y);
+            if (dx <= gridPx && dy <= gridPx && (dx > 0 || dy > 0)) {
+              return true;
+            }
           }
         }
-        return null;
+        return false;
       };
 
-      // Draw a highlight square with a directional arrow
       const drawHighlight = (x, y, prev) => {
         const gfx = new PIXI.Graphics();
-        // Fill
-        gfx.beginFill(0x55aaff, 0.35);
-        gfx.lineStyle(2, 0x55aaff, 0.8);
+        gfx.beginFill(0x55aaff, 0.4);
+        gfx.lineStyle(2, 0x55aaff, 0.9);
         gfx.drawRect(x, y, gridPx, gridPx);
         gfx.endFill();
-        // Arrow showing direction from prev -> this square
+
         if (prev) {
           const cx = x + gridPx / 2;
           const cy = y + gridPx / 2;
           const dx = x - prev.x;
           const dy = y - prev.y;
           const arrowSize = gridPx * 0.15;
-          gfx.beginFill(0xffffff, 0.7);
+          gfx.beginFill(0xffffff, 0.8);
           gfx.lineStyle(0);
           if (dx > 0) {
-            // pointing right
             gfx.moveTo(cx + arrowSize, cy);
             gfx.lineTo(cx - arrowSize, cy - arrowSize);
             gfx.lineTo(cx - arrowSize, cy + arrowSize);
           } else if (dx < 0) {
-            // pointing left
             gfx.moveTo(cx - arrowSize, cy);
             gfx.lineTo(cx + arrowSize, cy - arrowSize);
             gfx.lineTo(cx + arrowSize, cy + arrowSize);
           } else if (dy > 0) {
-            // pointing down
             gfx.moveTo(cx, cy + arrowSize);
             gfx.lineTo(cx - arrowSize, cy - arrowSize);
             gfx.lineTo(cx + arrowSize, cy - arrowSize);
           } else {
-            // pointing up
             gfx.moveTo(cx, cy - arrowSize);
             gfx.lineTo(cx - arrowSize, cy + arrowSize);
             gfx.lineTo(cx + arrowSize, cy + arrowSize);
           }
           gfx.endFill();
         } else {
-          // Start marker — small circle
           const cx = x + gridPx / 2;
           const cy = y + gridPx / 2;
-          gfx.beginFill(0xffffff, 0.7);
+          gfx.beginFill(0xffffff, 0.8);
           gfx.lineStyle(0);
-          gfx.drawCircle(cx, cy, gridPx * 0.08);
+          gfx.drawCircle(cx, cy, gridPx * 0.1);
           gfx.endFill();
         }
         layer.addChild(gfx);
         highlights.push(gfx);
       };
 
-      // Redraw all highlights (needed after undo to refresh arrows)
+      const drawCandidateHighlight = (x, y) => {
+        const isHovered = hoveredSquare && hoveredSquare.x === x && hoveredSquare.y === y;
+        const gfx = new PIXI.Graphics();
+        const fillAlpha = isHovered ? 0.45 : 0.25;
+        const lineWeight = isHovered ? 3 : 2;
+        const lineAlpha = isHovered ? 1.0 : 0.8;
+        gfx.beginFill(0x00FF00, fillAlpha);
+        gfx.lineStyle(lineWeight, 0x00FF00, lineAlpha);
+        gfx.drawRect(x, y, gridPx, gridPx);
+        gfx.endFill();
+        layer.addChild(gfx);
+        candidateHighlights.push(gfx);
+      };
+
+      const getInitialCloseCandidates = () => {
+        const candidates = [];
+        const tokenTopLeft = { x: token.document.x, y: token.document.y };
+        const tokenW = token.document.width ?? 1;
+        const tokenH = token.document.height ?? 1;
+
+        for (let tx = -1; tx <= tokenW; tx++) {
+          for (let ty = -1; ty <= tokenH; ty++) {
+            if (tx >= 0 && tx < tokenW && ty >= 0 && ty < tokenH) continue;
+            candidates.push({
+              x: tokenTopLeft.x + tx * gridPx,
+              y: tokenTopLeft.y + ty * gridPx
+            });
+          }
+        }
+        return candidates;
+      };
+
       const redrawAll = () => {
         for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
         highlights.length = 0;
-        for (let i = 0; i < squares.length; i++) {
-          drawHighlight(squares[i].x, squares[i].y, i > 0 ? squares[i - 1] : null);
+
+        const gfx = new PIXI.Graphics();
+
+        // 1. Draw selected path squares
+        if (squares.length > 0) {
+          CanvasSelectionRenderer.drawPath(gfx, squares, gridPx);
+        }
+
+        // 2. Draw candidate next squares
+        if (squares.length < maxSquares) {
+          let candidates = [];
+          if (squares.length === 0) {
+            if (close) {
+              candidates = getInitialCloseCandidates();
+            }
+          } else {
+            const last = squares[squares.length - 1];
+            const rawCandidates = [
+              { x: last.x + gridPx, y: last.y },
+              { x: last.x - gridPx, y: last.y },
+              { x: last.x, y: last.y + gridPx },
+              { x: last.x, y: last.y - gridPx }
+            ];
+            candidates = rawCandidates.filter(c => 
+              !squares.some(s => s.x === c.x && s.y === c.y) && !forms2x2(squares, c)
+            );
+          }
+          CanvasSelectionRenderer.drawCandidateSquares(gfx, candidates, gridPx, { hoveredSquare });
+        }
+
+        layer.addChild(gfx);
+        highlights.push(gfx);
+      };
+
+      const cleanup = () => {
+        for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
+        highlights.length = 0;
+        for (const gfx of candidateHighlights) { layer.removeChild(gfx); gfx.destroy(); }
+        candidateHighlights.length = 0;
+      };
+
+      const updateOverlayState = () => {
+        if (CanvasInputSession.activeSession) {
+          const details = squares.length === 0
+            ? (close 
+                ? game.i18n.format("TRESPASSER.HUD.AoE.ClosePathInitialInstruction", { size: maxSquares })
+                : game.i18n.format("TRESPASSER.HUD.AoE.PathInitialInstruction", { size: maxSquares }))
+            : game.i18n.format("TRESPASSER.HUD.AoE.PathStepInstruction", { current: squares.length, max: maxSquares });
+
+          CanvasInputSession.activeSession.updateOverlay({
+            details,
+            showUndo: squares.length > 0,
+            canUndo: squares.length > 0,
+            canConfirm: squares.length > 0
+          });
         }
       };
 
-      // Track how many squares each click added, so undo removes the whole segment
-      const segmentLengths = [];
+      const title = close 
+        ? (game.i18n.has("TRESPASSER.HUD.Action.ClosePath") ? game.i18n.localize("TRESPASSER.HUD.Action.ClosePath") : `Close Path ${maxSquares}`)
+        : (game.i18n.has("TRESPASSER.HUD.Action.Path") ? game.i18n.localize("TRESPASSER.HUD.Action.Path") : `Path ${maxSquares}`);
 
-      const clickHandler = (event) => {
-        if (event.button !== 0) return;
-        if (squares.length >= maxSquares) return;
+      const initialDetails = close
+        ? game.i18n.format("TRESPASSER.HUD.AoE.ClosePathInitialInstruction", { size: maxSquares })
+        : game.i18n.format("TRESPASSER.HUD.AoE.PathInitialInstruction", { size: maxSquares });
 
-        const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
-        const target = { x: snapped.x, y: snapped.y };
+      redrawAll();
 
-        if (squares.some(s => s.x === target.x && s.y === target.y)) return;
+      await CanvasInputSession.start({
+        title,
+        details: initialDetails,
+        icon: "fas fa-route",
+        showConfirm: true,
+        canConfirm: false,
+        showUndo: false,
+        canUndo: false,
+        showCancel: true,
+        onPointerMove: (ev) => {
+          let lastCanvasPos;
+          if (typeof ev.getLocalPosition === "function") {
+            lastCanvasPos = ev.getLocalPosition(canvas.stage);
+          } else if (ev.data && typeof ev.data.getLocalPosition === "function") {
+            lastCanvasPos = ev.data.getLocalPosition(canvas.stage);
+          } else if (ev.interactionData && ev.interactionData.origin) {
+            lastCanvasPos = ev.interactionData.origin;
+          }
+          if (!lastCanvasPos) return;
 
-        // First square: close_path must be adjacent to token
-        if (squares.length === 0) {
-          if (close) {
-            const tokenTopLeft = canvas.grid.getTopLeftPoint(token.center);
-            if (!isAdjacent(target, tokenTopLeft)) {
-              ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.PathMustStartAdjacent"));
-              return;
+          const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
+          hoveredSquare = { x: snapped.x, y: snapped.y };
+          redrawAll();
+        },
+        onClick: (ev) => {
+          if (squares.length >= maxSquares) return;
+
+          let pos;
+          if (typeof ev.getLocalPosition === "function") {
+            pos = ev.getLocalPosition(canvas.stage);
+          } else if (ev.data && typeof ev.data.getLocalPosition === "function") {
+            pos = ev.data.getLocalPosition(canvas.stage);
+          } else if (ev.interactionData && ev.interactionData.origin) {
+            pos = ev.interactionData.origin;
+          }
+          if (!pos) return;
+
+          const snapped = canvas.grid.getTopLeftPoint(pos);
+          const target = { x: snapped.x, y: snapped.y };
+
+          if (squares.some(s => s.x === target.x && s.y === target.y)) return;
+
+          // Step 1: Initial square selection
+          if (squares.length === 0) {
+            if (close) {
+              if (!isAdjacentToCasterToken(target, token)) {
+                ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.PathMustStartAdjacent"));
+                return;
+              }
             }
+            squares.push(target);
+            redrawAll();
+            updateOverlayState();
+            return;
           }
-          squares.push(target);
-          segmentLengths.push(1);
-          drawHighlight(target.x, target.y, null);
-          if (squares.length >= maxSquares) {
-            cleanup();
-            resolve({ squares: [...squares], templateDoc: null });
+
+          // Step 2 to N: Must be orthogonally adjacent to the last square
+          const last = squares[squares.length - 1];
+          if (!isOrthogonalAdjacent(last, target)) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.PathNoRoute"));
+            return;
           }
-          return;
-        }
 
-        const last = squares[squares.length - 1];
-        const remaining = maxSquares - squares.length;
-
-        // If adjacent, just add directly (fast path)
-        if (isAdjacent(last, target)) {
           if (forms2x2(squares, target)) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.PathNo2x2"));
             return;
           }
+
           squares.push(target);
-          segmentLengths.push(1);
-          drawHighlight(target.x, target.y, last);
-          if (squares.length >= maxSquares) {
-            cleanup();
-            resolve({ squares: [...squares], templateDoc: null });
-          }
-          return;
-        }
-
-        // Non-adjacent: BFS auto-fill
-        const path = findPath(last, target, squares, remaining);
-        if (!path) {
-          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.PathNoRoute"));
-          return;
-        }
-
-        segmentLengths.push(path.length);
-        for (const sq of path) {
-          squares.push(sq);
-        }
-        redrawAll();
-
-        if (squares.length >= maxSquares) {
+          redrawAll();
+          updateOverlayState();
+        },
+        onUndo: () => {
+          if (squares.length === 0) return;
+          squares.pop();
+          redrawAll();
+          updateOverlayState();
+        },
+        onConfirm: () => {
           cleanup();
           resolve({ squares: [...squares], templateDoc: null });
-        }
-      };
-
-      const rightClickHandler = (event) => {
-        event.preventDefault();
-        if (squares.length > 0) {
-          // Undo the last segment
-          const count = segmentLengths.pop() ?? 1;
-          squares.splice(-count, count);
-          redrawAll();
-        } else {
+        },
+        onCancel: () => {
           cleanup();
           resolve(null);
         }
-      };
-
-      const dblClickHandler = () => {
-        if (squares.length === 0) {
-          cleanup();
-          resolve(null);
-          return;
-        }
-        cleanup();
-        resolve({ squares: [...squares], templateDoc: null });
-      };
-
-      const cleanup = () => {
-        canvas.stage.off("globalpointermove", pixiMoveHandler);
-        view.removeEventListener("mousedown", clickHandler);
-        view.removeEventListener("contextmenu", rightClickHandler);
-        view.removeEventListener("dblclick", dblClickHandler);
-        for (const gfx of highlights) {
-          layer.removeChild(gfx);
-          gfx.destroy();
-        }
-        highlights.length = 0;
-      };
-
-      canvas.stage.on("globalpointermove", pixiMoveHandler);
-      view.addEventListener("mousedown", clickHandler);
-      view.addEventListener("contextmenu", rightClickHandler);
-      view.addEventListener("dblclick", dblClickHandler);
+      });
     });
   }
 
-  /* -------------------------------------------- */
-  /* Engagement                                    */
   /* -------------------------------------------- */
 
   /**

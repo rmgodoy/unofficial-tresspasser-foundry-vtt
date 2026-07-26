@@ -1,6 +1,7 @@
 import { TerrainHelper } from "./terrain-helper.mjs";
 import { MovementHelper } from "./movement-helper.mjs";
 import { CanvasInputSession } from "../canvas/canvas-input-session.mjs";
+import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications?.api || {};
 
@@ -307,34 +308,21 @@ export class ForcedMovementHelper {
         // 1. Draw valid next steps if remainingSquares > 0
         if (remainingSquares > 0) {
           const validSquares = this.#getValidSquares(movingToken, currentPos, movementType, path, initialPos, referenceToken, options);
-          
-          overlayGraphics.beginFill(0x00FF00, 0.3);
-          overlayGraphics.lineStyle(2, 0x00FF00, 0.8);
-          
-          for (const sq of validSquares) {
-            overlayGraphics.drawRect(sq.x * gridSize, sq.y * gridSize, gridSize, gridSize);
-          }
-          overlayGraphics.endFill();
+          const pixelSquares = validSquares.map(sq => ({ x: sq.x * gridSize, y: sq.y * gridSize }));
+          CanvasSelectionRenderer.drawCandidateSquares(overlayGraphics, pixelSquares, gridSize);
         }
 
-        // 2. ALWAYS draw the path selected so far (even when remainingSquares reaches 0!)
+        // 2. ALWAYS draw the path selected so far
         if (path.length > 0) {
-          overlayGraphics.beginFill(0x0000FF, 0.4);
-          overlayGraphics.lineStyle(2, 0x0000FF, 0.8);
-          for (const sq of path) {
-             overlayGraphics.drawRect(sq.x * gridSize, sq.y * gridSize, gridSize, gridSize);
-          }
-          overlayGraphics.endFill();
+          const pixelPath = path.map(sq => ({ x: sq.x * gridSize, y: sq.y * gridSize }));
+          CanvasSelectionRenderer.drawPath(overlayGraphics, pixelPath, gridSize, { drawArrows: false });
         }
 
-        // 3. Highlight collision tile (wall or creature collision) in red if present
+        // 3. Highlight collision tile in red if present
         if (collisions.length > 0 && historyStack.length > 0) {
           const lastRecord = historyStack[historyStack.length - 1];
           if (lastRecord.pos && (lastRecord.damageAdded > 0 || lastRecord.collisionsAdded.some(c => c.type === "creature" || c.type === "wall"))) {
-            overlayGraphics.beginFill(0xFF0000, 0.5);
-            overlayGraphics.lineStyle(3, 0xFF0000, 1.0);
-            overlayGraphics.drawRect(lastRecord.pos.x * gridSize, lastRecord.pos.y * gridSize, gridSize, gridSize);
-            overlayGraphics.endFill();
+            CanvasSelectionRenderer.drawBlockedSquare(overlayGraphics, { x: lastRecord.pos.x * gridSize, y: lastRecord.pos.y * gridSize }, gridSize);
           }
         }
       };

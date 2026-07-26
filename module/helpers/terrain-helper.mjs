@@ -1,6 +1,8 @@
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 import { ForcedMovementHelper } from "./forced-movement-helper.mjs";
 import { TrespasserEffectsHelper } from "./effects-helper.mjs";
+import { CanvasInputSession } from "../canvas/canvas-input-session.mjs";
+import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs";
 
 export class TerrainHelper {
   
@@ -237,63 +239,121 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
         if (t) targetPositions.push({ x: t.x + (t.w || gridSize)/2, y: t.y + (t.h || gridSize)/2 });
       }
     } else if (placement === "choose") {
-      const bannerHtml = await foundry.applications.handlebars.renderTemplate("systems/trespasser/templates/hud/forced-movement-banner.hbs", {
-        title: game.i18n.format("TRESPASSER.Notification.Combat.PlaceTerrain", { name: terrainItem.name }),
-        damageText: ""
-      });
-      const bannerEl = $(bannerHtml);
-      $("body").append(bannerEl);
+      let selectedPos = null;
+      let hoveredPos = null;
+      const w = (terrainItem.system.width || 1) * gridSize;
+      const h = (terrainItem.system.height || 1) * gridSize;
+      const wSq = terrainItem.system.width || 1;
+      const hSq = terrainItem.system.height || 1;
+      const highlights = [];
+      const layer = canvas.interface;
 
-      const position = await new Promise(resolve => {
-        const layer = canvas.interface;
-        const view = canvas.app.view;
-        const w = (terrainItem.system.width || 1) * gridSize;
-        const h = (terrainItem.system.height || 1) * gridSize;
-        
-        const colorHex = TerrainHelper.TERRAIN_COLORS[terrainItem.system.category] || "#ffffff";
-        const color = Number(colorHex.replace("#", "0x"));
-        
-        let preview = new PIXI.Graphics();
-        preview.beginFill(color, 0.4);
-        preview.lineStyle(2, color, 0.8);
-        preview.drawRect(0, 0, w, h);
-        preview.endFill();
-        layer.addChild(preview);
+      const redrawTerrainPreview = () => {
+        for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
+        highlights.length = 0;
 
-        const pixiMoveHandler = (event) => {
-          const localPos = event.getLocalPosition(canvas.stage);
-          const snappedX = Math.round((localPos.x - w / 2) / gridSize) * gridSize;
-          const snappedY = Math.round((localPos.y - h / 2) / gridSize) * gridSize;
-          preview.position.set(snappedX, snappedY);
-        };
+        const gfx = new PIXI.Graphics();
 
-        const clickHandler = (event) => {
-          if (event.button !== 0) return;
+        if (selectedPos) {
+          const placedSquares = [];
+          for (let dx = 0; dx < wSq; dx++) {
+            for (let dy = 0; dy < hSq; dy++) {
+              placedSquares.push({ x: selectedPos.x + dx * gridSize, y: selectedPos.y + dy * gridSize });
+            }
+          }
+          CanvasSelectionRenderer.drawPlacedOrigin(gfx, placedSquares, gridSize);
+        }
+
+        if (hoveredPos) {
+          const isSame = selectedPos && hoveredPos.x === selectedPos.x && hoveredPos.y === selectedPos.y;
+          if (!isSame) {
+            const hoverSquares = [];
+            for (let dx = 0; dx < wSq; dx++) {
+              for (let dy = 0; dy < hSq; dy++) {
+                hoverSquares.push({ x: hoveredPos.x + dx * gridSize, y: hoveredPos.y + dy * gridSize });
+              }
+            }
+            CanvasSelectionRenderer.drawCandidateSquares(gfx, hoverSquares, gridSize);
+          }
+        }
+
+        layer.addChild(gfx);
+        highlights.push(gfx);
+      };
+
+      const cleanup = () => {
+        for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
+        highlights.length = 0;
+      };
+
+      const title = game.i18n.format("TRESPASSER.Notification.Combat.PlaceTerrain", { name: terrainItem.name });
+
+      const positionResult = await CanvasInputSession.start({
+        title,
+        details: game.i18n.localize("TRESPASSER.HUD.AoE.BlastInstruction") || "Click to select terrain location.",
+        icon: "fas fa-mountain",
+        showConfirm: true,
+        canConfirm: false,
+        showUndo: false,
+        canUndo: false,
+        showCancel: true,
+        onPointerMove: (ev) => {
+          let lastCanvasPos;
+          if (typeof ev.getLocalPosition === "function") {
+            lastCanvasPos = ev.getLocalPosition(canvas.stage);
+          } else if (ev.data && typeof ev.data.getLocalPosition === "function") {
+            lastCanvasPos = ev.data.getLocalPosition(canvas.stage);
+          } else if (ev.interactionData && ev.interactionData.origin) {
+            lastCanvasPos = ev.interactionData.origin;
+          }
+          if (!lastCanvasPos) return;
+
+          const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
+          const offsetX = snapped.x - Math.floor(wSq / 2) * gridSize;
+          const offsetY = snapped.y - Math.floor(hSq / 2) * gridSize;
+          hoveredPos = { x: offsetX, y: offsetY };
+          redrawTerrainPreview();
+        },
+        onClick: (ev) => {
+          let lastCanvasPos;
+          if (typeof ev.getLocalPosition === "function") {
+            lastCanvasPos = ev.getLocalPosition(canvas.stage);
+          } else if (ev.data && typeof ev.data.getLocalPosition === "function") {
+            lastCanvasPos = ev.data.getLocalPosition(canvas.stage);
+          } else if (ev.interactionData && ev.interactionData.origin) {
+            lastCanvasPos = ev.interactionData.origin;
+          }
+          if (!lastCanvasPos) return;
+
+          const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
+          const offsetX = snapped.x - Math.floor(wSq / 2) * gridSize;
+          const offsetY = snapped.y - Math.floor(hSq / 2) * gridSize;
+
+          if (selectedPos && selectedPos.x === offsetX && selectedPos.y === offsetY) {
+            cleanup();
+            if (CanvasInputSession.activeSession) CanvasInputSession.activeSession.confirm();
+            return;
+          }
+
+          selectedPos = { x: offsetX, y: offsetY };
+          redrawTerrainPreview();
+
+          if (CanvasInputSession.activeSession) {
+            CanvasInputSession.activeSession.updateOverlay({ canConfirm: true });
+          }
+        },
+        onConfirm: () => {
           cleanup();
-          resolve({ x: canvas.mousePosition.x, y: canvas.mousePosition.y });
-        };
-        
-        const rightClickHandler = (event) => {
-          event.preventDefault();
+          return selectedPos ? { x: selectedPos.x + w / 2, y: selectedPos.y + h / 2 } : null;
+        },
+        onCancel: () => {
           cleanup();
-          resolve(null);
-        };
-
-        const cleanup = () => {
-          bannerEl.remove();
-          canvas.stage.off("globalpointermove", pixiMoveHandler);
-          view.removeEventListener("pointerdown", clickHandler);
-          view.removeEventListener("contextmenu", rightClickHandler);
-          layer.removeChild(preview);
-          preview.destroy();
-        };
-
-        canvas.stage.on("globalpointermove", pixiMoveHandler);
-        view.addEventListener("pointerdown", clickHandler);
-        view.addEventListener("contextmenu", rightClickHandler);
+          return null;
+        }
       });
-      
-      if (position) targetPositions.push(position);
+
+      if (!positionResult) return;
+      targetPositions.push(positionResult);
     } else if (placement === "aura") {
       itemToSpawn = terrainItem.clone({ "system.centerMode": "actor", "system.centerActorId": sourceToken.actor.id }, { keepId: true });
       targetPositions.push({ x: sourceToken.x + (sourceToken.w || gridSize)/2, y: sourceToken.y + (sourceToken.h || gridSize)/2 });
@@ -367,6 +427,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
 
     // Normalize: accept both Token placeables and TokenDocuments
     const tokenDoc = token.document ?? token;
+    if (globalThis._trespasserUndoSet?.has(tokenDoc.id)) return;
     const actor = tokenDoc.actor;
     if (!actor) return;
 
@@ -382,9 +443,19 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     // An actor-centered terrain should not affect the actor it is centered on
     if (sys.centerMode === "actor" && sys.centerActorId === actor.id) return;
 
-    // Execute onEnter behaviors
+    // Execute onEnter behaviors after movement animation finishes
     const onEnterBehaviors = (sys.behaviors || []).filter(b => b.trigger === "onEnter");
     if (onEnterBehaviors.length > 0) {
+      const tokenPlaceable = tokenDoc.object || canvas.tokens?.get(tokenDoc.id);
+      if (tokenPlaceable) {
+        if (tokenPlaceable.animationContexts?.size > 0) {
+          const promises = Array.from(tokenPlaceable.animationContexts.values()).map(ctx => ctx.promise);
+          await Promise.allSettled(promises);
+        } else if (tokenPlaceable._animation) {
+          await tokenPlaceable._animation;
+        }
+      }
+
       const context = this.#buildBehaviorContext(region);
       for (const behavior of onEnterBehaviors) {
         await this.executeBehavior(behavior, actor, region, context);
@@ -703,6 +774,17 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
       }
     }
 
+    // Wait for token movement animation to finish on canvas before applying damage and effects
+    const tokenPlaceable = tokenDoc.object || canvas.tokens?.get(tokenDoc.id);
+    if (tokenPlaceable) {
+      if (tokenPlaceable.animationContexts?.size > 0) {
+        const promises = Array.from(tokenPlaceable.animationContexts.values()).map(ctx => ctx.promise);
+        await Promise.allSettled(promises);
+      } else if (tokenPlaceable._animation) {
+        await tokenPlaceable._animation;
+      }
+    }
+
     // Batch-create effect items on the actor with summed intensities
     for (const [uuid, data] of groupedEffects) {
       const sourceEffect = await fromUuid(uuid);
@@ -713,7 +795,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
       await Item.createDocuments([effectData], { parent: actor });
     }
 
-    // Apply accumulated terrain damage — one HP update
+    // Apply accumulated terrain damage — one HP update at end of movement
     let totalDamage = 0;
     if (terrainDamageMap.size > 0) {
       for (const [, data] of terrainDamageMap) {

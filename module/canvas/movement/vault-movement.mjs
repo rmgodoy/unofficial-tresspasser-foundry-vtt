@@ -1,6 +1,7 @@
 import { MovementPathfinder } from "./movement-pathfinder.mjs";
 import { TrespasserCombat } from "../../documents/combat.mjs";
 import { CanvasInputSession } from "../canvas-input-session.mjs";
+import { CanvasSelectionRenderer } from "../canvas-selection-renderer.mjs";
 
 /**
  * Encapsulates vault / jump / teleport / walk movement mode.
@@ -96,27 +97,20 @@ export class VaultMovementMode {
         const sizeH = host.token.document.height * sizeY;
 
         // Draw valid range squares
-        host.graphics.beginFill(0x00FF00, 0.15);
-        host.graphics.lineStyle(2, 0x00FF00, 0.4);
-
-        for (const sq of host.validVaultSquares) {
-            const tlx = sq.x - sizeW / 2;
-            const tly = sq.y - sizeH / 2;
-            host.graphics.drawRect(tlx, tly, sizeW, sizeH);
-        }
-        host.graphics.endFill();
+        const candidateSquares = host.validVaultSquares.map(sq => ({
+            x: sq.x - sizeW / 2,
+            y: sq.y - sizeH / 2
+        }));
+        CanvasSelectionRenderer.drawCandidateSquares(host.graphics, candidateSquares, sizeX);
 
         // Draw selected tile highlight if chosen
         if (host.selectedVaultSquare && host.selectedVaultSquare.hoveredSquare) {
             const selSq = host.selectedVaultSquare.hoveredSquare;
-            const tlx = selSq.x - sizeW / 2;
-            const tly = selSq.y - sizeH / 2;
-
-            // Bright gold fill & thick border for selected tile
-            host.graphics.beginFill(0xFFD700, 0.45);
-            host.graphics.lineStyle(4, 0xFFD700, 1.0);
-            host.graphics.drawRect(tlx, tly, sizeW, sizeH);
-            host.graphics.endFill();
+            const placedSquare = [{
+                x: selSq.x - sizeW / 2,
+                y: selSq.y - sizeH / 2
+            }];
+            CanvasSelectionRenderer.drawPlacedOrigin(host.graphics, placedSquare, sizeX);
         }
     }
 
@@ -256,6 +250,13 @@ export class VaultMovementMode {
                 movementAction: "jump",
                 trespasserPhaseAction: !!(host.options?.phaseAction || host.options?.free)
             });
+
+            if (host.token.animationContexts?.size > 0) {
+                const promises = Array.from(host.token.animationContexts.values()).map(ctx => ctx.promise);
+                await Promise.allSettled(promises);
+            } else if (host.token._animation) {
+                await host.token._animation;
+            }
         }
 
         if (game.trespasser && game.trespasser.tokenHUD) game.trespasser.tokenHUD.render();

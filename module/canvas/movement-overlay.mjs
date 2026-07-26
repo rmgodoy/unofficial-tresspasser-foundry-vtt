@@ -1,4 +1,5 @@
 import { CanvasInputSession } from "./canvas-input-session.mjs";
+import { CanvasSelectionRenderer } from "./canvas-selection-renderer.mjs";
 import { MovementPathfinder } from "./movement/movement-pathfinder.mjs";
 import { StandardMovementMode } from "./movement/standard-movement.mjs";
 import { VaultMovementMode } from "./movement/vault-movement.mjs";
@@ -61,30 +62,7 @@ export class MovementOverlay {
         const maxRange = baseMove + extraAP * moveCost;
 
         const visited = MovementPathfinder.calculateDistancesFrom(token.x, token.y, maxRange, token);
-
-        this.graphics.clear();
-        for (const [key, val] of visited.entries()) {
-            if (val.dist === 0) continue;
-            const [xStr, yStr] = key.split(",");
-            const x = parseInt(xStr) * sizeX;
-            const y = parseInt(yStr) * sizeY;
-
-            let color = 0x00FF00;
-            let alpha = 0.2;
-
-            if (val.dist > baseMove + moveCost) {
-                if (extraAP < 2) continue;
-                color = 0xFF8800;
-            } else if (val.dist > baseMove) {
-                if (extraAP < 1) continue;
-                color = 0xFFFF00;
-            }
-
-            this.graphics.beginFill(color, alpha);
-            this.graphics.lineStyle(2, color, 0.5);
-            this.graphics.drawRect(x, y, sizeX, sizeY);
-            this.graphics.endFill();
-        }
+        CanvasSelectionRenderer.drawRangeZones(this.graphics, visited, sizeX, sizeY, baseMove, moveCost, extraAP);
     }
 
     static clearInformativeOverlay() {

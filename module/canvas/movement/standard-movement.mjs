@@ -1,5 +1,6 @@
 import { MovementPathfinder } from "./movement-pathfinder.mjs";
 import { CanvasInputSession } from "../canvas-input-session.mjs";
+import { CanvasSelectionRenderer } from "../canvas-selection-renderer.mjs";
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 
 /**
@@ -95,17 +96,13 @@ export class StandardMovementMode {
 
         host.visitedMoveMap = MovementPathfinder.calculateDistancesFrom(startX, startY, remainingRange, host.token);
 
+        const candidates = [];
         for (const [key, val] of host.visitedMoveMap.entries()) {
             if (val.dist === 0 && host.waypoints.length === 0) continue;
             const [xStr, yStr] = key.split(",");
-            const x = parseInt(xStr) * sizeX;
-            const y = parseInt(yStr) * sizeY;
-
-            host.graphics.beginFill(0x00FF00, 0.2);
-            host.graphics.lineStyle(2, 0x00FF00, 0.5);
-            host.graphics.drawRect(x, y, sizeX, sizeY);
-            host.graphics.endFill();
+            candidates.push({ x: parseInt(xStr) * sizeX, y: parseInt(yStr) * sizeY });
         }
+        CanvasSelectionRenderer.drawCandidateSquares(host.graphics, candidates, sizeX);
     }
 
     /**

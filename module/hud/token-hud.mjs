@@ -752,7 +752,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         globalThis._trespasserUndoSet.add(tokenDoc.id);
 
         try {
-            await tokenDoc.update({ x: lastMove.from.x, y: lastMove.from.y });
+            await tokenDoc.update({ x: lastMove.from.x, y: lastMove.from.y }, { animate: false });
 
             if (tokenDoc.clearMovementHistory) {
                 await tokenDoc.clearMovementHistory();

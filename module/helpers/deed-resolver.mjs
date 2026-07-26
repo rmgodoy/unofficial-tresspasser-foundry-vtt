@@ -188,9 +188,6 @@ export class DeedResolver {
     switch (action.movementShape) {
       case "close_path": {
         // Reuse TargetingHelper path placement (starts adjacent to token)
-        ui.notifications.info(
-          game.i18n.format("TRESPASSER.Notification.Combat.PlaceClosePath", { size: distance })
-        );
         // Mock deed object: phase action paths are unrestricted by weapon range,
         // so we pass type: "versatile" and range: null to bypass getMaxRangeSq cleanly.
         const mockDeed = {
@@ -208,9 +205,6 @@ export class DeedResolver {
       }
 
       case "path": {
-        ui.notifications.info(
-          game.i18n.format("TRESPASSER.Notification.Combat.PlacePath", { size: distance })
-        );
         // Mock deed object: phase action paths are unrestricted by weapon range,
         // so we pass type: "versatile" and range: null to bypass getMaxRangeSq cleanly.
         const mockDeed = {

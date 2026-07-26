@@ -23,7 +23,11 @@
         "AttemptDeed": "Attempt Deed",
         "UseConcoction": "Use Concoction",
         "TakeAim": "Take Aim",
-        "ForceMove": "Force Move"
+        "ForceMove": "Force Move",
+        "Blast": "Blast",
+        "CloseBlast": "Close Blast",
+        "Path": "Path",
+        "ClosePath": "Close Path"
       },
       "Movement": {
         "Used": "Movement Used",
@@ -34,6 +38,13 @@
       },
       "Vault": {
         "OverlayInstruction": "Range: {range} sq. Click square to select destination."
+      },
+      "AoE": {
+        "BlastInstruction": "Blast {size}: Click square to select origin.",
+        "CloseBlastInstruction": "Close Blast {size}: Click square adjacent to caster to select origin.",
+        "PathInitialInstruction": "Path {size}: Click initial square to start path.",
+        "ClosePathInitialInstruction": "Close Path {size}: Click square adjacent to caster to start path.",
+        "PathStepInstruction": "Path ({current}/{max}): Click adjacent orthogonal square to expand path."
       },
       "Resource": {
         "APCost": "AP Cost",

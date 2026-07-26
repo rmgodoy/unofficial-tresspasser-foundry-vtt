@@ -112,6 +112,14 @@ export class TrespasserActor extends Actor {
     const totalAmount = state.pendingDamage;
     state.pendingDamage = 0;
 
+    // Wait for any active movement animation to complete first so damage animation occurs at final position
+    if (token.animationContexts?.size > 0) {
+      const promises = Array.from(token.animationContexts.values()).map(ctx => ctx.promise);
+      await Promise.allSettled(promises);
+    } else if (token._animation) {
+      await token._animation;
+    }
+
     // 1. Spawn single scrolling text with summed total damage
     this.animateDamageText(token, totalAmount);
 
@@ -125,8 +133,17 @@ export class TrespasserActor extends Actor {
    */
   static async animateTokenShake(token) {
     if (!token || (!token.mesh && !token.icon)) return;
+
+    if (token.animationContexts?.size > 0) {
+      const promises = Array.from(token.animationContexts.values()).map(ctx => ctx.promise);
+      await Promise.allSettled(promises);
+    } else if (token._animation) {
+      await token._animation;
+    }
+
     const mesh = token.mesh || token.icon;
-    const startX = mesh.x;
+    mesh._shakeBaseX ??= mesh.x;
+    const baseX = mesh._shakeBaseX;
 
     const keyframes = [
       { dx: -10, duration: 40 },
@@ -139,10 +156,11 @@ export class TrespasserActor extends Actor {
     ];
 
     for (const k of keyframes) {
-      mesh.x = startX + k.dx;
+      mesh.x = baseX + k.dx;
       await new Promise(r => setTimeout(r, k.duration));
     }
-    mesh.x = startX;
+    mesh.x = baseX;
+    delete mesh._shakeBaseX;
   }
 
   /**

@@ -3,6 +3,8 @@ import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 import { TerrainHelper } from "./terrain-helper.mjs";
 import { ForcedMovementHelper } from "./forced-movement-helper.mjs";
 import { MovementHelper } from "./movement-helper.mjs";
+import { CanvasInputSession } from "../canvas/canvas-input-session.mjs";
+import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs";
 
 /**
  * BDeedBehaviorHandler — Dispatcher executing actual game logic for all 9 behavior types.
@@ -200,45 +202,71 @@ export class BDeedBehaviorHandler {
       const selectedTargets = [];
       const gridPx = canvas.grid.size;
 
-      for (let i = 0; i < maxCount; i++) {
-        ui.notifications.info(`Select target ${i + 1} of ${maxCount} (Right-click canvas to finish selection early).`);
+      const title = game.i18n.format("TRESPASSER.HUD.Action.SelectTargets") || `Select Targets (${maxCount} max)`;
 
-        const deedData = {
-          targetType: "blast",
-          targetSize: 1,
-          range: item?.system?.range || 0
-        };
+      const resultTargets = await CanvasInputSession.start({
+        title,
+        details: `Select target(s) on canvas (0 of ${maxCount} selected).`,
+        icon: "fas fa-crosshairs",
+        showConfirm: true,
+        canConfirm: false,
+        showUndo: false,
+        canUndo: false,
+        showCancel: true,
+        onClick: (ev) => {
+          let lastCanvasPos;
+          if (typeof ev.getLocalPosition === "function") {
+            lastCanvasPos = ev.getLocalPosition(canvas.stage);
+          } else if (ev.data && typeof ev.data.getLocalPosition === "function") {
+            lastCanvasPos = ev.data.getLocalPosition(canvas.stage);
+          } else if (ev.interactionData && ev.interactionData.origin) {
+            lastCanvasPos = ev.interactionData.origin;
+          }
+          if (!lastCanvasPos) return;
 
-        const result = await TargetingHelper.placeTemplate(actor, token, deedData);
+          const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
+          const tokensInSq = TargetingHelper.getTokensInSquares([{ x: snapped.x, y: snapped.y }], gridPx);
 
-        // Right-click or cancellation stops adding targets
-        if (!result || !result.squares || result.squares.length === 0) {
-          break;
-        }
+          if (tokensInSq.length > 0) {
+            const hitToken = tokensInSq[0];
+            const idx = selectedTargets.findIndex(t => t.id === hitToken.id);
+            if (idx >= 0) {
+              selectedTargets.splice(idx, 1);
+            } else {
+              if (selectedTargets.length < maxCount) {
+                selectedTargets.push(hitToken);
+              } else {
+                ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TooManyTargets", { max: maxCount, count: selectedTargets.length + 1 }));
+              }
+            }
 
-        const tokensInSquare = TargetingHelper.getTokensInSquares(result.squares, gridPx);
-        if (tokensInSquare.length > 0) {
-          for (const t of tokensInSquare) {
-            if (!selectedTargets.some(existing => existing.id === t.id)) {
-              selectedTargets.push(t);
+            if (game.user.updateTokenTargets) {
+              game.user.updateTokenTargets(selectedTargets.map(t => t.id));
+            }
+
+            if (CanvasInputSession.activeSession) {
+              CanvasInputSession.activeSession.updateOverlay({
+                details: `Selected ${selectedTargets.length} of ${maxCount} target(s).`,
+                canConfirm: selectedTargets.length > 0
+              });
             }
           }
-          // Update canvas target selection visually
-          if (game.user.updateTokenTargets) {
-            game.user.updateTokenTargets(selectedTargets.map(t => t.id));
-          }
-        } else {
-          ui.notifications.warn("No token found in targeted square.");
+        },
+        onConfirm: () => {
+          return selectedTargets;
+        },
+        onCancel: () => {
+          return null;
         }
-      }
+      });
 
-      if (selectedTargets.length === 0) {
+      if (!resultTargets || resultTargets.length === 0) {
         ui.notifications.info("Target selection cancelled.");
         return false;
       }
 
-      context.targets = selectedTargets;
-      ui.notifications.info(`Targeted ${selectedTargets.length} token(s).`);
+      context.targets = resultTargets;
+      ui.notifications.info(`Targeted ${resultTargets.length} token(s).`);
       return true;
     }
 
