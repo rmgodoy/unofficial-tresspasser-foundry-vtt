@@ -15,6 +15,7 @@
 import { TargetingHelper } from "./targeting-helper.mjs";
 import { MovementOverlay } from "../canvas/movement-overlay.mjs";
 import { TerrainHelper } from "./terrain-helper.mjs";
+import { MovementHelper } from "./movement-helper.mjs";
 
 export class DeedResolver {
 
@@ -128,21 +129,23 @@ export class DeedResolver {
   static async executePhaseAction(action, sourceToken, actor, context = {}) {
     if (!action?.type) return;
 
-    switch (action.type) {
-      case "movement":
-        await this.#executeMovementAction(action, sourceToken, actor, context);
-        break;
+    return MovementHelper.withFreeMovement(async () => {
+      switch (action.type) {
+        case "movement":
+          await this.#executeMovementAction(action, sourceToken, actor, context);
+          break;
 
-      case "selfEffect":
-        await this.#executeSelfEffectAction(action, actor);
-        break;
+        case "selfEffect":
+          await this.#executeSelfEffectAction(action, actor);
+          break;
 
-      case "terrainSpawn":
-        // Handled by the main phase processor using the terrainSpawn data
-        // This is a marker that says "spawn terrain NOW in this phase"
-        context.spawnTerrainNow = true;
-        break;
-    }
+        case "terrainSpawn":
+          // Handled by the main phase processor using the terrainSpawn data
+          // This is a marker that says "spawn terrain NOW in this phase"
+          context.spawnTerrainNow = true;
+          break;
+      }
+    });
   }
 
   /**

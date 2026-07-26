@@ -2,6 +2,7 @@ import { TargetingHelper } from "./targeting-helper.mjs";
 import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 import { TerrainHelper } from "./terrain-helper.mjs";
 import { ForcedMovementHelper } from "./forced-movement-helper.mjs";
+import { MovementHelper } from "./movement-helper.mjs";
 
 /**
  * BDeedBehaviorHandler — Dispatcher executing actual game logic for all 9 behavior types.
@@ -22,19 +23,21 @@ export class BDeedBehaviorHandler {
    * @param {string} [phaseKey] - Current phase key ("start", "before", "base", "hit", "spark", "after", "end")
    */
   static async dispatch(behavior, context, actor, item, phaseKey = "") {
-    switch (behavior.type) {
-      case "selectTarget":     return this._selectTarget(behavior, context, actor, item);
-      case "selectArea":       return this._selectArea(behavior, context, actor, item);
-      case "applyDamage":      return this._applyDamage(behavior, context, actor, item, phaseKey);
-      case "applyEffects":     return this._applyEffects(behavior, context, actor, item, phaseKey);
-      case "modifyBehavior":   return; // Handled pre-pipeline by BDeedExecutor
-      case "spawnTerrain":     return this._spawnTerrain(behavior, context, actor, item);
-      case "moveTerrain":      return this._moveTerrain(behavior, context, item);
-      case "moveSource":       return this._moveSource(behavior, context, actor);
-      case "forceMoveTargets": return this._forceMoveTargets(behavior, context, actor, item, phaseKey);
-      case "clearTargets":     return this._clearTargets(context);
-      case "executeDeed":      return this._executeDeed(behavior, context, actor);
-    }
+    return MovementHelper.withFreeMovement(async () => {
+      switch (behavior.type) {
+        case "selectTarget":     return this._selectTarget(behavior, context, actor, item);
+        case "selectArea":       return this._selectArea(behavior, context, actor, item);
+        case "applyDamage":      return this._applyDamage(behavior, context, actor, item, phaseKey);
+        case "applyEffects":     return this._applyEffects(behavior, context, actor, item, phaseKey);
+        case "modifyBehavior":   return; // Handled pre-pipeline by BDeedExecutor
+        case "spawnTerrain":     return this._spawnTerrain(behavior, context, actor, item);
+        case "moveTerrain":      return this._moveTerrain(behavior, context, item);
+        case "moveSource":       return this._moveSource(behavior, context, actor);
+        case "forceMoveTargets": return this._forceMoveTargets(behavior, context, actor, item, phaseKey);
+        case "clearTargets":     return this._clearTargets(context);
+        case "executeDeed":      return this._executeDeed(behavior, context, actor);
+      }
+    });
   }
 
   /**
@@ -809,29 +812,22 @@ export class BDeedBehaviorHandler {
 
     if (!animate) {
       const last = pathSquares[pathSquares.length - 1];
-      await token.document.update({ x: last.x, y: last.y }, { animate: false, trespasserIgnoreMoveAction: true });
+      await token.document.update({ x: last.x, y: last.y }, { animate: false });
       return;
     }
 
-    globalThis._trespasserUndoSet ??= new Set();
-    globalThis._trespasserUndoSet.add(token.document.id);
+    for (const sq of pathSquares) {
+      if (token.document.x === sq.x && token.document.y === sq.y) continue;
+      await token.document.update({ x: sq.x, y: sq.y }, { animate: true });
 
-    try {
-      for (const sq of pathSquares) {
-        if (token.document.x === sq.x && token.document.y === sq.y) continue;
-        await token.document.update({ x: sq.x, y: sq.y }, { animate: true, trespasserIgnoreMoveAction: true });
-
-        if (token.animationContexts?.size > 0) {
-          const promises = Array.from(token.animationContexts.values()).map(ctx => ctx.promise);
-          await Promise.allSettled(promises);
-        } else if (token._animation) {
-          await token._animation;
-        } else {
-          await new Promise(r => setTimeout(r, 150));
-        }
+      if (token.animationContexts?.size > 0) {
+        const promises = Array.from(token.animationContexts.values()).map(ctx => ctx.promise);
+        await Promise.allSettled(promises);
+      } else if (token._animation) {
+        await token._animation;
+      } else {
+        await new Promise(r => setTimeout(r, 150));
       }
-    } finally {
-      globalThis._trespasserUndoSet.delete(token.document.id);
     }
   }
 

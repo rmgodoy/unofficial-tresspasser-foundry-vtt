@@ -1,4 +1,5 @@
 import { TerrainHelper } from "./terrain-helper.mjs";
+import { MovementHelper } from "./movement-helper.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications?.api || {};
 
@@ -132,83 +133,85 @@ export class ForcedMovementHelper {
   static TYPES = { PUSH: "push", PULL: "pull", SWEEP: "sweep", SHOVE: "shove", DRAG: "drag" };
 
   static async executeForcedMovement(sourceToken, targets, movementType, distance, options = {}) {
-    if (!targets || targets.length === 0 || distance <= 0) return;
+    return MovementHelper.withFreeMovement(async () => {
+      if (!targets || targets.length === 0 || distance <= 0) return;
 
-    // sourceToken can be null if direction or terrainRegion is provided
-    if (!sourceToken && !options.direction && !options.terrainRegion) return;
+      // sourceToken can be null if direction or terrainRegion is provided
+      if (!sourceToken && !options.direction && !options.terrainRegion) return;
 
-    let orderedTargets = targets;
-    if (targets.length > 1 && ApplicationV2) {
-      orderedTargets = await this.#showTargetOrderPanel(targets);
-    }
-
-    if (!orderedTargets || orderedTargets.length === 0) return;
-
-    for (const targetToken of orderedTargets) {
-      let movingToken = targetToken;
-      let referenceToken = sourceToken;
-
-      if (movementType === this.TYPES.DRAG) {
-        movingToken = sourceToken;
-        referenceToken = targetToken;
+      let orderedTargets = targets;
+      if (targets.length > 1 && ApplicationV2) {
+        orderedTargets = await this.#showTargetOrderPanel(targets);
       }
 
-      const result = await this.#selectForcedPath(movingToken, referenceToken, movementType, distance, options);
-      if (result) {
-        let otherToken = null;
-        if (result.path.length > 0) {
-          ui.notifications.info(`Path selected for ${movingToken.actor?.name || movingToken.name} with ${result.path.length} steps.`);
-          
-          const gridSize = canvas.scene.grid.size;
-          
-          const movingInitialX = Math.floor(movingToken.center.x / gridSize);
-          const movingInitialY = Math.floor(movingToken.center.y / gridSize);
-          
-          // Calculate the explicit step-by-step path for moving token
-          const movingPath = result.path.map(sq => ({
-            x: movingToken.document.x + ((sq.x - movingInitialX) * gridSize),
-            y: movingToken.document.y + ((sq.y - movingInitialY) * gridSize)
-          }));
+      if (!orderedTargets || orderedTargets.length === 0) return;
 
-          let compoundPath = null;
+      for (const targetToken of orderedTargets) {
+        let movingToken = targetToken;
+        let referenceToken = sourceToken;
 
-          if (movementType === this.TYPES.SHOVE || movementType === this.TYPES.DRAG) {
-            otherToken = (movementType === this.TYPES.SHOVE) ? sourceToken : targetToken;
+        if (movementType === this.TYPES.DRAG) {
+          movingToken = sourceToken;
+          referenceToken = targetToken;
+        }
+
+        const result = await this.#selectForcedPath(movingToken, referenceToken, movementType, distance, options);
+        if (result) {
+          let otherToken = null;
+          if (result.path.length > 0) {
+            ui.notifications.info(`Path selected for ${movingToken.actor?.name || movingToken.name} with ${result.path.length} steps.`);
             
-            // The other token follows the exact same relative step-by-step path
-            compoundPath = result.path.map(sq => ({
-              x: otherToken.document.x + ((sq.x - movingInitialX) * gridSize),
-              y: otherToken.document.y + ((sq.y - movingInitialY) * gridSize)
+            const gridSize = canvas.scene.grid.size;
+            
+            const movingInitialX = Math.floor(movingToken.center.x / gridSize);
+            const movingInitialY = Math.floor(movingToken.center.y / gridSize);
+            
+            // Calculate the explicit step-by-step path for moving token
+            const movingPath = result.path.map(sq => ({
+              x: movingToken.document.x + ((sq.x - movingInitialX) * gridSize),
+              y: movingToken.document.y + ((sq.y - movingInitialY) * gridSize)
             }));
+
+            let compoundPath = null;
+
+            if (movementType === this.TYPES.SHOVE || movementType === this.TYPES.DRAG) {
+              otherToken = (movementType === this.TYPES.SHOVE) ? sourceToken : targetToken;
+              
+              // The other token follows the exact same relative step-by-step path
+              compoundPath = result.path.map(sq => ({
+                x: otherToken.document.x + ((sq.x - movingInitialX) * gridSize),
+                y: otherToken.document.y + ((sq.y - movingInitialY) * gridSize)
+              }));
+            }
+
+            // Add explicit paths to result for future tasks (e.g. step-by-step animation and collision)
+            result.movingPath = movingPath;
+            if (compoundPath) result.compoundPath = compoundPath;
           }
 
-          // Add explicit paths to result for future tasks (e.g. step-by-step animation and collision)
-          result.movingPath = movingPath;
-          if (compoundPath) result.compoundPath = compoundPath;
-        }
+          const ownsTarget = targetToken.isOwner;
+          const ownsSource = !sourceToken || sourceToken.isOwner;
 
-        const ownsTarget = targetToken.isOwner;
-        const ownsSource = !sourceToken || sourceToken.isOwner;
-
-        if (ownsTarget && ownsSource) {
-          if (result.path && result.path.length > 0) {
-            await this.#animateTokenAlongPath(movingToken, result.movingPath, otherToken, result.compoundPath);
+          if (ownsTarget && ownsSource) {
+            if (result.path && result.path.length > 0) {
+              await this.#animateTokenAlongPath(movingToken, result.movingPath, otherToken, result.compoundPath);
+            }
+            await this.#postCollisionDamage(targetToken, result.collisions, result.totalDamage);
+          } else {
+            const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
+            await emitDeedActionAndWait("forceMoveTokens", {
+              movingTokenId: movingToken.id,
+              movingPath: result.movingPath || [],
+              otherTokenId: otherToken?.id || null,
+              compoundPath: result.compoundPath || null,
+              targetTokenId: targetToken.id,
+              collisions: result.collisions || [],
+              totalDamage: result.totalDamage || 0
+            });
           }
-          await this.#postCollisionDamage(targetToken, result.collisions, result.totalDamage);
-        } else {
-          const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
-          await emitDeedActionAndWait("forceMoveTokens", {
-            movingTokenId: movingToken.id,
-            movingPath: result.movingPath || [],
-            otherTokenId: otherToken?.id || null,
-            compoundPath: result.compoundPath || null,
-            targetTokenId: targetToken.id,
-            collisions: result.collisions || [],
-            totalDamage: result.totalDamage || 0
-          });
         }
       }
-    }
+    });
   }
 
   static async #animateTokenAlongPath(movingToken, movingPath, otherToken = null, compoundPath = null) {

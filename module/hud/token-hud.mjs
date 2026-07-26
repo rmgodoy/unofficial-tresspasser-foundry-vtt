@@ -47,12 +47,6 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         // Find combatant across ALL combats (matching active phase)
         const combatant = this._getCombatant();
 
-        // Diagnostic for player
-        if (!game.user.isGM) {
-            console.log("Trespasser | HUD Preparing Context for", this._token.name, "Combatant Found:", !!combatant);
-            if (combatant) console.log("Trespasser | HUD Combatant AP:", combatant.getFlag("trespasser", "actionPoints"));
-        }
-
         if (!combatant) return { inCombat: false };
 
         const states = TrespasserEffectsHelper.getActorEffects(this._token.actor).combat.filter(e => e.item?.type === "effect" && !e.isLasting);
@@ -768,7 +762,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             const stepDist = lastMove.distance ?? 0;
             const newUsed = Math.max(0, currentUsed - stepDist);
 
-            if (moveActionMovements.length === 0) {
+            if (moveActionMovements.length === 0 && newUsed === 0) {
                 // All moves in this Move action have been undone — refund AP and reset action
                 const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
                 const cost = combatant.getFlag("trespasser", "moveActionCost") ?? 1;

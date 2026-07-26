@@ -99,8 +99,6 @@ export class MovementOverlay {
         canvas.stage.on("pointermove", this._onMouseMove);
         canvas.app.view.addEventListener("contextmenu", this._onClickRight);
 
-        ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Combat.MoveModeActivated") || "Move Mode Activated. CTRL+Click for waypoints. Right-click to cancel.");
-
         this._drawInteractiveMoveOverlay();
     }
 
@@ -757,8 +755,8 @@ export class MovementOverlay {
 
                     (async () => {
                         // Temporarily bypass the preUpdateToken hook to avoid false positive blocks during intermediate path steps
-                        globalThis._trespasserUndoSet ??= new Set();
-                        globalThis._trespasserUndoSet.add(tokenDoc.id);
+                        globalThis._trespasserOverlaySet ??= new Set();
+                        globalThis._trespasserOverlaySet.add(tokenDoc.id);
                         
                         try {
                             for (const pt of uniquePath) {
@@ -802,7 +800,7 @@ export class MovementOverlay {
                                 }
                             }
                         } finally {
-                            globalThis._trespasserUndoSet.delete(tokenDoc.id);
+                            globalThis._trespasserOverlaySet.delete(tokenDoc.id);
                         }
                     })();
                 }

@@ -89,6 +89,7 @@ import { TrespasserStrongholdSheet } from "./module/sheets/item-stronghold-sheet
 import { registerHavenTrackerHooks } from "./module/exploration/haven-tracker.mjs";
 import { EventClocksTracker, registerEventClocksHooks } from "./module/exploration/event-clocks-tracker.mjs";
 import { MovementOverlay } from "./module/canvas/movement-overlay.mjs";
+import { MovementHelper } from "./module/helpers/movement-helper.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -1252,8 +1253,9 @@ Hooks.on("deleteCombat", async (combat) => {
   }
 });
 
-// Token IDs currently undergoing a Trespasser undo — used to bypass movement hooks
+// Token IDs currently undergoing a Trespasser undo or movement overlay animation — used to bypass movement hooks
 globalThis._trespasserUndoSet = new Set();
+globalThis._trespasserOverlaySet = new Set();
 
 /**
  * Calculate total distance moved from native token document movement history.
@@ -1280,8 +1282,8 @@ function _calculateTokenMovementDistance(tokenDoc) {
 Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
   // Only enforce if position changes
   if (changed.x === undefined && changed.y === undefined) return;
-  // Bypass enforcement for undo operations
-  if (globalThis._trespasserUndoSet.has(tokenDoc.id)) return;
+  // Bypass enforcement for undo operations or movement overlay path animations
+  if (globalThis._trespasserUndoSet.has(tokenDoc.id) || globalThis._trespasserOverlaySet.has(tokenDoc.id)) return;
   if (!game.combat || !game.combat.active || !game.combat.started) return;
   
   const combatant = game.combat.combatants.find(c => c.tokenId === tokenDoc.id);
@@ -1305,8 +1307,8 @@ Hooks.on("preUpdateToken", (tokenDoc, changed, options, userId) => {
   const distRaw = canvas.grid.measurePath([start, end]).distance;
   const dist    = Math.round(distRaw / canvas.dimensions.distance);
 
-  // Bypass Move Action checks for PhaseActions, forced movement, or explicitly exempted movements
-  if (options.trespasserPhaseAction || options.trespasserForcedMovement || options.trespasserIgnoreMoveAction) {
+  // Bypass Move Action checks for free/independent movements (Vault, BDeed behavior flow, Forced movement, PhaseActions)
+  if (MovementHelper.isFreeMovementActive(options)) {
     return;
   }
 
@@ -1369,6 +1371,9 @@ Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
 
   // Only position changes from here on
   if (changed.x === undefined && changed.y === undefined) return;
+  // Bypass tracking/resetting ONLY for undo operations or movement overlay path animations
+  if (globalThis._trespasserUndoSet?.has(tokenDoc.id)) return;
+  if (globalThis._trespasserOverlaySet?.has(tokenDoc.id)) return;
   if (!game.combat || !game.combat.active || !game.combat.started) return;
 
   const combatant = game.combat.combatants.find(c => c.tokenId === tokenDoc.id);
