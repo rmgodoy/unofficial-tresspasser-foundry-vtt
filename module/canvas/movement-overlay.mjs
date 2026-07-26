@@ -148,7 +148,7 @@ export class MovementOverlay {
 
                 let wallCollision = false;
                 if (CONFIG.Canvas.polygonBackends?.move?.testCollision) {
-                    wallCollision = CONFIG.Canvas.polygonBackends.move.testCollision(p1, p2, { mode: "any" });
+                    wallCollision = CONFIG.Canvas.polygonBackends.move.testCollision(p1, p2, { type: "move", mode: "any" });
                 } else if (canvas.walls?.checkCollision) {
                     const RayClass = foundry.canvas.geometry.Ray || globalThis.Ray;
                     wallCollision = canvas.walls.checkCollision(new RayClass(p1, p2), { type: "move", mode: "any" });
