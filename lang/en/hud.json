@@ -29,7 +29,8 @@
         "Used": "Movement Used",
         "Undo": "Undo Move",
         "Value": "{value} sq",
-        "Label": "sq"
+        "Label": "sq",
+        "OverlayInstruction": "{points} sq remaining. Click square to select destination, Ctrl+Click for waypoint."
       },
       "Resource": {
         "APCost": "AP Cost",

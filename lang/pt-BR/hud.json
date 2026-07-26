@@ -28,8 +28,9 @@
       "Movement": {
         "Used": "Movimento Usado",
         "Undo": "Desfazer Movimento",
-        "Value": "{value} qdr",
-        "Label": "qdr"
+        "Value": "{value} qd",
+        "Label": "qd",
+        "OverlayInstruction": "{points} qd restantes. Clique para selecionar destino, Ctrl+Clique para ponto de passagem."
       },
       "Resource": {
         "APCost": "Custo de PA",
