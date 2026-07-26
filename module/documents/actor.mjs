@@ -191,12 +191,6 @@ export class TrespasserActor extends Actor {
 
     await this.update({ "system.health": newHealth });
 
-    // Queue debounced animation for canvas (sums damage across rapid calls into one single animation)
-    const token = this.token?.object || canvas.tokens?.placeables.find(t => t.actor?.id === this.id);
-    if (token) {
-      TrespasserActor.queueDamageAnimation(token, damageNum);
-    }
-
     return newHealth;
   }
 

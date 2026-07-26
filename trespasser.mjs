@@ -811,6 +811,26 @@ Hooks.on("preUpdateActor", (actor, updateData, options, userId) => {
     updateData.prototypeToken = updateData.prototypeToken || {};
     updateData.prototypeToken.name = updateData.name;
   }
+  // Store previous health to trigger damage animations on updateActor across all clients
+  if (foundry.utils.hasProperty(updateData, "system.health")) {
+    options._trespasserOldHealth = actor.system?.health ?? 0;
+  }
+});
+
+Hooks.on("updateActor", (actor, updateData, options, userId) => {
+  if (options._trespasserOldHealth !== undefined && foundry.utils.hasProperty(updateData, "system.health")) {
+    const oldHp = options._trespasserOldHealth;
+    const newHp = actor.system?.health ?? 0;
+    const damage = oldHp - newHp;
+    if (damage > 0) {
+      const token = actor.token?.object 
+        || canvas.tokens?.get(actor.token?.id) 
+        || canvas.tokens?.placeables.find(t => t.actor?.id === actor.id || t.document?.actorId === actor.id);
+      if (token) {
+        TrespasserActor.queueDamageAnimation(token, damage);
+      }
+    }
+  }
 });
 
 Hooks.on("preCreateToken", (tokenDoc, updates, options, userId) => {

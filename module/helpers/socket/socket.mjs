@@ -26,6 +26,10 @@ import {
 } from "../../exploration/camp-activity-handler.mjs";
 import { handleUpdateChatMessage } from "./chat-handler.mjs";
 import { handleGroupCheckSubmitRoll } from "./group-check-handler.mjs";
+import { 
+  handleDeedActionRequest, 
+  handleDeedActionResponse 
+} from "./deed-socket-handler.mjs";
 
 /**
  * Helper class for handling custom socket events in the Trespasser system.
@@ -93,6 +97,10 @@ export class TrespasserSocket {
         return handleUpdateChatMessage(data, senderId);
       case "GROUP_CHECK_SUBMIT_ROLL":
         return handleGroupCheckSubmitRoll(data, senderId);
+      case "DEED_ACTION_REQUEST":
+        return handleDeedActionRequest(data, senderId);
+      case "DEED_ACTION_RESPONSE":
+        return handleDeedActionResponse(data);
       default:
         // Ignore unknown types
         break;

@@ -484,7 +484,16 @@ export class BDeedBehaviorHandler {
       const targetPowerDmg = powerDiceRolls[targetPowerCount] || 0;
       const targetDmg = baseTotal + targetPowerDmg;
 
-      await targetActor.applyDamage(targetDmg);
+      if (targetActor.isOwner) {
+        await targetActor.applyDamage(targetDmg);
+      } else {
+        const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
+        await emitDeedActionAndWait("applyDamage", { 
+          actorId: targetActor.id, 
+          tokenId: targetToken.id, 
+          damage: targetDmg 
+        });
+      }
 
       const powerBonusLabel = targetPowerCount > 0 ? ` <span style="font-size: var(--fs-10); color:#e8c96b;">(+${targetPowerDmg} Power)</span>` : "";
       targetDamageLines.push(`
@@ -546,7 +555,17 @@ export class BDeedBehaviorHandler {
         const baseIntensity = eff.intensity || 1;
         itemData.system.intensity = baseIntensity + targetPotencyBonus;
 
-        await targetActor.createEmbeddedDocuments("Item", [itemData]);
+        if (targetActor.isOwner) {
+          await targetActor.createEmbeddedDocuments("Item", [itemData]);
+        } else {
+          const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
+          await emitDeedActionAndWait("applyEffects", { 
+            actorId: targetActor.id, 
+            tokenId: targetToken.id, 
+            itemDataArray: [itemData] 
+          });
+        }
+        
         if (context.currentPhaseOutputs?.notes) {
           const tokenName = BDeedBehaviorHandler.getTokenDisplayName(targetToken);
           context.currentPhaseOutputs.notes.push(`Applied effect "${effectItem.name}" (Intensity ${itemData.system.intensity}) to ${tokenName}`);
@@ -595,7 +614,27 @@ export class BDeedBehaviorHandler {
       }
 
       const gridSquares = evalSquares.map(sq => ({ x: Math.floor(sq.x / gridPx), y: Math.floor(sq.y / gridPx) }));
-      const created = await TerrainHelper.placeTerrainOnCanvas(terrainItem, { x: 0, y: 0 }, { pathSquares: gridSquares });
+      let created = null;
+
+      if (game.user.isGM) {
+        created = await TerrainHelper.placeTerrainOnCanvas(terrainItem, { x: 0, y: 0 }, { pathSquares: gridSquares });
+      } else {
+        const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
+        const createdUuids = await emitDeedActionAndWait("spawnTerrain", {
+          useTerrainHelper: true,
+          terrainUuid: terrainItem.uuid,
+          dropPosition: { x: 0, y: 0 },
+          options: { pathSquares: gridSquares }
+        });
+        if (createdUuids && createdUuids.length > 0) {
+          created = [];
+          for (const uuid of createdUuids) {
+            const tileDoc = await fromUuid(uuid);
+            if (tileDoc) created.push(tileDoc);
+          }
+        }
+      }
+
       if (created) {
         if (Array.isArray(created)) {
           context.spawnedTerrains.push(...created);
@@ -642,9 +681,21 @@ export class BDeedBehaviorHandler {
       }
     };
 
-    const createdTiles = await canvas.scene?.createEmbeddedDocuments("Tile", [tileData]);
-    if (createdTiles && createdTiles.length > 0) {
-      context.spawnedTerrains.push(createdTiles[0]);
+    if (game.user.isGM) {
+      const createdTiles = await canvas.scene?.createEmbeddedDocuments("Tile", [tileData]);
+      if (createdTiles && createdTiles.length > 0) {
+        context.spawnedTerrains.push(createdTiles[0]);
+      }
+    } else {
+      const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
+      const createdUuids = await emitDeedActionAndWait("spawnTerrain", {
+        useTerrainHelper: false,
+        tileDataArray: [tileData]
+      });
+      if (createdUuids && createdUuids.length > 0) {
+        const tileDoc = await fromUuid(createdUuids[0]);
+        if (tileDoc) context.spawnedTerrains.push(tileDoc);
+      }
     }
 
     if (context.currentPhaseOutputs?.notes) {
@@ -673,10 +724,16 @@ export class BDeedBehaviorHandler {
 
     if (targetTiles.length === 0) return true;
 
-    for (const tileDoc of targetTiles) {
+    const updates = targetTiles.map(tileDoc => {
       const gridPx = canvas.grid.size;
-      const updates = { _id: tileDoc.id, x: tileDoc.x + (distance * gridPx) };
-      await canvas.scene?.updateEmbeddedDocuments("Tile", [updates]);
+      return { _id: tileDoc.id, x: tileDoc.x + (distance * gridPx) };
+    });
+
+    if (game.user.isGM) {
+      await canvas.scene?.updateEmbeddedDocuments("Tile", updates);
+    } else {
+      const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
+      await emitDeedActionAndWait("moveTerrain", { updates });
     }
 
     if (context.currentPhaseOutputs?.notes) {
@@ -752,7 +809,7 @@ export class BDeedBehaviorHandler {
 
     if (!animate) {
       const last = pathSquares[pathSquares.length - 1];
-      await token.document.update({ x: last.x, y: last.y }, { animate: false });
+      await token.document.update({ x: last.x, y: last.y }, { animate: false, trespasserIgnoreMoveAction: true });
       return;
     }
 
@@ -762,7 +819,7 @@ export class BDeedBehaviorHandler {
     try {
       for (const sq of pathSquares) {
         if (token.document.x === sq.x && token.document.y === sq.y) continue;
-        await token.document.update({ x: sq.x, y: sq.y }, { animate: true });
+        await token.document.update({ x: sq.x, y: sq.y }, { animate: true, trespasserIgnoreMoveAction: true });
 
         if (token.animationContexts?.size > 0) {
           const promises = Array.from(token.animationContexts.values()).map(ctx => ctx.promise);

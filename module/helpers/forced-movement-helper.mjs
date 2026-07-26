@@ -155,6 +155,7 @@ export class ForcedMovementHelper {
 
       const result = await this.#selectForcedPath(movingToken, referenceToken, movementType, distance, options);
       if (result) {
+        let otherToken = null;
         if (result.path.length > 0) {
           ui.notifications.info(`Path selected for ${movingToken.actor?.name || movingToken.name} with ${result.path.length} steps.`);
           
@@ -169,7 +170,6 @@ export class ForcedMovementHelper {
             y: movingToken.document.y + ((sq.y - movingInitialY) * gridSize)
           }));
 
-          let otherToken = null;
           let compoundPath = null;
 
           if (movementType === this.TYPES.SHOVE || movementType === this.TYPES.DRAG) {
@@ -185,11 +185,28 @@ export class ForcedMovementHelper {
           // Add explicit paths to result for future tasks (e.g. step-by-step animation and collision)
           result.movingPath = movingPath;
           if (compoundPath) result.compoundPath = compoundPath;
-
-          await this.#animateTokenAlongPath(movingToken, movingPath, otherToken, compoundPath);
         }
 
-        await this.#postCollisionDamage(targetToken, result.collisions, result.totalDamage);
+        const ownsTarget = targetToken.isOwner;
+        const ownsSource = !sourceToken || sourceToken.isOwner;
+
+        if (ownsTarget && ownsSource) {
+          if (result.path && result.path.length > 0) {
+            await this.#animateTokenAlongPath(movingToken, result.movingPath, otherToken, result.compoundPath);
+          }
+          await this.#postCollisionDamage(targetToken, result.collisions, result.totalDamage);
+        } else {
+          const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
+          await emitDeedActionAndWait("forceMoveTokens", {
+            movingTokenId: movingToken.id,
+            movingPath: result.movingPath || [],
+            otherTokenId: otherToken?.id || null,
+            compoundPath: result.compoundPath || null,
+            targetTokenId: targetToken.id,
+            collisions: result.collisions || [],
+            totalDamage: result.totalDamage || 0
+          });
+        }
       }
     }
   }
