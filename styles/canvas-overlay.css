@@ -1,0 +1,172 @@
+/* ─── Canvas Input Overlay Banner (ApplicationsV2) ─── */
+.canvas-input-overlay-window {
+  position: fixed !important;
+  top: 20px !important;
+  left: 50% !important;
+  transform: translateX(-50%) !important;
+  width: auto !important;
+  min-width: 460px !important;
+  max-width: 85vw !important;
+  z-index: 60 !important;
+  pointer-events: auto !important;
+  background: #181512 !important;
+  border: 1px solid var(--trp-gold, #c9a84c) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.9), 0 0 10px rgba(201, 168, 76, 0.2) !important;
+  border-radius: var(--trp-radius, 4px) !important;
+  padding: 16px 20px !important;
+}
+
+.canvas-input-overlay-window .window-content {
+  background: transparent !important;
+  color: var(--trp-text, #ddd0aa) !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.canvas-input-overlay-content {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.overlay-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.overlay-header-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex: 1;
+  min-width: 0;
+}
+
+.overlay-header-right,
+.overlay-actions .actions-right {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  width: 130px;
+}
+
+.overlay-header .overlay-icon {
+  font-size: var(--fs-18);
+  color: var(--trp-gold, #c9a84c);
+  flex-shrink: 0;
+}
+
+.overlay-header .overlay-text {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.overlay-header .overlay-title {
+  font-family: var(--trp-font-header, 'Cinzel', serif);
+  font-size: var(--fs-15);
+  font-weight: 600;
+  color: var(--trp-text-bright, #f5eccc);
+  line-height: 1.2;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+}
+
+.overlay-header .overlay-details {
+  font-size: var(--fs-13);
+  color: var(--trp-text, #ddd0aa);
+  margin-top: 4px;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
+}
+
+/* Allow text to wrap if window reaches max screen width */
+@media (max-width: 800px) {
+  .overlay-header .overlay-title,
+  .overlay-header .overlay-details {
+    white-space: normal;
+  }
+}
+
+.overlay-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.overlay-actions .actions-left {
+  display: flex;
+  align-items: center;
+}
+
+.overlay-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 16px;
+  border-radius: var(--trp-radius-sm, 2px);
+  font-family: var(--trp-font-body, 'Crimson Text', serif);
+  font-size: var(--fs-13);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  box-sizing: border-box;
+}
+
+.overlay-header-right .overlay-btn,
+.overlay-actions .actions-right .overlay-btn {
+  width: 100% !important;
+}
+
+.overlay-btn i {
+  font-size: var(--fs-12);
+}
+
+.overlay-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed !important;
+  filter: grayscale(0.8);
+}
+
+/* Button Variants */
+.overlay-btn.btn-confirm {
+  background: var(--trp-green, #2d5a2d);
+  color: var(--trp-text-bright, #f5eccc);
+  border-color: var(--trp-green-bright, #4a8a4a);
+}
+
+.overlay-btn.btn-confirm:not(:disabled):hover {
+  background: var(--trp-green-bright, #4a8a4a);
+  box-shadow: 0 0 8px rgba(74, 138, 74, 0.5);
+}
+
+.overlay-btn.btn-undo {
+  background: var(--trp-bg-input, #2e2a24);
+  color: var(--trp-text, #ddd0aa);
+  border-color: var(--trp-border, #4a3f2f);
+}
+
+.overlay-btn.btn-undo:not(:disabled):hover {
+  background: var(--trp-bg-select, #3a3228);
+  color: var(--trp-gold, #c9a84c);
+}
+
+.overlay-btn.btn-cancel {
+  background: var(--trp-red-dim, #922c2c);
+  color: var(--trp-text-bright, #f5eccc);
+  border-color: var(--trp-red, #ff5252);
+}
+
+.overlay-btn.btn-cancel:hover {
+  background: var(--trp-red, #ff5252);
+  box-shadow: 0 0 8px rgba(255, 82, 82, 0.5);
+}

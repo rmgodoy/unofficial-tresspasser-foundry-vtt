@@ -78,6 +78,14 @@
           "shove": "EMPURRÃO BRUSCO",
           "drag": "ARRASTAR"
         }
+      },
+      "CanvasOverlay": {
+        "Confirm": "Confirmar Seleção",
+        "ConfirmLabel": "Confirmar",
+        "Undo": "Desfazer Último Passo",
+        "UndoLabel": "Desfazer",
+        "Cancel": "Cancelar Ação",
+        "CancelLabel": "Cancelar"
       }
     }
   }

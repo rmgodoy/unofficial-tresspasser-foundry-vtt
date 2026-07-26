@@ -78,6 +78,14 @@
           "shove": "SHOVE",
           "drag": "DRAG"
         }
+      },
+      "CanvasOverlay": {
+        "Confirm": "Confirm Selection",
+        "ConfirmLabel": "Confirm",
+        "Undo": "Undo Last Step",
+        "UndoLabel": "Undo",
+        "Cancel": "Cancel Action",
+        "CancelLabel": "Cancel"
       }
     }
   }

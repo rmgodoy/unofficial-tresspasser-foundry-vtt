@@ -1,0 +1,35 @@
+<div class="canvas-input-overlay-content">
+  <div class="overlay-header">
+    <div class="overlay-header-left">
+      {{#if icon}}<i class="{{icon}} overlay-icon"></i>{{/if}}
+      <div class="overlay-text">
+        <div class="overlay-title">{{title}}</div>
+        {{#if details}}<div class="overlay-details">{{details}}</div>{{/if}}
+      </div>
+    </div>
+    <div class="overlay-header-right">
+      {{#if showUndo}}
+        <button type="button" class="overlay-btn btn-undo" data-action="undo" {{#unless canUndo}}disabled{{/unless}} title="{{localize 'TRESPASSER.HUD.CanvasOverlay.Undo'}}">
+          <i class="fas fa-undo"></i> <span>{{localize 'TRESPASSER.HUD.CanvasOverlay.UndoLabel'}}</span>
+        </button>
+      {{/if}}
+    </div>
+  </div>
+
+  <div class="overlay-actions">
+    <div class="actions-left">
+      {{#if showCancel}}
+        <button type="button" class="overlay-btn btn-cancel" data-action="cancel" title="{{localize 'TRESPASSER.HUD.CanvasOverlay.Cancel'}}">
+          <i class="fas fa-times"></i> <span>{{localize 'TRESPASSER.HUD.CanvasOverlay.CancelLabel'}}</span>
+        </button>
+      {{/if}}
+    </div>
+    <div class="actions-right">
+      {{#if showConfirm}}
+        <button type="button" class="overlay-btn btn-confirm" data-action="confirm" {{#unless canConfirm}}disabled{{/unless}} title="{{localize 'TRESPASSER.HUD.CanvasOverlay.Confirm'}}">
+          <i class="fas fa-check"></i> <span>{{localize 'TRESPASSER.HUD.CanvasOverlay.ConfirmLabel'}}</span>
+        </button>
+      {{/if}}
+    </div>
+  </div>
+</div>

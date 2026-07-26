@@ -90,6 +90,8 @@ import { registerHavenTrackerHooks } from "./module/exploration/haven-tracker.mj
 import { EventClocksTracker, registerEventClocksHooks } from "./module/exploration/event-clocks-tracker.mjs";
 import { MovementOverlay } from "./module/canvas/movement-overlay.mjs";
 import { MovementHelper } from "./module/helpers/movement-helper.mjs";
+import { CanvasInputSession } from "./module/canvas/canvas-input-session.mjs";
+import { CanvasInputOverlay } from "./module/hud/canvas-input-overlay.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -660,6 +662,8 @@ Hooks.once("init", async () => {
   game.trespasser.executeTemptFateFlow = executeTemptFateFlow;
   game.trespasser.DungeonTracker = DungeonTracker;
   game.trespasser.TravelTracker = TravelTracker;
+  game.trespasser.CanvasInputSession = CanvasInputSession;
+  game.trespasser.CanvasInputOverlay = CanvasInputOverlay;
   globalThis.trespasser = game.trespasser;
 });
 
