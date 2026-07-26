@@ -112,7 +112,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             canHelp:        (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("help")) && this._getNearbyAllies().length > 0,
             canMove:        canMove,
             moveBtnLabel:   moveBtnLabel,
-            canUndo:        moveActionTaken && moveActionMovements.length > 0,
+            canUndo:        false,//moveActionTaken && moveActionMovements.length > 0,
             canPrevail:     (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("prevail")) && states.length > 0,
             canAttemptDeed: (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("attempt-deed")) && deeds.length > 0 && (!restrictAPF || !usedActions.has("maneuver") || focus >= 2),
             canUseConcoction: (ap >= 1 || !restrictAPF) && concoctions.length > 0 && (!restrictHUD || !usedActions.has("use-concoction")),
