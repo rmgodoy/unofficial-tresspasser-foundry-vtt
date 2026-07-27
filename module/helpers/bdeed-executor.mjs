@@ -186,6 +186,9 @@ export class BDeedExecutor {
             cancelled = true;
             break;
           }
+          if (!this.context.isHit) {
+            await this._postPhaseCard("hit", this.phases.hit);
+          }
         }
       }
 
@@ -728,6 +731,7 @@ export class BDeedExecutor {
    * @protected
    */
   async _postPhaseCard(phaseKey, phase) {
+    if (!phase) phase = {};
     const phaseLabel = game.i18n.localize(`TRESPASSER.Sheet.BDeed.Phase.${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)}`);
     const outputs = this.context.currentPhaseOutputs || { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
 
@@ -773,5 +777,7 @@ export class BDeedExecutor {
       rolls: outputs.rolls || [],
       flags: { trespasser: { bdeedId: this.item.id, phase: phaseKey } }
     });
+
+    this.context.currentPhaseOutputs = null;
   }
 }
