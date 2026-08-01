@@ -10,7 +10,6 @@ import { TrespasserWeaponData }    from "./module/data/item-weapon.mjs";
 import { TrespasserRationsData }   from "./module/data/item-rations.mjs";
 import { TrespasserEffectData }    from "./module/data/item-effect.mjs";
 import { TrespasserDeedData }      from "./module/data/item-deed.mjs";
-import { TrespasserBDeedData }     from "./module/data/item-bdeed.mjs";
 import { TrespasserFeatureData }   from "./module/data/item-feature.mjs";
 import { TrespasserTalentData }    from "./module/data/item-talent.mjs";
 import { TrespasserIncantationData } from "./module/data/item-incantation.mjs";
@@ -31,7 +30,6 @@ import { TrespasserRationsSheet }   from "./module/sheets/item-rations-sheet.mjs
 import { TrespasserEffectSheet }    from "./module/sheets/item-effect-sheet.mjs";
 import { TrespasserPlightSheet }    from "./module/sheets/item-plight-sheet.mjs";
 import { TrespasserDeedSheet }      from "./module/sheets/item-deed-sheet.mjs";
-import { TrespasserBDeedSheet }     from "./module/sheets/item-bdeed-sheet.mjs";
 import { TrespasserFeatureSheet }   from "./module/sheets/item-feature-sheet.mjs";
 import { TrespasserTalentSheet }    from "./module/sheets/item-talent-sheet.mjs";
 import { TrespasserIncantationSheet } from "./module/sheets/item-incantation-sheet.mjs";
@@ -427,7 +425,6 @@ Hooks.once("init", async () => {
   CONFIG.Item.dataModels.rations = TrespasserRationsData;
   CONFIG.Item.dataModels.effect = TrespasserEffectData;
   CONFIG.Item.dataModels.deed = TrespasserDeedData;
-  CONFIG.Item.dataModels.bdeed = TrespasserBDeedData;
   CONFIG.Item.dataModels.feature = TrespasserFeatureData;
   CONFIG.Item.dataModels.talent = TrespasserTalentData;
   CONFIG.Item.dataModels.incantation = TrespasserIncantationData;
@@ -512,11 +509,6 @@ Hooks.once("init", async () => {
     types: ["deed"],
     makeDefault: true,
     label: "Trespasser Deed Sheet",
-  });
-  foundry.documents.collections.Items.registerSheet("trespasser", TrespasserBDeedSheet, {
-    types: ["bdeed"],
-    makeDefault: true,
-    label: "Trespasser BDeed Sheet",
   });
   foundry.documents.collections.Items.registerSheet("trespasser", TrespasserFeatureSheet, {
     types: ["feature"],
