@@ -1,82 +1,45 @@
 /**
- * Data model for the Trespasser TTRPG Deed item type.
+ * Data model for the Trespasser TTRPG Deed item type (Behavior-Driven Deed).
  */
 
-const TARGET_TYPES = [
-  "creature", "personal", "blast", "close_blast",
-  "burst", "melee_burst", "path", "close_path", "aura"
+export const BEHAVIOR_TYPES = [
+  "selectTarget",
+  "selectArea",
+  "applyDamage",
+  "applyEffects",
+  "modifyBehavior",
+  "spawnTerrain",
+  "moveTerrain",
+  "moveSource",
+  "forceMoveTargets",
+  "clearTargets",
+  "executeDeed"
 ];
 
 export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     const fields = foundry.data.fields;
 
+    const behaviorSchema = () => new fields.SchemaField({
+      id: new fields.StringField({
+        required: true,
+        initial: () => foundry.utils.randomID()
+      }),
+      type: new fields.StringField({
+        required: true,
+        initial: "",
+        choices: BEHAVIOR_TYPES
+      }),
+      params: new fields.ObjectField({ initial: {} })
+    });
+
     const phaseSchema = () => new fields.SchemaField({
       description: new fields.StringField({ initial: "" }),
-
-      // ── Damage (with additive/replace) ───────────────────────────
-      damage: new fields.StringField({ initial: "" }),
-      damageMode: new fields.StringField({
-        initial: "additive", choices: ["additive", "replace"]
-      }),
-
-      // ── Effects (with additive/replace) ──────────────────────────
-      appliedEffects: new fields.ArrayField(new fields.SchemaField({
-        uuid: new fields.StringField({ required: true }),
-        type: new fields.StringField({ required: true }),
-        name: new fields.StringField({ required: true }),
-        img: new fields.StringField({ required: true }),
-        intensity: new fields.NumberField({ initial: 1, min: 0 })
-      }), { initial: [] }),
-      appliedEffectsMode: new fields.StringField({
-        initial: "additive", choices: ["additive", "replace"]
-      }),
-      appliesWeaponEffects: new fields.BooleanField({ initial: false }),
-
-      // ── Forced Movement (existing, already has mode) ─────────────
-      forcedMovement: new fields.SchemaField({
-        type: new fields.StringField({ initial: "", blank: true, choices: ["", "push", "pull", "sweep", "shove", "drag"] }),
-        distance: new fields.NumberField({ initial: 0, min: 0, integer: true }),
-        mode: new fields.StringField({ initial: "additive", choices: ["additive", "replace"] })
-      }),
-
-      // ── Terrain Spawn (with additive/replace) ────────────────────
-      terrainSpawn: new fields.SchemaField({
-        uuid: new fields.StringField({ initial: "" }),
-        type: new fields.StringField({ initial: "" }),
-        name: new fields.StringField({ initial: "" }),
-        img: new fields.StringField({ initial: "" }),
-        placement: new fields.StringField({
-          initial: "", blank: true,
-          choices: ["", "on_target", "on_self", "choose", "aura", "on_path"]
-        }),
-        linkedEffectUuid: new fields.StringField({ initial: "" })
-      }),
-      terrainSpawnMode: new fields.StringField({
-        initial: "additive", choices: ["additive", "replace"]
-      }),
-
-      // ── Phase Actions (ordered in-phase actions) ─────────────────
-      phaseActions: new fields.ArrayField(new fields.SchemaField({
-        type: new fields.StringField({
-          initial: "", choices: ["", "movement", "selfEffect", "terrainSpawn"]
-        }),
-        // For "movement": how the token moves
-        movementType: new fields.StringField({
-          initial: "", choices: ["", "jump", "teleport", "walk"]
-        }),
-        // Shape of the movement path:
-        //   "straight"   — vault-style destination picker within range
-        //   "close_path" — player draws a path starting adjacent to token
-        //   "path"       — player draws a path anywhere within range
-        movementShape: new fields.StringField({
-          initial: "straight", choices: ["straight", "close_path", "path"]
-        }),
-        movementDistance: new fields.NumberField({ initial: 0, min: 0, integer: true }),
-        // For "selfEffect": apply an effect to self
-        effectUuid: new fields.StringField({ initial: "" }),
-        effectIntensity: new fields.NumberField({ initial: 0, min: 0 })
-      }), { initial: [] })
+      skipPhase: new fields.BooleanField({ initial: false }),
+      behaviors: new fields.ArrayField(
+        behaviorSchema(),
+        { initial: [] }
+      )
     });
 
     return {
@@ -88,24 +51,38 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
         initial: "attack",
         choices: ["attack", "support"]
       }),
-      type: new fields.StringField({
+      abilityType: new fields.StringField({
         initial: "innate",
         choices: ["innate", "melee", "missile", "spell", "tool", "unarmed", "versatile"]
       }),
-      target: new fields.StringField({ initial: "1 Creature" }),
-      targetType: new fields.StringField({
-        initial: "creature",
-        choices: TARGET_TYPES
+      versus: new fields.StringField({
+        initial: "Guard",
+        choices: ["Guard", "Resist", "10"]
       }),
-      targetCount: new fields.NumberField({ initial: 1, min: 1, integer: true }),
-      targetSize: new fields.NumberField({ initial: null, min: 1, integer: true, nullable: true }),
-      range: new fields.NumberField({ initial: null, min: 0, integer: true, nullable: true }),
-      accuracyTest: new fields.StringField({ initial: "Guard" }),
-      focusCost: new fields.NumberField({ initial: null, nullable: true }),
-      focusIncrease: new fields.NumberField({ initial: null, nullable: true }),
-      bonusCost: new fields.NumberField({ initial: null, nullable: true }),
-      uses: new fields.NumberField({ initial: 0, min: 0, integer: true }),
-      effects: new fields.SchemaField({
+      focusCost: new fields.NumberField({
+        initial: null,
+        nullable: true
+      }),
+      focusIncrease: new fields.NumberField({
+        initial: null,
+        nullable: true
+      }),
+      bonusCost: new fields.NumberField({
+        initial: null,
+        nullable: true
+      }),
+      uses: new fields.NumberField({
+        initial: 0,
+        min: 0,
+        integer: true
+      }),
+      range: new fields.NumberField({
+        initial: null,
+        min: 0,
+        integer: true,
+        nullable: true
+      }),
+      phases: new fields.SchemaField({
         start: phaseSchema(),
         before: phaseSchema(),
         base: phaseSchema(),
@@ -123,113 +100,119 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
 
   /** @override */
   static migrateData(source) {
-    // Parse legacy free-text target into structured fields
-    if (source.target && !source.targetType) {
-      const parsed = TrespasserDeedData.#parseTargetString(source.target);
-      source.targetType  = parsed.targetType;
-      source.targetCount = parsed.targetCount;
-      source.targetSize  = parsed.targetSize;
+    // Detect legacy Deed format (presence of 'effects' schema or old top-level fields)
+    if (source.effects || source.accuracyTest || (source.type && !source.abilityType) || source.targetType) {
+      // 1. Rename ability type (type -> abilityType)
+      if (source.type && !source.abilityType) {
+        source.abilityType = source.type;
+        delete source.type;
+      }
+
+      // 2. Rename accuracy test (accuracyTest -> versus)
+      if (source.accuracyTest && !source.versus) {
+        if (source.accuracyTest === "Resist") source.versus = "Resist";
+        else if (source.accuracyTest === "Guard") source.versus = "Guard";
+        else source.versus = "10";
+        delete source.accuracyTest;
+      }
+
+      // 3. Convert target parameters to selectTarget behavior on BEFORE phase
+      const targetType = source.targetType || "creature";
+      const targetCount = source.targetCount || 1;
+      const targetSize = source.targetSize || 1;
+
+      let selectTargetParams;
+      if (targetType === "creature") {
+        selectTargetParams = { targetMode: "creatures", targetCount };
+      } else if (targetType === "personal") {
+        selectTargetParams = { targetMode: "self" };
+      } else {
+        selectTargetParams = { targetMode: "squares", aoeType: targetType, aoeSize: targetSize };
+      }
+
+      const selectTargetBehavior = {
+        id: foundry.utils.randomID(),
+        type: "selectTarget",
+        params: selectTargetParams
+      };
+
+      // 4. Convert effects -> phases
+      if (source.effects && !source.phases) {
+        source.phases = {};
+        const phaseKeys = ["start", "before", "base", "hit", "spark", "after", "end"];
+
+        for (const phaseKey of phaseKeys) {
+          const oldPhase = source.effects[phaseKey] || {};
+          const behaviors = [];
+
+          // selectTarget is always the first behavior on the BEFORE phase
+          if (phaseKey === "before") {
+            behaviors.push(selectTargetBehavior);
+          }
+
+          // Damage behavior
+          if (oldPhase.damage && typeof oldPhase.damage === "string" && oldPhase.damage.trim()) {
+            behaviors.push({
+              id: foundry.utils.randomID(),
+              type: "applyDamage",
+              params: { expression: oldPhase.damage.trim() }
+            });
+          }
+
+          // Applied effects behavior
+          if (Array.isArray(oldPhase.appliedEffects) && oldPhase.appliedEffects.length > 0) {
+            behaviors.push({
+              id: foundry.utils.randomID(),
+              type: "applyEffects",
+              params: {
+                effects: oldPhase.appliedEffects,
+                appliesWeaponEffects: !!oldPhase.appliesWeaponEffects
+              }
+            });
+          }
+
+          // Forced movement behavior
+          if (oldPhase.forcedMovement?.type) {
+            behaviors.push({
+              id: foundry.utils.randomID(),
+              type: "forceMoveTargets",
+              params: {
+                type: oldPhase.forcedMovement.type,
+                distance: oldPhase.forcedMovement.distance || 0
+              }
+            });
+          }
+
+          // Terrain spawn behavior
+          if (oldPhase.terrainSpawn?.uuid) {
+            behaviors.push({
+              id: foundry.utils.randomID(),
+              type: "spawnTerrain",
+              params: {
+                terrainUuid: oldPhase.terrainSpawn.uuid,
+                terrainName: oldPhase.terrainSpawn.name || "",
+                terrainImg: oldPhase.terrainSpawn.img || "",
+                placement: oldPhase.terrainSpawn.placement || "on_target"
+              }
+            });
+          }
+
+          source.phases[phaseKey] = {
+            description: oldPhase.description || "",
+            skipPhase: false,
+            behaviors
+          };
+        }
+
+        delete source.effects;
+      }
+
+      delete source.target;
+      delete source.targetType;
+      delete source.targetCount;
+      delete source.targetSize;
     }
+
     return super.migrateData(source);
-  }
-
-  /**
-   * Parse a legacy target string into structured target fields.
-   * @param {string} str
-   * @returns {{ targetType: string, targetCount: number, targetSize: number|null }}
-   */
-  static #parseTargetString(str) {
-    const s = (str || "").trim();
-    const defaults = { targetType: "creature", targetCount: 1, targetSize: null };
-
-    if (!s) return defaults;
-
-    // "Personal"
-    if (/^personal$/i.test(s)) {
-      return { targetType: "personal", targetCount: 1, targetSize: null };
-    }
-
-    // "Melee Burst"
-    if (/^melee\s+burst$/i.test(s)) {
-      return { targetType: "melee_burst", targetCount: 1, targetSize: null };
-    }
-
-    // "Close Blast X"
-    const closeBlast = s.match(/^close\s+blast\s+(\d+)$/i);
-    if (closeBlast) {
-      return { targetType: "close_blast", targetCount: 1, targetSize: parseInt(closeBlast[1]) };
-    }
-
-    // "Close Path X"
-    const closePath = s.match(/^close\s+path\s+(\d+)$/i);
-    if (closePath) {
-      return { targetType: "close_path", targetCount: 1, targetSize: parseInt(closePath[1]) };
-    }
-
-    // "Blast X"
-    const blast = s.match(/^blast\s+(\d+)$/i);
-    if (blast) {
-      return { targetType: "blast", targetCount: 1, targetSize: parseInt(blast[1]) };
-    }
-
-    // "Burst X"
-    const burst = s.match(/^burst\s+(\d+)$/i);
-    if (burst) {
-      return { targetType: "burst", targetCount: 1, targetSize: parseInt(burst[1]) };
-    }
-
-    // "Path X"
-    const path = s.match(/^path\s+(\d+)$/i);
-    if (path) {
-      return { targetType: "path", targetCount: 1, targetSize: parseInt(path[1]) };
-    }
-
-    // "Aura X"
-    const aura = s.match(/^aura\s+(\d+)$/i);
-    if (aura) {
-      return { targetType: "aura", targetCount: 1, targetSize: parseInt(aura[1]) };
-    }
-
-    // "N Creature(s)" or just "N"
-    const creatures = s.match(/^(\d+)\s*creature/i);
-    if (creatures) {
-      return { targetType: "creature", targetCount: parseInt(creatures[1]), targetSize: null };
-    }
-
-    // Fallback
-    return defaults;
-  }
-
-  /* -------------------------------------------- */
-  /* Derived Data                                  */
-  /* -------------------------------------------- */
-
-  /** @override */
-  prepareDerivedData() {
-    // Auto-generate the display label from structured fields
-    this.target = TrespasserDeedData.computeTargetLabel(this.targetType, this.targetCount, this.targetSize);
-  }
-
-  /**
-   * Build a human-readable target label from structured fields.
-   * @param {string} targetType
-   * @param {number} targetCount
-   * @param {number|null} targetSize
-   * @returns {string}
-   */
-  static computeTargetLabel(targetType, targetCount, targetSize) {
-    switch (targetType) {
-      case "personal":    return "Personal";
-      case "blast":       return `Blast ${targetSize || 1}`;
-      case "close_blast": return `Close Blast ${targetSize || 1}`;
-      case "burst":       return `Burst ${targetSize || 1}`;
-      case "melee_burst": return "Melee Burst";
-      case "path":        return `Path ${targetSize || 1}`;
-      case "close_path":  return `Close Path ${targetSize || 1}`;
-      case "aura":        return `Aura ${targetSize || 1}`;
-      case "creature":
-      default:
-        return targetCount === 1 ? "1 Creature" : `${targetCount} Creatures`;
-    }
   }
 }
