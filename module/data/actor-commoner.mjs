@@ -49,7 +49,24 @@ export class TrespasserCommonerData extends foundry.abstract.TypeDataModel {
 
       // Additional text fields
       notes:         new fields.HTMLField({ blank: true }),
-      carried_items: new fields.StringField({ blank: true })
+      carried_items: new fields.StringField({ blank: true }),
+
+      // Dynamic Bonuses (derived, needed for skill rolls and effects)
+      bonuses: new fields.SchemaField({
+        mighty:    new fields.NumberField({ integer: true, initial: 0 }),
+        agility:   new fields.NumberField({ integer: true, initial: 0 }),
+        intellect: new fields.NumberField({ integer: true, initial: 0 }),
+        spirit:    new fields.NumberField({ integer: true, initial: 0 }),
+        initiative: new fields.NumberField({ integer: true, initial: 0 }),
+        accuracy:  new fields.NumberField({ integer: true, initial: 0 }),
+        guard:     new fields.NumberField({ integer: true, initial: 0 }),
+        resist:    new fields.NumberField({ integer: true, initial: 0 }),
+        prevail:   new fields.NumberField({ integer: true, initial: 0 }),
+        tenacity:  new fields.NumberField({ integer: true, initial: 0 }),
+        focus:     new fields.NumberField({ integer: true, initial: 0 }),
+        speed:     new fields.NumberField({ integer: true, initial: 0 }),
+        hp:        new fields.NumberField({ integer: true, initial: 0 }),
+      })
     };
   }
 
@@ -78,18 +95,40 @@ export class TrespasserCommonerData extends foundry.abstract.TypeDataModel {
       guard:      agi, // Armor bonus added when equipment items calculated
       resist:     spi + 2,
       prevail:    int + 2,
-      tenacity:   mgt + spi
+      tenacity:   mgt + spi,
+      focus:      keyVal + 2,
+      speed:      5,
+      speed_bonus: 0
     };
 
-    // Speed: 5 + Agility
+    // Calculate Speed and Armor from equipped items
     this.speed = {
       base: 5,
-      bonus: agi,
-      total: 5 + agi
+      bonus: 0,
+      total: 5
     };
 
     // Constant Commoner Defaults
     this.skill = 2;
     this.skill_die = "d6";
+  }
+
+  /**
+   * Check if the commoner has a specific common plight.
+   * @param {string} plightId - Key from COMMON_PLIGHTS config
+   * @returns {boolean}
+   */
+  hasPlight(plightId) {
+    return this.parent.items.some(
+      i => i.type === "plight" && i.system.plightId === plightId
+    );
+  }
+
+  /**
+   * Get all plight items on this commoner.
+   * @returns {Item[]}
+   */
+  getPlights() {
+    return this.parent.items.filter(i => i.type === "plight");
   }
 }
