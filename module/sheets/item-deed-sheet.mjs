@@ -188,7 +188,7 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
       const rawBehaviors = phaseData.behaviors ?? [];
       return {
         key,
-        label: game.i18n.localize(`TRESPASSER.Sheet.BDeed.Phase.${key.charAt(0).toUpperCase() + key.slice(1)}`),
+        label: game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${key.charAt(0).toUpperCase() + key.slice(1)}`),
         expanded: this._expandedPhases.has(key),
         description: phaseData.description ?? "",
         skipPhase: phaseData.skipPhase ?? false,
@@ -198,7 +198,7 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
             ...b,
             params: mergedParams,
             index: i,
-            typeLabel: game.i18n.localize(`TRESPASSER.Sheet.BDeed.Behavior.Type.${b.type}`) || b.type,
+            typeLabel: game.i18n.localize(`TRESPASSER.Sheet.Deed.Behavior.Type.${b.type}`) || b.type,
             isFirst: i === 0,
             isLast: i === rawBehaviors.length - 1
           };
@@ -208,7 +208,7 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
 
     context.behaviorTypeChoices = BEHAVIOR_TYPES.map(t => ({
       value: t,
-      label: game.i18n.localize(`TRESPASSER.Sheet.BDeed.Behavior.Type.${t}`) || t
+      label: game.i18n.localize(`TRESPASSER.Sheet.Deed.Behavior.Type.${t}`) || t
     }));
 
     return context;

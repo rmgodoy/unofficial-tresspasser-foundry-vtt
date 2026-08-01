@@ -216,7 +216,7 @@
         "WeekRestAll": "Week's Rest: All resources fully recovered.",
         "RestingTitle": "Resting ({type})"
       },
-      "BDeed": {
+      "Deed": {
         "Tier": "Tier",
         "ActionType": "Action Type",
         "AbilityType": "Ability Type",

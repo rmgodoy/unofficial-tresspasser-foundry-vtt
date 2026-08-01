@@ -1,5 +1,5 @@
 <section class="tab behaviors scrollable {{tab.cssClass}}" data-group="primary" data-tab="behaviors" {{#unless tab.active}}hidden{{/unless}}>
-  <div class="bdeed-behaviors">
+  <div class="deed-behaviors">
     {{#each phases}}
     <div class="phase-accordion {{#if expanded}}expanded{{/if}}">
       <div class="phase-header" data-action="togglePhase" data-phase="{{key}}">
@@ -16,7 +16,7 @@
             <label style="margin:0;">{{localize "TRESPASSER.Sheet.Header.Description"}}</label>
             <label style="font-size:var(--fs-11); color:var(--trp-text-dim, #a09070); display:flex; align-items:center; gap:4px; font-weight:normal; cursor:pointer;">
               <input type="checkbox" name="system.phases.{{key}}.skipPhase" {{#if skipPhase}}checked{{/if}}/>
-              {{localize "TRESPASSER.Sheet.BDeed.SkipPhase"}}
+              {{localize "TRESPASSER.Sheet.Deed.SkipPhase"}}
             </label>
           </div>
           <textarea name="system.phases.{{key}}.description" rows="2" placeholder="{{localize 'TRESPASSER.Sheet.Item.Placeholder.Description'}}">{{description}}</textarea>
@@ -37,16 +37,16 @@
               </span>
               <div class="behavior-card-actions">
                 {{#unless isFirst}}
-                <button type="button" data-action="moveBehaviorUp" data-phase="{{../key}}" data-behavior-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.BDeed.Behavior.MoveUp'}}">
+                <button type="button" data-action="moveBehaviorUp" data-phase="{{../key}}" data-behavior-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.Deed.Behavior.MoveUp'}}">
                   <i class="fas fa-arrow-up"></i>
                 </button>
                 {{/unless}}
                 {{#unless isLast}}
-                <button type="button" data-action="moveBehaviorDown" data-phase="{{../key}}" data-behavior-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.BDeed.Behavior.MoveDown'}}">
+                <button type="button" data-action="moveBehaviorDown" data-phase="{{../key}}" data-behavior-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.Deed.Behavior.MoveDown'}}">
                   <i class="fas fa-arrow-down"></i>
                 </button>
                 {{/unless}}
-                <button type="button" data-action="removeBehavior" data-phase="{{../key}}" data-behavior-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.BDeed.Behavior.Remove'}}">
+                <button type="button" data-action="removeBehavior" data-phase="{{../key}}" data-behavior-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.Deed.Behavior.Remove'}}">
                   <i class="fas fa-trash"></i>
                 </button>
               </div>
@@ -66,7 +66,7 @@
             {{/each}}
           </select>
           <button type="button" data-action="addBehavior" data-phase="{{key}}">
-            <i class="fas fa-plus"></i> {{localize "TRESPASSER.Sheet.BDeed.Behavior.Add"}}
+            <i class="fas fa-plus"></i> {{localize "TRESPASSER.Sheet.Deed.Behavior.Add"}}
           </button>
         </div>
       </div>
