@@ -43,6 +43,9 @@ export class CanvasInputSession {
     this.resolvePromise = null;
     this.isCompleted = false;
 
+    /** @type {Map<string, string>} Saved token eventMode values keyed by token id */
+    this._savedTokenEventModes = new Map();
+
     this._onPointerMoveBound = this._onPointerMove.bind(this);
     this._onClickBound = this._onClick.bind(this);
     this._onKeyDownBound = this._onKeyDown.bind(this);
@@ -51,6 +54,10 @@ export class CanvasInputSession {
   async _init() {
     return new Promise(async (resolve) => {
       this.resolvePromise = resolve;
+
+      // Disable token interactivity so clicks pass through to canvas.stage
+      // This allows clicking on squares occupied by tokens (critical for GM usage)
+      this._disableTokenInteractivity();
 
       // Add PIXI graphics layer to canvas interface
       if (canvas.interface) {
@@ -146,6 +153,9 @@ export class CanvasInputSession {
       CanvasInputSession.activeSession = null;
     }
 
+    // Restore token interactivity before removing listeners
+    this._restoreTokenInteractivity();
+
     if (canvas.stage) {
       canvas.stage.off("pointermove", this._onPointerMoveBound);
       canvas.stage.off("pointerdown", this._onClickBound);
@@ -162,5 +172,34 @@ export class CanvasInputSession {
       this.overlay.close();
       this.overlay = null;
     }
+  }
+
+  /**
+   * Disable PIXI interactivity on all canvas tokens so pointer events pass
+   * through to canvas.stage. Saves each token's previous eventMode for restore.
+   * @protected
+   */
+  _disableTokenInteractivity() {
+    this._savedTokenEventModes.clear();
+    const tokens = canvas.tokens?.placeables ?? [];
+    for (const token of tokens) {
+      this._savedTokenEventModes.set(token.id, token.eventMode ?? "static");
+      token.eventMode = "none";
+    }
+  }
+
+  /**
+   * Restore PIXI interactivity on all canvas tokens to their saved values.
+   * @protected
+   */
+  _restoreTokenInteractivity() {
+    const tokens = canvas.tokens?.placeables ?? [];
+    for (const token of tokens) {
+      const saved = this._savedTokenEventModes.get(token.id);
+      if (saved !== undefined) {
+        token.eventMode = saved;
+      }
+    }
+    this._savedTokenEventModes.clear();
   }
 }

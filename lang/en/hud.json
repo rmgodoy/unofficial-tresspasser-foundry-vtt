@@ -27,7 +27,8 @@
         "Blast": "Blast",
         "CloseBlast": "Close Blast",
         "Path": "Path",
-        "ClosePath": "Close Path"
+        "ClosePath": "Close Path",
+        "SelectTargets": "Select Target(s)"
       },
       "Movement": {
         "Used": "Movement Used",
@@ -44,7 +45,8 @@
         "CloseBlastInstruction": "Close Blast {size}: Click square adjacent to caster to select origin.",
         "PathInitialInstruction": "Path {size}: Click initial square to start path.",
         "ClosePathInitialInstruction": "Close Path {size}: Click square adjacent to caster to start path.",
-        "PathStepInstruction": "Path ({current}/{max}): Click adjacent orthogonal square to expand path."
+        "PathStepInstruction": "Path ({current}/{max}): Click adjacent orthogonal square to expand path.",
+        "SelectTargetsInstruction": "Select target(s) on canvas ({current} of {max} selected)."
       },
       "Resource": {
         "APCost": "AP Cost",

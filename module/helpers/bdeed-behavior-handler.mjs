@@ -201,19 +201,52 @@ export class BDeedBehaviorHandler {
 
       const selectedTargets = [];
       const gridPx = canvas.grid.size;
+      let hoveredSquare = null;
 
-      const title = game.i18n.format("TRESPASSER.HUD.Action.SelectTargets") || `Select Targets (${maxCount} max)`;
+      const title = game.i18n.has("TRESPASSER.HUD.Action.SelectTargets")
+        ? game.i18n.localize("TRESPASSER.HUD.Action.SelectTargets")
+        : `Select Target(s)`;
+
+      const formatDetails = (count) => {
+        if (game.i18n.has("TRESPASSER.HUD.AoE.SelectTargetsInstruction")) {
+          return game.i18n.format("TRESPASSER.HUD.AoE.SelectTargetsInstruction", { current: count, max: maxCount });
+        }
+        return `Select target(s) on canvas (${count} of ${maxCount} selected).`;
+      };
+
+      const redrawHighlights = (session, hoveredSq = null) => {
+        if (!session || !session.graphics) return;
+        session.graphics.clear();
+
+        // 1. Draw gold highlight boxes over already selected targets
+        for (const targetToken of selectedTargets) {
+          const tW = targetToken.document.width ?? 1;
+          const tH = targetToken.document.height ?? 1;
+          const tSq = [];
+          for (let tx = 0; tx < tW; tx++) {
+            for (let ty = 0; ty < tH; ty++) {
+              tSq.push({ x: targetToken.document.x + tx * gridPx, y: targetToken.document.y + ty * gridPx });
+            }
+          }
+          CanvasSelectionRenderer.drawPlacedOrigin(session.graphics, tSq, gridPx);
+        }
+
+        // 2. Draw green candidate highlight box over hovered square
+        if (hoveredSq) {
+          CanvasSelectionRenderer.drawCandidateSquares(session.graphics, [hoveredSq], gridPx, { hoveredSquare: hoveredSq });
+        }
+      };
 
       const resultTargets = await CanvasInputSession.start({
         title,
-        details: `Select target(s) on canvas (0 of ${maxCount} selected).`,
+        details: formatDetails(0),
         icon: "fas fa-crosshairs",
         showConfirm: true,
         canConfirm: false,
         showUndo: false,
         canUndo: false,
         showCancel: true,
-        onClick: (ev) => {
+        onPointerMove: (ev, session) => {
           let lastCanvasPos;
           if (typeof ev.getLocalPosition === "function") {
             lastCanvasPos = ev.getLocalPosition(canvas.stage);
@@ -225,6 +258,22 @@ export class BDeedBehaviorHandler {
           if (!lastCanvasPos) return;
 
           const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
+          hoveredSquare = { x: snapped.x, y: snapped.y };
+          redrawHighlights(session, hoveredSquare);
+        },
+        onClick: (ev, session) => {
+          let lastCanvasPos;
+          if (typeof ev.getLocalPosition === "function") {
+            lastCanvasPos = ev.getLocalPosition(canvas.stage);
+          } else if (ev.data && typeof ev.data.getLocalPosition === "function") {
+            lastCanvasPos = ev.data.getLocalPosition(canvas.stage);
+          } else if (ev.interactionData && ev.interactionData.origin) {
+            lastCanvasPos = ev.interactionData.origin;
+          }
+          if (!lastCanvasPos) return;
+
+          const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
+          hoveredSquare = { x: snapped.x, y: snapped.y };
           const tokensInSq = TargetingHelper.getTokensInSquares([{ x: snapped.x, y: snapped.y }], gridPx);
 
           if (tokensInSq.length > 0) {
@@ -246,10 +295,12 @@ export class BDeedBehaviorHandler {
 
             if (CanvasInputSession.activeSession) {
               CanvasInputSession.activeSession.updateOverlay({
-                details: `Selected ${selectedTargets.length} of ${maxCount} target(s).`,
+                details: formatDetails(selectedTargets.length),
                 canConfirm: selectedTargets.length > 0
               });
             }
+
+            redrawHighlights(session, hoveredSquare);
           }
         },
         onConfirm: () => {
