@@ -225,7 +225,7 @@ export class TrespasserRegionSheet extends api.HandlebarsApplicationMixin(sheets
   /* -------------------------------------------- */
 
   async _onDrop(event) {
-    const data = TextEditor.getDragEventData(event);
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (data?.type === "RollTable") {
       if (!this.isEditable) return false;
       const table = await RollTable.implementation.fromDropData(data);

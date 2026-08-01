@@ -300,10 +300,8 @@
     </div>
 
     <!-- ─── TAB 3: NOTES ─── -->
-    <div class="tab tab-body {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-group="primary" data-tab="notes">
-      <div class="notes-container" style="padding: 10px;">
-        {{editor system.notes target="system.notes" button=true owner=owner editable=editable}}
-      </div>
+    <div class="tab notes {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-group="primary" data-tab="notes">
+      <prose-mirror name="system.notes" value="{{system.notes}}" toggled="false" compact="false" {{#if (not editable)}}readonly{{/if}}>{{{enrichedNotes}}}</prose-mirror>
     </div>
 
   </section>

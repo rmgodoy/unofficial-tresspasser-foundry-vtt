@@ -65,7 +65,7 @@ export class TrespasserCommonerSheet extends TrespasserCharacterSheet {
 
   /** @override */
   async _onDrop(event) {
-    const data = TextEditor.getDragEventData(event);
+    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (data?.type === "Item") {
       const item = await Item.implementation.fromDropData(data);
       if (item?.type === "past_life") {

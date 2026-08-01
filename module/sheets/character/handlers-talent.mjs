@@ -59,7 +59,7 @@ export async function onTalentRoll(event, sheet) {
     });
   }
 
-  const enrichedDescription = await TextEditor.enrichHTML(item.system.description, {
+  const enrichedDescription = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.description, {
     async: true, secrets: item.isOwner, relativeTo: item
   });
 
@@ -147,7 +147,7 @@ export async function onFeatureRoll(event, sheet) {
     await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - 1));
   }
 
-  const enrichedRef = await TextEditor.enrichHTML(item.system.description, {
+  const enrichedRef = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.description, {
     async: true, secrets: item.isOwner, relativeTo: item
   });
 
@@ -208,7 +208,7 @@ export async function onIncantationRoll(event, sheet) {
   if (diceResult === 20) sparks  += 1;
   if (diceResult === 1)  shadows += 1;
 
-  const enrichedDescription = await TextEditor.enrichHTML(item.system.description, {
+  const enrichedDescription = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.description, {
     async: true, secrets: item.isOwner, relativeTo: item
   });
 
