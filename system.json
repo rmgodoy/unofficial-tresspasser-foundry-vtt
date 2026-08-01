@@ -124,6 +124,7 @@
   "documentTypes": {
     "Actor": {
       "character": {},
+      "commoner": {},
       "creature": {},
       "dungeon": {},
       "party": {},

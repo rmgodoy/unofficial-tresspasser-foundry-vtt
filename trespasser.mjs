@@ -4,6 +4,7 @@
  */
 
 import { TrespasserCharacterData } from "./module/data/actor-character.mjs";
+import { TrespasserCommonerData }  from "./module/data/actor-commoner.mjs";
 import { TrespasserCreatureData }  from "./module/data/actor-creature.mjs";
 import { TrespasserArmorData }     from "./module/data/item-armor.mjs";
 import { TrespasserWeaponData }    from "./module/data/item-weapon.mjs";
@@ -430,6 +431,7 @@ Hooks.once("init", async () => {
 
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
+  CONFIG.Actor.dataModels.commoner  = TrespasserCommonerData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
   CONFIG.Actor.dataModels.dungeon  = TrespasserDungeonData;
   CONFIG.Actor.dataModels.party    = TrespasserPartyData;
@@ -2320,5 +2322,31 @@ Hooks.on("deleteCombat", async (combat, options, userId) => {
 Hooks.on("deleteItem", async (item, options, userId) => {
   if (game.user.id === userId && game.trespasser?.TerrainHelper) {
     await game.trespasser.TerrainHelper.onEffectDeleted(item);
+  }
+});
+
+/* -------------------------------------------- */
+/*  Commoner Default Deed Creation Hook         */
+/* -------------------------------------------- */
+
+Hooks.on("createActor", async (actor, options, userId) => {
+  if (actor.type !== "commoner" || game.user.id !== userId) return;
+
+  const hasDeed = actor.items.some(i => i.type === "deed" && i.name === "Weapon Attack");
+  if (!hasDeed) {
+    await actor.createEmbeddedDocuments("Item", [{
+      name: "Weapon Attack",
+      type: "deed",
+      img: "icons/weapons/swords/sword-broad-simple.webp",
+      system: {
+        category: "versatile",
+        action_type: "attack",
+        target: "1 Creature",
+        vs: "guard",
+        hit: "Deal ⚔/🏹 damage (2d4)",
+        spark: "Confer weapon effect (toppled)",
+        is_default_commoner: true
+      }
+    }]);
   }
 });
