@@ -31,7 +31,7 @@ export class BDeedBehaviorHandler {
         case "selectArea":       return this._selectArea(behavior, context, actor, item);
         case "applyDamage":      return this._applyDamage(behavior, context, actor, item, phaseKey);
         case "applyEffects":     return this._applyEffects(behavior, context, actor, item, phaseKey);
-        case "modifyBehavior":   return; // Handled pre-pipeline by BDeedExecutor
+        case "modifyBehavior":   return; // Handled pre-pipeline by DeedExecutor
         case "spawnTerrain":     return this._spawnTerrain(behavior, context, actor, item);
         case "moveTerrain":      return this._moveTerrain(behavior, context, item);
         case "moveSource":       return this._moveSource(behavior, context, actor);
@@ -1105,8 +1105,8 @@ export class BDeedBehaviorHandler {
     }
 
     try {
-      const { BDeedExecutor } = await import("./bdeed-executor.mjs");
-      const subExecutor = new BDeedExecutor(subDeedItem, actor, {
+      const { DeedExecutor } = await import("./deed-executor.mjs");
+      const subExecutor = new DeedExecutor(subDeedItem, actor, {
         isSubDeed: true,
         callStack,
         sourcePosition: context.sourcePosition || null

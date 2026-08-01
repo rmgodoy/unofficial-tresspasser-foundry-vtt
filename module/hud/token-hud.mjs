@@ -907,8 +907,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const item    = this._token.actor?.items.get(deedId);
 
         if (item && item.type === "bdeed") {
-            const { BDeedExecutor } = await import("../helpers/bdeed-executor.mjs");
-            const executor = new BDeedExecutor(item, this._token.actor, { apSpent });
+            const { DeedExecutor } = await import("../helpers/deed-executor.mjs");
+            const executor = new DeedExecutor(item, this._token.actor, { apSpent });
             await executor.execute();
             this._activePanel = null;
             this.render();

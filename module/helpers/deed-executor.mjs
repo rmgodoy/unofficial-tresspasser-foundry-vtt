@@ -7,12 +7,12 @@ import { TrespasserCombat } from "../documents/combat.mjs";
 import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 
 /**
- * BDeedExecutor — Runtime pipeline executor for Behavior-Driven Deeds (BDeed) in Trespasser TTRPG.
+ * DeedExecutor — Runtime pipeline executor for Behavior-Driven Deeds in Trespasser TTRPG.
  *
  * Handles sequential execution across 7 phases:
  *   Start → Before → Base → [Hit] → [Spark] → After → End
  */
-export class BDeedExecutor {
+export class DeedExecutor {
   /**
    * @param {Item} bdeedItem - The BDeed Item document.
    * @param {Actor} [actor]  - The owning Actor document.
@@ -720,7 +720,7 @@ export class BDeedExecutor {
    * @protected
    */
   async _executeBehavior(behavior, phaseKey) {
-    console.log(`[BDeedExecutor] Phase "${phaseKey}" — Executing behavior "${behavior.type}" (${behavior.id}):`, behavior.params);
+    console.log(`[DeedExecutor] Phase "${phaseKey}" — Executing behavior "${behavior.type}" (${behavior.id}):`, behavior.params);
     return await BDeedBehaviorHandler.dispatch(behavior, this.context, this.actor, this.item, phaseKey);
   }
 

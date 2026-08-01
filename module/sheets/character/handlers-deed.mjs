@@ -73,8 +73,8 @@ export async function onDeedRoll(event, sheet) {
   if (!item) return;
 
   if (item.type === "bdeed") {
-    const { BDeedExecutor } = await import("../../helpers/bdeed-executor.mjs");
-    const executor = new BDeedExecutor(item, sheet.actor);
+    const { DeedExecutor } = await import("../../helpers/deed-executor.mjs");
+    const executor = new DeedExecutor(item, sheet.actor);
     return await executor.execute();
   }
 
