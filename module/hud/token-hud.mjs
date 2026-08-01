@@ -870,7 +870,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const tierLabels = { light: "L", heavy: "H", mighty: "M", special: "S" };
 
         return this._token.actor.items
-            .filter(i => i.type === "deed" || i.type === "bdeed")
+            .filter(i => i.type === "deed")
             .map(d => {
                 const tier = d.system.tier?.toLowerCase() || "light";
                 let focusCost = d.system.focusCost;
@@ -906,7 +906,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const apSpent = parseInt(apSelect.value) || 1;
         const item    = this._token.actor?.items.get(deedId);
 
-        if (item && item.type === "bdeed") {
+        if (item && item.type === "deed") {
             const { DeedExecutor } = await import("../helpers/deed-executor.mjs");
             const executor = new DeedExecutor(item, this._token.actor, { apSpent });
             await executor.execute();

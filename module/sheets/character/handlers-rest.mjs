@@ -114,7 +114,7 @@ export async function recoverItemCost(itemId, chatMessages, actor) {
 
   let costIncrease = item.system.focusIncrease;
   if (costIncrease === null || costIncrease === undefined) {
-    if (item.type === "deed" || item.type === "bdeed") {
+    if (item.type === "deed") {
       const tier = item.system.tier;
       costIncrease = (tier === "heavy" || tier === "mighty") ? 1 : 0;
     } else {

@@ -145,8 +145,8 @@ export async function getCharacterData(sheet, options = {}) {
     if (callingSource) item.callingSource = callingSource;
   }
 
-  // Group deeds and bdeeds by tier
-  const allDeeds = actor.items.filter(i => i.type === "deed" || i.type === "bdeed").map(d => {
+  // Group deeds by tier
+  const allDeeds = actor.items.filter(i => i.type === "deed").map(d => {
     return prepareDeedDisplayData(d, sourceMapByUuid);
   });
 

@@ -57,7 +57,7 @@ export function formatBDeedTarget(system) {
 export function prepareDeedDisplayData(d, sourceMapByUuid = {}) {
   const deedData = d.toObject ? d.toObject(false) : d.toJSON();
   deedData.id = d.id;
-  deedData.isBDeed = d.type === "bdeed";
+  deedData.isBDeed = true;
 
   const tier = deedData.system.tier || "light";
   let baseCost = deedData.system.focusCost;
@@ -89,24 +89,15 @@ export function prepareDeedDisplayData(d, sourceMapByUuid = {}) {
   }
 
   // Normalized subheader fields
-  deedData.displayType = deedData.system.abilityType || deedData.system.type || "deed";
-  deedData.displayVersus = deedData.system.versus || deedData.system.accuracyTest || "Guard";
-
-  if (deedData.isBDeed) {
-    deedData.displayTarget = formatBDeedTarget(deedData.system);
-  } else {
-    deedData.displayTarget = deedData.system.target || "Self";
-  }
+  deedData.displayType = deedData.system.abilityType || "deed";
+  deedData.displayVersus = deedData.system.versus || "Guard";
+  deedData.displayTarget = formatBDeedTarget(deedData.system);
 
   // Normalized phase descriptions map
   const phaseKeys = ["start", "before", "base", "hit", "spark", "after", "end"];
   deedData.phaseDescriptions = {};
   for (const pKey of phaseKeys) {
-    if (deedData.isBDeed) {
-      deedData.phaseDescriptions[pKey] = deedData.system.phases?.[pKey]?.description || "";
-    } else {
-      deedData.phaseDescriptions[pKey] = deedData.system.effects?.[pKey]?.description || "";
-    }
+    deedData.phaseDescriptions[pKey] = deedData.system.phases?.[pKey]?.description || "";
   }
 
   return deedData;
