@@ -412,6 +412,13 @@ Hooks.once("init", async () => {
     default: "[]"
   });
 
+  game.settings.register("trespasser", "deedMigrationVersion", {
+    scope: "world",
+    config: false,
+    type: Number,
+    default: 0
+  });
+
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
@@ -765,6 +772,10 @@ Hooks.once("ready", async () => {
         console.log(`Trespasser | Migrated creature "${actor.name}" roll_bonus(${oldVal}) → prevail`);
       }
     }
+
+    // ── Data Migration: Deed Data Model → Behavior-Driven ─────────────────────
+    const { migrateWorldDeeds } = await import("./module/helpers/migration-deed.mjs");
+    await migrateWorldDeeds();
   }
 });
 
