@@ -11,7 +11,8 @@
       "LINEAGE": "Lineage",
       "PAST_LIFE": "Past Life",
       "HIT_POINTS": "Hit Points",
-      "SPEED": "Speed"
+      "SPEED": "Speed",
+      "PAST_LIFE_APPLIED": "Applied Past Life: {name}"
     },
     "Sheet": {
       "Header": {

@@ -1,6 +1,10 @@
 import { getCharacterData } from "./character/get-data.mjs";
-import { generateCommoner } from "../helpers/commoner-generator.mjs";
 import { TrespasserCharacterSheet } from "./actor-character-sheet.mjs";
+import {
+  handleAttributeManualEdit,
+  handleGenerateButton,
+  handlePastLifeDrop
+} from "./commoner/handlers-commoner.mjs";
 
 /**
  * Commoner Sheet class for Trespasser TTRPG (ApplicationsV2).
@@ -54,24 +58,26 @@ export class TrespasserCommonerSheet extends TrespasserCharacterSheet {
     const html = $(this.element);
 
     // Commoner specific button handlers
-    html.find(".btn-generate-commoner").on("click", this._onGenerateClick.bind(this));
+    html.find(".btn-generate-commoner").on("click", (e) => handleGenerateButton(e, this.actor));
     html.find(".btn-upgrade-trespasser").on("click", this._onUpgradeClick.bind(this));
-    html.find(".attribute-input input").on("change", this._onAttributeManualEdit.bind(this));
+    html.find(".attribute-input input").on("change", (e) => handleAttributeManualEdit(e, this.actor));
   }
 
-  async _onGenerateClick(event) {
-    event.preventDefault();
-    await generateCommoner(this.actor);
+  /** @override */
+  async _onDrop(event) {
+    const data = TextEditor.getDragEventData(event);
+    if (data?.type === "Item") {
+      const item = await Item.implementation.fromDropData(data);
+      if (item?.type === "past_life") {
+        await handlePastLifeDrop(this.actor, item);
+        return;
+      }
+    }
+    return super._onDrop(event);
   }
 
   async _onUpgradeClick(event) {
     event.preventDefault();
     // Handled in Task 5 helper
-  }
-
-  async _onAttributeManualEdit(event) {
-    if (!this.actor.system.isGenerated) {
-      await this.actor.update({ "system.isGenerated": true });
-    }
   }
 }

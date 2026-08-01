@@ -11,7 +11,8 @@
       "LINEAGE": "Linhagem",
       "PAST_LIFE": "Vida Pregressa",
       "HIT_POINTS": "Pontos de Vida",
-      "SPEED": "Deslocamento"
+      "SPEED": "Deslocamento",
+      "PAST_LIFE_APPLIED": "Vida Pregressa aplicada: {name}"
     },
     "Sheet": {
       "Header": {
