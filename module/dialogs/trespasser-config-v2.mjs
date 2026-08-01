@@ -20,7 +20,8 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     },
     actions: {
       reset: TrespasserConfigV2._onReset,
-      save: TrespasserConfigV2._onSubmit
+      save: TrespasserConfigV2._onSubmit,
+      runDeedMigration: TrespasserConfigV2._onRunDeedMigration
     }
   };
 
@@ -214,5 +215,20 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     app.render(true);
     game.trespasser.applySystemSettings?.();
     ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Reset.Config"));
+  }
+
+  static async _onRunDeedMigration(event, target) {
+    const confirm = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("TRESPASSER.Settings.DeedMigration.Name") },
+      content: `<p>${game.i18n.localize("TRESPASSER.Settings.DeedMigration.ConfirmContent")}</p>`,
+      rejectClose: false
+    });
+
+    if (!confirm) return;
+
+    ui.notifications.info(game.i18n.localize("TRESPASSER.Settings.DeedMigration.Running"));
+    const { migrateWorldDeeds } = await import("../helpers/migration-deed.mjs");
+    await migrateWorldDeeds({ force: true });
+    ui.notifications.info(game.i18n.localize("TRESPASSER.Settings.DeedMigration.Success"));
   }
 }

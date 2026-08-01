@@ -9,6 +9,14 @@
         "ResetDefault": "Reset to Default",
         "ResetNotice": "Configuration reset to default values."
       },
+      "DeedMigration": {
+        "Name": "Deed Data Migration",
+        "Button": "Run Deed Migration",
+        "Hint": "Manually converts all Deed items in the world (sidebar and actors) to the behavior-driven format.",
+        "ConfirmContent": "Are you sure you want to run the Deed data model migration on all world Deeds now?",
+        "Running": "Running Deed data model migration...",
+        "Success": "Deed data model migration complete."
+      },
       "Tabs": {
         "Mechanics": "Mechanics",
         "Exploration": "Haven & Exploration",

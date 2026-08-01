@@ -38,9 +38,18 @@ export function formatBDeedTarget(system) {
     return `${count} ${count === 1 ? "Square" : "Squares"}`;
   }
   if (mode === "aoe") {
-    const type = (params.aoeType || "blast").charAt(0).toUpperCase() + (params.aoeType || "blast").slice(1);
+    const typeMap = {
+      blast: "Blast",
+      close_blast: "Close Blast",
+      burst: "Burst",
+      melee_burst: "Melee Burst",
+      path: "Path",
+      close_path: "Close Path",
+      aura: "Aura"
+    };
+    const type = typeMap[params.aoeType] || (params.aoeType || "blast").charAt(0).toUpperCase() + (params.aoeType || "blast").slice(1);
     const size = parseInt(params.aoeSize) || 1;
-    return `${type} ${size} sq`;
+    return `${type} ${size}`;
   }
   if (mode === "area") {
     return "Selected Area";

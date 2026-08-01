@@ -99,12 +99,14 @@
                 <p class="notes">{{localize "TRESPASSER.Settings.Exploration.ShowPerilInChat.Hint"}}</p>
             </div>
 
-            <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Name"}}</label>
+            <div class="form-group" style="margin-top: 15px; border-top: 1px dashed var(--trp-border); padding-top: 10px;">
+                <label>{{localize "TRESPASSER.Settings.DeedMigration.Name"}}</label>
                 <div class="form-fields">
-                    <input type="checkbox" name="autoEndCombatOnRetreat" {{checked settings.autoEndCombatOnRetreat}}>
+                    <button type="button" data-action="runDeedMigration" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+                        <i class="fas fa-database"></i> {{localize "TRESPASSER.Settings.DeedMigration.Button"}}
+                    </button>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Hint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.DeedMigration.Hint"}}</p>
             </div>
         </div>
 

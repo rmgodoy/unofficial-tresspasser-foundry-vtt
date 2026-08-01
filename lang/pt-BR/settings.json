@@ -9,6 +9,14 @@
         "ResetDefault": "Redefinir para Padrão",
         "ResetNotice": "Configuração redefinida para os valores padrão."
       },
+      "DeedMigration": {
+        "Name": "Migração de Habilidades",
+        "Button": "Executar Migração de Habilidades",
+        "Hint": "Converte manualmente todas as Habilidades no mundo (barra lateral e atores) para o formato de comportamentos.",
+        "ConfirmContent": "Deseja realmente executar a migração do modelo de dados de todas as Habilidades do mundo agora?",
+        "Running": "Executando migração das Habilidades...",
+        "Success": "Migração das Habilidades concluída com sucesso."
+      },
       "Tabs": {
         "Mechanics": "Mecânicas",
         "Exploration": "Abrigo & Exploração",

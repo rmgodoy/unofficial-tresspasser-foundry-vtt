@@ -419,6 +419,15 @@ Hooks.once("init", async () => {
     default: 0
   });
 
+  game.settings.registerMenu("trespasser", "systemConfig", {
+    name: "TRESPASSER.Settings.Title",
+    label: "TRESPASSER.Settings.ButtonLabel",
+    hint: "TRESPASSER.Settings.Hint",
+    icon: "fas fa-cogs",
+    type: TrespasserConfigV2,
+    restricted: false
+  });
+
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
