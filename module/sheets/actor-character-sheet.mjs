@@ -66,9 +66,9 @@ export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(she
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const charData = await getCharacterData(this, options);
-    const merged = foundry.utils.mergeObject(context, charData);
-    merged.tabs = this.tabGroups;
-    return merged;
+    Object.assign(context, charData);
+    context.tabs = this.tabGroups;
+    return context;
   }
 
   /** @override */

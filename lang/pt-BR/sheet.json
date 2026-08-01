@@ -1,5 +1,18 @@
 {
   "TRESPASSER": {
+    "COMMONER": {
+      "GENERATE": "Gerar",
+      "UPGRADE_TRESPASSER": "Evoluir para Trespasser",
+      "COMBAT_VALUES": "Defesas de Combate",
+      "CARRIED_ITEMS": "Itens Carregados",
+      "NOTES": "Notas",
+      "NAME": "Nome",
+      "ALIGNMENT": "Alinhamento",
+      "LINEAGE": "Linhagem",
+      "PAST_LIFE": "Vida Pregressa",
+      "HIT_POINTS": "Pontos de Vida",
+      "SPEED": "Deslocamento"
+    },
     "Sheet": {
       "Header": {
         "Name": "Nome",

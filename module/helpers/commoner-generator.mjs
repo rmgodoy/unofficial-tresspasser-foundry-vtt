@@ -124,13 +124,87 @@ export async function rollCommonerAlignment() {
 }
 
 /**
- * Automates full generation of a commoner: rolls 4d4 stats, rolls alignment, and updates actor.
+ * Returns default deed structure for a Commoner ("Weapon Attack").
+ */
+export function getDefaultCommonerDeedData() {
+  return {
+    name: "Weapon Attack",
+    type: "deed",
+    img: "icons/weapons/swords/sword-broad-simple.webp",
+    system: {
+      tier: "light",
+      actionType: "attack",
+      abilityType: "versatile",
+      versus: "Guard",
+      focusCost: null,
+      focusIncrease: null,
+      bonusCost: 0,
+      range: 0,
+      is_default_commoner: true,
+      phases: {
+        start: { description: "", skipPhase: false, behaviors: [] },
+        before: {
+          description: "",
+          skipPhase: false,
+          behaviors: [
+            {
+              id: foundry.utils.randomID(),
+              type: "selectTarget",
+              params: { targetMode: "Creature", targetCount: 1 }
+            }
+          ]
+        },
+        base: { description: "", skipPhase: false, behaviors: [] },
+        hit: {
+          description: "Deals 2 Skill Die damage",
+          skipPhase: false,
+          behaviors: [
+            {
+              id: foundry.utils.randomID(),
+              type: "applyDamage",
+              params: { expression: "2<sd>" }
+            }
+          ]
+        },
+        spark: {
+          description: "Conffers weapon effect",
+          skipPhase: false,
+          behaviors: [
+            {
+              id: foundry.utils.randomID(),
+              type: "applyEffects",
+              params: { appliesWeaponEffects: true }
+            }
+          ]
+        },
+        after: { description: "", skipPhase: false, behaviors: [] },
+        end: { description: "", skipPhase: false, behaviors: [] }
+      }
+    }
+  };
+}
+
+/**
+ * Automates full generation of a commoner: rolls 4d4 stats, rolls alignment, ensures default deed, and updates actor.
  */
 export async function generateCommoner(actor) {
   if (actor.system.isGenerated) return;
 
   const { attributes } = await rollCommonerAttributes();
   const { formattedAlignment } = await rollCommonerAlignment();
+
+  // Ensure default deed exists and has configured behaviors
+  let existingDeed = actor.items.find(i => i.type === "deed" && (i.name === "Weapon Attack" || i.system?.is_default_commoner));
+  if (!existingDeed) {
+    await actor.createEmbeddedDocuments("Item", [getDefaultCommonerDeedData()]);
+  } else {
+    // If deed exists with legacy structure, update its system data to match full behavior configuration
+    const defaultData = getDefaultCommonerDeedData();
+    const hasBehaviors = existingDeed.system?.phases?.hit?.behaviors?.length > 0;
+    if (!hasBehaviors) {
+      await existingDeed.update({ "system": defaultData.system });
+    }
+  }
 
   await actor.update({
     "system.attributes": attributes,
@@ -142,5 +216,6 @@ export async function generateCommoner(actor) {
 export const CommonerGenerator = {
   rollCommonerAttributes,
   rollCommonerAlignment,
-  generateCommoner
+  generateCommoner,
+  getDefaultCommonerDeedData
 };

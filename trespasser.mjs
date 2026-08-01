@@ -24,6 +24,7 @@ import { TrespasserCombat }        from "./module/documents/combat.mjs";
 import { TrespasserEffectsHelper } from "./module/helpers/effects-helper.mjs";
 import { DurationHelper }          from "./module/helpers/duration-helper.mjs";
 import { TrespasserCharacterSheet } from "./module/sheets/actor-character-sheet.mjs";
+import { TrespasserCommonerSheet }  from "./module/sheets/actor-commoner-sheet.mjs";
 import { TrespasserCreatureSheet }  from "./module/sheets/actor-creature-sheet.mjs";
 import { TrespasserArmorSheet }     from "./module/sheets/item-armor-sheet.mjs";
 import { TrespasserWeaponSheet }    from "./module/sheets/item-weapon-sheet.mjs";
@@ -42,6 +43,7 @@ import { TrespasserCraftData }      from "./module/data/item-craft.mjs";
 import { TrespasserCraftSheet }     from "./module/sheets/item-craft-sheet.mjs";
 import { TrespasserPastLifeData }  from "./module/data/item-past-life.mjs";
 import { TrespasserPastLifeSheet } from "./module/sheets/item-past-life-sheet.mjs";
+import { getDefaultCommonerDeedData } from "./module/helpers/commoner-generator.mjs";
 import { TrespasserTerrainData }   from "./module/data/item-terrain.mjs";
 import { TrespasserTerrainSheet }  from "./module/sheets/item-terrain-sheet.mjs";
 import { TerrainHelper }           from "./module/helpers/terrain-helper.mjs";
@@ -466,6 +468,11 @@ Hooks.once("init", async () => {
     types: ["character"],
     makeDefault: true,
     label: "Trespasser Character Sheet",
+  });
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserCommonerSheet, {
+    types: ["commoner"],
+    makeDefault: true,
+    label: "Trespasser Commoner Sheet",
   });
   foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserCreatureSheet, {
     types: ["creature"],
@@ -2334,21 +2341,8 @@ Hooks.on("deleteItem", async (item, options, userId) => {
 Hooks.on("createActor", async (actor, options, userId) => {
   if (actor.type !== "commoner" || game.user.id !== userId) return;
 
-  const hasDeed = actor.items.some(i => i.type === "deed" && i.name === "Weapon Attack");
+  const hasDeed = actor.items.some(i => i.type === "deed" && (i.name === "Weapon Attack" || i.system?.is_default_commoner));
   if (!hasDeed) {
-    await actor.createEmbeddedDocuments("Item", [{
-      name: "Weapon Attack",
-      type: "deed",
-      img: "icons/weapons/swords/sword-broad-simple.webp",
-      system: {
-        category: "versatile",
-        action_type: "attack",
-        target: "1 Creature",
-        vs: "guard",
-        hit: "Deal ⚔/🏹 damage (2d4)",
-        spark: "Confer weapon effect (toppled)",
-        is_default_commoner: true
-      }
-    }]);
+    await actor.createEmbeddedDocuments("Item", [getDefaultCommonerDeedData()]);
   }
 });

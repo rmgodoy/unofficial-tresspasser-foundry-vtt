@@ -416,6 +416,14 @@
   align-items: start;
 }
 
+.trespasser-commoner-sheet-layout .character-layout {
+  grid-template-columns: 1fr 1fr;
+}
+
+.commoner-deeds-container .deed-tier-grid {
+  grid-template-columns: 1fr;
+}
+
 .char-col {
   display: flex;
   flex-direction: column;

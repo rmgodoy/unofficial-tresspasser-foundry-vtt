@@ -1,0 +1,310 @@
+<section class="trespasser-character-sheet-layout trespasser-commoner-sheet-layout">
+  <!-- ═══════════════════════════════════════════════════
+       HEADER (Character Sheet Visual Style)
+  ════════════════════════════════════════════════════ -->
+  <header class="sheet-header">
+    <div class="header-portrait">
+      <div class="actor-avatar-wrapper">
+        <img class="profile-img" src="{{actor.img}}" data-edit="img" title="{{actor.name}}" />
+      </div>
+    </div>
+
+    <div class="header-info">
+      <!-- Row 1: Name / Generate Button / GM Upgrade Button -->
+      <div class="header-row header-identity">
+        <div class="name-group">
+          <input type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.NamePlaceholder'}}" />
+        </div>
+        <div class="commoner-actions-group" style="display: flex; gap: 6px;">
+          {{#unless system.isGenerated}}
+            <button type="button" class="btn-generate-commoner button" style="background: var(--trp-gold); color: #000; font-weight: bold; cursor: pointer;">
+              <i class="fas fa-dice"></i> {{localize "TRESPASSER.COMMONER.GENERATE"}}
+            </button>
+          {{/unless}}
+
+          {{#if isGM}}
+            <button type="button" class="btn-upgrade-trespasser button" style="background: var(--trp-bg-card); color: var(--trp-gold-bright); border: 1px solid var(--trp-gold); cursor: pointer;">
+              <i class="fas fa-shield-alt"></i> {{localize "TRESPASSER.COMMONER.UPGRADE_TRESPASSER"}}
+            </button>
+          {{/if}}
+        </div>
+      </div>
+
+      <!-- Row 2: Resources (HP, Skill, Skill Die) -->
+      <div class="header-row header-resources">
+        <div class="resource-box">
+          <label>{{localize "TRESPASSER.Sheet.Header.HP"}}</label>
+          <div class="resource-values">
+            <input type="number" name="system.health" value="{{system.health}}" min="0" />
+            <span>/</span>
+            <input type="number" name="system.max_health" value="{{system.max_health}}" readonly />
+          </div>
+        </div>
+        <div class="resource-box">
+          <label>{{localize "TRESPASSER.Sheet.Header.Skill"}}</label>
+          <input type="number" name="system.skill" value="{{system.skill}}" readonly />
+        </div>
+        <div class="resource-box">
+          <label>{{localize "TRESPASSER.Sheet.Header.SkillDie"}}</label>
+          <input type="text" name="system.skill_die" value="{{system.skill_die}}" readonly style="text-align: center;" />
+        </div>
+      </div>
+
+      <!-- Row 3: Core Attributes with key-attribute indicator -->
+      <div class="header-row header-attributes">
+        {{#each (array "mighty" "agility" "intellect" "spirit") as |attr|}}
+        <div class="attribute-box attribute-input">
+          <span class="attribute-label attribute-roll rollable"
+                data-attribute="{{attr}}"
+                title="{{localize 'TRESPASSER.Sheet.Combat.ClickRollCheck' label=(localize (concat 'TRESPASSER.Terms.Attribute.' (capitalize attr)))}}">
+            {{localize (concat "TRESPASSER.Terms.Attribute." (capitalize attr))}}
+            <h3>{{lookup ../totalAttributes attr}}</h3>
+          </span>
+          <input type="number" name="system.attributes.{{attr}}" value="{{lookup ../system.attributes attr}}" min="0" />
+          <button type="button"
+            class="key-attr-btn {{#if (eq ../keyAttribute attr)}}is-key{{/if}}"
+            data-attribute="{{attr}}"
+            title="{{localize 'TRESPASSER.Sheet.Header.SetKeyAttr'}}">
+            {{#if (eq ../keyAttribute attr)}}★{{else}}☆{{/if}}
+          </button>
+        </div>
+        {{/each}}
+      </div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════════════════
+       TAB NAVIGATION
+  ════════════════════════════════════════════════════ -->
+  <nav class="sheet-tabs tabs" data-group="primary">
+    <a class="item {{#if (eq tabs.primary 'character')}}active{{/if}}" data-tab="character">{{localize "TRESPASSER.Sheet.Tabs.Character"}}</a>
+    <a class="item {{#if (eq tabs.primary 'inventory')}}active{{/if}}" data-tab="inventory">{{localize "TRESPASSER.Sheet.Tabs.Inventory"}}</a>
+    <a class="item {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-tab="notes">{{localize "TRESPASSER.Sheet.Tabs.Notes"}}</a>
+  </nav>
+
+  <!-- ═══════════════════════════════════════════════════
+       SHEET BODY
+  ════════════════════════════════════════════════════ -->
+  <section class="sheet-body">
+
+    <!-- ─── TAB 1: CHARACTER (2 Columns) ─── -->
+    <div class="tab tab-body {{#if (eq tabs.primary 'character')}}active{{/if}}" data-group="primary" data-tab="character">
+      <div class="character-layout">
+
+        <!-- Column 1: Identity & Skills -->
+        <div class="char-col char-identity">
+          <div class="field-block">
+            <label>{{localize "TRESPASSER.Sheet.Character.PastLife"}}</label>
+            <input type="text" name="system.past_life" value="{{system.past_life}}" readonly placeholder="Drag & Drop Past Life" />
+          </div>
+          <div class="field-block">
+            <label>{{localize "TRESPASSER.Sheet.Character.Lineage"}}</label>
+            <input type="text" name="system.lineage" value="{{system.lineage}}" />
+          </div>
+          <div class="field-block">
+            <label>{{localize "TRESPASSER.COMMONER.ALIGNMENT"}}</label>
+            <input type="text" name="system.alignment" value="{{system.alignment}}" />
+          </div>
+
+          <!-- Skills moved below Alignment -->
+          <div class="char-skills-container" style="margin-top: 8px; border-top: 1px solid var(--trp-border); padding-top: 8px;">
+            <h4 style="margin-bottom: 6px;">{{localize "TRESPASSER.Sheet.Character.Skills"}}</h4>
+            {{#each skillList}}
+            <div class="skill-row">
+              <span class="skill-label rollable" data-skill="{{this.key}}" title="{{localize 'TRESPASSER.Sheet.Combat.ClickRollCheck' label=this.label}}">{{this.label}}</span>
+              <input type="checkbox" name="system.skills.{{this.key}}" {{trespasserChecked this.value}} />
+            </div>
+            {{/each}}
+          </div>
+        </div>
+
+        <!-- Column 2: Equipment Snapshot, Combat Attributes, Default Deed -->
+        <div class="char-col char-combat-col">
+
+          <!-- 1. Equipment Snapshot Component -->
+          <div class="combat-equipment">
+            <h4>{{localize "TRESPASSER.Sheet.Combat.Equipment"}}</h4>
+            <table class="combat-equip-table">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>{{localize "TRESPASSER.Sheet.Common.DIE"}}</th>
+                  <th>{{localize "TRESPASSER.Sheet.Common.Effect"}}</th>
+                  <th>{{localize "TRESPASSER.Sheet.Combat.BrokenUsedShort"}}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {{#each (array "head" "arms" "body" "legs" "outer" "shield") as |slot|}}
+                {{#with (lookup ../equippedArmor slot) as |item|}}
+                {{#unless (eq item.type "item")}}
+                <tr class="item" data-item-id="{{item.id}}" {{#if item}}draggable="true"{{/if}}>
+                  <td class="slot-label {{#if item}}equip-rollable{{/if}}" data-slot="{{slot}}">{{capitalize slot}}</td>
+                  <td>{{#if item}}{{item.system.armorDie}}{{else}}—{{/if}}</td>
+                  <td>{{#if item}}{{item.effectSummary}}{{else}}—{{/if}}</td>
+                  <td class="col-used">
+                    {{#if item}}
+                    <input type="checkbox" class="item-broken-toggle" {{checked item.system.broken}} />
+                    {{/if}}
+                  </td>
+                </tr>
+                {{/unless}}
+                {{/with}}
+                {{/each}}
+                {{!-- Dynamic Weapon Row --}}
+                <tr>
+                  <td class="slot-label" style="vertical-align: middle;">
+                    <div style="display:flex; flex-direction:column; gap:2px; padding: 2px 0;">
+                      <label style="margin: 0; font-size: var(--fs-9); line-height: 1;">{{localize "TRESPASSER.App.System.Types.Item.weapon"}}</label>
+                      {{#if weaponModes}}
+                      <select name="system.combat.weaponMode" class="weapon-mode-select" style="margin: 0;">
+                        {{selectOptions weaponModes selected=system.combat.weaponMode valueAttr="key" labelAttr="label"}}
+                      </select>
+                      {{/if}}
+                    </div>
+                  </td>
+                  <td style="vertical-align: middle; padding-top: 8px;">{{activeWeapon.die}}</td>
+                  <td style="vertical-align: middle; padding-top: 8px;" title="{{activeWeapon.effect}}">{{activeWeapon.effect}}</td>
+                  <td class="col-used"></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- 2. Combat Attributes Grid -->
+          <div class="combat-stats-grid">
+            {{#each (array "initiative" "accuracy" "guard" "resist" "prevail" "tenacity" "focus") as |stat|}}
+            <div class="combat-stat">
+              {{#if (or (eq stat "focus") (eq stat "speed"))}}
+              <span class="combat-stat-label" data-stat="{{stat}}">
+                {{localize (concat "TRESPASSER.Sheet.Combat." (capitalize stat))}}
+              </span>
+              {{else}}
+              <span class="combat-stat-label combat-stat-roll rollable"
+                    data-stat="{{stat}}"
+                    title="Roll 1d20 + {{stat}}">
+                {{localize (concat "TRESPASSER.Sheet.Combat." (capitalize stat))}}
+              </span>
+              {{/if}}
+              <input type="number"
+                     name="system.combat.{{stat}}"
+                     value="{{lookup ../totalCombat stat}}"
+                     {{#unless (eq stat "focus")}}readonly{{/unless}} 
+                     title="{{localize (concat 'TRESPASSER.Sheet.Combat.' (capitalize stat))}} (Base: {{lookup ../system.combat stat}})"/>
+            </div>
+            {{/each}}
+
+            <div class="combat-stat combat-stat-speed">
+              <span class="combat-stat-label" data-stat="speed">
+                {{localize "TRESPASSER.Sheet.Combat.Speed"}}
+              </span>
+              <div class="speed-display">
+                <input type="number"
+                       name="system.combat.speed"
+                       value="{{totalCombat.speed}}"
+                       readonly
+                       class="speed-base"
+                       title="{{localize 'TRESPASSER.Sheet.Combat.Speed'}}" />
+                <span class="speed-separator">/</span>
+                <span class="speed-bonus-value"
+                      title="{{localize 'TRESPASSER.Sheet.Combat.SpeedBonus'}}">
+                  +{{speedBonus}}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Default Deed (Single-column card display) -->
+          <div class="commoner-deeds-container">
+            {{> "systems/trespasser/templates/actor/parts/deed-list.hbs"}}
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ─── TAB 2: INVENTORY ─── -->
+    <div class="tab tab-body {{#if (eq tabs.primary 'inventory')}}active{{/if}}" data-group="primary" data-tab="inventory">
+      <div class="inventory-grid">
+        {{#each unequippedItems}}
+        <div class="inventory-card {{#if this.system.broken}}is-broken{{/if}}" data-item-id="{{this.id}}" draggable="true">
+          {{#if this.system.broken}}<i class="fas fa-bolt broken-icon" title="{{localize 'TRESPASSER.Sheet.Item.States.UsedBroken'}}"></i>{{/if}}
+          <img src="{{this.img}}" class="item-icon" title="{{this.name}}" />
+          <span class="item-name">{{this.name}}</span>
+          <div class="item-controls">
+            {{#if (or (eq this.type "armor") (eq this.type "weapon") (eq this.type "accessory") this.system.equippable)}}
+            <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-dice-d6"></i></a>
+            <a class="item-equip" title="{{localize 'TRESPASSER.Sheet.Common.Equip'}}"><i class="fas fa-hand-paper"></i></a>
+            {{else if (eq this.type "rations")}}
+            <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-utensils"></i></a>
+            {{/if}}
+
+            {{#if (eq this.system.subType "light_source")}}
+            <a class="item-toggle-light" title="{{#if this.system.active}}{{localize 'TRESPASSER.Sheet.Common.Unlight'}}{{else}}{{localize 'TRESPASSER.Sheet.Common.Light'}}{{/if}} {{localize 'TRESPASSER.Sheet.Item.Details.IsLightSource'}}">
+                <i class="fas fa-fire {{#if this.system.active}}active{{/if}}" style="{{#if this.system.active}}color: var(--trp-gold-bright);{{else}}color: var(--trp-text-dim);{{/if}}"></i>
+            </a>
+            {{/if}}
+
+            {{#if (or (eq this.system.subType "bombs") (eq this.system.subType "oils") (eq this.system.subType "powders") (eq this.system.subType "potions") (eq this.system.subType "scrolls") (eq this.system.subType "esoteric"))}}
+            <a class="item-consume" title="{{localize 'TRESPASSER.App.System.Trigger.Use'}}"><i class="fas fa-flask"></i></a>
+            {{/if}}
+
+            {{#if ../transferTarget}}
+            <a class="item-transfer" title="{{localize 'TRESPASSER.Sheet.Haven.TransferItemTo' name=../transferTarget.name}}" data-target-id="{{../transferTarget.id}}" data-target-type="{{../transferTarget.type}}"><i class="fas fa-exchange-alt"></i></a>
+            {{/if}}
+
+            <a class="item-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+            <a class="item-delete" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
+          </div>
+        </div>
+        {{else}}
+        <div class="empty-list" style="grid-column:1/-1">{{localize "TRESPASSER.Sheet.Character.Inventory.EmptyInventory"}}</div>
+        {{/each}}
+      </div>
+
+      <div class="inventory-separator">
+        <span>{{localize "TRESPASSER.Sheet.Character.Inventory.EquippedItems"}}</span>
+      </div>
+
+      <div class="inventory-grid">
+        {{#each equippedItems}}
+        <div class="inventory-card {{#if this.system.broken}}is-broken{{/if}}" data-item-id="{{this.id}}" draggable="true">
+          {{#if this.system.broken}}<i class="fas fa-bolt broken-icon" title="{{localize 'TRESPASSER.Sheet.Item.States.UsedBroken'}}"></i>{{/if}}
+          <img src="{{this.img}}" class="item-icon" title="{{this.name}}" />
+          <span class="item-name">{{this.name}}</span>
+          <div class="item-controls">
+            {{#if (or (eq this.type "armor") (eq this.type "weapon") (eq this.type "accessory") this.system.equippable)}}
+            <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-dice-d6"></i></a>
+            <a class="item-unequip" title="{{localize 'TRESPASSER.Sheet.Common.Unequip'}}"><i class="fas fa-hand-paper" style="color: var(--trp-gold-bright);"></i></a>
+            {{else if (eq this.type "rations")}}
+            <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-utensils"></i></a>
+            {{/if}}
+
+            {{#if (or (eq this.system.subType "light_source") (and (eq this.type "weapon") this.system.isLightSource))}}
+            <a class="item-toggle-light" title="{{#if this.system.active}}{{localize 'TRESPASSER.Sheet.Common.Unlight'}}{{else}}{{localize 'TRESPASSER.Sheet.Common.Light'}}{{/if}} {{localize 'TRESPASSER.Sheet.Item.Details.IsLightSource'}}">
+                <i class="fas fa-fire {{#if this.system.active}}active{{/if}}" style="{{#if this.system.active}}color: var(--trp-gold-bright);{{else}}color: var(--trp-text-dim);{{/if}}"></i>
+            </a>
+            {{/if}}
+
+            {{#if ../transferTarget}}
+            <a class="item-transfer" title="{{localize 'TRESPASSER.Sheet.Haven.TransferItemTo' name=../transferTarget.name}}" data-target-id="{{../transferTarget.id}}" data-target-type="{{../transferTarget.type}}"><i class="fas fa-exchange-alt"></i></a>
+            {{/if}}
+
+            <a class="item-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+            <a class="item-delete" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
+          </div>
+        </div>
+        {{else}}
+        <div class="empty-list" style="grid-column:1/-1">{{localize "TRESPASSER.Sheet.Character.Inventory.EmptyEquipped"}}</div>
+        {{/each}}
+      </div>
+    </div>
+
+    <!-- ─── TAB 3: NOTES ─── -->
+    <div class="tab tab-body {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-group="primary" data-tab="notes">
+      <div class="notes-container" style="padding: 10px;">
+        {{editor system.notes target="system.notes" button=true owner=owner editable=editable}}
+      </div>
+    </div>
+
+  </section>
+</section>

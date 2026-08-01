@@ -1,5 +1,18 @@
 {
   "TRESPASSER": {
+    "COMMONER": {
+      "GENERATE": "Generate",
+      "UPGRADE_TRESPASSER": "Upgrade to Trespasser",
+      "COMBAT_VALUES": "Combat Defenses",
+      "CARRIED_ITEMS": "Carried Items",
+      "NOTES": "Notes",
+      "NAME": "Name",
+      "ALIGNMENT": "Alignment",
+      "LINEAGE": "Lineage",
+      "PAST_LIFE": "Past Life",
+      "HIT_POINTS": "Hit Points",
+      "SPEED": "Speed"
+    },
     "Sheet": {
       "Header": {
         "Name": "Name",

@@ -52,13 +52,17 @@ export async function getCharacterData(sheet, options = {}) {
   const crafts = context.system.crafts ?? [];
   context.craftsSlots = [crafts[0] ?? "", crafts[1] ?? "", crafts[2] ?? ""];
 
-  // Always show exactly 2 alignment rows
-  const emptyAlignment = () => ({ name: "", leftBoxes: [false, false, false], rightBoxes: [false, false, false] });
-  const rawAlignment   = Array.isArray(context.system.alignment) ? context.system.alignment : [];
-  context.system.alignment = [
-    (rawAlignment[0] && typeof rawAlignment[0] === "object") ? rawAlignment[0] : emptyAlignment(),
-    (rawAlignment[1] && typeof rawAlignment[1] === "object") ? rawAlignment[1] : emptyAlignment()
-  ];
+  // Alignment handling: commoners use a text string, characters use a 2-row alignment box array
+  if (actor.type === "commoner") {
+    context.system.alignment = typeof context.system.alignment === "string" ? context.system.alignment : "";
+  } else {
+    const emptyAlignment = () => ({ name: "", leftBoxes: [false, false, false], rightBoxes: [false, false, false] });
+    const rawAlignment   = Array.isArray(context.system.alignment) ? context.system.alignment : [];
+    context.system.alignment = [
+      (rawAlignment[0] && typeof rawAlignment[0] === "object") ? rawAlignment[0] : emptyAlignment(),
+      (rawAlignment[1] && typeof rawAlignment[1] === "object") ? rawAlignment[1] : emptyAlignment()
+    ];
+  }
 
   const injuryItems = actor.items.filter(i => i.type === "injury");
   for (const inj of injuryItems) {
