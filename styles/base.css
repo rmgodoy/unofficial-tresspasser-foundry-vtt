@@ -169,11 +169,13 @@
 }
 
 .trespasser-sheet .weapon-mode-select {
-  font-size: var(--fs-11);
-  height: 20px;
+  font-size: var(--fs-11) !important;
+  height: 22px;
   margin-top: 2px;
   border-color: var(--trp-border-light);
   background-color: var(--trp-bg-overlay) !important;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .trespasser-sheet select option,

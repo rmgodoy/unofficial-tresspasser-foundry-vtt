@@ -232,6 +232,22 @@
           "After": "After",
           "End": "End"
         },
+        "Target": {
+          "Self": "Self",
+          "Special": "Special",
+          "Creature": "Creature",
+          "Creatures": "Creatures",
+          "Square": "Square",
+          "Squares": "Squares",
+          "SelectedArea": "Selected Area",
+          "Blast": "Blast",
+          "CloseBlast": "Close Blast",
+          "Burst": "Burst",
+          "MeleeBurst": "Melee Burst",
+          "Path": "Path",
+          "ClosePath": "Close Path",
+          "Aura": "Aura"
+        },
         "SkipPhase": "Skip Phase",
         "Behavior": {
           "Label": "Behavior",

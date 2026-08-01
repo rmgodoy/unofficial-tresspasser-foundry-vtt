@@ -51,6 +51,7 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
       targetSize: new fields.NumberField({ initial: null, nullable: true }),
       accuracyTest: new fields.StringField({ initial: null, nullable: true }),
       effects: new fields.ObjectField({ initial: null, nullable: true }),
+      type: new fields.StringField({ initial: "", nullable: true }),
 
       tier: new fields.StringField({
         initial: "light",

@@ -1,31 +1,41 @@
 import { esc } from "./utils.mjs";
+import { formatBDeedTarget } from "../deed-display-helper.mjs";
 
 const DEED_PHASES = ["start", "before", "base", "hit", "spark", "after", "end"];
 
 const PHASE_LABELS = {
-  start:  "TRESPASSER.Sheet.Common.Start",
-  before: "TRESPASSER.Sheet.Common.Before",
-  base:   "TRESPASSER.Sheet.Common.Base",
-  hit:    "TRESPASSER.Sheet.Common.Hit",
-  spark:  "TRESPASSER.Sheet.Common.Spark",
-  after:  "TRESPASSER.Sheet.Common.After",
-  end:    "TRESPASSER.Sheet.Common.End",
+  start:  "TRESPASSER.Sheet.Deed.Phase.Start",
+  before: "TRESPASSER.Sheet.Deed.Phase.Before",
+  base:   "TRESPASSER.Sheet.Deed.Phase.Base",
+  hit:    "TRESPASSER.Sheet.Deed.Phase.Hit",
+  spark:  "TRESPASSER.Sheet.Deed.Phase.Spark",
+  after:  "TRESPASSER.Sheet.Deed.Phase.After",
+  end:    "TRESPASSER.Sheet.Deed.Phase.End",
 };
 
 export function buildDeedContent(item) {
   const sys = item.system;
 
   // Subtitle: "TYPE ATTACK vs. ACCURACY | TARGET"
-  const typeLabel    = game.i18n.localize(`TRESPASSER.Sheet.Item.Details.TypeChoices.${sys.type?.charAt(0).toUpperCase() + sys.type?.slice(1)}`) || sys.type || "";
-  const actionLabel  = game.i18n.localize(`TRESPASSER.Sheet.Item.Details.ActionTypeChoices.${sys.actionType?.charAt(0).toUpperCase() + sys.actionType?.slice(1)}`) || sys.actionType || "";
-  const accuracyTest = sys.actionType === "support" ? "10" : (sys.accuracyTest || "");
-  const target       = esc(sys.target || "");
+  const typeRaw     = sys.abilityType || sys.type || "";
+  const typeKey     = typeRaw ? typeRaw.charAt(0).toUpperCase() + typeRaw.slice(1) : "";
+  const typeLabel   = typeKey ? (game.i18n.localize(`TRESPASSER.Sheet.Item.Details.TypeChoices.${typeKey}`) || typeRaw) : "";
+
+  const actionRaw   = sys.actionType || "";
+  const actionKey   = actionRaw ? actionRaw.charAt(0).toUpperCase() + actionRaw.slice(1) : "";
+  const actionLabel = actionKey ? (game.i18n.localize(`TRESPASSER.Sheet.Item.Details.ActionTypeChoices.${actionKey}`) || actionRaw) : "";
+
+  const versusRaw   = sys.versus || (sys.actionType === "support" ? "10" : (sys.accuracyTest || "Guard"));
+  const versusLabel = versusRaw === "10" ? "10" : (game.i18n.localize(`TRESPASSER.Sheet.Combat.${versusRaw}`) || versusRaw);
+  const vsText      = game.i18n.localize("TRESPASSER.Sheet.Combat.Vs");
+
+  const targetLabel = formatBDeedTarget(sys);
 
   const subtitleParts = [];
   if (typeLabel) subtitleParts.push(typeLabel.toUpperCase());
   if (actionLabel) subtitleParts.push(actionLabel.toUpperCase());
-  if (accuracyTest) subtitleParts.push(`vs. ${accuracyTest}`);
-  const subtitle = [subtitleParts.join(" "), target].filter(Boolean).join(" | ");
+  if (versusLabel) subtitleParts.push(`${vsText} ${versusLabel}`);
+  const subtitle = [subtitleParts.join(" "), targetLabel].filter(Boolean).join(" | ");
 
   // Focus cost line
   const baseCost    = sys.focusCost != null ? sys.focusCost : null;

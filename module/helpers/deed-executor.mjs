@@ -732,7 +732,7 @@ export class DeedExecutor {
    */
   async _postPhaseCard(phaseKey, phase) {
     if (!phase) phase = {};
-    const phaseLabel = game.i18n.localize(`TRESPASSER.Sheet.BDeed.Phase.${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)}`);
+    const phaseLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)}`);
     const outputs = this.context.currentPhaseOutputs || { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
 
     let content = `<div class="bdeed-phase-card" style="border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px; padding: 10px; background: var(--trp-bg-panel, #23201c); color: var(--trp-text, #ddd0aa);">

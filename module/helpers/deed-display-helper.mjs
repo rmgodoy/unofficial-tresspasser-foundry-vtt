@@ -9,7 +9,7 @@
  * @returns {string}
  */
 export function formatBDeedTarget(system) {
-  if (!system || !system.phases) return "Self";
+  if (!system || !system.phases) return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Self");
   const selectBehaviors = [];
   const phaseKeys = ["start", "before", "base", "hit", "spark", "after", "end"];
   for (const pKey of phaseKeys) {
@@ -21,40 +21,47 @@ export function formatBDeedTarget(system) {
     }
   }
 
-  if (selectBehaviors.length > 1) return "Special";
-  if (selectBehaviors.length === 0) return "Self";
+  if (selectBehaviors.length > 1) return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Special");
+  if (selectBehaviors.length === 0) return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Self");
 
   const behavior = selectBehaviors[0];
   const params = behavior.params || {};
   const mode = params.targetMode || (behavior.type === "selectArea" ? "squares" : "creatures");
 
-  if (mode === "self") return "Self";
+  if (mode === "self") return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Self");
   if (mode === "creatures") {
     const count = parseInt(params.targetCount) || 1;
-    return `${count} ${count === 1 ? "Creature" : "Creatures"}`;
+    const unit = count === 1
+      ? game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Creature")
+      : game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Creatures");
+    return `${count} ${unit}`;
   }
   if (mode === "squares") {
     const count = parseInt(params.targetCount) || 1;
-    return `${count} ${count === 1 ? "Square" : "Squares"}`;
+    const unit = count === 1
+      ? game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Square")
+      : game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Squares");
+    return `${count} ${unit}`;
   }
   if (mode === "aoe") {
-    const typeMap = {
+    const typeKeyMap = {
       blast: "Blast",
-      close_blast: "Close Blast",
+      close_blast: "CloseBlast",
       burst: "Burst",
-      melee_burst: "Melee Burst",
+      melee_burst: "MeleeBurst",
       path: "Path",
-      close_path: "Close Path",
+      close_path: "ClosePath",
       aura: "Aura"
     };
-    const type = typeMap[params.aoeType] || (params.aoeType || "blast").charAt(0).toUpperCase() + (params.aoeType || "blast").slice(1);
+    const key = typeKeyMap[params.aoeType] || "Blast";
+    const typeLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Target.${key}`) || params.aoeType;
     const size = parseInt(params.aoeSize) || 1;
-    return `${type} ${size}`;
+    return `${typeLabel} ${size}`;
   }
   if (mode === "area") {
-    return "Selected Area";
+    return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.SelectedArea");
   }
-  return "Self";
+  return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Self");
 }
 
 /**
@@ -98,8 +105,17 @@ export function prepareDeedDisplayData(d, sourceMapByUuid = {}) {
   }
 
   // Normalized subheader fields
-  deedData.displayType = deedData.system.abilityType || "deed";
-  deedData.displayVersus = deedData.system.versus || "Guard";
+  const typeRaw = deedData.system.abilityType || deedData.system.type || "deed";
+  const typeKey = typeRaw ? typeRaw.charAt(0).toUpperCase() + typeRaw.slice(1) : "";
+  deedData.displayType = typeKey ? (game.i18n.localize(`TRESPASSER.Sheet.Item.Details.TypeChoices.${typeKey}`) || typeRaw) : "";
+
+  const actionRaw = deedData.system.actionType || "attack";
+  const actionKey = actionRaw ? actionRaw.charAt(0).toUpperCase() + actionRaw.slice(1) : "";
+  deedData.displayActionType = actionKey ? (game.i18n.localize(`TRESPASSER.Sheet.Item.Details.ActionTypeChoices.${actionKey}`) || actionRaw) : "";
+
+  const versusRaw = deedData.system.versus || "Guard";
+  deedData.displayVersus = versusRaw === "10" ? "10" : (game.i18n.localize(`TRESPASSER.Sheet.Combat.${versusRaw}`) || versusRaw);
+
   deedData.displayTarget = formatBDeedTarget(deedData.system);
 
   // Normalized phase descriptions map

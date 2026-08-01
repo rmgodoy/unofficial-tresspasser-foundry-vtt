@@ -79,8 +79,9 @@ export function convertOldDeedSystem(source) {
   const src = foundry.utils.deepClone(source || {});
 
   // 1. Rename ability type (type -> abilityType)
-  if (src.type && !src.abilityType) {
+  if (src.type && src.type !== "deed") {
     src.abilityType = src.type;
+    delete src.type;
   }
 
   // 2. Rename accuracy test (accuracyTest -> versus)
@@ -220,7 +221,7 @@ export async function migrateWorldDeeds(options = {}) {
   if (!game.user.isGM) return;
 
   const force = !!options.force;
-  const CURRENT_MIGRATION_VERSION = 3;
+  const CURRENT_MIGRATION_VERSION = 4;
   const currentVersion = game.settings.get("trespasser", "deedMigrationVersion") || 0;
   if (!force && currentVersion >= CURRENT_MIGRATION_VERSION) return;
 

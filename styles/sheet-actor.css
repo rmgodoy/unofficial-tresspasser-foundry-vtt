@@ -1036,6 +1036,7 @@
   color: var(--trp-text);
   font-size: var(--fs-12);
   white-space: nowrap;
+  min-width: 170px;
 }
 
 .combat-equip-table .col-sm { width: 40px; }
