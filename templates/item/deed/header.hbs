@@ -6,5 +6,13 @@
     <h1 class="item-title">
       <input name="name" type="text" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}"/>
     </h1>
+    <div class="item-header-meta" style="display: flex; gap: 12px; align-items: flex-end; margin-top: 4px;">
+      <div class="field-row" style="flex: 1;">
+        <label>{{localize "TRESPASSER.Sheet.BDeed.Tier"}}</label>
+        <select name="system.tier">
+          {{selectOptions config.tiers selected=system.tier}}
+        </select>
+      </div>
+    </div>
   </div>
 </header>
