@@ -116,9 +116,19 @@
       "path": "lang/pt-BR/global.json"
     },
     {
+      "lang": "en",
+      "name": "English (alignments)",
+      "path": "lang/en/alignments.json"
+    },
+    {
       "lang": "pt-br",
       "name": "Portuguese (Brazil) (dungeon)",
       "path": "lang/pt-BR/dungeon.json"
+    },
+    {
+      "lang": "pt-br",
+      "name": "Portuguese (Brazil) (alignments)",
+      "path": "lang/pt-BR/alignments.json"
     }
   ],
   "documentTypes": {

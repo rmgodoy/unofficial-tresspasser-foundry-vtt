@@ -63,6 +63,7 @@ import { TrespasserRollDialog } from "./module/dialogs/roll-dialog.mjs";
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
 import { TrespasserPartySheet }   from "./module/sheets/actor-party-sheet.mjs";
 import { TrespasserPartyHelper }  from "./module/helpers/party-helper.mjs";
+import { CommonerGenerator }      from "./module/helpers/commoner-generator.mjs";
 
 // ── Dungeon Exploration imports ──────────────────────────────────────────────
 import { TrespasserDungeonData }   from "./module/data/actor-dungeon.mjs";
@@ -673,6 +674,7 @@ Hooks.once("init", async () => {
   game.trespasser.DungeonTracker = DungeonTracker;
   game.trespasser.TravelTracker = TravelTracker;
   game.trespasser.CanvasInputSession = CanvasInputSession;
+  game.trespasser.CommonerGenerator = CommonerGenerator;
   game.trespasser.CanvasInputOverlay = CanvasInputOverlay;
   globalThis.trespasser = game.trespasser;
 });
