@@ -85,23 +85,23 @@
   },
   {
     "source": "Blast",
-    "target": "Explosão (Blast)"
+    "target": "Explosão"
   },
   {
     "source": "Burst",
-    "target": "Erupção (Burst)"
+    "target": "Erupção"
   },
   {
     "source": "Melee Burst",
-    "target": "Erupção Corpo-a-corpo (Melee Burst)"
+    "target": "Erupção Corpo-a-corpo"
   },
   {
     "source": "Path",
-    "target": "Caminho (Path)"
+    "target": "Caminho"
   },
   {
     "source": "Close Path",
-    "target": "Caminho Próximo (Close Path)"
+    "target": "Caminho Próximo"
   },
   {
     "source": "Lift Spirits",
