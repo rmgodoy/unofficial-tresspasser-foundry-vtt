@@ -332,9 +332,7 @@ export class TrespasserActor extends Actor {
     if (item.system.subType === "light_source" || (item.type === "weapon" && item.system.isLightSource)) await this._syncTokenLight();
 
     // Apply continuous and Trigger effects based on item type
-    if (item.system.effects?.length > 0) {
-      // Weapons handle effects differently (some apply to target, some to self)
-      // The guide says: "If a weapon has a continuous effect, it's applied immediatly to the one with the weapon equipped and must be removed when unequipped."
+    if (item.type !== "weapon" && item.system.effects?.length > 0) {
       await this._applyLinkedItems(item.system.effects, { 
         continuousOnly: true,
         sourceType: item.type
@@ -450,7 +448,7 @@ export class TrespasserActor extends Actor {
     await item.update({ "system.equipped": false });
 
     // Remove or reduce linked effects
-    if (item.system.effects?.length > 0) {
+    if (item.type !== "weapon" && item.system.effects?.length > 0) {
       await this._removeLinkedItems(item.system.effects, item.id);
     }
 

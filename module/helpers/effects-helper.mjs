@@ -304,7 +304,6 @@ export class TrespasserEffectsHelper {
         (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
       } else if (item.type === "weapon" && item.system.equipped) {
         (item.system.extraDeeds || []).forEach(d => { if (d.uuid) sourceMapByUuid[d.uuid] = item.name; });
-        (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
         (item.system.enhancementEffects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
       } else if (item.type === "armor" && item.system.equipped) {
         (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
@@ -316,7 +315,7 @@ export class TrespasserEffectsHelper {
       const equippableTypes = ["weapon", "armor", "accessory", "item"];
       const isEquippable = equippableTypes.includes(item.type);
       
-      if (item.system.equipped && Array.isArray(item.system.effects)) {
+      if (item.type !== "weapon" && item.system.equipped && Array.isArray(item.system.effects)) {
         item.system.effects.forEach((eff, index) => {
           // If it's an equippable, we skip immediate/continuous effects because those should have been converted to real Effect documents
           if (isEquippable && (eff.type === "continuous" || eff.when === "immediate" || !eff.when)) return;
