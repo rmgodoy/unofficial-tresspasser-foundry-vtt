@@ -2,7 +2,7 @@
     {{#if inCombat}}
     <div class="hud-content">
         <header>
-            <div class="hud-title">{{localize "TRESPASSER.HUD.Title"}}</div>
+            <div class="hud-title" title="{{actorName}}">{{actorName}}</div>
             <div class="ap-indicator" title="{{localize "TRESPASSER.Sheet.Combat.ActionPoints"}}">
                 {{#if isGM}}
                 <button class="gm-ap-btn" data-action="modify-ap" data-delta="-1" title="{{localize "TRESPASSER.HUD.Resource.RemoveAP"}}">-</button>

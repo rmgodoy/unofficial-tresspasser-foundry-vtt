@@ -100,11 +100,14 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             moveBtnLabel = `Move (${movePointsLeft})`;
         }
 
+        const actorName = this._token?.actor?.name || this._token?.name || game.i18n.localize("TRESPASSER.HUD.Title");
+
         const context = {
             inCombat: true,
             isGM: game.user.isGM,
             token: this._token,
             actor: this._token.actor,
+            actorName: actorName,
             availableAP: ap,
             apDots,
             allies: this._getNearbyAllies(),
