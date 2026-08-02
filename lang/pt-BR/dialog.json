@@ -29,7 +29,7 @@
         "SkillCheck": "Teste de Perícia",
         "AttributeCheck": "Teste de Atributo",
         "ActionRoll": "Rolar",
-        "AskSparkShadow": "Escolher Faíscas/Sombras"
+        "AskSparkShadow": "Escolher Centelha/Sombras"
       },
       "Delete": {
         "ItemTitle": "Excluir Item",
@@ -73,6 +73,12 @@
         "PotencyDesc": "+1 intensidade nos efeitos aplicados.",
         "Power": "Poder",
         "PowerDesc": "+1 dado de perícia adicionado ao dano."
+      },
+      "Potency": {
+        "Title": "Alocação de Centelha de Potência",
+        "Intro": "Você tem {count} ponto(s) de Potência para atribuir aos efeitos para {target}.",
+        "Remaining": "Pontos de Potência Restantes: {count}",
+        "InvalidTotal": "O total de pontos de Potência alocados ({allocated}) deve ser igual ao total de pontos disponíveis ({total})."
       },
       "Calling": {
         "Title": "Aplicar Vocação: {name}",

@@ -621,83 +621,94 @@ export class BDeedBehaviorHandler {
     const validTargets = this.getValidTargets(context, phaseKey);
     if (validTargets.length === 0) return true;
 
-    // Apply explicitly listed effect UUIDs
+    // 1. Gather all base effect items from behavior params
+    const effectList = [];
     for (const eff of effects) {
       if (!eff.uuid) continue;
       const effectItem = await fromUuid(eff.uuid);
       if (!effectItem) continue;
-
-      for (const targetToken of validTargets) {
-        const targetActor = targetToken.actor || (targetToken instanceof Actor ? targetToken : null);
-        if (!targetActor) continue;
-
-        const targetChoices = context.sparkChoices?.perTarget?.get(targetToken.id);
-        const targetPotencyBonus = targetChoices?.potency || 0;
-
-        const itemData = effectItem.toObject();
-        itemData.system = itemData.system || {};
-        const baseIntensity = eff.intensity || 1;
-        itemData.system.intensity = baseIntensity + targetPotencyBonus;
-
-        if (targetActor.isOwner) {
-          await targetActor.createEmbeddedDocuments("Item", [itemData]);
-        } else {
-          const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
-          await emitDeedActionAndWait("applyEffects", { 
-            actorId: targetActor.id, 
-            tokenId: targetToken.id, 
-            itemDataArray: [itemData] 
-          });
-        }
-        
-        if (context.currentPhaseOutputs?.notes) {
-          const tokenName = BDeedBehaviorHandler.getTokenDisplayName(targetToken);
-          context.currentPhaseOutputs.notes.push(`Applied effect "${effectItem.name}" (Intensity ${itemData.system.intensity}) to ${tokenName}`);
-        }
-      }
+      effectList.push({
+        item: effectItem,
+        uuid: eff.uuid,
+        baseIntensity: eff.intensity || 1,
+        source: "deed"
+      });
     }
 
-    // Apply weapon effects when appliesWeaponEffects is true
+    // 2. Gather weapon effects if appliesWeaponEffects is true
     if (params.appliesWeaponEffects && actor) {
       const equippedWeapons = this._getActorEquippedWeapons(actor);
-
       for (const weapon of equippedWeapons) {
         const weaponEffects = weapon.system?.effects;
         if (!Array.isArray(weaponEffects) || weaponEffects.length === 0) continue;
-
         for (const wEff of weaponEffects) {
           if (!wEff.uuid) continue;
           const effectItem = await fromUuid(wEff.uuid);
           if (!effectItem) continue;
+          effectList.push({
+            item: effectItem,
+            uuid: wEff.uuid,
+            baseIntensity: wEff.intensity || 1,
+            source: weapon.name
+          });
+        }
+      }
+    }
 
-          for (const targetToken of validTargets) {
-            const targetActor = targetToken.actor || (targetToken instanceof Actor ? targetToken : null);
-            if (!targetActor) continue;
+    if (effectList.length === 0) return true;
 
-            const targetChoices = context.sparkChoices?.perTarget?.get(targetToken.id);
-            const targetPotencyBonus = targetChoices?.potency || 0;
+    const { askPotencyDialog } = await import("../dialogs/potency-dialog.mjs");
 
-            const itemData = effectItem.toObject();
-            itemData.system = itemData.system || {};
-            const baseIntensity = wEff.intensity || 1;
-            itemData.system.intensity = baseIntensity + targetPotencyBonus;
+    // 3. Process targets and prompt for Potency distribution if there are multiple effects and Potency sparks
+    for (const targetToken of validTargets) {
+      const targetActor = targetToken.actor || (targetToken instanceof Actor ? targetToken : null);
+      if (!targetActor) continue;
 
-            if (targetActor.isOwner) {
-              await targetActor.createEmbeddedDocuments("Item", [itemData]);
-            } else {
-              const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
-              await emitDeedActionAndWait("applyEffects", { 
-                actorId: targetActor.id, 
-                tokenId: targetToken.id, 
-                itemDataArray: [itemData] 
-              });
-            }
-            
-            if (context.currentPhaseOutputs?.notes) {
-              const tokenName = BDeedBehaviorHandler.getTokenDisplayName(targetToken);
-              context.currentPhaseOutputs.notes.push(`Applied weapon effect "${effectItem.name}" (from ${weapon.name}) (Intensity ${itemData.system.intensity}) to ${tokenName}`);
-            }
-          }
+      const targetChoices = context.sparkChoices?.perTarget?.get(targetToken.id);
+      const targetPotencyBonus = targetChoices?.potency || 0;
+      const tokenName = BDeedBehaviorHandler.getTokenDisplayName(targetToken);
+
+      let potencyAllocations = [];
+      if (targetPotencyBonus > 0 && effectList.length > 1) {
+        potencyAllocations = await askPotencyDialog(
+          targetPotencyBonus,
+          effectList.map(e => ({ name: e.item.name, intensity: e.baseIntensity })),
+          tokenName
+        );
+        if (!potencyAllocations) {
+          potencyAllocations = effectList.map((_, i) => (i === 0 ? targetPotencyBonus : 0));
+        }
+      } else {
+        potencyAllocations = effectList.map((_, i) => (i === 0 ? targetPotencyBonus : 0));
+      }
+
+      const itemDataArray = [];
+
+      effectList.forEach((effData, idx) => {
+        const addedPotency = potencyAllocations[idx] || 0;
+        const itemData = effData.item.toObject();
+        itemData.system = itemData.system || {};
+        itemData.system.intensity = effData.baseIntensity + addedPotency;
+        itemDataArray.push({ itemData, effData });
+      });
+
+      if (targetActor.isOwner) {
+        await targetActor.createEmbeddedDocuments("Item", itemDataArray.map(d => d.itemData));
+      } else {
+        const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
+        await emitDeedActionAndWait("applyEffects", { 
+          actorId: targetActor.id, 
+          tokenId: targetToken.id, 
+          itemDataArray: itemDataArray.map(d => d.itemData) 
+        });
+      }
+
+      if (context.currentPhaseOutputs?.notes) {
+        for (const { itemData, effData } of itemDataArray) {
+          const sourceText = effData.source !== "deed" ? ` (from ${effData.source})` : "";
+          context.currentPhaseOutputs.notes.push(
+            `Applied effect "${effData.item.name}"${sourceText} (Intensity ${itemData.system.intensity}) to ${tokenName}`
+          );
         }
       }
     }

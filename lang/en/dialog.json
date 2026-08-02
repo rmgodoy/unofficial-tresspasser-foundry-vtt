@@ -74,6 +74,12 @@
         "Power": "Power",
         "PowerDesc": "+1 skill die added to damage."
       },
+      "Potency": {
+        "Title": "Potency Spark Allocation",
+        "Intro": "You have {count} Potency point(s) to assign to effects for {target}.",
+        "Remaining": "Remaining Potency Points: {count}",
+        "InvalidTotal": "Total allocated Potency points ({allocated}) must equal total available points ({total})."
+      },
       "Calling": {
         "Title": "Apply Calling: {name}",
         "ApplySelections": "Apply Selections",

@@ -514,17 +514,8 @@ export class DeedExecutor {
         });
       }
 
-      let sparkChoices = null;
-      if (maxSparks > 0 && anyHit) {
-        sparkChoices = await askSparkDialog(results);
-      }
-
-      const applySparkPhase = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark !== false);
-
       this.context.isHit = anyHit;
-      this.context.isSpark = applySparkPhase;
       this.context.maxSparks = maxSparks;
-      this.context.sparkChoices = sparkChoices;
       this.context.accuracyResults = results;
 
       // Post creature defense roll results HTML
@@ -554,6 +545,18 @@ export class DeedExecutor {
           </h4>
           ${resultsHtml}
         </div>`;
+
+      // Post accuracy result in chat immediately before spark dialog
+      await this._postPhaseCard("hit", this.phases.hit, true);
+
+      let sparkChoices = null;
+      if (maxSparks > 0 && anyHit) {
+        sparkChoices = await askSparkDialog(results);
+      }
+
+      const applySparkPhase = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark !== false);
+      this.context.isSpark = applySparkPhase;
+      this.context.sparkChoices = sparkChoices;
 
       return true;
     }
@@ -656,19 +659,9 @@ export class DeedExecutor {
       });
     }
 
-    // Spark selection dialog prompt when sparks are generated
-    let sparkChoices = null;
-    if (maxSparks > 0 && anyHit) {
-      sparkChoices = await askSparkDialog(results);
-    }
-
-    const applySparkPhase = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark !== false);
-
     this.context.rollResult = accRoll;
     this.context.isHit = anyHit;
-    this.context.isSpark = applySparkPhase;
     this.context.maxSparks = maxSparks;
-    this.context.sparkChoices = sparkChoices;
     this.context.accuracyResults = results;
 
     const rollHtml = await accRoll.render();
@@ -710,6 +703,20 @@ export class DeedExecutor {
         ${resultsHtml}
       </div>`;
 
+    // Post accuracy result in chat immediately before spark dialog
+    await this._postPhaseCard("hit", this.phases.hit, true);
+
+    // Spark selection dialog prompt when sparks are generated
+    let sparkChoices = null;
+    if (maxSparks > 0 && anyHit) {
+      sparkChoices = await askSparkDialog(results);
+    }
+
+    const applySparkPhase = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark !== false);
+
+    this.context.isSpark = applySparkPhase;
+    this.context.sparkChoices = sparkChoices;
+
     return true;
   }
 
@@ -725,12 +732,13 @@ export class DeedExecutor {
   }
 
   /**
-   * Post a single consolidated chat card for an active phase containing description, accuracy roll, damage rolls, and behavior notes.
+   * Post or update a single consolidated chat card for an active phase containing description, accuracy roll, damage rolls, and behavior notes.
    * @param {string} phaseKey
    * @param {object} phase
+   * @param {boolean} [isPartial=false] - If true, posts or updates card early without clearing active state.
    * @protected
    */
-  async _postPhaseCard(phaseKey, phase) {
+  async _postPhaseCard(phaseKey, phase, isPartial = false) {
     if (!phase) phase = {};
     const phaseLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)}`);
     const outputs = this.context.currentPhaseOutputs || { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
@@ -771,13 +779,43 @@ export class DeedExecutor {
       : (this.actor ? ChatMessage.getSpeaker({ actor: this.actor, alias }) : ChatMessage.getSpeaker({ alias }));
     speaker.alias = alias;
 
-    await ChatMessage.create({
-      speaker,
-      content,
-      rolls: outputs.rolls || [],
-      flags: { trespasser: { bdeedId: this.item.id, phase: phaseKey } }
-    });
+    const rollData = (outputs.rolls || []).map(r => (typeof r.toJSON === "function" ? r.toJSON() : r));
 
-    this.context.currentPhaseOutputs = null;
+    if (this.context.activeChatMessage) {
+      const updates = {
+        content,
+        rolls: rollData
+      };
+      await this._updateChatMessage(this.context.activeChatMessage, updates);
+    } else {
+      const msg = await ChatMessage.create({
+        speaker,
+        content,
+        rolls: rollData,
+        flags: { trespasser: { bdeedId: this.item.id, phase: phaseKey } }
+      });
+      this.context.activeChatMessage = msg;
+    }
+
+    if (!isPartial) {
+      this.context.activeChatMessage = null;
+      this.context.currentPhaseOutputs = null;
+    }
+  }
+
+  /**
+   * Helper to update a chat message directly or via socket if non-GM.
+   * @param {ChatMessage} message
+   * @param {object} updates
+   * @protected
+   */
+  async _updateChatMessage(message, updates) {
+    if (!message || !message.id) return;
+    if (game.user.isGM) {
+      await message.update(updates);
+    } else {
+      const { TrespasserSocket } = await import("./socket/socket.mjs");
+      TrespasserSocket?.emit("UPDATE_CHAT_MESSAGE", { messageId: message.id, updates });
+    }
   }
 }
