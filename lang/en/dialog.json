@@ -78,7 +78,8 @@
         "Title": "Potency Spark Allocation",
         "Intro": "You have {count} Potency point(s) to assign to effects for {target}.",
         "Remaining": "Remaining Potency Points: {count}",
-        "InvalidTotal": "Total allocated Potency points ({allocated}) must equal total available points ({total})."
+        "InvalidTotal": "Total allocated Potency points ({allocated}) cannot exceed available points ({total}).",
+        "BaseIntensity": "Base Intensity"
       },
       "Calling": {
         "Title": "Apply Calling: {name}",

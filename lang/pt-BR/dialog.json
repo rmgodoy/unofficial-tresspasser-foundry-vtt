@@ -78,7 +78,8 @@
         "Title": "Alocação de Centelha de Potência",
         "Intro": "Você tem {count} ponto(s) de Potência para atribuir aos efeitos para {target}.",
         "Remaining": "Pontos de Potência Restantes: {count}",
-        "InvalidTotal": "O total de pontos de Potência alocados ({allocated}) deve ser igual ao total de pontos disponíveis ({total})."
+        "InvalidTotal": "O total de pontos de Potência alocados ({allocated}) não pode exceder os pontos disponíveis ({total}).",
+        "BaseIntensity": "Intensidade Base"
       },
       "Calling": {
         "Title": "Aplicar Vocação: {name}",
