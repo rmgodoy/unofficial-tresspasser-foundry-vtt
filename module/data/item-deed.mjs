@@ -104,6 +104,25 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
     };
   }
 
+  /** @override */
+  prepareBaseData() {
+    super.prepareBaseData();
+    if (this.phases) {
+      _sanitizeEffectsInPhases(this.phases);
+    }
+  }
+
+  /** @override */
+  _preUpdate(changes, options, user) {
+    const res = super._preUpdate(changes, options, user);
+    if (res === false) return false;
+
+    const phases = changes.system?.phases ?? changes.phases;
+    if (phases) {
+      _sanitizeEffectsInPhases(phases);
+    }
+  }
+
   /* -------------------------------------------- */
   /* Migration                                     */
   /* -------------------------------------------- */
@@ -114,3 +133,26 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
     return super.migrateData(source);
   }
 }
+
+/**
+ * Helper to ensure params.effects in behaviors is always a Javascript Array.
+ * @param {object} phases
+ */
+function _sanitizeEffectsInPhases(phases) {
+  if (!phases || typeof phases !== "object") return;
+  for (const phaseKey of Object.keys(phases)) {
+    const phase = phases[phaseKey];
+    if (!phase || typeof phase !== "object") continue;
+    const behaviors = phase.behaviors;
+    if (!behaviors) continue;
+    const behaviorList = Array.isArray(behaviors) ? behaviors : Object.values(behaviors);
+    for (const b of behaviorList) {
+      if (b && b.params && b.params.effects) {
+        if (!Array.isArray(b.params.effects) && typeof b.params.effects === "object") {
+          b.params.effects = Object.values(b.params.effects);
+        }
+      }
+    }
+  }
+}
+

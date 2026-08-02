@@ -616,7 +616,8 @@ export class BDeedBehaviorHandler {
    */
   static async _applyEffects(behavior, context, actor, item, phaseKey = "") {
     const params = behavior.params || {};
-    const effects = params.effects || [];
+    const rawEffects = params.effects || [];
+    const effects = Array.isArray(rawEffects) ? rawEffects : Object.values(rawEffects);
 
     const validTargets = this.getValidTargets(context, phaseKey);
     if (validTargets.length === 0) return true;

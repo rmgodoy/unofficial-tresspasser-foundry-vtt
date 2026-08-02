@@ -194,6 +194,9 @@ export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.I
         skipPhase: phaseData.skipPhase ?? false,
         behaviors: rawBehaviors.map((b, i) => {
           const mergedParams = { ...(DEFAULT_PARAMS[b.type] ?? {}), ...(b.params ?? {}) };
+          if (mergedParams.effects && !Array.isArray(mergedParams.effects)) {
+            mergedParams.effects = Object.values(mergedParams.effects);
+          }
           return {
             ...b,
             params: mergedParams,
