@@ -117,7 +117,7 @@
         "ActivePartySet": "{name} is now the active party!",
         "ActivePartyCleared": "{name} is no longer the active party.",
         "NoMembers": "The party has no members.",
-        "DropCharactersOnly": "Only character actors can be added to the party.",
+        "DropCharactersOnly": "Only Character or Commoner actors can be added to the party.",
         "AlreadyMember": "{name} is already a member of the party.",
         "MemberAdded": "{name} added to the party."
       },

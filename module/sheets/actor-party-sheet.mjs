@@ -66,13 +66,13 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     const lightTags = CONFIG.TRESPASSER?.dungeon?.lightSourceTags ?? [];
     context.members = memberIds
       .map(id => game.actors.get(id))
-      .filter(a => a?.type === "character")
+      .filter(a => a?.type === "character" || a?.type === "commoner")
       .map(a => this._buildMemberContext(a, lightTags));
 
-    // Available characters for the add-member dropdown (not already in party)
+    // Available characters/commoners for the add-member dropdown (not already in party)
     const memberIdSet = new Set(memberIds);
     const availableCharacters = game.actors
-      .filter(a => a.type === "character" && !memberIdSet.has(a.id));
+      .filter(a => (a.type === "character" || a.type === "commoner") && !memberIdSet.has(a.id));
     context.availableCharacters = availableCharacters.map(a => ({ _id: a.id, name: a.name }));
 
     // Attributes and skills for the group check dropdowns
@@ -141,7 +141,7 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
       _id: actor.id,
       name: actor.name,
       img: actor.img,
-      level: s.level ?? 1,
+      level: actor.type === "commoner" ? 0 : (s.level ?? 1),
       hp: s.health ?? 0,
       hpMax: s.max_health ?? 0,
       endurance: s.endurance ?? 0,
@@ -261,7 +261,7 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     const actorId = select?.value;
     if (!actorId) return;
     const actor = game.actors.get(actorId);
-    if (!actor || actor.type !== "character") return;
+    if (!actor || (actor.type !== "character" && actor.type !== "commoner")) return;
 
     const members = [...(this.document.system.members ?? [])];
     if (members.includes(actorId)) return;
@@ -305,7 +305,7 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     const memberIds = this.document.system.members ?? [];
     const allMembers = memberIds
       .map(id => game.actors.get(id))
-      .filter(a => a?.type === "character");
+      .filter(a => a?.type === "character" || a?.type === "commoner");
 
     if (allMembers.length === 0) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Party.NoMembers"));
@@ -401,7 +401,7 @@ export class TrespasserPartySheet extends api.HandlebarsApplicationMixin(sheets.
     if (!this.isEditable) return false;
     // v14 passes the resolved Actor document; raw drag data still resolves
     const actor = data instanceof Actor ? data : await Actor.implementation.fromDropData(data ?? {});
-    if (!actor || actor.type !== "character") {
+    if (!actor || (actor.type !== "character" && actor.type !== "commoner")) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Party.DropCharactersOnly"));
       return false;
     }
