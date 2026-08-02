@@ -121,7 +121,7 @@ export class TrespasserCombat extends Combat {
       // 2. Initialize Focus and AP for Player Characters, merging with initiative updates
       const combatantUpdates = initResults.updates;
       for (const combatant of this.combatants) {
-        if (combatant.actor?.type === "character") {
+        if (combatant.actor?.type === "character" || combatant.actor?.type === "commoner") {
           const isDistracted = combatant.actor.system.hasPlight?.("distracted") || false;
           const skillBonus = isDistracted ? 0 : (combatant.actor.system.skill || 2);
           await combatant.actor.update({ "system.combat.focus": skillBonus });
@@ -438,7 +438,7 @@ export class TrespasserCombat extends Combat {
    */
   async rollPlayerInitiative(combatantId) {
     const combatant = this.combatants.get(combatantId);
-    if (!combatant?.actor || combatant.actor.type !== "character") return;
+    if (!combatant?.actor || (combatant.actor.type !== "character" && combatant.actor.type !== "commoner")) return;
 
     // Verify this combatant is pending
     if (!combatant.getFlag("trespasser", "initiativePending")) return;
@@ -541,7 +541,7 @@ export class TrespasserCombat extends Combat {
    */
   async _checkAllInitiativesRolled() {
     const pending = this.combatants.filter(c =>
-      c.actor?.type === "character" &&
+      (c.actor?.type === "character" || c.actor?.type === "commoner") &&
       !c.defeated &&
       c.getFlag("trespasser", "initiativePending")
     );
@@ -608,7 +608,7 @@ export class TrespasserCombat extends Combat {
 
     // GM rolls for everyone
     for (const c of this.combatants) {
-      if (c.actor?.type === "character" && !c.defeated) {
+      if ((c.actor?.type === "character" || c.actor?.type === "commoner") && !c.defeated) {
         const initBonus = c.actor.system.combat?.initiative || 0;
         const roll = new foundry.dice.Roll(`1d20 + ${initBonus}`);
         await roll.evaluate();
@@ -635,7 +635,7 @@ export class TrespasserCombat extends Combat {
     const combatInfo = this.getFlag("trespasser", "combatInfo");
     const enemyMaxInit = combatInfo.enemyMaxInit;
     
-    const pcs = this.combatants.filter(c => c.actor?.type === "character" && !c.defeated);
+    const pcs = this.combatants.filter(c => (c.actor?.type === "character" || c.actor?.type === "commoner") && !c.defeated);
     let successes = 0;
 
     for (const c of pcs) {
@@ -741,7 +741,7 @@ export class TrespasserCombat extends Combat {
           const extraData = this.createExtraCombatant(c, TrespasserCombat.PHASES.EXTRA);
           newCombatants.push(extraData);
         }
-      } else if ( actor.type === "character" ) {
+      } else if ( actor.type === "character" || actor.type === "commoner" ) {
         if (playerFacingInit) {
           // ── NEW: Mark as pending, set initiative to null ──
           updates.push({
@@ -805,7 +805,7 @@ export class TrespasserCombat extends Combat {
     // 4. Calculate Panic Level
     let panicLevel = 2;
     
-    const players = baseCombatants.filter(c => c.actor?.type === "character");
+    const players = baseCombatants.filter(c => c.actor?.type === "character" || c.actor?.type === "commoner");
     const enemies = baseCombatants.filter(c => c.actor?.type === "creature");
 
     const livingPlayers = players.filter(c => !c.defeated);

@@ -18,7 +18,7 @@ export async function onPrevailRoll(event, sheet) {
   let extraAP = 0;
   const combatant = TrespasserCombat.getPhaseCombatant(sheet.actor);
   
-  if (combatant && sheet.actor.type === "character") {
+  if (combatant && (sheet.actor.type === "character" || sheet.actor.type === "commoner")) {
     const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
     const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
     if (restrictAPF && availableAP < 1) {
