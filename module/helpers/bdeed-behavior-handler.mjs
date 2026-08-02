@@ -611,6 +611,7 @@ export class BDeedBehaviorHandler {
   /**
    * 3. applyEffects: Applies specified effects to context.targets (incorporating Potency spark bonus) and appends notes to current phase.
    * Potency spark bonus intensity applies ONLY to targets whose spark count reached the layer where Potency was selected.
+   * Also supports appliesWeaponEffects flag to apply equipped weapon's effects to targets.
    * @protected
    */
   static async _applyEffects(behavior, context, actor, item, phaseKey = "") {
@@ -620,6 +621,7 @@ export class BDeedBehaviorHandler {
     const validTargets = this.getValidTargets(context, phaseKey);
     if (validTargets.length === 0) return true;
 
+    // Apply explicitly listed effect UUIDs
     for (const eff of effects) {
       if (!eff.uuid) continue;
       const effectItem = await fromUuid(eff.uuid);
@@ -654,7 +656,80 @@ export class BDeedBehaviorHandler {
         }
       }
     }
+
+    // Apply weapon effects when appliesWeaponEffects is true
+    if (params.appliesWeaponEffects && actor) {
+      const equippedWeapons = this._getActorEquippedWeapons(actor);
+
+      for (const weapon of equippedWeapons) {
+        const weaponEffects = weapon.system?.effects;
+        if (!Array.isArray(weaponEffects) || weaponEffects.length === 0) continue;
+
+        for (const wEff of weaponEffects) {
+          if (!wEff.uuid) continue;
+          const effectItem = await fromUuid(wEff.uuid);
+          if (!effectItem) continue;
+
+          for (const targetToken of validTargets) {
+            const targetActor = targetToken.actor || (targetToken instanceof Actor ? targetToken : null);
+            if (!targetActor) continue;
+
+            const targetChoices = context.sparkChoices?.perTarget?.get(targetToken.id);
+            const targetPotencyBonus = targetChoices?.potency || 0;
+
+            const itemData = effectItem.toObject();
+            itemData.system = itemData.system || {};
+            const baseIntensity = wEff.intensity || 1;
+            itemData.system.intensity = baseIntensity + targetPotencyBonus;
+
+            if (targetActor.isOwner) {
+              await targetActor.createEmbeddedDocuments("Item", [itemData]);
+            } else {
+              const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
+              await emitDeedActionAndWait("applyEffects", { 
+                actorId: targetActor.id, 
+                tokenId: targetToken.id, 
+                itemDataArray: [itemData] 
+              });
+            }
+            
+            if (context.currentPhaseOutputs?.notes) {
+              const tokenName = BDeedBehaviorHandler.getTokenDisplayName(targetToken);
+              context.currentPhaseOutputs.notes.push(`Applied weapon effect "${effectItem.name}" (from ${weapon.name}) (Intensity ${itemData.system.intensity}) to ${tokenName}`);
+            }
+          }
+        }
+      }
+    }
+
     return true;
+  }
+
+  /**
+   * Helper to get equipped weapons from an actor based on weapon mode and equipment slots.
+   * @param {Actor} actor
+   * @returns {Item[]}
+   * @protected
+   */
+  static _getActorEquippedWeapons(actor) {
+    const mode = actor.system.combat?.weaponMode || "main";
+    const mainHandId = actor.system.equipment?.main_hand;
+    const offHandId = actor.system.equipment?.off_hand;
+    const weapons = [];
+
+    if (mode === "dual") {
+      const main = mainHandId ? actor.items.get(mainHandId) : null;
+      const off = offHandId ? actor.items.get(offHandId) : null;
+      if (main?.type === "weapon") weapons.push(main);
+      if (off?.type === "weapon" && off.id !== main?.id) weapons.push(off);
+    } else if (mode === "off") {
+      const off = offHandId ? actor.items.get(offHandId) : null;
+      if (off?.type === "weapon") weapons.push(off);
+    } else {
+      const main = mainHandId ? actor.items.get(mainHandId) : null;
+      if (main?.type === "weapon") weapons.push(main);
+    }
+    return weapons;
   }
 
   /**
