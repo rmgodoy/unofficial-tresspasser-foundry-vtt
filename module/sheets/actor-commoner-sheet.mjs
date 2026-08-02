@@ -5,6 +5,7 @@ import {
   handleGenerateButton,
   handlePastLifeDrop
 } from "./commoner/handlers-commoner.mjs";
+import { upgradeCommonerToTrespasser } from "../helpers/commoner-upgrade-helper.mjs";
 
 /**
  * Commoner Sheet class for Trespasser TTRPG (ApplicationsV2).
@@ -78,6 +79,7 @@ export class TrespasserCommonerSheet extends TrespasserCharacterSheet {
 
   async _onUpgradeClick(event) {
     event.preventDefault();
-    // Handled in Task 5 helper
+    await upgradeCommonerToTrespasser(this.actor);
   }
 }
+

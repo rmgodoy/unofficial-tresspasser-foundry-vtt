@@ -3,6 +3,11 @@
     "COMMONER": {
       "GENERATE": "Gerar",
       "UPGRADE_TRESPASSER": "Evoluir para Trespasser",
+      "UPGRADE_DIALOG_TITLE": "Evoluir Comum para Trespasser",
+      "UPGRADE_DIALOG_CONTENT": "Tem certeza que deseja evoluir {name} para um Personagem Trespasser de Nível 1? Um novo documento de Personagem será criado com todos os atributos, itens e vida pregressa preservados.",
+      "UPGRADE_CONFIRM": "Evoluir Personagem",
+      "UPGRADE_SUCCESS": "{name} foi evoluído para um Personagem Trespasser!",
+      "GM_ONLY_ACTION": "Apenas o Mestre pode evoluir um Comum.",
       "COMBAT_VALUES": "Defesas de Combate",
       "CARRIED_ITEMS": "Itens Carregados",
       "NOTES": "Notas",

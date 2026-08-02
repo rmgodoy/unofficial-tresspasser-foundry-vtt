@@ -3,6 +3,11 @@
     "COMMONER": {
       "GENERATE": "Generate",
       "UPGRADE_TRESPASSER": "Upgrade to Trespasser",
+      "UPGRADE_DIALOG_TITLE": "Upgrade Commoner to Trespasser",
+      "UPGRADE_DIALOG_CONTENT": "Are you sure you want to upgrade {name} to a Level 1 Trespasser Character? A new Character document will be created with all attributes, items, and past life preserved.",
+      "UPGRADE_CONFIRM": "Upgrade Character",
+      "UPGRADE_SUCCESS": "{name} has been upgraded to a Trespasser Character!",
+      "GM_ONLY_ACTION": "Only a GM can upgrade a Commoner.",
       "COMBAT_VALUES": "Combat Defenses",
       "CARRIED_ITEMS": "Carried Items",
       "NOTES": "Notes",
