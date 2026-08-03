@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.1] - 2026-08-03
+
+- Fixed token status effects not showing up on the token in Foundry V14.
+- Added buttons to Deed list header for Character and Creature sheets to be able to create deeds directly in the sheets.
+
 ## [0.1.0] - 2026-06-13
 
 ### Foundry V14 Support (@Smothmoth)
