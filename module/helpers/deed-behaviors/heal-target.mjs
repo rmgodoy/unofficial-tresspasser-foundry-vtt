@@ -58,15 +58,55 @@ export class HealTargetBehavior {
       context.evaluatedRolls.set(behavior.id, baseRoll);
     }
 
+    if (!context.currentPhaseOutputs) {
+      context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
+    }
+
+    const distributedLabel = distribute ? ` (${game.i18n.localize("TRESPASSER.Sheet.Deed.Params.Distributed") || "Distributed"})` : "";
+    const rollHtml = await baseRoll.render();
+
     // Interactive Distribution Dialog prompt if distribute option is enabled and targets > 1
     let distributedHealingMap = null;
+    let rollEntryIndex = -1;
+
     if (distribute && validTargets.length > 1) {
+      const pendingText = game.i18n.localize("TRESPASSER.Chat.Combat.PendingHealing") || "Awaiting healing distribution choices...";
+      rollEntryIndex = context.currentPhaseOutputs.rollEntries.length;
+      context.currentPhaseOutputs.rolls.push(baseRoll);
+      context.currentPhaseOutputs.rollEntries.push(`
+        <div class="healing-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
+          <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
+            ${game.i18n.localize("TRESPASSER.Sheet.Common.Healing") || "Healing"}: ${rollLabel}${distributedLabel}
+          </h4>
+          ${rollHtml}
+          <div class="target-healing-results" style="margin-top: 6px; font-style: italic; color: var(--trp-text-dim, #a09070); font-size: var(--fs-11);">
+            ⌛ ${pendingText}
+          </div>
+        </div>
+      `);
+
+      // Post preliminary roll immediately to chat so all players can see what was rolled
+      if (context.executor) {
+        await context.executor._postPhaseCard(phaseKey, context.executor.phases?.[phaseKey], true);
+      }
+
       distributedHealingMap = await askDistributionDialog({
         totalAmount: healTotal,
         targets: validTargets,
         type: "healing"
       });
-      if (distributedHealingMap === null) return false; // Execution cancelled by user
+
+      if (distributedHealingMap === null) {
+        // User cancelled distribution: revert pending roll entry and update chat card
+        context.currentPhaseOutputs.rollEntries.splice(rollEntryIndex, 1);
+        const rollIdx = context.currentPhaseOutputs.rolls.indexOf(baseRoll);
+        if (rollIdx >= 0) context.currentPhaseOutputs.rolls.splice(rollIdx, 1);
+
+        if (context.executor) {
+          await context.executor._postPhaseCard(phaseKey, context.executor.phases?.[phaseKey], true);
+        }
+        return false; // Execution cancelled by user
+      }
     }
 
     // 2. Apply healing to all valid targets & build chat output lines
@@ -97,16 +137,7 @@ export class HealTargetBehavior {
       `);
     }
 
-    const rollHtml = await baseRoll.render();
-
-    if (!context.currentPhaseOutputs) {
-      context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
-    }
-
-    const distributedLabel = distribute ? ` (${game.i18n.localize("TRESPASSER.Sheet.Deed.Params.Distributed") || "Distributed"})` : "";
-
-    context.currentPhaseOutputs.rolls.push(baseRoll);
-    context.currentPhaseOutputs.rollEntries.push(`
+    const finalRollEntryHtml = `
       <div class="healing-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
         <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
           ${game.i18n.localize("TRESPASSER.Sheet.Common.Healing") || "Healing"}: ${rollLabel}${distributedLabel}
@@ -116,7 +147,14 @@ export class HealTargetBehavior {
           ${targetHealingLines.join("")}
         </div>
       </div>
-    `);
+    `;
+
+    if (distribute && validTargets.length > 1 && rollEntryIndex >= 0) {
+      context.currentPhaseOutputs.rollEntries[rollEntryIndex] = finalRollEntryHtml;
+    } else {
+      context.currentPhaseOutputs.rolls.push(baseRoll);
+      context.currentPhaseOutputs.rollEntries.push(finalRollEntryHtml);
+    }
 
     return true;
   }

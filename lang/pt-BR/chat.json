@@ -26,6 +26,8 @@
         "Defense": "Defesa",
         "AccuracyRoll": "Rolagem de Acurácia de {name}",
         "NoTargetsSkipped": "Nenhum alvo disponível — verificação de acurácia e fases de acerto/centelha puladas.",
+        "PendingDistribution": "Aguardando distribuição do dano...",
+        "PendingHealing": "Aguardando distribuição da cura...",
         "Hit": "ACERTO!",
         "Miss": "ERRO!",
         "Sparks": "Centelhas: {count}",

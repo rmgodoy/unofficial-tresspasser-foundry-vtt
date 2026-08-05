@@ -93,15 +93,55 @@ export class ApplyDamageBehavior {
     if (!context.evaluatedRolls) context.evaluatedRolls = new Map();
     context.evaluatedRolls.set(behavior.id, combinedRoll);
 
+    if (!context.currentPhaseOutputs) {
+      context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
+    }
+
+    const distributedLabel = distribute ? ` (${game.i18n.localize("TRESPASSER.Sheet.Deed.Params.Distributed") || "Distributed"})` : "";
+    const rollHtml = await combinedRoll.render();
+
     // Interactive Distribution Dialog prompt if distribute option is enabled and targets > 1
     let distributedDamageMap = null;
+    let rollEntryIndex = -1;
+
     if (distribute && validTargets.length > 1) {
+      const pendingText = game.i18n.localize("TRESPASSER.Chat.Combat.PendingDistribution") || "Awaiting distribution choices...";
+      rollEntryIndex = context.currentPhaseOutputs.rollEntries.length;
+      context.currentPhaseOutputs.rolls.push(combinedRoll);
+      context.currentPhaseOutputs.rollEntries.push(`
+        <div class="damage-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
+          <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
+            ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Damage"}: ${rollLabel}${maxPowerDice > 0 ? " (Power Spark)" : ""}${distributedLabel}
+          </h4>
+          ${rollHtml}
+          <div class="target-damage-results" style="margin-top: 6px; font-style: italic; color: var(--trp-text-dim, #a09070); font-size: var(--fs-11);">
+            ⌛ ${pendingText}
+          </div>
+        </div>
+      `);
+
+      // Post preliminary roll immediately to chat so all players can see what was rolled
+      if (context.executor) {
+        await context.executor._postPhaseCard(phaseKey, context.executor.phases?.[phaseKey], true);
+      }
+
       distributedDamageMap = await askDistributionDialog({
         totalAmount: combinedRoll.total,
         targets: validTargets,
         type: "damage"
       });
-      if (distributedDamageMap === null) return false; // Execution cancelled by user
+
+      if (distributedDamageMap === null) {
+        // User cancelled distribution: revert pending roll entry and update chat card
+        context.currentPhaseOutputs.rollEntries.splice(rollEntryIndex, 1);
+        const rollIdx = context.currentPhaseOutputs.rolls.indexOf(combinedRoll);
+        if (rollIdx >= 0) context.currentPhaseOutputs.rolls.splice(rollIdx, 1);
+
+        if (context.executor) {
+          await context.executor._postPhaseCard(phaseKey, context.executor.phases?.[phaseKey], true);
+        }
+        return false; // Execution cancelled by user
+      }
     }
 
     // 4. Apply per-target damage based on each target's layered power dice count & build chat output lines
@@ -138,16 +178,7 @@ export class ApplyDamageBehavior {
       `);
     }
 
-    const rollHtml = await combinedRoll.render();
-
-    if (!context.currentPhaseOutputs) {
-      context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
-    }
-
-    const distributedLabel = distribute ? ` (${game.i18n.localize("TRESPASSER.Sheet.Deed.Params.Distributed") || "Distributed"})` : "";
-
-    context.currentPhaseOutputs.rolls.push(combinedRoll);
-    context.currentPhaseOutputs.rollEntries.push(`
+    const finalRollEntryHtml = `
       <div class="damage-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
         <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
           ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Damage"}: ${rollLabel}${maxPowerDice > 0 ? " (Power Spark)" : ""}${distributedLabel}
@@ -157,7 +188,14 @@ export class ApplyDamageBehavior {
           ${targetDamageLines.join("")}
         </div>
       </div>
-    `);
+    `;
+
+    if (distribute && validTargets.length > 1 && rollEntryIndex >= 0) {
+      context.currentPhaseOutputs.rollEntries[rollEntryIndex] = finalRollEntryHtml;
+    } else {
+      context.currentPhaseOutputs.rolls.push(combinedRoll);
+      context.currentPhaseOutputs.rollEntries.push(finalRollEntryHtml);
+    }
 
     return true;
   }

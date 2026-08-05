@@ -28,6 +28,7 @@ export class DeedExecutor {
      * Shared runtime context passed across all phases.
      */
     this.context = {
+      executor: this,
       callStack: this.options.callStack || new Set(),
       sourcePosition: this.options.sourcePosition || null,
       targets: [],

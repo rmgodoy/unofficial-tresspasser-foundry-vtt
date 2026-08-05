@@ -26,6 +26,8 @@
         "Defense": "Defense",
         "AccuracyRoll": "{name} Accuracy Roll",
         "NoTargetsSkipped": "No targets available — accuracy check and hit/spark phases skipped.",
+        "PendingDistribution": "Awaiting distribution choices...",
+        "PendingHealing": "Awaiting healing distribution choices...",
         "Hit": "HIT!",
         "Miss": "MISS!",
         "Sparks": "Sparks: {count}",
