@@ -1,4 +1,4 @@
-import { BDeedBehaviorHandler } from "./bdeed-behavior-handler.mjs";
+import { DeedBehaviorHandler } from "./deed-behavior-handler.mjs";
 import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 import { askSparkDialog } from "../dialogs/spark-dialog.mjs";
@@ -211,7 +211,7 @@ export class DeedExecutor {
     if (game.user?.targets?.size > 0) {
       await game.user.updateTokenTargets([]);
     }
-    BDeedBehaviorHandler.clearAreaHighlight(this.context);
+    DeedBehaviorHandler.clearAreaHighlight(this.context);
   }
 
   /**
@@ -404,7 +404,7 @@ export class DeedExecutor {
       const selectBehavior = this._findBehaviorByType("selectTarget");
       if (selectBehavior && !selectBehavior._alreadyExecuted) {
         selectBehavior._alreadyExecuted = true;
-        const selectRes = await BDeedBehaviorHandler.dispatch(selectBehavior, this.context, this.actor, this.item);
+        const selectRes = await DeedBehaviorHandler.dispatch(selectBehavior, this.context, this.actor, this.item);
         if (selectRes === false) return false; // Target selection cancelled
       }
     }
@@ -457,7 +457,7 @@ export class DeedExecutor {
         if (!targetActor) continue;
 
         const statKey = versus.toLowerCase(); // "guard" or "resist"
-        const tokenName = BDeedBehaviorHandler.getTokenDisplayName(targetToken);
+        const tokenName = DeedBehaviorHandler.getTokenDisplayName(targetToken);
         let defTotal = 10;
         let diceResult = 10;
 
@@ -613,7 +613,7 @@ export class DeedExecutor {
 
     for (const targetToken of actualTargets) {
       const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
-      const tokenName = targetToken ? BDeedBehaviorHandler.getTokenDisplayName(targetToken) : null;
+      const tokenName = targetToken ? DeedBehaviorHandler.getTokenDisplayName(targetToken) : null;
       let dc = 10;
 
       // Support deeds automatically have DC 10
@@ -728,7 +728,7 @@ export class DeedExecutor {
    */
   async _executeBehavior(behavior, phaseKey) {
     console.log(`[DeedExecutor] Phase "${phaseKey}" — Executing behavior "${behavior.type}" (${behavior.id}):`, behavior.params);
-    return await BDeedBehaviorHandler.dispatch(behavior, this.context, this.actor, this.item, phaseKey);
+    return await DeedBehaviorHandler.dispatch(behavior, this.context, this.actor, this.item, phaseKey);
   }
 
   /**
@@ -772,7 +772,7 @@ export class DeedExecutor {
                         canvas.tokens?.controlled.find(t => t.actor?.id === this.actor?.id) ||
                         canvas.tokens?.placeables.find(t => t.actor?.id === this.actor?.id);
 
-    const alias = sourceToken ? BDeedBehaviorHandler.getTokenDisplayName(sourceToken) : BDeedBehaviorHandler.getTokenDisplayName(this.actor);
+    const alias = sourceToken ? DeedBehaviorHandler.getTokenDisplayName(sourceToken) : DeedBehaviorHandler.getTokenDisplayName(this.actor);
 
     const speaker = sourceToken
       ? ChatMessage.getSpeaker({ token: sourceToken.document || sourceToken, actor: this.actor, alias })

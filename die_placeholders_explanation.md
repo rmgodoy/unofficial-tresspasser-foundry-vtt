@@ -13,7 +13,7 @@ This document explains how `<sd>`, `<wd>`, `<sb>`, and `<Int>` placeholders are 
 
 ### Implementation Locations
 - **Central Helper**: [`TrespasserEffectsHelper.replacePlaceholders(formula, actor, weaponDie)`](file:///c:/Users/Rodrigo/AppData/Local/FoundryVTT/Data/systems/trespasser/module/helpers/effects-helper.mjs#L130).
-- **BDeeds**: [`BDeedBehaviorHandler.resolveFormulaPlaceholders(formula, actor)`](file:///c:/Users/Rodrigo/AppData/Local/FoundryVTT/Data/systems/trespasser/module/helpers/bdeed-behavior-handler.mjs) handles formula placeholders during BDeed damage execution.
+- **Deeds**: [`DeedBehaviorHandler.resolveFormulaPlaceholders(formula, actor)`](file:///c:/Users/Rodrigo/AppData/Local/FoundryVTT/Data/systems/trespasser/module/helpers/deed-behavior-handler.mjs) handles formula placeholders during Deed damage execution.
 - **Terrain**: [`TerrainHelper.executeBehavior()`](file:///c:/Users/Rodrigo/AppData/Local/FoundryVTT/Data/systems/trespasser/module/helpers/terrain-helper.mjs#L854) calls `TrespasserEffectsHelper.replacePlaceholders()` when evaluating terrain damage formulas.
 
 ---
