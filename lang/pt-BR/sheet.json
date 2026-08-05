@@ -278,6 +278,7 @@
           "Type": {
             "selectTarget": "Selecionar Alvo",
             "selectArea": "Selecionar Área",
+            "roll": "Rolar Dados",
             "applyDamage": "Aplicar Dano ao Alvo",
             "healTarget": "Curar Alvo",
             "applyHealing": "Curar Alvo",
@@ -325,6 +326,9 @@
           },
           "DamageExpression": "Fórmula de Dano",
           "HealingExpression": "Fórmula de Cura",
+          "RollExpression": "Fórmula de Rolagem",
+          "RollBehaviorId": "ID da Rolagem Referenciada",
+          "ReferencedRoll": "Rolagem Referenciada",
           "TargetPhase": "Fase Alvo",
           "TargetBehaviorId": "ID do Comportamento Alvo",
           "Property": "Propriedade",
@@ -334,6 +338,9 @@
           "MovementType": "Tipo de Movimento",
           "Distance": "Distância",
           "ForceMoveType": "Tipo de Movimento Forçado",
+          "DistributeDamage": "Distribuir Dano por Alvo",
+          "DistributeHealing": "Distribuir Cura por Alvo",
+          "Distributed": "Distribuído",
           "ClearTargetsHint": "Limpa a lista de alvos, permitindo que fases posteriores selecionem novos alvos."
         }
       },

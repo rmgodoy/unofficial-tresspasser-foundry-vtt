@@ -1,4 +1,5 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
+import { askDistributionDialog } from "../../dialogs/distribution-dialog.mjs";
 
 export class ApplyDamageBehavior {
   /**
@@ -13,19 +14,47 @@ export class ApplyDamageBehavior {
    */
   static async execute(behavior, context, actor, item, phaseKey = "") {
     const params = behavior.params || {};
-    let rawExpr = params.expression?.trim();
-    if (!rawExpr) return true;
+    const rawExpr = params.expression?.trim();
+    const distribute = Boolean(params.distribute);
 
     const validTargets = DeedBehaviorUtils.getValidTargets(context, phaseKey);
     if (validTargets.length === 0) return true;
 
-    let expr = DeedBehaviorUtils.resolveFormulaPlaceholders(rawExpr, actor);
     const rollData = actor?.getRollData() || {};
+    const refId = params.rollBehaviorId?.trim();
+    let refRoll = refId ? context.evaluatedRolls?.get(refId) : null;
 
-    // 1. Base damage roll
-    const baseRoll = new Roll(expr, rollData);
-    await baseRoll.evaluate();
-    const baseTotal = baseRoll.total;
+    let baseRoll = null;
+    let baseTotal = 0;
+    let rollLabel = "";
+
+    if (refRoll) {
+      baseRoll = refRoll;
+      baseTotal = refRoll.total;
+      rollLabel = `${baseTotal} (${game.i18n.localize("TRESPASSER.Sheet.Deed.Params.ReferencedRoll") || "Referenced Roll"})`;
+
+      if (rawExpr) {
+        let modExpr = DeedBehaviorUtils.resolveFormulaPlaceholders(rawExpr, actor);
+        const modRoll = new Roll(modExpr, rollData);
+        await modRoll.evaluate();
+        baseTotal += modRoll.total;
+        rollLabel = `${refRoll.total} + ${modExpr} (${modRoll.total}) = ${baseTotal}`;
+        baseRoll = Roll.fromTerms([
+          ...refRoll.terms,
+          new foundry.dice.terms.OperatorTerm({ operator: "+" }),
+          ...modRoll.terms
+        ]);
+        baseRoll._evaluated = true;
+        baseRoll._total = baseTotal;
+      }
+    } else {
+      if (!rawExpr) return true;
+      let expr = DeedBehaviorUtils.resolveFormulaPlaceholders(rawExpr, actor);
+      baseRoll = new Roll(expr, rollData);
+      await baseRoll.evaluate();
+      baseTotal = baseRoll.total;
+      rollLabel = expr;
+    }
 
     // 2. Max power dice across all target layers
     let maxPowerDice = 0;
@@ -60,6 +89,21 @@ export class ApplyDamageBehavior {
       combinedRoll._total = baseRoll.total + powerRoll.total;
     }
 
+    // Store final combined roll (including Power Spark bonus dice) in evaluatedRolls map for referencing behaviors
+    if (!context.evaluatedRolls) context.evaluatedRolls = new Map();
+    context.evaluatedRolls.set(behavior.id, combinedRoll);
+
+    // Interactive Distribution Dialog prompt if distribute option is enabled and targets > 1
+    let distributedDamageMap = null;
+    if (distribute && validTargets.length > 1) {
+      distributedDamageMap = await askDistributionDialog({
+        totalAmount: combinedRoll.total,
+        targets: validTargets,
+        type: "damage"
+      });
+      if (distributedDamageMap === null) return false; // Execution cancelled by user
+    }
+
     // 4. Apply per-target damage based on each target's layered power dice count & build chat output lines
     const targetDamageLines = [];
     for (const targetToken of validTargets) {
@@ -70,7 +114,9 @@ export class ApplyDamageBehavior {
       const targetChoices = context.sparkChoices?.perTarget?.get(targetToken.id);
       const targetPowerCount = Math.min(maxPowerDice, targetChoices?.power || 0);
       const targetPowerDmg = powerDiceRolls[targetPowerCount] || 0;
-      const targetDmg = baseTotal + targetPowerDmg;
+
+      const baseTargetDmg = distributedDamageMap ? (distributedDamageMap.get(targetToken.id) ?? combinedRoll.total) : baseTotal;
+      const targetDmg = distributedDamageMap ? baseTargetDmg : (baseTargetDmg + targetPowerDmg);
 
       if (targetActor.isOwner) {
         await targetActor.applyDamage(targetDmg);
@@ -98,11 +144,13 @@ export class ApplyDamageBehavior {
       context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
     }
 
+    const distributedLabel = distribute ? ` (${game.i18n.localize("TRESPASSER.Sheet.Deed.Params.Distributed") || "Distributed"})` : "";
+
     context.currentPhaseOutputs.rolls.push(combinedRoll);
     context.currentPhaseOutputs.rollEntries.push(`
       <div class="damage-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
         <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-          ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Damage"}: ${expr}${maxPowerDice > 0 ? " (Power Spark)" : ""}
+          ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Damage"}: ${rollLabel}${maxPowerDice > 0 ? " (Power Spark)" : ""}${distributedLabel}
         </h4>
         ${rollHtml}
         <div class="target-damage-results" style="margin-top: 6px;">

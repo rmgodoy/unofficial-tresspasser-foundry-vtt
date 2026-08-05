@@ -97,12 +97,24 @@ export class DeedBehaviorUtils {
     if (context.accuracyResults && context.accuracyResults.length > 0) {
       const isSparkPhase = phaseKey === "spark";
       const requiredSparks = isSparkPhase ? (context.sparkChoices?.deedSparkLayer || 1) : 0;
-      const hitTokenIds = new Set(
-        context.accuracyResults
-          .filter(r => r.isHit && r.tokenId && (!isSparkPhase || r.sparks >= requiredSparks))
-          .map(r => r.tokenId)
-      );
-      validTargets = validTargets.filter(t => hitTokenIds.has(t.id));
+
+      const accuracyMap = new Map();
+      for (const r of context.accuracyResults) {
+        if (r.tokenId) accuracyMap.set(r.tokenId, r);
+      }
+
+      validTargets = validTargets.filter(t => {
+        const id = t.id || t.document?.id;
+        const res = accuracyMap.get(id);
+        // If target was evaluated in accuracy results, enforce hit & spark rules
+        if (res) {
+          if (!res.isHit) return false;
+          if (isSparkPhase && res.sparks < requiredSparks) return false;
+          return true;
+        }
+        // If target was NOT evaluated in accuracy results (e.g. selected by subsequent selectTarget or non-attack behavior), keep it
+        return true;
+      });
     }
     return validTargets;
   }

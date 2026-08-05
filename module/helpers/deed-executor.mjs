@@ -36,6 +36,7 @@ export class DeedExecutor {
       spawnedTerrains: [],
       activePhases: [],
       modifications: [],
+      evaluatedRolls: new Map(),
       rollResult: null,
       isHit: false,
       isSpark: false,
@@ -247,18 +248,19 @@ export class DeedExecutor {
    */
   _applyModifications() {
     for (const mod of this.context.modifications) {
-      const { targetPhase, targetBehaviorId, property, modifier } = mod.params;
+      const { targetBehaviorId, property, modifier } = mod.params;
       if (!targetBehaviorId || !modifier) continue;
 
-      // Find target behavior
-      const targetBehavior = this._findBehavior(targetBehaviorId, targetPhase);
+      // Find target behavior across all phases
+      const targetBehavior = this._findBehavior(targetBehaviorId);
       if (!targetBehavior) continue;
 
       targetBehavior.params = targetBehavior.params || {};
 
       switch (property) {
         case "damage":
-        case "healing": {
+        case "healing":
+        case "roll": {
           const currentExpr = targetBehavior.params.expression ?? "";
           targetBehavior.params.expression = currentExpr
             ? `${currentExpr} + ${modifier}`

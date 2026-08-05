@@ -2,6 +2,7 @@ import { MovementHelper } from "./movement-helper.mjs";
 import { DeedBehaviorUtils } from "./deed-behaviors/deed-behavior-utils.mjs";
 import { SelectTargetBehavior } from "./deed-behaviors/select-target.mjs";
 import { SelectAreaBehavior } from "./deed-behaviors/select-area.mjs";
+import { RollBehavior } from "./deed-behaviors/roll.mjs";
 import { ApplyDamageBehavior } from "./deed-behaviors/apply-damage.mjs";
 import { HealTargetBehavior } from "./deed-behaviors/heal-target.mjs";
 import { ApplyEffectsBehavior } from "./deed-behaviors/apply-effects.mjs";
@@ -35,6 +36,7 @@ export class DeedBehaviorHandler {
       switch (behavior.type) {
         case "selectTarget":     return SelectTargetBehavior.execute(behavior, context, actor, item);
         case "selectArea":       return SelectAreaBehavior.execute(behavior, context, actor, item);
+        case "roll":             return RollBehavior.execute(behavior, context, actor, item, phaseKey);
         case "applyDamage":      return ApplyDamageBehavior.execute(behavior, context, actor, item, phaseKey);
         case "healTarget":
         case "applyHealing":     return HealTargetBehavior.execute(behavior, context, actor, item, phaseKey);

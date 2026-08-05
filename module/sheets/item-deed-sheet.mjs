@@ -17,18 +17,24 @@ export const DEFAULT_PARAMS = {
     aoeType: "blast",
     aoeSize: 1
   },
-  applyDamage: {
+  roll: {
     expression: ""
   },
+  applyDamage: {
+    expression: "",
+    rollBehaviorId: "",
+    distribute: false
+  },
   healTarget: {
-    expression: ""
+    expression: "",
+    rollBehaviorId: "",
+    distribute: false
   },
   applyEffects: {
     effects: [],
     appliesWeaponEffects: false
   },
   modifyBehavior: {
-    targetPhase: "base",
     targetBehaviorId: "",
     property: "damage",
     modifier: ""

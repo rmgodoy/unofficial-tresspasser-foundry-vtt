@@ -106,22 +106,61 @@
     </div>
   {{/if}}
 
-  {{#if (eq type "applyDamage")}}
+  {{#if (eq type "roll")}}
     <div class="field-row">
-      <label>{{localize "TRESPASSER.Sheet.Deed.Params.DamageExpression"}}</label>
+      <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollExpression"}}</label>
       <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
              value="{{params.expression}}" placeholder="e.g. 2d6+STR"/>
     </div>
   {{/if}}
 
-  {{#if (or (eq type "healTarget") (eq type "applyHealing"))}}
-    <div class="field-row">
-      <label>{{localize "TRESPASSER.Sheet.Deed.Params.HealingExpression"}}</label>
-      <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
-             value="{{params.expression}}" placeholder="e.g. 1d6+<sd>"/>
+  {{#if (eq type "applyDamage")}}
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.DamageExpression"}}</label>
+        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
+               value="{{params.expression}}" placeholder="e.g. 2d6+STR"/>
+      </div>
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollBehaviorId"}}</label>
+        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.rollBehaviorId"
+               value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
+      </div>
+    </div>
+    <div class="field-row checkbox-row" style="margin-top: 4px;">
+      <input type="checkbox"
+             name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distribute"
+             {{#if params.distribute}}checked{{/if}}
+             id="deed-distribute-damage-{{phaseKey}}-{{index}}"/>
+      <label for="deed-distribute-damage-{{phaseKey}}-{{index}}">
+        {{localize "TRESPASSER.Sheet.Deed.Params.DistributeDamage"}}
+      </label>
     </div>
   {{/if}}
 
+  {{#if (or (eq type "healTarget") (eq type "applyHealing"))}}
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.HealingExpression"}}</label>
+        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
+               value="{{params.expression}}" placeholder="e.g. 1d6+<sd>"/>
+      </div>
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollBehaviorId"}}</label>
+        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.rollBehaviorId"
+               value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
+      </div>
+    </div>
+    <div class="field-row checkbox-row" style="margin-top: 4px;">
+      <input type="checkbox"
+             name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distribute"
+             {{#if params.distribute}}checked{{/if}}
+             id="deed-distribute-healing-{{phaseKey}}-{{index}}"/>
+      <label for="deed-distribute-healing-{{phaseKey}}-{{index}}">
+        {{localize "TRESPASSER.Sheet.Deed.Params.DistributeHealing"}}
+      </label>
+    </div>
+  {{/if}}
 
   {{#if (eq type "applyEffects")}}
     <div class="behavior-effects-section">
@@ -162,18 +201,6 @@
   {{#if (eq type "modifyBehavior")}}
     <div class="param-row-grid">
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetPhase"}}</label>
-        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetPhase">
-          <option value="start" {{#if (eq params.targetPhase "start")}}selected{{/if}}>Start</option>
-          <option value="before" {{#if (eq params.targetPhase "before")}}selected{{/if}}>Before</option>
-          <option value="base" {{#if (eq params.targetPhase "base")}}selected{{/if}}>Base</option>
-          <option value="hit" {{#if (eq params.targetPhase "hit")}}selected{{/if}}>Hit</option>
-          <option value="spark" {{#if (eq params.targetPhase "spark")}}selected{{/if}}>Spark</option>
-          <option value="after" {{#if (eq params.targetPhase "after")}}selected{{/if}}>After</option>
-          <option value="end" {{#if (eq params.targetPhase "end")}}selected{{/if}}>End</option>
-        </select>
-      </div>
-      <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetBehaviorId"}}</label>
         <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetBehaviorId"
                value="{{params.targetBehaviorId}}" placeholder="Behavior ID"/>
@@ -182,6 +209,8 @@
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.Property"}}</label>
         <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.property">
           <option value="damage" {{#if (eq params.property "damage")}}selected{{/if}}>Damage</option>
+          <option value="healing" {{#if (eq params.property "healing")}}selected{{/if}}>Healing</option>
+          <option value="roll" {{#if (eq params.property "roll")}}selected{{/if}}>Roll</option>
           <option value="intensity" {{#if (eq params.property "intensity")}}selected{{/if}}>Intensity</option>
           <option value="size" {{#if (eq params.property "size")}}selected{{/if}}>Size</option>
           <option value="distance" {{#if (eq params.property "distance")}}selected{{/if}}>Distance</option>

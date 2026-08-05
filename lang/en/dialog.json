@@ -81,6 +81,15 @@
         "InvalidTotal": "Total allocated Potency points ({allocated}) cannot exceed available points ({total}).",
         "BaseIntensity": "Base Intensity"
       },
+      "Distribution": {
+        "TitleDamage": "Distribute Damage",
+        "TitleHealing": "Distribute Healing",
+        "IntroDamage": "Distribute total damage <b>{total}</b> among targeted creatures:",
+        "IntroHealing": "Distribute total healing <b>{total}</b> among targeted creatures:",
+        "Remaining": "Remaining to allocate",
+        "InvalidTotal": "Total allocated exceeds available amount!",
+        "ResetAll": "Reset All"
+      },
       "Calling": {
         "Title": "Apply Calling: {name}",
         "ApplySelections": "Apply Selections",

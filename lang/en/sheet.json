@@ -280,6 +280,7 @@
           "Type": {
             "selectTarget": "Select Target",
             "selectArea": "Select Area",
+            "roll": "Roll Dice",
             "applyDamage": "Apply Damage to Target",
             "healTarget": "Heal Target",
             "applyHealing": "Heal Target",
@@ -327,6 +328,9 @@
           },
           "DamageExpression": "Damage Formula",
           "HealingExpression": "Healing Formula",
+          "RollExpression": "Roll Formula",
+          "RollBehaviorId": "Referenced Roll ID",
+          "ReferencedRoll": "Referenced Roll",
           "TargetPhase": "Target Phase",
           "TargetBehaviorId": "Target Behavior ID",
           "Property": "Property",
@@ -336,6 +340,9 @@
           "MovementType": "Movement Type",
           "Distance": "Distance",
           "ForceMoveType": "Force Move Type",
+          "DistributeDamage": "Distribute Damage per Target",
+          "DistributeHealing": "Distribute Healing per Target",
+          "Distributed": "Distributed",
           "ClearTargetsHint": "Clears target list, allowing subsequent phases to acquire new targets."
         }
       },

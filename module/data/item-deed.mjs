@@ -6,6 +6,7 @@ import { convertOldDeedSystem } from "../helpers/migration-deed.mjs";
 export const BEHAVIOR_TYPES = [
   "selectTarget",
   "selectArea",
+  "roll",
   "applyDamage",
   "healTarget",
   "applyEffects",

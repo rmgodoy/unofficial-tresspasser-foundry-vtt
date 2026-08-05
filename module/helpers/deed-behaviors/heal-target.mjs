@@ -1,4 +1,5 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
+import { askDistributionDialog } from "../../dialogs/distribution-dialog.mjs";
 
 export class HealTargetBehavior {
   /**
@@ -13,18 +14,60 @@ export class HealTargetBehavior {
   static async execute(behavior, context, actor, item, phaseKey = "") {
     const params = behavior.params || {};
     let rawExpr = params.expression?.trim();
-    if (!rawExpr) return true;
+    const distribute = Boolean(params.distribute);
 
     const validTargets = DeedBehaviorUtils.getValidTargets(context, phaseKey);
     if (validTargets.length === 0) return true;
 
-    let expr = DeedBehaviorUtils.resolveFormulaPlaceholders(rawExpr, actor);
     const rollData = actor?.getRollData() || {};
+    const refId = params.rollBehaviorId?.trim();
+    let refRoll = refId ? context.evaluatedRolls?.get(refId) : null;
 
-    // 1. Evaluate base healing roll
-    const baseRoll = new Roll(expr, rollData);
-    await baseRoll.evaluate();
-    const healTotal = Math.max(0, baseRoll.total);
+    let baseRoll = null;
+    let healTotal = 0;
+    let rollLabel = "";
+
+    if (refRoll) {
+      baseRoll = refRoll;
+      healTotal = Math.max(0, refRoll.total);
+      rollLabel = `${healTotal} (${game.i18n.localize("TRESPASSER.Sheet.Deed.Params.ReferencedRoll") || "Referenced Roll"})`;
+
+      if (rawExpr) {
+        let modExpr = DeedBehaviorUtils.resolveFormulaPlaceholders(rawExpr, actor);
+        const modRoll = new Roll(modExpr, rollData);
+        await modRoll.evaluate();
+        healTotal = Math.max(0, refRoll.total + modRoll.total);
+        rollLabel = `${refRoll.total} + ${modExpr} (${modRoll.total}) = ${healTotal}`;
+        baseRoll = Roll.fromTerms([
+          ...refRoll.terms,
+          new foundry.dice.terms.OperatorTerm({ operator: "+" }),
+          ...modRoll.terms
+        ]);
+        baseRoll._evaluated = true;
+        baseRoll._total = healTotal;
+      }
+    } else {
+      if (!rawExpr) return true;
+      let expr = DeedBehaviorUtils.resolveFormulaPlaceholders(rawExpr, actor);
+      baseRoll = new Roll(expr, rollData);
+      await baseRoll.evaluate();
+      healTotal = Math.max(0, baseRoll.total);
+      rollLabel = expr;
+
+      if (!context.evaluatedRolls) context.evaluatedRolls = new Map();
+      context.evaluatedRolls.set(behavior.id, baseRoll);
+    }
+
+    // Interactive Distribution Dialog prompt if distribute option is enabled and targets > 1
+    let distributedHealingMap = null;
+    if (distribute && validTargets.length > 1) {
+      distributedHealingMap = await askDistributionDialog({
+        totalAmount: healTotal,
+        targets: validTargets,
+        type: "healing"
+      });
+      if (distributedHealingMap === null) return false; // Execution cancelled by user
+    }
 
     // 2. Apply healing to all valid targets & build chat output lines
     const targetHealingLines = [];
@@ -33,22 +76,23 @@ export class HealTargetBehavior {
       if (!targetActor) continue;
 
       const tokenName = DeedBehaviorUtils.getTokenDisplayName(targetToken);
+      const targetHeal = distributedHealingMap ? (distributedHealingMap.get(targetToken.id) ?? healTotal) : healTotal;
 
       if (targetActor.isOwner) {
-        await targetActor.applyHealing(healTotal);
+        await targetActor.applyHealing(targetHeal);
       } else {
         const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
         await emitDeedActionAndWait("applyHealing", {
           actorId: targetActor.id,
           tokenId: targetToken.id,
-          healing: healTotal
+          healing: targetHeal
         });
       }
 
       targetHealingLines.push(`
         <div style="display:flex; justify-content:space-between; align-items:center; font-size: var(--fs-12); margin-top:4px; padding-top:3px; border-top:1px dotted var(--trp-border-light, #5c4f3a);">
           <span><strong>${tokenName}</strong></span>
-          <span style="color:#2ecc71; font-weight:bold;">💚 ${healTotal} ${game.i18n.localize("TRESPASSER.Sheet.Common.Healing") || "Cura"}</span>
+          <span style="color:#2ecc71; font-weight:bold;">💚 ${targetHeal} ${game.i18n.localize("TRESPASSER.Sheet.Common.Healing") || "Cura"}</span>
         </div>
       `);
     }
@@ -59,11 +103,13 @@ export class HealTargetBehavior {
       context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
     }
 
+    const distributedLabel = distribute ? ` (${game.i18n.localize("TRESPASSER.Sheet.Deed.Params.Distributed") || "Distributed"})` : "";
+
     context.currentPhaseOutputs.rolls.push(baseRoll);
     context.currentPhaseOutputs.rollEntries.push(`
       <div class="healing-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
         <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-          ${game.i18n.localize("TRESPASSER.Sheet.Common.Healing") || "Healing"}: ${expr}
+          ${game.i18n.localize("TRESPASSER.Sheet.Common.Healing") || "Healing"}: ${rollLabel}${distributedLabel}
         </h4>
         ${rollHtml}
         <div class="target-healing-results" style="margin-top: 6px;">

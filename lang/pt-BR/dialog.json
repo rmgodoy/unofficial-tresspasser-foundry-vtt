@@ -81,6 +81,15 @@
         "InvalidTotal": "O total de pontos de Potência alocados ({allocated}) não pode exceder os pontos disponíveis ({total}).",
         "BaseIntensity": "Intensidade Base"
       },
+      "Distribution": {
+        "TitleDamage": "Distribuir Dano",
+        "TitleHealing": "Distribuir Cura",
+        "IntroDamage": "Distribua o dano total de <b>{total}</b> entre as criaturas alvo:",
+        "IntroHealing": "Distribua a cura total de <b>{total}</b> entre as criaturas alvo:",
+        "Remaining": "Restante a alocar",
+        "InvalidTotal": "O total alocado excede a quantidade disponível!",
+        "ResetAll": "Zerar Tudo"
+      },
       "Calling": {
         "Title": "Aplicar Vocação: {name}",
         "ApplySelections": "Aplicar Seleções",

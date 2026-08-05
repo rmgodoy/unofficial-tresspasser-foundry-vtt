@@ -5,6 +5,7 @@ export class ClearTargetsBehavior {
    */
   static async execute(context) {
     context.targets = [];
+    context.accuracyResults = [];
     if (game.user?.targets?.size > 0) {
       await game.user.updateTokenTargets([]);
     }
