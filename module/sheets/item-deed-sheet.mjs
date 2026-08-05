@@ -6,9 +6,9 @@
  *   - details:    tier, type, target, accuracy, focus costs
  *   - effects:    7 phase blocks with drop zones and effect chips
  */
-const { api, sheets } = foundry.applications;
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 
-export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserDeedSheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "deed", "item-sheet"],

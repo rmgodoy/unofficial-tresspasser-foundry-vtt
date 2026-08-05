@@ -1,4 +1,4 @@
-const { api, sheets } = foundry.applications;
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 
 /**
  * Item Sheet for Room items in the Trespasser TTRPG system.
@@ -7,7 +7,7 @@ const { api, sheets } = foundry.applications;
  * or from a dungeon sheet onto this room's connections drop zone. Both rooms
  * are updated bidirectionally.
  */
-export class TrespasserRoomSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserRoomSheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "item-sheet", "room-sheet"],

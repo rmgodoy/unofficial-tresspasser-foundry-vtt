@@ -1,10 +1,10 @@
-const { api, sheets } = foundry.applications;
+import { TrespasserBaseItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
  * Extend the basic ItemSheet with some very simple logic.
  */
-export class TrespasserItemSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserItemSheet extends TrespasserBaseItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "trespasser-sheet", "sheet", "item", "item-sheet"],

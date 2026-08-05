@@ -1,6 +1,7 @@
 {
   "TRESPASSER": {
     "Sheet": {
+      "EditImage": "Change Artwork",
       "Header": {
         "Name": "Name",
         "Level": "Level",

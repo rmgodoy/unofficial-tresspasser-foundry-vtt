@@ -3,13 +3,13 @@ import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 import { addItemToActor } from "../helpers/item-transfer-helper.mjs";
 import { TrespasserSocket } from "../helpers/socket/socket.mjs";
 
-const { api, sheets } = foundry.applications;
+import { TrespasserActorSheet } from "./base-sheet.mjs";
 
 /**
  * Actor Sheet for Haven actors.
  * Implemented using ApplicationV2 (sheets.ActorSheetV2).
  */
-export class TrespasserHavenSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
+export class TrespasserHavenSheet extends TrespasserActorSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "actor", "haven-sheet"],

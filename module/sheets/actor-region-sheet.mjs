@@ -5,9 +5,9 @@
  * session state, and travel logs.
  */
 
-const { api, sheets } = foundry.applications;
+import { TrespasserActorSheet } from "./base-sheet.mjs";
 
-export class TrespasserRegionSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
+export class TrespasserRegionSheet extends TrespasserActorSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "region", "trespasser-sheet"],
