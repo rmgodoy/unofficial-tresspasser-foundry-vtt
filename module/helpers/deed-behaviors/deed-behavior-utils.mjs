@@ -1,3 +1,5 @@
+import { TrespasserEffectsHelper } from "../effects-helper.mjs";
+
 /**
  * DeedBehaviorUtils — Shared helper utilities used across deed behavior implementations.
  */
@@ -106,20 +108,14 @@ export class DeedBehaviorUtils {
   }
 
   /**
-   * Helper to replace <sd> (Skill Die) and <wd> (Weapon Die) placeholders in roll formulas.
+   * Helper to replace <sd> (Skill Die), <wd> (Weapon Die), and <sb> (Skill Bonus) placeholders in roll formulas.
    * @param {string} expr - e.g. "2d6 + 1<sd> + <wd>"
    * @param {Actor} [actor]
    * @returns {string}
    */
   static resolveFormulaPlaceholders(expr, actor) {
     if (!expr) return "";
-    let resolved = expr;
 
-    // 1. Skill Die placeholder <sd>
-    const skillDie = actor?.system?.skill_die || "d6"; // e.g. "d6", "d8"
-    resolved = resolved.replace(/<sd>/gi, skillDie);
-
-    // 2. Weapon Die placeholder <wd>
     let weaponDie = "d4";
     if (actor) {
       // Find equipped weapon item
@@ -131,8 +127,8 @@ export class DeedBehaviorUtils {
         weaponDie = primaryWeapon.system.die.trim();
       }
     }
-    resolved = resolved.replace(/<wd>/gi, weaponDie);
 
-    return resolved;
+    return TrespasserEffectsHelper.replacePlaceholders(expr, actor, weaponDie);
   }
 }
+

@@ -20,6 +20,9 @@ export const DEFAULT_PARAMS = {
   applyDamage: {
     expression: ""
   },
+  healTarget: {
+    expression: ""
+  },
   applyEffects: {
     effects: [],
     appliesWeaponEffects: false

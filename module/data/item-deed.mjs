@@ -7,6 +7,7 @@ export const BEHAVIOR_TYPES = [
   "selectTarget",
   "selectArea",
   "applyDamage",
+  "healTarget",
   "applyEffects",
   "modifyBehavior",
   "spawnTerrain",

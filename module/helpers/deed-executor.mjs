@@ -257,7 +257,8 @@ export class DeedExecutor {
       targetBehavior.params = targetBehavior.params || {};
 
       switch (property) {
-        case "damage": {
+        case "damage":
+        case "healing": {
           const currentExpr = targetBehavior.params.expression ?? "";
           targetBehavior.params.expression = currentExpr
             ? `${currentExpr} + ${modifier}`

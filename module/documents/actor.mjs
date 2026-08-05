@@ -252,6 +252,35 @@ export class TrespasserActor extends Actor {
   }
 
   /**
+   * Animate floating green healing text (scrolling combat text) over healed token.
+   * @param {Token} token
+   * @param {number} amount
+   */
+  static animateHealingText(token, amount) {
+    if (!token || !amount) return;
+    const center = token.center || { x: token.x + canvas.grid.size / 2, y: token.y + canvas.grid.size / 2 };
+
+    const textOptions = {
+      anchorU: 0.5,
+      anchorV: 0.5,
+      direction: 1, // Float upward
+      duration: 1200,
+      jitter: 0.25,
+      fill: "#2ecc71",
+      stroke: "#000000",
+      strokeThickness: 5,
+      fontSize: 32,
+      fontWeight: "bold"
+    };
+
+    if (canvas.interface?.createScrollingText) {
+      canvas.interface.createScrollingText(center, `+${amount}`, textOptions);
+    } else if (canvas.hud?.createScrollingText) {
+      canvas.hud.createScrollingText(center, `+${amount}`, textOptions);
+    }
+  }
+
+  /**
    * Apply damage to this actor (Character or Creature), updating system.health,
    * and triggering token shake + floating red damage text on canvas.
    * @param {number} amount - Amount of damage to apply
@@ -270,6 +299,27 @@ export class TrespasserActor extends Actor {
 
     return newHealth;
   }
+
+  /**
+   * Apply healing to this actor (Character or Creature), updating system.health,
+   * bounded by max_health, and triggering floating green healing text on canvas.
+   * @param {number} amount - Amount of healing to apply
+   * @param {object} [options]
+   * @returns {Promise<number>} New health value
+   */
+  async applyHealing(amount, options = {}) {
+    const healNum = Math.max(0, Number(amount) || 0);
+    if (healNum <= 0) return this.system.health;
+
+    const currentHealth = this.system.health ?? this.system.hp?.value ?? this.system.hp ?? 0;
+    const maxHealth = this.system.max_health ?? this.system.hp?.max ?? currentHealth;
+    const newHealth = Math.clamp(currentHealth + healNum, 0, maxHealth);
+
+    await this.update({ "system.health": newHealth });
+
+    return newHealth;
+  }
+
 
   /**
    * Helper to get total occupancy of unequipped inventory items.

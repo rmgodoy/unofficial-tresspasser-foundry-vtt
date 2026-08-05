@@ -850,16 +850,18 @@ Hooks.on("updateActor", (actor, updateData, options, userId) => {
     const oldHp = options._trespasserOldHealth;
     const newHp = actor.system?.health ?? 0;
     const damage = oldHp - newHp;
-    if (damage > 0) {
-      const token = actor.token?.object 
-        || canvas.tokens?.get(actor.token?.id) 
-        || canvas.tokens?.placeables.find(t => t.actor?.id === actor.id || t.document?.actorId === actor.id);
-      if (token) {
-        TrespasserActor.queueDamageAnimation(token, damage);
-      }
+    const token = actor.token?.object 
+      || canvas.tokens?.get(actor.token?.id) 
+      || canvas.tokens?.placeables.find(t => t.actor?.id === actor.id || t.document?.actorId === actor.id);
+
+    if (damage > 0 && token) {
+      TrespasserActor.queueDamageAnimation(token, damage);
+    } else if (damage < 0 && token) {
+      TrespasserActor.animateHealingText(token, Math.abs(damage));
     }
   }
 });
+
 
 Hooks.on("preCreateToken", (tokenDoc, updates, options, userId) => {
   const actor = tokenDoc.actor || game.actors.get(updates.actorId || tokenDoc.actorId);

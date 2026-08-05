@@ -114,6 +114,15 @@
     </div>
   {{/if}}
 
+  {{#if (or (eq type "healTarget") (eq type "applyHealing"))}}
+    <div class="field-row">
+      <label>{{localize "TRESPASSER.Sheet.Deed.Params.HealingExpression"}}</label>
+      <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
+             value="{{params.expression}}" placeholder="e.g. 1d6+<sd>"/>
+    </div>
+  {{/if}}
+
+
   {{#if (eq type "applyEffects")}}
     <div class="behavior-effects-section">
       <div class="field-row checkbox-row weapon-effects-toggle" style="margin-bottom: 6px;">

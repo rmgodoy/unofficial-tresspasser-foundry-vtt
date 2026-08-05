@@ -3,6 +3,7 @@ import { DeedBehaviorUtils } from "./deed-behaviors/deed-behavior-utils.mjs";
 import { SelectTargetBehavior } from "./deed-behaviors/select-target.mjs";
 import { SelectAreaBehavior } from "./deed-behaviors/select-area.mjs";
 import { ApplyDamageBehavior } from "./deed-behaviors/apply-damage.mjs";
+import { HealTargetBehavior } from "./deed-behaviors/heal-target.mjs";
 import { ApplyEffectsBehavior } from "./deed-behaviors/apply-effects.mjs";
 import { SpawnTerrainBehavior } from "./deed-behaviors/spawn-terrain.mjs";
 import { MoveTerrainBehavior } from "./deed-behaviors/move-terrain.mjs";
@@ -35,6 +36,8 @@ export class DeedBehaviorHandler {
         case "selectTarget":     return SelectTargetBehavior.execute(behavior, context, actor, item);
         case "selectArea":       return SelectAreaBehavior.execute(behavior, context, actor, item);
         case "applyDamage":      return ApplyDamageBehavior.execute(behavior, context, actor, item, phaseKey);
+        case "healTarget":
+        case "applyHealing":     return HealTargetBehavior.execute(behavior, context, actor, item, phaseKey);
         case "applyEffects":     return ApplyEffectsBehavior.execute(behavior, context, actor, item, phaseKey);
         case "modifyBehavior":   return; // Handled pre-pipeline by DeedExecutor
         case "spawnTerrain":     return SpawnTerrainBehavior.execute(behavior, context, actor, item);

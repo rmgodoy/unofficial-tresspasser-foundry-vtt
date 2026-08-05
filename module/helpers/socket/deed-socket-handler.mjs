@@ -36,6 +36,9 @@ export async function handleDeedActionRequest(payload, senderId) {
       case "applyDamage":
         result = await _handleApplyDamage(data);
         break;
+      case "applyHealing":
+        result = await _handleApplyHealing(data);
+        break;
       case "applyEffects":
         result = await _handleApplyEffects(data);
         break;
@@ -87,6 +90,16 @@ async function _handleApplyDamage(data) {
   }
   return true;
 }
+
+async function _handleApplyHealing(data) {
+  const token = canvas.tokens?.get(data.tokenId) || game.scenes?.current?.tokens.get(data.tokenId);
+  const actor = token?.actor || game.actors.get(data.actorId);
+  if (actor && typeof actor.applyHealing === "function") {
+    await actor.applyHealing(data.healing);
+  }
+  return true;
+}
+
 
 async function _handleApplyEffects(data) {
   const token = canvas.tokens?.get(data.tokenId) || game.scenes?.current?.tokens.get(data.tokenId);
