@@ -27,12 +27,12 @@ import { onPrevailRoll, onIntensityChange, onEffectRemove, onEffectInfo, onEffec
 import { onEquipRoll, getActiveWeapons, getAccuracyFromTarget }             from "./character/handlers-combat.mjs";
 import { onInjuryClockClick, onToggleLight, onSpendRDHeader }               from "./character/handlers-misc.mjs";
 
-const { api, sheets } = foundry.applications;
+import { TrespasserActorSheet } from "./base-sheet.mjs";
 
 /**
  * Character Sheet class for Trespasser TTRPG.
  */
-export class TrespasserCharacterSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
+export class TrespasserCharacterSheet extends TrespasserActorSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "trespasser-sheet", "sheet", "actor", "character"],

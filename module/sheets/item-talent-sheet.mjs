@@ -1,12 +1,11 @@
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
-
-const { api, sheets } = foundry.applications;
 
 /**
  * Item Sheet for Talents in the Trespasser TTRPG system.
  * Implemented using ApplicationV2 (sheets.ItemSheetV2).
  */
-export class TrespasserTalentSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserTalentSheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "talent", "item-sheet"],

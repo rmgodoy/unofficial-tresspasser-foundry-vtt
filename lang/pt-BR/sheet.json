@@ -1,6 +1,7 @@
 {
   "TRESPASSER": {
     "Sheet": {
+      "EditImage": "Alterar Ilustração",
       "Header": {
         "Name": "Nome",
         "Level": "Nível",

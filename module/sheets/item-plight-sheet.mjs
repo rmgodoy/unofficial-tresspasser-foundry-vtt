@@ -1,11 +1,11 @@
-const { api, sheets } = foundry.applications;
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { COMMON_PLIGHTS } from "../config/plight-config.mjs";
 
 /**
  * Item sheet for Trespasser Plight items.
  * Implemented using ApplicationV2 (sheets.ItemSheetV2).
  */
-export class TrespasserPlightSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserPlightSheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "plight-sheet"],

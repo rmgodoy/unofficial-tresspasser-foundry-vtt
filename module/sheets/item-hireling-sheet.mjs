@@ -1,10 +1,10 @@
-const { api, sheets } = foundry.applications;
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 
 /**
  * Item Sheet for Hireling items.
  * Implemented using ApplicationV2 (sheets.ItemSheetV2).
  */
-export class TrespasserHirelingSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserHirelingSheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "item-sheet", "hireling-sheet"],

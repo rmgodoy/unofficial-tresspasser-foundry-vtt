@@ -1,4 +1,4 @@
-const { api, sheets } = foundry.applications;
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
@@ -6,7 +6,7 @@ import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
  * Minimalist — no tabs, consistent with the Weapon sheet style.
  * Implemented using ApplicationV2 (sheets.ItemSheetV2).
  */
-export class TrespasserInjurySheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserInjurySheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "injury-sheet"],

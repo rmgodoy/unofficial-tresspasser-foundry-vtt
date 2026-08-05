@@ -6,12 +6,12 @@ import { TrespasserCombat } from "../documents/combat.mjs";
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 import { PASSIVE_STATES } from "../config/state-config.mjs";
 
-const { api, sheets } = foundry.applications;
+import { TrespasserActorSheet } from "./base-sheet.mjs";
 
 /**
  * Creature Sheet class for Trespasser TTRPG (V2)
  */
-export class TrespasserCreatureSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
+export class TrespasserCreatureSheet extends TrespasserActorSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "trespasser-sheet", "sheet", "actor", "creature"],

@@ -1,10 +1,10 @@
-const { api, sheets } = foundry.applications;
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 
 /**
  * Item Sheet for Incantations in the Trespasser TTRPG system.
  * Implemented using ApplicationV2 (sheets.ItemSheetV2).
  */
-export class TrespasserIncantationSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserIncantationSheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "incantation", "item-sheet"],

@@ -9,9 +9,9 @@
 
 import { messageVisibility } from "../helpers/compat.mjs";
 
-const { api, sheets } = foundry.applications;
+import { TrespasserActorSheet } from "./base-sheet.mjs";
 
-export class TrespasserDungeonSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
+export class TrespasserDungeonSheet extends TrespasserActorSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "dungeon", "trespasser-sheet"],

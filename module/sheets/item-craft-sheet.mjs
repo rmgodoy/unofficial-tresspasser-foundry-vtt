@@ -1,11 +1,11 @@
-const { api, sheets } = foundry.applications;
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 
 /**
  * Item Sheet for the Craft item type.
  * Minimalist single-page sheet, consistent with other Trespasser item sheets.
  * Implemented using ApplicationV2 (sheets.ItemSheetV2).
  */
-export class TrespasserCraftSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserCraftSheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "craft", "item-sheet"],

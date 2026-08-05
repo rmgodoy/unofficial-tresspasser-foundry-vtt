@@ -35,6 +35,10 @@
       <div class="applied-effects-list" data-phase="{{phase.key}}">
         {{#each phase.effects as |effect|}}
           <div class="effect-chip" data-index="{{effect.index}}" data-uuid="{{effect.uuid}}">
+            <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.uuid" value="{{effect.uuid}}" />
+            <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.type" value="{{effect.type}}" />
+            <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.name" value="{{effect.name}}" />
+            <input type="hidden" name="system.effects.{{phase.key}}.appliedEffects.{{effect.index}}.img" value="{{effect.img}}" />
             <img src="{{effect.img}}" title="{{effect.name}}" />
             <span class="name">{{effect.name}}</span>
             <div class="intensity-box">
