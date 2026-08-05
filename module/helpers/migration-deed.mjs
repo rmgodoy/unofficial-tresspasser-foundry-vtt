@@ -198,14 +198,15 @@ export function convertOldDeedSystem(source) {
         behaviors
       };
     }
-  } else if (src.phases?.before?.behaviors) {
-    // If phases already exists, update the first selectTarget behavior params with resolved target params
-    const beforeBehaviors = src.phases.before.behaviors;
-    const firstB = beforeBehaviors.find(b => b.type === "selectTarget");
+  } else if (src.phases?.before?.behaviors && (src.target !== undefined || src.targetType !== undefined)) {
+    // If phases already exists and legacy target fields are present in source, update selectTarget behavior params
+    const rawBehaviors = src.phases.before.behaviors;
+    const beforeBehaviors = Array.isArray(rawBehaviors)
+      ? rawBehaviors
+      : (typeof rawBehaviors === "object" && rawBehaviors !== null ? Object.values(rawBehaviors) : []);
+    const firstB = beforeBehaviors.find(b => b?.type === "selectTarget");
     if (firstB) {
       firstB.params = selectTargetParams;
-    } else {
-      beforeBehaviors.unshift(selectTargetBehavior);
     }
   }
 

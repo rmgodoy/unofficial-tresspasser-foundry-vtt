@@ -130,7 +130,7 @@ export function getDefaultCommonerDeedData() {
   return {
     name: "Weapon Attack",
     type: "deed",
-    img: "icons/weapons/swords/sword-broad-simple.webp",
+    img: "systems/trespasser/assets/icons/deed.webp",
     system: {
       tier: "light",
       actionType: "attack",
@@ -150,19 +150,19 @@ export function getDefaultCommonerDeedData() {
             {
               id: foundry.utils.randomID(),
               type: "selectTarget",
-              params: { targetMode: "Creature", targetCount: 1 }
+              params: { targetMode: "creatures", targetCount: 1 }
             }
           ]
         },
         base: { description: "", skipPhase: false, behaviors: [] },
         hit: {
-          description: "Deals 2 Skill Die damage",
+          description: "Deals 2 Weapon Die damage",
           skipPhase: false,
           behaviors: [
             {
               id: foundry.utils.randomID(),
               type: "applyDamage",
-              params: { expression: "2<sd>" }
+              params: { expression: "2<wd>" }
             }
           ]
         },
