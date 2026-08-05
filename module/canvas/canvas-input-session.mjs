@@ -117,6 +117,8 @@ export class CanvasInputSession {
   _onKeyDown(event) {
     if (event.key === "Escape") {
       this.cancel();
+    } else if (event.key === "Enter" && this.overlay?.overlayData?.canConfirm) {
+      this.confirm();
     }
   }
 

@@ -28,7 +28,9 @@
         "CloseBlast": "Explosão Próxima",
         "Path": "Caminho",
         "ClosePath": "Caminho Próximo",
-        "SelectTargets": "Selecionar Alvo(s)"
+        "SelectTargets": "Selecionar Alvo(s)",
+        "Burst": "Erupção",
+        "MeleeBurst": "Explosão Corpo a Corpo"
       },
       "Movement": {
         "Used": "Movimento Usado",
@@ -46,7 +48,10 @@
         "PathInitialInstruction": "Caminho {size}: Clique no quadrado inicial para iniciar o caminho.",
         "ClosePathInitialInstruction": "Caminho Próximo {size}: Clique no quadrado adjacente ao conjurador para iniciar.",
         "PathStepInstruction": "Caminho ({current}/{max}): Clique no quadrado ortogonal adjacente.",
-        "SelectTargetsInstruction": "Selecione o(s) alvo(s) no mapa ({current} de {max} selecionado(s))."
+        "SelectTargetsInstruction": "Selecione o(s) alvo(s) no mapa ({current} de {max} selecionado(s)).",
+        "BurstInstruction": "Erupção {size}: {targets} alvo(s) afetado(s). Verifique a área de efeito e confirme para executar.",
+        "MeleeBurstInstruction": "Explosão Corpo a Corpo: {targets} alvo(s) afetado(s). Verifique a área de efeito e confirme para executar.",
+        "AuraInstruction": "Aura {size}: {targets} alvo(s) afetado(s). Verifique a área de efeito e confirme para executar."
       },
       "Resource": {
         "APCost": "Custo de PA",

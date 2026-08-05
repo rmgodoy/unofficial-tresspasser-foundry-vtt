@@ -28,7 +28,9 @@
         "CloseBlast": "Close Blast",
         "Path": "Path",
         "ClosePath": "Close Path",
-        "SelectTargets": "Select Target(s)"
+        "SelectTargets": "Select Target(s)",
+        "Burst": "Burst",
+        "MeleeBurst": "Melee Burst"
       },
       "Movement": {
         "Used": "Movement Used",
@@ -46,7 +48,10 @@
         "PathInitialInstruction": "Path {size}: Click initial square to start path.",
         "ClosePathInitialInstruction": "Close Path {size}: Click square adjacent to caster to start path.",
         "PathStepInstruction": "Path ({current}/{max}): Click adjacent orthogonal square to expand path.",
-        "SelectTargetsInstruction": "Select target(s) on canvas ({current} of {max} selected)."
+        "SelectTargetsInstruction": "Select target(s) on canvas ({current} of {max} selected).",
+        "BurstInstruction": "Burst {size}: {targets} target(s) affected. Review area of effect and confirm to execute.",
+        "MeleeBurstInstruction": "Melee Burst: {targets} target(s) affected. Review area of effect and confirm to execute.",
+        "AuraInstruction": "Aura {size}: {targets} target(s) affected. Review area of effect and confirm to execute."
       },
       "Resource": {
         "APCost": "AP Cost",

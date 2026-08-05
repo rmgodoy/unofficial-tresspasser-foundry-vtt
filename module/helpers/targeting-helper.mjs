@@ -52,19 +52,18 @@ export class TargetingHelper {
 
       case "burst":
       case "aura": {
-        const squares = this.#computeBurstSquares(token, size, gridPx, options.originOverride);
+        const result = await this.#placeBurst(token, size, gridPx, false, type === "aura", options);
+        if (!result) return null;
         let templateDoc = null;
         // Aura persists visually using a token-attached Region emanation
         if (type === "aura") {
           templateDoc = await this.#createAuraRegion(token, size);
         }
-        return { squares, templateDoc };
+        return { squares: result.squares, templateDoc };
       }
 
       case "melee_burst": {
-        const reach = this.#getMeleeReach(actor);
-        const squares = this.#computeBurstSquares(token, reach, gridPx, options.originOverride);
-        return { squares, templateDoc: null };
+        return this.#placeBurst(token, 0, gridPx, true, false, options);
       }
 
       case "path":
@@ -371,6 +370,111 @@ export class TargetingHelper {
   }
 
 
+
+  /* -------------------------------------------- */
+  /* Private — Burst (interactive overlay placement) */
+  /* -------------------------------------------- */
+
+  /**
+   * Interactive burst placement and confirmation overlay.
+   * Renders the burst square area around the token and highlights targets inside.
+   * Asks the user to confirm via CanvasInputSession before executing.
+   * @param {Token} token Caster token
+   * @param {number} size Burst size in squares
+   * @param {number} gridPx Pixels per grid square
+   * @param {boolean} [isMelee=false] If true, size is derived from melee reach
+   * @param {boolean} [isAura=false] If true, type is aura
+   * @param {object} [options]
+   * @returns {Promise<{squares: Array<{x:number, y:number}>, templateDoc: null}|null>}
+   */
+  static async #placeBurst(token, size, gridPx, isMelee = false, isAura = false, options = {}) {
+    return new Promise(async (resolve) => {
+      const actor = token.actor;
+      const reach = isMelee ? this.#getMeleeReach(actor) : size;
+      const squares = this.#computeBurstSquares(token, reach, gridPx, options.originOverride);
+      const targets = this.getTokensInSquares(squares, gridPx);
+
+      const highlights = [];
+      const layer = canvas.interface;
+
+      const drawPreview = () => {
+        for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
+        highlights.length = 0;
+
+        const gfx = new PIXI.Graphics();
+        CanvasSelectionRenderer.drawPlacedOrigin(gfx, squares, gridPx);
+        layer.addChild(gfx);
+        highlights.push(gfx);
+      };
+
+      const cleanup = () => {
+        for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
+        highlights.length = 0;
+      };
+
+      drawPreview();
+
+      if (game.user.updateTokenTargets && targets.length > 0) {
+        game.user.updateTokenTargets(targets.map(t => t.id));
+      }
+
+      let title;
+      if (isMelee) {
+        title = game.i18n.has("TRESPASSER.HUD.Action.MeleeBurst")
+          ? game.i18n.localize("TRESPASSER.HUD.Action.MeleeBurst")
+          : "Melee Burst";
+      } else if (isAura) {
+        title = game.i18n.has("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Aura")
+          ? `${game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Aura")} ${reach}`
+          : `Aura ${reach}`;
+      } else {
+        title = game.i18n.has("TRESPASSER.HUD.Action.Burst")
+          ? `${game.i18n.localize("TRESPASSER.HUD.Action.Burst")} ${reach}`
+          : `Burst ${reach}`;
+      }
+
+      let details;
+      if (isMelee) {
+        details = game.i18n.has("TRESPASSER.HUD.AoE.MeleeBurstInstruction")
+          ? game.i18n.format("TRESPASSER.HUD.AoE.MeleeBurstInstruction", { targets: targets.length })
+          : `Melee Burst: ${targets.length} target(s) affected. Confirm to execute.`;
+      } else if (isAura) {
+        details = game.i18n.has("TRESPASSER.HUD.AoE.AuraInstruction")
+          ? game.i18n.format("TRESPASSER.HUD.AoE.AuraInstruction", { size: reach, targets: targets.length })
+          : `Aura ${reach}: ${targets.length} target(s) affected. Confirm to execute.`;
+      } else {
+        details = game.i18n.has("TRESPASSER.HUD.AoE.BurstInstruction")
+          ? game.i18n.format("TRESPASSER.HUD.AoE.BurstInstruction", { size: reach, targets: targets.length })
+          : `Burst ${reach}: ${targets.length} target(s) affected. Confirm to execute.`;
+      }
+
+      await CanvasInputSession.start({
+        title,
+        details,
+        icon: "fas fa-expand-alt",
+        showConfirm: true,
+        canConfirm: true,
+        showUndo: false,
+        canUndo: false,
+        showCancel: true,
+        onClick: (ev) => {
+          if (ev.data?.originalEvent?.detail === 2) {
+            cleanup();
+            if (CanvasInputSession.activeSession) CanvasInputSession.activeSession.confirm();
+            resolve({ squares: [...squares], templateDoc: null });
+          }
+        },
+        onConfirm: () => {
+          cleanup();
+          resolve({ squares: [...squares], templateDoc: null });
+        },
+        onCancel: () => {
+          cleanup();
+          resolve(null);
+        }
+      });
+    });
+  }
 
   /* -------------------------------------------- */
   /* Private — Burst (square ring computation)     */
