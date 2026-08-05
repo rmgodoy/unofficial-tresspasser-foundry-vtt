@@ -148,7 +148,10 @@
 
     <!-- Deeds List -->
     <div class="deeds-section" style="margin-top: 15px;">
-      <h3 class="section-title" style="margin-bottom: 0;">{{localize "TRESPASSER.Sheet.Combat.Deeds"}}</h3>
+      <h3 class="section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0;">
+        <span>{{localize "TRESPASSER.Sheet.Combat.Deeds"}}</span>
+        <a class="item-create button" data-type="deed" title="{{localize 'TRESPASSER.Sheet.Combat.AddDeed'}}">+</a>
+      </h3>
       {{> "systems/trespasser/templates/actor/parts/deed-list.hbs"}}
     </div>
 

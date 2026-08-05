@@ -921,6 +921,7 @@ export class TrespasserEffectsHelper {
         name: item.name,
         img: statusIconPath,
         statuses: [statusId],
+        showIcon: 2,
         flags: {
           trespasser: {
             sourceItem: item.id
