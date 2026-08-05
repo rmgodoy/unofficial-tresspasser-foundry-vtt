@@ -38,6 +38,65 @@ export class TrespasserActor extends Actor {
           break;
       }
     }
+
+    // Set default prototype token image to match actor image if not explicitly set
+    const currentTokenImg = data.prototypeToken?.texture?.src;
+    if (!currentTokenImg || currentTokenImg === "icons/svg/mystery-man.svg") {
+      this.updateSource({ "prototypeToken.texture.src": this.img });
+    }
+  }
+
+  /** @override */
+  async _preUpdate(changed, options, user) {
+    if ( await super._preUpdate(changed, options, user) === false ) return false;
+
+    // Sync prototype token and placed canvas token textures if actor image changes
+    if (changed.img) {
+      if (this.isToken) {
+        const tokenDoc = this.token;
+        if (tokenDoc && (tokenDoc.texture.src === this.img || !tokenDoc.texture.src || tokenDoc.texture.src === "icons/svg/mystery-man.svg")) {
+          options.syncTokenImg = true;
+          options.oldActorImg = this.img;
+        }
+      } else {
+        const currentTokenImg = this.prototypeToken?.texture?.src;
+        const actorImg = this.img;
+        const isInheriting = !currentTokenImg || currentTokenImg === actorImg || currentTokenImg === "icons/svg/mystery-man.svg";
+        const tokenSrcProvided = foundry.utils.hasProperty(changed, "prototypeToken.texture.src");
+
+        if (isInheriting && !tokenSrcProvided) {
+          foundry.utils.setProperty(changed, "prototypeToken.texture.src", changed.img);
+          options.syncPlacedTokens = true;
+          options.oldActorImg = actorImg;
+        }
+      }
+    }
+  }
+
+  /** @override */
+  _onUpdate(changed, options, userId) {
+    super._onUpdate(changed, options, userId);
+    if (game.user.id !== userId) return;
+
+    if (this.isToken && changed.img && this.token?.actorLink) {
+      const baseActor = this.token.baseActor || game.actors.get(this.token.actorId);
+      if (baseActor && baseActor.img !== changed.img) {
+        baseActor.update({ img: changed.img });
+      }
+    }
+
+    if (options.syncTokenImg && this.isToken && this.token) {
+      this.token.update({ "texture.src": changed.img });
+    }
+
+    if (options.syncPlacedTokens && !this.isToken && changed.img) {
+      const activeTokens = this.getActiveTokens(true, true);
+      for (const tokenDoc of activeTokens) {
+        if (tokenDoc.actorLink && (tokenDoc.texture.src === options.oldActorImg || tokenDoc.texture.src === "icons/svg/mystery-man.svg")) {
+          tokenDoc.update({ "texture.src": changed.img });
+        }
+      }
+    }
   }
 
   /**

@@ -4,11 +4,10 @@
  * Self-contained AppV2 sheet for configuring region properties,
  * session state, and travel logs.
  */
-
-const { api, sheets } = foundry.applications;
 import { messageVisibility } from "../helpers/compat.mjs";
+import { TrespasserActorSheet } from "./base-sheet.mjs";
 
-export class TrespasserRegionSheet extends api.HandlebarsApplicationMixin(sheets.ActorSheetV2) {
+export class TrespasserRegionSheet extends TrespasserActorSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "region", "trespasser-sheet"],

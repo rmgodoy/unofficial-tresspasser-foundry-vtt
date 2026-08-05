@@ -57,7 +57,9 @@ export const DEFAULT_PARAMS = {
   }
 };
 
-export class TrespasserDeedSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+import { TrespasserItemSheet } from "./base-sheet.mjs";
+
+export class TrespasserDeedSheet extends TrespasserItemSheet {
 
   /**
    * Set of phase keys currently expanded in the accordion UI.

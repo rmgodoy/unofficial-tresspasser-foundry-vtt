@@ -1,4 +1,4 @@
-const { api, sheets } = foundry.applications;
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 
 const ALL_SKILL_KEYS = [
   "acrobatics", "alchemy", "athletics", "crafting",
@@ -16,7 +16,7 @@ const ALL_SKILL_KEYS = [
  *
  * Implemented using ApplicationV2 (sheets.ItemSheetV2).
  */
-export class TrespasserPastLifeSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserPastLifeSheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "past-life", "item-sheet"],

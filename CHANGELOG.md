@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.2] - 2026-08-05
+
+- Updated Items and Actors to be able to change their images in their respective sheets.
+- Made character and creature prototype tokens update their image when the actor's image was updated.
+- Fixed states breaking when editing intensity from the deed's sheet.
+
 ## [0.1.1] - 2026-08-03
 
 - Fixed token status effects not showing up on the token in Foundry V14.

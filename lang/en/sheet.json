@@ -20,6 +20,7 @@
       "PAST_LIFE_APPLIED": "Applied Past Life: {name}"
     },
     "Sheet": {
+      "EditImage": "Change Artwork",
       "Header": {
         "Name": "Name",
         "Level": "Level",

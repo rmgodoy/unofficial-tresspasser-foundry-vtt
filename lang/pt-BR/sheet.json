@@ -20,6 +20,7 @@
       "PAST_LIFE_APPLIED": "Vida Pregressa aplicada: {name}"
     },
     "Sheet": {
+      "EditImage": "Alterar Ilustração",
       "Header": {
         "Name": "Nome",
         "Level": "Nível",

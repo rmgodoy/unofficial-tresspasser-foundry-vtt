@@ -1,10 +1,10 @@
-const { api, sheets } = foundry.applications;
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
  * Item Sheet for Weapons in the Trespasser TTRPG system.
  */
-export class TrespasserWeaponSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserWeaponSheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "weapon", "item-sheet"],

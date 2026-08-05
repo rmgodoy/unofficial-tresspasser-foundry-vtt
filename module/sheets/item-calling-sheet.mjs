@@ -1,4 +1,4 @@
-const { api, sheets } = foundry.applications;
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 
 // Full list of skill keys matching the Character data model
 const ALL_SKILL_KEYS = [
@@ -14,7 +14,7 @@ const ALL_SKILL_KEYS = [
  * Supports drag-and-drop of Talent/Feature items and checkbox skill selection.
  * Implemented using ApplicationV2 (sheets.ItemSheetV2).
  */
-export class TrespasserCallingSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserCallingSheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "calling", "item-sheet"],

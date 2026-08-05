@@ -1,9 +1,9 @@
-const { api, sheets } = foundry.applications;
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 
 /**
  * Item Sheet for Stronghold items.
  */
-export class TrespasserStrongholdSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
+export class TrespasserStrongholdSheet extends TrespasserItemSheet {
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "item-sheet", "stronghold-sheet"],

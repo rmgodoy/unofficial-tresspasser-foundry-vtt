@@ -21,7 +21,10 @@
   flex: 0 0 90px;
 }
 
-.sheet-header .profile-img {
+.sheet-header .profile-img,
+.sheet-header [data-edit="img"],
+.sheet-header [data-action="editImage"],
+.party-portrait {
   width: 90px;
   height: 90px;
   object-fit: cover;
@@ -29,6 +32,15 @@
   border-radius: var(--trp-radius);
   cursor: pointer;
   box-shadow: 0 0 10px var(--trp-shadow-dark);
+  transition: filter 0.15s ease, border-color 0.15s ease;
+}
+
+.sheet-header .profile-img:hover,
+.sheet-header [data-edit="img"]:hover,
+.sheet-header [data-action="editImage"]:hover,
+.party-portrait:hover {
+  filter: brightness(1.15);
+  border-color: var(--trp-accent);
 }
 
 .actor-avatar-wrapper {
