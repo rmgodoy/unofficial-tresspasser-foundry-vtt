@@ -169,26 +169,45 @@ export class DeedExecutor {
     // Deep clone phase data so mutations don't alter the database document
     this.phases = foundry.utils.deepClone(this.system.phases ?? {});
 
-    // Step 1: Scan and collect all "modifyBehavior" instances across all phases
-    this._collectModifications();
+    // Annotate behaviors with source phase for dependency tracking
+    for (const [pKey, phase] of Object.entries(this.phases)) {
+      if (phase?.behaviors) {
+        for (const b of phase.behaviors) {
+          b._sourcePhase = pKey;
+        }
+      }
+    }
 
-    // Step 2: Resolve modifications against target behaviors in memory
-    this._applyModifications();
-
-    // Step 3: Sequential phase processing
+    // Step 1: Sequential phase processing with dependency resolution
     let cancelled = false;
     const phaseOrder = ["start", "before", "base", "hit", "spark", "after", "end"];
     for (const phaseKey of phaseOrder) {
-      if (phaseKey === "hit") {
+      if (this._shouldSkipPhase(phaseKey)) continue;
+
+      // Check if current phase depends on a later phase (e.g. modifyBehavior in hit/spark targeting base/before)
+      if (!this.context.accuracyResolved && this._hasDependencyOnLaterPhase(phaseKey)) {
         const needsAccuracy = this._hasContent("hit") || this._hasContent("spark");
-        if (needsAccuracy && !this.context.accuracyResolved) {
+        if (needsAccuracy) {
           this.context.accuracyResolved = true;
-          const accRes = await this._resolveAccuracyCheck();
+          const accRes = await this._resolveAccuracyCheck(true);
           if (accRes === false) {
             cancelled = true;
             break;
           }
-          if (!this.context.isHit) {
+          this._applyActiveModifications();
+        }
+      }
+
+      if (phaseKey === "hit") {
+        const needsAccuracy = this._hasContent("hit") || this._hasContent("spark");
+        if (needsAccuracy && !this.context.accuracyResolved) {
+          this.context.accuracyResolved = true;
+          const accRes = await this._resolveAccuracyCheck(false);
+          if (accRes === false) {
+            cancelled = true;
+            break;
+          }
+          if (!this.context.isHit && !this.context.accuracyCardPosted) {
             await this._postPhaseCard("hit", this.phases.hit);
           }
         }
@@ -196,6 +215,7 @@ export class DeedExecutor {
 
       if (this._shouldSkipPhase(phaseKey)) continue;
       this.context.activePhases.push(phaseKey);
+      this._applyActiveModifications();
       const res = await this._executePhase(phaseKey);
       if (res === false) {
         cancelled = true;
@@ -217,82 +237,157 @@ export class DeedExecutor {
   }
 
   /**
-   * Collect all "modifyBehavior" behaviors from all phases into context.modifications
-   * and remove them from their parent phase's behavior list.
+   * Check if a phase has dependencies on any later phases (e.g. modifyBehavior targeting a behavior in this phase, or referenced rolls).
+   * @param {string} currentPhaseKey
+   * @returns {boolean}
    * @protected
    */
-  _collectModifications() {
+  _hasDependencyOnLaterPhase(currentPhaseKey) {
     const phaseOrder = ["start", "before", "base", "hit", "spark", "after", "end"];
-    for (const phaseKey of phaseOrder) {
-      const phase = this.phases[phaseKey];
-      if (!phase || !phase.behaviors) continue;
+    const currentIndex = phaseOrder.indexOf(currentPhaseKey);
+    if (currentIndex === -1) return false;
 
-      const remainingBehaviors = [];
-      for (const behavior of phase.behaviors) {
-        if (behavior.type === "modifyBehavior") {
-          this.context.modifications.push({
-            sourcePhase: phaseKey,
-            id: behavior.id,
-            params: behavior.params ?? {}
-          });
-        } else {
-          remainingBehaviors.push(behavior);
+    // Collect IDs of behaviors in current phase (and earlier phases)
+    const earlierBehaviorIds = new Set();
+    for (let i = 0; i <= currentIndex; i++) {
+      const pKey = phaseOrder[i];
+      const phase = this.phases[pKey];
+      if (phase?.behaviors) {
+        for (const b of phase.behaviors) {
+          if (b.id) earlierBehaviorIds.add(b.id);
         }
       }
-      phase.behaviors = remainingBehaviors;
+    }
+
+    // Check later phases for modifications targeting earlier behaviors
+    for (let i = currentIndex + 1; i < phaseOrder.length; i++) {
+      const laterPhaseKey = phaseOrder[i];
+      const laterPhase = this.phases[laterPhaseKey];
+      if (!laterPhase || laterPhase.skipPhase || !laterPhase.behaviors) continue;
+
+      for (const b of laterPhase.behaviors) {
+        if (b.type === "modifyBehavior") {
+          const targetId = b.params?.targetBehaviorId;
+          if (targetId && earlierBehaviorIds.has(targetId)) {
+            return true;
+          }
+        }
+      }
+    }
+
+    // Check if any behavior in current phase references a roll or area in a later phase
+    const currentPhase = this.phases[currentPhaseKey];
+    if (currentPhase?.behaviors) {
+      const laterBehaviorIds = new Set();
+      for (let i = currentIndex + 1; i < phaseOrder.length; i++) {
+        const lKey = phaseOrder[i];
+        const lPhase = this.phases[lKey];
+        if (lPhase?.behaviors) {
+          for (const b of lPhase.behaviors) {
+            if (b.id) laterBehaviorIds.add(b.id);
+          }
+        }
+      }
+
+      for (const b of currentPhase.behaviors) {
+        const refId = b.params?.rollBehaviorId || b.params?.areaBehaviorId || b.params?.terrainBehaviorId;
+        if (refId && laterBehaviorIds.has(refId)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * Apply pending modifyBehavior instances from all active phases to target behaviors.
+   * @protected
+   */
+  _applyActiveModifications() {
+    const candidatePhases = ["start", "before", "base", "after", "end"];
+    if (this.context.accuracyResolved && this.context.isHit) {
+      candidatePhases.push("hit");
+    }
+    if (this.context.accuracyResolved && this.context.isSpark) {
+      candidatePhases.push("spark");
+    }
+
+    for (const pKey of candidatePhases) {
+      const phase = this.phases[pKey];
+      if (!phase || phase.skipPhase || !phase.behaviors) continue;
+
+      for (const behavior of phase.behaviors) {
+        if (behavior.type === "modifyBehavior" && !behavior._alreadyExecuted) {
+          this._applySingleModification(behavior);
+        }
+      }
     }
   }
 
   /**
-   * Apply collected modifications to target behaviors across phases in memory.
+   * Apply a single modifyBehavior to its target behavior in memory.
+   * @param {object} modBehavior
    * @protected
    */
-  _applyModifications() {
-    for (const mod of this.context.modifications) {
-      const { targetBehaviorId, property, modifier } = mod.params;
-      if (!targetBehaviorId || !modifier) continue;
+  _applySingleModification(modBehavior) {
+    if (!modBehavior || modBehavior._alreadyExecuted) return;
+    modBehavior._alreadyExecuted = true;
 
-      // Find target behavior across all phases
-      const targetBehavior = this._findBehavior(targetBehaviorId);
-      if (!targetBehavior) continue;
+    const { targetBehaviorId, property, modifier } = modBehavior.params || {};
+    if (!targetBehaviorId || !modifier) return;
 
-      targetBehavior.params = targetBehavior.params || {};
+    const targetBehavior = this._findBehavior(targetBehaviorId);
+    if (!targetBehavior) return;
 
-      switch (property) {
-        case "damage":
-        case "healing":
-        case "roll": {
-          const currentExpr = targetBehavior.params.expression ?? "";
-          targetBehavior.params.expression = currentExpr
-            ? `${currentExpr} + ${modifier}`
-            : modifier;
-          break;
-        }
-        case "intensity": {
-          if (Array.isArray(targetBehavior.params.effects)) {
-            const num = parseFloat(modifier) || 0;
-            for (const eff of targetBehavior.params.effects) {
-              eff.intensity = (eff.intensity || 1) + num;
-            }
-          } else {
-            const currentInt = parseFloat(targetBehavior.params.intensity) || 1;
-            const num = parseFloat(modifier) || 0;
-            targetBehavior.params.intensity = currentInt + num;
+    targetBehavior.params = targetBehavior.params || {};
+
+    if (modBehavior._sourcePhase) {
+      this.context.modifications.push({
+        sourcePhase: modBehavior._sourcePhase,
+        id: modBehavior.id,
+        params: modBehavior.params ?? {}
+      });
+    }
+
+    switch (property) {
+      case "damage":
+      case "healing":
+      case "roll": {
+        const currentExpr = targetBehavior.params.expression ?? "";
+        const trimmedMod = modifier.trim();
+        const cleanMod = (trimmedMod.startsWith("+") || trimmedMod.startsWith("-"))
+          ? trimmedMod
+          : `+ ${trimmedMod}`;
+        targetBehavior.params.expression = currentExpr
+          ? `${currentExpr} ${cleanMod}`
+          : trimmedMod;
+        break;
+      }
+      case "intensity": {
+        if (Array.isArray(targetBehavior.params.effects)) {
+          const num = parseFloat(modifier) || 0;
+          for (const eff of targetBehavior.params.effects) {
+            eff.intensity = (eff.intensity || 1) + num;
           }
-          break;
-        }
-        case "size": {
-          const currentSize = parseFloat(targetBehavior.params.aoeSize) || 1;
+        } else {
+          const currentInt = parseFloat(targetBehavior.params.intensity) || 1;
           const num = parseFloat(modifier) || 0;
-          targetBehavior.params.aoeSize = Math.max(1, currentSize + num);
-          break;
+          targetBehavior.params.intensity = currentInt + num;
         }
-        case "distance": {
-          const currentDist = parseFloat(targetBehavior.params.distance) || 1;
-          const num = parseFloat(modifier) || 0;
-          targetBehavior.params.distance = Math.max(0, currentDist + num);
-          break;
-        }
+        break;
+      }
+      case "size": {
+        const currentSize = parseFloat(targetBehavior.params.aoeSize) || 1;
+        const num = parseFloat(modifier) || 0;
+        targetBehavior.params.aoeSize = Math.max(1, currentSize + num);
+        break;
+      }
+      case "distance": {
+        const currentDist = parseFloat(targetBehavior.params.distance) || 1;
+        const num = parseFloat(modifier) || 0;
+        targetBehavior.params.distance = Math.max(0, currentDist + num);
+        break;
       }
     }
   }
@@ -345,7 +440,7 @@ export class DeedExecutor {
     const phase = this.phases[phaseKey];
     if (!phase || phase.skipPhase) return false;
     const hasDesc = Boolean(phase.description && phase.description.trim());
-    const hasBehaviors = Boolean(phase.behaviors && phase.behaviors.length > 0);
+    const hasBehaviors = Boolean(phase.behaviors && phase.behaviors.some(b => !b._alreadyExecuted));
     return hasDesc || hasBehaviors;
   }
 
@@ -358,10 +453,38 @@ export class DeedExecutor {
   _shouldSkipPhase(phaseKey) {
     const phase = this.phases[phaseKey];
     if (phase?.skipPhase) return true;
-    if (phaseKey === "hit" && !this.context.isHit) return true;
-    if (phaseKey === "spark" && !this.context.isSpark) return true;
+    if (phaseKey === "hit" && this.context.accuracyResolved && !this.context.isHit) return true;
+    if (phaseKey === "spark" && this.context.accuracyResolved && !this.context.isSpark) return true;
+
+    // If accuracy card was posted for hit/spark and all behaviors in phase were already executed, skip
+    if ((phaseKey === "hit" || phaseKey === "spark") && this.context.accuracyCardPosted) {
+      const hasUnexecutedBehaviors = phase?.behaviors?.some(b => !b._alreadyExecuted);
+      if (!hasUnexecutedBehaviors) return true;
+    }
 
     return !this._hasContent(phaseKey);
+  }
+
+  /**
+   * Check if current phase outputs or description warrant posting a chat card.
+   * @param {string} phaseKey
+   * @returns {boolean}
+   * @protected
+   */
+  _hasOutputsToPost(phaseKey) {
+    const outputs = this.context.currentPhaseOutputs;
+    if (!outputs) return false;
+    if (outputs.rolls?.length > 0 || outputs.rollEntries?.length > 0 || outputs.notes?.length > 0 || outputs.accuracyHtml) {
+      return true;
+    }
+    const phase = this.phases[phaseKey];
+    if (phase?.description && phase.description.trim()) {
+      if ((phaseKey === "hit" || phaseKey === "spark") && this.context.accuracyCardPosted) {
+        return false;
+      }
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -389,16 +512,19 @@ export class DeedExecutor {
       if (result === false) return false;
     }
 
-    // Post single consolidated chat card for this active phase
-    await this._postPhaseCard(phaseKey, phase);
+    // Post single consolidated chat card for this active phase if there are outputs to post
+    if (this._hasOutputsToPost(phaseKey)) {
+      await this._postPhaseCard(phaseKey, phase);
+    }
   }
 
   /**
    * Perform Base phase accuracy check matching legacy Deed logic.
    * If creature attacking PC characters, prompts the player owner via websocket socket to roll defense.
+   * @param {boolean} [isEarly=false] - True if accuracy check is triggered early due to phase dependencies.
    * @protected
    */
-  async _resolveAccuracyCheck() {
+  async _resolveAccuracyCheck(isEarly = false) {
     const isAttack = this.system.actionType !== "support";
     const versus = this.system.versus ?? "Guard";
     const apBonus = this.context.apBonus || 0;
@@ -454,7 +580,6 @@ export class DeedExecutor {
       let anyHit = false;
       let maxSparks = 0;
       const results = [];
-
 
       for (const targetToken of targetList) {
         const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
@@ -551,7 +676,12 @@ export class DeedExecutor {
         </div>`;
 
       // Post accuracy result in chat immediately before spark dialog
+      this.context.accuracyCardPosted = true;
       await this._postPhaseCard("hit", this.phases.hit, true);
+      if (isEarly) {
+        this.context.activeChatMessage = null;
+        this.context.currentPhaseOutputs = null;
+      }
 
       let sparkChoices = null;
       if (maxSparks > 0 && anyHit) {
@@ -611,7 +741,6 @@ export class DeedExecutor {
     let anyHit = false;
     let maxSparks = 0;
     const results = [];
-
 
     const actualTargets = isAttack && targetList.length > 0 ? targetList : [null];
 
@@ -708,7 +837,12 @@ export class DeedExecutor {
       </div>`;
 
     // Post accuracy result in chat immediately before spark dialog
+    this.context.accuracyCardPosted = true;
     await this._postPhaseCard("hit", this.phases.hit, true);
+    if (isEarly) {
+      this.context.activeChatMessage = null;
+      this.context.currentPhaseOutputs = null;
+    }
 
     // Spark selection dialog prompt when sparks are generated
     let sparkChoices = null;
