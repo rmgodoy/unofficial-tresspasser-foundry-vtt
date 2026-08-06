@@ -799,27 +799,36 @@ export class DeedExecutor {
 
     const rollHtml = await accRoll.render();
 
+    let versusLabel;
+    if (versus === "Guard" || versus === "Resist") {
+      versusLabel = game.i18n.localize(`TRESPASSER.Sheet.Combat.${versus}`) || versus;
+    } else {
+      versusLabel = game.i18n.localize("TRESPASSER.Terms.DC") || "CD";
+    }
+
     let resultsHtml = "";
     for (const res of results) {
-      if (res.tokenName) {
-        resultsHtml += `
-          <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs ${game.i18n.localize("TRESPASSER.Sheet.Combat." + versus)}: ${res.dc})</span></strong>
-              <span class="${res.isHit ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${res.isHit ? '#4fc3f7' : '#ff5252'};">${res.isHit ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!") : (game.i18n.localize("TRESPASSER.Chat.Combat.Miss") || "ERRO!")}</span>
-            </div>
-            <div style="display:flex;gap:10px;font-size: var(--fs-11);margin-top:2px;">
-              <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
-              <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
-            </div>
-          </div>`;
-      } else {
-        resultsHtml += `
-          <div class="incantation-metrics" style="display:flex;gap:10px;margin:8px 0;font-weight:bold;">
-            <div style="color:#e8c96b;"><i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</div>
-            <div style="color:#922c2c;"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</div>
-          </div>`;
-      }
+      const headerText = res.tokenName
+        ? `<strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs ${versusLabel}: ${res.dc})</span></strong>`
+        : `<span style="font-size: var(--fs-11);color:var(--trp-text-dim, #a09070); font-weight: bold;">(Roll: ${res.rollTotal} vs ${versusLabel}: ${res.dc})</span>`;
+
+      const hitLabel = res.isHit
+        ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!")
+        : (game.i18n.localize("TRESPASSER.Chat.Combat.Miss") || "ERRO!");
+
+      const hitColor = res.isHit ? '#4fc3f7' : '#ff5252';
+
+      resultsHtml += `
+        <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            ${headerText}
+            <span class="${res.isHit ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${hitColor};">${hitLabel}</span>
+          </div>
+          <div style="display:flex;gap:10px;font-size: var(--fs-11);margin-top:2px;">
+            <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
+            <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
+          </div>
+        </div>`;
     }
 
     if (!this.context.currentPhaseOutputs) {

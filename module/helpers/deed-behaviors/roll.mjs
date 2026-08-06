@@ -3,7 +3,7 @@ import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 export class RollBehavior {
   /**
    * Dedicated Roll behavior: Evaluates expression as a roll formula, stores result in context.evaluatedRolls,
-   * and renders the roll in the chat card.
+   * and renders the roll in the chat card. Can optionally incorporate Power spark bonus dice.
    * @param {object} behavior - { id, type, params }
    * @param {object} context  - Executor runtime context
    * @param {Actor} [actor]   - Source actor
@@ -15,10 +15,31 @@ export class RollBehavior {
     let rawExpr = params.expression?.trim();
     if (!rawExpr) return true;
 
-    let expr = DeedBehaviorUtils.resolveFormulaPlaceholders(rawExpr, actor);
+    const usePower = Boolean(params.usePowerSparks);
+    let powerBonusCount = 0;
+
+    if (usePower) {
+      if (context.sparkChoices?.perTarget) {
+        for (const tChoice of context.sparkChoices.perTarget.values()) {
+          if (tChoice.power > powerBonusCount) powerBonusCount = tChoice.power;
+        }
+      } else if (context.sparkChoices) {
+        powerBonusCount = context.sparkChoices.powerBonusDice || 0;
+      }
+    }
+
+    let finalExpr = rawExpr;
+    const bonusLabels = [];
+
+    if (usePower && powerBonusCount > 0) {
+      finalExpr += ` + ${powerBonusCount}<sd>`;
+      bonusLabels.push(`+${powerBonusCount}<sd> ${game.i18n.localize("TRESPASSER.Dialog.Spark.Power") || "Power"}`);
+    }
+
+    let resolvedExpr = DeedBehaviorUtils.resolveFormulaPlaceholders(finalExpr, actor);
     const rollData = actor?.getRollData() || {};
 
-    const roll = new Roll(expr, rollData);
+    const roll = new Roll(resolvedExpr, rollData);
     await roll.evaluate();
 
     if (!context.evaluatedRolls) {
@@ -32,11 +53,13 @@ export class RollBehavior {
       context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
     }
 
+    const sparkNote = bonusLabels.length > 0 ? ` (${bonusLabels.join(", ")})` : "";
+
     context.currentPhaseOutputs.rolls.push(roll);
     context.currentPhaseOutputs.rollEntries.push(`
       <div class="roll-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
         <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-          ${game.i18n.localize("TRESPASSER.Sheet.Common.Roll") || "Roll"}: ${expr}
+          ${game.i18n.localize("TRESPASSER.Sheet.Common.Roll") || "Roll"}: ${resolvedExpr}${sparkNote}
         </h4>
         ${rollHtml}
       </div>

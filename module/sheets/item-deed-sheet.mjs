@@ -18,7 +18,8 @@ export const DEFAULT_PARAMS = {
     aoeSize: 1
   },
   roll: {
-    expression: ""
+    expression: "",
+    usePowerSparks: false
   },
   applyDamage: {
     expression: "",

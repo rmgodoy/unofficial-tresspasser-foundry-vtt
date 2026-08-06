@@ -112,6 +112,15 @@
       <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
              value="{{params.expression}}" placeholder="e.g. 2d6+STR"/>
     </div>
+    <div class="field-row checkbox-row" style="margin-top: 4px;">
+      <input type="checkbox"
+             name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.usePowerSparks"
+             {{#if params.usePowerSparks}}checked{{/if}}
+             id="deed-use-power-{{phaseKey}}-{{index}}"/>
+      <label for="deed-use-power-{{phaseKey}}-{{index}}">
+        {{localize "TRESPASSER.Sheet.Deed.Params.UsePowerSparks"}}
+      </label>
+    </div>
   {{/if}}
 
   {{#if (eq type "applyDamage")}}
