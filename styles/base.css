@@ -239,7 +239,8 @@
 }
 
 /* ─── Shared Utilities ─── */
-.button {
+.trespasser-sheet .button,
+.trespasser .button {
   font-family: var(--trp-font-header);
   font-size: var(--fs-10);
   letter-spacing: 0.06em;
@@ -254,12 +255,14 @@
   text-decoration: none;
 }
 
-.button:hover {
+.trespasser-sheet .button:hover,
+.trespasser .button:hover {
   color: var(--trp-gold-bright);
   border-color: var(--trp-gold-dim);
 }
 
-.item-controls a {
+.trespasser-sheet .item-controls a,
+.trespasser .item-controls a {
   color: var(--trp-text-dim);
   cursor: pointer;
   font-size: var(--fs-11);
@@ -267,11 +270,13 @@
   text-decoration: none;
 }
 
-.item-controls a:hover {
+.trespasser-sheet .item-controls a:hover,
+.trespasser .item-controls a:hover {
   color: var(--trp-gold);
 }
 
-.item-controls a.item-delete:hover {
+.trespasser-sheet .item-controls a.item-delete:hover,
+.trespasser .item-controls a.item-delete:hover {
   color: var(--trp-red);
 }
 
