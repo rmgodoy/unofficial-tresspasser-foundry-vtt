@@ -192,6 +192,10 @@
         "TrackerTitle": "Event Clocks",
         "NoClocks": "No active event clocks.",
         "AddClock": "Add Clock"
+      },
+      "Dungeon": {
+        "SelectCharacterTitle": "Select Character",
+        "SelectCharacterPrompt": "Choose which character will perform this roll:"
       }
     }
   }

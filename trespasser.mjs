@@ -65,6 +65,7 @@ import { DUNGEON_CONFIG, ensureDungeonHelpers } from "./module/config/dungeon-co
 import { TrespasserDungeonSheet }  from "./module/sheets/actor-dungeon-sheet.mjs";
 import { TrespasserRoomSheet }     from "./module/sheets/item-room-sheet.mjs";
 import { DungeonTracker, registerDungeonTrackerHooks } from "./module/exploration/dungeon-tracker.mjs";
+import { handleDungeonRollButtonClick } from "./module/exploration/dungeon-actions.mjs";
 
 // ── Travel Exploration imports ──────────────────────────────────────────────
 import { TrespasserRegionData }    from "./module/data/actor-region.mjs";
@@ -81,9 +82,11 @@ import { TrespasserStrongholdData } from "./module/data/item-stronghold.mjs";
 import { TrespasserStrongholdSheet } from "./module/sheets/item-stronghold-sheet.mjs";
 import { registerHavenTrackerHooks } from "./module/exploration/haven-tracker.mjs";
 import { EventClocksTracker, registerEventClocksHooks } from "./module/exploration/event-clocks-tracker.mjs";
+import { registerChatCommands } from "./module/helpers/chat-commands.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
+  registerChatCommands();
 
   // Load partial templates
   await foundry.applications.handlebars.loadTemplates([
@@ -639,6 +642,8 @@ Hooks.once("init", async () => {
  * Socket handling for Token Action HUD / Help action
  */
 Hooks.once("ready", async () => {
+  registerChatCommands();
+
   // Initialize Token Action HUD
   game.trespasser.tokenHUD = new TrespasserTokenHUD();
 
@@ -860,9 +865,18 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       if (!tokens.length) ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.RecordedTargetsGone"));
       return tokens;
     }
+    const isCommandCard = btn.closest(".damage-roll-card") !== null;
+    const controlled = canvas.tokens.controlled;
     const targeted = Array.from(game.user.targets);
-    if (targeted.length) return targeted;
-    if (canvas.tokens.controlled.length) return canvas.tokens.controlled;
+
+    if (isCommandCard) {
+      if (controlled.length) return controlled;
+      if (targeted.length) return targeted;
+    } else {
+      if (targeted.length) return targeted;
+      if (controlled.length) return controlled;
+    }
+
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
     return [];
   };
@@ -2198,4 +2212,17 @@ Hooks.on("renderChatMessageHTML", (message, htmlElement, data) => {
       });
     });
   });
+
+  // ── Dungeon Action Roll buttons ──────────────────────────────────────────
+  htmlElement.querySelectorAll(".dungeon-action-roll-btn").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      await handleDungeonRollButtonClick(btn);
+    });
+  });
+
+  // Hide GM-only sections and trap warnings in chat cards for non-GM users
+  if (!game.user.isGM) {
+    htmlElement.querySelectorAll(".gm-only-section, .gm-trap-warning").forEach(el => el.remove());
+  }
 });

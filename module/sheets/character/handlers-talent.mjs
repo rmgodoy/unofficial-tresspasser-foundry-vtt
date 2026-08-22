@@ -4,6 +4,7 @@
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../../documents/combat.mjs";
+import { messageVisibility }       from "../../helpers/compat.mjs";
 
 
 export async function onTalentRoll(event, sheet) {
@@ -109,8 +110,8 @@ export async function onTalentRoll(event, sheet) {
     </div>`;
 
     const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
-    const rollMode = (sheet.actor.type === "creature" && hideCreatureRolls) ? "gmroll" : "roll";
-    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor: cardHtml + applyHealBtns }, { rollMode });
+    const visibility = messageVisibility((sheet.actor.type === "creature" && hideCreatureRolls) ? "gm" : "public");
+    await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor: cardHtml + applyHealBtns }, visibility);
 
     if (item.system.rollDice?.includes("<wd>")) {
       if (mainHandId) {

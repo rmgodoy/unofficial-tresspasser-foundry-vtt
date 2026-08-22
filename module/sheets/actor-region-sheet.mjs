@@ -6,6 +6,7 @@
  */
 
 import { TrespasserActorSheet } from "./base-sheet.mjs";
+import { messageVisibility } from "../helpers/compat.mjs";
 
 export class TrespasserRegionSheet extends TrespasserActorSheet {
 
@@ -187,7 +188,7 @@ export class TrespasserRegionSheet extends TrespasserActorSheet {
     if (!tableId) return;
     const table = game.tables.get(tableId);
     if (!table) return;
-    await table.draw({ rollMode: CONST.DICE_ROLL_MODES.PRIVATE });
+    await table.draw(messageVisibility("gm"));
   }
 
   static async #onCreateEncounterTable(event, target) {

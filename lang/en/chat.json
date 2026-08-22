@@ -193,7 +193,10 @@
         "Log": {
           "UnexploredCount": "{count} unexplored rooms found",
           "AlarmChange": "Alarm: {value}"
-        }
+        },
+        "RollCheck": "{skill}",
+        "DisarmNormal": "Normal ({skill})",
+        "DisarmMagic": "Magical ({skill})"
       },
       "Travel": {
         "SessionStarted": "Travel begins through {name}!",
@@ -228,6 +231,10 @@
       },
       "Deed": {
         "Empty": "This deed has no effects or description yet."
+      },
+      "DamageCommand": {
+        "Title": "Damage / Healing Roll",
+        "InvalidFormula": "Invalid formula. Please provide a valid dice expression or number (e.g. /hp 2d6+3, /dmg 10, /heal 1d8)."
       }
     }
   }

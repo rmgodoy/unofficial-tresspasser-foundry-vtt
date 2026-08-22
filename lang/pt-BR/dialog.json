@@ -192,6 +192,10 @@
         "TrackerTitle": "Relógios de Evento",
         "NoClocks": "Nenhum relógio de evento ativo.",
         "AddClock": "Adicionar Relógio"
+      },
+      "Dungeon": {
+        "SelectCharacterTitle": "Selecionar Personagem",
+        "SelectCharacterPrompt": "Escolha qual personagem realizará esta rolagem:"
       }
     }
   }
