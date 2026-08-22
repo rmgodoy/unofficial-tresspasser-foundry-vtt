@@ -1,3 +1,5 @@
+import { isAtLeastV14, getRollMessageMode } from "./compat.mjs";
+
 /**
  * Register chat commands for the Trespasser system.
  */
@@ -35,11 +37,14 @@ export function registerChatCommands() {
         </div>
       </div>`;
 
-      const rollMode = game.settings.get("core", "rollMode");
+      const messageOptions = createOptions?.messageMode
+        ? { messageMode: createOptions.messageMode }
+        : getRollMessageMode(createOptions?.rollMode);
+
       await roll.toMessage({
         speaker: chatData?.speaker || ChatMessage.getSpeaker(),
         flavor
-      }, { rollMode });
+      }, messageOptions);
     } catch (err) {
       console.error("Trespasser | /hp command error:", err);
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Chat.DamageCommand.InvalidFormula"));
@@ -48,31 +53,29 @@ export function registerChatCommands() {
     return false;
   };
 
-  // Register in ChatLog.CHAT_COMMANDS (Foundry V14+)
-  const registerWithClass = (cls) => {
-    if (!cls) return;
-    if (cls.CHAT_COMMANDS) {
-      cls.CHAT_COMMANDS.damageRoll = {
+  // Register in ChatLog.CHAT_COMMANDS without referencing deprecated globalThis.ChatLog
+  const chatLogClass = foundry.applications?.sidebar?.tabs?.ChatLog
+    || CONFIG.ui?.chat;
+
+  if (chatLogClass) {
+    if (isAtLeastV14() || chatLogClass.CHAT_COMMANDS) {
+      chatLogClass.CHAT_COMMANDS = chatLogClass.CHAT_COMMANDS || {};
+      chatLogClass.CHAT_COMMANDS.damageRoll = {
         rgx: commandRgx,
         fn: handleCommand
       };
+    } else if (chatLogClass.MESSAGE_PATTERNS) {
+      chatLogClass.MESSAGE_PATTERNS.damageRoll = commandRgx;
     }
-    if (cls.MESSAGE_PATTERNS) {
-      cls.MESSAGE_PATTERNS.damageRoll = commandRgx;
-    }
-  };
-
-  registerWithClass(globalThis.ChatLog);
-  registerWithClass(CONFIG.ui?.chat);
-  if (foundry?.applications?.sidebar?.tabs?.ChatLog) {
-    registerWithClass(foundry.applications.sidebar.tabs.ChatLog);
   }
 
-  // Also hook chatMessage as a fallback
-  Hooks.on("chatMessage", (chatLog, messageText, chatData) => {
-    const match = messageText?.trim().match(commandRgx);
-    if (!match) return true;
-    handleCommand("damageRoll", match, chatData);
-    return false;
-  });
+  // Also hook chatMessage as a fallback for older versions
+  if (!isAtLeastV14()) {
+    Hooks.on("chatMessage", (chatLog, messageText, chatData) => {
+      const match = messageText?.trim().match(commandRgx);
+      if (!match) return true;
+      handleCommand("damageRoll", match, chatData);
+      return false;
+    });
+  }
 }

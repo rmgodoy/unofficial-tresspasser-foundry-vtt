@@ -12,6 +12,7 @@ import { TrespasserRollDialog }    from "../../dialogs/roll-dialog.mjs";
 import { TargetingHelper }         from "../../helpers/targeting-helper.mjs";
 import { askSparkDialog }          from "../../dialogs/spark-dialog.mjs";
 import { requestPlayerDefenseRoll, requestPlayerCounterReaction } from "../../helpers/defense-roll-helper.mjs";
+import { messageVisibility }        from "../../helpers/compat.mjs";
 
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -396,11 +397,11 @@ export async function onDeedRoll(event, sheet) {
     </div>`;
 
     const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
-    const rollMode = (sheet.actor.type === "creature" && hideCreatureRolls) ? "gmroll" : "roll";
+    const visibility = messageVisibility((sheet.actor.type === "creature" && hideCreatureRolls) ? "gm" : "public");
     await powerRoll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
       flavor: powerFlavor
-    }, { rollMode });
+    }, visibility);
   }
 
   // ── 11c. Potency bonus chat message ──────────────────────────────────────
@@ -839,11 +840,11 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options, 
         </button>
       </div>`;
       const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
-      const rollMode = (actor.type === "creature" && hideCreatureRolls) ? "gmroll" : "roll";
+      const visibility = messageVisibility((actor.type === "creature" && hideCreatureRolls) ? "gm" : "public");
       await rollObj.toMessage({
         speaker: ChatMessage.getSpeaker({ actor }),
         flavor: flavorHtml + applyHealBtns
-      }, { rollMode });
+      }, visibility);
       return;
     }
   }
