@@ -81,9 +81,11 @@ import { TrespasserStrongholdData } from "./module/data/item-stronghold.mjs";
 import { TrespasserStrongholdSheet } from "./module/sheets/item-stronghold-sheet.mjs";
 import { registerHavenTrackerHooks } from "./module/exploration/haven-tracker.mjs";
 import { EventClocksTracker, registerEventClocksHooks } from "./module/exploration/event-clocks-tracker.mjs";
+import { registerChatCommands } from "./module/helpers/chat-commands.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
+  registerChatCommands();
 
   // Load partial templates
   await foundry.applications.handlebars.loadTemplates([
@@ -639,6 +641,8 @@ Hooks.once("init", async () => {
  * Socket handling for Token Action HUD / Help action
  */
 Hooks.once("ready", async () => {
+  registerChatCommands();
+
   // Initialize Token Action HUD
   game.trespasser.tokenHUD = new TrespasserTokenHUD();
 
@@ -860,9 +864,18 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       if (!tokens.length) ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.RecordedTargetsGone"));
       return tokens;
     }
+    const isCommandCard = btn.closest(".damage-roll-card") !== null;
+    const controlled = canvas.tokens.controlled;
     const targeted = Array.from(game.user.targets);
-    if (targeted.length) return targeted;
-    if (canvas.tokens.controlled.length) return canvas.tokens.controlled;
+
+    if (isCommandCard) {
+      if (controlled.length) return controlled;
+      if (targeted.length) return targeted;
+    } else {
+      if (targeted.length) return targeted;
+      if (controlled.length) return controlled;
+    }
+
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
     return [];
   };
