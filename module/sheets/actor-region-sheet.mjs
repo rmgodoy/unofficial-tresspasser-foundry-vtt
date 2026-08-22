@@ -6,6 +6,7 @@
  */
 import { messageVisibility } from "../helpers/compat.mjs";
 import { TrespasserActorSheet } from "./base-sheet.mjs";
+import { messageVisibility } from "../helpers/compat.mjs";
 
 export class TrespasserRegionSheet extends TrespasserActorSheet {
 

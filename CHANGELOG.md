@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.3] - 2026-08-22
+
+- Added `/hp`, `/dmg`, `/damage`, and `/heal` chat commands to quickly roll damage or healing expressions (e.g. `/hp 2d6+3`, `/heal 1d8`) and apply results directly to targeted or controlled tokens via interactive chat buttons.
+- Added interactive roll buttons directly to Dungeon Action chat messages (such as Explore, Hide, Vandalize, and Pick Lock) to roll the required attribute and skill checks against the action DC with automatic character resolution.
+
 ## [0.1.2] - 2026-08-05
 
 - Updated Items and Actors to be able to change their images in their respective sheets.

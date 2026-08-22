@@ -104,6 +104,54 @@
   color: var(--trp-gold-dim);
 }
 
+/* Damage / Healing Actions in Chat Cards */
+.trespasser-chat-card .trp-damage-actions {
+  display: flex;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.trespasser-chat-card .apply-damage-btn,
+.trespasser-chat-card .heal-damage-btn {
+  flex: 1;
+  background: var(--trp-bg-dark);
+  border-radius: var(--trp-radius);
+  padding: 4px 8px;
+  cursor: pointer;
+  font-family: var(--trp-font-body);
+  font-size: var(--fs-11);
+  font-weight: bold;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+}
+
+.trespasser-chat-card .apply-damage-btn {
+  border: 1px solid var(--trp-red-dim);
+  color: var(--trp-red);
+}
+
+.trespasser-chat-card .apply-damage-btn:hover {
+  background: rgba(255, 82, 82, 0.15);
+  border-color: var(--trp-red);
+  color: #ff7675;
+  box-shadow: 0 0 4px rgba(255, 82, 82, 0.3);
+}
+
+.trespasser-chat-card .heal-damage-btn {
+  border: 1px solid var(--trp-green);
+  color: var(--trp-green-bright);
+}
+
+.trespasser-chat-card .heal-damage-btn:hover {
+  background: rgba(45, 90, 45, 0.25);
+  border-color: var(--trp-green-bright);
+  color: #55efc4;
+  box-shadow: 0 0 4px rgba(74, 138, 74, 0.3);
+}
+
 .chat-message .message-header {
   color: var(--trp-text);
 }
