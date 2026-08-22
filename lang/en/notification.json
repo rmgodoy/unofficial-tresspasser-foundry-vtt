@@ -78,7 +78,8 @@
         "RoomAdded": "Room {name} added to connections.",
         "AlreadyConnected": "Room {name} is already connected.",
         "ConnectionCreated": "Connection to {name} created.",
-        "NoActionsRemaining": "You have no actions remaining in this round."
+        "NoActionsRemaining": "You have no actions remaining in this round.",
+        "NoCharacterForRoll": "Please select or assign a character to roll."
       },
       "Region": {
         "NoEmbeddedItems": "Regions cannot contain embedded items."

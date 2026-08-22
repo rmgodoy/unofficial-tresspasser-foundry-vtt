@@ -78,7 +78,8 @@
         "RoomAdded": "Sala {name} adicionada às conexões.",
         "AlreadyConnected": "A sala {name} já está conectada.",
         "ConnectionCreated": "Conexão com {name} criada.",
-        "NoActionsRemaining": "Você não tem mais ações restantes neste round."
+        "NoActionsRemaining": "Você não tem mais ações restantes neste round.",
+        "NoCharacterForRoll": "Por favor selecione ou vincule um personagem para rolar."
       },
       "Region": {
         "NoEmbeddedItems": "Regiões não podem conter itens embutidos."

@@ -65,6 +65,7 @@ import { DUNGEON_CONFIG, ensureDungeonHelpers } from "./module/config/dungeon-co
 import { TrespasserDungeonSheet }  from "./module/sheets/actor-dungeon-sheet.mjs";
 import { TrespasserRoomSheet }     from "./module/sheets/item-room-sheet.mjs";
 import { DungeonTracker, registerDungeonTrackerHooks } from "./module/exploration/dungeon-tracker.mjs";
+import { handleDungeonRollButtonClick } from "./module/exploration/dungeon-actions.mjs";
 
 // ── Travel Exploration imports ──────────────────────────────────────────────
 import { TrespasserRegionData }    from "./module/data/actor-region.mjs";
@@ -2211,4 +2212,17 @@ Hooks.on("renderChatMessageHTML", (message, htmlElement, data) => {
       });
     });
   });
+
+  // ── Dungeon Action Roll buttons ──────────────────────────────────────────
+  htmlElement.querySelectorAll(".dungeon-action-roll-btn").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      await handleDungeonRollButtonClick(btn);
+    });
+  });
+
+  // Hide GM-only sections and trap warnings in chat cards for non-GM users
+  if (!game.user.isGM) {
+    htmlElement.querySelectorAll(".gm-only-section, .gm-trap-warning").forEach(el => el.remove());
+  }
 });

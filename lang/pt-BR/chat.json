@@ -193,7 +193,10 @@
         "Log": {
           "UnexploredCount": "{count} salas não exploradas encontradas",
           "AlarmChange": "Alarme: {value}"
-        }
+        },
+        "RollCheck": "{skill}",
+        "DisarmNormal": "Normal ({skill})",
+        "DisarmMagic": "Mágica ({skill})"
       },
       "Travel": {
         "SessionStarted": "A viagem começa por {name}!",
