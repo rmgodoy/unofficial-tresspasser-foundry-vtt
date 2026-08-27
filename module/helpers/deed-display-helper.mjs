@@ -31,9 +31,16 @@ export function formatBDeedTarget(system) {
   if (mode === "self") return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Self");
   if (mode === "creatures") {
     const count = parseInt(params.targetCount) || 1;
-    const unit = count === 1
+    let unitKey = count === 1 ? "Creature" : "Creatures";
+    if (params.disposition === "enemy") unitKey = count === 1 ? "Enemy" : "Enemies";
+    else if (params.disposition === "ally") unitKey = count === 1 ? "Ally" : "Allies";
+    else if (params.disposition === "friendly") unitKey = "Friendly";
+    else if (params.disposition === "hostile") unitKey = "Hostile";
+    else if (params.disposition === "neutral") unitKey = "Neutral";
+
+    const unit = game.i18n.localize(`TRESPASSER.Sheet.Deed.Target.${unitKey}`) || (count === 1
       ? game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Creature")
-      : game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Creatures");
+      : game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Creatures"));
     return `${count} ${unit}`;
   }
   if (mode === "squares") {

@@ -67,6 +67,7 @@
         "MovementLimitExceeded": "Limite de movimento excedido.",
         "VaultStraightLine": "Saltar requer mover-se em linha reta.",
         "TooManyTargets": "Muitos alvos selecionados ({count}). Esta habilidade afeta no máximo {max}.",
+        "InvalidTargetDisposition": "O alvo selecionado não corresponde à disposição requerida.",
         "NoTokenOnCanvas": "Nenhum token encontrado no canvas para este ator.",
         "TemplateTooFar": "O modelo está muito longe do conjurador.",
         "PathMustStartAdjacent": "O caminho deve começar adjacente ao seu token.",

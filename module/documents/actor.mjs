@@ -27,6 +27,9 @@ export class TrespasserActor extends Actor {
         case "creature":
           this.updateSource({ img: "systems/trespasser/assets/icons/creature.webp" });
           break;
+        case "commoner":
+          this.updateSource({ img: "systems/trespasser/assets/icons/pesant.webp" });
+          break;
         case "party":
           this.updateSource({ img: "systems/trespasser/assets/icons/pesant.webp" });
           break;
@@ -43,6 +46,16 @@ export class TrespasserActor extends Actor {
     const currentTokenImg = foundry.utils.getProperty(data, "prototypeToken.texture.src") || this.prototypeToken?.texture?.src;
     if (!currentTokenImg || currentTokenImg === "icons/svg/mystery-man.svg") {
       this.updateSource({ "prototypeToken.texture.src": this.img });
+    }
+
+    // Set default prototype token disposition if not explicitly provided in data
+    const tokenDispositionProvided = foundry.utils.hasProperty(data, "prototypeToken.disposition");
+    if (!tokenDispositionProvided) {
+      if (this.type === "character" || this.type === "commoner") {
+        this.updateSource({ "prototypeToken.disposition": CONST.TOKEN_DISPOSITIONS.FRIENDLY });
+      } else if (this.type === "creature") {
+        this.updateSource({ "prototypeToken.disposition": CONST.TOKEN_DISPOSITIONS.HOSTILE });
+      }
     }
   }
 

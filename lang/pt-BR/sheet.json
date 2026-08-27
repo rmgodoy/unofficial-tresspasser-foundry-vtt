@@ -259,6 +259,13 @@
           "Special": "Especial",
           "Creature": "Criatura",
           "Creatures": "Criaturas",
+          "Enemy": "Inimigo",
+          "Enemies": "Inimigos",
+          "Ally": "Aliado",
+          "Allies": "Aliados",
+          "Friendly": "Amigável",
+          "Hostile": "Hostil",
+          "Neutral": "Neutro",
           "Square": "Quadrado",
           "Squares": "Quadrados",
           "SelectedArea": "Área Selecionada",
@@ -301,6 +308,7 @@
         },
         "Params": {
           "TargetMode": "Modo de Alvo",
+          "Disposition": "Disposição",
           "TargetCount": "Contagem de Alvos",
           "SquareCount": "Contagem de Quadrados",
           "AoEType": "Tipo de Área",
@@ -316,6 +324,15 @@
             "AoE": "Área de Efeito",
             "SelectedArea": "Área Selecionada",
             "Squares": "Quadrados"
+          },
+          "DispositionChoices": {
+            "Any": "Qualquer Disposição",
+            "Enemy": "Inimigo",
+            "Ally": "Aliado",
+            "Friendly": "Amigável",
+            "Neutral": "Neutro",
+            "Hostile": "Hostil",
+            "Secret": "Secreto"
           },
           "AreaRelationChoices": {
             "Inside": "Dentro da Área",

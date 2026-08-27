@@ -67,6 +67,7 @@
         "MovementLimitExceeded": "Movement limit exceeded.",
         "VaultStraightLine": "Vaulting requires moving in a straight line.",
         "TooManyTargets": "Too many targets selected ({count}). This ability affects at most {max}.",
+        "InvalidTargetDisposition": "Selected target does not match the required disposition.",
         "NoTokenOnCanvas": "No token found on canvas for this actor.",
         "TemplateTooFar": "The template is too far from the caster.",
         "PathMustStartAdjacent": "Path must start adjacent to your token.",

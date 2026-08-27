@@ -11,6 +11,21 @@
         </select>
       </div>
 
+      {{#if (ne params.targetMode "self")}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.Disposition"}}</label>
+          <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.disposition">
+            <option value="any" {{#if (or (eq params.disposition "any") (not params.disposition))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DispositionChoices.Any"}}</option>
+            <option value="enemy" {{#if (eq params.disposition "enemy")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DispositionChoices.Enemy"}}</option>
+            <option value="ally" {{#if (eq params.disposition "ally")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DispositionChoices.Ally"}}</option>
+            <option value="friendly" {{#if (eq params.disposition "friendly")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DispositionChoices.Friendly"}}</option>
+            <option value="neutral" {{#if (eq params.disposition "neutral")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DispositionChoices.Neutral"}}</option>
+            <option value="hostile" {{#if (eq params.disposition "hostile")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DispositionChoices.Hostile"}}</option>
+            <option value="secret" {{#if (eq params.disposition "secret")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DispositionChoices.Secret"}}</option>
+          </select>
+        </div>
+      {{/if}}
+
       {{#if (eq params.targetMode "creatures")}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetCount"}}</label>
@@ -48,6 +63,14 @@
             <option value="insideAndAdjacent" {{#if (eq params.areaRelation "insideAndAdjacent")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AreaRelationChoices.InsideAndAdjacent"}}</option>
           </select>
         </div>
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaBehaviorId"}}</label>
+          <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaBehaviorId"
+                 value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
+        </div>
+      {{/if}}
+
+      {{#if (ne params.targetMode "self")}}
         <div class="field-row checkbox-row" style="margin-top: 4px;">
           <input type="checkbox"
                  name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.ignoreSelf"
@@ -56,11 +79,6 @@
           <label for="deed-ignore-self-{{phaseKey}}-{{index}}">
             {{localize "TRESPASSER.Sheet.Deed.Params.IgnoreSelf"}}
           </label>
-        </div>
-        <div class="field-row">
-          <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaBehaviorId"}}</label>
-          <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaBehaviorId"
-                 value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
         </div>
       {{/if}}
     </div>

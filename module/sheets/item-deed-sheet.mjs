@@ -6,6 +6,7 @@ const { api, sheets } = foundry.applications;
 export const DEFAULT_PARAMS = {
   selectTarget: {
     targetMode: "creatures",
+    disposition: "any",
     targetCount: 1,
     aoeType: "blast",
     aoeSize: 1,

@@ -82,17 +82,76 @@ export class TargetingHelper {
   /* -------------------------------------------- */
 
   /**
+   * Check if a token matches the required disposition filter.
+   * Supports both relative (enemy, ally) and absolute (friendly, neutral, hostile, secret) dispositions.
+   * @param {Token|TokenDocument} targetToken
+   * @param {string} [disposition] - "any"|"enemy"|"ally"|"friendly"|"neutral"|"hostile"|"secret"
+   * @param {Token|TokenDocument|Actor} [sourceToken]
+   * @returns {boolean}
+   */
+  static matchesDisposition(targetToken, disposition, sourceToken = null) {
+    if (!disposition || disposition === "any") return true;
+    if (!targetToken) return false;
+
+    const targetDisp = targetToken.document?.disposition 
+      ?? targetToken.disposition 
+      ?? targetToken.actor?.prototypeToken?.disposition 
+      ?? CONST.TOKEN_DISPOSITIONS.NEUTRAL;
+
+    const sourceDisp = sourceToken?.document?.disposition 
+      ?? sourceToken?.disposition 
+      ?? sourceToken?.prototypeToken?.disposition 
+      ?? sourceToken?.actor?.prototypeToken?.disposition 
+      ?? CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+
+    switch (disposition) {
+      case "enemy":
+        if (sourceDisp === CONST.TOKEN_DISPOSITIONS.FRIENDLY) {
+          return targetDisp === CONST.TOKEN_DISPOSITIONS.HOSTILE || targetDisp === CONST.TOKEN_DISPOSITIONS.SECRET;
+        }
+        if (sourceDisp === CONST.TOKEN_DISPOSITIONS.HOSTILE || sourceDisp === CONST.TOKEN_DISPOSITIONS.SECRET) {
+          return targetDisp === CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+        }
+        if (sourceDisp === CONST.TOKEN_DISPOSITIONS.NEUTRAL) {
+          return targetDisp === CONST.TOKEN_DISPOSITIONS.HOSTILE || targetDisp === CONST.TOKEN_DISPOSITIONS.SECRET;
+        }
+        return targetDisp !== sourceDisp;
+
+      case "ally":
+        return targetDisp === sourceDisp;
+
+      case "friendly":
+        return targetDisp === CONST.TOKEN_DISPOSITIONS.FRIENDLY;
+
+      case "hostile":
+        return targetDisp === CONST.TOKEN_DISPOSITIONS.HOSTILE;
+
+      case "neutral":
+        return targetDisp === CONST.TOKEN_DISPOSITIONS.NEUTRAL;
+
+      case "secret":
+        return targetDisp === CONST.TOKEN_DISPOSITIONS.SECRET;
+
+      default:
+        return true;
+    }
+  }
+
+  /**
    * Return all tokens whose centers fall within the given grid squares.
    * Works for all AOE types (blast, burst, path, etc.).
    * @param {Array<{x: number, y: number}>} squares  Top-left corners of grid squares
    * @param {number} gridPx
    * @param {object} [options]
    * @param {string} [options.excludeTokenId]
+   * @param {string} [options.disposition]
+   * @param {Token|TokenDocument|Actor} [options.sourceToken]
    * @returns {Token[]}
    */
-  static getTokensInSquares(squares, gridPx, { excludeTokenId } = {}) {
+  static getTokensInSquares(squares, gridPx, { excludeTokenId, disposition, sourceToken } = {}) {
     return canvas.tokens.placeables.filter(t => {
       if (excludeTokenId && t.id === excludeTokenId) return false;
+      if (disposition && !this.matchesDisposition(t, disposition, sourceToken)) return false;
       
       const tX = t.document.x;
       const tY = t.document.y;

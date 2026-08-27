@@ -891,6 +891,18 @@ Hooks.on("preCreateToken", (tokenDoc, updates, options, userId) => {
         tokenDoc.updateSource({ "texture.src": targetSrc });
       }
     }
+
+    // Default placed token disposition if not explicitly overridden
+    const dispositionProvided = foundry.utils.hasProperty(updates, "disposition");
+    if (!dispositionProvided && (tokenDoc.disposition === CONST.TOKEN_DISPOSITIONS.NEUTRAL || tokenDoc.disposition === undefined)) {
+      if (actor.prototypeToken?.disposition !== undefined && actor.prototypeToken?.disposition !== CONST.TOKEN_DISPOSITIONS.NEUTRAL) {
+        tokenDoc.updateSource({ disposition: actor.prototypeToken.disposition });
+      } else if (actor.type === "character" || actor.type === "commoner") {
+        tokenDoc.updateSource({ disposition: CONST.TOKEN_DISPOSITIONS.FRIENDLY });
+      } else if (actor.type === "creature") {
+        tokenDoc.updateSource({ disposition: CONST.TOKEN_DISPOSITIONS.HOSTILE });
+      }
+    }
   }
 });
 

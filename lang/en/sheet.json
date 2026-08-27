@@ -261,6 +261,13 @@
           "Special": "Special",
           "Creature": "Creature",
           "Creatures": "Creatures",
+          "Enemy": "Enemy",
+          "Enemies": "Enemies",
+          "Ally": "Ally",
+          "Allies": "Allies",
+          "Friendly": "Friendly",
+          "Hostile": "Hostile",
+          "Neutral": "Neutral",
           "Square": "Square",
           "Squares": "Squares",
           "SelectedArea": "Selected Area",
@@ -303,6 +310,7 @@
         },
         "Params": {
           "TargetMode": "Target Mode",
+          "Disposition": "Disposition",
           "TargetCount": "Target Count",
           "SquareCount": "Square Count",
           "AoEType": "AoE Type",
@@ -318,6 +326,15 @@
             "AoE": "Area of Effect",
             "SelectedArea": "Selected Area",
             "Squares": "Squares"
+          },
+          "DispositionChoices": {
+            "Any": "Any Disposition",
+            "Enemy": "Enemy",
+            "Ally": "Ally",
+            "Friendly": "Friendly",
+            "Neutral": "Neutral",
+            "Hostile": "Hostile",
+            "Secret": "Secret"
           },
           "AreaRelationChoices": {
             "Inside": "Inside Area",

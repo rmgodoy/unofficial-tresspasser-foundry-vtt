@@ -107,7 +107,12 @@ export class SelectTargetBehavior {
 
           const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
           hoveredSquare = { x: snapped.x, y: snapped.y };
-          const tokensInSq = TargetingHelper.getTokensInSquares([{ x: snapped.x, y: snapped.y }], gridPx);
+          const rawTokens = TargetingHelper.getTokensInSquares([{ x: snapped.x, y: snapped.y }], gridPx);
+          const tokensInSq = TargetingHelper.getTokensInSquares([{ x: snapped.x, y: snapped.y }], gridPx, {
+            disposition: params.disposition,
+            sourceToken: token,
+            excludeTokenId: params.ignoreSelf ? token?.id : null
+          });
 
           if (tokensInSq.length > 0) {
             const hitToken = tokensInSq[0];
@@ -134,6 +139,8 @@ export class SelectTargetBehavior {
             }
 
             redrawHighlights(session, hoveredSquare);
+          } else if (rawTokens.length > 0) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.InvalidTargetDisposition") || "Selected target does not match the required disposition.");
           }
         },
         onConfirm: () => {
@@ -177,7 +184,11 @@ export class SelectTargetBehavior {
       }
 
       const gridPx = canvas.grid.size;
-      const tokensInAoE = TargetingHelper.getTokensInSquares(result.squares, gridPx);
+      const tokensInAoE = TargetingHelper.getTokensInSquares(result.squares, gridPx, {
+        disposition: params.disposition,
+        sourceToken: token,
+        excludeTokenId: params.ignoreSelf ? token?.id : null
+      });
       context.targets = tokensInAoE;
       if (game.user.updateTokenTargets) {
         game.user.updateTokenTargets(tokensInAoE.map(t => t.id));
@@ -220,14 +231,12 @@ export class SelectTargetBehavior {
       }
 
       const evalSquares = Array.from(targetSqMap.values());
-      let selectedTargets = TargetingHelper.getTokensInSquares(evalSquares, gridPx);
-
-      if (params.ignoreSelf) {
-        const sourceToken = DeedBehaviorUtils.findToken(actor);
-        if (sourceToken) {
-          selectedTargets = selectedTargets.filter(t => t.id !== sourceToken.id);
-        }
-      }
+      const sourceToken = token || DeedBehaviorUtils.findToken(actor);
+      const selectedTargets = TargetingHelper.getTokensInSquares(evalSquares, gridPx, {
+        disposition: params.disposition,
+        sourceToken: sourceToken,
+        excludeTokenId: params.ignoreSelf ? sourceToken?.id : null
+      });
 
       context.targets = selectedTargets;
       if (game.user.updateTokenTargets) {
