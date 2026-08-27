@@ -137,14 +137,21 @@
     </div>
     {{/if}}
 
-    <div class="field-item">
-      <label>{{localize "TRESPASSER.Sheet.Common.Price"}}</label>
-      <input type="number" name="system.price" value="{{system.price}}" data-dtype="Number" />
-    </div>
+    <div class="field-item flex-row" style="gap: 10px;">
+      <div class="field-item" style="flex: 1;">
+        <label>{{localize "TRESPASSER.Sheet.Common.Price"}}</label>
+        <input type="number" name="system.price" value="{{system.price}}" data-dtype="Number" min="0" />
+      </div>
 
-    <div class="field-item">
-      <label>{{localize "TRESPASSER.Sheet.Common.Slot"}}</label>
-      <input type="number" name="system.slotOccupancy" value="{{system.slotOccupancy}}" data-dtype="Number" />
+      <div class="field-item" style="flex: 1;">
+        <label>{{localize "TRESPASSER.Sheet.Common.ValueXP"}}</label>
+        <input type="number" name="system.value" value="{{system.value}}" data-dtype="Number" min="0" />
+      </div>
+
+      <div class="field-item" style="flex: 1;">
+        <label>{{localize "TRESPASSER.Sheet.Common.Slot"}}</label>
+        <input type="number" name="system.slotOccupancy" value="{{system.slotOccupancy}}" data-dtype="Number" min="0" step="any" />
+      </div>
     </div>
 
     <div class="field-item flex-row" style="gap: 10px; margin-top: 5px; flex-wrap: wrap;">

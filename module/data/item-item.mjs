@@ -11,6 +11,7 @@ export class TrespasserItemData extends foundry.abstract.TypeDataModel {
         choices: ["tool", "resource", "light_source", "miscellaneous", "bombs", "oils", "powders", "potions", "scrolls", "esoteric", "artifacts"]
       }),
       price: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
+      value: new fields.NumberField({ initial: 0, integer: true, min: 0 }),
       quantity: new fields.NumberField({ initial: 1, integer: true, min: 0 }),
       slotOccupancy: new fields.NumberField({ initial: 1, min: 0 }),
       equipped: new fields.BooleanField({ initial: false }),

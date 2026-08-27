@@ -85,6 +85,8 @@
         "Quantity": "Quantity",
         "Range": "Range",
         "Price": "Price",
+        "Value": "Value",
+        "ValueXP": "Value (XP)",
         "Weight": "Weight",
         "Placement": "Placement",
         "Radius": "Radius",

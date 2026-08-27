@@ -229,7 +229,8 @@ export class TreasureGenerator {
       img: "systems/trespasser/assets/icons/item.webp",
       system: {
         subType: "miscellaneous",
-        price: treasureResult.value || 1,
+        price: 0,
+        value: treasureResult.value || 1,
         quantity: 1,
         slotOccupancy: isTiny ? 0.2 : 1,
         description: desc
