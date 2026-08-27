@@ -9,7 +9,7 @@
  */
 
 import { TREASURE_CONFIG } from "../config/treasure-config.mjs";
-import { getRollMessageMode } from "./compat.mjs";
+import { getRollMessageMode, applyMessageMode } from "./compat.mjs";
 
 export class TreasureGenerator {
 
@@ -187,7 +187,7 @@ export class TreasureGenerator {
     if (options.whisperToGM) {
       messageData.whisper = game.users.filter(u => u.isGM).map(u => u.id);
     } else if (!messageData.whisper || messageData.whisper.length === 0) {
-      ChatMessage.applyRollMode(messageData, rawMode);
+      applyMessageMode(messageData, rawMode);
     }
 
     const messageOptions = options.createOptions?.messageMode

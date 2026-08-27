@@ -62,8 +62,9 @@ export function registerChatCommands() {
     try {
       for (let i = 0; i < count; i++) {
         await TreasureGenerator.rollTreasure({
-          whisperToGM: false,
-          displayChat: true
+          displayChat: true,
+          chatData,
+          createOptions
         });
       }
     } catch (err) {

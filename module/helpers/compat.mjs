@@ -36,3 +36,23 @@ export function getRollMessageMode(rawMode) {
   const mode = rawMode || game.settings.get("core", "rollMode") || "publicroll";
   return { rollMode: mode };
 }
+
+/**
+ * Applies chat visibility / message mode to a chat message data object.
+ * v14 introduced ChatMessage.applyMode; v13 used ChatMessage.applyRollMode.
+ * @param {object} chatData
+ * @param {string} [mode]
+ */
+export function applyMessageMode(chatData, mode) {
+  if (typeof ChatMessage.applyMode === "function") {
+    let cleanMode = mode;
+    if (cleanMode && typeof cleanMode === "string") {
+      cleanMode = cleanMode.replace(/roll$/, "");
+      if (cleanMode === "" || cleanMode === "roll") cleanMode = "public";
+    }
+    ChatMessage.applyMode(chatData, cleanMode);
+  } else if (typeof ChatMessage.applyRollMode === "function") {
+    ChatMessage.applyRollMode(chatData, mode);
+  }
+}
+
