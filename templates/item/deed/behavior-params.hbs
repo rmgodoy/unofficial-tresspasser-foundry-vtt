@@ -107,10 +107,17 @@
   {{/if}}
 
   {{#if (eq type "roll")}}
-    <div class="field-row">
-      <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollExpression"}}</label>
-      <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
-             value="{{params.expression}}" placeholder="e.g. 2d6+STR"/>
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollExpression"}}</label>
+        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
+               value="{{params.expression}}" placeholder="e.g. 2d6+STR, /2, -5, +1d6"/>
+      </div>
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollBehaviorId"}}</label>
+        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.rollBehaviorId"
+               value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
+      </div>
     </div>
     <div class="field-row checkbox-row" style="margin-top: 4px;">
       <input type="checkbox"
@@ -128,7 +135,7 @@
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.DamageExpression"}}</label>
         <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
-               value="{{params.expression}}" placeholder="e.g. 2d6+STR"/>
+               value="{{params.expression}}" placeholder="e.g. 2d6+STR, /2, -5, +1d6"/>
       </div>
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollBehaviorId"}}</label>
@@ -152,7 +159,7 @@
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.HealingExpression"}}</label>
         <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
-               value="{{params.expression}}" placeholder="e.g. 1d6+<sd>"/>
+               value="{{params.expression}}" placeholder="e.g. 1d6+<sd>, /2, -5, +2"/>
       </div>
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollBehaviorId"}}</label>

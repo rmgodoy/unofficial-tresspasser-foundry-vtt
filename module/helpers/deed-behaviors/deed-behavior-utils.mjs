@@ -142,5 +142,97 @@ export class DeedBehaviorUtils {
 
     return TrespasserEffectsHelper.replacePlaceholders(expr, actor, weaponDie);
   }
+
+  /**
+   * Evaluates a roll expression, either standalone or referencing an earlier evaluated roll.
+   * If refRoll is provided, applies mathematical operations (e.g. "/ 2", "* 2", "- 5", "+ 3"),
+   * new dice expressions (e.g. "1d6", "<sd>"), or explicit reference formulas (e.g. "@roll / 2 + 1d6").
+   *
+   * @param {object} options
+   * @param {string} [options.expression] - The formula or modifier expression
+   * @param {Roll} [options.refRoll] - The referenced evaluated Roll instance, if any
+   * @param {Actor} [options.actor] - Source actor for resolving placeholders and rollData
+   * @param {object} [options.rollData] - Additional roll data
+   * @param {string} [options.fallbackLabel] - Localized label fallback if expression is empty
+   * @returns {Promise<{ roll: Roll|null, total: number, rollLabel: string }>}
+   */
+  static async evaluateRollExpression({ expression = "", refRoll = null, actor = null, rollData = null, fallbackLabel = "" } = {}) {
+    const rawExpr = (expression || "").trim();
+    const data = { ...(actor?.getRollData() || {}), ...(rollData || {}) };
+
+    // Case 1: Referenced Roll exists
+    if (refRoll) {
+      if (!rawExpr) {
+        const label = fallbackLabel || game.i18n.localize("TRESPASSER.Sheet.Deed.Params.ReferencedRoll") || "Referenced Roll";
+        return {
+          roll: refRoll,
+          total: Math.max(0, Math.floor(refRoll.total)),
+          rollLabel: `${refRoll.total} (${label})`
+        };
+      }
+
+      const modExpr = this.resolveFormulaPlaceholders(rawExpr, actor).trim();
+      if (!modExpr) {
+        const label = fallbackLabel || game.i18n.localize("TRESPASSER.Sheet.Deed.Params.ReferencedRoll") || "Referenced Roll";
+        return {
+          roll: refRoll,
+          total: Math.max(0, Math.floor(refRoll.total)),
+          rollLabel: `${refRoll.total} (${label})`
+        };
+      }
+
+      // Check if expression references roll explicitly
+      let processedExpr = modExpr
+        .replace(/(?<![@$.\w])(?:ref|roll)(?![(\w])/gi, "@roll")
+        .replace(/@ref|\$roll/gi, "@roll");
+
+      let finalFormula = "";
+      let rollLabel = "";
+
+      const hasExplicitRef = /@roll/i.test(processedExpr);
+      if (hasExplicitRef) {
+        finalFormula = processedExpr;
+        rollLabel = `${modExpr.replace(/@roll|@ref|\$roll/gi, refRoll.total)}`;
+      } else {
+        const startsWithOp = /^[\/*+-]/.test(processedExpr);
+        if (startsWithOp) {
+          finalFormula = `@roll ${processedExpr}`;
+          rollLabel = `${refRoll.total} ${modExpr}`;
+        } else {
+          finalFormula = `@roll + ${processedExpr}`;
+          rollLabel = `${refRoll.total} + ${modExpr}`;
+        }
+      }
+
+      const evalData = { ...data, roll: refRoll.total, ref: refRoll.total };
+      const roll = new Roll(finalFormula, evalData);
+      await roll.evaluate();
+
+      const total = Math.max(0, Math.floor(roll.total));
+      rollLabel = `${rollLabel} = ${total}`;
+
+      return {
+        roll,
+        total,
+        rollLabel
+      };
+    }
+
+    // Case 2: Standalone Roll (no reference)
+    if (!rawExpr) {
+      return { roll: null, total: 0, rollLabel: "" };
+    }
+
+    const expr = this.resolveFormulaPlaceholders(rawExpr, actor);
+    const roll = new Roll(expr, data);
+    await roll.evaluate();
+
+    const total = Math.max(0, Math.floor(roll.total));
+    return {
+      roll,
+      total,
+      rollLabel: expr
+    };
+  }
 }
 

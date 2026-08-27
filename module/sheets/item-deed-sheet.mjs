@@ -1,4 +1,5 @@
 import { BEHAVIOR_TYPES } from "../data/item-deed.mjs";
+import { TrespasserItemSheet } from "./base-sheet.mjs";
 
 const { api, sheets } = foundry.applications;
 
@@ -19,6 +20,7 @@ export const DEFAULT_PARAMS = {
   },
   roll: {
     expression: "",
+    rollBehaviorId: "",
     usePowerSparks: false
   },
   applyDamage: {
@@ -66,8 +68,6 @@ export const DEFAULT_PARAMS = {
     deedImg: ""
   }
 };
-
-import { TrespasserItemSheet } from "./base-sheet.mjs";
 
 export class TrespasserDeedSheet extends TrespasserItemSheet {
 

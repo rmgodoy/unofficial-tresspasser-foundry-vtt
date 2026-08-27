@@ -12,8 +12,11 @@ export class RollBehavior {
    */
   static async execute(behavior, context, actor, item, phaseKey = "") {
     const params = behavior.params || {};
-    let rawExpr = params.expression?.trim();
-    if (!rawExpr) return true;
+    let rawExpr = params.expression?.trim() || "";
+    const refId = params.rollBehaviorId?.trim();
+    let refRoll = refId ? context.evaluatedRolls?.get(refId) : null;
+
+    if (!rawExpr && !refRoll) return true;
 
     const usePower = Boolean(params.usePowerSparks);
     let powerBonusCount = 0;
@@ -32,15 +35,21 @@ export class RollBehavior {
     const bonusLabels = [];
 
     if (usePower && powerBonusCount > 0) {
-      finalExpr += ` + ${powerBonusCount}<sd>`;
+      if (finalExpr) {
+        finalExpr += ` + ${powerBonusCount}<sd>`;
+      } else {
+        finalExpr = `+ ${powerBonusCount}<sd>`;
+      }
       bonusLabels.push(`+${powerBonusCount}<sd> ${game.i18n.localize("TRESPASSER.Dialog.Spark.Power") || "Power"}`);
     }
 
-    let resolvedExpr = DeedBehaviorUtils.resolveFormulaPlaceholders(finalExpr, actor);
-    const rollData = actor?.getRollData() || {};
+    const { roll, total, rollLabel } = await DeedBehaviorUtils.evaluateRollExpression({
+      expression: finalExpr,
+      refRoll,
+      actor
+    });
 
-    const roll = new Roll(resolvedExpr, rollData);
-    await roll.evaluate();
+    if (!roll) return true;
 
     if (!context.evaluatedRolls) {
       context.evaluatedRolls = new Map();
@@ -59,7 +68,7 @@ export class RollBehavior {
     context.currentPhaseOutputs.rollEntries.push(`
       <div class="roll-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
         <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-          ${game.i18n.localize("TRESPASSER.Sheet.Common.Roll") || "Roll"}: ${resolvedExpr}${sparkNote}
+          ${game.i18n.localize("TRESPASSER.Sheet.Common.Roll") || "Roll"}: ${rollLabel}${sparkNote}
         </h4>
         ${rollHtml}
       </div>

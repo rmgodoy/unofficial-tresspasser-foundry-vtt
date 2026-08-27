@@ -356,7 +356,7 @@ export class DeedExecutor {
       case "roll": {
         const currentExpr = targetBehavior.params.expression ?? "";
         const trimmedMod = modifier.trim();
-        const cleanMod = (trimmedMod.startsWith("+") || trimmedMod.startsWith("-"))
+        const cleanMod = (/^[\/*+-]/.test(trimmedMod))
           ? trimmedMod
           : `+ ${trimmedMod}`;
         targetBehavior.params.expression = currentExpr

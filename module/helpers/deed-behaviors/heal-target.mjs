@@ -19,44 +19,21 @@ export class HealTargetBehavior {
     const validTargets = DeedBehaviorUtils.getValidTargets(context, phaseKey);
     if (validTargets.length === 0) return true;
 
-    const rollData = actor?.getRollData() || {};
     const refId = params.rollBehaviorId?.trim();
     let refRoll = refId ? context.evaluatedRolls?.get(refId) : null;
 
-    let baseRoll = null;
-    let healTotal = 0;
-    let rollLabel = "";
+    if (!rawExpr && !refRoll) return true;
 
-    if (refRoll) {
-      baseRoll = refRoll;
-      healTotal = Math.max(0, refRoll.total);
-      rollLabel = `${healTotal} (${game.i18n.localize("TRESPASSER.Sheet.Deed.Params.ReferencedRoll") || "Referenced Roll"})`;
+    const { roll: baseRoll, total: healTotal, rollLabel } = await DeedBehaviorUtils.evaluateRollExpression({
+      expression: rawExpr,
+      refRoll,
+      actor
+    });
 
-      if (rawExpr) {
-        let modExpr = DeedBehaviorUtils.resolveFormulaPlaceholders(rawExpr, actor);
-        const modRoll = new Roll(modExpr, rollData);
-        await modRoll.evaluate();
-        healTotal = Math.max(0, refRoll.total + modRoll.total);
-        rollLabel = `${refRoll.total} + ${modExpr} (${modRoll.total}) = ${healTotal}`;
-        baseRoll = Roll.fromTerms([
-          ...refRoll.terms,
-          new foundry.dice.terms.OperatorTerm({ operator: "+" }),
-          ...modRoll.terms
-        ]);
-        baseRoll._evaluated = true;
-        baseRoll._total = healTotal;
-      }
-    } else {
-      if (!rawExpr) return true;
-      let expr = DeedBehaviorUtils.resolveFormulaPlaceholders(rawExpr, actor);
-      baseRoll = new Roll(expr, rollData);
-      await baseRoll.evaluate();
-      healTotal = Math.max(0, baseRoll.total);
-      rollLabel = expr;
+    if (!baseRoll) return true;
 
-      if (!context.evaluatedRolls) context.evaluatedRolls = new Map();
-      context.evaluatedRolls.set(behavior.id, baseRoll);
-    }
+    if (!context.evaluatedRolls) context.evaluatedRolls = new Map();
+    context.evaluatedRolls.set(behavior.id, baseRoll);
 
     if (!context.currentPhaseOutputs) {
       context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };

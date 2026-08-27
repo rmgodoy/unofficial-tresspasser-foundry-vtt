@@ -20,41 +20,18 @@ export class ApplyDamageBehavior {
     const validTargets = DeedBehaviorUtils.getValidTargets(context, phaseKey);
     if (validTargets.length === 0) return true;
 
-    const rollData = actor?.getRollData() || {};
     const refId = params.rollBehaviorId?.trim();
     let refRoll = refId ? context.evaluatedRolls?.get(refId) : null;
 
-    let baseRoll = null;
-    let baseTotal = 0;
-    let rollLabel = "";
+    if (!rawExpr && !refRoll) return true;
 
-    if (refRoll) {
-      baseRoll = refRoll;
-      baseTotal = refRoll.total;
-      rollLabel = `${baseTotal} (${game.i18n.localize("TRESPASSER.Sheet.Deed.Params.ReferencedRoll") || "Referenced Roll"})`;
+    const { roll: baseRoll, total: baseTotal, rollLabel } = await DeedBehaviorUtils.evaluateRollExpression({
+      expression: rawExpr,
+      refRoll,
+      actor
+    });
 
-      if (rawExpr) {
-        let modExpr = DeedBehaviorUtils.resolveFormulaPlaceholders(rawExpr, actor);
-        const modRoll = new Roll(modExpr, rollData);
-        await modRoll.evaluate();
-        baseTotal += modRoll.total;
-        rollLabel = `${refRoll.total} + ${modExpr} (${modRoll.total}) = ${baseTotal}`;
-        baseRoll = Roll.fromTerms([
-          ...refRoll.terms,
-          new foundry.dice.terms.OperatorTerm({ operator: "+" }),
-          ...modRoll.terms
-        ]);
-        baseRoll._evaluated = true;
-        baseRoll._total = baseTotal;
-      }
-    } else {
-      if (!rawExpr) return true;
-      let expr = DeedBehaviorUtils.resolveFormulaPlaceholders(rawExpr, actor);
-      baseRoll = new Roll(expr, rollData);
-      await baseRoll.evaluate();
-      baseTotal = baseRoll.total;
-      rollLabel = expr;
-    }
+    if (!baseRoll) return true;
 
     // 2. Max power dice across all target layers
     let maxPowerDice = 0;
@@ -70,6 +47,7 @@ export class ApplyDamageBehavior {
     let combinedRoll = baseRoll;
 
     if (maxPowerDice > 0) {
+      const rollData = actor?.getRollData() || {};
       const powerFormula = `${maxPowerDice}${skillDie}`;
       const powerRoll = new Roll(powerFormula, rollData);
       await powerRoll.evaluate();
