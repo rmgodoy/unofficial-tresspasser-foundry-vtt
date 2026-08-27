@@ -51,6 +51,14 @@ export class RollBehavior {
 
     if (!roll) return true;
 
+    if (usePower && powerBonusCount > 0) {
+      roll.hasPowerSparks = true;
+      roll.powerSparkCount = powerBonusCount;
+    } else if (refRoll?.hasPowerSparks) {
+      roll.hasPowerSparks = true;
+      roll.powerSparkCount = refRoll.powerSparkCount;
+    }
+
     if (!context.evaluatedRolls) {
       context.evaluatedRolls = new Map();
     }

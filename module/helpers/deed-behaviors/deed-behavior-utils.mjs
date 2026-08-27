@@ -208,6 +208,11 @@ export class DeedBehaviorUtils {
       const roll = new Roll(finalFormula, evalData);
       await roll.evaluate();
 
+      if (refRoll.hasPowerSparks) {
+        roll.hasPowerSparks = true;
+        roll.powerSparkCount = refRoll.powerSparkCount;
+      }
+
       const total = Math.max(0, Math.floor(roll.total));
       rollLabel = `${rollLabel} = ${total}`;
 
