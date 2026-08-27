@@ -79,7 +79,9 @@
         "PlaceCloseBlast": "Posicionar Explosão Próxima {size}: clique adjacente ao seu token, botão direito para cancelar.",
         "PlacePath": "Posicionar Caminho {size}: clique nos quadrados para desenhar o caminho, clique duplo para confirmar, botão direito para desfazer.",
         "PlaceClosePath": "Posicionar Caminho Próximo {size}: comece adjacente ao seu token, clique duplo para confirmar, botão direito para desfazer.",
-        "PlaceTerrain": "Posicionar {name}: clique para posicionar."
+        "PlaceTerrain": "Posicionar {name}: clique para posicionar.",
+        "TerrainPlacementCancelled": "Posicionamento do terreno cancelado.",
+        "NoAreaSelected": "Nenhuma área selecionada encontrada para posicionar o terreno."
       },
       "Dungeon": {
         "NeedsDungeon": "Esta sala deve estar em uma Masmorra para adicionar conexões.",

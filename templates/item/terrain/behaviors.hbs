@@ -32,25 +32,45 @@
 
     {{!-- Apply Effect fields --}}
     {{#if behavior.isApplyEffect}}
-    <div class="behavior-detail behavior-effect-drop" data-behavior-index="{{behavior.index}}">
-      {{#if behavior.effectUuid}}
-        <div class="effect-chip">
-          <img src="{{behavior.effectImg}}" title="{{behavior.effectName}}" />
-          <span class="name">{{behavior.effectName}}</span>
-          <div class="intensity-box">
-            <span class="label">{{localize "TRESPASSER.Sheet.Common.IntensityShort"}}</span>
-            <input type="text"
-                   name="system.behaviors.{{behavior.index}}.effectIntensity"
-                   value="{{behavior.effectIntensity}}"
-                   placeholder="1"
-                   class="select-on-focus" style="width: 50px;" />
+    <div class="behavior-detail" style="display: flex; flex-direction: column; gap: 6px;">
+      <div class="behavior-effect-drop drop-zone" data-behavior-index="{{behavior.index}}">
+        <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}
+      </div>
+      {{#if behavior.effectsList.length}}
+        <div class="effect-chips-list" style="display: flex; flex-wrap: wrap; gap: 6px;">
+          {{#each behavior.effectsList as |eff effIndex|}}
+          <div class="effect-chip" data-index="{{effIndex}}" data-uuid="{{eff.uuid}}">
+            <input type="hidden" name="system.behaviors.{{behavior.index}}.effects.{{effIndex}}.uuid" value="{{eff.uuid}}" />
+            <input type="hidden" name="system.behaviors.{{behavior.index}}.effects.{{effIndex}}.name" value="{{eff.name}}" />
+            <input type="hidden" name="system.behaviors.{{behavior.index}}.effects.{{effIndex}}.img" value="{{eff.img}}" />
+            <img src="{{eff.img}}" title="{{eff.name}}" />
+            <span class="name">{{eff.name}}</span>
+            <div class="intensity-box">
+              <span class="label">{{localize "TRESPASSER.Sheet.Common.IntensityShort"}}</span>
+              <input type="text"
+                     name="system.behaviors.{{behavior.index}}.effects.{{effIndex}}.intensity"
+                     value="{{eff.intensity}}"
+                     placeholder="1 or <Int>"
+                     title="{{localize 'TRESPASSER.Sheet.Terrain.Tooltips.IntensityPlaceholder'}}"
+                     class="select-on-focus" style="width: 55px;" />
+              {{#if @root.hasLinkedEffect}}
+              <button type="button"
+                      class="sync-intensity-btn {{#if eff.isSynced}}active{{/if}}"
+                      data-action="toggleBehaviorEffectSync"
+                      data-behavior-index="{{behavior.index}}"
+                      data-effect-index="{{effIndex}}"
+                      title="{{localize 'TRESPASSER.Sheet.Terrain.Tooltips.SyncWithLinkedEffect'}}">
+                <i class="fas fa-link"></i>
+              </button>
+              {{/if}}
+            </div>
+            <div class="controls">
+              <a data-action="openEffectDoc" data-uuid="{{eff.uuid}}" class="edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+              <a data-action="removeBehaviorEffect" data-behavior-index="{{behavior.index}}" data-effect-index="{{effIndex}}" class="remove" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
+            </div>
           </div>
-          <input type="hidden" name="system.behaviors.{{behavior.index}}.effectUuid" value="{{behavior.effectUuid}}" />
-          <input type="hidden" name="system.behaviors.{{behavior.index}}.effectName" value="{{behavior.effectName}}" />
-          <input type="hidden" name="system.behaviors.{{behavior.index}}.effectImg" value="{{behavior.effectImg}}" />
+          {{/each}}
         </div>
-      {{else}}
-        <span class="drop-placeholder">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</span>
       {{/if}}
     </div>
     {{/if}}

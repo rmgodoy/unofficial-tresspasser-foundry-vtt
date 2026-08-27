@@ -173,19 +173,73 @@ Hooks.on("updateToken", (tokenDocument, changes, options, userId) => {
     const actionType = options.movementAction || tokenDocument.movementAction;
     const isJump = actionType === "jump" || actionType === "teleport" || actionType === "blink";
     TerrainHelper.processTokenMovement(tokenDocument, oldPos.x, oldPos.y, newX, newY, isJump);
+  } else {
+    TerrainHelper.syncWhileInsideEffectsForToken(tokenDocument);
+  }
+});
+
+// --- Foundry Region Behavior Event Hooks ---
+
+Hooks.on("regionBehaviorTokenExit", async (behavior, region, tokenDoc) => {
+  if (tokenDoc?.actor && (tokenDoc.actor.isOwner || game.user.isGM)) {
+    await TerrainHelper.syncWhileInsideEffectsForToken(tokenDoc);
+  }
+});
+
+Hooks.on("regionBehaviorTokenEnter", async (behavior, region, tokenDoc) => {
+  if (tokenDoc?.actor && (tokenDoc.actor.isOwner || game.user.isGM)) {
+    await TerrainHelper.syncWhileInsideEffectsForToken(tokenDoc);
   }
 });
 
 // --- Region Lifecycle Hooks ---
 
+Hooks.on("createRegion", async (region, options, userId) => {
+  const isResponsibleGM = game.user.isGM && (game.users.activeGM?.id === game.user.id || (!game.users.activeGM && game.user.id === userId));
+  if (isResponsibleGM && region.flags?.trespasser?.terrain) {
+    await TerrainHelper.syncWhileInsideEffectsForRegion(region);
+  }
+});
+
 Hooks.on("deleteRegion", async (region, options, userId) => {
-  if (game.user.id === userId) {
+  const isResponsibleGM = game.user.isGM && (game.users.activeGM?.id === game.user.id || (!game.users.activeGM && game.user.id === userId));
+  if (isResponsibleGM) {
     await TerrainHelper.cleanupWhileInsideEffectsForRegion(region.id);
   }
 });
 
 Hooks.on("updateRegion", async (region, changes, options, userId) => {
-  if (game.user.id === userId) {
+  const isResponsibleGM = game.user.isGM && (game.users.activeGM?.id === game.user.id || (!game.users.activeGM && game.user.id === userId));
+  if (isResponsibleGM && region.flags?.trespasser?.terrain) {
     await TerrainHelper.syncWhileInsideEffectsForRegion(region);
+  }
+});
+
+// --- Effect Item Hooks (Live Linked Intensity & Auto-Cleanup) ---
+
+Hooks.on("updateItem", async (item, changes, options, userId) => {
+  if (item.type === "effect" && (changes.system?.intensity !== undefined || changes.name !== undefined)) {
+    const isResponsibleGM = game.user.isGM && (game.users.activeGM?.id === game.user.id || (!game.users.activeGM && game.user.id === userId));
+    if (isResponsibleGM) {
+      await TerrainHelper.onEffectIntensityUpdated(item, changes);
+    }
+  }
+});
+
+Hooks.on("deleteItem", async (item, options, userId) => {
+  if (item.type === "effect") {
+    const isResponsibleGM = game.user.isGM && (game.users.activeGM?.id === game.user.id || (!game.users.activeGM && game.user.id === userId));
+    if (isResponsibleGM) {
+      await TerrainHelper.onEffectDeleted(item);
+    }
+  }
+});
+
+// --- Combat Cleanup Hook ---
+
+Hooks.on("deleteCombat", async (combat, options, userId) => {
+  const isResponsibleGM = game.user.isGM && (game.users.activeGM?.id === game.user.id || (!game.users.activeGM && game.user.id === userId));
+  if (isResponsibleGM) {
+    await TerrainHelper.cleanupCombatTerrains();
   }
 });

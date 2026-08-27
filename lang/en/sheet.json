@@ -624,6 +624,10 @@
         "Sections": {
           "TerrainEffects": "Terrain Effects",
           "TerrainBehaviors": "Terrain Behaviors"
+        },
+        "Tooltips": {
+          "IntensityPlaceholder": "Intensity value, formula, or <Int> to sync with Linked Effect",
+          "SyncWithLinkedEffect": "Sync intensity with Linked Effect (<Int>)"
         }
       },
       "Dungeon": {

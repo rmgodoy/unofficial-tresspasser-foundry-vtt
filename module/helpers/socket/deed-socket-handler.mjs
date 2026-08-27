@@ -48,6 +48,9 @@ export async function handleDeedActionRequest(payload, senderId) {
       case "moveTerrain":
         result = await _handleMoveTerrain(data);
         break;
+      case "updateTerrainRegion":
+        result = await _handleUpdateTerrainRegion(data);
+        break;
       case "forceMoveTokens":
         result = await _handleForceMoveTokens(data);
         break;
@@ -126,6 +129,18 @@ async function _handleSpawnTerrain(data) {
 
 async function _handleMoveTerrain(data) {
   await canvas.scene.updateEmbeddedDocuments("Tile", data.updates);
+  return true;
+}
+
+async function _handleUpdateTerrainRegion(data) {
+  const scene = data.sceneId ? game.scenes.get(data.sceneId) : canvas.scene;
+  if (!scene) return false;
+  await scene.updateEmbeddedDocuments("Region", [data.updates]);
+  const region = scene.regions.get(data.regionId || data.updates?._id);
+  if (region) {
+    const { TerrainHelper } = await import("../terrain-helper.mjs");
+    await TerrainHelper.syncWhileInsideEffectsForRegion(region);
+  }
   return true;
 }
 

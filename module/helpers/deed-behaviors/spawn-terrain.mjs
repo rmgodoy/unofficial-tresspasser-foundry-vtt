@@ -1,10 +1,12 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
 import { TerrainHelper } from "../terrain-helper.mjs";
+import { CanvasInputSession } from "../../canvas/canvas-input-session.mjs";
+import { CanvasSelectionRenderer } from "../../canvas/canvas-selection-renderer.mjs";
 
 export class SpawnTerrainBehavior {
   /**
-   * 4. spawnTerrain: Places a terrain item on the canvas and tags canvas objects
+   * 4. spawnTerrain: Places a terrain item on the canvas as a Region and tags context objects
    * @param {object} behavior - { id, type, params }
    * @param {object} context  - Executor runtime context
    * @param {Actor} [actor]   - Source actor
@@ -18,14 +20,30 @@ export class SpawnTerrainBehavior {
     if (!terrainItem) return true;
 
     const placement = params.placement || "on_target";
+    const gridSize = canvas.grid?.size || 100;
+    const options = {
+      spawnedInCombat: Boolean(game.combat),
+      casterActorId: actor?.id || null,
+      casterActorUuid: actor?.uuid || null,
+      sourceItemId: item?.id || null,
+      linkedEffectId: null,
+      linkedEffectUuid: null
+    };
+
+    // 1. Grant Linked Effects to Caster if configured
+    const hasLinked = Boolean((terrainItem.system?.linkedEffects && terrainItem.system.linkedEffects.length > 0) || terrainItem.system?.linkedEffect?.uuid);
+    if (hasLinked && actor) {
+      await this.#ensureCasterLinkedEffect(terrainItem, actor, options);
+    }
+
+    const targetPositions = [];
 
     if (placement === "selected_area") {
       const targetArea = DeedBehaviorUtils.resolveArea(context, params);
       if (!targetArea || !targetArea.squares || targetArea.squares.length === 0) {
-        ui.notifications.warn("No selected area found for terrain placement.");
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoAreaSelected") || "No selected area found for terrain placement.");
         return false;
       }
-      const gridPx = canvas.grid.size;
       let evalSquares = targetArea.squares;
 
       if (params.ignoreSourceSquare) {
@@ -33,102 +51,90 @@ export class SpawnTerrainBehavior {
         if (sourceToken) {
           const srcX = context.sourcePosition?.x ?? sourceToken.document?.x ?? sourceToken.x;
           const srcY = context.sourcePosition?.y ?? sourceToken.document?.y ?? sourceToken.y;
-          const srcGx = Math.floor(srcX / gridPx);
-          const srcGy = Math.floor(srcY / gridPx);
+          const srcGx = Math.floor(srcX / gridSize);
+          const srcGy = Math.floor(srcY / gridSize);
 
           evalSquares = evalSquares.filter(sq => {
-            const sqGx = Math.floor(sq.x / gridPx);
-            const sqGy = Math.floor(sq.y / gridPx);
+            const sqGx = Math.floor(sq.x / gridSize);
+            const sqGy = Math.floor(sq.y / gridSize);
             return !(sqGx === srcGx && sqGy === srcGy);
           });
         }
       }
 
-      const gridSquares = evalSquares.map(sq => ({ x: Math.floor(sq.x / gridPx), y: Math.floor(sq.y / gridPx) }));
-      let created = null;
+      options.pathSquares = evalSquares.map(sq => ({ x: Math.floor(sq.x / gridSize), y: Math.floor(sq.y / gridSize) }));
+      targetPositions.push({ x: 0, y: 0 });
+    } else if (placement === "on_self") {
+      const sourceToken = DeedBehaviorUtils.findToken(actor);
+      if (sourceToken) {
+        targetPositions.push({
+          x: sourceToken.center?.x ?? (sourceToken.x + ((sourceToken.w || gridSize) / 2)),
+          y: sourceToken.center?.y ?? (sourceToken.y + ((sourceToken.h || gridSize) / 2))
+        });
+      }
+    } else if (placement === "on_target") {
+      const targets = context.targets || [];
+      if (targets.length > 0) {
+        for (const t of targets) {
+          if (t) {
+            targetPositions.push({
+              x: t.center?.x ?? (t.x + ((t.w || gridSize) / 2)),
+              y: t.center?.y ?? (t.y + ((t.h || gridSize) / 2))
+            });
+          }
+        }
+      } else {
+        const token = DeedBehaviorUtils.findToken(actor);
+        if (token) {
+          targetPositions.push({
+            x: token.center?.x ?? (token.x + ((token.w || gridSize) / 2)),
+            y: token.center?.y ?? (token.y + ((token.h || gridSize) / 2))
+          });
+        }
+      }
+    } else if (placement === "choose") {
+      const sourceToken = DeedBehaviorUtils.findToken(actor);
+      const chosenPos = await this.#promptCanvasPlacement(terrainItem, sourceToken, item);
+      if (!chosenPos) {
+        ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Combat.TerrainPlacementCancelled") || "Terrain placement cancelled.");
+        return false;
+      }
+      targetPositions.push(chosenPos);
+    }
 
+    if (targetPositions.length === 0) {
+      return false;
+    }
+
+    if (!context.spawnedTerrains) context.spawnedTerrains = [];
+
+    for (const dropPosition of targetPositions) {
+      let created = null;
       if (game.user.isGM) {
-        created = await TerrainHelper.placeTerrainOnCanvas(terrainItem, { x: 0, y: 0 }, { pathSquares: gridSquares });
+        created = await TerrainHelper.placeTerrainOnCanvas(terrainItem, dropPosition, options);
       } else {
         const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
         const createdUuids = await emitDeedActionAndWait("spawnTerrain", {
           useTerrainHelper: true,
           terrainUuid: terrainItem.uuid,
-          dropPosition: { x: 0, y: 0 },
-          options: { pathSquares: gridSquares }
+          dropPosition: dropPosition,
+          options: options
         });
         if (createdUuids && createdUuids.length > 0) {
           created = [];
           for (const uuid of createdUuids) {
-            const tileDoc = await fromUuid(uuid);
-            if (tileDoc) created.push(tileDoc);
+            const doc = await fromUuid(uuid);
+            if (doc) created.push(doc);
           }
         }
       }
 
       if (created) {
-        if (!context.spawnedTerrains) context.spawnedTerrains = [];
         if (Array.isArray(created)) {
           context.spawnedTerrains.push(...created);
         } else {
           context.spawnedTerrains.push(created);
         }
-      }
-      if (context.currentPhaseOutputs?.notes) {
-        context.currentPhaseOutputs.notes.push(`Spawned terrain "${terrainItem.name}" on selected area`);
-      }
-      return true;
-    }
-
-    let dropPos = { x: canvas.stage?.width / 2 || 0, y: canvas.stage?.height / 2 || 0 };
-    const token = DeedBehaviorUtils.findToken(actor);
-
-    if (placement === "on_self" && token) {
-      dropPos = { x: token.x, y: token.y };
-    } else if (placement === "on_target" && context.targets?.[0]) {
-      const targetToken = context.targets[0];
-      dropPos = { x: targetToken.x, y: targetToken.y };
-    } else if (placement === "choose" && token) {
-      const deedData = { targetType: "blast", targetSize: 1, range: item?.system?.range || 0 };
-      const result = await TargetingHelper.placeTemplate(actor, token, deedData);
-      if (result && result.squares?.[0]) {
-        const sq = result.squares[0];
-        dropPos = { x: sq.x * canvas.grid.size, y: sq.y * canvas.grid.size };
-      }
-    }
-
-    const tileData = {
-      texture: { src: terrainItem.img || "icons/svg/item-bag.svg" },
-      width: canvas.grid.size,
-      height: canvas.grid.size,
-      x: dropPos.x,
-      y: dropPos.y,
-      flags: {
-        trespasser: {
-          isTerrain: true,
-          terrainUuid: terrainItem.uuid,
-          terrainName: terrainItem.name,
-          sourceItemId: item?.id || null
-        }
-      }
-    };
-
-    if (!context.spawnedTerrains) context.spawnedTerrains = [];
-
-    if (game.user.isGM) {
-      const createdTiles = await canvas.scene?.createEmbeddedDocuments("Tile", [tileData]);
-      if (createdTiles && createdTiles.length > 0) {
-        context.spawnedTerrains.push(createdTiles[0]);
-      }
-    } else {
-      const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
-      const createdUuids = await emitDeedActionAndWait("spawnTerrain", {
-        useTerrainHelper: false,
-        tileDataArray: [tileData]
-      });
-      if (createdUuids && createdUuids.length > 0) {
-        const tileDoc = await fromUuid(createdUuids[0]);
-        if (tileDoc) context.spawnedTerrains.push(tileDoc);
       }
     }
 
@@ -137,4 +143,232 @@ export class SpawnTerrainBehavior {
     }
     return true;
   }
+
+  /**
+   * Prompts the user to select the terrain placement on the canvas using CanvasInputSession.
+   * @param {Item} terrainItem
+   * @param {Token} sourceToken
+   * @param {Item} deedItem
+   * @returns {Promise<{x: number, y: number}|null>}
+   * @private
+   */
+  static async #promptCanvasPlacement(terrainItem, sourceToken, deedItem) {
+    if (!canvas.ready || !terrainItem) return null;
+
+    const gridSize = canvas.grid.size;
+    const wSq = terrainItem.system.width || 1;
+    const hSq = terrainItem.system.height || 1;
+    const wPx = wSq * gridSize;
+    const hPx = hSq * gridSize;
+    const range = deedItem?.system?.range || 0;
+
+    let selectedPos = null;
+    let hoveredPos = null;
+    const highlights = [];
+    const layer = canvas.interface;
+
+    const redrawTerrainPreview = () => {
+      for (const gfx of highlights) {
+        layer.removeChild(gfx);
+        gfx.destroy();
+      }
+      highlights.length = 0;
+
+      const gfx = new PIXI.Graphics();
+
+      if (selectedPos) {
+        const placedSquares = [];
+        for (let dx = 0; dx < wSq; dx++) {
+          for (let dy = 0; dy < hSq; dy++) {
+            placedSquares.push({ x: selectedPos.x + dx * gridSize, y: selectedPos.y + dy * gridSize });
+          }
+        }
+        CanvasSelectionRenderer.drawPlacedOrigin(gfx, placedSquares, gridSize);
+      }
+
+      if (hoveredPos) {
+        const isSame = selectedPos && hoveredPos.x === selectedPos.x && hoveredPos.y === selectedPos.y;
+        if (!isSame) {
+          const hoverSquares = [];
+          for (let dx = 0; dx < wSq; dx++) {
+            for (let dy = 0; dy < hSq; dy++) {
+              hoverSquares.push({ x: hoveredPos.x + dx * gridSize, y: hoveredPos.y + dy * gridSize });
+            }
+          }
+          CanvasSelectionRenderer.drawCandidateSquares(gfx, hoverSquares, gridSize);
+        }
+      }
+
+      layer.addChild(gfx);
+      highlights.push(gfx);
+    };
+
+    const cleanup = () => {
+      for (const gfx of highlights) {
+        layer.removeChild(gfx);
+        gfx.destroy();
+      }
+      highlights.length = 0;
+    };
+
+    const title = game.i18n.format("TRESPASSER.Notification.Combat.PlaceTerrain", { name: terrainItem.name })
+      || `Place ${terrainItem.name}`;
+
+    const positionResult = await CanvasInputSession.start({
+      title,
+      details: game.i18n.localize("TRESPASSER.HUD.AoE.BlastInstruction") || "Click to select terrain location.",
+      icon: "fas fa-mountain",
+      showConfirm: true,
+      canConfirm: false,
+      showUndo: false,
+      canUndo: false,
+      showCancel: true,
+      onPointerMove: (ev) => {
+        let lastCanvasPos;
+        if (typeof ev.getLocalPosition === "function") {
+          lastCanvasPos = ev.getLocalPosition(canvas.stage);
+        } else if (ev.data && typeof ev.data.getLocalPosition === "function") {
+          lastCanvasPos = ev.data.getLocalPosition(canvas.stage);
+        } else if (ev.interactionData && ev.interactionData.origin) {
+          lastCanvasPos = ev.interactionData.origin;
+        }
+        if (!lastCanvasPos) return;
+
+        const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
+        const offsetX = snapped.x - Math.floor(wSq / 2) * gridSize;
+        const offsetY = snapped.y - Math.floor(hSq / 2) * gridSize;
+        hoveredPos = { x: offsetX, y: offsetY };
+        redrawTerrainPreview();
+      },
+      onClick: (ev) => {
+        let lastCanvasPos;
+        if (typeof ev.getLocalPosition === "function") {
+          lastCanvasPos = ev.getLocalPosition(canvas.stage);
+        } else if (ev.data && typeof ev.data.getLocalPosition === "function") {
+          lastCanvasPos = ev.data.getLocalPosition(canvas.stage);
+        } else if (ev.interactionData && ev.interactionData.origin) {
+          lastCanvasPos = ev.interactionData.origin;
+        }
+        if (!lastCanvasPos) return;
+
+        const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
+        const offsetX = snapped.x - Math.floor(wSq / 2) * gridSize;
+        const offsetY = snapped.y - Math.floor(hSq / 2) * gridSize;
+
+        // Check range if applicable
+        if (range > 0 && sourceToken) {
+          const testSquares = [];
+          for (let dx = 0; dx < wSq; dx++) {
+            for (let dy = 0; dy < hSq; dy++) {
+              testSquares.push({ x: offsetX + dx * gridSize, y: offsetY + dy * gridSize });
+            }
+          }
+          const tokenSquares = TargetingHelper.getTokenOccupiedSquares?.(sourceToken, gridSize) || [{ x: sourceToken.x, y: sourceToken.y }];
+          let minDist = Infinity;
+          for (const ts of testSquares) {
+            for (const tks of tokenSquares) {
+              const d = Math.max(Math.abs(ts.x - tks.x), Math.abs(ts.y - tks.y)) / gridSize;
+              if (d < minDist) minDist = d;
+            }
+          }
+          if (minDist > range) {
+            ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
+              name: terrainItem.name,
+              range: range,
+              distance: minDist
+            }) || `Out of range (${minDist} > ${range}).`);
+            const disregardRange = game.settings.get?.("trespasser", "disregardRangeOnAttack");
+            if (!disregardRange) return;
+          }
+        }
+
+        // Double click / second click on same pos -> auto confirm
+        if (selectedPos && selectedPos.x === offsetX && selectedPos.y === offsetY) {
+          cleanup();
+          if (CanvasInputSession.activeSession) CanvasInputSession.activeSession.confirm();
+          return;
+        }
+
+        selectedPos = { x: offsetX, y: offsetY };
+        redrawTerrainPreview();
+
+        if (CanvasInputSession.activeSession) {
+          CanvasInputSession.activeSession.updateOverlay({ canConfirm: true });
+        }
+      },
+      onConfirm: () => {
+        cleanup();
+        return selectedPos ? { x: selectedPos.x + wPx / 2, y: selectedPos.y + hPx / 2 } : null;
+      },
+      onCancel: () => {
+        cleanup();
+        return null;
+      }
+    });
+
+    return positionResult;
+  }
+
+  /**
+   * Ensure the caster actor possesses the linked effect(s) configured on the terrain.
+   * @param {Item} terrainItem
+   * @param {Actor} actor
+   * @param {object} options
+   * @private
+   */
+  static async #ensureCasterLinkedEffect(terrainItem, actor, options) {
+    const linkedList = (terrainItem.system?.linkedEffects && terrainItem.system.linkedEffects.length > 0)
+      ? terrainItem.system.linkedEffects
+      : (terrainItem.system?.linkedEffect?.uuid ? [terrainItem.system.linkedEffect] : []);
+
+    const clean = (s) => String(s || "").replace(/\s*\([^)]*\)\s*/g, " ").trim().toLowerCase();
+
+    for (const linkedItem of linkedList) {
+      const linkedUuid = linkedItem.uuid;
+      if (!linkedUuid && !linkedItem.name) continue;
+
+      const existing = actor.items.find(i => {
+        if (i.type !== "effect") return false;
+        if (linkedUuid && (i.flags?.trespasser?.sourceEffectUuid === linkedUuid || i.flags?.trespasser?.linkedSource === linkedUuid || i.uuid === linkedUuid || i.id === linkedUuid)) return true;
+        if (linkedItem.name && (clean(i.name) === clean(linkedItem.name) || clean(i.name).includes(clean(linkedItem.name)) || clean(linkedItem.name).includes(clean(i.name)))) return true;
+        return false;
+      });
+
+      if (existing) {
+        if (!options.linkedEffectId) options.linkedEffectId = existing.id;
+        if (!options.linkedEffectUuid) options.linkedEffectUuid = existing.uuid;
+        continue;
+      }
+
+      const sourceEffect = linkedUuid ? await fromUuid(linkedUuid) : null;
+      if (!sourceEffect) continue;
+
+      const effectData = sourceEffect.toObject();
+      delete effectData._id;
+      if (linkedItem.intensity) {
+        effectData.system.intensity = parseInt(linkedItem.intensity) || 1;
+      }
+      effectData.flags = foundry.utils.mergeObject(effectData.flags || {}, {
+        trespasser: {
+          sourceEffectUuid: sourceEffect.uuid,
+          linkedSource: sourceEffect.uuid
+        }
+      });
+
+      if (actor.isOwner) {
+        const [created] = await actor.createEmbeddedDocuments("Item", [effectData]);
+        if (created) {
+          if (!options.linkedEffectId) options.linkedEffectId = created.id;
+          if (!options.linkedEffectUuid) options.linkedEffectUuid = created.uuid;
+        }
+      } else {
+        const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
+        await emitDeedActionAndWait("applyEffects", {
+          actorId: actor.id,
+          itemDataArray: [effectData]
+        });
+      }
+    }
+  }
 }
+

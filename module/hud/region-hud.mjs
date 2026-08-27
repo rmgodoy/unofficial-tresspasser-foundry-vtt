@@ -55,9 +55,6 @@ export class TrespasserRegionHUD extends HandlebarsApplicationMixin(ApplicationV
   async clear() {
     this.object = null;
     this._clickPosition = null;
-    if (this.element) {
-      this.element.style.display = "none";
-    }
     if (this.rendered) {
       await this.close({ animate: false });
     }
@@ -72,12 +69,16 @@ export class TrespasserRegionHUD extends HandlebarsApplicationMixin(ApplicationV
     return {
       name: doc.name || game.i18n.localize("TRESPASSER.HUD.Region.DefaultTitle"),
       isTerrain: isTerrain,
+      isGM: game.user.isGM,
       region: doc
     };
   }
 
   /** @override */
   _onRender(context, options) {
+    if (this.element) {
+      this.element.style.display = "";
+    }
     this.setPosition(this._clickPosition);
   }
 
@@ -112,17 +113,25 @@ export class TrespasserRegionHUD extends HandlebarsApplicationMixin(ApplicationV
       }
     } else if (this.object && canvas.ready) {
       let center = { x: 0, y: 0 };
-      if (typeof this.object.center === "object" && this.object.center !== null) {
+      const gridSize = canvas.grid?.size || 100;
+      const doc = this.object.document ?? this.object;
+      const pathSquares = doc.flags?.trespasser?.pathSquares;
+
+      if (pathSquares && Array.isArray(pathSquares) && pathSquares.length > 0) {
+        const sq = pathSquares[0];
+        center = { x: (sq.x + 0.5) * gridSize, y: (sq.y + 0.5) * gridSize };
+      } else if (typeof this.object.center === "object" && this.object.center !== null) {
         center = this.object.center;
       } else if (this.object.bounds) {
         center = {
           x: this.object.bounds.x + (this.object.bounds.width / 2),
           y: this.object.bounds.y + (this.object.bounds.height / 2)
         };
-      } else if (this.object.shapes?.[0] || this.object.document?.shapes?.[0]) {
-        const s = this.object.shapes?.[0] || this.object.document?.shapes?.[0];
-        center = { x: (s.x || 0) + ((s.width || 0) / 2), y: (s.y || 0) + ((s.height || 0) / 2) };
+      } else if (doc.shapes?.[0]) {
+        const s = doc.shapes[0];
+        center = { x: (s.x || 0) + ((s.width || gridSize) / 2), y: (s.y || 0) + ((s.height || gridSize) / 2) };
       }
+
       if (typeof canvas.clientCoordinatesFromCanvas === "function") {
         try {
           const cl = canvas.clientCoordinatesFromCanvas(center);
@@ -172,3 +181,4 @@ export class TrespasserRegionHUD extends HandlebarsApplicationMixin(ApplicationV
     this.clear();
   }
 }
+

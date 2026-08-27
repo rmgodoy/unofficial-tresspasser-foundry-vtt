@@ -4,11 +4,13 @@
     <span class="region-hud-title">{{name}}</span>
   </div>
   <div class="region-hud-actions">
-    {{!-- Native Region Sheet --}}
+    {{!-- Native Region Sheet (GM only) --}}
+    {{#if isGM}}
     <button type="button" class="region-hud-btn" data-action="openRegionConfig" title="{{localize 'TRESPASSER.HUD.Region.NativeConfig'}}">
       <i class="fas fa-draw-polygon"></i>
       <span>{{localize 'TRESPASSER.HUD.Region.NativeConfigShort'}}</span>
     </button>
+    {{/if}}
 
     {{!-- Terrain Sheet Config (Terrain only) --}}
     {{#if isTerrain}}

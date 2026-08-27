@@ -101,6 +101,49 @@ export class TerrainHelper {
       }
     }
 
+    // Ensure caster actor has the configured linked effects
+    const linkedList = (sys?.linkedEffects && sys.linkedEffects.length > 0)
+      ? sys.linkedEffects
+      : (sys?.linkedEffect?.uuid ? [sys.linkedEffect] : []);
+
+    if (options.casterActorId && linkedList.length > 0) {
+      const casterActor = game.actors?.get(options.casterActorId);
+      if (casterActor) {
+        for (const linkedItem of linkedList) {
+          const linkedUuid = linkedItem.uuid;
+          if (!linkedUuid) continue;
+          const hasLinked = casterActor.items.some(i =>
+            i.type === "effect" && (
+              i.flags?.trespasser?.sourceEffectUuid === linkedUuid ||
+              i.flags?.trespasser?.linkedSource === linkedUuid ||
+              i.uuid === linkedUuid ||
+              (linkedItem.name && i.name === linkedItem.name)
+            )
+          );
+          if (!hasLinked) {
+            const sourceEff = await fromUuid(linkedUuid);
+            if (sourceEff) {
+              const effData = sourceEff.toObject();
+              delete effData._id;
+              if (linkedItem.intensity) {
+                effData.system.intensity = this.evaluateIntensityValue(linkedItem.intensity, 1);
+              }
+              effData.flags = foundry.utils.mergeObject(effData.flags || {}, {
+                trespasser: {
+                  sourceEffectUuid: sourceEff.uuid,
+                  linkedSource: sourceEff.uuid
+                }
+              });
+              if (casterActor.isOwner || game.user.isGM) {
+                const [created] = await casterActor.createEmbeddedDocuments("Item", [effData]);
+                if (created && !options.linkedEffectId) options.linkedEffectId = created.id;
+              }
+            }
+          }
+        }
+      }
+    }
+
     const color = this.getRegionColor(terrainItem);
 
     const regionData = {
@@ -124,8 +167,11 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
           centerActorId: centerActorId,
           centerTokenId: centerTokenId,
           spawnedInCombat: options.spawnedInCombat,
-          linkedEffectId: options.linkedEffectId || terrainItem.system.linkedEffect?.uuid || terrainItem.system.linkedEffectKey,
-          casterActorId: options.casterActorId
+          linkedEffectId: options.linkedEffectId || terrainItem.system.linkedEffect?.uuid || terrainItem.system.linkedEffectKey || null,
+          linkedEffectUuid: options.linkedEffectUuid || null,
+          casterActorId: options.casterActorId || null,
+          casterActorUuid: options.casterActorUuid || null,
+          pathSquares: options.pathSquares || null
         }
       }
     };
@@ -144,62 +190,88 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
    */
   static async editTerrainRegion(document) {
     let region = document;
-    if (document.documentName === "Drawing") {
+    if (document.documentName === "Drawing" || document.documentName === "Tile") {
       const regionId = document.flags?.trespasser?.regionId;
-      if (!regionId) return;
-      region = document.parent.regions.get(regionId);
-      if (!region) return;
+      if (regionId) {
+        region = document.parent?.regions?.get(regionId) || region;
+      }
     }
 
     const itemData = region.flags?.trespasser?.terrain;
     if (!itemData) return;
 
-    const tempItem = new Item.implementation(itemData, { parent: null });
+    const itemDataCopy = foundry.utils.deepClone(itemData);
+    if (!itemDataCopy.ownership) {
+      itemDataCopy.ownership = { default: CONST.DOCUMENT_OWNERSHIP_LEVELS?.OWNER ?? 3 };
+    }
+    const tempItem = new Item.implementation(itemDataCopy, { parent: null });
+    Object.defineProperty(tempItem, "isOwner", { value: true, writable: true });
 
     tempItem.update = async (updates, options) => {
       tempItem.updateSource(updates);
       const sys = tempItem.system;
 
-      const gridSize = canvas.grid.size;
+      const gridSize = canvas.grid?.size || 100;
       const w = (sys.width || 1) * gridSize;
       const h = (sys.height || 1) * gridSize;
       const color = TerrainHelper.getRegionColor(tempItem);
 
-      const currentShape = region.shapes?.[0] || { x: 0, y: 0 };
-      let newShape;
-      
-      if (currentShape.type === "emanation" && currentShape.base) {
-        const auraRadiusSq = Math.max(0, (Math.max(sys.width || 1, sys.height || 1) - 1) / 2);
-        newShape = {
-          type: "emanation",
-          radius: auraRadiusSq,
-          hole: false,
-          gridBased: false,
-          base: currentShape.base
-        };
-      } else {
-        const tx = currentShape.x ?? 0;
-        const ty = currentShape.y ?? 0;
-        newShape = {
+      const pathSquares = region.flags?.trespasser?.pathSquares;
+      let newShapes;
+
+      if (pathSquares && Array.isArray(pathSquares) && pathSquares.length > 0) {
+        // Preserve multi-square path placement
+        newShapes = pathSquares.map(sq => ({
           type: "rectangle",
-          x: tx,
-          y: ty,
-          width: w,
-          height: h
-        };
+          x: sq.x * gridSize,
+          y: sq.y * gridSize,
+          width: gridSize,
+          height: gridSize
+        }));
+      } else {
+        const currentShape = region.shapes?.[0] || { x: 0, y: 0 };
+        if (currentShape.type === "emanation" && currentShape.base) {
+          const auraRadiusSq = Math.max(0, (Math.max(sys.width || 1, sys.height || 1) - 1) / 2);
+          newShapes = [{
+            type: "emanation",
+            radius: auraRadiusSq,
+            hole: false,
+            gridBased: false,
+            base: currentShape.base
+          }];
+        } else {
+          const tx = currentShape.x ?? 0;
+          const ty = currentShape.y ?? 0;
+          newShapes = [{
+            type: "rectangle",
+            x: tx,
+            y: ty,
+            width: w,
+            height: h
+          }];
+        }
       }
 
       const regionUpdates = {
         _id: region.id,
         name: tempItem.name,
         color: color,
-        shapes: [newShape],
+        shapes: newShapes,
         "flags.trespasser.terrain": tempItem.toObject(),
         "flags.trespasser.centerActorId": sys.centerActorId
       };
 
-      await region.parent.updateEmbeddedDocuments("Region", [regionUpdates]);
-      await TerrainHelper.syncWhileInsideEffectsForRegion(region);
+      if (game.user.isGM) {
+        await region.parent.updateEmbeddedDocuments("Region", [regionUpdates]);
+        await TerrainHelper.syncWhileInsideEffectsForRegion(region);
+      } else {
+        const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
+        await emitDeedActionAndWait("updateTerrainRegion", {
+          sceneId: region.parent?.id || canvas.scene?.id,
+          regionId: region.id,
+          updates: regionUpdates
+        });
+      }
       tempItem.sheet.render(false);
     };
 
@@ -371,42 +443,39 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
 
     const sys = terrainData.system;
     const onCreationBehaviors = (sys.behaviors || []).filter(b => b.trigger === "onCreation");
-    if (onCreationBehaviors.length === 0) return;
+    if (onCreationBehaviors.length > 0) {
+      const context = this.#buildBehaviorContext(region);
+      context.options = options;
 
-    const context = this.#buildBehaviorContext(region);
-    context.options = options;
+      const scene = region.parent || canvas.scene;
+      if (scene) {
+        const gridSize = scene.grid?.size || 100;
+        const tokensInRegion = (scene.tokens || []).filter(t => {
+          if (!t.actor) return false;
+          // Skip actor-centered terrain's center actor
+          if (sys.centerMode === "actor" && sys.centerActorId === t.actor.id) return false;
 
-    const scene = region.parent;
-    if (!scene) return;
+          const tokenCenterX = t.x + ((t.width || 1) * gridSize / 2);
+          const tokenCenterY = t.y + ((t.height || 1) * gridSize / 2);
+          return TerrainHelper.isPointInRegion(tokenCenterX, tokenCenterY, region, gridSize);
+        });
 
-    const gridSize = scene.grid.size;
-    const tokensInRegion = (scene.tokens || []).filter(t => {
-      if (!t.actor) return false;
-      // Skip actor-centered terrain's center actor
-      if (sys.centerMode === "actor" && sys.centerActorId === t.actor.id) return false;
-
-      const tokenCenterX = t.x + ((t.width || 1) * gridSize / 2);
-      const tokenCenterY = t.y + ((t.height || 1) * gridSize / 2);
-      return TerrainHelper.isPointInRegion(tokenCenterX, tokenCenterY, region, gridSize);
-    });
-
-    for (const behavior of onCreationBehaviors) {
-      if (behavior.action === "script") {
-        const targetActor = tokensInRegion.length === 1 ? tokensInRegion[0].actor : null;
-        await this.executeBehavior(behavior, targetActor, region, context);
-      } else {
-        if (tokensInRegion.length > 0) {
-          for (const tokenDoc of tokensInRegion) {
-            await this.executeBehavior(behavior, tokenDoc.actor, region, context);
+        for (const behavior of onCreationBehaviors) {
+          if (behavior.action === "script") {
+            const targetActor = tokensInRegion.length === 1 ? tokensInRegion[0].actor : null;
+            await this.executeBehavior(behavior, targetActor, region, context);
+          } else {
+            if (tokensInRegion.length > 0) {
+              for (const tokenDoc of tokensInRegion) {
+                await this.executeBehavior(behavior, tokenDoc.actor, region, context);
+              }
+            } else {
+              await this.executeBehavior(behavior, null, region, context);
+            }
           }
-        } else {
-          await this.executeBehavior(behavior, null, region, context);
         }
       }
     }
-
-    // Synchronize whileInside effects for all tokens in this new region
-    await this.syncWhileInsideEffectsForRegion(region);
   }
 
   /**
@@ -723,18 +792,25 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
         // Collect onMove behaviors
         const onMoveBehaviors = (sys.behaviors || []).filter(b => b.trigger === "onMove");
         for (const behavior of onMoveBehaviors) {
-          if (behavior.action === "applyEffect" && behavior.effectUuid) {
-            // Collect applyEffect behaviors as legacy-compatible effects for batching
-            const intensity = this.resolveIntPlaceholder(behavior.effectIntensity, region);
-            effectsToApply.push({
-              eff: {
-                uuid: behavior.effectUuid,
-                name: behavior.effectName,
-                img: behavior.effectImg,
-                intensity: parseInt(intensity) || 1
-              },
-              terrainName: region.name
-            });
+          if (behavior.action === "applyEffect") {
+            const effList = (behavior.effects && behavior.effects.length > 0)
+              ? behavior.effects
+              : (behavior.effectUuid ? [{ uuid: behavior.effectUuid, name: behavior.effectName, img: behavior.effectImg, intensity: behavior.effectIntensity }] : []);
+
+            for (const eff of effList) {
+              if (!eff.uuid) continue;
+              const rawIntensity = this.resolveIntPlaceholder(eff.intensity || "1", region);
+              const intensity = this.evaluateIntensityValue(rawIntensity, 1);
+              effectsToApply.push({
+                eff: {
+                  uuid: eff.uuid,
+                  name: eff.name,
+                  img: eff.img,
+                  intensity: intensity
+                },
+                terrainName: region.name
+              });
+            }
           } else {
             // Non-effect behaviors execute inline
             const context = this.#buildBehaviorContext(region);
@@ -753,9 +829,6 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
     }
     await tokenDoc.update(flagUpdates);
 
-    // Nothing to report — bail early
-    if (terrainDamageMap.size === 0 && effectsToApply.length === 0 && !slipperyCheckRegion) return;
-
     // Group effects by UUID and sum their intensities
     const groupedEffects = new Map(); // uuid → { eff, totalIntensity, terrainNames }
     for (const { eff, terrainName } of effectsToApply) {
@@ -772,52 +845,54 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
       }
     }
 
-    // Wait for token movement animation to finish on canvas before applying damage and effects
-    const tokenPlaceable = tokenDoc.object || canvas.tokens?.get(tokenDoc.id);
-    if (tokenPlaceable) {
-      if (tokenPlaceable.animationContexts?.size > 0) {
-        const promises = Array.from(tokenPlaceable.animationContexts.values()).map(ctx => ctx.promise);
-        await Promise.allSettled(promises);
-      } else if (tokenPlaceable._animation) {
-        await tokenPlaceable._animation;
+    if (terrainDamageMap.size > 0 || groupedEffects.size > 0 || slipperyCheckRegion) {
+      // Wait for token movement animation to finish on canvas before applying damage and effects
+      const tokenPlaceable = tokenDoc.object || canvas.tokens?.get(tokenDoc.id);
+      if (tokenPlaceable) {
+        if (tokenPlaceable.animationContexts?.size > 0) {
+          const promises = Array.from(tokenPlaceable.animationContexts.values()).map(ctx => ctx.promise);
+          await Promise.allSettled(promises);
+        } else if (tokenPlaceable._animation) {
+          await tokenPlaceable._animation;
+        }
+      }
+
+      // Batch-create effect items on the actor with summed intensities
+      for (const [uuid, data] of groupedEffects) {
+        const sourceEffect = await fromUuid(uuid);
+        if (!sourceEffect) continue;
+        const effectData = sourceEffect.toObject();
+        effectData.system.intensity = data.totalIntensity;
+        delete effectData._id;
+        await Item.createDocuments([effectData], { parent: actor });
+      }
+
+      // Apply accumulated terrain damage — one HP update at end of movement
+      let totalDamage = 0;
+      if (terrainDamageMap.size > 0) {
+        for (const [, data] of terrainDamageMap) {
+          totalDamage += data.damage;
+        }
+        if (typeof actor.applyDamage === "function") {
+          await actor.applyDamage(totalDamage);
+        } else {
+          const newHp = Math.max(0, (actor.system.health ?? 0) - totalDamage);
+          await actor.update({ "system.health": newHp });
+        }
+      }
+
+      // Build and post ONE combined summary chat message
+      if (terrainDamageMap.size > 0 || groupedEffects.size > 0) {
+        await this.#postMovementSummary(tokenDoc, actor, terrainDamageMap, groupedEffects);
+      }
+
+      // Handle slippery check (after summary, since the prompt is interactive)
+      if (slipperyCheckRegion) {
+        await this.#handleSlipperyCheck(tokenDoc, actor, slipperyCheckRegion);
       }
     }
 
-    // Batch-create effect items on the actor with summed intensities
-    for (const [uuid, data] of groupedEffects) {
-      const sourceEffect = await fromUuid(uuid);
-      if (!sourceEffect) continue;
-      const effectData = sourceEffect.toObject();
-      effectData.system.intensity = data.totalIntensity;
-      delete effectData._id;
-      await Item.createDocuments([effectData], { parent: actor });
-    }
-
-    // Apply accumulated terrain damage — one HP update at end of movement
-    let totalDamage = 0;
-    if (terrainDamageMap.size > 0) {
-      for (const [, data] of terrainDamageMap) {
-        totalDamage += data.damage;
-      }
-      if (typeof actor.applyDamage === "function") {
-        await actor.applyDamage(totalDamage);
-      } else {
-        const newHp = Math.max(0, (actor.system.health ?? 0) - totalDamage);
-        await actor.update({ "system.health": newHp });
-      }
-    }
-
-    // Build and post ONE combined summary chat message
-    if (terrainDamageMap.size > 0 || groupedEffects.size > 0) {
-      await this.#postMovementSummary(tokenDoc, actor, terrainDamageMap, groupedEffects);
-    }
-
-    // Handle slippery check (after summary, since the prompt is interactive)
-    if (slipperyCheckRegion) {
-      await this.#handleSlipperyCheck(tokenDoc, actor, slipperyCheckRegion);
-    }
-
-    // Synchronize whileInside effects for this moving token
+    // ALWAYS synchronize whileInside effects for this moving token (e.g. removes effects when exiting)
     await this.syncWhileInsideEffectsForToken(tokenDoc);
 
     // If this token has an aura terrain attached, synchronize all tokens on the scene
@@ -838,61 +913,151 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
    * Clean up regions spawned in combat when combat ends.
    */
   static async cleanupCombatTerrains() {
-    const scenes = game.scenes.contents;
+    if (!game.user.isGM) return;
+    const scenes = game.scenes?.contents || [];
     for (const scene of scenes) {
-      const regionsToDelete = scene.regions.filter(r => {
-        const flags = r.flags?.trespasser || {};
-        return flags.spawnedInCombat === true && !flags.linkedEffectId;
-      }).map(r => r.id);
+      const regionsToDelete = scene.regions
+        .filter(r => {
+          const flags = r.flags?.trespasser || {};
+          return flags.spawnedInCombat === true && !flags.linkedEffectId && scene.regions.has(r.id);
+        })
+        .map(r => r.id);
       
       if (regionsToDelete.length > 0) {
-        await scene.deleteEmbeddedDocuments("Region", regionsToDelete);
+        try {
+          await scene.deleteEmbeddedDocuments("Region", regionsToDelete);
+        } catch (err) {
+          console.warn("Trespasser | Combat terrain cleanup skipped:", err);
+        }
       }
     }
   }
 
   /**
+   * Checks whether a terrain region is linked to a specific effect item.
+   * @param {RegionDocument} region 
+   * @param {Item} effectItem 
+   * @returns {boolean}
+   */
+  static isRegionLinkedToEffect(region, effectItem) {
+    if (!region || !effectItem) return false;
+    const flags = region.flags?.trespasser;
+    if (!flags) return false;
+
+    const linkedId = flags.linkedEffectId;
+    const linkedUuid = flags.linkedEffectUuid;
+    const terrainLinkedEffects = flags.terrain?.system?.linkedEffects || [];
+    const terrainLinkedUuid = flags.terrain?.system?.linkedEffect?.uuid;
+    const terrainLinkedKey = flags.terrain?.system?.linkedEffectKey;
+    const terrainLinkedName = flags.terrain?.system?.linkedEffect?.name;
+
+    const effectId = effectItem.id;
+    const effectUuid = effectItem.uuid;
+    const effectName = effectItem.name;
+    const sourceUuid = effectItem.flags?.trespasser?.sourceEffectUuid || effectItem.flags?.trespasser?.linkedSource;
+
+    const casterActorId = flags.casterActorId || flags.centerActorId || flags.terrain?.system?.centerActorId;
+    const casterActorUuid = flags.casterActorUuid;
+
+    // If region has a specific casterActorId, verify it matches effect's parent if both exist
+    if (casterActorId && effectItem.parent?.id && effectItem.parent.id !== casterActorId && effectItem.parent?.uuid !== casterActorUuid) {
+      return false;
+    }
+
+    // Check direct ID or UUID matches
+    if (linkedId && (linkedId === effectId || linkedId === effectUuid || (sourceUuid && linkedId === sourceUuid))) return true;
+    if (linkedUuid && (linkedUuid === effectId || linkedUuid === effectUuid || (sourceUuid && linkedUuid === sourceUuid))) return true;
+    if (terrainLinkedUuid && (terrainLinkedUuid === effectId || terrainLinkedUuid === effectUuid || (sourceUuid && terrainLinkedUuid === sourceUuid))) return true;
+    if (terrainLinkedKey && (terrainLinkedKey === effectId || terrainLinkedKey === effectUuid || (sourceUuid && terrainLinkedKey === sourceUuid))) return true;
+
+    const clean = (s) => String(s || "").replace(/\s*\([^)]*\)\s*/g, " ").replace(/[^\p{L}\p{N}\s]/gu, "").trim().toLowerCase();
+    const effClean = clean(effectName);
+
+    if (terrainLinkedName) {
+      const lClean = clean(terrainLinkedName);
+      if (effClean === lClean || (lClean.length > 3 && (effClean.includes(lClean) || lClean.includes(effClean)))) return true;
+    }
+
+    for (const le of terrainLinkedEffects) {
+      if (le.uuid && (le.uuid === effectId || le.uuid === effectUuid || (sourceUuid && le.uuid === sourceUuid))) return true;
+      if (le.name) {
+        const leClean = clean(le.name);
+        if (effClean === leClean || (leClean.length > 3 && (effClean.includes(leClean) || leClean.includes(effClean)))) return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
    * Clean up regions linked to an effect when it is deleted.
-   * Checks both the legacy linkedEffectId flag AND the new linkedEffectKey
-   * on the terrain data.
    * @param {Item} effectItem 
    */
   static async onEffectDeleted(effectItem) {
-    if (!effectItem) return;
-    const effectId = effectItem.id;
-    const effectUuid = effectItem.uuid;
-
-    const scenes = game.scenes.contents;
+    if (!effectItem || !game.user.isGM) return;
+    const scenes = game.scenes?.contents || [];
     for (const scene of scenes) {
-      const regionsToDelete = scene.regions.filter(r => {
-        const flags = r.flags?.trespasser;
-        if (!flags) return false;
-
-        // Check legacy linkedEffectId flag
-        const linkedId = flags.linkedEffectId;
-        if (linkedId === effectId || linkedId === effectUuid) return true;
-
-        // Check new linkedEffect on terrain data
-        const terrainLinkedUuid = flags.terrain?.system?.linkedEffect?.uuid;
-        if (terrainLinkedUuid && (terrainLinkedUuid === effectId || terrainLinkedUuid === effectUuid)) return true;
-
-        // Check new linkedEffectKey on terrain data
-        const terrainLinkedKey = flags.terrain?.system?.linkedEffectKey;
-        if (terrainLinkedKey && (terrainLinkedKey === effectId || terrainLinkedKey === effectUuid)) return true;
-
-        return false;
-      }).map(r => r.id);
+      const regionsToDelete = scene.regions
+        .filter(r => scene.regions.has(r.id) && this.isRegionLinkedToEffect(r, effectItem))
+        .map(r => r.id);
       
-      if (regionsToDelete.length > 0) {
-        for (const rId of regionsToDelete) {
-          await this.cleanupWhileInsideEffectsForRegion(rId);
+      const validIds = regionsToDelete.filter(id => scene.regions.has(id));
+      if (validIds.length > 0) {
+        try {
+          await scene.deleteEmbeddedDocuments("Region", validIds);
+        } catch (err) {
+          console.warn("Trespasser | Region deletion skipped:", err);
         }
-        await scene.deleteEmbeddedDocuments("Region", regionsToDelete);
+      }
+    }
+  }
+
+  /**
+   * Called when an effect item's intensity changes on an actor.
+   * Propagates intensity updates to all linked terrain regions and active effects.
+   * @param {Item} effectItem 
+   * @param {object} [changes] 
+   */
+  static async onEffectIntensityUpdated(effectItem, changes = {}) {
+    if (!effectItem || effectItem.type !== "effect") return;
+
+    const scenes = game.scenes?.contents || [];
+    for (const scene of scenes) {
+      const linkedRegions = scene.regions.filter(r => this.isRegionLinkedToEffect(r, effectItem));
+      for (const region of linkedRegions) {
+        await this.syncWhileInsideEffectsForRegion(region);
+
+        // Also update any standalone / persistent effects applied by this region that are synced with source
+        for (const tokenDoc of scene.tokens) {
+          const actor = tokenDoc.actor;
+          if (!actor) continue;
+          const syncedEffects = actor.items.filter(i =>
+            i.type === "effect" &&
+            !i.flags?.trespasser?.whileInside &&
+            i.flags?.trespasser?.sourceRegionId === region.id &&
+            i.flags?.trespasser?.syncWithSource === true
+          );
+
+          const toUpdate = [];
+          for (const eff of syncedEffects) {
+            const formula = eff.flags?.trespasser?.sourceIntensityFormula || "<Int>";
+            const raw = this.resolveIntPlaceholder(formula, region);
+            const newIntensity = this.evaluateIntensityValue(raw, 0);
+            if (eff.system.intensity !== newIntensity) {
+              toUpdate.push({ _id: eff.id, "system.intensity": newIntensity });
+            }
+          }
+          if (toUpdate.length > 0) {
+            await actor.updateEmbeddedDocuments("Item", toUpdate);
+          }
+        }
       }
     }
   }
 
   // ── While Inside Effect Synchronization ─────────────────────────────────────
+
+  static _syncWhileInsideLocks = new Set();
 
   /**
    * Synchronize "whileInside" behavior effects on an actor based on the terrain regions
@@ -902,69 +1067,100 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
   static async syncWhileInsideEffectsForToken(tokenDoc) {
     if (!tokenDoc || !tokenDoc.actor) return;
     const actor = tokenDoc.actor;
+    if (!actor.isOwner && !game.user.isGM) return;
     const scene = tokenDoc.parent;
     if (!scene) return;
 
-    const containingRegions = this.getTerrainRegionsContainingToken(tokenDoc);
-    const desiredEffects = [];
+    const lockKey = actor.id;
+    if (this._syncWhileInsideLocks.has(lockKey)) return;
+    this._syncWhileInsideLocks.add(lockKey);
 
-    for (const region of containingRegions) {
-      const terrainData = region.flags?.trespasser?.terrain;
-      if (!terrainData) continue;
-      const sys = terrainData.system;
-      if (sys.centerMode === "actor" && sys.centerActorId === actor.id) continue;
+    try {
+      const containingRegions = this.getTerrainRegionsContainingToken(tokenDoc);
+      const desiredEffects = [];
 
-      const whileInsideBehaviors = (sys.behaviors || []).filter(b => b.trigger === "whileInside" && b.action === "applyEffect" && b.effectUuid);
-      for (const behavior of whileInsideBehaviors) {
-        const intensity = this.resolveIntPlaceholder(behavior.effectIntensity, region);
-        desiredEffects.push({
-          regionId: region.id,
-          effectUuid: behavior.effectUuid,
-          name: behavior.effectName,
-          img: behavior.effectImg,
-          intensity: parseInt(intensity) || 1
-        });
+      for (const region of containingRegions) {
+        const terrainData = region.flags?.trespasser?.terrain;
+        if (!terrainData) continue;
+        const sys = terrainData.system;
+        if (sys.centerMode === "actor" && sys.centerActorId === actor.id) continue;
+
+        const whileInsideBehaviors = (sys.behaviors || []).filter(b => b.trigger === "whileInside" && b.action === "applyEffect");
+        for (const behavior of whileInsideBehaviors) {
+          const effList = (behavior.effects && behavior.effects.length > 0)
+            ? behavior.effects
+            : (behavior.effectUuid ? [{ uuid: behavior.effectUuid, name: behavior.effectName, img: behavior.effectImg, intensity: behavior.effectIntensity }] : []);
+
+          for (const eff of effList) {
+            if (!eff.uuid) continue;
+            // Prevent duplicate desired entries from the same region
+            if (desiredEffects.some(d => d.regionId === region.id && d.effectUuid === eff.uuid)) continue;
+
+            const rawIntensity = this.resolveIntPlaceholder(eff.intensity || "1", region);
+            const intensity = this.evaluateIntensityValue(rawIntensity, 1);
+            desiredEffects.push({
+              regionId: region.id,
+              effectUuid: eff.uuid,
+              name: eff.name,
+              img: eff.img,
+              intensity: intensity,
+              intensityFormula: eff.intensity || "1"
+            });
+          }
+        }
       }
-    }
 
-    // Find existing whileInside effects on the actor
-    const existingEffects = actor.items.filter(i => i.type === "effect" && i.flags?.trespasser?.whileInside === true);
+      // Find existing whileInside effects on the actor
+      const existingEffects = actor.items.filter(i => i.type === "effect" && i.flags?.trespasser?.whileInside === true);
 
-    // Remove effects that are no longer desired (token left the region)
-    const toDelete = [];
-    for (const eff of existingEffects) {
-      const regionId = eff.flags?.trespasser?.sourceRegionId;
-      const sourceUuid = eff.flags?.trespasser?.sourceEffectUuid;
-      const stillDesired = desiredEffects.some(d => d.regionId === regionId && d.effectUuid === sourceUuid);
-      if (!stillDesired) {
-        toDelete.push(eff.id);
+      // Remove effects that are no longer desired (token left the region)
+      const toDelete = [];
+      for (const eff of existingEffects) {
+        const regionId = eff.flags?.trespasser?.sourceRegionId;
+        const sourceUuid = eff.flags?.trespasser?.sourceEffectUuid;
+        const stillDesired = desiredEffects.some(d => d.regionId === regionId && d.effectUuid === sourceUuid);
+        if (!stillDesired) {
+          toDelete.push(eff.id);
+        }
       }
-    }
-    if (toDelete.length > 0) {
-      await actor.deleteEmbeddedDocuments("Item", toDelete);
-    }
-
-    // Add missing desired effects
-    for (const desired of desiredEffects) {
-      const alreadyApplied = existingEffects.some(e =>
-        !toDelete.includes(e.id) &&
-        e.flags?.trespasser?.sourceRegionId === desired.regionId &&
-        e.flags?.trespasser?.sourceEffectUuid === desired.effectUuid
-      );
-      if (!alreadyApplied) {
-        const sourceEffect = await fromUuid(desired.effectUuid);
-        if (!sourceEffect) continue;
-        const effectData = sourceEffect.toObject();
-        effectData.system.intensity = desired.intensity;
-        effectData.flags = effectData.flags || {};
-        effectData.flags.trespasser = Object.assign(effectData.flags.trespasser || {}, {
-          whileInside: true,
-          sourceRegionId: desired.regionId,
-          sourceEffectUuid: desired.effectUuid
-        });
-        delete effectData._id;
-        await Item.createDocuments([effectData], { parent: actor });
+      if (toDelete.length > 0) {
+        await actor.deleteEmbeddedDocuments("Item", toDelete);
       }
+
+      // Add missing desired effects OR update intensity if changed
+      const toUpdate = [];
+      for (const desired of desiredEffects) {
+        const existing = existingEffects.find(e =>
+          !toDelete.includes(e.id) &&
+          e.flags?.trespasser?.sourceRegionId === desired.regionId &&
+          (e.flags?.trespasser?.sourceEffectUuid === desired.effectUuid || e.flags?.trespasser?.linkedSource === desired.effectUuid || e.uuid === desired.effectUuid)
+        );
+        if (!existing) {
+          const sourceEffect = await fromUuid(desired.effectUuid);
+          if (!sourceEffect) continue;
+          const effectData = sourceEffect.toObject();
+          effectData.system.intensity = desired.intensity;
+          effectData.flags = effectData.flags || {};
+          effectData.flags.trespasser = Object.assign(effectData.flags.trespasser || {}, {
+            whileInside: true,
+            sourceRegionId: desired.regionId,
+            sourceEffectUuid: desired.effectUuid,
+            sourceIntensityFormula: desired.intensityFormula
+          });
+          delete effectData._id;
+          await Item.createDocuments([effectData], { parent: actor });
+        } else if (existing.system.intensity !== desired.intensity) {
+          toUpdate.push({
+            _id: existing.id,
+            "system.intensity": desired.intensity
+          });
+        }
+      }
+      if (toUpdate.length > 0) {
+        await actor.updateEmbeddedDocuments("Item", toUpdate);
+      }
+    } finally {
+      this._syncWhileInsideLocks.delete(lockKey);
     }
   }
 
@@ -988,19 +1184,31 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
    * @param {string} regionId 
    */
   static async cleanupWhileInsideEffectsForRegion(regionId) {
-    if (!regionId) return;
+    if (!regionId || !game.user.isGM) return;
     const scenes = game.scenes?.contents || [];
+    const processedActorIds = new Set();
+
     for (const scene of scenes) {
       for (const tokenDoc of scene.tokens) {
         const actor = tokenDoc.actor;
-        if (!actor) continue;
+        if (!actor || processedActorIds.has(actor.id)) continue;
+        processedActorIds.add(actor.id);
+
         const effectsToDelete = actor.items.filter(i =>
           i.type === "effect" &&
           i.flags?.trespasser?.whileInside === true &&
           i.flags?.trespasser?.sourceRegionId === regionId
         ).map(i => i.id);
+
         if (effectsToDelete.length > 0) {
-          await actor.deleteEmbeddedDocuments("Item", effectsToDelete);
+          const finalValid = effectsToDelete.filter(id => actor.items.has(id));
+          if (finalValid.length > 0) {
+            try {
+              await actor.deleteEmbeddedDocuments("Item", finalValid);
+            } catch (err) {
+              console.warn("Trespasser | While-inside effect deletion skipped:", err);
+            }
+          }
         }
       }
     }
@@ -1021,31 +1229,52 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
     switch (behavior.action) {
       case "applyEffect": {
         if (!actor) return;
-        const uuid = behavior.effectUuid;
-        if (!uuid) return;
-        const sourceEffect = await fromUuid(uuid);
-        if (!sourceEffect) return;
-        const effectData = sourceEffect.toObject();
-        const intensity = this.resolveIntPlaceholder(behavior.effectIntensity, terrainRegion);
-        effectData.system.intensity = parseInt(intensity) || 0;
-        delete effectData._id;
-        await Item.createDocuments([effectData], { parent: actor });
+        const effList = (behavior.effects && behavior.effects.length > 0)
+          ? behavior.effects
+          : (behavior.effectUuid ? [{ uuid: behavior.effectUuid, name: behavior.effectName, img: behavior.effectImg, intensity: behavior.effectIntensity }] : []);
 
-        ChatMessage.create({
-          speaker: ChatMessage.getSpeaker({ actor }),
-          content: game.i18n.format("TRESPASSER.Notification.Terrain.EffectApplied", {
-            name: actor.name,
-            effect: behavior.effectName || sourceEffect.name,
-            terrain: terrainRegion.name
-          }),
-          flavor: `🌍 ${terrainRegion.name}`
-        });
+        if (effList.length === 0) return;
+
+        const toCreate = [];
+        for (const eff of effList) {
+          if (!eff.uuid) continue;
+          const sourceEffect = await fromUuid(eff.uuid);
+          if (!sourceEffect) continue;
+          const effectData = sourceEffect.toObject();
+          const rawIntensity = this.resolveIntPlaceholder(eff.intensity || "1", terrainRegion);
+          const intensity = this.evaluateIntensityValue(rawIntensity, 0);
+          effectData.system.intensity = intensity;
+          effectData.flags = effectData.flags || {};
+          effectData.flags.trespasser = Object.assign(effectData.flags.trespasser || {}, {
+            sourceRegionId: terrainRegion.id,
+            sourceEffectUuid: eff.uuid,
+            sourceIntensityFormula: eff.intensity || "1",
+            sourceLinkedEffectUuid: terrainRegion.flags?.trespasser?.linkedEffectId || terrainRegion.flags?.trespasser?.terrain?.system?.linkedEffect?.uuid || null,
+            syncWithSource: String(eff.intensity || "").toLowerCase().includes("<int>")
+          });
+          delete effectData._id;
+          toCreate.push(effectData);
+        }
+
+        if (toCreate.length > 0) {
+          await Item.createDocuments(toCreate, { parent: actor });
+          const effectNames = toCreate.map(e => e.name).join(", ");
+          ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ actor }),
+            content: game.i18n.format("TRESPASSER.Notification.Terrain.EffectApplied", {
+              name: actor.name,
+              effect: effectNames,
+              terrain: terrainRegion.name
+            }),
+            flavor: `🌍 ${terrainRegion.name}`
+          });
+        }
         break;
       }
 
       case "forcedMovement": {
         const distStr = this.resolveIntPlaceholder(behavior.forcedMovementDistance, terrainRegion);
-        const distance = parseInt(distStr) || 0;
+        const distance = this.evaluateIntensityValue(distStr, 0);
         if (distance <= 0) return;
 
         const token = actor.token?.object ||
@@ -1107,6 +1336,31 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
   }
 
   /**
+   * Safely evaluates an intensity string or formula to a numeric integer.
+   * @param {string|number} str
+   * @param {number} [defaultValue=1]
+   * @returns {number}
+   */
+  static evaluateIntensityValue(str, defaultValue = 1) {
+    if (typeof str === "number") return Math.max(0, Math.round(str));
+    if (!str || typeof str !== "string") return defaultValue;
+    const cleaned = str.trim();
+    if (/^-?\d+$/.test(cleaned)) return Math.max(0, parseInt(cleaned, 10));
+    try {
+      if (/^[0-9+\-*/().\s,maxmin]+$/i.test(cleaned)) {
+        const roll = new foundry.dice.Roll(cleaned);
+        if (roll.isDeterministic) {
+          roll.evaluateSync();
+          return Math.max(0, Math.round(roll.total));
+        }
+      }
+    } catch (e) {
+      console.warn("Trespasser | Failed to evaluate intensity expression:", cleaned, e);
+    }
+    return Math.max(0, parseInt(cleaned, 10) || defaultValue);
+  }
+
+  /**
    * Resolve the <Int> placeholder in a string using the terrain's linked effect intensity.
    * @param {string} str - The string potentially containing "<Int>".
    * @param {RegionDocument} terrainRegion - The terrain region document.
@@ -1129,19 +1383,92 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
     const flags = terrainRegion.flags?.trespasser;
     if (!flags) return 0;
 
-    // Check the terrain data's linkedEffect or linkedEffectKey
-    const linkedKey = flags.terrain?.system?.linkedEffect?.uuid || flags.terrain?.system?.linkedEffectKey;
-    const casterActorId = flags.casterActorId;
-    if (!linkedKey || !casterActorId) return 0;
+    const terrainSys = flags.terrain?.system;
+    const linkedKey = flags.linkedEffectId || terrainSys?.linkedEffect?.uuid || terrainSys?.linkedEffectKey;
+    const linkedUuid = flags.linkedEffectUuid;
+    const linkedName = terrainSys?.linkedEffect?.name;
+    const casterActorId = flags.casterActorId || flags.centerActorId || terrainSys?.centerActorId;
+    const casterActorUuid = flags.casterActorUuid;
 
-    const casterActor = game.actors.get(casterActorId);
-    if (!casterActor) return 0;
+    const clean = (s) => String(s || "").replace(/\s*\([^)]*\)\s*/g, " ").replace(/[^\p{L}\p{N}\s]/gu, "").trim().toLowerCase();
 
-    // Find the effect on the caster by ID or UUID
-    const effect = casterActor.items.find(i =>
-      i.type === "effect" && (i.id === linkedKey || i.uuid === linkedKey)
-    );
-    return effect?.system?.intensity || 0;
+    // 1. Direct document lookup if linkedUuid or linkedKey is an embedded item UUID
+    for (const key of [linkedUuid, linkedKey]) {
+      if (key) {
+        try {
+          const directDoc = fromUuidSync(key);
+          if (directDoc && directDoc.type === "effect") {
+            const intVal = Number(directDoc.system?.intensity);
+            return isNaN(intVal) ? 0 : intVal;
+          }
+        } catch {}
+      }
+    }
+
+    // Helper to test if an effect item on an actor is the matching linked effect
+    const isMatchingEffect = (i) => {
+      if (i.type !== "effect") return false;
+      if (linkedKey && (i.id === linkedKey || i.uuid === linkedKey || i.flags?.trespasser?.sourceEffectUuid === linkedKey || i.flags?.trespasser?.linkedSource === linkedKey)) return true;
+      if (linkedUuid && (i.id === linkedUuid || i.uuid === linkedUuid || i.flags?.trespasser?.sourceEffectUuid === linkedUuid || i.flags?.trespasser?.linkedSource === linkedUuid)) return true;
+
+      const iClean = clean(i.name);
+      if (linkedName) {
+        const lClean = clean(linkedName);
+        if (iClean === lClean || (lClean.length > 3 && (iClean.includes(lClean) || lClean.includes(iClean)))) return true;
+      }
+
+      if (terrainSys?.linkedEffects?.length > 0) {
+        for (const le of terrainSys.linkedEffects) {
+          if (le.uuid && (i.id === le.uuid || i.uuid === le.uuid || i.flags?.trespasser?.sourceEffectUuid === le.uuid || i.flags?.trespasser?.linkedSource === le.uuid)) return true;
+          if (le.name) {
+            const leClean = clean(le.name);
+            if (iClean === leClean || (leClean.length > 3 && (iClean.includes(leClean) || leClean.includes(iClean)))) return true;
+          }
+        }
+      }
+      return false;
+    };
+
+    // 2. Resolve caster actor
+    let casterActor = null;
+    if (casterActorUuid) {
+      try {
+        const doc = fromUuidSync(casterActorUuid);
+        casterActor = doc?.actor || (doc?.documentName === "Actor" ? doc : null);
+      } catch {}
+    }
+    if (!casterActor && casterActorId) {
+      casterActor = game.actors?.get(casterActorId) || canvas.tokens?.get(casterActorId)?.actor || canvas.scene?.tokens?.get(casterActorId)?.actor;
+    }
+
+    if (casterActor) {
+      const effect = casterActor.items.find(isMatchingEffect);
+      if (effect) {
+        const intVal = Number(effect.system?.intensity);
+        return isNaN(intVal) ? 0 : intVal;
+      }
+    }
+
+    // 3. Search all scene tokens and game actors as fallback
+    const candidates = [];
+    if (canvas.scene?.tokens) {
+      for (const t of canvas.scene.tokens) {
+        if (t.actor && !candidates.includes(t.actor)) candidates.push(t.actor);
+      }
+    }
+    for (const a of (game.actors || [])) {
+      if (!candidates.includes(a)) candidates.push(a);
+    }
+
+    for (const actor of candidates) {
+      const effect = actor.items.find(isMatchingEffect);
+      if (effect) {
+        const intVal = Number(effect.system?.intensity);
+        return isNaN(intVal) ? 0 : intVal;
+      }
+    }
+
+    return 0;
   }
 
   /**
@@ -1333,14 +1660,26 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
    * @param {number} gridSize - The grid square size in pixels.
    * @returns {boolean}
    */
-  static isPointInRegion(px, py, region, gridSize) {
+  static isPointInRegion(px, py, region, gridSize = 100) {
     if (!region) return false;
     const doc = region.document ?? region;
     if (typeof doc.testPoint === "function") {
       try {
-        return doc.testPoint({ x: px, y: py, elevation: doc.elevation ?? 0 });
+        const result = doc.testPoint({ x: px, y: py }, doc.elevation ?? 0);
+        if (result) return true;
       } catch {}
     }
+
+    // Check stored pathSquares flag if present
+    const flags = doc.flags?.trespasser || {};
+    if (flags.pathSquares && Array.isArray(flags.pathSquares) && flags.pathSquares.length > 0) {
+      const gX = Math.floor(px / gridSize);
+      const gY = Math.floor(py / gridSize);
+      if (flags.pathSquares.some(sq => sq.x === gX && sq.y === gY)) {
+        return true;
+      }
+    }
+
     const shapes = doc.shapes || [];
     for (const shape of shapes) {
       if (shape.type === "rectangle") {
@@ -1349,10 +1688,23 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
           return true;
         }
       } else if (shape.type === "emanation" && shape.base) {
-        const baseX = shape.base.x ?? 0;
-        const baseY = shape.base.y ?? 0;
-        const baseW = (shape.base.width || 1) * gridSize;
-        const baseH = (shape.base.height || 1) * gridSize;
+        let baseX = 0, baseY = 0, baseW = gridSize, baseH = gridSize;
+        if (shape.base.uuid) {
+          try {
+            const tokenDoc = fromUuidSync(shape.base.uuid) || (canvas.tokens?.get(shape.base.uuid.split(".").pop())?.document);
+            if (tokenDoc) {
+              baseX = tokenDoc.x;
+              baseY = tokenDoc.y;
+              baseW = (tokenDoc.width || 1) * gridSize;
+              baseH = (tokenDoc.height || 1) * gridSize;
+            }
+          } catch {}
+        } else {
+          baseX = shape.base.x ?? 0;
+          baseY = shape.base.y ?? 0;
+          baseW = (shape.base.width || 1) * gridSize;
+          baseH = (shape.base.height || 1) * gridSize;
+        }
         const radius = (shape.radius || 0) * gridSize;
         if (px >= baseX - radius && px <= baseX + baseW + radius &&
             py >= baseY - radius && py <= baseY + baseH + radius) {
@@ -1366,6 +1718,17 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
           const dy = (py - shape.y) / ry;
           if ((dx * dx + dy * dy) <= 1) return true;
         }
+      } else if (shape.type === "polygon" && Array.isArray(shape.points) && shape.points.length >= 6) {
+        const pts = shape.points;
+        let inside = false;
+        for (let i = 0, j = pts.length - 2; i < pts.length; i += 2) {
+          const xi = pts[i], yi = pts[i + 1];
+          const xj = pts[j], yj = pts[j + 1];
+          const intersect = ((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi);
+          if (intersect) inside = !inside;
+          j = i;
+        }
+        if (inside) return true;
       }
     }
     return false;

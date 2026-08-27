@@ -36,11 +36,18 @@ export class TrespasserTerrainData extends foundry.abstract.TypeDataModel {
           choices: ["applyEffect", "forcedMovement", "damage", "script"]
         }),
 
-        // ── For applyEffect ──────────────────────────────────────
+        // ── For applyEffect (supports multiple effects list) ───────
+        effects: new ArrayField(new SchemaField({
+          uuid: new StringField({ initial: "" }),
+          name: new StringField({ initial: "" }),
+          img: new StringField({ initial: "" }),
+          intensity: new StringField({ initial: "1" })
+        }), { initial: [] }),
+
+        // Legacy single-effect fields for backward compatibility
         effectUuid: new StringField({ initial: "" }),
         effectName: new StringField({ initial: "" }),
         effectImg: new StringField({ initial: "" }),
-        // String so it can be "1", "<Int>", etc.
         effectIntensity: new StringField({ initial: "1" }),
 
         // ── For forcedMovement ───────────────────────────────────
@@ -92,6 +99,13 @@ export class TrespasserTerrainData extends foundry.abstract.TypeDataModel {
       // ── Dynamic intensity / linked effect source ──────────────────
       // Terrain reads <Int> from the caster's effect with this UUID.
       // When the linked effect is removed (prevailed), terrain auto-deletes.
+      linkedEffects: new ArrayField(new SchemaField({
+        uuid: new StringField({ initial: "" }),
+        name: new StringField({ initial: "" }),
+        img: new StringField({ initial: "" }),
+        intensity: new StringField({ initial: "1" })
+      }), { initial: [] }),
+
       linkedEffect: new SchemaField({
         uuid: new StringField({ initial: "" }),
         name: new StringField({ initial: "" }),

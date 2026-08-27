@@ -941,7 +941,7 @@ Hooks.on("createItem", (item, options, userId) => {
   }
 });
 
-Hooks.on("updateItem", (item, delta, options, userId) => {
+Hooks.on("updateItem", async (item, delta, options, userId) => {
   if (game.user.id !== userId) return;
   if (item.parent?.type === "haven" && item.type === "stronghold") {
      console.log("Trespasser | Global Hook - updateItem (Stronghold)");
@@ -949,6 +949,11 @@ Hooks.on("updateItem", (item, delta, options, userId) => {
   }
   if (item.parent?.documentName === "Actor" && item.type === "effect") {
     TrespasserEffectsHelper.syncActorTokenEffects(item.parent);
+    if (delta.system?.intensity !== undefined || foundry.utils.hasProperty(delta, "system.intensity")) {
+      if (game.trespasser?.TerrainHelper) {
+        await game.trespasser.TerrainHelper.onEffectIntensityUpdated(item, delta);
+      }
+    }
   }
 });
 
@@ -2462,25 +2467,7 @@ Hooks.on("regionBehaviorTokenEnter", async (behavior, region, token) => {
   }
 });
 
-Hooks.on("regionBehaviorTokenExit", async (behavior, region, token) => {
-  const tokenDoc = token.document ?? token;
-  if (globalThis._trespasserUndoSet?.has(tokenDoc.id)) return;
-  if (game.trespasser?.TerrainHelper) {
-    await game.trespasser.TerrainHelper.syncWhileInsideEffectsForToken(tokenDoc);
-  }
-});
 
-Hooks.on("deleteCombat", async (combat, options, userId) => {
-  if (game.user.id === userId && game.trespasser?.TerrainHelper) {
-    await game.trespasser.TerrainHelper.cleanupCombatTerrains();
-  }
-});
-
-Hooks.on("deleteItem", async (item, options, userId) => {
-  if (game.user.id === userId && game.trespasser?.TerrainHelper) {
-    await game.trespasser.TerrainHelper.onEffectDeleted(item);
-  }
-});
 
 /* -------------------------------------------- */
 /*  Commoner Default Deed Creation Hook         */

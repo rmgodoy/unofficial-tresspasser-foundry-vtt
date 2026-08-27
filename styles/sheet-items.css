@@ -453,6 +453,34 @@
   box-shadow: none;
 }
 
+.effect-chip .sync-intensity-btn {
+  background: transparent;
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  color: var(--trp-text-dim);
+  cursor: pointer;
+  padding: 1px 4px;
+  font-size: var(--fs-10);
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  margin-left: 2px;
+}
+
+.effect-chip .sync-intensity-btn:hover {
+  color: var(--trp-gold-bright);
+  border-color: var(--trp-gold);
+}
+
+.effect-chip .sync-intensity-btn.active {
+  color: var(--trp-gold-bright);
+  border-color: var(--trp-gold-bright);
+  background: var(--trp-gold-overlay);
+  text-shadow: 0 0 4px var(--trp-gold);
+}
+
 .effect-chip .controls {
   display: flex;
   gap: 6px;
@@ -472,17 +500,28 @@
   color: var(--trp-text-bright);
 }
 
-.terrain-drop-zone {
+.terrain-drop-zone,
+.linked-effect-drop-zone,
+.behavior-effect-drop {
   background: var(--trp-bg-overlay);
   border: 1px dashed var(--trp-border);
   border-radius: var(--trp-radius);
   padding: 6px 10px;
   min-height: 30px;
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
   align-items: center;
-  flex: 1;
+  justify-content: center;
+  gap: 8px;
+  color: var(--trp-text-dim);
+  font-size: var(--fs-11);
+  transition: all 0.2s ease;
+}
+
+.linked-effect-drop-zone:hover,
+.behavior-effect-drop:hover {
+  border-color: var(--trp-gold);
+  color: var(--trp-gold-bright);
+  background: var(--trp-gold-overlay);
 }
 
 .terrain-chip {

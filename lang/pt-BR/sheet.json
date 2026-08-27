@@ -600,6 +600,10 @@
         "Sections": {
           "TerrainEffects": "Efeitos de Terreno",
           "TerrainBehaviors": "Comportamentos de Terreno"
+        },
+        "Tooltips": {
+          "IntensityPlaceholder": "Valor de intensidade, fórmula ou <Int> para sincronizar com Efeito Vinculado",
+          "SyncWithLinkedEffect": "Sincronizar intensidade com Efeito Vinculado (<Int>)"
         }
       },
       "Dungeon": {

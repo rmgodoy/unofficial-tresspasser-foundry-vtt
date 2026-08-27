@@ -72,23 +72,37 @@
 
       <hr/>
 
-      {{!-- Linked Effect Drag and Drop --}}
-      <div class="field-row">
+      {{!-- Linked Effects Drag and Drop --}}
+      <div class="field-row" style="flex-direction: column; align-items: stretch; gap: 6px;">
         <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.LinkedEffect"}}</label>
-        <div class="linked-effect-drop-zone {{#if system.linkedEffect.uuid}}has-effect{{/if}}" data-drop-target="linkedEffect">
-          {{#if system.linkedEffect.uuid}}
-            <div class="effect-chip">
-              <img src="{{system.linkedEffect.img}}" title="{{system.linkedEffect.name}}" />
-              <span class="name">{{system.linkedEffect.name}}</span>
-              <a data-action="removeLinkedEffect" class="remove-effect" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
-            </div>
-          {{else}}
-            <span class="drop-placeholder">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</span>
-          {{/if}}
+        <div class="linked-effect-drop-zone drop-zone" data-drop-target="linkedEffect">
+          <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}
         </div>
-        <input type="hidden" name="system.linkedEffect.uuid" value="{{system.linkedEffect.uuid}}" />
-        <input type="hidden" name="system.linkedEffect.name" value="{{system.linkedEffect.name}}" />
-        <input type="hidden" name="system.linkedEffect.img" value="{{system.linkedEffect.img}}" />
+        {{#if linkedEffectsList.length}}
+          <div class="effect-chips-list" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;">
+            {{#each linkedEffectsList}}
+            <div class="effect-chip" data-index="{{@index}}" data-uuid="{{uuid}}">
+              <input type="hidden" name="system.linkedEffects.{{@index}}.uuid" value="{{uuid}}"/>
+              <input type="hidden" name="system.linkedEffects.{{@index}}.name" value="{{name}}"/>
+              <input type="hidden" name="system.linkedEffects.{{@index}}.img" value="{{img}}"/>
+              <img src="{{img}}" title="{{name}}"/>
+              <span class="name">{{name}}</span>
+              <div class="intensity-box">
+                <span class="label">{{localize "TRESPASSER.Sheet.Common.IntensityShort"}}</span>
+                <input type="text"
+                       name="system.linkedEffects.{{@index}}.intensity"
+                       value="{{intensity}}"
+                       placeholder="1"
+                       class="select-on-focus" style="width: 45px;"/>
+              </div>
+              <div class="controls">
+                <a data-action="openEffectDoc" data-uuid="{{uuid}}" class="edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+                <a data-action="removeLinkedEffect" data-effect-index="{{@index}}" class="remove" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
+              </div>
+            </div>
+            {{/each}}
+          </div>
+        {{/if}}
       </div>
 
       <hr/>

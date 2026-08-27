@@ -167,7 +167,17 @@ export class DeedResolver {
           options.pathSquares = context.pathSquares;
         }
         const dropPos = sourceToken ? { x: sourceToken.center.x, y: sourceToken.center.y } : { x: 0, y: 0 };
-        await TerrainHelper.placeTerrainOnCanvas(terrainItem, dropPos, options);
+        if (game.user.isGM) {
+          await TerrainHelper.placeTerrainOnCanvas(terrainItem, dropPos, options);
+        } else {
+          const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
+          await emitDeedActionAndWait("spawnTerrain", {
+            useTerrainHelper: true,
+            terrainUuid: terrainItem.uuid,
+            dropPosition: dropPos,
+            options: options
+          });
+        }
       }
     }
   }
