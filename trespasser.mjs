@@ -136,6 +136,8 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/item/terrain/header.hbs",
     "systems/trespasser/templates/item/terrain/tabs.hbs",
     "systems/trespasser/templates/item/terrain/details.hbs",
+    "systems/trespasser/templates/item/terrain/behaviors.hbs",
+    "systems/trespasser/templates/hud/region-hud.hbs",
     "systems/trespasser/templates/dialogs/non-combat-spark.hbs",
     "systems/trespasser/templates/dialogs/non-combat-shadow.hbs",
     "systems/trespasser/templates/item/deed/behavior-params.hbs",
@@ -2431,6 +2433,14 @@ Hooks.on("regionBehaviorTokenEnter", async (behavior, region, token) => {
   if (globalThis._trespasserUndoSet?.has(tokenDoc.id)) return;
   if (game.trespasser?.TerrainHelper) {
     await game.trespasser.TerrainHelper.onTokenEnterTerrain(tokenDoc, region);
+  }
+});
+
+Hooks.on("regionBehaviorTokenExit", async (behavior, region, token) => {
+  const tokenDoc = token.document ?? token;
+  if (globalThis._trespasserUndoSet?.has(tokenDoc.id)) return;
+  if (game.trespasser?.TerrainHelper) {
+    await game.trespasser.TerrainHelper.syncWhileInsideEffectsForToken(tokenDoc);
   }
 });
 

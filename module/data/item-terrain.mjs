@@ -27,7 +27,7 @@ export class TrespasserTerrainData extends foundry.abstract.TypeDataModel {
       behaviors: new ArrayField(new SchemaField({
         trigger: new StringField({
           initial: "onEnter",
-          choices: ["onEnter", "onMove", "onStartTurn", "onCreation"]
+          choices: ["onEnter", "onMove", "onStartTurn", "onCreation", "whileInside"]
         }),
 
         // ── Action type ──────────────────────────────────────────
@@ -89,9 +89,14 @@ export class TrespasserTerrainData extends foundry.abstract.TypeDataModel {
         })
       }),
 
-      // ── Dynamic intensity source ─────────────────────────────────
+      // ── Dynamic intensity / linked effect source ──────────────────
       // Terrain reads <Int> from the caster's effect with this UUID.
       // When the linked effect is removed (prevailed), terrain auto-deletes.
+      linkedEffect: new SchemaField({
+        uuid: new StringField({ initial: "" }),
+        name: new StringField({ initial: "" }),
+        img: new StringField({ initial: "" })
+      }),
       linkedEffectKey: new StringField({ initial: "" }),
 
       regionColor: new StringField({ initial: "" })

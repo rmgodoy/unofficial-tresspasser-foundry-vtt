@@ -108,6 +108,13 @@
         "UndoLabel": "Undo",
         "Cancel": "Cancel Action",
         "CancelLabel": "Cancel"
+      },
+      "Region": {
+        "DefaultTitle": "Region",
+        "NativeConfig": "Open Region Configuration",
+        "NativeConfigShort": "Region",
+        "TerrainConfig": "Open Terrain Configuration",
+        "TerrainConfigShort": "Terrain"
       }
     }
   }

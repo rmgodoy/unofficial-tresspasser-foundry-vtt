@@ -16,6 +16,17 @@ export class TerrainHelper {
   };
 
   /**
+   * Get the display color for a terrain item or data, falling back to category default.
+   * @param {Item|Object} terrainItemOrData 
+   * @returns {string} Hex color string.
+   */
+  static getRegionColor(terrainItemOrData) {
+    if (!terrainItemOrData) return "#8B4513";
+    const sys = terrainItemOrData.system || terrainItemOrData;
+    return sys.regionColor || this.TERRAIN_COLORS[sys.category] || "#8B4513";
+  }
+
+  /**
    * Handle dropping a Terrain item onto the canvas.
    * @param {Item} terrainItem - The Terrain Item document.
    * @param {Object} dropPosition - {x, y} coordinates of the drop.
@@ -67,29 +78,21 @@ export class TerrainHelper {
       });
       if (tokens.length > 0) {
         const token = tokens[0];
-        centerActorId = token.actor?.id || "";
-        centerTokenId = token.id;
+        const tokenDoc = token.document ?? token;
+        centerActorId = tokenDoc.actor?.id || "";
+        centerTokenId = tokenDoc.id;
         
-        const tokenCenterX = token.x + (token.w / 2);
-        const tokenCenterY = token.y + (token.h / 2);
-        const tokenTx = Math.round((tokenCenterX - w / 2) / gridSize) * gridSize;
-        const tokenTy = Math.round((tokenCenterY - h / 2) / gridSize) * gridSize;
-        
-        // When attaching to a token, use the native Emanation shape with radius 0 (sharp rectangle)
-        // We set the base width/height to the terrain's dimensions so the size is exactly the terrain size.
+        // When attaching to a token, leverage native Foundry VTT Region Emanation shape
+        // Using base: { type: "token", uuid: tokenDoc.uuid } so Foundry tracks the token automatically
+        const auraRadiusSq = Math.max(0, (Math.max(sys.width || 1, sys.height || 1) - 1) / 2);
         shapes = [{
           type: "emanation",
-          radius: 0,
+          radius: auraRadiusSq,
           hole: false,
           gridBased: false,
           base: {
             type: "token",
-            x: tokenTx,
-            y: tokenTy,
-            width: sys.width || 1,
-            height: sys.height || 1,
-            shape: 4,
-            hole: false
+            uuid: tokenDoc.uuid
           }
         }];
       } else {
@@ -98,10 +101,7 @@ export class TerrainHelper {
       }
     }
 
-    const tx = shapes[0]?.x ?? Math.floor(dropPosition.x / gridSize) * gridSize;
-    const ty = shapes[0]?.y ?? Math.floor(dropPosition.y / gridSize) * gridSize;
-
-    const color = this.TERRAIN_COLORS[sys.category] || "#ffffff";
+    const color = this.getRegionColor(terrainItem);
 
     const regionData = {
       name: terrainItem.name,
@@ -112,9 +112,10 @@ export class TerrainHelper {
         type: "executeScript",
         name: "Terrain Tracking",
         system: {
-          events: ["tokenEnter"],
+          events: ["tokenEnter", "tokenExit"],
           source: `const tokenDoc = event.data.token || event.data;
-if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behavior, region, tokenDoc);`
+if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behavior, region, tokenDoc);
+if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavior, region, tokenDoc);`
         }
       }],
       flags: {
@@ -123,7 +124,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
           centerActorId: centerActorId,
           centerTokenId: centerTokenId,
           spawnedInCombat: options.spawnedInCombat,
-          linkedEffectId: options.linkedEffectId,
+          linkedEffectId: options.linkedEffectId || terrainItem.system.linkedEffect?.uuid || terrainItem.system.linkedEffectKey,
           casterActorId: options.casterActorId
         }
       }
@@ -162,45 +163,35 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
       const gridSize = canvas.grid.size;
       const w = (sys.width || 1) * gridSize;
       const h = (sys.height || 1) * gridSize;
-      const color = TerrainHelper.TERRAIN_COLORS[sys.category] || "#ffffff";
+      const color = TerrainHelper.getRegionColor(tempItem);
 
       const currentShape = region.shapes?.[0] || { x: 0, y: 0 };
-      let tx = currentShape.x;
-      let ty = currentShape.y;
+      let newShape;
       
       if (currentShape.type === "emanation" && currentShape.base) {
-         tx = currentShape.base.x;
-         ty = currentShape.base.y;
-      }
-
-      let newShape = {
-        type: "rectangle",
-        x: tx,
-        y: ty,
-        width: w,
-        height: h
-      };
-
-      if (currentShape.type === "emanation") {
+        const auraRadiusSq = Math.max(0, (Math.max(sys.width || 1, sys.height || 1) - 1) / 2);
         newShape = {
           type: "emanation",
-          radius: 0,
+          radius: auraRadiusSq,
           hole: false,
           gridBased: false,
-          base: {
-            type: "token",
-            x: tx,
-            y: ty,
-            width: sys.width || 1,
-            height: sys.height || 1,
-            shape: 4,
-            hole: false
-          }
+          base: currentShape.base
+        };
+      } else {
+        const tx = currentShape.x ?? 0;
+        const ty = currentShape.y ?? 0;
+        newShape = {
+          type: "rectangle",
+          x: tx,
+          y: ty,
+          width: w,
+          height: h
         };
       }
 
       const regionUpdates = {
         _id: region.id,
+        name: tempItem.name,
         color: color,
         shapes: [newShape],
         "flags.trespasser.terrain": tempItem.toObject(),
@@ -208,6 +199,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
       };
 
       await region.parent.updateEmbeddedDocuments("Region", [regionUpdates]);
+      await TerrainHelper.syncWhileInsideEffectsForRegion(region);
       tempItem.sheet.render(false);
     };
 
@@ -395,7 +387,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
 
       const tokenCenterX = t.x + ((t.width || 1) * gridSize / 2);
       const tokenCenterY = t.y + ((t.height || 1) * gridSize / 2);
-      return this.#isPointInRegion(tokenCenterX, tokenCenterY, region, gridSize);
+      return TerrainHelper.isPointInRegion(tokenCenterX, tokenCenterY, region, gridSize);
     });
 
     for (const behavior of onCreationBehaviors) {
@@ -412,6 +404,9 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
         }
       }
     }
+
+    // Synchronize whileInside effects for all tokens in this new region
+    await this.syncWhileInsideEffectsForRegion(region);
   }
 
   /**
@@ -461,6 +456,9 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
         await this.executeBehavior(behavior, actor, region, context);
       }
     }
+
+    // Sync whileInside effects for this token
+    await this.syncWhileInsideEffectsForToken(tokenDoc);
 
     // Notify about difficult terrain movement cost
     if ((sys.category === "difficult_terrain" || sys.category === "field") && sys.extraMovementCost > 0) {
@@ -534,7 +532,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
       // An actor-centered terrain should not affect the actor it is centered on
       if (sys.centerMode === "actor" && sys.centerActorId === tokenDoc.actor?.id) return false;
 
-      return this.#isPointInRegion(tokenCenterX, tokenCenterY, r, gridSize);
+      return TerrainHelper.isPointInRegion(tokenCenterX, tokenCenterY, r, gridSize);
     });
   }
 
@@ -553,7 +551,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     return canvas.scene.regions.filter(r => {
       const terrainData = r.flags?.trespasser?.terrain;
       if (!terrainData) return false;
-      return this.#isPointInRegion(px, py, r, gridPx);
+      return TerrainHelper.isPointInRegion(px, py, r, gridPx);
     });
   }
 
@@ -696,7 +694,7 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
       for (const region of scene.regions) {
         const terrainData = region.flags?.trespasser?.terrain;
         if (!terrainData) continue;
-        if (!this.#isPointInRegion(squareCenterX, squareCenterY, region, gridSize)) continue;
+        if (!TerrainHelper.isPointInRegion(squareCenterX, squareCenterY, region, gridSize)) continue;
 
         const sys = terrainData.system;
 
@@ -818,6 +816,20 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     if (slipperyCheckRegion) {
       await this.#handleSlipperyCheck(tokenDoc, actor, slipperyCheckRegion);
     }
+
+    // Synchronize whileInside effects for this moving token
+    await this.syncWhileInsideEffectsForToken(tokenDoc);
+
+    // If this token has an aura terrain attached, synchronize all tokens on the scene
+    const auraRegions = scene.regions.filter(r => {
+      const t = r.flags?.trespasser?.terrain;
+      return t?.system?.centerMode === "actor" && (t.system.centerActorId === actor.id || r.flags?.trespasser?.centerActorId === actor.id);
+    });
+    if (auraRegions.length > 0) {
+      for (const auraRegion of auraRegions) {
+        await this.syncWhileInsideEffectsForRegion(auraRegion);
+      }
+    }
   }
 
   // ── Cleanup ─────────────────────────────────────────────────────────────────
@@ -860,6 +872,10 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
         const linkedId = flags.linkedEffectId;
         if (linkedId === effectId || linkedId === effectUuid) return true;
 
+        // Check new linkedEffect on terrain data
+        const terrainLinkedUuid = flags.terrain?.system?.linkedEffect?.uuid;
+        if (terrainLinkedUuid && (terrainLinkedUuid === effectId || terrainLinkedUuid === effectUuid)) return true;
+
         // Check new linkedEffectKey on terrain data
         const terrainLinkedKey = flags.terrain?.system?.linkedEffectKey;
         if (terrainLinkedKey && (terrainLinkedKey === effectId || terrainLinkedKey === effectUuid)) return true;
@@ -868,7 +884,124 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
       }).map(r => r.id);
       
       if (regionsToDelete.length > 0) {
+        for (const rId of regionsToDelete) {
+          await this.cleanupWhileInsideEffectsForRegion(rId);
+        }
         await scene.deleteEmbeddedDocuments("Region", regionsToDelete);
+      }
+    }
+  }
+
+  // ── While Inside Effect Synchronization ─────────────────────────────────────
+
+  /**
+   * Synchronize "whileInside" behavior effects on an actor based on the terrain regions
+   * currently containing their token.
+   * @param {TokenDocument} tokenDoc 
+   */
+  static async syncWhileInsideEffectsForToken(tokenDoc) {
+    if (!tokenDoc || !tokenDoc.actor) return;
+    const actor = tokenDoc.actor;
+    const scene = tokenDoc.parent;
+    if (!scene) return;
+
+    const containingRegions = this.getTerrainRegionsContainingToken(tokenDoc);
+    const desiredEffects = [];
+
+    for (const region of containingRegions) {
+      const terrainData = region.flags?.trespasser?.terrain;
+      if (!terrainData) continue;
+      const sys = terrainData.system;
+      if (sys.centerMode === "actor" && sys.centerActorId === actor.id) continue;
+
+      const whileInsideBehaviors = (sys.behaviors || []).filter(b => b.trigger === "whileInside" && b.action === "applyEffect" && b.effectUuid);
+      for (const behavior of whileInsideBehaviors) {
+        const intensity = this.resolveIntPlaceholder(behavior.effectIntensity, region);
+        desiredEffects.push({
+          regionId: region.id,
+          effectUuid: behavior.effectUuid,
+          name: behavior.effectName,
+          img: behavior.effectImg,
+          intensity: parseInt(intensity) || 1
+        });
+      }
+    }
+
+    // Find existing whileInside effects on the actor
+    const existingEffects = actor.items.filter(i => i.type === "effect" && i.flags?.trespasser?.whileInside === true);
+
+    // Remove effects that are no longer desired (token left the region)
+    const toDelete = [];
+    for (const eff of existingEffects) {
+      const regionId = eff.flags?.trespasser?.sourceRegionId;
+      const sourceUuid = eff.flags?.trespasser?.sourceEffectUuid;
+      const stillDesired = desiredEffects.some(d => d.regionId === regionId && d.effectUuid === sourceUuid);
+      if (!stillDesired) {
+        toDelete.push(eff.id);
+      }
+    }
+    if (toDelete.length > 0) {
+      await actor.deleteEmbeddedDocuments("Item", toDelete);
+    }
+
+    // Add missing desired effects
+    for (const desired of desiredEffects) {
+      const alreadyApplied = existingEffects.some(e =>
+        !toDelete.includes(e.id) &&
+        e.flags?.trespasser?.sourceRegionId === desired.regionId &&
+        e.flags?.trespasser?.sourceEffectUuid === desired.effectUuid
+      );
+      if (!alreadyApplied) {
+        const sourceEffect = await fromUuid(desired.effectUuid);
+        if (!sourceEffect) continue;
+        const effectData = sourceEffect.toObject();
+        effectData.system.intensity = desired.intensity;
+        effectData.flags = effectData.flags || {};
+        effectData.flags.trespasser = Object.assign(effectData.flags.trespasser || {}, {
+          whileInside: true,
+          sourceRegionId: desired.regionId,
+          sourceEffectUuid: desired.effectUuid
+        });
+        delete effectData._id;
+        await Item.createDocuments([effectData], { parent: actor });
+      }
+    }
+  }
+
+  /**
+   * Synchronize "whileInside" effects for all tokens in a region's scene.
+   * @param {RegionDocument} region 
+   */
+  static async syncWhileInsideEffectsForRegion(region) {
+    if (!region) return;
+    const scene = region.parent;
+    if (!scene) return;
+    for (const tokenDoc of scene.tokens) {
+      if (tokenDoc.actor) {
+        await this.syncWhileInsideEffectsForToken(tokenDoc);
+      }
+    }
+  }
+
+  /**
+   * Remove all "whileInside" effects originating from a deleted region from all actors.
+   * @param {string} regionId 
+   */
+  static async cleanupWhileInsideEffectsForRegion(regionId) {
+    if (!regionId) return;
+    const scenes = game.scenes?.contents || [];
+    for (const scene of scenes) {
+      for (const tokenDoc of scene.tokens) {
+        const actor = tokenDoc.actor;
+        if (!actor) continue;
+        const effectsToDelete = actor.items.filter(i =>
+          i.type === "effect" &&
+          i.flags?.trespasser?.whileInside === true &&
+          i.flags?.trespasser?.sourceRegionId === regionId
+        ).map(i => i.id);
+        if (effectsToDelete.length > 0) {
+          await actor.deleteEmbeddedDocuments("Item", effectsToDelete);
+        }
       }
     }
   }
@@ -996,8 +1129,8 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
     const flags = terrainRegion.flags?.trespasser;
     if (!flags) return 0;
 
-    // Check the terrain data's linkedEffectKey
-    const linkedKey = flags.terrain?.system?.linkedEffectKey;
+    // Check the terrain data's linkedEffect or linkedEffectKey
+    const linkedKey = flags.terrain?.system?.linkedEffect?.uuid || flags.terrain?.system?.linkedEffectKey;
     const casterActorId = flags.casterActorId;
     if (!linkedKey || !casterActorId) return 0;
 
@@ -1200,24 +1333,38 @@ if (event.name === "tokenEnter") Hooks.callAll("regionBehaviorTokenEnter", behav
    * @param {number} gridSize - The grid square size in pixels.
    * @returns {boolean}
    */
-  static #isPointInRegion(px, py, region, gridSize) {
-    for (const shape of region.shapes) {
+  static isPointInRegion(px, py, region, gridSize) {
+    if (!region) return false;
+    const doc = region.document ?? region;
+    if (typeof doc.testPoint === "function") {
+      try {
+        return doc.testPoint({ x: px, y: py, elevation: doc.elevation ?? 0 });
+      } catch {}
+    }
+    const shapes = doc.shapes || [];
+    for (const shape of shapes) {
       if (shape.type === "rectangle") {
         if (px >= shape.x && px <= shape.x + shape.width &&
             py >= shape.y && py <= shape.y + shape.height) {
           return true;
         }
       } else if (shape.type === "emanation" && shape.base) {
-        // For emanation shapes attached to tokens, compute the bounds
-        // The emanation with radius 0 is just the base shape around the token
-        const baseX = shape.base.x;
-        const baseY = shape.base.y;
+        const baseX = shape.base.x ?? 0;
+        const baseY = shape.base.y ?? 0;
         const baseW = (shape.base.width || 1) * gridSize;
         const baseH = (shape.base.height || 1) * gridSize;
         const radius = (shape.radius || 0) * gridSize;
         if (px >= baseX - radius && px <= baseX + baseW + radius &&
             py >= baseY - radius && py <= baseY + baseH + radius) {
           return true;
+        }
+      } else if (shape.type === "circle" || shape.type === "ellipse") {
+        const rx = (shape.radiusX ?? shape.radius ?? 0);
+        const ry = (shape.radiusY ?? shape.radius ?? 0);
+        if (rx > 0 && ry > 0) {
+          const dx = (px - shape.x) / rx;
+          const dy = (py - shape.y) / ry;
+          if ((dx * dx + dy * dy) <= 1) return true;
         }
       }
     }

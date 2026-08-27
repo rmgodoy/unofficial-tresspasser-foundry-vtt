@@ -329,3 +329,86 @@
     border-color: var(--trp-gold-bright);
     transform: scale(1.1);
 }
+
+/* ─── Region HUD Styles ─── */
+.trespasser-region-hud {
+    position: fixed !important;
+    z-index: 1000 !important;
+    pointer-events: all;
+    animation: hud-fade-in 0.2s ease-out;
+}
+
+.trespasser-region-hud .trespasser-region-hud-container {
+    background: var(--trp-bg-dark);
+    border: 1px solid var(--trp-border);
+    border-radius: var(--trp-radius);
+    padding: 6px 10px;
+    box-shadow: 0 4px 15px var(--trp-shadow-dark);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 150px;
+}
+
+.trespasser-region-hud .region-hud-header {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--trp-border);
+    color: var(--trp-gold);
+    font-size: var(--fs-10);
+}
+
+.trespasser-region-hud .region-hud-title {
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-10);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--trp-gold);
+}
+
+.trespasser-region-hud .region-hud-actions {
+    display: flex;
+    gap: 6px;
+}
+
+.trespasser-region-hud .region-hud-btn {
+    background: var(--trp-bg-panel);
+    border: 1px solid var(--trp-border);
+    color: var(--trp-text-bright);
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-10);
+    padding: 4px 8px;
+    min-height: 28px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    flex: 1;
+    border-radius: var(--trp-radius-sm);
+    line-height: 1.1;
+    white-space: nowrap;
+}
+
+.trespasser-region-hud .region-hud-btn:hover {
+    background: var(--trp-gold-dim);
+    color: var(--trp-bg-dark);
+    border-color: var(--trp-gold-bright);
+}
+
+.trespasser-region-hud .region-hud-btn.terrain-btn {
+    border-color: var(--trp-gold-dim);
+}
+
+.trespasser-region-hud .region-hud-btn.terrain-btn:hover {
+    background: var(--trp-gold);
+    color: var(--trp-bg-dark);
+}
+

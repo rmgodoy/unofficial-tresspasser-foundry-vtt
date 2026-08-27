@@ -544,15 +544,62 @@
           "TerrainDamage": "Dano de Terreno",
           "ExtraMovementCost": "Custo Extra de Movimento",
           "Slippery": "Escorregadio",
-          "Destructible": "Destrutível"
+          "Destructible": "Destrutível",
+          "Trigger": "Gatilho",
+          "Action": "Ação",
+          "OncePerTurn": "Uma Vez por Turno",
+          "FMType": "Tipo de Movimento Forçado",
+          "FMDistance": "Distância",
+          "FMDirection": "Direção",
+          "DamageFormula": "Fórmula de Dano",
+          "Script": "Script Personalizado",
+          "RegionColor": "Cor da Região",
+          "LinkedEffect": "Efeito Vinculado",
+          "LinkedEffectKey": "Chave do Efeito Vinculado",
+          "Interactable": "Interagível",
+          "InteractLabel": "Rótulo de Interação",
+          "ActionCost": "Custo em Ações",
+          "ActionType": "Tipo de Ação",
+          "MoveDistance": "Distância de Movimento",
+          "MoveEffect": "Efeito de Movimento"
+        },
+        "Placeholders": {
+          "LinkedEffectKey": "ID ou UUID (Opcional)",
+          "InteractLabel": "ex: Empurrar Rocha"
         },
         "Phases": {
           "onEnter": "Efeitos ao Entrar",
           "onMove": "Efeitos ao Mover",
           "onStartTurn": "Efeitos no Início do Turno"
         },
+        "Triggers": {
+          "OnEnter": "Ao Entrar",
+          "OnMove": "Ao Mover",
+          "OnStartTurn": "No Início do Turno",
+          "OnCreation": "Na Criação",
+          "WhileInside": "Enquanto Dentro"
+        },
+        "Actions": {
+          "ApplyEffect": "Aplicar Efeito",
+          "ForcedMovement": "Movimento Forçado",
+          "Damage": "Dano",
+          "Script": "Script Personalizado",
+          "AddBehavior": "Adicionar Comportamento"
+        },
+        "Directions": {
+          "AwayFromOrigin": "Afastar da Origem",
+          "AlongTerrainPath": "Ao Longo do Caminho",
+          "TowardOrigin": "Em Direção à Origem",
+          "CasterChoice": "Escolha do Conjurador",
+          "PathDirection": "Direção do Caminho"
+        },
+        "InteractActions": {
+          "MoveTerrain": "Mover Terreno",
+          "DestroyTerrain": "Destruir Terreno"
+        },
         "Sections": {
-          "TerrainEffects": "Efeitos de Terreno"
+          "TerrainEffects": "Efeitos de Terreno",
+          "TerrainBehaviors": "Comportamentos de Terreno"
         }
       },
       "Dungeon": {

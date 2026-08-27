@@ -578,6 +578,7 @@
           "DamageFormula": "Damage Formula",
           "Script": "Custom Script",
           "RegionColor": "Region Color",
+          "LinkedEffect": "Linked Effect",
           "LinkedEffectKey": "Linked Effect Key",
           "Interactable": "Interactable",
           "InteractLabel": "Interact Label",
@@ -599,7 +600,8 @@
           "OnEnter": "On Enter",
           "OnMove": "On Move",
           "OnStartTurn": "On Start Turn",
-          "OnCreation": "On Creation"
+          "OnCreation": "On Creation",
+          "WhileInside": "While Inside"
         },
         "Actions": {
           "ApplyEffect": "Apply Effect",

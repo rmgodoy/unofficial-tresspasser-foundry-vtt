@@ -108,6 +108,13 @@
         "UndoLabel": "Desfazer",
         "Cancel": "Cancelar Ação",
         "CancelLabel": "Cancelar"
+      },
+      "Region": {
+        "DefaultTitle": "Região",
+        "NativeConfig": "Abrir Configuração da Região",
+        "NativeConfigShort": "Região",
+        "TerrainConfig": "Abrir Configuração do Terreno",
+        "TerrainConfigShort": "Terreno"
       }
     }
   }

@@ -16,6 +16,7 @@
           {{selectOptions @root.config.actions selected=behavior.action}}
         </select>
       </div>
+      {{#unless behavior.isWhileInside}}
       <div class="field-row checkbox-row" style="flex: 0;">
         <input type="checkbox"
                name="system.behaviors.{{behavior.index}}.onlyOnFirstEntry"
@@ -23,6 +24,7 @@
                id="behavior-once-{{behavior.index}}" />
         <label for="behavior-once-{{behavior.index}}">{{localize "TRESPASSER.Sheet.Terrain.Fields.OncePerTurn"}}</label>
       </div>
+      {{/unless}}
       <div class="controls">
         <a data-action="removeBehavior" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
       </div>

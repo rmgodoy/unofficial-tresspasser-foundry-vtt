@@ -6,9 +6,10 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
     classes: ["trespasser", "sheet", "item", "terrain", "item-sheet"],
     position: { width: 560, height: 640 },
     actions: {
-      switchTab:      TrespasserTerrainSheet.#onSwitchTab,
-      addBehavior:    TrespasserTerrainSheet.#onAddBehavior,
-      removeBehavior: TrespasserTerrainSheet.#onRemoveBehavior,
+      switchTab:          TrespasserTerrainSheet.#onSwitchTab,
+      addBehavior:        TrespasserTerrainSheet.#onAddBehavior,
+      removeBehavior:     TrespasserTerrainSheet.#onRemoveBehavior,
+      removeLinkedEffect: TrespasserTerrainSheet.#onRemoveLinkedEffect,
     },
     form: { submitOnChange: true },
     window: { resizable: true }
@@ -84,6 +85,9 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
     context.editable = this.isEditable;
     context.tabs = this._getTabs();
 
+    const cat = item.system.category;
+    context.displayRegionColor = item.system.regionColor || (game.trespasser?.TerrainHelper?.TERRAIN_COLORS?.[cat] || "#8B4513");
+
     context.config = {
       categories: {
         difficult_terrain: game.i18n.localize("TRESPASSER.Sheet.Terrain.Categories.DifficultTerrain"),
@@ -101,7 +105,8 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
         onEnter: game.i18n.localize("TRESPASSER.Sheet.Terrain.Triggers.OnEnter"),
         onMove: game.i18n.localize("TRESPASSER.Sheet.Terrain.Triggers.OnMove"),
         onStartTurn: game.i18n.localize("TRESPASSER.Sheet.Terrain.Triggers.OnStartTurn"),
-        onCreation: game.i18n.localize("TRESPASSER.Sheet.Terrain.Triggers.OnCreation")
+        onCreation: game.i18n.localize("TRESPASSER.Sheet.Terrain.Triggers.OnCreation"),
+        whileInside: game.i18n.localize("TRESPASSER.Sheet.Terrain.Triggers.WhileInside")
       },
       actions: {
         applyEffect: game.i18n.localize("TRESPASSER.Sheet.Terrain.Actions.ApplyEffect"),
@@ -137,7 +142,6 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
       }
     };
 
-    const cat = item.system.category;
     context.showTerrainDamage = (cat === "field");
     context.showExtraMovementCost = (cat === "difficult_terrain" || cat === "field");
     context.showSlippery = (cat === "field");
@@ -149,7 +153,8 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
       isApplyEffect: b.action === "applyEffect",
       isForcedMovement: b.action === "forcedMovement",
       isDamage: b.action === "damage",
-      isScript: b.action === "script"
+      isScript: b.action === "script",
+      isWhileInside: b.trigger === "whileInside"
     }));
 
     return context;
@@ -164,6 +169,13 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
     for (const zone of effectDropZones) {
       zone.addEventListener("dragover", (ev) => ev.preventDefault());
       zone.addEventListener("drop", this.#onDropBehaviorEffect.bind(this));
+    }
+
+    // Drop zone for linked effect on details tab
+    const linkedEffectDropZones = this.element.querySelectorAll(".linked-effect-drop-zone");
+    for (const zone of linkedEffectDropZones) {
+      zone.addEventListener("dragover", (ev) => ev.preventDefault());
+      zone.addEventListener("drop", this.#onDropLinkedEffect.bind(this));
     }
 
     const selectOnFocus = this.element.querySelectorAll(".select-on-focus");
@@ -207,6 +219,38 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
     await this.document.update({ "system.behaviors": behaviors });
   }
 
+  /**
+   * Handle dropping an effect/state item onto the Linked Effect drop zone.
+   */
+  async #onDropLinkedEffect(event) {
+    event.preventDefault();
+    let data;
+    try {
+      data = JSON.parse(event.dataTransfer.getData("text/plain"));
+    } catch {
+      return;
+    }
+
+    if (data.type !== "Item") return;
+
+    const droppedItem = await fromUuid(data.uuid);
+    if (!droppedItem) return;
+
+    if (droppedItem.type !== "effect" && droppedItem.type !== "state") {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnlyEffects"));
+      return;
+    }
+
+    await this.document.update({
+      "system.linkedEffect": {
+        uuid: droppedItem.uuid,
+        name: droppedItem.name,
+        img: droppedItem.img
+      },
+      "system.linkedEffectKey": droppedItem.uuid
+    });
+  }
+
   // ── Actions ─────────────────────────────────────────────────────────────────
 
   static #onSwitchTab(event, target) {
@@ -246,5 +290,13 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
     const behaviors = foundry.utils.deepClone(this.document.system.behaviors) || [];
     behaviors.splice(index, 1);
     await this.document.update({ "system.behaviors": behaviors });
+  }
+
+  static async #onRemoveLinkedEffect(event, target) {
+    event.preventDefault();
+    await this.document.update({
+      "system.linkedEffect": { uuid: "", name: "", img: "" },
+      "system.linkedEffectKey": ""
+    });
   }
 }

@@ -67,16 +67,28 @@
       {{!-- Region Color --}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.RegionColor"}}</label>
-        <input type="color" name="system.regionColor" value="{{system.regionColor}}" />
+        <input type="color" name="system.regionColor" value="{{displayRegionColor}}" />
       </div>
 
       <hr/>
 
-      {{!-- Linked Effect Key --}}
+      {{!-- Linked Effect Drag and Drop --}}
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.LinkedEffectKey"}}</label>
-        <input type="text" name="system.linkedEffectKey" value="{{system.linkedEffectKey}}"
-               placeholder="{{localize 'TRESPASSER.Sheet.Terrain.Placeholders.LinkedEffectKey'}}" />
+        <label>{{localize "TRESPASSER.Sheet.Terrain.Fields.LinkedEffect"}}</label>
+        <div class="linked-effect-drop-zone {{#if system.linkedEffect.uuid}}has-effect{{/if}}" data-drop-target="linkedEffect">
+          {{#if system.linkedEffect.uuid}}
+            <div class="effect-chip">
+              <img src="{{system.linkedEffect.img}}" title="{{system.linkedEffect.name}}" />
+              <span class="name">{{system.linkedEffect.name}}</span>
+              <a data-action="removeLinkedEffect" class="remove-effect" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
+            </div>
+          {{else}}
+            <span class="drop-placeholder">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}</span>
+          {{/if}}
+        </div>
+        <input type="hidden" name="system.linkedEffect.uuid" value="{{system.linkedEffect.uuid}}" />
+        <input type="hidden" name="system.linkedEffect.name" value="{{system.linkedEffect.name}}" />
+        <input type="hidden" name="system.linkedEffect.img" value="{{system.linkedEffect.img}}" />
       </div>
 
       <hr/>

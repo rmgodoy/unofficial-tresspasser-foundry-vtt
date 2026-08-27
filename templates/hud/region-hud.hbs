@@ -1,0 +1,21 @@
+<div class="trespasser-region-hud-container">
+  <div class="region-hud-header">
+    <i class="{{#if isTerrain}}fas fa-mountain{{else}}fas fa-draw-polygon{{/if}}"></i>
+    <span class="region-hud-title">{{name}}</span>
+  </div>
+  <div class="region-hud-actions">
+    {{!-- Native Region Sheet --}}
+    <button type="button" class="region-hud-btn" data-action="openRegionConfig" title="{{localize 'TRESPASSER.HUD.Region.NativeConfig'}}">
+      <i class="fas fa-draw-polygon"></i>
+      <span>{{localize 'TRESPASSER.HUD.Region.NativeConfigShort'}}</span>
+    </button>
+
+    {{!-- Terrain Sheet Config (Terrain only) --}}
+    {{#if isTerrain}}
+    <button type="button" class="region-hud-btn terrain-btn" data-action="openTerrainConfig" title="{{localize 'TRESPASSER.HUD.Region.TerrainConfig'}}">
+      <i class="fas fa-mountain"></i>
+      <span>{{localize 'TRESPASSER.HUD.Region.TerrainConfigShort'}}</span>
+    </button>
+    {{/if}}
+  </div>
+</div>
