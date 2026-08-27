@@ -39,13 +39,25 @@ export function activateImagePicker(sheet) {
         current: current,
         type: "image",
         redirectToRoot: [current],
-        callback: path => {
+        callback: async path => {
           const doc = sheet.document;
-          doc.update({ [attr]: path });
-          if (attr === "img" && doc?.isToken && doc.token?.actorLink) {
-            const baseActor = doc.token.baseActor || game.actors.get(doc.token.actorId);
-            if (baseActor && baseActor.img !== path) {
-              baseActor.update({ img: path });
+          await doc.update({ [attr]: path });
+          if (attr === "img") {
+            if (doc?.isToken && doc.token) {
+              if (doc.token.texture?.src !== path) {
+                await doc.token.update({ "texture.src": path });
+              }
+              if (doc.token.actorLink) {
+                const baseActor = doc.token.baseActor || game.actors.get(doc.token.actorId);
+                if (baseActor && baseActor.img !== path) {
+                  await baseActor.update({ img: path });
+                }
+              }
+            } else if (!doc?.isToken && doc.documentName === "Actor") {
+              const currentTokenImg = doc.prototypeToken?.texture?.src;
+              if (!currentTokenImg || currentTokenImg === "icons/svg/mystery-man.svg" || currentTokenImg === current) {
+                await doc.update({ "prototypeToken.texture.src": path });
+              }
             }
           }
         },

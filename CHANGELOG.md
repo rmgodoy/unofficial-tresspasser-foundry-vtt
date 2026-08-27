@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.4] - 2026-08-27
+
+- Fixed unlinked tokens loosing its token image after changing any attribute on it.
+
 ## [0.1.3] - 2026-08-22
 
 - Added `/hp`, `/dmg`, `/damage`, and `/heal` chat commands to quickly roll damage or healing expressions (e.g. `/hp 2d6+3`, `/heal 1d8`) and apply results directly to targeted or controlled tokens via interactive chat buttons.
