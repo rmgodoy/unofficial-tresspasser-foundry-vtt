@@ -123,6 +123,8 @@
           "Immediate": "Imediato",
           "DamageDealt": "Dano Causado",
           "DamageReceived": "Dano Recebido",
+          "HealGiven": "Cura Realizada",
+          "HealReceived": "Cura Recebida",
           "OnPrevail": "Ao Prevalecer",
           "OnUseDeed": "Ao Usar Habilidade",
           "OnTargetedDeed": "Ao ser Alvejado por Habilidade",

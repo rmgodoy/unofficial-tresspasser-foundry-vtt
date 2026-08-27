@@ -1135,22 +1135,48 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
   html.querySelectorAll(".heal-damage-btn").forEach(btn => {
     btn.addEventListener("click", async (ev) => {
       ev.preventDefault();
-      const healAmount = parseInt(btn.dataset.damage);
-      if (isNaN(healAmount)) return;
+      const rawHeal = parseInt(btn.dataset.damage);
+      if (isNaN(rawHeal)) return;
 
       const tokens = resolveCardTargets(btn);
       if (tokens.length === 0) return;
+
+      // Identify healer from message speaker
+      const messageId = btn.closest(".message")?.dataset.messageId;
+      const message = game.messages.get(messageId);
+      const healerSpeaker = message?.speaker;
+      const healer = healerSpeaker?.actor ? game.actors.get(healerSpeaker.actor) : null;
+
+      // Bonus from Heal Given effects on the healer
+      const healGivenBonus = healer ? await TrespasserEffectsHelper.evaluateDamageBonus(healer, "heal_given", "d4", { toMessage: false }) : 0;
 
       for (const token of tokens) {
         const actor = token.actor;
         if (!actor) continue;
 
-        const newHP = Math.min(actor.system.max_health ?? actor.system.health, (actor.system.health ?? 0) + healAmount);
-        await actor.update({ "system.health": newHP });
+        // Bonus from Heal Received effects on the target actor
+        const healReceivedBonus = await TrespasserEffectsHelper.evaluateDamageBonus(actor, "heal_received", "d4", { toMessage: false });
+        const totalBonus = healGivenBonus + healReceivedBonus;
+        const finalHeal = Math.max(0, rawHeal + totalBonus);
+
+        if (typeof actor.applyHealing === "function") {
+          await actor.applyHealing(finalHeal, { sourceActor: healer });
+        } else {
+          const newHP = Math.min(actor.system.max_health ?? actor.system.health, (actor.system.health ?? 0) + finalHeal);
+          await actor.update({ "system.health": newHP });
+          await TrespasserEffectsHelper.triggerEffects(actor, "heal-received");
+          if (healer) {
+            await TrespasserEffectsHelper.triggerEffects(healer, "heal-given");
+          }
+        }
+
+        const msg = totalBonus !== 0
+          ? game.i18n.format("TRESPASSER.Chat.Combat.HealedAmountBonus", { name: actor.name, total: finalHeal, bonus: totalBonus })
+          : game.i18n.format("TRESPASSER.Chat.Combat.HealedAmount", { name: actor.name, amount: finalHeal });
 
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),
-          content: `<div class="trespasser-chat-card"><p>${game.i18n.format("TRESPASSER.Chat.Combat.HealedAmount", { name: actor.name, amount: healAmount })}</p></div>`
+          content: `<div class="trespasser-chat-card"><p>${msg}</p></div>`
         });
       }
     });

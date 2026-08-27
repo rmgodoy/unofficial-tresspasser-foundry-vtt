@@ -21,6 +21,8 @@ export class TrespasserEffectsHelper {
     TARGETED: "targeted",
     DAMAGE_DEALT: "damage-dealt",
     DAMAGE_RECEIVED: "damage-received",
+    HEAL_GIVEN: "heal-given",
+    HEAL_RECEIVED: "heal-received",
     ON_PREVAIL: "on-prevail",
     ON_USE_DEED: "on-use-deed",
     ON_TARGETED_DEED: "on-targeted-deed",
@@ -48,6 +50,8 @@ export class TrespasserEffectsHelper {
     "targeted": "TRESPASSER.App.System.Trigger.Targeted",
     "damage-dealt": "TRESPASSER.App.System.Trigger.DamageDealt",
     "damage-received": "TRESPASSER.App.System.Trigger.DamageReceived",
+    "heal-given": "TRESPASSER.App.System.Trigger.HealGiven",
+    "heal-received": "TRESPASSER.App.System.Trigger.HealReceived",
     "on-prevail": "TRESPASSER.App.System.Trigger.OnPrevail",
     "on-use-deed": "TRESPASSER.App.System.Trigger.OnUseDeed",
     "on-targeted-deed": "TRESPASSER.App.System.Trigger.OnTargetedDeed",
@@ -103,6 +107,8 @@ export class TrespasserEffectsHelper {
     "combat_phase": "TRESPASSER.Sheet.Combat.Phase",
     "damage_dealt": "TRESPASSER.App.System.Trigger.DamageDealt",
     "damage_received": "TRESPASSER.App.System.Trigger.DamageReceived",
+    "heal_given": "TRESPASSER.App.System.Trigger.HealGiven",
+    "heal_received": "TRESPASSER.App.System.Trigger.HealReceived",
     "endurance": "TRESPASSER.Sheet.Header.Endurance",
     "max_endurance": "TRESPASSER.Sheet.Header.Endurance"
   };

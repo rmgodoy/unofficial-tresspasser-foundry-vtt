@@ -94,8 +94,9 @@ async function _handleApplyDamage(data) {
 async function _handleApplyHealing(data) {
   const token = canvas.tokens?.get(data.tokenId) || game.scenes?.current?.tokens.get(data.tokenId);
   const actor = token?.actor || game.actors.get(data.actorId);
+  const sourceActor = data.sourceActor || (data.sourceActorId ? game.actors.get(data.sourceActorId) : null);
   if (actor && typeof actor.applyHealing === "function") {
-    await actor.applyHealing(data.healing);
+    await actor.applyHealing(data.healing, { sourceActor });
   }
   return true;
 }

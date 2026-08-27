@@ -318,8 +318,12 @@ export class TrespasserActor extends Actor {
   /**
    * Apply healing to this actor (Character or Creature), updating system.health,
    * bounded by max_health, and triggering floating green healing text on canvas.
+   * Also triggers 'heal-received' effects on this actor, and 'heal-given' effects
+   * on the source actor if provided.
    * @param {number} amount - Amount of healing to apply
    * @param {object} [options]
+   * @param {Actor} [options.sourceActor] - The actor who initiated the healing
+   * @param {string} [options.sourceActorId] - The ID of the actor who initiated the healing
    * @returns {Promise<number>} New health value
    */
   async applyHealing(amount, options = {}) {
@@ -331,6 +335,15 @@ export class TrespasserActor extends Actor {
     const newHealth = Math.clamp(currentHealth + healNum, 0, maxHealth);
 
     await this.update({ "system.health": newHealth });
+
+    // Trigger heal-received effects on this actor
+    await TrespasserEffectsHelper.triggerEffects(this, "heal-received");
+
+    // Trigger heal-given effects on source actor if provided
+    const sourceActor = options.sourceActor || (options.sourceActorId ? game.actors.get(options.sourceActorId) : null);
+    if (sourceActor) {
+      await TrespasserEffectsHelper.triggerEffects(sourceActor, "heal-given");
+    }
 
     return newHealth;
   }

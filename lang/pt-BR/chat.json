@@ -42,6 +42,7 @@
         "TookDamageReduction": "{name} sofreu {total} de dano ({reduced} reduzido).",
         "HealMessage": "<strong>{name}</strong> cura <strong>{amount}</strong> PV.",
         "HealedAmount": "{name} curou {amount} PV.",
+        "HealedAmountBonus": "{name} curou {total} PV (+{bonus} de bônus).",
         "EngagementPenalty": "(Engajado: -2 acurácia)",
         "CounterReaction": "Reação de Contra-ataque",
         "CounterDamageDesc": "{count}×{die} dano de contra-ataque ({weapon})",

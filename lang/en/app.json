@@ -123,6 +123,8 @@
           "Immediate": "Immediate",
           "DamageDealt": "Damage Dealt",
           "DamageReceived": "Damage Received",
+          "HealGiven": "Heal Given",
+          "HealReceived": "Heal Received",
           "OnPrevail": "On Prevail",
           "OnUseDeed": "On Use Deed",
           "OnTargetedDeed": "On Targeted Deed",

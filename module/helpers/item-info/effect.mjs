@@ -4,9 +4,10 @@ import { DurationHelper } from "../duration-helper.mjs";
 
 export function buildEffectContent(item) {
   const sys = item.system;
-  const triggerLabel = TrespasserEffectsHelper.TRIGGER_LABELS[sys.triggerWhen] 
-    ? game.i18n.localize(TrespasserEffectsHelper.TRIGGER_LABELS[sys.triggerWhen]) 
-    : sys.triggerWhen;
+  const whenKey = sys.when || sys.triggerWhen;
+  const triggerLabel = TrespasserEffectsHelper.TRIGGER_LABELS[whenKey] 
+    ? game.i18n.localize(TrespasserEffectsHelper.TRIGGER_LABELS[whenKey]) 
+    : whenKey;
 
   const typeLabel = item.type.toUpperCase();
   const intensity = sys.intensity || 0;

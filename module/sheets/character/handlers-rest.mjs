@@ -138,11 +138,9 @@ export async function spendRDAndRoll(count, actorOrSheet) {
   const roll     = new foundry.dice.Roll(formula);
   await roll.evaluate();
 
-  const maxH = (actor.system.max_health || 0) + (actor.system.bonuses?.max_health || 0);
-  const newHP = Math.min(maxH, actor.system.health + roll.total);
   const newRD = Math.max(0, actor.system.recovery_dice - count);
-
-  await actor.update({ "system.health": newHP, "system.recovery_dice": newRD });
+  await actor.update({ "system.recovery_dice": newRD });
+  await actor.applyHealing(roll.total, { sourceActor: actor });
   await roll.toMessage({
     speaker: ChatMessage.getSpeaker({ actor }),
     flavor:  game.i18n.format("TRESPASSER.Chat.Action.SpendRD", { name: actor.name, count })

@@ -1,5 +1,6 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 import { askDistributionDialog } from "../../dialogs/distribution-dialog.mjs";
+import { TrespasserEffectsHelper } from "../effects-helper.mjs";
 
 export class HealTargetBehavior {
   /**
@@ -87,28 +88,34 @@ export class HealTargetBehavior {
     }
 
     // 2. Apply healing to all valid targets & build chat output lines
+    const healGivenBonus = actor ? await TrespasserEffectsHelper.evaluateDamageBonus(actor, "heal_given", "d4", { toMessage: false }) : 0;
     const targetHealingLines = [];
     for (const targetToken of validTargets) {
       const targetActor = targetToken.actor || (targetToken instanceof Actor ? targetToken : null);
       if (!targetActor) continue;
 
       const tokenName = DeedBehaviorUtils.getTokenDisplayName(targetToken);
-      const targetHeal = distributedHealingMap ? (distributedHealingMap.get(targetToken.id) ?? healTotal) : healTotal;
+      const baseTargetHeal = distributedHealingMap ? (distributedHealingMap.get(targetToken.id) ?? healTotal) : healTotal;
+      const healReceivedBonus = await TrespasserEffectsHelper.evaluateDamageBonus(targetActor, "heal_received", "d4", { toMessage: false });
+      const totalBonus = healGivenBonus + healReceivedBonus;
+      const targetHeal = Math.max(0, baseTargetHeal + totalBonus);
 
       if (targetActor.isOwner) {
-        await targetActor.applyHealing(targetHeal);
+        await targetActor.applyHealing(targetHeal, { sourceActor: actor });
       } else {
         const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
         await emitDeedActionAndWait("applyHealing", {
           actorId: targetActor.id,
           tokenId: targetToken.id,
-          healing: targetHeal
+          healing: targetHeal,
+          sourceActorId: actor?.id
         });
       }
 
+      const bonusLabel = totalBonus !== 0 ? ` <span style="font-size: var(--fs-10); color:#2ecc71;">(${totalBonus > 0 ? `+${totalBonus}` : totalBonus})</span>` : "";
       targetHealingLines.push(`
         <div style="display:flex; justify-content:space-between; align-items:center; font-size: var(--fs-12); margin-top:4px; padding-top:3px; border-top:1px dotted var(--trp-border-light, #5c4f3a);">
-          <span><strong>${tokenName}</strong></span>
+          <span><strong>${tokenName}</strong>${bonusLabel}</span>
           <span style="color:#2ecc71; font-weight:bold;">💚 ${targetHeal} ${game.i18n.localize("TRESPASSER.Sheet.Common.Healing") || "Cura"}</span>
         </div>
       `);

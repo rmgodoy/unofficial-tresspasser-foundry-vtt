@@ -42,6 +42,7 @@
         "TookDamageReduction": "{name} took {total} damage ({reduced} reduced).",
         "HealMessage": "<strong>{name}</strong> heals <strong>{amount}</strong> HP.",
         "HealedAmount": "{name} healed {amount} HP.",
+        "HealedAmountBonus": "{name} healed {total} HP (+{bonus} bonus).",
         "EngagementPenalty": "(Engaged: -2 accuracy)",
         "CounterReaction": "Counter Reaction",
         "CounterDamageDesc": "{count}×{die} counter damage ({weapon})",
