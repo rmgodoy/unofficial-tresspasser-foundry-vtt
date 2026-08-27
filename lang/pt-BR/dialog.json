@@ -212,6 +212,20 @@
       "Dungeon": {
         "SelectCharacterTitle": "Selecionar Personagem",
         "SelectCharacterPrompt": "Escolha qual personagem realizará esta rolagem:"
+      },
+      "TreasureGenerator": {
+        "Title": "Gerador de Tesouro",
+        "Count": "Quantidade",
+        "Recipient": "Destinatário",
+        "RecipientWorld": "Mundo (Pasta: Random Treasures)",
+        "RecipientActiveParty": "Inventário do Grupo Ativo",
+        "RecipientSelected": "Personagem Selecionado",
+        "Whisper": "Sussurrar resultados apenas para o Mestre",
+        "RollBtn": "Gerar Tesouro",
+        "ResultsTitle": "Tesouros Gerados",
+        "TotalValue": "Valor Total: {value} XP",
+        "CreateAll": "Criar Todos como Itens",
+        "Clear": "Limpar"
       }
     }
   }

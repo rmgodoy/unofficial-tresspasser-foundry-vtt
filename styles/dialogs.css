@@ -1048,5 +1048,137 @@
   border: 1px solid var(--trp-border);
 }
 
+/* ═══════════════════════════════════════════════════
+   TREASURE GENERATOR DIALOG (ApplicationsV2)
+═══════════════════════════════════════════════════ */
+.treasure-dialog-v2 {
+  font-family: var(--trp-font-body);
+  color: var(--trp-text);
+  padding: 4px;
+}
+
+.treasure-dialog-v2 .treasure-dlg-header h2 {
+  font-family: var(--trp-font-header);
+  color: var(--trp-gold-bright);
+  font-size: var(--fs-16);
+  border-bottom: 1px solid var(--trp-border-light);
+  padding-bottom: 6px;
+  margin: 0 0 10px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.treasure-dialog-v2 .treasure-dlg-controls {
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 10px;
+}
+
+.treasure-dialog-v2 .form-group {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.treasure-dialog-v2 .form-group label {
+  font-size: var(--fs-12);
+  color: var(--trp-text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.treasure-dialog-v2 .roll-treasure-btn {
+  background: var(--trp-gold) !important;
+  color: var(--trp-bg-dark) !important;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-12);
+  font-weight: bold;
+  text-transform: uppercase;
+  border: none !important;
+  padding: 8px 12px;
+  border-radius: var(--trp-radius);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.treasure-dialog-v2 .roll-treasure-btn:hover {
+  background: var(--trp-gold-bright) !important;
+  box-shadow: 0 0 10px var(--trp-shadow-gold);
+}
+
+.treasure-dialog-v2 .treasure-dlg-results {
+  background: rgba(0, 0, 0, 0.15);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 10px;
+}
+
+.treasure-dialog-v2 .treasure-result-item {
+  transition: border-color 0.2s ease;
+}
+
+.treasure-dialog-v2 .treasure-result-item[data-tier="rare"] {
+  border-left: 3px solid var(--trp-blue) !important;
+}
+
+.treasure-dialog-v2 .treasure-result-item[data-tier="precious"] {
+  border-left: 3px solid var(--trp-purple) !important;
+}
+
+.treasure-dialog-v2 .treasure-result-item[data-tier="fabulous"] {
+  border-left: 3px solid var(--trp-gold) !important;
+}
+
+.treasure-dialog-v2 .create-all-btn {
+  background: var(--trp-gold) !important;
+  color: var(--trp-bg-dark) !important;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  font-weight: bold;
+  text-transform: uppercase;
+  border: none !important;
+  border-radius: var(--trp-radius);
+  padding: 6px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+}
+
+.treasure-dialog-v2 .create-all-btn:hover {
+  background: var(--trp-gold-bright) !important;
+  box-shadow: 0 0 8px var(--trp-shadow-gold);
+}
+
+.treasure-dialog-v2 .clear-btn,
+.treasure-dialog-v2 .cancel-btn {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  text-transform: uppercase;
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-dim);
+  border-radius: var(--trp-radius);
+  padding: 6px 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.treasure-dialog-v2 .clear-btn:hover,
+.treasure-dialog-v2 .cancel-btn:hover {
+  border-color: var(--trp-border-light);
+  color: var(--trp-text-bright);
+}
+
 
 

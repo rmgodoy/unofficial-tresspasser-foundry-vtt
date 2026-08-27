@@ -214,3 +214,245 @@
 .collapsible-content p:last-child {
   margin-bottom: 0;
 }
+
+/* ═══════════════════════════════════════════════════
+   TREASURE CHAT CARDS
+═══════════════════════════════════════════════════ */
+.trespasser-chat-card.treasure-chat-card {
+  border: 1px solid var(--trp-border);
+  background: var(--trp-bg-dark);
+  border-radius: var(--trp-radius);
+  padding: 8px 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.treasure-chat-card[data-tier="rare"] {
+  border-color: rgba(63, 81, 181, 0.6);
+}
+
+.treasure-chat-card[data-tier="precious"] {
+  border-color: rgba(149, 117, 205, 0.6);
+}
+
+.treasure-chat-card[data-tier="fabulous"] {
+  border-color: rgba(201, 168, 76, 0.8);
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.2);
+}
+
+.treasure-chat-card .treasure-card-header {
+  display: flex;
+  flex-direction: column;
+  border-bottom: 1px solid var(--trp-border-light);
+  padding-bottom: 8px;
+  margin-bottom: 8px;
+  gap: 6px;
+}
+
+.treasure-chat-card .treasure-header-title {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-14);
+  font-weight: bold;
+  color: var(--trp-gold-bright);
+  line-height: 1.25;
+}
+
+.treasure-chat-card .treasure-icon {
+  color: var(--trp-gold);
+  font-size: var(--fs-14);
+  margin-top: 2px;
+  flex-shrink: 0;
+}
+
+.treasure-chat-card .treasure-name {
+  word-break: break-word;
+}
+
+.treasure-chat-card .treasure-badges {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.treasure-chat-card .treasure-tier-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-10);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.treasure-tier-badge.tier-rare {
+  background: rgba(63, 81, 181, 0.25);
+  border: 1px solid var(--trp-blue);
+  color: #82b1ff;
+}
+
+.treasure-tier-badge.tier-precious {
+  background: rgba(149, 117, 205, 0.25);
+  border: 1px solid var(--trp-purple);
+  color: #b388ff;
+}
+
+.treasure-tier-badge.tier-fabulous {
+  background: rgba(201, 168, 76, 0.25);
+  border: 1px solid var(--trp-gold);
+  color: var(--trp-gold-bright);
+}
+
+.treasure-chat-card .treasure-value-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  font-weight: bold;
+  background: rgba(201, 168, 76, 0.2);
+  border: 1px solid var(--trp-gold-dim);
+  color: var(--trp-gold-bright);
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.treasure-chat-card .treasure-details-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 8px;
+  background: rgba(0, 0, 0, 0.2);
+  padding: 6px 8px;
+  border-radius: var(--trp-radius-sm);
+  border: 1px solid rgba(74, 63, 47, 0.4);
+}
+
+.treasure-chat-card .treasure-detail-item {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--fs-12);
+  border-bottom: 1px dashed rgba(74, 63, 47, 0.3);
+  padding-bottom: 2px;
+}
+
+.treasure-chat-card .treasure-detail-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.treasure-chat-card .treasure-label {
+  color: var(--trp-text-dim);
+  font-size: var(--fs-11);
+  flex-shrink: 0;
+}
+
+.treasure-chat-card .treasure-val {
+  color: var(--trp-text-bright);
+  font-weight: bold;
+  text-align: right;
+}
+
+.treasure-chat-card .treasure-tiny-tag {
+  color: var(--trp-cyan);
+  font-style: italic;
+  font-size: var(--fs-10);
+}
+
+.treasure-chat-card .treasure-roll-breakdown {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  padding: 6px 8px;
+  margin-top: 6px;
+}
+
+.treasure-chat-card .treasure-breakdown-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-11);
+  color: var(--trp-gold);
+  margin-bottom: 4px;
+}
+
+.treasure-chat-card .treasure-dice-chips {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  font-size: var(--fs-10);
+}
+
+.treasure-chat-card .dice-chip {
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border-light);
+  color: var(--trp-text-bright);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.treasure-chat-card .dice-chip-plus,
+.treasure-chat-card .dice-chip-equals {
+  color: var(--trp-text-dim);
+  font-weight: bold;
+  font-size: var(--fs-10);
+}
+
+.treasure-chat-card .total-chip {
+  background: rgba(201, 168, 76, 0.25);
+  border-color: var(--trp-gold);
+  color: var(--trp-gold-bright);
+  font-weight: bold;
+  font-size: var(--fs-11);
+}
+
+.treasure-chat-card .treasure-card-actions {
+  margin-top: 8px;
+}
+
+.treasure-chat-card .create-treasure-item-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border-light);
+  color: var(--trp-gold-bright);
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  text-transform: uppercase;
+  padding: 5px 10px;
+  border-radius: var(--trp-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.treasure-chat-card .create-treasure-item-btn:hover:not(:disabled) {
+  background: var(--trp-bg-input);
+  border-color: var(--trp-gold);
+  box-shadow: 0 0 6px var(--trp-shadow-gold);
+}
+
+.treasure-chat-card .create-treasure-item-btn:disabled {
+  opacity: 0.6;
+  cursor: default;
+  color: var(--trp-green-bright);
+  border-color: var(--trp-green);
+}
+

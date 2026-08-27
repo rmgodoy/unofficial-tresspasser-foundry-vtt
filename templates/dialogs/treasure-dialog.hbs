@@ -1,0 +1,108 @@
+<div class="trespasser treasure-dialog-v2">
+  <div class="treasure-dlg-header">
+    <h2><i class="fa-solid fa-gem"></i> {{localize "TRESPASSER.Dialog.TreasureGenerator.Title"}}</h2>
+  </div>
+
+  <div class="treasure-dlg-controls">
+    <div class="form-group flexrow">
+      <label><i class="fa-solid fa-hashtag"></i> {{localize "TRESPASSER.Dialog.TreasureGenerator.Count"}}</label>
+      <div class="form-fields">
+        <input type="number" name="count" value="{{count}}" min="1" max="20" step="1" style="max-width: 80px; text-align: center;" />
+      </div>
+    </div>
+
+    <div class="form-group flexrow">
+      <label><i class="fa-solid fa-user-tag"></i> {{localize "TRESPASSER.Dialog.TreasureGenerator.Recipient"}}</label>
+      <div class="form-fields">
+        <select name="recipientMode" style="width: 100%;">
+          <option value="world" {{#if (eq recipientMode "world")}}selected{{/if}}>
+            {{localize "TRESPASSER.Dialog.TreasureGenerator.RecipientWorld"}}
+          </option>
+          {{#if activeParty}}
+          <option value="party" {{#if (eq recipientMode "party")}}selected{{/if}}>
+            {{localize "TRESPASSER.Dialog.TreasureGenerator.RecipientActiveParty"}} ({{activeParty.name}})
+          </option>
+          {{/if}}
+          {{#if selectedActor}}
+          <option value="selected" {{#if (eq recipientMode "selected")}}selected{{/if}}>
+            {{localize "TRESPASSER.Dialog.TreasureGenerator.RecipientSelected"}} ({{selectedActor.name}})
+          </option>
+          {{/if}}
+        </select>
+      </div>
+    </div>
+
+    <div class="form-group flexrow">
+      <label class="checkbox-label" style="cursor: pointer; display: flex; align-items: center; gap: 8px;">
+        <input type="checkbox" name="whisper" {{#if whisper}}checked{{/if}} />
+        <span><i class="fa-solid fa-eye-slash"></i> {{localize "TRESPASSER.Dialog.TreasureGenerator.Whisper"}}</span>
+      </label>
+    </div>
+
+    <div class="treasure-dlg-actions" style="margin-top: 8px;">
+      <button type="button" class="trp-btn roll-treasure-btn" data-action="generate" style="width: 100%;">
+        <i class="fa-solid fa-dice-d20"></i> {{localize "TRESPASSER.Dialog.TreasureGenerator.RollBtn"}}
+      </button>
+    </div>
+  </div>
+
+  {{#if results.length}}
+  <div class="treasure-dlg-results" style="margin-top: 14px;">
+    <div class="results-header flexrow" style="justify-content: space-between; align-items: center; margin-bottom: 8px; border-bottom: 1px solid var(--trp-border-light);">
+      <h3 style="margin: 0; font-family: var(--trp-font-header); font-size: var(--fs-14); color: var(--trp-gold-bright);">
+        {{localize "TRESPASSER.Dialog.TreasureGenerator.ResultsTitle"}} ({{results.length}})
+      </h3>
+      <span class="total-value-tag" style="font-size: var(--fs-12); font-weight: bold; color: var(--trp-gold);">
+        <i class="fa-solid fa-star"></i> {{totalValueLabel}}
+      </span>
+    </div>
+
+    <div class="treasure-results-list scrollable" style="max-height: 260px; display: flex; flex-direction: column; gap: 8px;">
+      {{#each results as |res index|}}
+      <div class="treasure-result-item" data-tier="{{res.tier}}" style="background: rgba(0,0,0,0.3); border: 1px solid var(--trp-border); border-radius: 4px; padding: 8px;">
+        <div class="result-item-header" style="display: flex; flex-direction: column; gap: 4px;">
+          <div style="font-weight: bold; color: var(--trp-text-bright); font-size: var(--fs-13); word-break: break-word;">
+            <i class="fa-solid fa-gem" style="color: var(--trp-gold);"></i> {{res.name}}
+          </div>
+          <div class="result-badges" style="display: flex; flex-wrap: wrap; gap: 6px;">
+            <span class="treasure-tier-badge tier-{{res.tier}}" style="font-size: var(--fs-10); padding: 2px 8px; border-radius: 12px;">
+              {{res.tierLabel}}
+            </span>
+            <span class="treasure-value-badge" style="font-size: var(--fs-10); padding: 2px 8px; border-radius: 12px; background: rgba(201, 168, 76, 0.2); color: var(--trp-gold-bright); border: 1px solid var(--trp-gold-dim);">
+              <i class="fa-solid fa-star"></i> {{res.valueLabel}}
+            </span>
+          </div>
+        </div>
+
+        <div class="result-item-rolls flexrow" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: 4px; gap: 8px;">
+          <span>Form: <strong>{{res.formLabel}}{{#if res.isTiny}} ({{localize "TRESPASSER.Terms.Treasure.Tiny"}}){{/if}}</strong></span>
+          {{#if res.materialLabel}}<span>Mat: <strong>{{res.materialLabel}}</strong></span>{{/if}}
+          {{#if res.gemstoneLabel}}<span>Gem: <strong>{{res.gemstoneLabel}}</strong></span>{{/if}}
+          <span>3d20: <strong>{{res.sum3d20}}</strong></span>
+        </div>
+
+        <div class="result-item-actions flexrow" style="margin-top: 6px; justify-content: flex-end;">
+          <button type="button" class="trp-btn create-single-item-btn" data-action="createSingle" data-index="{{index}}" style="font-size: var(--fs-11); padding: 3px 8px;">
+            <i class="fa-solid fa-box-archive"></i> {{localize "TRESPASSER.Chat.Treasure.CreateItem"}}
+          </button>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+  </div>
+  {{/if}}
+
+  <footer class="dialog-footer flexrow" style="margin-top: 14px; gap: 8px; justify-content: space-between;">
+    {{#if results.length}}
+    <button type="button" class="trp-btn create-all-btn" data-action="createAll" style="flex: 1;">
+      <i class="fa-solid fa-cubes"></i> {{localize "TRESPASSER.Dialog.TreasureGenerator.CreateAll"}}
+    </button>
+    <button type="button" class="trp-btn clear-btn" data-action="clear" style="width: auto; padding: 4px 10px;">
+      <i class="fa-solid fa-trash-can"></i> {{localize "TRESPASSER.Dialog.TreasureGenerator.Clear"}}
+    </button>
+    {{/if}}
+    <button type="button" class="trp-btn cancel-btn" data-action="close" style="width: auto; padding: 4px 12px;">
+      {{localize "TRESPASSER.Global.Action.Close"}}
+    </button>
+  </footer>
+</div>

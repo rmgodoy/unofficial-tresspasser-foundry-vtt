@@ -244,6 +244,22 @@
       "DamageCommand": {
         "Title": "Rolagem de Dano / Cura",
         "InvalidFormula": "Fórmula inválida. Por favor forneça uma expressão de dados ou número válido (ex: /hp 2d6+3, /dmg 10, /heal 1d8)."
+      },
+      "Treasure": {
+        "Title": "Tesouro Aleatório",
+        "Generated": "Um tesouro foi descoberto!",
+        "Quality": "Qualidade",
+        "Value": "Valor",
+        "ValueXP": "{value} XP",
+        "RollBreakdown": "Rolagens: Formato d20 ({form}) / d6 ({col}) + Material d20 ({mat}) + Gema d20 ({gem}) = Total {total}",
+        "FormulaSum": "Total de 3d20: {total}",
+        "CreateItem": "Criar Item",
+        "CreateAllItems": "Criar Todos os Itens",
+        "ItemCreated": "Item criado: {name}",
+        "ItemAddedToActor": "Adicionado {name} para {actor}",
+        "InventorySlots": "Espaço de Inventário: {slots}",
+        "TinyNotice": "Item minúsculo — pode compartilhar espaço de inventário",
+        "NoActiveParty": "Nenhum grupo ativo encontrado."
       }
     }
   }

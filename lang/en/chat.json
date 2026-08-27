@@ -244,6 +244,22 @@
       "DamageCommand": {
         "Title": "Damage / Healing Roll",
         "InvalidFormula": "Invalid formula. Please provide a valid dice expression or number (e.g. /hp 2d6+3, /dmg 10, /heal 1d8)."
+      },
+      "Treasure": {
+        "Title": "Random Treasure",
+        "Generated": "A piece of treasure was discovered!",
+        "Quality": "Quality",
+        "Value": "Value",
+        "ValueXP": "{value} XP",
+        "RollBreakdown": "Rolls: Form d20 ({form}) / d6 ({col}) + Material d20 ({mat}) + Gemstone d20 ({gem}) = Total {total}",
+        "FormulaSum": "3d20 Total: {total}",
+        "CreateItem": "Create Item",
+        "CreateAllItems": "Create All Items",
+        "ItemCreated": "Created item: {name}",
+        "ItemAddedToActor": "Added {name} to {actor}",
+        "InventorySlots": "Inventory Slot: {slots}",
+        "TinyNotice": "Tiny item — can share an inventory slot",
+        "NoActiveParty": "No active party actor found."
       }
     }
   }

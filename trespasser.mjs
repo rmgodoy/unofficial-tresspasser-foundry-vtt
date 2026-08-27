@@ -96,6 +96,9 @@ import { MovementHelper } from "./module/helpers/movement-helper.mjs";
 import { CanvasInputSession } from "./module/canvas/canvas-input-session.mjs";
 import { CanvasInputOverlay } from "./module/hud/canvas-input-overlay.mjs";
 import { registerChatCommands } from "./module/helpers/chat-commands.mjs";
+import { TREASURE_CONFIG } from "./module/config/treasure-config.mjs";
+import { TreasureGenerator } from "./module/helpers/treasure-generator.mjs";
+import { TrespasserTreasureDialog } from "./module/dialogs/treasure-dialog.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
@@ -135,7 +138,9 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/item/terrain/details.hbs",
     "systems/trespasser/templates/dialogs/non-combat-spark.hbs",
     "systems/trespasser/templates/dialogs/non-combat-shadow.hbs",
-    "systems/trespasser/templates/item/deed/behavior-params.hbs"
+    "systems/trespasser/templates/item/deed/behavior-params.hbs",
+    "systems/trespasser/templates/chat/treasure-card.hbs",
+    "systems/trespasser/templates/dialogs/treasure-dialog.hbs"
   ]);
 
   // Register custom document classes
@@ -162,7 +167,8 @@ Hooks.once("init", async () => {
     // Dungeon exploration config
     dungeon: DUNGEON_CONFIG,
     travel: TRAVEL_CONFIG,
-    plights: COMMON_PLIGHTS
+    plights: COMMON_PLIGHTS,
+    treasure: TREASURE_CONFIG
   };
 
   // Register settings
@@ -686,6 +692,10 @@ Hooks.once("init", async () => {
   game.trespasser.CanvasInputSession = CanvasInputSession;
   game.trespasser.CommonerGenerator = CommonerGenerator;
   game.trespasser.CanvasInputOverlay = CanvasInputOverlay;
+  game.trespasser.TreasureGenerator = TreasureGenerator;
+  game.trespasser.TreasureDialog = TrespasserTreasureDialog;
+  game.trespasser.generateTreasure = (options) => TreasureGenerator.rollTreasure(options);
+  game.trespasser.openTreasureDialog = (options) => TrespasserTreasureDialog.open(options);
   globalThis.trespasser = game.trespasser;
 });
 
@@ -2367,6 +2377,23 @@ Hooks.on("renderChatMessageHTML", (message, htmlElement, data) => {
     btn.addEventListener("click", async (ev) => {
       ev.preventDefault();
       await handleDungeonRollButtonClick(btn);
+    });
+  });
+
+  // ── Treasure Create Item button ──────────────────────────────────────────
+  htmlElement.querySelectorAll(".create-treasure-item-btn").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      try {
+        const rawJson = btn.dataset.treasureJson;
+        if (!rawJson) return;
+        const treasureData = JSON.parse(decodeURIComponent(rawJson));
+        await TreasureGenerator.createTreasureItem(treasureData);
+        btn.disabled = true;
+        btn.innerHTML = `<i class="fa-solid fa-check"></i> ${game.i18n.localize("TRESPASSER.Global.Action.Confirm") || "Created"}`;
+      } catch (err) {
+        console.error("Trespasser | Failed to create treasure item from chat card:", err);
+      }
     });
   });
 

@@ -22,6 +22,12 @@
         "InvalidTypePossessions": "Only Items, Weapons, and Armor can be added to possessions.",
         "WithdrawnToActor": "Withdrew {name} to {target}."
       },
+      "Treasure": {
+        "Created": "Treasure item \"{name}\" created.",
+        "AddedToParty": "Treasure \"{name}\" added to {party}.",
+        "AddedToActor": "Treasure \"{name}\" added to {actor}.",
+        "BulkCreated": "{count} treasure items created successfully."
+      },
       "Inventory": {
         "SlotOccupied": "Slot {placement} is already occupied by {name}. Unequip it first.",
         "InventoryFull": "Inventory full! You must drop an item before you can unequip {name}.",

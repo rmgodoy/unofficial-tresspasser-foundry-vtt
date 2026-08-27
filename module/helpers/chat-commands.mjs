@@ -1,12 +1,14 @@
 import { isAtLeastV14, getRollMessageMode } from "./compat.mjs";
+import { TreasureGenerator } from "./treasure-generator.mjs";
 
 /**
  * Register chat commands for the Trespasser system.
  */
 export function registerChatCommands() {
-  const commandRgx = /^\/(?:hp|dmg|damage|heal)(?:\s+(.*))?$/i;
+  const damageCommandRgx = /^\/(?:hp|dmg|damage|heal)(?:\s+(.*))?$/i;
+  const treasureCommandRgx = /^\/(?:treasure|tesouro)(?:\s+(\d+))?$/i;
 
-  const handleCommand = async function(command, match, chatData = {}, createOptions = {}) {
+  const handleDamageCommand = async function(command, match, chatData = {}, createOptions = {}) {
     const rawExpression = (Array.isArray(match) ? match[1] : (typeof match === "string" ? match : ""))?.trim() || "";
     if (!rawExpression) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Chat.DamageCommand.InvalidFormula"));
@@ -53,6 +55,24 @@ export function registerChatCommands() {
     return false;
   };
 
+  const handleTreasureCommand = async function(command, match, chatData = {}, createOptions = {}) {
+    const rawCount = (Array.isArray(match) ? match[1] : (typeof match === "string" ? match : ""))?.trim() || "1";
+    const count = Math.max(1, Math.min(20, parseInt(rawCount) || 1));
+
+    try {
+      for (let i = 0; i < count; i++) {
+        await TreasureGenerator.rollTreasure({
+          whisperToGM: false,
+          displayChat: true
+        });
+      }
+    } catch (err) {
+      console.error("Trespasser | /treasure command error:", err);
+    }
+
+    return false;
+  };
+
   // Register in ChatLog.CHAT_COMMANDS without referencing deprecated globalThis.ChatLog
   const chatLogClass = foundry.applications?.sidebar?.tabs?.ChatLog
     || CONFIG.ui?.chat;
@@ -61,21 +81,34 @@ export function registerChatCommands() {
     if (isAtLeastV14() || chatLogClass.CHAT_COMMANDS) {
       chatLogClass.CHAT_COMMANDS = chatLogClass.CHAT_COMMANDS || {};
       chatLogClass.CHAT_COMMANDS.damageRoll = {
-        rgx: commandRgx,
-        fn: handleCommand
+        rgx: damageCommandRgx,
+        fn: handleDamageCommand
+      };
+      chatLogClass.CHAT_COMMANDS.treasureRoll = {
+        rgx: treasureCommandRgx,
+        fn: handleTreasureCommand
       };
     } else if (chatLogClass.MESSAGE_PATTERNS) {
-      chatLogClass.MESSAGE_PATTERNS.damageRoll = commandRgx;
+      chatLogClass.MESSAGE_PATTERNS.damageRoll = damageCommandRgx;
+      chatLogClass.MESSAGE_PATTERNS.treasureRoll = treasureCommandRgx;
     }
   }
 
   // Also hook chatMessage as a fallback for older versions
   if (!isAtLeastV14()) {
     Hooks.on("chatMessage", (chatLog, messageText, chatData) => {
-      const match = messageText?.trim().match(commandRgx);
-      if (!match) return true;
-      handleCommand("damageRoll", match, chatData);
-      return false;
+      const dmgMatch = messageText?.trim().match(damageCommandRgx);
+      if (dmgMatch) {
+        handleDamageCommand("damageRoll", dmgMatch, chatData);
+        return false;
+      }
+      const trMatch = messageText?.trim().match(treasureCommandRgx);
+      if (trMatch) {
+        handleTreasureCommand("treasureRoll", trMatch, chatData);
+        return false;
+      }
+      return true;
     });
   }
 }
+

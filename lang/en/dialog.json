@@ -212,6 +212,20 @@
       "Dungeon": {
         "SelectCharacterTitle": "Select Character",
         "SelectCharacterPrompt": "Choose which character will perform this roll:"
+      },
+      "TreasureGenerator": {
+        "Title": "Treasure Generator",
+        "Count": "Quantity",
+        "Recipient": "Recipient",
+        "RecipientWorld": "World (Folder: Random Treasures)",
+        "RecipientActiveParty": "Active Party Inventory",
+        "RecipientSelected": "Selected Character",
+        "Whisper": "Whisper results to GM only",
+        "RollBtn": "Generate Treasure",
+        "ResultsTitle": "Generated Treasures",
+        "TotalValue": "Total Value: {value} XP",
+        "CreateAll": "Create All as Items",
+        "Clear": "Clear"
       }
     }
   }

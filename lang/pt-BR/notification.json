@@ -22,6 +22,12 @@
         "InvalidTypePossessions": "Apenas Itens, Armas e Armaduras podem ser adicionados às posses.",
         "WithdrawnToActor": "Retirou {name} para {target}."
       },
+      "Treasure": {
+        "Created": "Item de tesouro \"{name}\" criado.",
+        "AddedToParty": "Tesouro \"{name}\" adicionado ao {party}.",
+        "AddedToActor": "Tesouro \"{name}\" adicionado ao {actor}.",
+        "BulkCreated": "{count} itens de tesouro criados com sucesso."
+      },
       "Inventory": {
         "SlotOccupied": "O espaço {placement} já está ocupado por {name}. Desequipe-o primeiro.",
         "InventoryFull": "Inventário cheio! Você precisa soltar um item antes de poder desequipar {name}.",

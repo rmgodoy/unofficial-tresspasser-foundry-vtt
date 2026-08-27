@@ -1,0 +1,71 @@
+<div class="trespasser-chat-card treasure-chat-card" data-tier="{{tier}}">
+  <div class="treasure-card-header">
+    <div class="treasure-header-title">
+      <i class="fa-solid fa-gem treasure-icon"></i>
+      <span class="treasure-name">{{name}}</span>
+    </div>
+    <div class="treasure-badges">
+      <span class="treasure-tier-badge tier-{{tier}}" title="{{localize 'TRESPASSER.Terms.Treasure.Quality'}}">
+        {{tierLabel}}
+      </span>
+      <span class="treasure-value-badge" title="{{localize 'TRESPASSER.Terms.Treasure.Value'}}">
+        <i class="fa-solid fa-star"></i> {{valueLabel}}
+      </span>
+    </div>
+  </div>
+
+  <div class="treasure-card-body">
+    <div class="treasure-details-grid">
+      <div class="treasure-detail-item">
+        <span class="treasure-label">{{localize "TRESPASSER.Terms.Treasure.FormFactor"}}:</span>
+        <span class="treasure-val">{{formLabel}}{{#if isTiny}} <em class="treasure-tiny-tag">({{localize "TRESPASSER.Terms.Treasure.Tiny"}})</em>{{/if}}</span>
+      </div>
+      {{#if materialLabel}}
+      <div class="treasure-detail-item">
+        <span class="treasure-label">{{localize "TRESPASSER.Terms.Treasure.Material"}}:</span>
+        <span class="treasure-val">{{materialLabel}}</span>
+      </div>
+      {{/if}}
+      {{#if gemstoneLabel}}
+      <div class="treasure-detail-item">
+        <span class="treasure-label">{{localize "TRESPASSER.Terms.Treasure.Gemstone"}}:</span>
+        <span class="treasure-val">{{gemstoneLabel}}</span>
+      </div>
+      {{/if}}
+      <div class="treasure-detail-item">
+        <span class="treasure-label">{{localize "TRESPASSER.Terms.Treasure.SlotOccupancy"}}:</span>
+        <span class="treasure-val">{{#if isTiny}}{{localize "TRESPASSER.Terms.Treasure.TinyNote"}}{{else}}1{{/if}}</span>
+      </div>
+    </div>
+
+    <div class="treasure-roll-breakdown">
+      <div class="treasure-breakdown-header">
+        <i class="fa-solid fa-dice-d20"></i>
+        <span>{{localize "TRESPASSER.Terms.Treasure.FormulaRoll"}}: <strong>{{sum3d20}}</strong></span>
+      </div>
+      <div class="treasure-dice-chips">
+        <span class="dice-chip" title="{{localize 'TRESPASSER.Terms.Treasure.FormFactor'}}">
+          <i class="fa-solid fa-dice"></i> d20: {{formRoll.d20}} (d6: {{formRoll.col}})
+        </span>
+        <span class="dice-chip-plus">+</span>
+        <span class="dice-chip" title="{{localize 'TRESPASSER.Terms.Treasure.Material'}}">
+          <i class="fa-solid fa-dice"></i> d20: {{matRoll}}
+        </span>
+        <span class="dice-chip-plus">+</span>
+        <span class="dice-chip" title="{{localize 'TRESPASSER.Terms.Treasure.Gemstone'}}">
+          <i class="fa-solid fa-dice"></i> d20: {{gemRoll}}
+        </span>
+        <span class="dice-chip-equals">=</span>
+        <span class="dice-chip total-chip">{{sum3d20}}</span>
+      </div>
+    </div>
+
+    {{#if gmOnlyActions}}
+    <div class="treasure-card-actions">
+      <button type="button" class="create-treasure-item-btn trp-btn" data-treasure-json="{{treasureJson}}">
+        <i class="fa-solid fa-box-archive"></i> {{localize "TRESPASSER.Chat.Treasure.CreateItem"}}
+      </button>
+    </div>
+    {{/if}}
+  </div>
+</div>
