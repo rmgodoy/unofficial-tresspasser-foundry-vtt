@@ -1783,10 +1783,16 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
   }
 
   // Create buttons only if they don't exist
-  if ($html.find(".export-all-items").length) return;
+  if ($html.find(".generate-treasure-btn, .export-all-items").length) return;
 
+  const treasureBtn = $(`<button type="button" class="generate-treasure-btn"><i class="fa-solid fa-gem"></i> ${game.i18n.localize("TRESPASSER.Dialog.TreasureGenerator.Title") || "Treasure Generator"}</button>`);
   const exportBtn = $(`<button class="export-all-items"><i class="fas fa-file-export"></i> Export All</button>`);
   const importBtn = $(`<button class="import-all-items"><i class="fas fa-file-import"></i> Import All</button>`);
+
+  treasureBtn.on("click", (ev) => {
+    ev.preventDefault();
+    TrespasserTreasureDialog.open();
+  });
 
   exportBtn.on("click", (ev) => {
     ev.preventDefault();
@@ -1798,6 +1804,7 @@ Hooks.on("renderItemDirectory", (app, html, data) => {
     ItemExporter.importData();
   });
 
+  header.append(treasureBtn);
   header.append(exportBtn);
   header.append(importBtn);
 });

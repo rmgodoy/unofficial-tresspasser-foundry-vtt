@@ -291,9 +291,44 @@ body.game .app input[type="checkbox"] {
 }
 
 /* ─── Sidebar Header Actions ─── */
+.directory .header-actions button.generate-treasure-btn {
+  flex: 1 1 100%;
+  width: 100%;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--trp-gold-bright);
+  border: 1px solid var(--trp-gold-dim);
+  background: rgba(201, 168, 76, 0.15);
+  border-radius: var(--trp-radius-sm);
+  transition: all 0.2s ease;
+  padding: 5px 8px;
+  margin: 3px 0 2px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.directory .header-actions button.generate-treasure-btn:hover {
+  color: #fff;
+  border-color: var(--trp-gold);
+  background: rgba(201, 168, 76, 0.3);
+  box-shadow: 0 0 8px var(--trp-shadow-gold);
+}
+
+.directory .header-actions button.generate-treasure-btn i {
+  color: var(--trp-gold);
+  font-size: var(--fs-12);
+  margin-right: 0;
+}
+
 .directory .header-actions button.export-all-items,
 .directory .header-actions button.import-all-items {
-  flex: 1;
+  flex: 1 1 calc(50% - 6px);
   font-family: var(--trp-font-header);
   font-size: var(--fs-10);
   letter-spacing: 0.05em;
@@ -301,9 +336,16 @@ body.game .app input[type="checkbox"] {
   color: var(--trp-gold-dim);
   border: 1px solid var(--trp-border);
   background: var(--trp-bg-panel);
+  border-radius: var(--trp-radius-sm);
   transition: all 0.2s ease;
   padding: 4px 6px;
   margin: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .directory .header-actions button.export-all-items:hover,
