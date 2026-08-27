@@ -40,7 +40,7 @@ export class TrespasserActor extends Actor {
     }
 
     // Set default prototype token image to match actor image if not explicitly set
-    const currentTokenImg = data.prototypeToken?.texture?.src;
+    const currentTokenImg = foundry.utils.getProperty(data, "prototypeToken.texture.src") || this.prototypeToken?.texture?.src;
     if (!currentTokenImg || currentTokenImg === "icons/svg/mystery-man.svg") {
       this.updateSource({ "prototypeToken.texture.src": this.img });
     }
@@ -54,7 +54,7 @@ export class TrespasserActor extends Actor {
     if (changed.img) {
       if (this.isToken) {
         const tokenDoc = this.token;
-        if (tokenDoc && (tokenDoc.texture.src === this.img || !tokenDoc.texture.src || tokenDoc.texture.src === "icons/svg/mystery-man.svg")) {
+        if (tokenDoc && tokenDoc.texture?.src !== changed.img) {
           options.syncTokenImg = true;
           options.oldActorImg = this.img;
         }
@@ -86,13 +86,15 @@ export class TrespasserActor extends Actor {
     }
 
     if (options.syncTokenImg && this.isToken && this.token) {
-      this.token.update({ "texture.src": changed.img });
+      if (this.token.texture?.src !== changed.img) {
+        this.token.update({ "texture.src": changed.img });
+      }
     }
 
     if (options.syncPlacedTokens && !this.isToken && changed.img) {
       const activeTokens = this.getActiveTokens(true, true);
       for (const tokenDoc of activeTokens) {
-        if (tokenDoc.actorLink && (tokenDoc.texture.src === options.oldActorImg || tokenDoc.texture.src === "icons/svg/mystery-man.svg")) {
+        if (tokenDoc.actorLink && (tokenDoc.texture?.src === options.oldActorImg || tokenDoc.texture?.src === "icons/svg/mystery-man.svg")) {
           tokenDoc.update({ "texture.src": changed.img });
         }
       }

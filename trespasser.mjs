@@ -872,6 +872,36 @@ Hooks.on("preCreateToken", (tokenDoc, updates, options, userId) => {
   const actor = tokenDoc.actor || game.actors.get(updates.actorId || tokenDoc.actorId);
   if (actor) {
     TrespasserEffectsHelper.syncActorTokenEffects(actor);
+
+    // Ensure placed token has valid texture from actor or prototypeToken instead of mystery-man
+    const currentSrc = updates.texture?.src || tokenDoc.texture?.src;
+    if (!currentSrc || currentSrc === "icons/svg/mystery-man.svg") {
+      const targetSrc = actor.prototypeToken?.texture?.src || actor.img;
+      if (targetSrc && targetSrc !== "icons/svg/mystery-man.svg") {
+        tokenDoc.updateSource({ "texture.src": targetSrc });
+      }
+    }
+  }
+});
+
+Hooks.on("updateActor", async (actor, changed, options, userId) => {
+  if (game.user.id !== userId) return;
+
+  if (changed.img && actor.isToken && actor.token) {
+    if (actor.token.texture?.src !== changed.img) {
+      await actor.token.update({ "texture.src": changed.img });
+    }
+  }
+});
+
+Hooks.on("updateActorDelta", async (actorDelta, changed, options, userId) => {
+  if (game.user.id !== userId) return;
+
+  if (changed.img) {
+    const tokenDoc = actorDelta.parent;
+    if (tokenDoc && tokenDoc.texture?.src !== changed.img) {
+      await tokenDoc.update({ "texture.src": changed.img });
+    }
   }
 });
 
@@ -1409,6 +1439,13 @@ Hooks.on("updateToken", async (tokenDoc, changed, options, userId) => {
   if (changed.name && !tokenDoc.isLinked && tokenDoc.actor) {
     if (tokenDoc.actor.name !== changed.name) {
       await tokenDoc.actor.update({ name: changed.name });
+    }
+  }
+
+  // Sync token texture back to actor img if it's unlinked and updated directly (e.g. from Token Config)
+  if (changed.texture?.src && !tokenDoc.isLinked && tokenDoc.actor) {
+    if (tokenDoc.actor.img !== changed.texture.src) {
+      await tokenDoc.actor.update({ img: changed.texture.src });
     }
   }
 
