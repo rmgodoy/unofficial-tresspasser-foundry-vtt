@@ -131,6 +131,12 @@
       },
       "Reset": {
         "Config": "System Configuration reset to defaults."
+      },
+      "Companion": {
+        "NoBoundCharacter": "This companion is not bound to any character.",
+        "FormulaError": "Invalid formula for {attribute}: {formula}",
+        "BoundCharacterNotFound": "Bound character could not be found.",
+        "InventoryFull": "Companion inventory is full ({max} slots)."
       }
     }
   }
