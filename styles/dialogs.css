@@ -1048,5 +1048,226 @@
   border: 1px solid var(--trp-border);
 }
 
+/* ═══════════════════════════════════════════════════
+   COMPANION FORMULAS CONFIGURATION DIALOG
+   ═══════════════════════════════════════════════════ */
+.companion-formulas-dialog .window-content {
+  overflow: hidden;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.trespasser-companion-formulas-dialog {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  max-height: 100%;
+  box-sizing: border-box;
+  padding: 10px;
+  overflow: hidden;
+}
+
+.trespasser-companion-formulas-dialog .dialog-content-scrollable {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.trespasser-companion-formulas-dialog .dialog-banner {
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 8px 12px;
+  margin-bottom: 10px;
+}
+
+.trespasser-companion-formulas-dialog .dialog-desc {
+  font-size: var(--fs-11);
+  color: var(--trp-text-dim);
+  margin: 0 0 6px 0;
+  line-height: 1.4;
+}
+
+.trespasser-companion-formulas-dialog .bound-summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--fs-12);
+}
+
+.trespasser-companion-formulas-dialog .bound-label {
+  color: var(--trp-gold);
+  font-family: var(--trp-font-header);
+  text-transform: uppercase;
+  font-size: var(--fs-10);
+}
+
+.trespasser-companion-formulas-dialog .bound-name {
+  color: var(--trp-text-bright);
+}
+
+.trespasser-companion-formulas-dialog .variables-card {
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  margin-bottom: 10px;
+  overflow: hidden;
+}
+
+.trespasser-companion-formulas-dialog .variables-summary {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  color: var(--trp-gold);
+  padding: 6px 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--trp-bg-header);
+  user-select: none;
+}
+
+.trespasser-companion-formulas-dialog .variables-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 6px;
+  padding: 8px 10px;
+}
+
+.trespasser-companion-formulas-dialog .var-chip {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--trp-bg-overlay);
+  border: 1px solid var(--trp-border-light);
+  border-radius: var(--trp-radius-sm);
+  padding: 3px 6px;
+}
+
+.trespasser-companion-formulas-dialog .var-token {
+  font-family: monospace;
+  font-size: var(--fs-11);
+  color: var(--trp-gold-bright);
+  background: var(--trp-bg-dark);
+  padding: 1px 5px;
+  border-radius: var(--trp-radius-sm);
+  white-space: nowrap;
+}
+
+.trespasser-companion-formulas-dialog .var-desc {
+  font-size: var(--fs-10);
+  color: var(--trp-text-dim);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.trespasser-companion-formulas-dialog .formula-group-section {
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 8px 12px;
+}
+
+.trespasser-companion-formulas-dialog .section-title {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-12);
+  color: var(--trp-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 8px 0;
+  border-bottom: 1px solid var(--trp-border);
+  padding-bottom: 4px;
+}
+
+.trespasser-companion-formulas-dialog .formula-table {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.trespasser-companion-formulas-dialog .formula-field-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.trespasser-companion-formulas-dialog .formula-label {
+  width: 120px;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  color: var(--trp-text-dim);
+  text-align: right;
+  flex-shrink: 0;
+  margin: 0;
+}
+
+.trespasser-companion-formulas-dialog .formula-input-wrapper {
+  flex: 1;
+}
+
+.trespasser-companion-formulas-dialog .formula-input-wrapper input {
+  width: 100%;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-bright);
+  font-family: monospace;
+  font-size: var(--fs-12);
+  padding: 2px 8px;
+  border-radius: var(--trp-radius);
+  height: 28px;
+  box-sizing: border-box;
+}
+
+.trespasser-companion-formulas-dialog .formula-input-wrapper input:focus {
+  border-color: var(--trp-gold);
+  box-shadow: 0 0 4px var(--trp-gold-overlay);
+}
+
+.trespasser-companion-formulas-dialog .formula-preview-badge {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--trp-bg-dark);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  padding: 2px 8px;
+  min-width: 60px;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 28px;
+  box-sizing: border-box;
+}
+
+.trespasser-companion-formulas-dialog .preview-label {
+  font-size: var(--fs-9);
+  color: var(--trp-text-dim);
+  text-transform: uppercase;
+}
+
+.trespasser-companion-formulas-dialog .preview-val {
+  font-size: var(--fs-12);
+  color: var(--trp-gold-bright);
+  font-weight: bold;
+}
+
+.trespasser-companion-formulas-dialog .dialog-footer {
+  flex-shrink: 0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--trp-border);
+}
+
+.trespasser-companion-formulas-dialog .footer-actions-right {
+  display: flex;
+  gap: 8px;
+}
+
+
 
 

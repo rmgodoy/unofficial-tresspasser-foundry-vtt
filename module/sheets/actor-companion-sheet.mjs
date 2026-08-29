@@ -7,6 +7,9 @@ import { evaluateAndShowRoll } from "./character/handlers-rolls.mjs";
 import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 import { getAccuracyFromTarget } from "./character/handlers-combat.mjs";
 import { onPrevailRoll, onIntensityChange, onEffectRemove, onEffectInfo, onEffectEdit } from "./character/handlers-effects.mjs";
+import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck, onItemTransfer } from "./character/handlers-items.mjs";
+import { onToggleLight } from "./character/handlers-misc.mjs";
+import { CompanionFormulasDialog } from "../dialogs/companion-formulas-dialog.mjs";
 
 /**
  * Companion Sheet class for Trespasser TTRPG.
@@ -32,7 +35,7 @@ export class TrespasserCompanionSheet extends TrespasserActorSheet {
     }
   };
 
-  tabGroups = { primary: "companion" };
+  tabGroups = { primary: "combat" };
 
   /** @override */
   get title() {
@@ -93,11 +96,20 @@ export class TrespasserCompanionSheet extends TrespasserActorSheet {
       ? dropped
       : await Item.implementation.fromDropData(dropped ?? {});
 
-    if (!sourceItem) return super._onDropItem(event, dropped);
+    const isTransfer = !!sourceItem?.parent && (sourceItem.parent !== this.actor);
+    if (!this.actor.isOwner && !isTransfer) return false;
 
-    if (sourceItem.parent === this.actor) {
+    if (isTransfer) {
+      // Trigger the unified transfer logic
+      await onItemTransfer(null, this, { item: sourceItem, targetActor: this.actor });
+      return false; // Prevent duplicate handling
+    }
+
+    if (sourceItem && sourceItem.parent === this.actor) {
       return this.#onSortItem(event, sourceItem);
     }
+
+    if (!sourceItem) return super._onDropItem(event, dropped);
 
     return super._onDropItem(event, dropped);
   }
@@ -163,6 +175,39 @@ export class TrespasserCompanionSheet extends TrespasserActorSheet {
     return getAccuracyFromTarget();
   }
 
+  _getActiveWeapons() {
+    return [];
+  }
+
+  async _selectAmmoDialog(ammoItems, weapon) {
+    return null;
+  }
+
+  // ── Items ──────────────────────────────────────────────────────────────────
+  async _onItemCreate(event) {
+    return onItemCreate(event, this);
+  }
+
+  async _onItemConsume(event) {
+    return onItemConsume(event, this);
+  }
+
+  async _onDepletionRoll(event) {
+    return onDepletionRoll(event, this);
+  }
+
+  async _runDepletionCheck(item) {
+    return runDepletionCheck(item, this);
+  }
+
+  async _onItemTransfer(event) {
+    return onItemTransfer(event, this);
+  }
+
+  async _onToggleLight(event) {
+    return onToggleLight(event, this);
+  }
+
   // ── Effects ───────────────────────────────────────────────────────────────
   async _onPrevailRoll(event) {
     return onPrevailRoll(event, this);
@@ -182,5 +227,11 @@ export class TrespasserCompanionSheet extends TrespasserActorSheet {
 
   async _onEffectEdit(event) {
     return onEffectEdit(event, this);
+  }
+
+  // ── GM Formula Configuration ──────────────────────────────────────────────
+  async _onConfigureFormulas() {
+    if (!game.user.isGM) return;
+    return CompanionFormulasDialog.show(this.actor);
   }
 }

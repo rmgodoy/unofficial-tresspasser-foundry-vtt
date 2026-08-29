@@ -196,6 +196,37 @@
       "Dungeon": {
         "SelectCharacterTitle": "Select Character",
         "SelectCharacterPrompt": "Choose which character will perform this roll:"
+      },
+      "CompanionFormulas": {
+        "Title": "Companion Formulas: {name}",
+        "DefaultTitle": "Configure Companion Formulas",
+        "FormulaHelp": "Formulas determine the companion's attributes, level, and damage die. You can use standard arithmetic (+, -, *, /) and variables wrapped in angle brackets.",
+        "VariablesTitle": "Available Variables",
+        "SectionCore": "Core Attributes & Progression",
+        "SectionCombat": "Combat Attributes",
+        "Level": "Level Formula",
+        "SkillDie": "Skill Die Formula",
+        "DamageDie": "Skill Die Formula",
+        "HP": "Max HP Formula",
+        "Speed": "Speed Formula",
+        "SpeedBonus": "Speed Bonus Formula",
+        "Initiative": "Initiative Formula",
+        "Accuracy": "Accuracy Formula",
+        "Guard": "Guard Formula",
+        "Resist": "Resist Formula",
+        "Prevail": "Prevail Formula",
+        "Active": "Active",
+        "CurrentValue": "Current evaluated value",
+        "ResetDefaults": "Reset Defaults",
+        "ResetConfirm": "Are you sure you want to reset all attribute formulas for this companion back to system defaults?",
+        "VarLvl": "Companion's evaluated level",
+        "VarCLvl": "Bound character's level",
+        "VarCSkill": "Bound character's skill die bonus",
+        "VarCSkillDie": "Bound character's skill die (e.g. d6, d8)",
+        "VarCMighty": "Bound character's Mighty attribute",
+        "VarCAgility": "Bound character's Agility attribute",
+        "VarCIntellect": "Bound character's Intellect attribute",
+        "VarCSpirit": "Bound character's Spirit attribute"
       }
     }
   }

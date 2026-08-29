@@ -499,36 +499,7 @@
       
       <div class="inventory-grid">
         {{#each unequippedItems}}
-        <div class="inventory-card {{#if this.system.broken}}is-broken{{/if}}" data-item-id="{{this.id}}" draggable="true">
-          {{#if this.system.broken}}<i class="fas fa-bolt broken-icon" title="{{localize "TRESPASSER.Sheet.Item.States.UsedBroken"}}"></i>{{/if}}
-          <img src="{{this.img}}" class="item-icon" title="{{this.name}}" />
-          <span class="item-name">{{this.name}}</span>
-          <div class="item-controls">
-            {{#if (or (eq this.type "armor") (eq this.type "weapon") (eq this.type "accessory") this.system.equippable)}}
-            <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-dice-d6"></i></a>
-            <a class="item-equip" title="{{localize 'TRESPASSER.Sheet.Common.Equip'}}"><i class="fas fa-hand-paper"></i></a>
-            {{else if (eq this.type "rations")}}
-            <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-utensils"></i></a>
-            {{/if}}
-            
-            {{#if (eq this.system.subType "light_source")}}
-            <a class="item-toggle-light" title="{{#if this.system.active}}{{localize 'TRESPASSER.Sheet.Common.Unlight'}}{{else}}{{localize 'TRESPASSER.Sheet.Common.Light'}}{{/if}} {{localize 'TRESPASSER.Sheet.Item.Details.IsLightSource'}}">
-                <i class="fas fa-fire {{#if this.system.active}}active{{/if}}" style="{{#if this.system.active}}color: var(--trp-gold-bright);{{else}}color: var(--trp-text-dim);{{/if}}"></i>
-            </a>
-            {{/if}}
-
-            {{#if (or (eq this.system.subType "bombs") (eq this.system.subType "oils") (eq this.system.subType "powders") (eq this.system.subType "potions") (eq this.system.subType "scrolls") (eq this.system.subType "esoteric"))}}
-            <a class="item-consume" title="{{localize 'TRESPASSER.App.System.Trigger.Use'}}"><i class="fas fa-flask"></i></a>
-            {{/if}}
-
-            {{#if ../transferTarget}}
-            <a class="item-transfer" title="{{localize 'TRESPASSER.Sheet.Haven.TransferItemTo' name=../transferTarget.name}}" data-target-id="{{../transferTarget.id}}" data-target-type="{{../transferTarget.type}}"><i class="fas fa-exchange-alt"></i></a>
-            {{/if}}
-
-            <a class="item-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
-            <a class="item-delete" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
-          </div>
-        </div>
+        {{> "systems/trespasser/templates/actor/parts/inventory-card.hbs" item=this transferTarget=../transferTarget}}
         {{else}}
         <div class="empty-list" style="grid-column:1/-1">{{localize "TRESPASSER.Sheet.Character.Inventory.EmptyInventory"}}</div>
         {{/each}}
@@ -540,32 +511,7 @@
 
       <div class="inventory-grid">
         {{#each equippedItems}}
-        <div class="inventory-card {{#if this.system.broken}}is-broken{{/if}}" data-item-id="{{this.id}}" draggable="true">
-          {{#if this.system.broken}}<i class="fas fa-bolt broken-icon" title="{{localize 'TRESPASSER.Sheet.Item.States.UsedBroken'}}"></i>{{/if}}
-          <img src="{{this.img}}" class="item-icon" title="{{this.name}}" />
-          <span class="item-name">{{this.name}}</span>
-          <div class="item-controls">
-            {{#if (or (eq this.type "armor") (eq this.type "weapon") (eq this.type "accessory") this.system.equippable)}}
-            <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-dice-d6"></i></a>
-            <a class="item-unequip" title="{{localize 'TRESPASSER.Sheet.Common.Unequip'}}"><i class="fas fa-hand-paper" style="color: var(--trp-gold-bright);"></i></a>
-            {{else if (eq this.type "rations")}}
-            <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.DepletionRoll' die=this.system.depletionDie}}"><i class="fas fa-utensils"></i></a>
-            {{/if}}
-
-            {{#if (or (eq this.system.subType "light_source") (and (eq this.type "weapon") this.system.isLightSource))}}
-            <a class="item-toggle-light" title="{{#if this.system.active}}{{localize 'TRESPASSER.Sheet.Common.Unlight'}}{{else}}{{localize 'TRESPASSER.Sheet.Common.Light'}}{{/if}} {{localize 'TRESPASSER.Sheet.Item.Details.IsLightSource'}}">
-                <i class="fas fa-fire {{#if this.system.active}}active{{/if}}" style="{{#if this.system.active}}color: var(--trp-gold-bright);{{else}}color: var(--trp-text-dim);{{/if}}"></i>
-            </a>
-            {{/if}}
-
-            {{#if ../transferTarget}}
-            <a class="item-transfer" title="{{localize 'TRESPASSER.Sheet.Haven.TransferItemTo' name=../transferTarget.name}}" data-target-id="{{../transferTarget.id}}" data-target-type="{{../transferTarget.type}}"><i class="fas fa-exchange-alt"></i></a>
-            {{/if}}
-
-            <a class="item-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
-            <a class="item-delete" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
-          </div>
-        </div>
+        {{> "systems/trespasser/templates/actor/parts/inventory-card.hbs" item=this isEquipped=true transferTarget=../transferTarget}}
         {{else}}
         <div class="empty-list" style="grid-column:1/-1">{{localize "TRESPASSER.Sheet.Character.Inventory.EmptyEquipped"}}</div>
         {{/each}}

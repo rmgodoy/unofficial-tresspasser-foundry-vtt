@@ -19,54 +19,76 @@
     </div>
 
     <div class="header-info">
-      <!-- Row 1: Name / Level / Damage Die -->
+      <!-- Row 1: Name / Level / Bound Character -->
       <div class="header-row header-identity">
         <div class="name-group">
           <input type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.NamePlaceholder'}}" />
         </div>
-        <div class="level-group">
-          <label>{{localize "TRESPASSER.Sheet.Companion.Level"}}</label>
-          <input type="number" name="system.level" value="{{system.level}}" min="0" />
-        </div>
-        <div class="damage-die-group" style="display: flex; align-items: center; gap: 4px;">
-          <label>{{localize "TRESPASSER.Sheet.Companion.DamageDie"}}</label>
-          <input type="text" name="system.damageDie" value="{{system.damageDie}}" class="damage-die-input" style="width: 50px; text-align: center;" />
+        <div class="identity-meta">
+          <div class="level-group">
+            <label>{{localize "TRESPASSER.Sheet.Header.Level"}}</label>
+            <span class="level-display" title="{{localize 'TRESPASSER.Sheet.Header.Level'}}">{{system.level}}</span>
+          </div>
+          <div class="bound-character-group">
+            <label>{{localize "TRESPASSER.Sheet.Companion.BoundCharacter"}}:</label>
+            <select name="system.boundCharacterId">
+              <option value="" {{#unless system.boundCharacterId}}selected{{/unless}}>{{localize "TRESPASSER.Sheet.Companion.NoBoundCharacter"}}</option>
+              {{#each characterActors}}
+              <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}</option>
+              {{/each}}
+            </select>
+            {{#if isGM}}
+            <a class="companion-config-btn" data-action="configure-formulas" title="{{localize 'TRESPASSER.Sheet.Companion.ConfigureFormulas'}}">
+              <i class="fas fa-cog"></i>
+            </a>
+            {{/if}}
+          </div>
         </div>
       </div>
 
-      <!-- Row 2: Bound Character Selector -->
-      <div class="header-row bound-character-row">
-        <label>{{localize "TRESPASSER.Sheet.Companion.BoundCharacter"}}:</label>
-        <select name="system.boundCharacterId" style="flex: 1;">
-          <option value="" {{#unless system.boundCharacterId}}selected{{/unless}}>{{localize "TRESPASSER.Sheet.Companion.NoBoundCharacter"}}</option>
-          {{#each characterActors}}
-          <option value="{{this.id}}" {{#if this.selected}}selected{{/if}}>{{this.name}}</option>
-          {{/each}}
-        </select>
-      </div>
-
-      <!-- Row 3: Resources (Health) -->
+      <!-- Row 2: Resources (Health, Damage Die) -->
       <div class="header-row header-resources">
         <div class="resource-box">
-          <label>{{localize "TRESPASSER.Sheet.Companion.Health"}}</label>
+          <label>{{localize "TRESPASSER.Sheet.Header.HP"}}</label>
           <div class="resource-values">
             <input type="number" name="system.health" value="{{system.health}}" min="0" />
             <span>/</span>
             <input type="number" name="system.max_health" value="{{system.max_health}}" readonly />
           </div>
         </div>
+        <div class="resource-box rollable" data-action="roll-skill-die" data-tooltip="{{localize 'TRESPASSER.Sheet.Combat.ClickRollCheck' label=(localize 'TRESPASSER.Sheet.Combat.SkillDie')}} ({{system.skill_die}})">
+          <label class="rollable">{{localize "TRESPASSER.Sheet.Combat.SkillDie"}}</label>
+          <span class="damage-die-display">{{system.skill_die}}</span>
+        </div>
+      </div>
+
+      <!-- Row 3: Attributes (Initiative, Accuracy, Guard, Resist, Prevail, Speed) -->
+      <div class="header-row header-attributes">
+        {{#each (array "initiative" "accuracy" "guard" "resist" "prevail") as |stat|}}
+        <div class="attribute-box rollable" data-roll-stat="{{stat}}" data-tooltip="{{localize 'TRESPASSER.Sheet.Combat.ClickRollCheck' label=(localize (concat 'TRESPASSER.Sheet.Companion.' (capitalize stat)))}}">
+          <span class="attribute-label attribute-roll">
+            {{localize (concat "TRESPASSER.Sheet.Companion." (capitalize stat))}}
+            <h3>{{lookup ../system.combat stat}}</h3>
+          </span>
+        </div>
+        {{/each}}
+        <div class="attribute-box attribute-box-speed">
+          <span class="attribute-label">
+            {{localize "TRESPASSER.Sheet.Companion.Speed"}}
+            <h3>{{system.combat.speed}}<span class="speed-separator">/</span><span class="speed-bonus-value">+{{system.combat.speed_bonus}}</span></h3>
+          </span>
+        </div>
       </div>
     </div>
   </header>
 
   <!-- ═══════════════════════════════════════════════════
-       SHEET NAVIGATION TABS
+       SHEET NAVIGATION TABS: Combat, Inventory, Notes
   ════════════════════════════════════════════════════ -->
   <nav class="sheet-tabs tabs" data-group="primary">
-    <a class="item {{#if (eq tabs.primary 'companion')}}active{{/if}}" data-tab="companion">{{localize "TRESPASSER.Sheet.Companion.TabCompanion"}}</a>
-    <a class="item {{#if (eq tabs.primary 'deeds')}}active{{/if}}" data-tab="deeds">{{localize "TRESPASSER.Sheet.Companion.TabDeeds"}}</a>
-    <a class="item {{#if (eq tabs.primary 'effects')}}active{{/if}}" data-tab="effects">{{localize "TRESPASSER.Sheet.Companion.TabEffects"}}</a>
-    <a class="item {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-tab="notes">{{localize "TRESPASSER.Sheet.Companion.TabNotes"}}</a>
+    <a class="item {{#if (eq tabs.primary 'combat')}}active{{/if}}" data-tab="combat">{{localize "TRESPASSER.Sheet.Tabs.Combat"}}</a>
+    <a class="item {{#if (eq tabs.primary 'inventory')}}active{{/if}}" data-tab="inventory">{{localize "TRESPASSER.Sheet.Tabs.Inventory"}}</a>
+    <a class="item {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-tab="notes">{{localize "TRESPASSER.Sheet.Tabs.Notes"}}</a>
   </nav>
 
   <!-- ═══════════════════════════════════════════════════
@@ -74,75 +96,11 @@
   ════════════════════════════════════════════════════ -->
   <section class="sheet-body scrollable">
 
-    <!-- ─── TAB 1: COMPANION ─── -->
-    <div class="tab tab-body {{#if (eq tabs.primary 'companion')}}active{{/if}}" data-group="primary" data-tab="companion">
+    <!-- ─── TAB 1: COMBAT (Features, Deeds, Effects, GM Formulas) ─── -->
+    <div class="tab tab-body {{#if (eq tabs.primary 'combat')}}active{{/if}}" data-group="primary" data-tab="combat">
       
-      <!-- Clickable Combat Stat Boxes -->
-      <div class="stat-boxes">
-        <div class="stat-box rollable" data-roll-stat="speed" data-tooltip="{{localize 'TRESPASSER.Sheet.Companion.Speed'}}">
-          <span class="stat-label">{{localize "TRESPASSER.Sheet.Companion.Speed"}}</span>
-          <span class="stat-value">{{system.combat.speed}}</span>
-        </div>
-        <div class="stat-box rollable" data-roll-stat="initiative" data-tooltip="{{localize 'TRESPASSER.Sheet.Companion.Initiative'}}">
-          <span class="stat-label">{{localize "TRESPASSER.Sheet.Companion.Initiative"}}</span>
-          <span class="stat-value">{{system.combat.initiative}}</span>
-        </div>
-        <div class="stat-box rollable" data-roll-stat="accuracy" data-tooltip="{{localize 'TRESPASSER.Sheet.Companion.Accuracy'}}">
-          <span class="stat-label">{{localize "TRESPASSER.Sheet.Companion.Accuracy"}}</span>
-          <span class="stat-value">{{system.combat.accuracy}}</span>
-        </div>
-        <div class="stat-box rollable" data-roll-stat="guard" data-tooltip="{{localize 'TRESPASSER.Sheet.Companion.Guard'}}">
-          <span class="stat-label">{{localize "TRESPASSER.Sheet.Companion.Guard"}}</span>
-          <span class="stat-value">{{system.combat.guard}}</span>
-        </div>
-        <div class="stat-box rollable" data-roll-stat="resist" data-tooltip="{{localize 'TRESPASSER.Sheet.Companion.Resist'}}">
-          <span class="stat-label">{{localize "TRESPASSER.Sheet.Companion.Resist"}}</span>
-          <span class="stat-value">{{system.combat.resist}}</span>
-        </div>
-        <div class="stat-box rollable" data-roll-stat="prevail" data-tooltip="{{localize 'TRESPASSER.Sheet.Companion.Prevail'}}">
-          <span class="stat-label">{{localize "TRESPASSER.Sheet.Companion.Prevail"}}</span>
-          <span class="stat-value">{{system.combat.prevail}}</span>
-        </div>
-      </div>
-
-      <!-- GM Attribute Formulas (Visible to GM only) -->
-      {{#if isGM}}
-      <div class="formula-section">
-        <h3>{{localize "TRESPASSER.Sheet.Companion.FormulaSection"}}</h3>
-        <p class="formula-help" style="font-size: var(--fs-10); color: var(--trp-text-dim); margin-bottom: 6px;">{{localize "TRESPASSER.Sheet.Companion.FormulaHelp"}}</p>
-        <div class="formula-row">
-          <label>{{localize "TRESPASSER.Sheet.Companion.FormulaHP"}}</label>
-          <input type="text" name="system.formulas.hp" value="{{system.formulas.hp}}" />
-        </div>
-        <div class="formula-row">
-          <label>{{localize "TRESPASSER.Sheet.Companion.FormulaSpeed"}}</label>
-          <input type="text" name="system.formulas.speed" value="{{system.formulas.speed}}" />
-        </div>
-        <div class="formula-row">
-          <label>{{localize "TRESPASSER.Sheet.Companion.FormulaInitiative"}}</label>
-          <input type="text" name="system.formulas.initiative" value="{{system.formulas.initiative}}" />
-        </div>
-        <div class="formula-row">
-          <label>{{localize "TRESPASSER.Sheet.Companion.FormulaAccuracy"}}</label>
-          <input type="text" name="system.formulas.accuracy" value="{{system.formulas.accuracy}}" />
-        </div>
-        <div class="formula-row">
-          <label>{{localize "TRESPASSER.Sheet.Companion.FormulaGuard"}}</label>
-          <input type="text" name="system.formulas.guard" value="{{system.formulas.guard}}" />
-        </div>
-        <div class="formula-row">
-          <label>{{localize "TRESPASSER.Sheet.Companion.FormulaResist"}}</label>
-          <input type="text" name="system.formulas.resist" value="{{system.formulas.resist}}" />
-        </div>
-        <div class="formula-row">
-          <label>{{localize "TRESPASSER.Sheet.Companion.FormulaPrevail"}}</label>
-          <input type="text" name="system.formulas.prevail" value="{{system.formulas.prevail}}" />
-        </div>
-      </div>
-      {{/if}}
-
-      <!-- Features Section -->
-      <div class="features-panel" style="margin-top: 10px;">
+      <!-- Features (Características) Section -->
+      <div class="features-panel">
         <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center;">
           <h4>{{localize "TRESPASSER.Sheet.Companion.Features"}}</h4>
           <a class="item-create button" data-type="feature" title="{{localize 'TRESPASSER.Sheet.Common.AddItem'}}">+ {{localize "TRESPASSER.Sheet.Common.AddItem"}}</a>
@@ -163,57 +121,82 @@
         </ul>
       </div>
 
-      <!-- Inventory Section -->
-      <div class="inventory-section" style="margin-top: 10px;">
-        <div class="inventory-header" style="display: flex; justify-content: space-between; align-items: center;">
-          <h4>{{localize "TRESPASSER.Sheet.Companion.Inventory"}} <span class="slot-count" style="font-size: var(--fs-11); color: var(--trp-text-dim);">({{inventoryUsed}} / {{inventoryMax}})</span></h4>
-          <div style="display: flex; gap: 8px; align-items: center;">
-            {{#if isGM}}
-            <label style="font-size: var(--fs-10); color: var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Companion.InventoryCapacity"}}:</label>
-            <input type="number" name="system.inventory_max" value="{{system.inventory_max}}" style="width: 40px; text-align: center;" />
-            {{/if}}
-            <a class="item-create button" data-type="item" title="{{localize 'TRESPASSER.Sheet.Common.AddItem'}}">+ {{localize "TRESPASSER.Sheet.Common.AddItem"}}</a>
-          </div>
+      <!-- Deeds (Habilidades) Section -->
+      <div class="deeds-panel" style="margin-top: 12px;">
+        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <h4>{{localize "TRESPASSER.Sheet.Companion.TabDeeds"}}</h4>
+          <a class="item-create button" data-type="deed" title="{{localize 'TRESPASSER.Sheet.Common.AddItem'}}">+ {{localize "TRESPASSER.Sheet.Common.AddItem"}}</a>
         </div>
-        <div class="inventory-grid">
-          {{#each inventory}}
-          <div class="inventory-card" data-item-id="{{this.id}}" draggable="true">
-            <img src="{{this.img}}" class="item-icon" title="{{this.name}}" />
-            <span class="item-name">{{this.name}}</span>
-            <div class="item-controls">
-              <a class="item-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
-              <a class="item-delete" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
+        {{> "systems/trespasser/templates/actor/parts/deed-list.hbs"}}
+      </div>
+
+      <!-- Effects (Efeitos) Section -->
+      <div class="effects-panel" style="margin-top: 12px;">
+        <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+          <h4>{{localize "TRESPASSER.Sheet.Companion.TabEffects"}}</h4>
+          <a class="item-create button" data-type="effect" title="{{localize 'TRESPASSER.Sheet.Common.AddItem'}}">+ {{localize "TRESPASSER.Sheet.Common.AddItem"}}</a>
+        </div>
+        {{> "systems/trespasser/templates/actor/parts/combat-effects.hbs"}}
+
+        <!-- Non-Combat Effects (Efeitos Fora de Combate) -->
+        <div class="non-combat-effects-section">
+          <h4 class="section-title">
+            {{localize "TRESPASSER.Sheet.Character.NonCombatEffects"}}
+          </h4>
+          <div class="effects-list">
+            {{#each activeEffects.nonCombat}}
+            {{#unless this.hiddenOnSheet}}
+            <div class="effect-row non-combat-effect" data-item-id="{{this.id}}">
+              <div class="effect-info-wrapper">
+                <b>{{this.name}}</b>
+                {{#if (eq this.type "continuous")}} <span class="continuous-badge" style="font-size: var(--fs-9); opacity: 0.7;">({{localize "TRESPASSER.App.System.Trigger.Continuous"}})</span>{{/if}}
+                <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Common.Info'}}"><i class="fas fa-info-circle"></i></a>
+                <a class="effect-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+                {{#if this.sourceName}} <span class="effect-source" style="font-size: var(--fs-11); font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
+                <span class="effect-details">(I: {{this.intensity}}) — {{this.target}}: {{this.modifier}}</span>
+              </div>
+              <a class="item-control effect-remove" data-action="delete-effect" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}">
+                <i class="fas fa-trash"></i>
+              </a>
             </div>
+            {{/unless}}
+            {{else}}
+            <div class="empty-list" style="font-size: var(--fs-12); color: var(--trp-text-dim); padding: 4px;">{{localize "TRESPASSER.Sheet.Character.NoNonCombatEffects"}}</div>
+            {{/each}}
           </div>
-          {{else}}
-          <div class="empty-list" style="font-size: var(--fs-12); color: var(--trp-text-dim); padding: 4px;">{{localize "TRESPASSER.Sheet.Character.Inventory.EmptyInventory"}}</div>
-          {{/each}}
         </div>
       </div>
+
+
+
     </div>
 
-    <!-- ─── TAB 2: DEEDS ─── -->
-    <div class="tab tab-body {{#if (eq tabs.primary 'deeds')}}active{{/if}}" data-group="primary" data-tab="deeds">
-      <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <h4>{{localize "TRESPASSER.Sheet.Companion.TabDeeds"}}</h4>
-        <a class="item-create button" data-type="deed" title="{{localize 'TRESPASSER.Sheet.Common.AddItem'}}">+ {{localize "TRESPASSER.Sheet.Common.AddItem"}}</a>
+    <!-- ─── TAB 2: INVENTORY ─── -->
+    <div class="tab tab-body {{#if (eq tabs.primary 'inventory')}}active{{/if}}" data-group="primary" data-tab="inventory">
+      <div class="inventory-header">
+        <span class="inventory-cap">{{localize "TRESPASSER.Sheet.Companion.Inventory"}}: {{inventoryUsed}} / {{inventoryMax}}</span>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          {{#if isGM}}
+          <label style="font-size: var(--fs-10); color: var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Companion.InventoryCapacity"}}:</label>
+          <input type="number" name="system.inventory_max" value="{{system.inventory_max}}" style="width: 40px; text-align: center;" />
+          {{/if}}
+          <a class="item-create button" data-type="inventory" title="{{localize 'TRESPASSER.Sheet.Common.AddItem'}}">+ {{localize "TRESPASSER.Sheet.Common.AddItem"}}</a>
+        </div>
       </div>
-      {{> "systems/trespasser/templates/actor/parts/deed-list.hbs"}}
-    </div>
 
-    <!-- ─── TAB 3: EFFECTS ─── -->
-    <div class="tab tab-body {{#if (eq tabs.primary 'effects')}}active{{/if}}" data-group="primary" data-tab="effects">
-      <div class="panel-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-        <h4>{{localize "TRESPASSER.Sheet.Companion.TabEffects"}}</h4>
-        <a class="item-create button" data-type="effect" title="{{localize 'TRESPASSER.Sheet.Common.AddItem'}}">+ {{localize "TRESPASSER.Sheet.Common.AddItem"}}</a>
+      <div class="inventory-grid">
+        {{#each inventory}}
+        {{> "systems/trespasser/templates/actor/parts/inventory-card.hbs" item=this transferTarget=../transferTarget isCompanion=true}}
+        {{else}}
+        <div class="empty-list" style="grid-column:1/-1">{{localize "TRESPASSER.Sheet.Character.Inventory.EmptyInventory"}}</div>
+        {{/each}}
       </div>
-      {{> "systems/trespasser/templates/actor/parts/combat-effects.hbs"}}
     </div>
 
-    <!-- ─── TAB 4: NOTES ─── -->
-    <div class="tab tab-body {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-group="primary" data-tab="notes">
-      <div class="editor-container" style="height: 100%; min-height: 250px;">
-        {{editor system.notes target="system.notes" button=true owner=owner editable=editable engine="prosemirror"}}
+    <!-- ─── TAB 3: NOTES ─── -->
+    <div class="tab tab-body notes {{#if (eq tabs.primary 'notes')}}active{{/if}}" data-group="primary" data-tab="notes">
+      <div class="editor-container">
+        <prose-mirror name="system.notes" value="{{system.notes}}" toggled="false" compact="false" {{#if (not editable)}}readonly{{/if}}>{{{enrichedNotes}}}</prose-mirror>
       </div>
     </div>
 

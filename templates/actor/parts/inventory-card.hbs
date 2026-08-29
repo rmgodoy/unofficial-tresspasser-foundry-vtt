@@ -1,0 +1,34 @@
+<div class="inventory-card {{#if item.system.broken}}is-broken{{/if}}" data-item-id="{{item.id}}" draggable="true">
+  {{#if item.system.broken}}<i class="fas fa-bolt broken-icon" title="{{localize 'TRESPASSER.Sheet.Item.States.UsedBroken'}}"></i>{{/if}}
+  <img src="{{item.img}}" class="item-icon" title="{{item.name}}" />
+  <span class="item-name">{{item.name}}</span>
+  <div class="item-controls">
+    {{#if (or (eq item.type "armor") (eq item.type "weapon") (eq item.type "accessory") item.system.equippable)}}
+      <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.DepletionRoll' die=item.system.depletionDie}}"><i class="fas fa-dice-d6"></i></a>
+      {{#if isEquipped}}
+        <a class="item-unequip" title="{{localize 'TRESPASSER.Sheet.Common.Unequip'}}"><i class="fas fa-hand-paper" style="color: var(--trp-gold-bright);"></i></a>
+      {{else if (not isCompanion)}}
+        <a class="item-equip" title="{{localize 'TRESPASSER.Sheet.Common.Equip'}}"><i class="fas fa-hand-paper"></i></a>
+      {{/if}}
+    {{else if (eq item.type "rations")}}
+      <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.DepletionRoll' die=item.system.depletionDie}}"><i class="fas fa-utensils"></i></a>
+    {{/if}}
+
+    {{#if (or (eq item.system.subType "light_source") (and (eq item.type "weapon") item.system.isLightSource))}}
+      <a class="item-toggle-light" title="{{#if item.system.active}}{{localize 'TRESPASSER.Sheet.Common.Unlight'}}{{else}}{{localize 'TRESPASSER.Sheet.Common.Light'}}{{/if}} {{localize 'TRESPASSER.Sheet.Item.Details.IsLightSource'}}">
+        <i class="fas fa-fire {{#if item.system.active}}active{{/if}}" style="{{#if item.system.active}}color: var(--trp-gold-bright);{{else}}color: var(--trp-text-dim);{{/if}}"></i>
+      </a>
+    {{/if}}
+
+    {{#if (or (eq item.system.subType "bombs") (eq item.system.subType "oils") (eq item.system.subType "powders") (eq item.system.subType "potions") (eq item.system.subType "scrolls") (eq item.system.subType "esoteric"))}}
+      <a class="item-consume" title="{{localize 'TRESPASSER.App.System.Trigger.Use'}}"><i class="fas fa-flask"></i></a>
+    {{/if}}
+
+    {{#if transferTarget}}
+      <a class="item-transfer" title="{{localize 'TRESPASSER.Sheet.Haven.TransferItemTo' name=transferTarget.name}}" data-target-id="{{transferTarget.id}}" data-target-type="{{transferTarget.type}}"><i class="fas fa-exchange-alt"></i></a>
+    {{/if}}
+
+    <a class="item-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+    <a class="item-delete" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-trash"></i></a>
+  </div>
+</div>

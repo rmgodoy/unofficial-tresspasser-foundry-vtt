@@ -52,13 +52,14 @@ export async function addItemToActor(actor, itemData, quantity) {
         return false;
       }
       
-      // Create separate items, each with quantity 1
+      // Create separate items, each with quantity 1 and equipped false
       const itemsToCreate = [];
       for (let i = 0; i < qty; i++) {
         const data = foundry.utils.duplicate(itemData);
         delete data._id;
-        if (data.system && "quantity" in data.system) {
-          data.system.quantity = 1;
+        if (data.system) {
+          if ("quantity" in data.system) data.system.quantity = 1;
+          data.system.equipped = false;
         }
         itemsToCreate.push(data);
       }
@@ -69,11 +70,49 @@ export async function addItemToActor(actor, itemData, quantity) {
     }
   }
 
-  // Default: create one document (for non-inventory items, or if it's not a character)
+  // Handle companion inventory: NO STACKING. Split into separate documents.
+  if (actor.type === "companion") {
+    const specialTypes = ["deed", "feature", "effect"];
+    if (!specialTypes.includes(itemData.type)) {
+      const maxSlots = actor.system.inventory_max ?? 3;
+      const currentItems = actor.items.filter(i => !specialTypes.includes(i.type));
+      const currentOccupancy = currentItems.reduce((acc, i) => {
+        const val = i.system.slotOccupancy !== undefined ? parseFloat(i.system.slotOccupancy) : 1;
+        return acc + (isNaN(val) ? 1 : val);
+      }, 0);
+
+      const itemOccupancy = itemData.system?.slotOccupancy !== undefined ? parseFloat(itemData.system.slotOccupancy) : 1;
+      const addedOccupancy = (isNaN(itemOccupancy) ? 1 : itemOccupancy) * qty;
+
+      if (currentOccupancy + addedOccupancy > maxSlots) {
+        ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Inventory.InventoryCapReached"));
+        return false;
+      }
+
+      // Create separate items, each with quantity 1 and equipped false
+      const itemsToCreate = [];
+      for (let i = 0; i < qty; i++) {
+        const data = foundry.utils.duplicate(itemData);
+        delete data._id;
+        if (data.system) {
+          if ("quantity" in data.system) data.system.quantity = 1;
+          data.system.equipped = false;
+        }
+        itemsToCreate.push(data);
+      }
+
+      const created = await actor.createEmbeddedDocuments("Item", itemsToCreate);
+      console.log(`Trespasser | addItemToActor (Companion): Created ${created.length} separate items.`);
+      return !!(created && created.length > 0);
+    }
+  }
+
+  // Default: create one document (for non-inventory items, or if it's not a character/companion)
   const data = foundry.utils.duplicate(itemData);
   delete data._id;
-  if (data.system && "quantity" in data.system) {
-    data.system.quantity = qty;
+  if (data.system) {
+    if ("quantity" in data.system) data.system.quantity = qty;
+    data.system.equipped = false;
   }
   
   const created = await actor.createEmbeddedDocuments("Item", [data]);

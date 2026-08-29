@@ -56,17 +56,17 @@ export async function onCompanionStatRoll(actor, stat, sheet) {
 }
 
 /**
- * Roll the companion's damage die.
+ * Roll the companion's skill die.
  * @param {Actor} actor - The companion actor
  * @param {TrespasserCompanionSheet} [sheet] - The companion sheet instance
  */
 export async function onCompanionDamageRoll(actor, sheet) {
-  const damageDie = actor.system.damageDie || "d6";
+  const skillDie = actor.system.skill_die || actor.system.damageDie || "d6";
   const damageBonus = actor.system.bonuses?.damage ?? 0;
-  const label = game.i18n.localize("TRESPASSER.Sheet.Companion.DamageDie") || "Damage Die";
+  const label = game.i18n.localize("TRESPASSER.Sheet.Combat.SkillDie") || "Skill Die";
 
   const result = await TrespasserRollDialog.wait({
-    dice: damageDie,
+    dice: skillDie,
     bonuses: [
       { label, value: 0 },
       { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: damageBonus }
@@ -76,7 +76,7 @@ export async function onCompanionDamageRoll(actor, sheet) {
 
   if (!result) return;
 
-  let formula = `${damageDie} + ${result.modifier}`;
+  let formula = `${skillDie} + ${result.modifier}`;
   if (damageBonus !== 0) formula += ` + ${damageBonus}`;
 
   const roll = new foundry.dice.Roll(formula);

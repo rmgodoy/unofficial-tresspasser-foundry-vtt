@@ -11,9 +11,20 @@ export function activateCompanionListeners(html, sheet) {
   const charSelector = root.querySelector("[name='system.boundCharacterId']");
   if (charSelector) {
     charSelector.addEventListener("change", async (ev) => {
-      await sheet.actor.update({ "system.boundCharacterId": ev.target.value });
+      const newId = ev.target.value;
+      await sheet.actor.update({ "system.boundCharacterId": newId });
+      sheet.actor.prepareData();
+      sheet.render(false);
     });
   }
+
+  // GM Formula Configuration Dialog
+  root.querySelectorAll("[data-action='configure-formulas'], .companion-config-btn").forEach(btn => {
+    btn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      sheet._onConfigureFormulas?.();
+    });
+  });
 
   // Combat stat roll clicks
   root.querySelectorAll("[data-roll-stat]").forEach(el => {
@@ -24,10 +35,11 @@ export function activateCompanionListeners(html, sheet) {
     });
   });
 
-  // Damage die roll click
-  const damageDieEl = root.querySelector("[data-action='roll-damage']");
-  if (damageDieEl) {
-    damageDieEl.addEventListener("click", (ev) => {
+  // Skill die / damage die roll click
+  const skillDieEl = root.querySelector("[data-action='roll-skill-die'], [data-action='roll-damage']");
+  if (skillDieEl) {
+    skillDieEl.addEventListener("click", (ev) => {
+      if (ev.target.tagName === "INPUT") return;
       ev.preventDefault();
       sheet._onCompanionDamageRoll?.();
     });
@@ -37,6 +49,9 @@ export function activateCompanionListeners(html, sheet) {
   root.querySelectorAll("[data-action='create-item'], .item-create").forEach(btn => {
     btn.addEventListener("click", async (ev) => {
       ev.preventDefault();
+      if (sheet._onItemCreate) {
+        return sheet._onItemCreate(ev);
+      }
       const type = ev.currentTarget.dataset.type || "item";
       const name = game.i18n.format("TRESPASSER.Sheet.Common.NewItem", {
         type: game.i18n.localize(`TRESPASSER.TYPES.Item.${type}`) || type
@@ -53,6 +68,50 @@ export function activateCompanionListeners(html, sheet) {
 
       const [created] = await sheet.actor.createEmbeddedDocuments("Item", [itemData]);
       if (created) created.sheet.render(true);
+    });
+  });
+
+  // Item Name click (open item sheet)
+  root.querySelectorAll(".item-name:not(.rollable)").forEach(el => {
+    el.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      const itemId = ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;
+      if (itemId) {
+        const item = sheet.actor.items.get(itemId);
+        item?.sheet?.render(true);
+      }
+    });
+  });
+
+  // Item Depletion
+  root.querySelectorAll(".item-deplete").forEach(btn => {
+    btn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      sheet._onDepletionRoll?.(ev);
+    });
+  });
+
+  // Item Consume
+  root.querySelectorAll(".item-consume").forEach(btn => {
+    btn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      sheet._onItemConsume?.(ev);
+    });
+  });
+
+  // Item Toggle Light
+  root.querySelectorAll(".item-toggle-light").forEach(btn => {
+    btn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      sheet._onToggleLight?.(ev);
+    });
+  });
+
+  // Item Transfer
+  root.querySelectorAll(".item-transfer").forEach(btn => {
+    btn.addEventListener("click", (ev) => {
+      ev.preventDefault();
+      sheet._onItemTransfer?.(ev);
     });
   });
 
@@ -77,21 +136,13 @@ export function activateCompanionListeners(html, sheet) {
       const itemId = ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;
       if (itemId) {
         const item = sheet.actor.items.get(itemId);
-        if (!item) return;
-
-        const confirm = await foundry.applications.api.DialogV2.confirm({
-          window: { title: game.i18n.localize("TRESPASSER.Sheet.Common.DeleteConfirmTitle") || "Delete Item" },
-          content: `<p>${game.i18n.format("TRESPASSER.Sheet.Common.DeleteConfirmMessage", { name: item.name }) || `Delete ${item.name}?`}</p>`,
-          classes: ["trespasser", "dialog"],
-          rejectClose: false
-        });
-        if (confirm) await item.delete();
+        if (item) await item.delete();
       }
     });
   });
 
   // Deed use / roll
-  root.querySelectorAll("[data-action='use-deed'], .deed-rollable").forEach(el => {
+  root.querySelectorAll("[data-action='use-deed'], .deed-rollable, .deed-slot-title").forEach(el => {
     el.addEventListener("click", (ev) => {
       ev.preventDefault();
       const itemId = ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;

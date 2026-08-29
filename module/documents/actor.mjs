@@ -290,7 +290,6 @@ export class TrespasserActor extends Actor {
 
   /** @override */
   _onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId) {
-    console.log("Trespasser | _onDeleteDescendantDocuments", collection, ids);
     super._onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId);
     if (collection !== "items") return;
     if (game.user.id !== userId) return;
@@ -312,19 +311,6 @@ export class TrespasserActor extends Actor {
           updates[`system.equipment.${slot}`] = "";
           changed = true;
         }
-      }
-
-      // Cleanup linked items
-      const sys = doc.system;
-      if (sys.talents?.length > 0)  this._removeLinkedItems(sys.talents, itemId);
-      if (sys.features?.length > 0) this._removeLinkedItems(sys.features, itemId);
-      if (sys.deeds?.length > 0)    this._removeLinkedItems(sys.deeds, itemId);
-      if (sys.incantations?.length > 0) this._removeLinkedItems(sys.incantations, itemId);
-      if (sys.effects?.length > 0)  this._removeLinkedItems(sys.effects, itemId);
-      if (doc.type === "weapon") {
-        if (doc.system.enhancementEffects?.length > 0) this._removeLinkedItems(doc.system.enhancementEffects, itemId);
-        if (doc.system.oilEffects?.length > 0)         this._removeLinkedItems(doc.system.oilEffects, itemId);
-        if (doc.system.extraDeeds?.length > 0)         this._removeLinkedItems(doc.system.extraDeeds, itemId);
       }
     }
 
@@ -547,8 +533,14 @@ export class TrespasserActor extends Actor {
         // 2. Never delete if another source still provides it
         if (otherDeedNames.has(existingEffect.name)) continue;
 
-        // 3. Otherwise, delete
-        await existingEffect.delete();
+        // 3. Otherwise, delete safely
+        if (this.items.has(existingEffect.id)) {
+          try {
+            await existingEffect.delete();
+          } catch (err) {
+            // Already deleted or unlinked
+          }
+        }
         continue;
       }
 
@@ -557,9 +549,21 @@ export class TrespasserActor extends Actor {
       
       const newIntensity = (existingEffect.system.intensity || 0) - sourceIntensity;
       if (newIntensity <= 0) {
-        await existingEffect.delete();
+        if (this.items.has(existingEffect.id)) {
+          try {
+            await existingEffect.delete();
+          } catch (err) {
+            // Already deleted or unlinked
+          }
+        }
       } else {
-        await existingEffect.update({ "system.intensity": newIntensity });
+        if (this.items.has(existingEffect.id)) {
+          try {
+            await existingEffect.update({ "system.intensity": newIntensity });
+          } catch (err) {
+            // Item updated or removed concurrently
+          }
+        }
       }
     }
   }

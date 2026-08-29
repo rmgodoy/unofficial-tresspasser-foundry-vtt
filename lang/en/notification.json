@@ -136,7 +136,9 @@
         "NoBoundCharacter": "This companion is not bound to any character.",
         "FormulaError": "Invalid formula for {attribute}: {formula}",
         "BoundCharacterNotFound": "Bound character could not be found.",
-        "InventoryFull": "Companion inventory is full ({max} slots)."
+        "InventoryFull": "Companion inventory is full ({max} slots).",
+        "FormulasSaved": "Companion formulas saved for {name}.",
+        "FormulasReset": "Companion formulas reset to defaults for {name}."
       }
     }
   }

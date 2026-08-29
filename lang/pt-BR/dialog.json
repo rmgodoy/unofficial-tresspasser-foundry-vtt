@@ -196,6 +196,37 @@
       "Dungeon": {
         "SelectCharacterTitle": "Selecionar Personagem",
         "SelectCharacterPrompt": "Escolha qual personagem realizará esta rolagem:"
+      },
+      "CompanionFormulas": {
+        "Title": "Fórmulas do Companheiro: {name}",
+        "DefaultTitle": "Configurar Fórmulas do Companheiro",
+        "FormulaHelp": "As fórmulas determinam os atributos, nível e dado de dano do companheiro. Você pode usar aritmética padrão (+, -, *, /) e variáveis entre colchetes angulares.",
+        "VariablesTitle": "Variáveis Disponíveis",
+        "SectionCore": "Atributos Principais & Progressão",
+        "SectionCombat": "Atributos de Combate",
+        "Level": "Fórmula de Nível",
+        "SkillDie": "Fórmula do Dado de Perícia",
+        "DamageDie": "Fórmula do Dado de Perícia",
+        "HP": "Fórmula de PV Máximo",
+        "Speed": "Fórmula de Velocidade",
+        "SpeedBonus": "Fórmula do Bônus de Velocidade",
+        "Initiative": "Fórmula de Iniciativa",
+        "Accuracy": "Fórmula de Precisão",
+        "Guard": "Fórmula de Guarda",
+        "Resist": "Fórmula de Resistência",
+        "Prevail": "Fórmula de Prevalecer",
+        "Active": "Ativo",
+        "CurrentValue": "Valor avaliado atual",
+        "ResetDefaults": "Restaurar Padrões",
+        "ResetConfirm": "Tem certeza de que deseja restaurar todas as fórmulas de atributos deste companheiro para os padrões do sistema?",
+        "VarLvl": "Nível avaliado do companheiro",
+        "VarCLvl": "Nível do personagem vinculado",
+        "VarCSkill": "Bônus de perícia do personagem vinculado",
+        "VarCSkillDie": "Dado de perícia do personagem vinculado (ex: d6, d8)",
+        "VarCMighty": "Atributo Potência do personagem vinculado",
+        "VarCAgility": "Atributo Agilidade do personagem vinculado",
+        "VarCIntellect": "Atributo Intelecto do personagem vinculado",
+        "VarCSpirit": "Atributo Espírito do personagem vinculado"
       }
     }
   }

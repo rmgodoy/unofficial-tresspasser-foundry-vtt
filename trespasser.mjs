@@ -54,6 +54,7 @@ import * as NonCombatHelper        from "./module/helpers/non-combat-helper.mjs"
 import { NonCombatSparkDialog, NonCombatShadowDialog } from "./module/dialogs/tempt-fate-dialogs.mjs";
 import { executeTemptFateFlow } from "./module/sheets/character/handlers-tempt-fate.mjs";
 import { TrespasserRollDialog } from "./module/dialogs/roll-dialog.mjs";
+import { syncBoundCompanions } from "./module/helpers/companion-formula.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -96,6 +97,7 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/actor/parts/combat-effects.hbs",
     "systems/trespasser/templates/actor/parts/clock.hbs",
     "systems/trespasser/templates/actor/parts/plights-lasting-states.hbs",
+    "systems/trespasser/templates/actor/parts/inventory-card.hbs",
     "systems/trespasser/templates/item/parts/effect-chip.hbs",
     "systems/trespasser/templates/item/parts/effects-list.hbs",
     "systems/trespasser/templates/item/parts/deeds-list.hbs",
@@ -818,6 +820,10 @@ Hooks.on("preCreateToken", (tokenDoc, updates, options, userId) => {
 });
 
 Hooks.on("updateActor", async (actor, changed, options, userId) => {
+  if (actor.type === "character") {
+    syncBoundCompanions(actor);
+  }
+
   if (game.user.id !== userId) return;
 
   if (changed.img && actor.isToken && actor.token) {
@@ -838,8 +844,11 @@ Hooks.on("updateActorDelta", async (actorDelta, changed, options, userId) => {
   }
 });
 
-/* ─── Stronghold Benefit Syncing ─── */
+/* ─── Stronghold Benefit Syncing & Companion Syncing ─── */
 Hooks.on("createItem", (item, options, userId) => {
+  if (item.parent?.type === "character") {
+    syncBoundCompanions(item.parent);
+  }
   if (game.user.id !== userId) return;
   if (item.parent?.type === "haven" && item.type === "stronghold") {
     console.log("Trespasser | Global Hook - createItem (Stronghold)");
@@ -851,6 +860,9 @@ Hooks.on("createItem", (item, options, userId) => {
 });
 
 Hooks.on("updateItem", (item, delta, options, userId) => {
+  if (item.parent?.type === "character") {
+    syncBoundCompanions(item.parent);
+  }
   if (game.user.id !== userId) return;
   if (item.parent?.type === "haven" && item.type === "stronghold") {
      console.log("Trespasser | Global Hook - updateItem (Stronghold)");
@@ -862,6 +874,9 @@ Hooks.on("updateItem", (item, delta, options, userId) => {
 });
 
 Hooks.on("deleteItem", (item, options, userId) => {
+  if (item.parent?.type === "character") {
+    syncBoundCompanions(item.parent);
+  }
   if (game.user.id !== userId) return;
   if (item.parent?.type === "haven" && item.type === "stronghold") {
      console.log("Trespasser | Global Hook - deleteItem (Stronghold)");

@@ -1,0 +1,88 @@
+<div class="trespasser-companion-formulas-dialog">
+  
+  <div class="dialog-content-scrollable scrollable">
+    <!-- Info & Bound Character Summary -->
+    <div class="dialog-banner">
+      <p class="dialog-desc">{{localize "TRESPASSER.Dialog.CompanionFormulas.FormulaHelp"}}</p>
+      <div class="bound-summary">
+        <span class="bound-label">{{localize "TRESPASSER.Sheet.Companion.BoundCharacter"}}:</span>
+        <strong class="bound-name">{{boundCharacterName}}</strong>
+      </div>
+    </div>
+
+    <!-- Available Variables Quick Reference Card -->
+    <details class="variables-card" open>
+      <summary class="variables-summary">
+        <i class="fas fa-code"></i>
+        <span>{{localize "TRESPASSER.Dialog.CompanionFormulas.VariablesTitle"}}</span>
+      </summary>
+      <div class="variables-grid">
+        {{#each variables}}
+        <div class="var-chip" data-tooltip="{{this.desc}}">
+          <code class="var-token">{{this.token}}</code>
+          <span class="var-desc">{{this.desc}}</span>
+        </div>
+        {{/each}}
+      </div>
+    </details>
+
+    <!-- Formula Input Fields -->
+    <div class="formulas-form-content">
+      
+      <!-- Core Stats (Level, Damage Die, HP) -->
+      <div class="formula-group-section">
+        <h4 class="section-title">{{localize "TRESPASSER.Dialog.CompanionFormulas.SectionCore"}}</h4>
+        <div class="formula-table">
+          {{#each coreStats}}
+          <div class="formula-field-row">
+            <label class="formula-label" for="formula-{{this.key}}">{{this.label}}</label>
+            <div class="formula-input-wrapper">
+              <input type="text" id="formula-{{this.key}}" name="{{this.name}}" value="{{this.formula}}" placeholder="{{this.placeholder}}" autocomplete="off" />
+            </div>
+            <div class="formula-preview-badge" title="{{localize 'TRESPASSER.Dialog.CompanionFormulas.CurrentValue'}}">
+              <span class="preview-label">{{localize "TRESPASSER.Dialog.CompanionFormulas.Active"}}:</span>
+              <strong class="preview-val">{{this.currentValue}}</strong>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+
+      <!-- Combat Attributes (Speed, Initiative, Accuracy, Guard, Resist, Prevail) -->
+      <div class="formula-group-section" style="margin-top: 10px;">
+        <h4 class="section-title">{{localize "TRESPASSER.Dialog.CompanionFormulas.SectionCombat"}}</h4>
+        <div class="formula-table">
+          {{#each combatStats}}
+          <div class="formula-field-row">
+            <label class="formula-label" for="formula-{{this.key}}">{{this.label}}</label>
+            <div class="formula-input-wrapper">
+              <input type="text" id="formula-{{this.key}}" name="{{this.name}}" value="{{this.formula}}" placeholder="{{this.placeholder}}" autocomplete="off" />
+            </div>
+            <div class="formula-preview-badge" title="{{localize 'TRESPASSER.Dialog.CompanionFormulas.CurrentValue'}}">
+              <span class="preview-label">{{localize "TRESPASSER.Dialog.CompanionFormulas.Active"}}:</span>
+              <strong class="preview-val">{{this.currentValue}}</strong>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Dialog Action Buttons -->
+  <footer class="dialog-footer">
+    <button type="button" class="btn-reset" data-action="reset">
+      <i class="fas fa-undo"></i> {{localize "TRESPASSER.Dialog.CompanionFormulas.ResetDefaults"}}
+    </button>
+    <div class="footer-actions-right">
+      <button type="button" class="btn-cancel" data-action="cancel">
+        <i class="fas fa-times"></i> {{localize "TRESPASSER.Dialog.Common.Cancel"}}
+      </button>
+      <button type="button" class="btn-save default" data-action="save">
+        <i class="fas fa-save"></i> {{localize "TRESPASSER.Dialog.Common.Save"}}
+      </button>
+    </div>
+  </footer>
+
+</div>
