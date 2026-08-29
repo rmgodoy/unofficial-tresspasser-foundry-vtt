@@ -1,6 +1,12 @@
 import { TrespasserActorSheet } from "./base-sheet.mjs";
 import { getCompanionData } from "./companion/get-data.mjs";
 import { activateCompanionListeners } from "./companion/listeners.mjs";
+import { onCompanionStatRoll, onCompanionDamageRoll, onCompanionSpeedRoll } from "./companion/handlers-rolls.mjs";
+import { onDeedRoll, postDeedPhase, requestCDAndRoll } from "./character/handlers-deed.mjs";
+import { evaluateAndShowRoll } from "./character/handlers-rolls.mjs";
+import { askAPDialog } from "../dialogs/ap-dialog.mjs";
+import { getAccuracyFromTarget } from "./character/handlers-combat.mjs";
+import { onPrevailRoll, onIntensityChange, onEffectRemove, onEffectInfo, onEffectEdit } from "./character/handlers-effects.mjs";
 
 /**
  * Companion Sheet class for Trespasser TTRPG.
@@ -109,37 +115,72 @@ export class TrespasserCompanionSheet extends TrespasserActorSheet {
     return this.actor.updateEmbeddedDocuments("Item", updates.map(u => ({ _id: u.target.id, sort: u.update.sort })));
   }
 
-  // ── Delegated actions (wired in Task 5 or when roll handlers are called) ───
+  // ── Delegated actions & handlers ──────────────────────────────────────────
 
   async _onCompanionStatRoll(stat) {
-    // Task 5 will provide dedicated handlers; fallback to basic roll
-    const statVal = this.actor.system.combat?.[stat] ?? 0;
-    const statLabel = game.i18n.localize(`TRESPASSER.Sheet.Companion.${stat.charAt(0).toUpperCase() + stat.slice(1)}`) || stat;
-    const roll = new foundry.dice.Roll(`1d20 + ${statVal}`);
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `${this.actor.name} — ${statLabel}`
-    });
+    return onCompanionStatRoll(this.actor, stat, this);
   }
 
   async _onCompanionDamageRoll() {
-    const die = this.actor.system.damageDie || "d6";
-    const bonus = this.actor.system.bonuses?.damage ?? 0;
-    const formula = bonus !== 0 ? `${die} + ${bonus}` : die;
-    const roll = new foundry.dice.Roll(formula);
-    await roll.toMessage({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `${this.actor.name} — ${game.i18n.localize("TRESPASSER.Sheet.Companion.DamageDie") || "Damage Die"}`
-    });
+    return onCompanionDamageRoll(this.actor, this);
+  }
+
+  async _onCompanionSpeedRoll() {
+    return onCompanionSpeedRoll(this.actor);
   }
 
   async _onCompanionDeedUse(itemId) {
     const item = this.actor.items.get(itemId);
-    if (!item) return;
-    ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor: this.actor }),
-      flavor: `${this.actor.name} — ${item.name}`,
-      content: `<div class="trespasser-chat-card"><p>${item.system.description || item.name}</p></div>`
-    });
+    if (!item || item.type !== "deed") return;
+    const fakeEvent = {
+      preventDefault: () => {},
+      currentTarget: { closest: () => ({ dataset: { itemId } }) }
+    };
+    return onDeedRoll.call(this, fakeEvent, this);
+  }
+
+  async _onDeedRoll(event) {
+    return onDeedRoll.call(this, event, this);
+  }
+
+  async _postDeedPhase(phaseName, phaseData, actor, item, options) {
+    return postDeedPhase(phaseName, phaseData, actor, item, options, this);
+  }
+
+  async _requestCDAndRoll(roll, flavor) {
+    return requestCDAndRoll(roll, flavor, this);
+  }
+
+  async _evaluateAndShowRoll(roll, flavor, cd, options = {}) {
+    return evaluateAndShowRoll(roll, flavor, cd, this, options);
+  }
+
+  async _askAPDialog(availableAP) {
+    return askAPDialog(availableAP);
+  }
+
+  _getAccuracyFromTarget() {
+    return getAccuracyFromTarget();
+  }
+
+  // ── Effects ───────────────────────────────────────────────────────────────
+  async _onPrevailRoll(event) {
+    return onPrevailRoll(event, this);
+  }
+
+  async _onIntensityChange(event) {
+    return onIntensityChange(event, this);
+  }
+
+  async _onEffectRemove(event) {
+    return onEffectRemove(event, this);
+  }
+
+  async _onEffectInfo(event) {
+    return onEffectInfo(event, this);
+  }
+
+  async _onEffectEdit(event) {
+    return onEffectEdit(event, this);
   }
 }
