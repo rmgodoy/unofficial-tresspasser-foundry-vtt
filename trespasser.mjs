@@ -2273,3 +2273,50 @@ Hooks.on("renderChatMessageHTML", (message, htmlElement, data) => {
     htmlElement.querySelectorAll(".gm-only-section, .gm-trap-warning").forEach(el => el.remove());
   }
 });
+
+/**
+ * When a character's initiative changes, sync companion initiative.
+ * Companions share the same phase as their bound character.
+ */
+Hooks.on("updateCombatant", async (combatant, changes, options, userId) => {
+  if (game.user.id !== userId) return;
+  if (!("initiative" in changes) || changes.initiative === null) return;
+
+  const actor = combatant.actor;
+  if (!actor || actor.type !== "character") return;
+
+  const combat = combatant.combat;
+  if (!combat) return;
+
+  const boundCompanions = combat.combatants.filter(
+    c => c.actor?.type === "companion" && c.actor.system.boundCharacterId === actor.id && !c.defeated
+  );
+
+  for (const comp of boundCompanions) {
+    if (comp.initiative !== changes.initiative) {
+      await comp.update({ initiative: changes.initiative, "flags.trespasser.initiativePending": false });
+    }
+  }
+});
+
+/**
+ * When a companion is added to combat, inherit bound character's initiative if already set.
+ */
+Hooks.on("createCombatant", async (combatant, options, userId) => {
+  if (game.user.id !== userId) return;
+
+  const actor = combatant.actor;
+  if (!actor || actor.type !== "companion") return;
+
+  const boundCharId = actor.system.boundCharacterId;
+  if (!boundCharId) return;
+
+  const combat = combatant.combat;
+  if (!combat) return;
+
+  const charCombatant = combat.combatants.find(c => c.actorId === boundCharId && !c.defeated);
+  if (charCombatant?.initiative != null && combatant.initiative !== charCombatant.initiative) {
+    await combatant.update({ initiative: charCombatant.initiative, "flags.trespasser.initiativePending": false });
+  }
+});
+
