@@ -4,6 +4,7 @@
  */
 
 import { TrespasserCharacterData } from "./module/data/actor-character.mjs";
+import { TrespasserCompanionData } from "./module/data/actor-companion.mjs";
 import { TrespasserCreatureData }  from "./module/data/actor-creature.mjs";
 import { TrespasserArmorData }     from "./module/data/item-armor.mjs";
 import { TrespasserWeaponData }    from "./module/data/item-weapon.mjs";
@@ -403,6 +404,7 @@ Hooks.once("init", async () => {
 
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
+  CONFIG.Actor.dataModels.companion = TrespasserCompanionData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
   CONFIG.Actor.dataModels.dungeon  = TrespasserDungeonData;
   CONFIG.Actor.dataModels.party    = TrespasserPartyData;

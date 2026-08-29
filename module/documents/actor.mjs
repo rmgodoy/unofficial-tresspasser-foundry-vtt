@@ -24,6 +24,9 @@ export class TrespasserActor extends Actor {
         case "character":
           this.updateSource({ img: "systems/trespasser/assets/icons/pesant.webp" });
           break;
+        case "companion":
+          this.updateSource({ img: "systems/trespasser/assets/icons/creature.webp" });
+          break;
         case "creature":
           this.updateSource({ img: "systems/trespasser/assets/icons/creature.webp" });
           break;

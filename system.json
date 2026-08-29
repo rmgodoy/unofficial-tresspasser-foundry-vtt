@@ -124,6 +124,7 @@
   "documentTypes": {
     "Actor": {
       "character": {},
+      "companion": {},
       "creature": {},
       "dungeon": {},
       "party": {},

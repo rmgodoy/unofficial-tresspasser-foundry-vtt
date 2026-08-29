@@ -91,6 +91,7 @@
     "TYPES": {
       "Actor": {
         "character": "Personagem",
+        "companion": "Companheiro",
         "creature": "Criatura",
         "dungeon": "Masmorra",
         "party": "Grupo",

@@ -91,6 +91,7 @@
     "TYPES": {
       "Actor": {
         "character": "Character",
+        "companion": "Companion",
         "creature": "Creature",
         "dungeon": "Dungeon",
         "party": "Party",
