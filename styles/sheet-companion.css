@@ -1,0 +1,339 @@
+/* ─── Companion Sheet Layout ─── */
+
+.trespasser-sheet.companion {
+  font-family: var(--trp-font-body);
+  font-size: var(--fs-14);
+  color: var(--trp-text);
+  background: var(--trp-bg-dark);
+}
+
+/* ─── Header Section ─── */
+.companion .sheet-header {
+  display: flex;
+  gap: 16px;
+  padding: 10px 12px;
+  background: var(--trp-bg-header);
+  border-bottom: 2px solid var(--trp-gold-dim);
+  flex-shrink: 0;
+}
+
+.companion .header-portrait {
+  flex: 0 0 90px;
+}
+
+.companion .header-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.companion .header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.companion .header-identity .name-group {
+  flex: 2;
+  min-width: 120px;
+}
+
+.companion .header-identity .name-group input {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-16);
+  font-weight: 600;
+  color: var(--trp-text-bright);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--trp-border);
+  border-radius: 0;
+  padding: 2px 0;
+  width: 100%;
+}
+
+.companion .header-identity .name-group input:focus {
+  border-bottom-color: var(--trp-gold);
+  box-shadow: none;
+}
+
+.companion .header-identity .level-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  font-size: var(--fs-12);
+}
+
+.companion .header-identity .level-group input {
+  width: 44px;
+  text-align: center;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text);
+  font-size: var(--fs-13);
+  border-radius: var(--trp-radius);
+  padding: 2px 4px;
+}
+
+.companion .damage-die-group label {
+  font-size: var(--fs-12);
+  color: var(--trp-text-dim);
+}
+
+.companion .damage-die-input {
+  width: 50px;
+  text-align: center;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text);
+  font-size: var(--fs-13);
+  border-radius: var(--trp-radius);
+  padding: 2px 4px;
+}
+
+/* ─── Bound Character Row ─── */
+.companion .bound-character-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-12);
+}
+
+.companion .bound-character-row label {
+  color: var(--trp-text-dim);
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-12);
+  white-space: nowrap;
+}
+
+.companion .bound-character-row select {
+  flex: 1;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text);
+  font-size: var(--fs-13);
+  padding: 2px 6px;
+  border-radius: var(--trp-radius);
+}
+
+/* ─── Stat Boxes Grid ─── */
+.companion .stat-boxes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  padding: 8px 0;
+}
+
+.companion .stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 8px 4px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  user-select: none;
+}
+
+.companion .stat-box:hover {
+  border-color: var(--trp-gold);
+  box-shadow: 0 0 6px var(--trp-gold-overlay);
+}
+
+.companion .stat-box .stat-label {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  color: var(--trp-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.companion .stat-box .stat-value {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-22);
+  color: var(--trp-gold-bright);
+  font-weight: bold;
+}
+
+/* ─── GM Formula Section ─── */
+.companion .formula-section {
+  margin: 10px 0;
+  padding: 10px;
+  background: var(--trp-bg-panel);
+  border: 1px dashed var(--trp-border-light);
+  border-radius: var(--trp-radius);
+}
+
+.companion .formula-section h3 {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-13);
+  color: var(--trp-gold-dim);
+  margin: 0 0 4px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.companion .formula-help {
+  font-size: var(--fs-10);
+  color: var(--trp-text-dim);
+  margin: 0 0 6px 0;
+}
+
+.companion .formula-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+
+.companion .formula-row label {
+  width: 140px;
+  font-size: var(--fs-11);
+  color: var(--trp-text-dim);
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.companion .formula-row input {
+  flex: 1;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text);
+  font-family: monospace;
+  font-size: var(--fs-12);
+  padding: 2px 6px;
+  border-radius: var(--trp-radius);
+}
+
+.companion .formula-row input:focus {
+  border-color: var(--trp-gold);
+}
+
+/* ─── Features Panel ─── */
+.companion .features-panel {
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 8px;
+}
+
+.companion .features-panel .panel-header h4 {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-13);
+  color: var(--trp-gold);
+  margin: 0;
+}
+
+.companion .features-panel .items-list {
+  list-style: none;
+  margin: 6px 0 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.companion .features-panel .item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--trp-bg-overlay);
+  padding: 4px 8px;
+  border-radius: var(--trp-radius-sm);
+  border: 1px solid var(--trp-border);
+}
+
+.companion .features-panel .feature-name {
+  font-size: var(--fs-13);
+  color: var(--trp-text);
+  cursor: pointer;
+}
+
+.companion .features-panel .feature-name:hover {
+  color: var(--trp-gold-bright);
+}
+
+.companion .features-panel .item-controls {
+  display: flex;
+  gap: 6px;
+  font-size: var(--fs-12);
+}
+
+.companion .features-panel .item-controls a {
+  color: var(--trp-text-dim);
+  cursor: pointer;
+}
+
+.companion .features-panel .item-controls a:hover {
+  color: var(--trp-gold);
+}
+
+/* ─── Inventory Section ─── */
+.companion .inventory-section {
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 8px;
+}
+
+.companion .inventory-section .inventory-header h4 {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-13);
+  color: var(--trp-gold);
+  margin: 0;
+}
+
+.companion .inventory-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.companion .inventory-card {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--trp-bg-overlay);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+}
+
+.companion .inventory-card .item-icon {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--trp-radius-sm);
+  border: 1px solid var(--trp-border);
+  object-fit: cover;
+}
+
+.companion .inventory-card .item-name {
+  flex: 1;
+  font-size: var(--fs-12);
+  color: var(--trp-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.companion .inventory-card .item-controls {
+  display: flex;
+  gap: 4px;
+  font-size: var(--fs-11);
+}
+
+.companion .inventory-card .item-controls a {
+  color: var(--trp-text-dim);
+  cursor: pointer;
+}
+
+.companion .inventory-card .item-controls a:hover {
+  color: var(--trp-gold);
+}
