@@ -647,9 +647,9 @@
               {{#each (array "head" "arms" "body" "legs" "outer" "shield") as |slot|}}
               {{#with (lookup ../equippedArmor slot) as |item|}}
               {{#unless (eq item.type "item")}}
-              <tr class="item" data-item-id="{{item.id}}" {{#if item}}draggable="true"{{/if}}>
-                <td class="slot-label {{#if item}}equip-rollable{{/if}}" data-slot="{{slot}}">{{capitalize slot}}</td>
-                <td>
+              <tr class="item {{#if item.system.broken}}is-broken{{/if}}" data-item-id="{{item.id}}" {{#if item}}draggable="true"{{/if}}>
+                <td class="slot-label {{#if item}}{{#unless item.system.broken}}equip-rollable rollable{{/unless}}{{/if}}" data-slot="{{slot}}" {{#if item}}{{#unless item.system.broken}}title="{{localize 'TRESPASSER.Sheet.Combat.ClickRollCheck' label=(capitalize slot)}}"{{/unless}}{{/if}}>{{capitalize slot}}</td>
+                <td class="{{#if item}}{{#unless item.system.broken}}equip-rollable rollable{{/unless}}{{/if}}" data-slot="{{slot}}">
                   {{#if item}}{{item.system.armorDie}}{{else}}—{{/if}}
                 </td>
                 <td>

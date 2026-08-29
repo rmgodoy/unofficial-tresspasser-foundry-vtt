@@ -7,66 +7,69 @@ import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 
 export async function onEquipRoll(event, sheet) {
   event.preventDefault();
-  const slot   = event.currentTarget.dataset.slot;
-  const itemId = sheet.actor.system.equipment[slot];
-  const item   = sheet.actor.items.get(itemId);
+  const slot   = event.currentTarget.dataset.slot || event.currentTarget.closest("[data-slot]")?.dataset.slot;
+  const itemId = event.currentTarget.closest("[data-item-id]")?.dataset.itemId || (slot ? sheet.actor.system.equipment?.[slot] : null);
+  const item   = itemId ? sheet.actor.items.get(itemId) : (slot ? sheet.actor.items.find(i => i.system.equipped && i.system.placement === slot) : null);
 
   if (!item || item.system.broken) return;
 
   const die  = item.system.armorDie || "d6";
   const roll = new foundry.dice.Roll(`1${die}`);
   await roll.evaluate();
+  const slotKey = slot || item.system.placement || "";
   await roll.toMessage({
     speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
     flavor:  game.i18n.format("TRESPASSER.Chat.Action.BlockUsage", {
       name: sheet.actor.name,
-      slot: game.i18n.localize("TRESPASSER.Sheet.Character.Equipments." + slot.split('_').map(s => s.capitalize()).join('')),
+      slot: slotKey ? game.i18n.localize("TRESPASSER.Sheet.Character.Equipments." + slotKey.split('_').map(s => s.capitalize()).join('')) : "",
       item: item.name
     })
   });
 
   // ── Triggered effects (when: "use") ──────────────────────────────────────
-  if (Array.isArray(item.system.effects)) {
+  if (Array.isArray(item.system.effects) && item.system.effects.length > 0) {
     // Armor type: show choice in chat for manual application
     if (item.type === "armor") {
       await TrespasserEffectsHelper.applyEffectChat(item.system.effects, sheet.actor, { title: item.name });
-      return; 
-    }
+    } else {
+      // Other items: auto-apply logic for "use" effects
+      for (const eff of item.system.effects) {
+        if (eff.when !== "use") continue;
 
-    // Other items: auto-apply logic for "use" effects
-    for (const eff of item.system.effects) {
-      if (eff.when !== "use") continue;
-
-      const modValue = await TrespasserEffectsHelper.evaluateModifier(eff.modifier, eff.intensity || 0, {
-        actor: sheet.actor, toMessage: true
-      });
-
-      if (eff.target === "health") {
-        const newHP = Math.clamp(sheet.actor.system.health + modValue, 0, sheet.actor.system.max_health);
-        await sheet.actor.update({ "system.health": newHP });
-        await foundry.documents.BaseChatMessage.create({
-          speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-          content: game.i18n.format("TRESPASSER.Chat.Effect.TriggeredHP", { name: item.name, value: (modValue > 0 ? "+" : "") + modValue })
+        const modValue = await TrespasserEffectsHelper.evaluateModifier(eff.modifier, eff.intensity || 0, {
+          actor: sheet.actor, toMessage: true
         });
-      } else {
-        const itemName = `${item.name}: ${eff.target}`;
-        const existing = sheet.actor.items.find(i => i.type === "effect" && i.name === itemName);
-        if (!existing) {
-          await foundry.documents.BaseItem.create({
-            name: itemName, type: "effect",
-            system: { targetAttribute: eff.target, modifier: modValue.toString(), intensity: eff.intensity || 0, isCombat: true, type: "active" }
-          }, { parent: sheet.actor });
+
+        if (eff.target === "health") {
+          const newHP = Math.clamp(sheet.actor.system.health + modValue, 0, sheet.actor.system.max_health);
+          await sheet.actor.update({ "system.health": newHP });
           await foundry.documents.BaseChatMessage.create({
             speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-            content: game.i18n.format("TRESPASSER.Chat.Effect.TriggeredAdded", { name: item.name, target: eff.target })
+            content: game.i18n.format("TRESPASSER.Chat.Effect.TriggeredHP", { name: item.name, value: (modValue > 0 ? "+" : "") + modValue })
           });
+        } else {
+          const itemName = `${item.name}: ${eff.target}`;
+          const existing = sheet.actor.items.find(i => i.type === "effect" && i.name === itemName);
+          if (!existing) {
+            await foundry.documents.BaseItem.create({
+              name: itemName, type: "effect",
+              system: { targetAttribute: eff.target, modifier: modValue.toString(), intensity: eff.intensity || 0, isCombat: true, type: "active" }
+            }, { parent: sheet.actor });
+            await foundry.documents.BaseChatMessage.create({
+              speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
+              content: game.i18n.format("TRESPASSER.Chat.Effect.TriggeredAdded", { name: item.name, target: eff.target })
+            });
+          }
         }
       }
     }
   }
 
   await item.update({ "system.broken": true });
-  await sheet.actor.update({ [`system.combat.equipment_snapshot.${slot}.used`]: true });
+  const finalSlot = slot || item.system.placement;
+  if (finalSlot) {
+    await sheet.actor.update({ [`system.combat.equipment_snapshot.${finalSlot}.used`]: true });
+  }
 }
 
 export function getActiveWeapons(sheet) {
