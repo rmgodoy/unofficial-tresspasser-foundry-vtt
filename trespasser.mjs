@@ -24,6 +24,7 @@ import { TrespasserCombat }        from "./module/documents/combat.mjs";
 import { TrespasserEffectsHelper } from "./module/helpers/effects-helper.mjs";
 import { DurationHelper }          from "./module/helpers/duration-helper.mjs";
 import { TrespasserCharacterSheet } from "./module/sheets/actor-character-sheet.mjs";
+import { TrespasserCompanionSheet } from "./module/sheets/actor-companion-sheet.mjs";
 import { TrespasserCreatureSheet }  from "./module/sheets/actor-creature-sheet.mjs";
 import { TrespasserArmorSheet }     from "./module/sheets/item-armor-sheet.mjs";
 import { TrespasserWeaponSheet }    from "./module/sheets/item-weapon-sheet.mjs";
@@ -102,6 +103,8 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/combat/combat-tracker.hbs",
     // Party template
     "systems/trespasser/templates/actor/party-sheet.hbs",
+    // Companion template
+    "systems/trespasser/templates/actor/companion-sheet.hbs",
     // Dungeon exploration templates
     "systems/trespasser/templates/dungeon/dungeon-tabs.hbs",
     "systems/trespasser/templates/dungeon/dungeon-overview.hbs",
@@ -437,6 +440,11 @@ Hooks.once("init", async () => {
     types: ["character"],
     makeDefault: true,
     label: "Trespasser Character Sheet",
+  });
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserCompanionSheet, {
+    types: ["companion"],
+    makeDefault: true,
+    label: "Trespasser Companion Sheet",
   });
   foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserCreatureSheet, {
     types: ["creature"],

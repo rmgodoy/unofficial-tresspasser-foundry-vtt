@@ -691,6 +691,37 @@
         },
         "SpeedValue": "Speed: {value}",
         "ExtraAP": "Extra Effort (+2 Accuracy)"
+      },
+      "Companion": {
+        "TabCompanion": "Companion",
+        "TabDeeds": "Deeds",
+        "TabEffects": "Effects",
+        "TabNotes": "Notes",
+        "BoundCharacter": "Bound Character",
+        "NoBoundCharacter": "None (Unbound)",
+        "Level": "Level",
+        "DamageDie": "Damage Die",
+        "Health": "Health",
+        "Speed": "Speed",
+        "Initiative": "Initiative",
+        "Accuracy": "Accuracy",
+        "Guard": "Guard",
+        "Resist": "Resist",
+        "Prevail": "Prevail",
+        "FormulaSection": "Attribute Formulas (GM Only)",
+        "FormulaHP": "HP Formula",
+        "FormulaSpeed": "Speed Formula",
+        "FormulaInitiative": "Initiative Formula",
+        "FormulaAccuracy": "Accuracy Formula",
+        "FormulaGuard": "Guard Formula",
+        "FormulaResist": "Resist Formula",
+        "FormulaPrevail": "Prevail Formula",
+        "FormulaHelp": "Variables: <lvl>, <c.lvl>, <c.skill>, <c.mighty>, <c.agility>, <c.intellect>, <c.spirit>",
+        "Features": "Features",
+        "Inventory": "Inventory",
+        "InventoryCapacity": "Capacity",
+        "InventorySlots": "{used}/{max} slots",
+        "Notes": "Notes"
       }
     }
   }

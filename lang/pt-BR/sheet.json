@@ -691,6 +691,37 @@
         },
         "SpeedValue": "Velocidade: {value}",
         "ExtraAP": "Esforço Extra (+2 Acurácia)"
+      },
+      "Companion": {
+        "TabCompanion": "Companheiro",
+        "TabDeeds": "Feitos",
+        "TabEffects": "Efeitos",
+        "TabNotes": "Notas",
+        "BoundCharacter": "Personagem Vinculado",
+        "NoBoundCharacter": "Nenhum (Desvinculado)",
+        "Level": "Nível",
+        "DamageDie": "Dado de Dano",
+        "Health": "Vida",
+        "Speed": "Velocidade",
+        "Initiative": "Iniciativa",
+        "Accuracy": "Precisão",
+        "Guard": "Guarda",
+        "Resist": "Resistência",
+        "Prevail": "Prevalecer",
+        "FormulaSection": "Fórmulas de Atributos (Apenas GM)",
+        "FormulaHP": "Fórmula de PV",
+        "FormulaSpeed": "Fórmula de Velocidade",
+        "FormulaInitiative": "Fórmula de Iniciativa",
+        "FormulaAccuracy": "Fórmula de Precisão",
+        "FormulaGuard": "Fórmula de Guarda",
+        "FormulaResist": "Fórmula de Resistência",
+        "FormulaPrevail": "Fórmula de Prevalecer",
+        "FormulaHelp": "Variáveis: <lvl>, <c.lvl>, <c.skill>, <c.mighty>, <c.agility>, <c.intellect>, <c.spirit>",
+        "Features": "Habilidades",
+        "Inventory": "Inventário",
+        "InventoryCapacity": "Capacidade",
+        "InventorySlots": "{used}/{max} espaços",
+        "Notes": "Notas"
       }
     }
   }
