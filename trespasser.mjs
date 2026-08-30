@@ -55,6 +55,7 @@ import { NonCombatSparkDialog, NonCombatShadowDialog } from "./module/dialogs/te
 import { executeTemptFateFlow } from "./module/sheets/character/handlers-tempt-fate.mjs";
 import { TrespasserRollDialog } from "./module/dialogs/roll-dialog.mjs";
 import { syncBoundCompanions } from "./module/helpers/companion-formula.mjs";
+import { registerTenacityChatListeners, buildTenacityButtonHtml } from "./module/helpers/tenacity-helper.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -936,6 +937,8 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
     return [];
   };
 
+  registerTenacityChatListeners(html);
+
   html.querySelectorAll(".apply-effect-btn").forEach(btn => {
     btn.addEventListener("click", async (ev) => {
       ev.preventDefault();
@@ -1033,8 +1036,10 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         // getAttributeBonus returns the sum, so subtract it from incoming damage
         const finalDamage = Math.max(0, rawDamage + reduction); // reduction is expected to be negative
 
-        const newHP = Math.max(0, (actor.system.health ?? 0) - finalDamage);
-        await actor.update({ "system.health": newHP });
+        const currentHP = actor.system.health ?? 0;
+        const rawNewHP = currentHP - finalDamage;
+        const newHP = Math.max(0, rawNewHP);
+        await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
 
         // Trigger damage-received effects
         await TrespasserEffectsHelper.triggerEffects(actor, "damage-received");
@@ -1044,12 +1049,20 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
           await TrespasserEffectsHelper.triggerEffects(attacker, "damage-dealt");
         }
 
-        const msg = reduction !== 0
+        let msg = reduction !== 0
           ? game.i18n.format("TRESPASSER.Chat.Combat.TookDamageReduction", { name: actor.name, total: finalDamage, reduced: Math.abs(reduction) })
           : game.i18n.format("TRESPASSER.Chat.Combat.TookDamage", { name: actor.name, total: finalDamage });
+
+        let buttonHtml = "";
+        if (actor.type === "character" && rawNewHP < 0) {
+          const belowZeroMsg = game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: rawNewHP });
+          msg += `<p class="miss-text">${belowZeroMsg}</p>`;
+          buttonHtml = buildTenacityButtonHtml(actor, rawNewHP);
+        }
+
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),
-          content: `<div class="trespasser-chat-card"><p>${msg}</p></div>`
+          content: `<div class="trespasser-chat-card"><p>${msg}</p>${buttonHtml}</div>`
         });
       }
     });

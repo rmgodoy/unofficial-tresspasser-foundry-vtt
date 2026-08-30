@@ -1,6 +1,7 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat } from './combat.mjs';
 import { messageVisibility } from "../helpers/compat.mjs";
+import { buildTenacityButtonHtml } from "../helpers/tenacity-helper.mjs";
 
 /**
  * Custom Actor document class for Trespasser TTRPG.
@@ -53,6 +54,17 @@ export class TrespasserActor extends Actor {
   async _preUpdate(changed, options, user) {
     if ( await super._preUpdate(changed, options, user) === false ) return false;
 
+    // Handle health dropping below 0 for characters
+    if (foundry.utils.hasProperty(changed, "system.health")) {
+      const targetHP = Number(foundry.utils.getProperty(changed, "system.health"));
+      if (!isNaN(targetHP) && targetHP < 0) {
+        foundry.utils.setProperty(changed, "system.health", 0);
+        if (this.type === "character" && !options.skipBelowZeroChat) {
+          options._belowZeroHP = targetHP;
+        }
+      }
+    }
+
     // Sync prototype token and placed canvas token textures if actor image changes
     if (changed.img) {
       if (this.isToken) {
@@ -80,6 +92,18 @@ export class TrespasserActor extends Actor {
   _onUpdate(changed, options, userId) {
     super._onUpdate(changed, options, userId);
     if (game.user.id !== userId) return;
+
+    if (options._belowZeroHP !== undefined && this.type === "character") {
+      const belowZeroMsg = game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", {
+        name: this.name,
+        hp: options._belowZeroHP
+      });
+      const buttonHtml = buildTenacityButtonHtml(this, options._belowZeroHP);
+      ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content: `<div class="trespasser-chat-card"><p class="miss-text">${belowZeroMsg}</p>${buttonHtml}</div>`
+      });
+    }
 
     if (this.isToken && changed.img && this.token?.actorLink) {
       const baseActor = this.token.baseActor || game.actors.get(this.token.actorId);

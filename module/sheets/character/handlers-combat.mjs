@@ -4,6 +4,7 @@
  */
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
+import { buildTenacityButtonHtml } from "../../helpers/tenacity-helper.mjs";
 
 export async function onEquipRoll(event, sheet) {
   event.preventDefault();
@@ -41,11 +42,17 @@ export async function onEquipRoll(event, sheet) {
         });
 
         if (eff.target === "health") {
-          const newHP = Math.clamp(sheet.actor.system.health + modValue, 0, sheet.actor.system.max_health);
-          await sheet.actor.update({ "system.health": newHP });
+          const rawHP = sheet.actor.system.health + modValue;
+          const newHP = Math.clamp(rawHP, 0, sheet.actor.system.max_health);
+          await sheet.actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
+          let contentHtml = `<p>${game.i18n.format("TRESPASSER.Chat.Effect.TriggeredHP", { name: item.name, value: (modValue > 0 ? "+" : "") + modValue })}</p>`;
+          if (sheet.actor.type === "character" && rawHP < 0) {
+            contentHtml += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: sheet.actor.name, hp: rawHP })}</p>`;
+            contentHtml += buildTenacityButtonHtml(sheet.actor, rawHP);
+          }
           await foundry.documents.BaseChatMessage.create({
             speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-            content: game.i18n.format("TRESPASSER.Chat.Effect.TriggeredHP", { name: item.name, value: (modValue > 0 ? "+" : "") + modValue })
+            content: `<div class="trespasser-chat-card">${contentHtml}</div>`
           });
         } else {
           const itemName = `${item.name}: ${eff.target}`;
