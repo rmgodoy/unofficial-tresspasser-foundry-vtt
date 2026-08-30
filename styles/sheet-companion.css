@@ -1,0 +1,410 @@
+/* ═══════════════════════════════════════════════════
+   Companion Sheet Styles
+   ═══════════════════════════════════════════════════ */
+
+.trespasser-sheet.companion {
+  font-family: var(--trp-font-body);
+  font-size: var(--fs-14);
+  color: var(--trp-text);
+  background: var(--trp-bg-dark);
+}
+
+/* ─── Header Section ─── */
+.companion .sheet-header {
+  display: flex;
+  gap: 16px;
+  padding: 10px 12px;
+  background: var(--trp-bg-header);
+  border-bottom: 2px solid var(--trp-gold-dim);
+  flex-shrink: 0;
+}
+
+.companion .header-portrait {
+  flex: 0 0 90px;
+}
+
+.companion .header-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 0;
+}
+
+.companion .header-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ─── Row 1: Identity & Binding ─── */
+.companion .header-identity {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.companion .header-identity .name-group {
+  flex: 1;
+  min-width: 120px;
+}
+
+.companion .header-identity .name-group input {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-18);
+  font-weight: 600;
+  color: var(--trp-text-bright);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--trp-border);
+  border-radius: 0;
+  padding: 2px 0;
+  width: 100%;
+}
+
+.companion .header-identity .name-group input:focus {
+  border-bottom-color: var(--trp-gold);
+  box-shadow: none;
+}
+
+.companion .header-identity .identity-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.companion .header-identity .level-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.companion .header-identity .level-group label {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-10);
+  color: var(--trp-gold);
+  text-transform: uppercase;
+}
+
+.companion .header-identity .level-group input,
+.companion .header-identity .level-group .level-display {
+  min-width: 28px;
+  height: 22px;
+  text-align: center;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-bright);
+  font-size: var(--fs-13);
+  font-weight: bold;
+  border-radius: var(--trp-radius);
+  padding: 0 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.companion .bound-character-group {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.companion .bound-character-group label {
+  color: var(--trp-text-dim);
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-10);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.companion .bound-character-group select {
+  min-width: 120px;
+  max-width: 160px;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text);
+  font-size: var(--fs-11);
+  padding: 1px 4px;
+  height: 22px;
+  border-radius: var(--trp-radius);
+}
+
+.companion .companion-config-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  color: var(--trp-text-dim);
+  font-size: var(--fs-12);
+  cursor: pointer;
+  border-radius: var(--trp-radius-sm);
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.companion .companion-config-btn:hover {
+  color: var(--trp-gold-bright);
+  text-shadow: 0 0 6px var(--trp-gold);
+  transform: rotate(30deg);
+}
+
+/* ─── Row 2: Resources ─── */
+.companion .header-resources {
+  display: flex;
+  gap: 8px;
+}
+
+.companion .header-resources .resource-box {
+  flex: 1;
+  min-width: 80px;
+}
+
+.companion .damage-die-input,
+.companion .damage-die-display,
+.companion .skill-die-display {
+  width: 100%;
+  text-align: center;
+  font-size: var(--fs-16);
+  font-weight: 700;
+  color: var(--trp-text-bright);
+  background: transparent;
+  border: none;
+  padding: 2px 0;
+  margin: 0;
+  line-height: 1.2;
+}
+
+/* ─── Row 3: Attributes ─── */
+.companion .header-attributes {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.companion .header-attributes .attribute-box {
+  flex: 1 1 60px;
+  min-width: 55px;
+  padding: 3px 2px;
+}
+
+.companion .header-attributes .attribute-box.rollable {
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+
+.companion .header-attributes .attribute-box.rollable:hover {
+  border-color: var(--trp-gold);
+  box-shadow: 0 0 6px var(--trp-gold-overlay);
+}
+
+.companion .header-attributes .attribute-box.rollable:hover .attribute-label {
+  color: var(--trp-gold-bright);
+}
+
+.companion .header-attributes .attribute-box h3 {
+  font-size: var(--fs-18);
+  font-weight: 700;
+  color: var(--trp-gold-bright);
+  margin: 0;
+  line-height: 1.1;
+  text-align: center;
+}
+
+.companion .header-attributes .attribute-box.attribute-box-speed {
+  flex: 1.1 1 65px;
+  min-width: 62px;
+}
+
+.companion .header-attributes .attribute-box .speed-separator {
+  font-size: var(--fs-14);
+  color: var(--trp-text-dim);
+  font-weight: normal;
+  margin: 0 1px;
+}
+
+.companion .header-attributes .attribute-box .speed-bonus-value {
+  font-size: var(--fs-14);
+  color: var(--trp-gold);
+  font-weight: 600;
+}
+
+/* ─── Combat Tab Panels ─── */
+.companion .features-panel,
+.companion .deeds-panel,
+.companion .effects-panel {
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 8px;
+}
+
+.companion .panel-header h4 {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-13);
+  color: var(--trp-gold);
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.companion .panel-header .button,
+.companion .inventory-header .button {
+  font-size: var(--fs-11);
+  color: var(--trp-gold-bright);
+  background: var(--trp-bg-overlay);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  padding: 2px 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  text-decoration: none;
+}
+
+.companion .panel-header .button:hover,
+.companion .inventory-header .button:hover {
+  background: var(--trp-gold-overlay);
+  border-color: var(--trp-gold);
+}
+
+/* ─── Features Items List ─── */
+.companion .features-panel .items-list {
+  list-style: none;
+  margin: 6px 0 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.companion .features-panel .item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--trp-bg-overlay);
+  padding: 4px 8px;
+  border-radius: var(--trp-radius-sm);
+  border: 1px solid var(--trp-border);
+}
+
+.companion .features-panel .feature-name {
+  font-size: var(--fs-13);
+  color: var(--trp-text);
+  cursor: pointer;
+}
+
+.companion .features-panel .feature-name:hover {
+  color: var(--trp-gold-bright);
+}
+
+.companion .features-panel .item-controls {
+  display: flex;
+  gap: 6px;
+  font-size: var(--fs-12);
+}
+
+.companion .features-panel .item-controls a {
+  color: var(--trp-text-dim);
+  cursor: pointer;
+}
+
+.companion .features-panel .item-controls a:hover {
+  color: var(--trp-gold);
+}
+
+/* ─── Non-Combat Effects Section ─── */
+.companion .non-combat-effects-section {
+  margin-top: 12px;
+  border-top: 1px solid var(--trp-border);
+  padding-top: 8px;
+}
+
+.companion .non-combat-effects-section .section-title {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-12);
+  color: var(--trp-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0 0 6px 0;
+}
+
+.companion .non-combat-effect {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--trp-bg-overlay);
+  margin-bottom: 4px;
+  padding: 4px 8px;
+  border-radius: var(--trp-radius-sm);
+  border: 1px solid var(--trp-border);
+  transition: border-color 0.15s ease;
+}
+
+.companion .non-combat-effect:hover {
+  border-color: var(--trp-gold-dim);
+}
+
+.companion .non-combat-effect .effect-info-wrapper {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  font-size: var(--fs-13);
+  color: var(--trp-text);
+}
+
+.companion .non-combat-effect .effect-info-wrapper b {
+  color: var(--trp-text-bright);
+}
+
+.companion .non-combat-effect .effect-details {
+  font-size: var(--fs-11);
+  color: var(--trp-text-dim);
+}
+
+.companion .non-combat-effect .effect-remove {
+  color: var(--trp-text-dim);
+  font-size: var(--fs-12);
+  cursor: pointer;
+  margin-left: 8px;
+  transition: color 0.15s ease;
+}
+
+.companion .non-combat-effect .effect-remove:hover {
+  color: var(--trp-red);
+}
+
+
+/* ─── Notes Tab ─── */
+.companion .tab.notes {
+  display: none;
+}
+
+.companion .tab.notes.active {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 300px;
+}
+
+.companion .tab.notes .editor-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.companion .tab.notes prose-mirror {
+  flex: 1;
+  height: 100%;
+  min-height: 250px;
+}
+
+

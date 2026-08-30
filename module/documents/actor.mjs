@@ -1,6 +1,7 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat } from './combat.mjs';
 import { messageVisibility } from "../helpers/compat.mjs";
+import { buildTenacityButtonHtml } from "../helpers/tenacity-helper.mjs";
 
 /**
  * Custom Actor document class for Trespasser TTRPG.
@@ -23,6 +24,9 @@ export class TrespasserActor extends Actor {
       switch(this.type) {
         case "character":
           this.updateSource({ img: "systems/trespasser/assets/icons/pesant.webp" });
+          break;
+        case "companion":
+          this.updateSource({ img: "systems/trespasser/assets/icons/creature.webp" });
           break;
         case "creature":
           this.updateSource({ img: "systems/trespasser/assets/icons/creature.webp" });
@@ -63,6 +67,17 @@ export class TrespasserActor extends Actor {
   async _preUpdate(changed, options, user) {
     if ( await super._preUpdate(changed, options, user) === false ) return false;
 
+    // Handle health dropping below 0 for characters
+    if (foundry.utils.hasProperty(changed, "system.health")) {
+      const targetHP = Number(foundry.utils.getProperty(changed, "system.health"));
+      if (!isNaN(targetHP) && targetHP < 0) {
+        foundry.utils.setProperty(changed, "system.health", 0);
+        if (this.type === "character" && !options.skipBelowZeroChat) {
+          options._belowZeroHP = targetHP;
+        }
+      }
+    }
+
     // Sync prototype token and placed canvas token textures if actor image changes
     if (changed.img) {
       if (this.isToken) {
@@ -90,6 +105,18 @@ export class TrespasserActor extends Actor {
   _onUpdate(changed, options, userId) {
     super._onUpdate(changed, options, userId);
     if (game.user.id !== userId) return;
+
+    if (options._belowZeroHP !== undefined && this.type === "character") {
+      const belowZeroMsg = game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", {
+        name: this.name,
+        hp: options._belowZeroHP
+      });
+      const buttonHtml = buildTenacityButtonHtml(this, options._belowZeroHP);
+      ChatMessage.create({
+        speaker: ChatMessage.getSpeaker({ actor: this }),
+        content: `<div class="trespasser-chat-card"><p class="miss-text">${belowZeroMsg}</p>${buttonHtml}</div>`
+      });
+    }
 
     if (this.isToken && changed.img && this.token?.actorLink) {
       const baseActor = this.token.baseActor || game.actors.get(this.token.actorId);
@@ -468,7 +495,7 @@ export class TrespasserActor extends Actor {
 
     if (item.system.subType === "light_source" || (item.type === "weapon" && item.system.isLightSource)) await this._syncTokenLight();
 
-    // Apply continuous and Trigger effects based on item type
+    // Apply continuous and Trigger effects for non-weapon items (armor, accessory, item)
     if (item.type !== "weapon" && item.system.effects?.length > 0) {
       await this._applyLinkedItems(item.system.effects, { 
         continuousOnly: true,
@@ -478,7 +505,6 @@ export class TrespasserActor extends Actor {
 
     if (item.type === "weapon") {
       if (item.system.enhancementEffects?.length > 0) await this._applyLinkedItems(item.system.enhancementEffects, { continuousOnly: true });
-      if (item.system.oilEffects?.length > 0) await this._applyLinkedItems(item.system.oilEffects, { continuousOnly: true });
       if (item.system.extraDeeds?.length > 0) await this._applyLinkedItems(item.system.extraDeeds);
     }
 
@@ -505,7 +531,6 @@ export class TrespasserActor extends Actor {
 
   /** @override */
   _onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId) {
-    console.log("Trespasser | _onDeleteDescendantDocuments", collection, ids);
     super._onDeleteDescendantDocuments(parent, collection, documents, ids, options, userId);
     if (collection !== "items") return;
     if (game.user.id !== userId) return;
@@ -527,19 +552,6 @@ export class TrespasserActor extends Actor {
           updates[`system.equipment.${slot}`] = "";
           changed = true;
         }
-      }
-
-      // Cleanup linked items
-      const sys = doc.system;
-      if (sys.talents?.length > 0)  this._removeLinkedItems(sys.talents, itemId);
-      if (sys.features?.length > 0) this._removeLinkedItems(sys.features, itemId);
-      if (sys.deeds?.length > 0)    this._removeLinkedItems(sys.deeds, itemId);
-      if (sys.incantations?.length > 0) this._removeLinkedItems(sys.incantations, itemId);
-      if (sys.effects?.length > 0)  this._removeLinkedItems(sys.effects, itemId);
-      if (doc.type === "weapon") {
-        if (doc.system.enhancementEffects?.length > 0) this._removeLinkedItems(doc.system.enhancementEffects, itemId);
-        if (doc.system.oilEffects?.length > 0)         this._removeLinkedItems(doc.system.oilEffects, itemId);
-        if (doc.system.extraDeeds?.length > 0)         this._removeLinkedItems(doc.system.extraDeeds, itemId);
       }
     }
 
@@ -584,7 +596,7 @@ export class TrespasserActor extends Actor {
     // 1. Update Item
     await item.update({ "system.equipped": false });
 
-    // Remove or reduce linked effects
+    // Remove or reduce linked effects for non-weapon items
     if (item.type !== "weapon" && item.system.effects?.length > 0) {
       await this._removeLinkedItems(item.system.effects, item.id);
     }
@@ -605,7 +617,6 @@ export class TrespasserActor extends Actor {
         await this._removeLinkedItems(item.system.enhancementEffects, item.id);
       }
       if (item.system.oilEffects && item.system.oilEffects.length > 0) {
-        await this._removeLinkedItems(item.system.oilEffects, item.id);
         // Clear oil effects from the item data as well per guide: "The oil effect will be removed once the weapon is unequipped."
         await item.update({ "system.oilEffects": [] });
       }
@@ -762,8 +773,14 @@ export class TrespasserActor extends Actor {
         // 2. Never delete if another source still provides it
         if (otherDeedNames.has(existingEffect.name)) continue;
 
-        // 3. Otherwise, delete
-        await existingEffect.delete();
+        // 3. Otherwise, delete safely
+        if (this.items.has(existingEffect.id)) {
+          try {
+            await existingEffect.delete();
+          } catch (err) {
+            // Already deleted or unlinked
+          }
+        }
         continue;
       }
 
@@ -772,9 +789,21 @@ export class TrespasserActor extends Actor {
       
       const newIntensity = (existingEffect.system.intensity || 0) - sourceIntensity;
       if (newIntensity <= 0) {
-        await existingEffect.delete();
+        if (this.items.has(existingEffect.id)) {
+          try {
+            await existingEffect.delete();
+          } catch (err) {
+            // Already deleted or unlinked
+          }
+        }
       } else {
-        await existingEffect.update({ "system.intensity": newIntensity });
+        if (this.items.has(existingEffect.id)) {
+          try {
+            await existingEffect.update({ "system.intensity": newIntensity });
+          } catch (err) {
+            // Item updated or removed concurrently
+          }
+        }
       }
     }
   }

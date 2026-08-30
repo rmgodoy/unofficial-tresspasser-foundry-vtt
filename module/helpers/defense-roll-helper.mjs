@@ -9,11 +9,41 @@ import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 const _pendingDefenseRolls = new Map();
 
 /**
- * Called by GM: sends a defense roll request to the owning player of a character.
+ * Resolve the user that should be prompted for a defense roll for the given actor.
+ * - For a companion: first check the bound character's active player owner.
+ *   If none, check if an active player owns the companion directly.
+ * - For other actors (characters): check active player owners.
+ * - If no active player owner is found, returns null (indicating GM prompt).
+ * 
+ * @param {Actor} targetActor 
+ * @returns {User|null}
+ */
+export function getDefenseTargetUser(targetActor) {
+  if (!targetActor) return null;
+
+  // For companion: prioritize the bound character's owner
+  if (targetActor.type === "companion") {
+    const boundChar = targetActor.system?.getBoundCharacter?.() 
+      || (targetActor.system?.boundCharacterId ? game.actors.get(targetActor.system.boundCharacterId) : null);
+    if (boundChar) {
+      const boundOwner = game.users.find(u => !u.isGM && boundChar.testUserPermission(u, "OWNER") && u.active);
+      if (boundOwner) return boundOwner;
+    }
+  }
+
+  // Check direct active player owner of targetActor
+  const directOwner = game.users.find(u => !u.isGM && targetActor.testUserPermission(u, "OWNER") && u.active);
+  if (directOwner) return directOwner;
+
+  return null;
+}
+
+/**
+ * Called by GM: sends a defense roll request to the owning player of a character or companion.
  * Returns a Promise that resolves when the player responds.
  * 
  * @param {object} params
- * @param {string} params.targetActorId - The character actor ID
+ * @param {string} params.targetActorId - The character or companion actor ID
  * @param {string} params.targetTokenId - The target token ID  
  * @param {string} params.statKey - "guard" or "resist"
  * @param {number} params.creatureDC - The creature's accuracy DC
@@ -25,14 +55,50 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
   const targetActor = game.actors.get(targetActorId);
   if (!targetActor) return null;
 
-  // Find the owning player (non-GM user with OWNER permission)
-  const ownerUser = game.users.find(u => !u.isGM && targetActor.testUserPermission(u, "OWNER") && u.active);
-  
-  // If no active owner found, fall back to GM rolling (current behavior)
-  if (!ownerUser) {
+  const targetUser = getDefenseTargetUser(targetActor);
+
+  // If no active player owner found (companion has no owner/bound character, or character has no player owner):
+  // Prompt the GM.
+  if (!targetUser) {
+    if (game.user.isGM) {
+      return _rollDefenseLocally(targetActor, statKey, creatureDC, deedName);
+    }
+    const gmUser = game.users.find(u => u.isGM && u.active);
+    if (!gmUser) {
+      return _rollDefenseLocally(targetActor, statKey, creatureDC, deedName);
+    }
+    return _sendDefenseSocketRequest({
+      targetActor,
+      targetUserId: gmUser.id,
+      targetUserName: gmUser.name,
+      statKey,
+      creatureDC,
+      deedName,
+      creatureName
+    });
+  }
+
+  // If the target user is the current client user, roll directly locally
+  if (targetUser.id === game.user.id) {
     return _rollDefenseLocally(targetActor, statKey, creatureDC, deedName);
   }
 
+  return _sendDefenseSocketRequest({
+    targetActor,
+    targetUserId: targetUser.id,
+    targetUserName: targetUser.name,
+    statKey,
+    creatureDC,
+    deedName,
+    creatureName
+  });
+}
+
+/**
+ * Emit defense request socket and wait for response.
+ * @private
+ */
+async function _sendDefenseSocketRequest({ targetActor, targetUserId, targetUserName, statKey, creatureDC, deedName, creatureName }) {
   const requestId = foundry.utils.randomID();
 
   // Wait for response with a timeout (15 minutes)
@@ -50,8 +116,8 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
   const { TrespasserSocket } = await import("./socket/socket.mjs");
   TrespasserSocket.emit("DEFENSE_REQUEST", {
     requestId,
-    targetActorId,
-    targetUserId: ownerUser.id,
+    targetActorId: targetActor.id,
+    targetUserId,
     statKey,
     creatureDC,
     deedName,
@@ -61,7 +127,7 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
   // Display a UI notification for the GM
   const label = statKey.charAt(0).toUpperCase() + statKey.slice(1);
   ui.notifications.info(game.i18n.format("TRESPASSER.Chat.Combat.WaitingForDefense", { 
-    name: ownerUser.name, 
+    name: targetUserName, 
     stat: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`) 
   }));
 
@@ -73,7 +139,7 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
  * Used both by the player (via socket) and as GM fallback.
  */
 export async function _rollDefenseLocally(actor, statKey, creatureDC, deedName) {
-  const totalDef = actor.system.combat[statKey] ?? 10;
+  const totalDef = actor.system.combat?.[statKey] ?? 10;
   // Continuous bonuses are already baked into totalDef via prepareDerivedData.
   // Use-triggered bonuses (e.g. Defend's +2) are NOT baked in.
   // We must split them to display correctly and avoid double-counting.
@@ -111,12 +177,14 @@ export async function _rollDefenseLocally(actor, statKey, creatureDC, deedName) 
     speaker: ChatMessage.getSpeaker({ actor }),
     flavor: `<div class="trespasser-chat-card">
       <h3>${deedName} — ${game.i18n.localize("TRESPASSER.Chat.Check.DefenseRoll")}</h3>
-      <p><strong>${actor.name}</strong> rolls ${game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`)}</p>
+      <p><strong>${actor.name}</strong> ${game.i18n.localize("TRESPASSER.Chat.Common.Rolls")} ${game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`)}</p>
     </div>`
   });
 
-  // Trigger "use" effects on the defense stat
-  await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: statKey });
+  // Trigger "use" effects on the defense stat if user has permission
+  if (actor.isOwner) {
+    await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: statKey });
+  }
 
   return {
     total: defRoll.total,
@@ -151,9 +219,9 @@ export async function requestPlayerCounterReaction(targetActorId, targetTokenId,
   const targetActor = game.actors.get(targetActorId);
   if (!targetActor) return false;
 
-  const ownerUser = game.users.find(u => !u.isGM && targetActor.testUserPermission(u, "OWNER") && u.active);
+  const ownerUser = getDefenseTargetUser(targetActor);
   
-  if (!ownerUser) {
+  if (!ownerUser || ownerUser.id === game.user.id) {
     const targetToken = canvas.tokens.placeables.find(t => t.id === targetTokenId);
     const creatureToken = creatureTokenId ? canvas.tokens.placeables.find(t => t.id === creatureTokenId) : null;
     const weapon = targetActor.items.get(weaponId);

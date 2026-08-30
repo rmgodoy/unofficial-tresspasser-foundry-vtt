@@ -135,6 +135,7 @@
     "Actor": {
       "character": {},
       "commoner": {},
+      "companion": {},
       "creature": {},
       "dungeon": {},
       "party": {},

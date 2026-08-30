@@ -91,6 +91,7 @@
     "TYPES": {
       "Actor": {
         "character": "Character",
+        "companion": "Companion",
         "creature": "Creature",
         "dungeon": "Dungeon",
         "party": "Party",
@@ -121,6 +122,37 @@
     },
     "Terrain": {
       "Rubble": "Rubble"
+    }
+  },
+  "TYPES": {
+    "Actor": {
+      "character": "Character",
+      "companion": "Companion",
+      "creature": "Creature",
+      "dungeon": "Dungeon",
+      "party": "Party",
+      "haven": "Haven"
+    },
+    "Item": {
+      "armor": "Armor",
+      "rations": "Rations",
+      "effect": "Effect",
+      "deed": "Deed",
+      "feature": "Feature",
+      "talent": "Talent",
+      "weapon": "Weapon",
+      "incantation": "Incantation",
+      "accessory": "Accessory",
+      "item": "Item",
+      "injury": "Injury",
+      "calling": "Calling",
+      "craft": "Craft",
+      "past_life": "Past Life",
+      "room": "Room",
+      "hireling": "Hireling",
+      "build": "Building",
+      "stronghold": "Stronghold",
+      "plight": "Plight"
     }
   }
 }

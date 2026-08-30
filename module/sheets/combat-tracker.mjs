@@ -55,9 +55,13 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
       const phase = phases.find(p => p.id === phaseId);
       
       if (phase) {
+        const isFollowCompanion = combatant.actor?.type === "companion" &&
+          (combatant.actor.system.initiativeMode ?? "follow") === "follow" &&
+          combatant.actor.system.boundCharacterId;
+
         turn.focus      = combatant.actor?.system.combat?.focus ?? 0;
         turn.ap         = combatant.getFlag("trespasser", "actionPoints") ?? 3;
-        turn.isPending  = combatant.getFlag("trespasser", "initiativePending") ?? false;
+        turn.isPending  = isFollowCompanion ? false : (combatant.getFlag("trespasser", "initiativePending") ?? false);
         
         // Status updates
         turn.hidden     = combatant.token?.hidden ?? combatant.hidden;

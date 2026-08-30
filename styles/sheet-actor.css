@@ -1059,6 +1059,21 @@
   min-width: 170px;
 }
 
+.combat-equip-table .equip-rollable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s;
+}
+
+.combat-equip-table .equip-rollable:hover {
+  color: var(--trp-gold-bright);
+  text-shadow: 0 0 4px var(--trp-shadow-gold);
+}
+
+.combat-equip-table tr.is-broken td:not(.col-used) {
+  opacity: 0.5;
+}
+
 .combat-equip-table .col-sm { width: 40px; }
 
 /* States */

@@ -5,6 +5,7 @@
 
 import { TrespasserCharacterData } from "./module/data/actor-character.mjs";
 import { TrespasserCommonerData }  from "./module/data/actor-commoner.mjs";
+import { TrespasserCompanionData } from "./module/data/actor-companion.mjs";
 import { TrespasserCreatureData }  from "./module/data/actor-creature.mjs";
 import { TrespasserArmorData }     from "./module/data/item-armor.mjs";
 import { TrespasserWeaponData }    from "./module/data/item-weapon.mjs";
@@ -25,6 +26,7 @@ import { TrespasserEffectsHelper } from "./module/helpers/effects-helper.mjs";
 import { DurationHelper }          from "./module/helpers/duration-helper.mjs";
 import { TrespasserCharacterSheet } from "./module/sheets/actor-character-sheet.mjs";
 import { TrespasserCommonerSheet }  from "./module/sheets/actor-commoner-sheet.mjs";
+import { TrespasserCompanionSheet } from "./module/sheets/actor-companion-sheet.mjs";
 import { TrespasserCreatureSheet }  from "./module/sheets/actor-creature-sheet.mjs";
 import { TrespasserArmorSheet }     from "./module/sheets/item-armor-sheet.mjs";
 import { TrespasserWeaponSheet }    from "./module/sheets/item-weapon-sheet.mjs";
@@ -60,6 +62,8 @@ import * as NonCombatHelper        from "./module/helpers/non-combat-helper.mjs"
 import { NonCombatSparkDialog, NonCombatShadowDialog } from "./module/dialogs/tempt-fate-dialogs.mjs";
 import { executeTemptFateFlow } from "./module/sheets/character/handlers-tempt-fate.mjs";
 import { TrespasserRollDialog } from "./module/dialogs/roll-dialog.mjs";
+import { syncBoundCompanions } from "./module/helpers/companion-formula.mjs";
+import { registerTenacityChatListeners, buildTenacityButtonHtml } from "./module/helpers/tenacity-helper.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -111,6 +115,7 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/actor/parts/combat-effects.hbs",
     "systems/trespasser/templates/actor/parts/clock.hbs",
     "systems/trespasser/templates/actor/parts/plights-lasting-states.hbs",
+    "systems/trespasser/templates/actor/parts/inventory-card.hbs",
     "systems/trespasser/templates/item/parts/effect-chip.hbs",
     "systems/trespasser/templates/item/parts/effects-list.hbs",
     "systems/trespasser/templates/item/parts/deeds-list.hbs",
@@ -118,6 +123,8 @@ Hooks.once("init", async () => {
     "systems/trespasser/templates/combat/combat-tracker.hbs",
     // Party template
     "systems/trespasser/templates/actor/party-sheet.hbs",
+    // Companion template
+    "systems/trespasser/templates/actor/companion-sheet.hbs",
     // Dungeon exploration templates
     "systems/trespasser/templates/dungeon/dungeon-tabs.hbs",
     "systems/trespasser/templates/dungeon/dungeon-overview.hbs",
@@ -446,6 +453,7 @@ Hooks.once("init", async () => {
   // Register data models
   CONFIG.Actor.dataModels.character = TrespasserCharacterData;
   CONFIG.Actor.dataModels.commoner  = TrespasserCommonerData;
+  CONFIG.Actor.dataModels.companion = TrespasserCompanionData;
   CONFIG.Actor.dataModels.creature = TrespasserCreatureData;
   CONFIG.Actor.dataModels.dungeon  = TrespasserDungeonData;
   CONFIG.Actor.dataModels.party    = TrespasserPartyData;
@@ -484,6 +492,11 @@ Hooks.once("init", async () => {
     types: ["commoner"],
     makeDefault: true,
     label: "Trespasser Commoner Sheet",
+  });
+  foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserCompanionSheet, {
+    types: ["companion"],
+    makeDefault: true,
+    label: "Trespasser Companion Sheet",
   });
   foundry.documents.collections.Actors.registerSheet("trespasser", TrespasserCreatureSheet, {
     types: ["creature"],
@@ -909,6 +922,10 @@ Hooks.on("preCreateToken", (tokenDoc, updates, options, userId) => {
 });
 
 Hooks.on("updateActor", async (actor, changed, options, userId) => {
+  if (actor.type === "character") {
+    syncBoundCompanions(actor);
+  }
+
   if (game.user.id !== userId) return;
 
   if (changed.img && actor.isToken && actor.token) {
@@ -929,8 +946,11 @@ Hooks.on("updateActorDelta", async (actorDelta, changed, options, userId) => {
   }
 });
 
-/* ─── Stronghold Benefit Syncing ─── */
+/* ─── Stronghold Benefit Syncing & Companion Syncing ─── */
 Hooks.on("createItem", (item, options, userId) => {
+  if (item.parent?.type === "character") {
+    syncBoundCompanions(item.parent);
+  }
   if (game.user.id !== userId) return;
   if (item.parent?.type === "haven" && item.type === "stronghold") {
     console.log("Trespasser | Global Hook - createItem (Stronghold)");
@@ -942,6 +962,9 @@ Hooks.on("createItem", (item, options, userId) => {
 });
 
 Hooks.on("updateItem", async (item, delta, options, userId) => {
+  if (item.parent?.type === "character") {
+    syncBoundCompanions(item.parent);
+  }
   if (game.user.id !== userId) return;
   if (item.parent?.type === "haven" && item.type === "stronghold") {
      console.log("Trespasser | Global Hook - updateItem (Stronghold)");
@@ -958,6 +981,9 @@ Hooks.on("updateItem", async (item, delta, options, userId) => {
 });
 
 Hooks.on("deleteItem", (item, options, userId) => {
+  if (item.parent?.type === "character") {
+    syncBoundCompanions(item.parent);
+  }
   if (game.user.id !== userId) return;
   if (item.parent?.type === "haven" && item.type === "stronghold") {
      console.log("Trespasser | Global Hook - deleteItem (Stronghold)");
@@ -1016,6 +1042,8 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargets"));
     return [];
   };
+
+  registerTenacityChatListeners(html);
 
   html.querySelectorAll(".apply-effect-btn").forEach(btn => {
     btn.addEventListener("click", async (ev) => {
@@ -1114,8 +1142,10 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
         // getAttributeBonus returns the sum, so subtract it from incoming damage
         const finalDamage = Math.max(0, rawDamage + reduction); // reduction is expected to be negative
 
-        const newHP = Math.max(0, (actor.system.health ?? 0) - finalDamage);
-        await actor.update({ "system.health": newHP });
+        const currentHP = actor.system.health ?? 0;
+        const rawNewHP = currentHP - finalDamage;
+        const newHP = Math.max(0, rawNewHP);
+        await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
 
         // Trigger damage-received effects
         await TrespasserEffectsHelper.triggerEffects(actor, "damage-received");
@@ -1125,12 +1155,20 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
           await TrespasserEffectsHelper.triggerEffects(attacker, "damage-dealt");
         }
 
-        const msg = reduction !== 0
+        let msg = reduction !== 0
           ? game.i18n.format("TRESPASSER.Chat.Combat.TookDamageReduction", { name: actor.name, total: finalDamage, reduced: Math.abs(reduction) })
           : game.i18n.format("TRESPASSER.Chat.Combat.TookDamage", { name: actor.name, total: finalDamage });
+
+        let buttonHtml = "";
+        if (actor.type === "character" && rawNewHP < 0) {
+          const belowZeroMsg = game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: rawNewHP });
+          msg += `<p class="miss-text">${belowZeroMsg}</p>`;
+          buttonHtml = buildTenacityButtonHtml(actor, rawNewHP);
+        }
+
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),
-          content: `<div class="trespasser-chat-card"><p>${msg}</p></div>`
+          content: `<div class="trespasser-chat-card"><p>${msg}</p>${buttonHtml}</div>`
         });
       }
     });
@@ -1909,7 +1947,10 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
     if (phase) {
       const ap        = combatant.getFlag("trespasser", "actionPoints") ?? 3;
       const focus     = combatant.actor?.system.combat?.focus ?? 0;
-      const isPending = combatant.getFlag("trespasser", "initiativePending") ?? false;
+      const isFollowCompanion = combatant.actor?.type === "companion" &&
+        (combatant.actor.system.initiativeMode ?? "follow") === "follow" &&
+        combatant.actor.system.boundCharacterId;
+      const isPending = isFollowCompanion ? false : (combatant.getFlag("trespasser", "initiativePending") ?? false);
       phase.combatants.push({ combatant, ap, focus, isPending });
     }
   }
@@ -2481,3 +2522,53 @@ Hooks.on("createActor", async (actor, options, userId) => {
     await actor.createEmbeddedDocuments("Item", [getDefaultCommonerDeedData()]);
   }
 });
+/**
+ * When a character's initiative changes, sync companion initiative.
+ * Companions share the same phase as their bound character.
+ */
+Hooks.on("updateCombatant", async (combatant, changes, options, userId) => {
+  if (game.user.id !== userId) return;
+  if (!("initiative" in changes) || changes.initiative === null) return;
+
+  const actor = combatant.actor;
+  if (!actor || actor.type !== "character") return;
+
+  const combat = combatant.combat;
+  if (!combat) return;
+
+  const boundCompanions = combat.combatants.filter(
+    c => c.actor?.type === "companion" &&
+         c.actor.system.boundCharacterId === actor.id &&
+         (c.actor.system.initiativeMode ?? "follow") === "follow" &&
+         !c.defeated
+  );
+
+  for (const comp of boundCompanions) {
+    if (comp.initiative !== changes.initiative) {
+      await comp.update({ initiative: changes.initiative, "flags.trespasser.initiativePending": false });
+    }
+  }
+});
+
+/**
+ * When a companion is added to combat, inherit bound character's initiative if already set.
+ */
+Hooks.on("createCombatant", async (combatant, options, userId) => {
+  if (game.user.id !== userId) return;
+
+  const actor = combatant.actor;
+  if (!actor || actor.type !== "companion") return;
+  if ((actor.system.initiativeMode ?? "follow") !== "follow") return;
+
+  const boundCharId = actor.system.boundCharacterId;
+  if (!boundCharId) return;
+
+  const combat = combatant.combat;
+  if (!combat) return;
+
+  const charCombatant = combat.combatants.find(c => c.actorId === boundCharId && !c.defeated);
+  if (charCombatant?.initiative != null && combatant.initiative !== charCombatant.initiative) {
+    await combatant.update({ initiative: charCombatant.initiative, "flags.trespasser.initiativePending": false });
+  }
+});
+

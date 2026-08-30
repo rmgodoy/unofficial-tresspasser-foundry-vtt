@@ -1,0 +1,102 @@
+<div class="trespasser creature-config-dialog-content" style="padding: 10px; display: flex; flex-direction: column; gap: 10px;">
+  
+  <!-- Template -->
+  <div class="form-group" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 0;">
+    <label style="font-family: var(--trp-font-header); font-size: var(--fs-12); color: var(--trp-gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0;">
+      {{localize "TRESPASSER.Sheet.Header.Template"}}
+    </label>
+    <select name="config-template" style="background: var(--trp-bg-input); color: var(--trp-text-bright); border: 1px solid var(--trp-border); border-radius: var(--trp-radius-sm); padding: 4px 8px; font-size: var(--fs-13); height: 32px; box-sizing: border-box;">
+      {{#each templates}}
+        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <!-- Role -->
+  <div class="form-group" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 0;">
+    <label style="font-family: var(--trp-font-header); font-size: var(--fs-12); color: var(--trp-gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0;">
+      {{localize "TRESPASSER.Sheet.Header.Role"}}
+    </label>
+    <select name="config-role" style="background: var(--trp-bg-input); color: var(--trp-text-bright); border: 1px solid var(--trp-border); border-radius: var(--trp-radius-sm); padding: 4px 8px; font-size: var(--fs-13); height: 32px; box-sizing: border-box;">
+      {{#each roles}}
+        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+      {{/each}}
+    </select>
+    <div class="role-desc-card" style="background: var(--trp-bg-overlay); border-left: 3px solid var(--trp-gold); padding: 6px 8px; border-radius: var(--trp-radius-sm); font-size: var(--fs-11); color: var(--trp-text-dim); line-height: 1.4;">
+      {{localize roleDescription}}
+    </div>
+  </div>
+
+  <!-- Level -->
+  <div class="form-group" style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 0;">
+    <label style="font-family: var(--trp-font-header); font-size: var(--fs-12); color: var(--trp-gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0;">
+      {{localize "TRESPASSER.Sheet.Header.Level"}}
+    </label>
+    <select name="config-level" style="background: var(--trp-bg-input); color: var(--trp-text-bright); border: 1px solid var(--trp-border); border-radius: var(--trp-radius-sm); padding: 4px 8px; font-size: var(--fs-13); height: 32px; box-sizing: border-box;">
+      {{#each levels}}
+        <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+      {{/each}}
+    </select>
+  </div>
+
+  <!-- Template Rules Summary -->
+  <div class="template-rules-card" style="background: var(--trp-bg-overlay); border: 1px solid var(--trp-border); border-radius: var(--trp-radius-sm); padding: 8px; font-size: var(--fs-11); color: var(--trp-text-dim); line-height: 1.4;">
+    <div style="font-family: var(--trp-font-header); font-size: var(--fs-11); color: var(--trp-gold); text-transform: uppercase; margin-bottom: 4px; display: flex; justify-content: space-between;">
+      <span>{{localize "TRESPASSER.Dialog.CreatureConfig.TemplateRulesTitle"}}</span>
+      <span style="color: var(--trp-text-bright);">{{localize "TRESPASSER.Dialog.CreatureConfig.ThreatRating"}}: {{threatRating}}</span>
+    </div>
+    <div>{{localize templateRuleKey}}</div>
+  </div>
+
+  <!-- Stats Box -->
+  <div class="stats-preview-card" style="background: var(--trp-bg-panel); border: 1px solid var(--trp-border); border-radius: var(--trp-radius-sm); padding: 10px;">
+    <div style="font-family: var(--trp-font-header); font-size: var(--fs-12); color: var(--trp-gold); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 8px; border-bottom: 1px solid var(--trp-border); padding-bottom: 4px;">
+      {{localize "TRESPASSER.Dialog.CreatureConfig.CalculatedStatsTitle"}}
+    </div>
+
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; font-size: var(--fs-12);">
+      <div class="stat-pill" style="display: flex; justify-content: space-between; background: var(--trp-bg-overlay); padding: 4px 8px; border-radius: 3px;">
+        <span style="color: var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Header.Health"}}:</span>
+        <strong style="color: var(--trp-text-bright);">{{stats.health}} <small style="color: var(--trp-gold); font-size: var(--fs-10);">({{stats.hpMultiplierNote}})</small></strong>
+      </div>
+      <div class="stat-pill" style="display: flex; justify-content: space-between; background: var(--trp-bg-overlay); padding: 4px 8px; border-radius: 3px;">
+        <span style="color: var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Combat.Speed"}}:</span>
+        <strong style="color: var(--trp-text-bright);">{{stats.speed}}</strong>
+      </div>
+      <div class="stat-pill" style="display: flex; justify-content: space-between; background: var(--trp-bg-overlay); padding: 4px 8px; border-radius: 3px;">
+        <span style="color: var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Combat.Guard"}}:</span>
+        <strong style="color: var(--trp-text-bright);">{{stats.guard}}</strong>
+      </div>
+      <div class="stat-pill" style="display: flex; justify-content: space-between; background: var(--trp-bg-overlay); padding: 4px 8px; border-radius: 3px;">
+        <span style="color: var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Combat.Resist"}}:</span>
+        <strong style="color: var(--trp-text-bright);">{{stats.resist}}</strong>
+      </div>
+      <div class="stat-pill" style="display: flex; justify-content: space-between; background: var(--trp-bg-overlay); padding: 4px 8px; border-radius: 3px;">
+        <span style="color: var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Combat.Accuracy"}}:</span>
+        <strong style="color: var(--trp-text-bright);">{{stats.accuracy}}</strong>
+      </div>
+      <div class="stat-pill" style="display: flex; justify-content: space-between; background: var(--trp-bg-overlay); padding: 4px 8px; border-radius: 3px;">
+        <span style="color: var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Combat.Initiative"}}:</span>
+        <strong style="color: var(--trp-text-bright);">{{stats.initiative}}</strong>
+      </div>
+      <div class="stat-pill" style="display: flex; justify-content: space-between; background: var(--trp-bg-overlay); padding: 4px 8px; border-radius: 3px;">
+        <span style="color: var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Combat.Prevail"}}:</span>
+        <strong style="color: var(--trp-text-bright);">+{{stats.prevail}}</strong>
+      </div>
+      <div class="stat-pill" style="display: flex; justify-content: space-between; background: var(--trp-bg-overlay); padding: 4px 8px; border-radius: 3px;">
+        <span style="color: var(--trp-text-dim);">{{localize "TRESPASSER.Dialog.CreatureConfig.BaseDamage"}}:</span>
+        <strong style="color: var(--trp-gold);">{{stats.baseDamageDie}}</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Dialog Buttons Footer -->
+  <div class="dialog-buttons" style="display: flex; gap: 10px; margin-top: 4px; border-top: 1px solid var(--trp-border); padding-top: 10px;">
+    <button type="button" class="dialog-button" data-action="cancel" style="flex: 1; font-size: var(--fs-11); display: flex; align-items: center; justify-content: center; gap: 6px;">
+      <i class="fas fa-times"></i> {{localize "TRESPASSER.Dialog.Common.Cancel"}}
+    </button>
+    <button type="button" class="dialog-button default" data-action="apply" style="flex: 1; font-size: var(--fs-11); display: flex; align-items: center; justify-content: center; gap: 6px;">
+      <i class="fas fa-check"></i> {{localize "TRESPASSER.Dialog.CreatureConfig.ApplyStats"}}
+    </button>
+  </div>
+</div>

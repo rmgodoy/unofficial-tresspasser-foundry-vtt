@@ -152,6 +152,36 @@
   box-shadow: 0 0 4px rgba(74, 138, 74, 0.3);
 }
 
+.trespasser-chat-card .roll-tenacity-btn {
+  width: 100%;
+  background: var(--trp-bg-dark);
+  border: 1px solid var(--trp-gold);
+  color: var(--trp-gold-bright);
+  border-radius: var(--trp-radius);
+  padding: 5px 8px;
+  cursor: pointer;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  font-weight: bold;
+  text-transform: uppercase;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.trespasser-chat-card .roll-tenacity-btn:hover {
+  background: var(--trp-gold-overlay);
+  border-color: var(--trp-gold-bright);
+  color: #fff;
+  box-shadow: 0 0 5px var(--trp-gold-dim);
+}
+
+.trespasser-chat-card.tenacity-result-card {
+  border-left: 3px solid var(--trp-gold);
+}
+
 .chat-message .message-header {
   color: var(--trp-text);
 }

@@ -438,10 +438,36 @@ export class TrespasserCombat extends Combat {
    */
   async rollPlayerInitiative(combatantId) {
     const combatant = this.combatants.get(combatantId);
-    if (!combatant?.actor || (combatant.actor.type !== "character" && combatant.actor.type !== "commoner")) return;
+    if (!combatant?.actor || (combatant.actor.type !== "character" && combatant.actor.type !== "commoner" && combatant.actor.type !== "companion")) return;
 
     // Verify this combatant is pending
     if (!combatant.getFlag("trespasser", "initiativePending")) return;
+
+    // If companion follows bound character and is bound to a character in this combat, sync if character already rolled
+    const isCompanion = combatant.actor.type === "companion";
+    const initMode = isCompanion ? (combatant.actor.system.initiativeMode ?? "follow") : null;
+    if (isCompanion && initMode === "follow" && combatant.actor.system.boundCharacterId) {
+      const boundId = combatant.actor.system.boundCharacterId;
+      const charCombatant = this.combatants.find(c => c.actorId === boundId && !c.defeated);
+      if (charCombatant && !charCombatant.getFlag("trespasser", "initiativePending") && charCombatant.initiative != null) {
+        if (game.user.isGM) {
+          await this.updateEmbeddedDocuments("Combatant", [{
+            _id: combatantId,
+            initiative: charCombatant.initiative,
+            "flags.trespasser.initiativePending": false
+          }]);
+          await this._checkAllInitiativesRolled();
+        } else {
+          await combatant.actor.setFlag("trespasser", "initiativeRollResult", {
+            combatId: this.id,
+            combatantId: combatantId,
+            total: charCombatant.initiative,
+            isNat20: false
+          });
+        }
+        return;
+      }
+    }
 
     // 1. Roll locally
     const isSluggish = combatant.actor.system.hasPlight?.("sluggish") || false;
@@ -503,30 +529,50 @@ export class TrespasserCombat extends Combat {
     const combatInfo = this.getFlag("trespasser", "combatInfo") || {};
     const enemyMaxInit = combatInfo.enemyMaxInit || 0;
     
-    const updates = { "flags.trespasser.initiativePending": false };
+    const updates = [{ _id: combatantId, "flags.trespasser.initiativePending": false }];
     const newCombatants = [];
     const isRetreat = this.getFlag("trespasser", "retreatPending");
 
+    let assignedInitiative;
     if (isRetreat) {
       // During retreat, we store the raw total to evaluate success later
-      updates.initiative = total;
+      assignedInitiative = total;
+      updates[0].initiative = total;
     } else {
       const isSluggish = combatant.actor?.system.hasPlight?.("sluggish") || false;
       if (isSluggish) {
-        updates.initiative = TrespasserCombat.PHASES.LATE;
+        assignedInitiative = TrespasserCombat.PHASES.LATE;
       } else if (isNat20) {
-        updates.initiative = TrespasserCombat.PHASES.EARLY;
+        assignedInitiative = TrespasserCombat.PHASES.EARLY;
         const extraData = this.createExtraCombatant(combatant, TrespasserCombat.PHASES.LATE);
         newCombatants.push(extraData);
       } else if (total >= enemyMaxInit) {
-        updates.initiative = TrespasserCombat.PHASES.EARLY;
+        assignedInitiative = TrespasserCombat.PHASES.EARLY;
       } else {
-        updates.initiative = TrespasserCombat.PHASES.LATE;
+        assignedInitiative = TrespasserCombat.PHASES.LATE;
+      }
+      updates[0].initiative = assignedInitiative;
+    }
+
+    // If combatant is a character, also sync any bound companions in this combat that follow bound turn order
+    if (combatant.actor?.type === "character") {
+      const boundCompanions = this.combatants.filter(c =>
+        c.actor?.type === "companion" &&
+        c.actor.system.boundCharacterId === combatant.actor.id &&
+        (c.actor.system.initiativeMode ?? "follow") === "follow" &&
+        !c.defeated
+      );
+      for (const compCombatant of boundCompanions) {
+        updates.push({
+          _id: compCombatant.id,
+          initiative: assignedInitiative,
+          "flags.trespasser.initiativePending": false
+        });
       }
     }
 
     // Apply updates
-    await this.updateEmbeddedDocuments("Combatant", [{ _id: combatantId, ...updates }]);
+    await this.updateEmbeddedDocuments("Combatant", updates);
     if (newCombatants.length > 0) {
       await this.createEmbeddedDocuments("Combatant", newCombatants);
     }
@@ -541,7 +587,7 @@ export class TrespasserCombat extends Combat {
    */
   async _checkAllInitiativesRolled() {
     const pending = this.combatants.filter(c =>
-      (c.actor?.type === "character" || c.actor?.type === "commoner") &&
+      (c.actor?.type === "character" || c.actor?.type === "commoner" || c.actor?.type === "companion") &&
       !c.defeated &&
       c.getFlag("trespasser", "initiativePending")
     );
@@ -796,9 +842,95 @@ export class TrespasserCombat extends Combat {
             updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, "flags.trespasser.initiativePending": false });
           }
         }
+      } else if ( actor.type === "companion" ) {
+        const boundCharId = actor.system.boundCharacterId;
+        const boundCharCombatant = boundCharId ? baseCombatants.find(bc => bc.actorId === boundCharId) : null;
+        const followsBound = (actor.system.initiativeMode ?? "follow") === "follow" && !!boundCharCombatant;
+
+        if (followsBound) {
+          // Bound companion following bound character turn order
+          if (playerFacingInit) {
+            updates.push({
+              _id: c.id,
+              initiative: null,
+              "flags.trespasser.initiativePending": false
+            });
+          } else {
+            const charUp = updates.find(u => u._id === boundCharCombatant.id);
+            const initVal = charUp ? charUp.initiative : TrespasserCombat.PHASES.LATE;
+            updates.push({ _id: c.id, initiative: initVal, "flags.trespasser.initiativePending": false });
+          }
+        } else {
+          // Companion rolls independently (initiativeMode === "roll" or unbound)
+          if (playerFacingInit) {
+            updates.push({
+              _id: c.id,
+              initiative: null,
+              "flags.trespasser.initiativePending": true
+            });
+            hasPending = true;
+          } else {
+            const isSluggish = actor.system.hasPlight?.("sluggish") || false;
+            let total = 0;
+            let isNat20 = false;
+
+            if (isSluggish) {
+              if (game.settings.get("trespasser", "showInitiativeInChat")) {
+                await ChatMessage.create({
+                  speaker: ChatMessage.getSpeaker({ actor: actor }),
+                  content: game.i18n.localize("TRESPASSER.Chat.Check.SluggishAutofail"),
+                  flavor: game.i18n.localize("TRESPASSER.Sheet.Combat.Initiative")
+                });
+              }
+            } else {
+              const initBonus = actor.system.combat?.initiative || 0;
+              const isAdv = actor.getFlag("trespasser", "initiativeAdvantage") || false;
+              const formula = isAdv ? "2d20kh" : "1d20";
+              const roll = new foundry.dice.Roll(`${formula} + ${initBonus}`);
+              await roll.evaluate();
+
+              if (game.settings.get("trespasser", "showInitiativeInChat")) {
+                await roll.toMessage({
+                  speaker: ChatMessage.getSpeaker({ actor: actor }),
+                  flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
+                });
+              }
+
+              total = roll.total;
+              isNat20 = roll.dice[0]?.results?.[0]?.result === 20;
+            }
+
+            if ( isSluggish ) {
+              updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, "flags.trespasser.initiativePending": false });
+            } else if ( isNat20 ) {
+              updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, "flags.trespasser.initiativePending": false });
+              const extraData = this.createExtraCombatant(c, TrespasserCombat.PHASES.LATE);
+              newCombatants.push(extraData);
+            } else if ( total >= enemyMaxInit ) {
+              updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, "flags.trespasser.initiativePending": false });
+            } else {
+              updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, "flags.trespasser.initiativePending": false });
+            }
+          }
+        }
       } else {
         // Fallback for non-character/creature (e.g. traps/hazards)
         updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.END, "flags.trespasser.initiativePending": false });
+      }
+    }
+
+    // Post-pass to guarantee bound companions that follow bound character match bound character's final assigned initiative
+    for (const c of baseCombatants) {
+      if (c.actor?.type === "companion" && c.actor.system.boundCharacterId && (c.actor.system.initiativeMode ?? "follow") === "follow") {
+        const charCombatant = baseCombatants.find(bc => bc.actorId === c.actor.system.boundCharacterId);
+        if (charCombatant) {
+          const charUp = updates.find(u => u._id === charCombatant.id);
+          const compUp = updates.find(u => u._id === c.id);
+          if (charUp && compUp && charUp.initiative != null) {
+            compUp.initiative = charUp.initiative;
+            compUp["flags.trespasser.initiativePending"] = false;
+          }
+        }
       }
     }
 

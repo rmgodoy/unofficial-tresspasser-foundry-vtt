@@ -25,6 +25,9 @@ export async function handleDefenseRequest(data, senderId) {
   const { TrespasserSocket } = await import("./socket.mjs");
   TrespasserSocket.emit("DEFENSE_RESPONSE", {
     requestId,
+    targetActorId,
+    statKey,
+    actorWasOwner: actor.isOwner,
     result
   });
 }
@@ -34,10 +37,19 @@ export async function handleDefenseRequest(data, senderId) {
  * @param {object} data - The response data
  */
 export async function handleDefenseResponse(data) {
-  const { requestId, result } = data;
+  const { requestId, result, targetActorId, statKey, actorWasOwner } = data;
   
   // Only GMs should process the response
   if (!game.user.isGM) return;
+
+  // If the responding player was not direct owner of the actor (e.g. bound companion proxy), GM triggers effects
+  if (targetActorId && statKey && actorWasOwner === false) {
+    const actor = game.actors.get(targetActorId);
+    if (actor) {
+      const { TrespasserEffectsHelper } = await import("../effects-helper.mjs");
+      await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: statKey });
+    }
+  }
 
   resolveDefenseRoll(requestId, result);
 }
