@@ -17,22 +17,26 @@
     </div>
 
     <div class="header-info">
-      <!-- Row 1: Name -->
-      <div class="header-row header-identity" style="margin-bottom: 8px;">
-        <div class="name-group" style="flex: 1;">
+      <!-- Row 1: Name and Configure Action -->
+      <div class="header-row creature-identity-row">
+        <div class="name-group">
           <input type="text" name="name" value="{{actor.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.CreatureNamePlaceholder'}}" />
         </div>
+        <a class="creature-config-action-btn" data-action="configureCreature" title="{{localize 'TRESPASSER.Dialog.CreatureConfig.HeaderButton'}}">
+          <i class="fas fa-wand-magic-sparkles"></i>
+          <span>{{localize "TRESPASSER.Dialog.CreatureConfig.ButtonLabel"}}</span>
+        </a>
       </div>
 
-      <!-- Row 2: Level, Role, Template -->
-      <div class="header-row header-identity" style="margin-bottom: 8px; justify-content: flex-start; gap: 15px; align-items: flex-end;">
-        <div class="level-group">
-          <label>{{localize "TRESPASSER.Sheet.Header.Level"}}</label>
-          <input type="number" name="system.level" value="{{system.level}}" min="0" max="20" />
+      <!-- Row 2: Level, Role, Template Meta Badges -->
+      <div class="header-row creature-meta-row">
+        <div class="creature-meta-pill">
+          <span class="meta-label">{{localize "TRESPASSER.Sheet.Header.Level"}}</span>
+          <input type="number" name="system.level" value="{{system.level}}" min="0" max="20" class="meta-input" />
         </div>
-        <div class="level-group">
-          <label>{{localize "TRESPASSER.Sheet.Header.Role"}}</label>
-          <select name="system.role" style="flex: 1; background: transparent; color: var(--trp-text-light); border: none; font-family: var(--trp-font-primary); font-size: var(--fs-14); text-transform: uppercase;">
+        <div class="creature-meta-pill">
+          <span class="meta-label">{{localize "TRESPASSER.Sheet.Header.Role"}}</span>
+          <select name="system.role" class="meta-select">
             <option value="archer" {{#if (eq system.role "archer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Archer"}}</option>
             <option value="enchanter" {{#if (eq system.role "enchanter")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Enchanter"}}</option>
             <option value="enforcer" {{#if (eq system.role "enforcer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Enforcer"}}</option>
@@ -43,59 +47,72 @@
             <option value="sorcerer" {{#if (eq system.role "sorcerer")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Roles.Sorcerer"}}</option>
           </select>
         </div>
-        <div class="level-group">
-          <label>{{localize "TRESPASSER.Sheet.Header.Template"}}</label>
-          <select name="system.template" style="flex: 1; background: transparent; color: var(--trp-text-light); border: none; font-family: var(--trp-font-primary); font-size: var(--fs-14); text-transform: uppercase;">
+        <div class="creature-meta-pill">
+          <span class="meta-label">{{localize "TRESPASSER.Sheet.Header.Template"}}</span>
+          <select name="system.template" class="meta-select">
             <option value="underling" {{#if (eq system.template "underling")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Underling"}}</option>
             <option value="normal" {{#if (eq system.template "normal")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Normal"}}</option>
             <option value="paragon" {{#if (eq system.template "paragon")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Paragon"}}</option>
             <option value="tyrant" {{#if (eq system.template "tyrant")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Tyrant"}}</option>
           </select>
         </div>
-        <div class="level-group" style="margin-left: auto;">
-          <a class="config-creature-btn button" data-action="configureCreature" title="{{localize 'TRESPASSER.Dialog.CreatureConfig.HeaderButton'}}" style="display: flex; align-items: center; justify-content: center; height: 26px; padding: 0 8px; font-size: var(--fs-11); background: var(--trp-bg-panel); border: 1px solid var(--trp-border); border-radius: var(--trp-radius-sm); color: var(--trp-gold); cursor: pointer; text-decoration: none; white-space: nowrap;">
-            <i class="fas fa-wand-magic-sparkles" style="margin-right: 4px;"></i> {{localize "TRESPASSER.Dialog.CreatureConfig.ButtonLabel"}}
-          </a>
-        </div>
       </div>
 
-      <!-- Row 3: Resources Part 1 (Health, Guard, Resist) -->
-      <div class="header-row header-resources" style="justify-content: space-between; margin-bottom: 8px;">
-        <div class="resource-box">
-          <label>{{localize "TRESPASSER.Sheet.Header.Health"}}</label>
-          <div class="resource-values">
+      <!-- Row 3: Defenses (Health, Guard, Resist) -->
+      <div class="header-row creature-stats-row creature-defenses-row">
+        <div class="creature-stat-box health-box">
+          <label class="stat-label">{{localize "TRESPASSER.Sheet.Header.Health"}}</label>
+          <div class="health-values">
             <input type="number" name="system.health" value="{{system.health}}" min="0" />
-            <span>/</span>
+            <span class="slash">/</span>
             <input type="number" name="system.max_health" value="{{system.max_health}}" />
           </div>
         </div>
-        <div class="resource-box">
-          <label title="{{localize "TRESPASSER.Sheet.Common.Base"}}: {{system.guard}}">{{localize "TRESPASSER.Sheet.Combat.Guard"}} {{#if (ne system.guard system.combat.guard)}}({{system.combat.guard}}){{/if}}</label>
-          <input type="number" name="system.guard" value="{{system.guard}}" />
+        <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Common.Base'}}: {{system.guard}}">
+          <label class="stat-label">
+            {{localize "TRESPASSER.Sheet.Combat.Guard"}}
+            {{#if (ne system.guard system.combat.guard)}}<small class="mod-val">({{system.combat.guard}})</small>{{/if}}
+          </label>
+          <input type="number" name="system.guard" value="{{system.guard}}" class="stat-input" />
         </div>
-        <div class="resource-box">
-          <label title="{{localize "TRESPASSER.Sheet.Common.Base"}}: {{system.resist}}">{{localize "TRESPASSER.Sheet.Combat.Resist"}} {{#if (ne system.resist system.combat.resist)}}({{system.combat.resist}}){{/if}}</label>
-          <input type="number" name="system.resist" value="{{system.resist}}" />
+        <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Common.Base'}}: {{system.resist}}">
+          <label class="stat-label">
+            {{localize "TRESPASSER.Sheet.Combat.Resist"}}
+            {{#if (ne system.resist system.combat.resist)}}<small class="mod-val">({{system.combat.resist}})</small>{{/if}}
+          </label>
+          <input type="number" name="system.resist" value="{{system.resist}}" class="stat-input" />
         </div>
       </div>
 
-      <!-- Row 4: Resources Part 2 (Initiative, Speed, Prevail) -->
-      <div class="header-row header-resources" style="justify-content: space-between;">
-        <div class="resource-box">
-          <label title="{{localize "TRESPASSER.Sheet.Common.Base"}}: {{system.accuracy}}">{{localize "TRESPASSER.Sheet.Combat.Accuracy"}} {{#if (ne system.accuracy system.combat.accuracy)}}({{system.combat.accuracy}}){{/if}}</label>
-          <input type="number" name="system.accuracy" value="{{system.accuracy}}" />
+      <!-- Row 4: Combat Ratings (Accuracy, Initiative, Speed, Prevail) -->
+      <div class="header-row creature-stats-row creature-combat-row">
+        <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Common.Base'}}: {{system.accuracy}}">
+          <label class="stat-label">
+            {{localize "TRESPASSER.Sheet.Combat.Accuracy"}}
+            {{#if (ne system.accuracy system.combat.accuracy)}}<small class="mod-val">({{system.combat.accuracy}})</small>{{/if}}
+          </label>
+          <input type="number" name="system.accuracy" value="{{system.accuracy}}" class="stat-input" />
         </div>
-        <div class="resource-box">
-          <label title="{{localize "TRESPASSER.Sheet.Common.Base"}}: {{system.initiative}}">{{localize "TRESPASSER.Sheet.Combat.Initiative"}} {{#if (ne system.initiative system.combat.initiative)}}({{system.combat.initiative}}){{/if}}</label>
-          <input type="number" name="system.initiative" value="{{system.initiative}}" />
+        <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Common.Base'}}: {{system.initiative}}">
+          <label class="stat-label">
+            {{localize "TRESPASSER.Sheet.Combat.Initiative"}}
+            {{#if (ne system.initiative system.combat.initiative)}}<small class="mod-val">({{system.combat.initiative}})</small>{{/if}}
+          </label>
+          <input type="number" name="system.initiative" value="{{system.initiative}}" class="stat-input" />
         </div>
-        <div class="resource-box">
-          <label title="{{localize "TRESPASSER.Sheet.Common.Base"}}: {{system.speed}}">{{localize "TRESPASSER.Sheet.Combat.Speed"}} {{#if (ne system.speed system.combat.speed)}}({{system.combat.speed}}){{/if}}</label>
-          <input type="number" name="system.speed" value="{{system.speed}}" />
+        <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Common.Base'}}: {{system.speed}}">
+          <label class="stat-label">
+            {{localize "TRESPASSER.Sheet.Combat.Speed"}}
+            {{#if (ne system.speed system.combat.speed)}}<small class="mod-val">({{system.combat.speed}})</small>{{/if}}
+          </label>
+          <input type="number" name="system.speed" value="{{system.speed}}" class="stat-input" />
         </div>
-        <div class="resource-box">
-          <label title="{{localize "TRESPASSER.Sheet.Common.Base"}}: {{system.prevail}}">{{localize "TRESPASSER.Sheet.Combat.Prevail"}} {{#if (ne system.prevail system.combat.prevail)}}({{system.combat.prevail}}){{/if}}</label>
-          <input type="number" name="system.prevail" value="{{system.prevail}}" />
+        <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Common.Base'}}: {{system.prevail}}">
+          <label class="stat-label">
+            {{localize "TRESPASSER.Sheet.Combat.Prevail"}}
+            {{#if (ne system.prevail system.combat.prevail)}}<small class="mod-val">({{system.combat.prevail}})</small>{{/if}}
+          </label>
+          <input type="number" name="system.prevail" value="{{system.prevail}}" class="stat-input" />
         </div>
       </div>
     </div>
