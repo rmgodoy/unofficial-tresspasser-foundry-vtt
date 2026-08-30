@@ -52,6 +52,16 @@
       <div class="formula-group-section" style="margin-top: 10px;">
         <h4 class="section-title">{{localize "TRESPASSER.Dialog.CompanionFormulas.SectionCombat"}}</h4>
         <div class="formula-table">
+          <div class="formula-field-row">
+            <label class="formula-label" for="companion-initiative-mode">{{localize "TRESPASSER.Dialog.CompanionFormulas.InitiativeMode"}}</label>
+            <div class="formula-input-wrapper">
+              <select id="companion-initiative-mode" name="initiativeMode">
+                {{#each initiativeModes}}
+                <option value="{{this.value}}" {{#if this.selected}}selected{{/if}}>{{this.label}}</option>
+                {{/each}}
+              </select>
+            </div>
+          </div>
           {{#each combatStats}}
           <div class="formula-field-row">
             <label class="formula-label" for="formula-{{this.key}}">{{this.label}}</label>

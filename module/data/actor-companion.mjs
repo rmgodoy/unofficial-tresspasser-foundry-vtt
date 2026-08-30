@@ -14,6 +14,13 @@ export class TrespasserCompanionData extends foundry.abstract.TypeDataModel {
       // Identity — bound character reference (Actor ID or UUID)
       boundCharacterId: new fields.StringField({ blank: true }),
 
+      // Initiative mode: "follow" (follow bound character turn order) or "roll" (roll initiative independently)
+      initiativeMode: new fields.StringField({
+        initial: "follow",
+        choices: ["follow", "roll"],
+        blank: false
+      }),
+
       // Level (derived / stored)
       level: new fields.NumberField({ required: true, integer: true, initial: 1, min: 0 }),
 

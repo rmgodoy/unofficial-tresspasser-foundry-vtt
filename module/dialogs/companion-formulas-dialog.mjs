@@ -75,6 +75,21 @@ export class CompanionFormulasDialog extends foundry.applications.api.Handlebars
     context.boundCharacter = boundChar;
     context.boundCharacterName = boundChar?.name ?? game.i18n.localize("TRESPASSER.Sheet.Companion.NoBoundCharacter");
 
+    const initiativeMode = sys.initiativeMode || "follow";
+    context.initiativeMode = initiativeMode;
+    context.initiativeModes = [
+      {
+        value: "follow",
+        label: game.i18n.localize("TRESPASSER.Dialog.CompanionFormulas.InitiativeModeFollow"),
+        selected: initiativeMode === "follow"
+      },
+      {
+        value: "roll",
+        label: game.i18n.localize("TRESPASSER.Dialog.CompanionFormulas.InitiativeModeRoll"),
+        selected: initiativeMode === "roll"
+      }
+    ];
+
     // Core formula items (Level, Skill Die, HP)
     context.coreStats = [
       {
@@ -201,7 +216,12 @@ export class CompanionFormulasDialog extends foundry.applications.api.Handlebars
       prevail:     formData["formulas.prevail"]?.trim() || CompanionFormulasDialog.DEFAULT_FORMULAS.prevail
     };
 
-    await this.actor.update({ "system.formulas": updatedFormulas });
+    const initiativeMode = formData["initiativeMode"] || "follow";
+
+    await this.actor.update({
+      "system.formulas": updatedFormulas,
+      "system.initiativeMode": initiativeMode
+    });
 
     ui.notifications.info(
       game.i18n.format("TRESPASSER.Notification.Companion.FormulasSaved", { name: this.actor.name })
@@ -224,7 +244,10 @@ export class CompanionFormulasDialog extends foundry.applications.api.Handlebars
 
     if (!confirm) return;
 
-    await this.actor.update({ "system.formulas": CompanionFormulasDialog.DEFAULT_FORMULAS });
+    await this.actor.update({
+      "system.formulas": CompanionFormulasDialog.DEFAULT_FORMULAS,
+      "system.initiativeMode": "follow"
+    });
 
     ui.notifications.info(
       game.i18n.format("TRESPASSER.Notification.Companion.FormulasReset", { name: this.actor.name })

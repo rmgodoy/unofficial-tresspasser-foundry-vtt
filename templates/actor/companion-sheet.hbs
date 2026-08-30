@@ -64,7 +64,15 @@
 
       <!-- Row 3: Attributes (Initiative, Accuracy, Guard, Resist, Prevail, Speed) -->
       <div class="header-row header-attributes">
-        {{#each (array "initiative" "accuracy" "guard" "resist" "prevail") as |stat|}}
+        {{#if showInitiativeStat}}
+        <div class="attribute-box rollable" data-roll-stat="initiative" data-tooltip="{{localize 'TRESPASSER.Sheet.Combat.ClickRollCheck' label=(localize 'TRESPASSER.Sheet.Companion.Initiative')}}">
+          <span class="attribute-label attribute-roll">
+            {{localize "TRESPASSER.Sheet.Companion.Initiative"}}
+            <h3>{{system.combat.initiative}}</h3>
+          </span>
+        </div>
+        {{/if}}
+        {{#each (array "accuracy" "guard" "resist" "prevail") as |stat|}}
         <div class="attribute-box rollable" data-roll-stat="{{stat}}" data-tooltip="{{localize 'TRESPASSER.Sheet.Combat.ClickRollCheck' label=(localize (concat 'TRESPASSER.Sheet.Companion.' (capitalize stat)))}}">
           <span class="attribute-label attribute-roll">
             {{localize (concat "TRESPASSER.Sheet.Companion." (capitalize stat))}}

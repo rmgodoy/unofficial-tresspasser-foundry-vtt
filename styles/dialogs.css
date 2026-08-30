@@ -1208,12 +1208,13 @@
   flex: 1;
 }
 
-.trespasser-companion-formulas-dialog .formula-input-wrapper input {
+.trespasser-companion-formulas-dialog .formula-input-wrapper input,
+.trespasser-companion-formulas-dialog .formula-input-wrapper select {
   width: 100%;
   background: var(--trp-bg-input);
   border: 1px solid var(--trp-border);
   color: var(--trp-text-bright);
-  font-family: monospace;
+  font-family: var(--trp-font-primary);
   font-size: var(--fs-12);
   padding: 2px 8px;
   border-radius: var(--trp-radius);
@@ -1221,7 +1222,12 @@
   box-sizing: border-box;
 }
 
-.trespasser-companion-formulas-dialog .formula-input-wrapper input:focus {
+.trespasser-companion-formulas-dialog .formula-input-wrapper input {
+  font-family: monospace;
+}
+
+.trespasser-companion-formulas-dialog .formula-input-wrapper input:focus,
+.trespasser-companion-formulas-dialog .formula-input-wrapper select:focus {
   border-color: var(--trp-gold);
   box-shadow: 0 0 4px var(--trp-gold-overlay);
 }

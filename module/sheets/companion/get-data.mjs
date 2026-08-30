@@ -18,6 +18,7 @@ export async function getCompanionData(sheet, options = {}) {
     editable: sheet.isEditable,
     owner: actor.isOwner,
     isGM: game.user.isGM,
+    showInitiativeStat: (actor.system.initiativeMode ?? "follow") === "roll",
   };
 
   // Bound character info

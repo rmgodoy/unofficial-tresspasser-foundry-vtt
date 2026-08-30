@@ -1760,7 +1760,10 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
     if (phase) {
       const ap        = combatant.getFlag("trespasser", "actionPoints") ?? 3;
       const focus     = combatant.actor?.system.combat?.focus ?? 0;
-      const isPending = combatant.getFlag("trespasser", "initiativePending") ?? false;
+      const isFollowCompanion = combatant.actor?.type === "companion" &&
+        (combatant.actor.system.initiativeMode ?? "follow") === "follow" &&
+        combatant.actor.system.boundCharacterId;
+      const isPending = isFollowCompanion ? false : (combatant.getFlag("trespasser", "initiativePending") ?? false);
       phase.combatants.push({ combatant, ap, focus, isPending });
     }
   }
@@ -2304,7 +2307,10 @@ Hooks.on("updateCombatant", async (combatant, changes, options, userId) => {
   if (!combat) return;
 
   const boundCompanions = combat.combatants.filter(
-    c => c.actor?.type === "companion" && c.actor.system.boundCharacterId === actor.id && !c.defeated
+    c => c.actor?.type === "companion" &&
+         c.actor.system.boundCharacterId === actor.id &&
+         (c.actor.system.initiativeMode ?? "follow") === "follow" &&
+         !c.defeated
   );
 
   for (const comp of boundCompanions) {
@@ -2322,6 +2328,7 @@ Hooks.on("createCombatant", async (combatant, options, userId) => {
 
   const actor = combatant.actor;
   if (!actor || actor.type !== "companion") return;
+  if ((actor.system.initiativeMode ?? "follow") !== "follow") return;
 
   const boundCharId = actor.system.boundCharacterId;
   if (!boundCharId) return;
