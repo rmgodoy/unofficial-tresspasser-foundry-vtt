@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.1.5] - 2026-08-30
+
+### New Features
+- Added Companions implementation to support Diabolist summons and other types of companions.
+- Added chat prompt roll for tenacity check when Character goes below 0 HP.
+- Added Creature configurator to use the templates from the rule book for ease configuration.
+
+### Bug Fixes
+- Fixed armor die usage when used from the combat tab in Character sheet.
+- Fixed equipping weapon that has a Weapon effect applying its effect to the wielding character.
+
 ## [0.1.4] - 2026-08-27
 
 - Fixed unlinked tokens loosing its token image after changing any attribute on it.
