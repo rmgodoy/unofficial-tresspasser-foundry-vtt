@@ -251,10 +251,8 @@ export class TrespasserActor extends Actor {
 
     if (item.system.subType === "light_source" || (item.type === "weapon" && item.system.isLightSource)) await this._syncTokenLight();
 
-    // Apply continuous and Trigger effects based on item type
-    if (item.system.effects?.length > 0) {
-      // Weapons handle effects differently (some apply to target, some to self)
-      // The guide says: "If a weapon has a continuous effect, it's applied immediatly to the one with the weapon equipped and must be removed when unequipped."
+    // Apply continuous and Trigger effects for non-weapon items (armor, accessory, item)
+    if (item.type !== "weapon" && item.system.effects?.length > 0) {
       await this._applyLinkedItems(item.system.effects, { 
         continuousOnly: true,
         sourceType: item.type
@@ -263,7 +261,6 @@ export class TrespasserActor extends Actor {
 
     if (item.type === "weapon") {
       if (item.system.enhancementEffects?.length > 0) await this._applyLinkedItems(item.system.enhancementEffects, { continuousOnly: true });
-      if (item.system.oilEffects?.length > 0) await this._applyLinkedItems(item.system.oilEffects, { continuousOnly: true });
       if (item.system.extraDeeds?.length > 0) await this._applyLinkedItems(item.system.extraDeeds);
     }
 
@@ -355,8 +352,8 @@ export class TrespasserActor extends Actor {
     // 1. Update Item
     await item.update({ "system.equipped": false });
 
-    // Remove or reduce linked effects
-    if (item.system.effects?.length > 0) {
+    // Remove or reduce linked effects for non-weapon items
+    if (item.type !== "weapon" && item.system.effects?.length > 0) {
       await this._removeLinkedItems(item.system.effects, item.id);
     }
 
@@ -376,7 +373,6 @@ export class TrespasserActor extends Actor {
         await this._removeLinkedItems(item.system.enhancementEffects, item.id);
       }
       if (item.system.oilEffects && item.system.oilEffects.length > 0) {
-        await this._removeLinkedItems(item.system.oilEffects, item.id);
         // Clear oil effects from the item data as well per guide: "The oil effect will be removed once the weapon is unequipped."
         await item.update({ "system.oilEffects": [] });
       }
