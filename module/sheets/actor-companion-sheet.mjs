@@ -7,6 +7,7 @@ import { evaluateAndShowRoll } from "./character/handlers-rolls.mjs";
 import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 import { getAccuracyFromTarget } from "./character/handlers-combat.mjs";
 import { onPrevailRoll, onIntensityChange, onEffectRemove, onEffectInfo, onEffectEdit } from "./character/handlers-effects.mjs";
+import { onFeatureRoll } from "./character/handlers-talent.mjs";
 import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck, onItemTransfer } from "./character/handlers-items.mjs";
 import { onToggleLight } from "./character/handlers-misc.mjs";
 import { CompanionFormulasDialog } from "../dialogs/companion-formulas-dialog.mjs";
@@ -227,6 +228,11 @@ export class TrespasserCompanionSheet extends TrespasserActorSheet {
 
   async _onEffectEdit(event) {
     return onEffectEdit(event, this);
+  }
+
+  // ── Features ──────────────────────────────────────────────────────────────
+  async _onFeatureRoll(event) {
+    return onFeatureRoll(event, this);
   }
 
   // ── GM Formula Configuration ──────────────────────────────────────────────

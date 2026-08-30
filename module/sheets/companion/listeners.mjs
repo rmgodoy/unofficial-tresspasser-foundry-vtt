@@ -150,66 +150,43 @@ export function activateCompanionListeners(html, sheet) {
     });
   });
 
-  // Feature roll / view
-  root.querySelectorAll(".feature-name, .feature-info").forEach(el => {
+  // Feature roll (post feature card to chat)
+  root.querySelectorAll(".feature-name.rollable").forEach(el => {
     el.addEventListener("click", (ev) => {
       ev.preventDefault();
-      const itemId = ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;
-      if (itemId) {
-        const item = sheet.actor.items.get(itemId);
-        if (item) {
-          ChatMessage.create({
-            speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-            flavor: `${sheet.actor.name} — ${item.name}`,
-            content: item.system.description ? `<div class="trespasser-chat-card"><p>${item.system.description}</p></div>` : `<p><b>${item.name}</b></p>`
-          });
-        }
-      }
+      sheet._onFeatureRoll?.(ev);
     });
   });
 
-  // Effect handlers (for combat-effects.hbs partial)
-  root.querySelectorAll(".effect-info").forEach(btn => {
+  // Info popup dialog (Feature, Talent, Effect, State)
+  root.querySelectorAll(".feature-info, .talent-info, .effect-info, .state-info, .passive-info").forEach(btn => {
     btn.addEventListener("click", (ev) => {
       ev.preventDefault();
-      const itemId = ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;
-      const item = itemId ? sheet.actor.items.get(itemId) : null;
-      if (item) {
-        ChatMessage.create({
-          speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-          flavor: `${sheet.actor.name} — ${item.name}`,
-          content: `<div class="trespasser-chat-card"><p>${item.system.description || item.name}</p></div>`
-        });
-      }
+      ev.stopPropagation();
+      sheet._onEffectInfo?.(ev);
     });
   });
 
+  // Effect handlers (for combat-effects.hbs partial and non-combat effects)
   root.querySelectorAll(".effect-edit").forEach(btn => {
     btn.addEventListener("click", (ev) => {
       ev.preventDefault();
-      const itemId = ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;
-      const item = itemId ? sheet.actor.items.get(itemId) : null;
-      item?.sheet?.render(true);
+      ev.stopPropagation();
+      sheet._onEffectEdit?.(ev);
     });
   });
 
-  root.querySelectorAll(".effect-remove").forEach(btn => {
+  root.querySelectorAll(".effect-remove, [data-action='delete-effect']").forEach(btn => {
     btn.addEventListener("click", async (ev) => {
       ev.preventDefault();
-      const itemId = ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;
-      const item = itemId ? sheet.actor.items.get(itemId) : null;
-      if (item) await item.delete();
+      ev.stopPropagation();
+      sheet._onEffectRemove?.(ev);
     });
   });
 
   root.querySelectorAll(".effect-intensity-input").forEach(input => {
     input.addEventListener("change", async (ev) => {
-      const itemId = ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;
-      const item = itemId ? sheet.actor.items.get(itemId) : null;
-      const val = parseInt(ev.currentTarget.value, 10);
-      if (item && !isNaN(val)) {
-        await item.update({ "system.intensity": val });
-      }
+      sheet._onIntensityChange?.(ev);
     });
   });
 
