@@ -70,13 +70,15 @@ export async function onDeedRoll(event, sheet) {
   const item = sheet.actor.items.get(el.dataset.itemId);
   if (!item) return;
 
-  const isAttack  = item.system.actionType !== "support";
-  const isCreature = sheet.actor.type === "creature";
+  const isAttack    = item.system.actionType !== "support";
+  const isCharacter = sheet.actor.type === "character";
+  const isCompanion = sheet.actor.type === "companion";
+  const isCreature  = sheet.actor.type === "creature";
 
   // ── 1. Ammo check (characters only) ───────────────────────────────────────
   let ammoToConsumeId = null;
-  if (!isCreature) {
-    const activeWeapons = sheet._getActiveWeapons();
+  if (isCharacter) {
+    const activeWeapons = sheet._getActiveWeapons?.() || [];
     const isMissileDeed = item.system.type === "missile" ||
       (item.system.type === "versatile" && activeWeapons.some(w => w.system.type === "missile"));
 
@@ -97,9 +99,9 @@ export async function onDeedRoll(event, sheet) {
   }
 
   // ── 1b. Weapon compatibility check (characters only) ──────────────────────
-  if (!isCreature) {
+  if (isCharacter) {
     const wpnCheck = TargetingHelper.validateWeaponCompatibility(
-      item.system, sheet._getActiveWeapons(), sheet.actor
+      item.system, sheet._getActiveWeapons?.() || [], sheet.actor
     );
     if (!wpnCheck.valid) {
       ui.notifications.warn(wpnCheck.message);
@@ -128,8 +130,8 @@ export async function onDeedRoll(event, sheet) {
   const totalCost        = baseCost + currentBonusCost + surcharge;
 
   const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
-  if (totalCost > 0) {
-    const currentFocus = sheet.actor.system.combat.focus || 0;
+  if (isCharacter && totalCost > 0) {
+    const currentFocus = sheet.actor.system.combat?.focus || 0;
     if (restrictAPF && currentFocus < totalCost) {
       ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Combat.NotEnoughFocus",
         { name: item.name, cost: totalCost, current: currentFocus }));
@@ -183,14 +185,14 @@ export async function onDeedRoll(event, sheet) {
     if (sourceToken) {
       let rangeCheck = { valid: true };
       
-      if (isCreature) {
-        // Creatures: Check range ONLY if deed.range is set
-        if (deed.range !== null) {
+      if (isCreature || isCompanion) {
+        // Creatures & Companions: Check range ONLY if deed.range is set
+        if (deed.range !== null && deed.range !== undefined) {
           rangeCheck = TargetingHelper.validateRange(targets, sourceToken, deed, []);
         }
       } else {
-        // Characters: Existing weapon-based range check
-        const activeWeapons = sheet._getActiveWeapons() || [];
+        // Characters: Weapon-based range check
+        const activeWeapons = sheet._getActiveWeapons?.() || [];
         rangeCheck = TargetingHelper.validateRange(targets, sourceToken, deed, activeWeapons);
       }
       
@@ -246,9 +248,9 @@ export async function onDeedRoll(event, sheet) {
   }
 
   // ── 4.6. Final side-effects (Focus, Ammo) ─────────────────────────────────
-  if (!isCreature) {
+  if (isCharacter) {
     if (totalCost > 0) {
-      const currentFocus = sheet.actor.system.combat.focus || 0;
+      const currentFocus = sheet.actor.system.combat?.focus || 0;
       await sheet.actor.update({ "system.combat.focus": Math.max(0, currentFocus - totalCost) });
       if (surcharge > 0 && restrictAPF) {
         ChatMessage.create({
@@ -432,8 +434,8 @@ export async function onDeedRoll(event, sheet) {
     });
   }
 
-  if (!isCreature) {
-    for (const weapon of fragileItems) await sheet._runDepletionCheck(weapon);
+  if (isCharacter) {
+    for (const weapon of fragileItems) await sheet._runDepletionCheck?.(weapon);
   }
 
   // ── 12. Cleanup AOE template (unless aura, which persists) ──────────────
@@ -502,8 +504,8 @@ async function rollCharacterDeed(item, sheet, targets, apBonus, totalFocusCost =
       const totalDef = targetActor.system.combat[statKey] ?? 10;
       const effBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");
       const targetCD = totalDef + effBonus;
-      // Characters aggregate bonuses in combat.stat, creatures keep them separate.
-      dc = (targetActor.type === "character") ? (targetCD + 10) : targetCD;
+      // Characters & companions aggregate bonuses in combat.stat, creatures keep them separate.
+      dc = (targetActor.type === "character" || targetActor.type === "companion") ? (targetCD + 10) : targetCD;
     }
 
     let isHit = rollTotal >= dc;

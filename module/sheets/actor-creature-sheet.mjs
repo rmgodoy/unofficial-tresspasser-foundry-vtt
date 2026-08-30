@@ -4,6 +4,7 @@ import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 import { onDeedRoll, postDeedPhase } from "./character/handlers-deed.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
+import { TrespasserCreatureConfigDialog } from "../dialogs/creature-config-dialog.mjs";
 import { PASSIVE_STATES } from "../config/state-config.mjs";
 
 import { TrespasserActorSheet } from "./base-sheet.mjs";
@@ -20,7 +21,10 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
       submitOnChange: true,
       closeOnSubmit: false
     },
-    window: { resizable: true }
+    window: { resizable: true },
+    actions: {
+      configureCreature: TrespasserCreatureSheet._onConfigureCreature
+    }
   };
 
   static PARTS = {
@@ -34,6 +38,19 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
   get title() {
     const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Actor.${this.document.type}`);
     return `${typeLabel}: ${this.document.name}`;
+  }
+
+  /** @override */
+  _getHeaderControls() {
+    const controls = super._getHeaderControls();
+    if (this.isEditable) {
+      controls.unshift({
+        icon: "fa-solid fa-wand-magic-sparkles",
+        label: "TRESPASSER.Dialog.CreatureConfig.HeaderButton",
+        action: "configureCreature"
+      });
+    }
+    return controls;
   }
 
   /** @override */
@@ -391,6 +408,14 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
 
   /** Creatures don't have depletion mechanic — no-op. */
   async _runDepletionCheck(_item) {}
+
+  /**
+   * Open Creature Configuration and Stat Scaling Dialog.
+   */
+  static async _onConfigureCreature(event, button) {
+    const sheet = this;
+    await TrespasserCreatureConfigDialog.wait(sheet.actor);
+  }
 
   /**
    * Show info dialog for an effect.

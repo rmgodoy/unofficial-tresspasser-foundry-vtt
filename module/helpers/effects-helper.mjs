@@ -1,5 +1,6 @@
 import { DurationHelper } from "./duration-helper.mjs";
 import { showOilDialog } from "../dialogs/oil-dialog.mjs";
+import { buildTenacityButtonHtml } from "./tenacity-helper.mjs";
 
 /**
  * Helper class for managing Trespasser effects, states, and modifier parsing.
@@ -315,8 +316,9 @@ export class TrespasserEffectsHelper {
       // Passive/Built-in effects from equipped items
       const equippableTypes = ["weapon", "armor", "accessory", "item"];
       const isEquippable = equippableTypes.includes(item.type);
-      
-      if (item.system.equipped && Array.isArray(item.system.effects)) {
+
+      // Passive/Built-in effects from equipped items (excluding weapons whose basic effects are applied to targets via deeds)
+      if (item.type !== "weapon" && item.system.equipped && Array.isArray(item.system.effects)) {
         item.system.effects.forEach((eff, index) => {
           // If it's an equippable, we skip immediate/continuous effects because those should have been converted to real Effect documents
           if (isEquippable && (eff.type === "continuous" || eff.when === "immediate" || !eff.when)) return;
@@ -348,6 +350,44 @@ export class TrespasserEffectsHelper {
             isPrevailable: !!eff.isPrevailable,
             synthetic: true,
             hiddenOnSheet: isEquippable // Hide equippable-derived effects from the sheet; they trigger in chat
+          };
+          if (eff.isCombat) effects.combat.push(effData);
+          else effects.nonCombat.push(effData);
+        });
+      }
+
+      // Synthetic enhancement effects from equipped weapons
+      if (item.type === "weapon" && item.system.equipped && Array.isArray(item.system.enhancementEffects)) {
+        item.system.enhancementEffects.forEach((eff, index) => {
+          if (eff.type === "continuous" || eff.when === "immediate" || !eff.when) return;
+
+          const property = "enhancementEffects";
+          const effData = {
+            id: `${item.id}-${property}-${index}`,
+            name: eff.name ? `${item.name}: ${eff.name}` : `${item.name} (${eff.type || "effect"})`,
+            intensity: eff.intensity || 0,
+            modifier: this.parseModifier(eff.modifier, eff.intensity || 0),
+            target: eff.target,
+            isCombat: eff.isCombat,
+            isOnlyReminder: !!eff.isOnlyReminder,
+            gmOnly: !!eff.gmOnly,
+            type: eff.type,
+            description: eff.description || "",
+            source: item.name,
+            itemId: item.id,
+            item: item,
+            when: eff.when,
+            duration: eff.duration || "indefinite",
+            durationValue: eff.durationValue || 0,
+            durationConditions: eff.durationConditions || [],
+            durationOperator: eff.durationOperator || "OR",
+            durationSummary: null,
+            intensityIncrement: eff.intensityIncrement || 0,
+            property,
+            index,
+            isPrevailable: !!eff.isPrevailable,
+            synthetic: true,
+            hiddenOnSheet: isEquippable
           };
           if (eff.isCombat) effects.combat.push(effData);
           else effects.nonCombat.push(effData);
@@ -579,13 +619,18 @@ export class TrespasserEffectsHelper {
         const modValue = typeof roll === "number" ? roll : roll.total;
         
         if (eff.target === "health") {
-          const newHP = Math.clamp(actor.system.health + modValue, 0, actor.system.max_health);
-          await actor.update({ "system.health": newHP });
+          const rawHP = actor.system.health + modValue;
+          const newHP = Math.clamp(rawHP, 0, actor.system.max_health);
+          await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
           
           if (modValue > 0) {
             flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthRecovered", { value: modValue })}</p>`;
           } else if (modValue < 0) {
             flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
+            if (actor.type === "character" && rawHP < 0) {
+              flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: rawHP })}</p>`;
+              flavor += buildTenacityButtonHtml(actor, rawHP);
+            }
           } else {
             flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.HealthUnaffected")}</p>`;
           }
@@ -726,10 +771,17 @@ export class TrespasserEffectsHelper {
       const modValue = typeof roll === "number" ? roll : roll.total;
 
       if (target === "health") {
-        const newHP = Math.clamp(actor.system.health + modValue, 0, actor.system.max_health);
-        await actor.update({ "system.health": newHP });
+        const rawHP = actor.system.health + modValue;
+        const newHP = Math.clamp(rawHP, 0, actor.system.max_health);
+        await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
         if (modValue > 0) flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthRecovered", { value: modValue })}</p>`;
-        else if (modValue < 0) flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
+        else if (modValue < 0) {
+          flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
+          if (actor.type === "character" && rawHP < 0) {
+            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: rawHP })}</p>`;
+            flavor += buildTenacityButtonHtml(actor, rawHP);
+          }
+        }
         else flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.HealthUnaffected")}</p>`;
       } 
       else if (target === "endurance") {

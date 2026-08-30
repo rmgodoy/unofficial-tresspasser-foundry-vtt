@@ -297,8 +297,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (!this._token?.actor) return 2;
         const actor = this._token.actor;
 
-        // For characters: use the derived speed_bonus (already includes agility, min 2, and effect bonuses)
-        if (actor.type === "character") {
+        // For characters & companions: use the derived speed_bonus (already includes agility, min 2, and effect bonuses)
+        if (actor.type === "character" || actor.type === "companion") {
             return actor.system.combat?.speed_bonus ?? 2;
         }
 

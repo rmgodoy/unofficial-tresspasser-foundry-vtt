@@ -196,6 +196,67 @@
       "Dungeon": {
         "SelectCharacterTitle": "Select Character",
         "SelectCharacterPrompt": "Choose which character will perform this roll:"
+      },
+      "CompanionFormulas": {
+        "Title": "Companion Formulas: {name}",
+        "DefaultTitle": "Configure Companion Formulas",
+        "FormulaHelp": "Formulas determine the companion's attributes, level, and damage die. You can use standard arithmetic (+, -, *, /) and variables wrapped in angle brackets.",
+        "VariablesTitle": "Available Variables",
+        "SectionCore": "Core Attributes & Progression",
+        "SectionCombat": "Combat Attributes",
+        "Level": "Level Formula",
+        "SkillDie": "Skill Die Formula",
+        "DamageDie": "Skill Die Formula",
+        "HP": "Max HP Formula",
+        "Speed": "Speed Formula",
+        "SpeedBonus": "Speed Bonus Formula",
+        "InitiativeMode": "Initiative Order",
+        "InitiativeModeFollow": "Follow bound character turn order",
+        "InitiativeModeRoll": "Roll initiative independently",
+        "Initiative": "Initiative Formula",
+        "Accuracy": "Accuracy Formula",
+        "Guard": "Guard Formula",
+        "Resist": "Resist Formula",
+        "Prevail": "Prevail Formula",
+        "Active": "Active",
+        "CurrentValue": "Current evaluated value",
+        "ResetDefaults": "Reset Defaults",
+        "ResetConfirm": "Are you sure you want to reset all attribute formulas for this companion back to system defaults?",
+        "VarLvl": "Companion's evaluated level",
+        "VarCLvl": "Bound character's level",
+        "VarCSkill": "Bound character's skill die bonus",
+        "VarCSkillDie": "Bound character's skill die (e.g. d6, d8)",
+        "VarCMighty": "Bound character's Mighty attribute",
+        "VarCAgility": "Bound character's Agility attribute",
+        "VarCIntellect": "Bound character's Intellect attribute",
+        "VarCSpirit": "Bound character's Spirit attribute"
+      },
+      "CreatureConfig": {
+        "Title": "Configure Creature Stats: {name}",
+        "HeaderButton": "Configure Stats",
+        "ButtonLabel": "Configure",
+        "ApplyStats": "Apply",
+        "AppliedNotification": "Applied base statistics to {name}.",
+        "TemplateRulesTitle": "Template Rules",
+        "ThreatRating": "Threat",
+        "CalculatedStatsTitle": "Calculated Base Stats",
+        "BaseDamage": "Base Dmg Die",
+        "Roles": {
+          "ArcherDesc": "Ranged striker that deals high damage from afar but has poor defenses.",
+          "EnchanterDesc": "Support caster with decent defenses focused on empowering allies and locking down enemies.",
+          "EnforcerDesc": "Large, hulking brute with massive health pool and hard-hitting melee attacks.",
+          "GuardianDesc": "Defensive anchor with high armor that protects allies and locks down the battlefield.",
+          "HarrierDesc": "Swift skirmisher who harasses foes and chases down weak party members.",
+          "HellionDesc": "Aggressive berserker that dives head-first into melee, dealing high burst damage.",
+          "SorcererDesc": "Fragile blaster with devastating areas-of-effect damage and disabling magic.",
+          "StalkerDesc": "Deadly ambush predator with high accuracy that delivers lethal single-target strikes."
+        },
+        "Templates": {
+          "UnderlingRule": "1 HP. Takes damage only from attacks that hit (immune to miss/states/environment). -1 damage die. Light deeds only.",
+          "NormalRule": "Standard creature stats and action economy.",
+          "ParagonRule": "Double HP (2x). Extra turn at the end of round (immune to delay, loses 1 AP instead). Free prevail check at extra turn start.",
+          "TyrantRule": "4x HP. Extra turn at end of round (immune to delay). Invincible (free prevail check every turn). No panic. Special Tyrant Deeds at 50% and 25% HP."
+        }
       }
     }
   }

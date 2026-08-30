@@ -196,6 +196,67 @@
       "Dungeon": {
         "SelectCharacterTitle": "Selecionar Personagem",
         "SelectCharacterPrompt": "Escolha qual personagem realizará esta rolagem:"
+      },
+      "CompanionFormulas": {
+        "Title": "Fórmulas do Companheiro: {name}",
+        "DefaultTitle": "Configurar Fórmulas do Companheiro",
+        "FormulaHelp": "As fórmulas determinam os atributos, nível e dado de dano do companheiro. Você pode usar aritmética padrão (+, -, *, /) e variáveis entre colchetes angulares.",
+        "VariablesTitle": "Variáveis Disponíveis",
+        "SectionCore": "Atributos Principais & Progressão",
+        "SectionCombat": "Atributos de Combate",
+        "Level": "Fórmula de Nível",
+        "SkillDie": "Fórmula do Dado de Perícia",
+        "DamageDie": "Fórmula do Dado de Perícia",
+        "HP": "Fórmula de PV Máximo",
+        "Speed": "Fórmula de Velocidade",
+        "SpeedBonus": "Fórmula do Bônus de Velocidade",
+        "InitiativeMode": "Ordem de Iniciativa",
+        "InitiativeModeFollow": "Seguir ordem do personagem vinculado",
+        "InitiativeModeRoll": "Rolar iniciativa independentemente",
+        "Initiative": "Fórmula de Iniciativa",
+        "Accuracy": "Fórmula de Precisão",
+        "Guard": "Fórmula de Guarda",
+        "Resist": "Fórmula de Resistência",
+        "Prevail": "Fórmula de Prevalecer",
+        "Active": "Ativo",
+        "CurrentValue": "Valor avaliado atual",
+        "ResetDefaults": "Restaurar Padrões",
+        "ResetConfirm": "Tem certeza de que deseja restaurar todas as fórmulas de atributos deste companheiro para os padrões do sistema?",
+        "VarLvl": "Nível avaliado do companheiro",
+        "VarCLvl": "Nível do personagem vinculado",
+        "VarCSkill": "Bônus de perícia do personagem vinculado",
+        "VarCSkillDie": "Dado de perícia do personagem vinculado (ex: d6, d8)",
+        "VarCMighty": "Atributo Potência do personagem vinculado",
+        "VarCAgility": "Atributo Agilidade do personagem vinculado",
+        "VarCIntellect": "Atributo Intelecto do personagem vinculado",
+        "VarCSpirit": "Atributo Espírito do personagem vinculado"
+      },
+      "CreatureConfig": {
+        "Title": "Configurar Atributos da Criatura: {name}",
+        "HeaderButton": "Configurar Atributos",
+        "ButtonLabel": "Configurar",
+        "ApplyStats": "Aplicar",
+        "AppliedNotification": "Atributos base aplicados a {name}.",
+        "TemplateRulesTitle": "Regras do Modelo",
+        "ThreatRating": "Ameaça",
+        "CalculatedStatsTitle": "Atributos Base Calculados",
+        "BaseDamage": "Dado Dano Base",
+        "Roles": {
+          "ArcherDesc": "Atacante à distância com alto dano de longe, mas defesas vulneráveis.",
+          "EnchanterDesc": "Conjurador de suporte com boas defesas, focado em fortalecer aliados e controlar inimigos.",
+          "EnforcerDesc": "Bruto colossal com enorme reserva de vida e ataques corpo a corpo devastadores.",
+          "GuardianDesc": "Âncora defensiva com alta armadura que protege aliados e imobiliza o campo de batalha.",
+          "HarrierDesc": "Combatente ágil que persegue e desgasta alvos vulneráveis.",
+          "HellionDesc": "Berserker agressivo que mergulha no combate corpo a corpo causando alto dano explosivo.",
+          "SorcererDesc": "Conjurador frágil com dano devastador em área de efeito e magia debilitante.",
+          "StalkerDesc": "Predador furtivo com altíssima precisão que desfere golpes letais em alvos únicos."
+        },
+        "Templates": {
+          "UnderlingRule": "1 PV. Sofre dano apenas de ataques que acertam (imune a erros/estados/ambiente). -1 dado de dano. Apenas ações leves.",
+          "NormalRule": "Atributos e economia de ações padrão de criaturas.",
+          "ParagonRule": "Dobro de PV (2x). Turno extra no final da rodada (imune a atraso, perde 1 PA em vez disso). Prevalecer gratuito no início do turno extra.",
+          "TyrantRule": "4x PV. Turno extra no fim da rodada (imune a atraso). Invencível (prevalecer grátis a cada turno). Sem pânico. Ações de Tirano a 50% e 25% PV."
+        }
       }
     }
   }

@@ -18,6 +18,12 @@ export class TrespasserBaseActorSheet extends api.HandlebarsApplicationMixin(she
  */
 export class TrespasserBaseItemSheet extends api.HandlebarsApplicationMixin(sheets.ItemSheetV2) {
   /** @override */
+  get title() {
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Item.${this.document.type}`) || game.i18n.localize(`TYPES.Item.${this.document.type}`) || this.document.type;
+    return `${typeLabel}: ${this.document.name}`;
+  }
+
+  /** @override */
   _onRender(context, options) {
     super._onRender(context, options);
     activateImagePicker(this);
