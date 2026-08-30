@@ -258,7 +258,9 @@
             "Light": "Leve",
             "Heavy": "Pesada",
             "Mighty": "Poderosa",
-            "Special": "Especial"
+            "Special": "Especial",
+            "Extra": "Extra",
+            "Tyrant": "Tirano"
           },
           "ActionTypeChoices": {
             "Attack": "Ataque",

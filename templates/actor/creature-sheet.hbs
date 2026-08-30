@@ -25,7 +25,7 @@
       </div>
 
       <!-- Row 2: Level, Role, Template -->
-      <div class="header-row header-identity" style="margin-bottom: 8px; justify-content: flex-start; gap: 15px;">
+      <div class="header-row header-identity" style="margin-bottom: 8px; justify-content: flex-start; gap: 15px; align-items: flex-end;">
         <div class="level-group">
           <label>{{localize "TRESPASSER.Sheet.Header.Level"}}</label>
           <input type="number" name="system.level" value="{{system.level}}" min="0" max="20" />
@@ -51,6 +51,11 @@
             <option value="paragon" {{#if (eq system.template "paragon")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Paragon"}}</option>
             <option value="tyrant" {{#if (eq system.template "tyrant")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Creatures.Templates.Tyrant"}}</option>
           </select>
+        </div>
+        <div class="level-group" style="margin-left: auto;">
+          <a class="config-creature-btn button" data-action="configureCreature" title="{{localize 'TRESPASSER.Dialog.CreatureConfig.HeaderButton'}}" style="display: flex; align-items: center; justify-content: center; height: 26px; padding: 0 8px; font-size: var(--fs-11); background: var(--trp-bg-panel); border: 1px solid var(--trp-border); border-radius: var(--trp-radius-sm); color: var(--trp-gold); cursor: pointer; text-decoration: none; white-space: nowrap;">
+            <i class="fas fa-wand-magic-sparkles" style="margin-right: 4px;"></i> {{localize "TRESPASSER.Dialog.CreatureConfig.ButtonLabel"}}
+          </a>
         </div>
       </div>
 

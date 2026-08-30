@@ -227,6 +227,33 @@
         "VarCAgility": "Atributo Agilidade do personagem vinculado",
         "VarCIntellect": "Atributo Intelecto do personagem vinculado",
         "VarCSpirit": "Atributo Espírito do personagem vinculado"
+      },
+      "CreatureConfig": {
+        "Title": "Configurar Atributos da Criatura: {name}",
+        "HeaderButton": "Configurar Atributos",
+        "ButtonLabel": "Configurar",
+        "ApplyStats": "Aplicar Atributos Base",
+        "AppliedNotification": "Atributos base aplicados a {name}.",
+        "TemplateRulesTitle": "Regras do Modelo",
+        "ThreatRating": "Ameaça",
+        "CalculatedStatsTitle": "Atributos Base Calculados",
+        "BaseDamage": "Dado Dano Base",
+        "Roles": {
+          "ArcherDesc": "Atacante à distância com alto dano de longe, mas defesas vulneráveis.",
+          "EnchanterDesc": "Conjurador de suporte com boas defesas, focado em fortalecer aliados e controlar inimigos.",
+          "EnforcerDesc": "Bruto colossal com enorme reserva de vida e ataques corpo a corpo devastadores.",
+          "GuardianDesc": "Âncora defensiva com alta armadura que protege aliados e imobiliza o campo de batalha.",
+          "HarrierDesc": "Combatente ágil que persegue e desgasta alvos vulneráveis.",
+          "HellionDesc": "Berserker agressivo que mergulha no combate corpo a corpo causando alto dano explosivo.",
+          "SorcererDesc": "Conjurador frágil com dano devastador em área de efeito e magia debilitante.",
+          "StalkerDesc": "Predador furtivo com altíssima precisão que desfere golpes letais em alvos únicos."
+        },
+        "Templates": {
+          "UnderlingRule": "1 PV. Sofre dano apenas de ataques que acertam (imune a erros/estados/ambiente). -1 dado de dano. Apenas ações leves.",
+          "NormalRule": "Atributos e economia de ações padrão de criaturas.",
+          "ParagonRule": "Dobro de PV (2x). Turno extra no final da rodada (imune a atraso, perde 1 PA em vez disso). Prevalecer gratuito no início do turno extra.",
+          "TyrantRule": "4x PV. Turno extra no fim da rodada (imune a atraso). Invencível (prevalecer grátis a cada turno). Sem pânico. Ações de Tirano a 50% e 25% PV."
+        }
       }
     }
   }

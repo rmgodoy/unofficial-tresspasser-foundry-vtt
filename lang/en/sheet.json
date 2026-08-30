@@ -258,7 +258,9 @@
             "Light": "Light",
             "Heavy": "Heavy",
             "Mighty": "Mighty",
-            "Special": "Special"
+            "Special": "Special",
+            "Extra": "Extra",
+            "Tyrant": "Tyrant"
           },
           "ActionTypeChoices": {
             "Attack": "Attack",

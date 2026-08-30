@@ -227,6 +227,33 @@
         "VarCAgility": "Bound character's Agility attribute",
         "VarCIntellect": "Bound character's Intellect attribute",
         "VarCSpirit": "Bound character's Spirit attribute"
+      },
+      "CreatureConfig": {
+        "Title": "Configure Creature Stats: {name}",
+        "HeaderButton": "Configure Stats",
+        "ButtonLabel": "Configure",
+        "ApplyStats": "Apply Base Stats",
+        "AppliedNotification": "Applied base statistics to {name}.",
+        "TemplateRulesTitle": "Template Rules",
+        "ThreatRating": "Threat",
+        "CalculatedStatsTitle": "Calculated Base Stats",
+        "BaseDamage": "Base Dmg Die",
+        "Roles": {
+          "ArcherDesc": "Ranged striker that deals high damage from afar but has poor defenses.",
+          "EnchanterDesc": "Support caster with decent defenses focused on empowering allies and locking down enemies.",
+          "EnforcerDesc": "Large, hulking brute with massive health pool and hard-hitting melee attacks.",
+          "GuardianDesc": "Defensive anchor with high armor that protects allies and locks down the battlefield.",
+          "HarrierDesc": "Swift skirmisher who harasses foes and chases down weak party members.",
+          "HellionDesc": "Aggressive berserker that dives head-first into melee, dealing high burst damage.",
+          "SorcererDesc": "Fragile blaster with devastating areas-of-effect damage and disabling magic.",
+          "StalkerDesc": "Deadly ambush predator with high accuracy that delivers lethal single-target strikes."
+        },
+        "Templates": {
+          "UnderlingRule": "1 HP. Takes damage only from attacks that hit (immune to miss/states/environment). -1 damage die. Light deeds only.",
+          "NormalRule": "Standard creature stats and action economy.",
+          "ParagonRule": "Double HP (2x). Extra turn at the end of round (immune to delay, loses 1 AP instead). Free prevail check at extra turn start.",
+          "TyrantRule": "4x HP. Extra turn at end of round (immune to delay). Invincible (free prevail check every turn). No panic. Special Tyrant Deeds at 50% and 25% HP."
+        }
       }
     }
   }
