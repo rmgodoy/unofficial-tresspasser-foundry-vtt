@@ -196,6 +196,16 @@
     </div>
   {{/if}}
 
+  {{#if (or (eq type "grantRecovery") (eq type "grantRecoveryToTarget"))}}
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.Intensity"}}</label>
+        <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.intensity"
+               value="{{params.intensity}}" min="1" step="1" placeholder="1" class="select-on-focus"/>
+      </div>
+    </div>
+  {{/if}}
+
   {{#if (eq type "applyEffects")}}
     <div class="behavior-effects-section">
       <div class="field-row checkbox-row weapon-effects-toggle" style="margin-bottom: 6px;">

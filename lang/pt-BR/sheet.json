@@ -90,6 +90,7 @@
         "Radius": "Raio",
         "Intensity": "Intensidade",
         "IntensityShort": "Int",
+        "Caster": "Conjurador",
         "Target": "Alvo",
         "Trigger": "Gatilho",
         "Duration": "Duração",
@@ -292,6 +293,8 @@
             "applyDamage": "Aplicar Dano ao Alvo",
             "healTarget": "Curar Alvo",
             "applyHealing": "Curar Alvo",
+            "grantRecovery": "Conceder Recuperação ao Alvo",
+            "grantRecoveryToTarget": "Conceder Recuperação ao Alvo",
             "applyEffects": "Aplicar Efeitos ao Alvo",
             "modifyBehavior": "Modificar Comportamento",
             "spawnTerrain": "Criar Terreno",
@@ -362,6 +365,7 @@
           "DistributeDamage": "Distribuir Dano por Alvo",
           "DistributeHealing": "Distribuir Cura por Alvo",
           "Distributed": "Distribuído",
+          "Intensity": "Intensidade da Recuperação",
           "ClearTargetsHint": "Limpa a lista de alvos, permitindo que fases posteriores selecionem novos alvos."
         }
       },

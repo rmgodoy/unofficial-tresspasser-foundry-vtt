@@ -253,6 +253,9 @@
       "Deed": {
         "Empty": "This deed has no effects or description yet."
       },
+      "GrantRecovery": {
+        "NoDiceSpent": "No recovery dice spent for {name}."
+      },
       "DamageCommand": {
         "Title": "Damage / Healing Roll",
         "InvalidFormula": "Invalid formula. Please provide a valid dice expression or number (e.g. /hp 2d6+3, /dmg 10, /heal 1d8)."

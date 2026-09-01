@@ -92,6 +92,7 @@
         "Radius": "Radius",
         "Intensity": "Intensity",
         "IntensityShort": "Int",
+        "Caster": "Caster",
         "Target": "Target",
         "Trigger": "Trigger",
         "Duration": "Duration",
@@ -294,6 +295,8 @@
             "applyDamage": "Apply Damage to Target",
             "healTarget": "Heal Target",
             "applyHealing": "Heal Target",
+            "grantRecovery": "Grant Recovery to Target",
+            "grantRecoveryToTarget": "Grant Recovery to Target",
             "applyEffects": "Apply Effects to Target",
             "modifyBehavior": "Modify Behavior",
             "spawnTerrain": "Spawn Terrain",
@@ -364,6 +367,7 @@
           "DistributeDamage": "Distribute Damage per Target",
           "DistributeHealing": "Distribute Healing per Target",
           "Distributed": "Distributed",
+          "Intensity": "Recovery Intensity",
           "ClearTargetsHint": "Clears target list, allowing subsequent phases to acquire new targets."
         }
       },

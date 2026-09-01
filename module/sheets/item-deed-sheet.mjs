@@ -29,11 +29,8 @@ export const DEFAULT_PARAMS = {
     rollBehaviorId: "",
     distribute: false
   },
-  healTarget: {
-    expression: "",
-    rollBehaviorId: "",
-    distribute: false
-  },
+  healTarget: { expression: "", rollBehaviorId: "", distribute: false },
+  grantRecovery: { intensity: 1 },
   applyEffects: {
     effects: [],
     appliesWeaponEffects: false

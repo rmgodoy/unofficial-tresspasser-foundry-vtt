@@ -90,6 +90,23 @@
         "InvalidTotal": "Total allocated exceeds available amount!",
         "ResetAll": "Reset All"
       },
+      "GrantRecovery": {
+        "CasterTitle": "Grant Recovery",
+        "CasterIntro": "Recovery Intensity: <strong>{intensity}</strong>. Allocate your Recovery Dice (<strong>{casterRD}</strong> available, <strong>{skillDie}</strong>) among targets:",
+        "TypeCharacter": "Character",
+        "TypeCompanion": "Companion",
+        "TypeCreature": "Creature",
+        "TypeCommoner": "Commoner",
+        "NoOwnRD": "No RD",
+        "CharacterHint": "Can spend own RD up to remaining intensity.",
+        "NonCharacterHint": "Healed only by Caster's granted dice.",
+        "RemainingCasterRD": "Remaining Caster RD",
+        "InvalidCasterTotal": "Allocated dice exceed available Recovery Dice!",
+        "TargetTitle": "Accept Recovery",
+        "TargetPrompt": "<strong>{caster}</strong> is granting Recovery {intensity} and contributes <strong>{casterDice}{casterDie}</strong>.<br>How many of your own Recovery Dice (<strong>{targetRD}</strong> available, <strong>{targetDie}</strong>) would you like to spend? (Max {maxSpendable}):",
+        "SpendOwnDice": "Spend Own Recovery Dice",
+        "CombinedTotal": "Total dice to roll"
+      },
       "Calling": {
         "Title": "Apply Calling: {name}",
         "ApplySelections": "Apply Selections",

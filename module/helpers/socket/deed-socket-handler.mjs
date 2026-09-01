@@ -39,6 +39,9 @@ export async function handleDeedActionRequest(payload, senderId) {
       case "applyHealing":
         result = await _handleApplyHealing(data);
         break;
+      case "spendRecoveryDice":
+        result = await _handleSpendRecoveryDice(data);
+        break;
       case "applyEffects":
         result = await _handleApplyEffects(data);
         break;
@@ -100,6 +103,17 @@ async function _handleApplyHealing(data) {
   const sourceActor = data.sourceActor || (data.sourceActorId ? game.actors.get(data.sourceActorId) : null);
   if (actor && typeof actor.applyHealing === "function") {
     await actor.applyHealing(data.healing, { sourceActor });
+  }
+  return true;
+}
+
+async function _handleSpendRecoveryDice(data) {
+  const token = canvas.tokens?.get(data.tokenId) || game.scenes?.current?.tokens.get(data.tokenId);
+  const actor = token?.actor || game.actors.get(data.actorId);
+  const amount = Math.max(0, parseInt(data.amount) || 0);
+  if (actor && amount > 0 && actor.system.recovery_dice !== undefined) {
+    const newRD = Math.max(0, actor.system.recovery_dice - amount);
+    await actor.update({ "system.recovery_dice": newRD });
   }
   return true;
 }

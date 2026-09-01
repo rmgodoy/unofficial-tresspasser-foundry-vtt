@@ -9,6 +9,7 @@ export const BEHAVIOR_TYPES = [
   "roll",
   "applyDamage",
   "healTarget",
+  "grantRecovery",
   "applyEffects",
   "modifyBehavior",
   "spawnTerrain",

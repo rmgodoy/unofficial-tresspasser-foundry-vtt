@@ -1406,3 +1406,55 @@
   display: flex;
   gap: 8px;
 }
+
+/* Grant Recovery Dialog */
+.grant-recovery-dialog-window .dialog-content,
+.grant-recovery-target-window .dialog-content {
+  font-family: var(--trp-font-body);
+  color: var(--trp-text);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.grant-recovery-dialog,
+.grant-recovery-target-dialog {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.grant-recovery-dialog .recovery-targets-list {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.grant-recovery-dialog .target-recovery-row,
+.grant-recovery-target-dialog .target-recovery-row {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.grant-recovery-dialog .target-recovery-info {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.grant-recovery-dialog .recovery-counter,
+.grant-recovery-target-dialog .recovery-counter {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+}
+
+.grant-recovery-dialog .recovery-counter button:hover,
+.grant-recovery-target-dialog .recovery-counter button:hover {
+  background: var(--trp-border-light) !important;
+  color: var(--trp-text-bright) !important;
+}
+

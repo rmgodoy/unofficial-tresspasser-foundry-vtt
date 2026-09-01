@@ -90,6 +90,23 @@
         "InvalidTotal": "O total alocado excede a quantidade disponível!",
         "ResetAll": "Zerar Tudo"
       },
+      "GrantRecovery": {
+        "CasterTitle": "Conceder Recuperação",
+        "CasterIntro": "Intensidade da Recuperação: <strong>{intensity}</strong>. Distribua seus Dados de Recuperação (<strong>{casterRD}</strong> disponíveis, <strong>{skillDie}</strong>) entre os alvos:",
+        "TypeCharacter": "Personagem",
+        "TypeCompanion": "Companheiro",
+        "TypeCreature": "Criatura",
+        "TypeCommoner": "Plebeu",
+        "NoOwnRD": "Sem DR",
+        "CharacterHint": "Pode gastar DR próprios até a intensidade restante.",
+        "NonCharacterHint": "Curado apenas pelos dados concedidos pelo Conjurador.",
+        "RemainingCasterRD": "DR Restantes do Conjurador",
+        "InvalidCasterTotal": "Os dados alocados excedem os Dados de Recuperação disponíveis!",
+        "TargetTitle": "Aceitar Recuperação",
+        "TargetPrompt": "<strong>{caster}</strong> está concedendo Recuperação {intensity} e contribui com <strong>{casterDice}{casterDie}</strong>.<br>Quantos dos seus próprios Dados de Recuperação (<strong>{targetRD}</strong> disponíveis, <strong>{targetDie}</strong>) você deseja gastar? (Máx. {maxSpendable}):",
+        "SpendOwnDice": "Gastar Dados de Recuperação Próprios",
+        "CombinedTotal": "Total de dados a rolar"
+      },
       "Calling": {
         "Title": "Aplicar Vocação: {name}",
         "ApplySelections": "Aplicar Seleções",

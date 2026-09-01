@@ -253,6 +253,9 @@
       "Deed": {
         "Empty": "Esta habilidade ainda não tem efeitos ou descrição."
       },
+      "GrantRecovery": {
+        "NoDiceSpent": "Nenhum dado de recuperação foi gasto para {name}."
+      },
       "DamageCommand": {
         "Title": "Rolagem de Dano / Cura",
         "InvalidFormula": "Fórmula inválida. Por favor forneça uma expressão de dados ou número válido (ex: /hp 2d6+3, /dmg 10, /heal 1d8)."

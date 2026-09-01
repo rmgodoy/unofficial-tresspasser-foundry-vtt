@@ -30,6 +30,10 @@ import {
   handleDeedActionRequest, 
   handleDeedActionResponse 
 } from "./deed-socket-handler.mjs";
+import {
+  handleGrantRecoveryRequest,
+  handleGrantRecoveryResponse
+} from "./grant-recovery-handler.mjs";
 
 /**
  * Helper class for handling custom socket events in the Trespasser system.
@@ -101,6 +105,10 @@ export class TrespasserSocket {
         return handleDeedActionRequest(data, senderId);
       case "DEED_ACTION_RESPONSE":
         return handleDeedActionResponse(data);
+      case "GRANT_RECOVERY_REQUEST":
+        return handleGrantRecoveryRequest(data, senderId);
+      case "GRANT_RECOVERY_RESPONSE":
+        return handleGrantRecoveryResponse(data);
       default:
         // Ignore unknown types
         break;
