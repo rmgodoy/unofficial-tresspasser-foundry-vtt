@@ -2,6 +2,8 @@
  * migration-deed.mjs
  * World-level data migration converting legacy Deed items to the behavior-driven format.
  */
+import { migrateToGraph } from "./migration-graph.mjs";
+export { migrateToGraph };
 
 /**
  * Parse legacy free-text target string into targetType, targetCount, targetSize.
@@ -210,6 +212,9 @@ export function convertOldDeedSystem(source) {
     }
   }
 
+  // 5. Migrate to Graph format if not already done
+  migrateToGraph(src);
+
   return src;
 }
 
@@ -222,7 +227,7 @@ export async function migrateWorldDeeds(options = {}) {
   if (!game.user.isGM) return;
 
   const force = !!options.force;
-  const CURRENT_MIGRATION_VERSION = 4;
+  const CURRENT_MIGRATION_VERSION = 5;
   const currentVersion = game.settings.get("trespasser", "deedMigrationVersion") || 0;
   if (!force && currentVersion >= CURRENT_MIGRATION_VERSION) return;
 
@@ -232,7 +237,7 @@ export async function migrateWorldDeeds(options = {}) {
   for (const item of game.items) {
     if (item.type !== "deed") continue;
     const rawSystem = foundry.utils.deepClone(item._source?.system || item.toObject().system);
-    const updatedSystem = convertOldDeedSystem(rawSystem);
+    const updatedSystem = migrateToGraph(convertOldDeedSystem(rawSystem));
     if (JSON.stringify(updatedSystem) !== JSON.stringify(rawSystem)) {
       await item.update({ system: updatedSystem });
       console.log(`Trespasser | Migrated sidebar deed "${item.name}" (${item.id})`);
@@ -245,7 +250,7 @@ export async function migrateWorldDeeds(options = {}) {
     for (const item of actor.items) {
       if (item.type !== "deed") continue;
       const rawSystem = foundry.utils.deepClone(item._source?.system || item.toObject().system);
-      const updatedSystem = convertOldDeedSystem(rawSystem);
+      const updatedSystem = migrateToGraph(convertOldDeedSystem(rawSystem));
       if (JSON.stringify(updatedSystem) !== JSON.stringify(rawSystem)) {
         deedUpdates.push({
           _id: item.id,
@@ -262,3 +267,4 @@ export async function migrateWorldDeeds(options = {}) {
   await game.settings.set("trespasser", "deedMigrationVersion", CURRENT_MIGRATION_VERSION);
   console.log("Trespasser | Deed Data Model Migration complete.");
 }
+

@@ -1,9 +1,12 @@
-import { convertOldDeedSystem } from "../helpers/migration-deed.mjs";
+import { convertOldDeedSystem, migrateToGraph } from "../helpers/migration-deed.mjs";
+import { PHASE_KEYS } from "./node-port-config.mjs";
 /**
  * Data model for the Trespasser TTRPG Deed item type (Behavior-Driven Deed).
  */
 
 export const BEHAVIOR_TYPES = [
+  "start",
+  "rollAccuracy",
   "selectTarget",
   "selectArea",
   "roll",
@@ -103,6 +106,51 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
         spark: phaseSchema(),
         after: phaseSchema(),
         end: phaseSchema()
+      }),
+      graph: new fields.SchemaField({
+        nodes: new fields.ArrayField(
+          new fields.SchemaField({
+            id: new fields.StringField({
+              required: true,
+              initial: () => foundry.utils.randomID()
+            }),
+            type: new fields.StringField({
+              required: true,
+              choices: BEHAVIOR_TYPES
+            }),
+            phase: new fields.StringField({
+              initial: "base",
+              choices: PHASE_KEYS
+            }),
+            params: new fields.ObjectField({ initial: {} }),
+            x: new fields.NumberField({ initial: 0 }),
+            y: new fields.NumberField({ initial: 0 })
+          }),
+          { initial: [] }
+        ),
+        connections: new fields.ArrayField(
+          new fields.SchemaField({
+            id: new fields.StringField({
+              required: true,
+              initial: () => foundry.utils.randomID()
+            }),
+            sourceId: new fields.StringField({ required: true }),
+            sourcePort: new fields.StringField({ initial: "out" }),
+            targetId: new fields.StringField({ required: true }),
+            targetPort: new fields.StringField({ initial: "in" }),
+            type: new fields.StringField({ initial: "flow", choices: ["flow", "reference"] })
+          }),
+          { initial: [] }
+        )
+      }),
+      graphVersion: new fields.NumberField({
+        initial: 0,
+        integer: true,
+        min: 0
+      }),
+      legacyPhases: new fields.ObjectField({
+        initial: null,
+        nullable: true
       })
     };
   }
@@ -112,6 +160,9 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
     super.prepareBaseData();
     if (this.phases) {
       _sanitizeEffectsInPhases(this.phases);
+    }
+    if (this.graph) {
+      _sanitizeEffectsInGraph(this.graph);
     }
   }
 
@@ -124,6 +175,10 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
     if (phases) {
       _sanitizeEffectsInPhases(phases);
     }
+    const graph = changes.system?.graph ?? changes.graph;
+    if (graph) {
+      _sanitizeEffectsInGraph(graph);
+    }
   }
 
   /* -------------------------------------------- */
@@ -132,7 +187,9 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
 
   /** @override */
   static migrateData(source) {
-    convertOldDeedSystem(source);
+    const converted = convertOldDeedSystem(source);
+    const migrated = migrateToGraph(converted);
+    foundry.utils.mergeObject(source, migrated);
     return super.migrateData(source);
   }
 }
@@ -154,6 +211,21 @@ function _sanitizeEffectsInPhases(phases) {
         if (!Array.isArray(b.params.effects) && typeof b.params.effects === "object") {
           b.params.effects = Object.values(b.params.effects);
         }
+      }
+    }
+  }
+}
+
+/**
+ * Helper to ensure params.effects in graph nodes is always a Javascript Array.
+ * @param {object} graph
+ */
+function _sanitizeEffectsInGraph(graph) {
+  if (!graph?.nodes || !Array.isArray(graph.nodes)) return;
+  for (const node of graph.nodes) {
+    if (node?.params?.effects) {
+      if (!Array.isArray(node.params.effects) && typeof node.params.effects === "object") {
+        node.params.effects = Object.values(node.params.effects);
       }
     }
   }

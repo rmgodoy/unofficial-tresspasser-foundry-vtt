@@ -167,7 +167,11 @@ export class DeedExecutor {
     if (valid === false) return;
 
     // Deep clone phase data so mutations don't alter the database document
-    this.phases = foundry.utils.deepClone(this.system.phases ?? {});
+    if (this.system.graphVersion >= 1 && this.system.graph?.nodes?.length > 0) {
+      this.phases = this._buildPhasesFromGraph();
+    } else {
+      this.phases = foundry.utils.deepClone(this.system.phases ?? {});
+    }
 
     // Annotate behaviors with source phase for dependency tracking
     for (const [pKey, phase] of Object.entries(this.phases)) {
@@ -234,6 +238,73 @@ export class DeedExecutor {
       await game.user.updateTokenTargets([]);
     }
     DeedBehaviorHandler.clearAreaHighlight(this.context);
+  }
+
+  /**
+   * Temporary compatibility adapter: Reconstructs standard phase structure from graph nodes & connections.
+   * Enables the legacy sequential executor to run graph-based deeds until Phase 4 native graph traversal is built.
+   * @returns {object}
+   * @protected
+   */
+  _buildPhasesFromGraph() {
+    const phaseOrder = ["start", "before", "base", "hit", "spark", "after", "end"];
+    const phases = {};
+    for (const pKey of phaseOrder) {
+      phases[pKey] = {
+        description: this.system.phases?.[pKey]?.description || "",
+        skipPhase: Boolean(this.system.phases?.[pKey]?.skipPhase),
+        behaviors: []
+      };
+    }
+
+    const graph = this.system.graph;
+    if (!graph || !Array.isArray(graph.nodes)) return phases;
+
+    // Filter out start and rollAccuracy pseudo-nodes, which are handled implicitly by the legacy executor
+    const executableNodes = graph.nodes.filter(n => n.type !== "start" && n.type !== "rollAccuracy");
+
+    // Order nodes: compute topological/flow sequence from start, fallback to x-coordinate
+    const nodeMap = new Map(executableNodes.map(n => [n.id, n]));
+    const flowOrder = [];
+    const visited = new Set();
+
+    // Trace flow connections from start node
+    const startNode = graph.nodes.find(n => n.type === "start");
+    const queue = startNode ? [startNode.id] : [];
+
+    while (queue.length > 0) {
+      const currentId = queue.shift();
+      if (visited.has(currentId)) continue;
+      visited.add(currentId);
+
+      if (nodeMap.has(currentId)) {
+        flowOrder.push(nodeMap.get(currentId));
+      }
+
+      const outConns = (graph.connections || []).filter(c => c.sourceId === currentId && (c.type === "flow" || !c.type));
+      for (const conn of outConns) {
+        if (!visited.has(conn.targetId)) {
+          queue.push(conn.targetId);
+        }
+      }
+    }
+
+    // Add any remaining nodes that weren't connected to the main flow (e.g. standalone nodes)
+    const remainingNodes = executableNodes.filter(n => !visited.has(n.id));
+    remainingNodes.sort((a, b) => (a.x ?? 0) - (b.x ?? 0));
+    const allOrderedNodes = [...flowOrder, ...remainingNodes];
+
+    for (const node of allOrderedNodes) {
+      const pKey = phaseOrder.includes(node.phase) ? node.phase : "base";
+      phases[pKey].behaviors.push({
+        id: node.id,
+        type: node.type,
+        params: foundry.utils.deepClone(node.params || {}),
+        _sourcePhase: pKey
+      });
+    }
+
+    return phases;
   }
 
   /**

@@ -60,7 +60,9 @@
         "Events": "Eventos",
         "Progression": "Progressão",
         "Effects": "Efeitos",
-        "Card": "Card"
+        "Card": "Card",
+        "Behaviors": "Comportamentos",
+        "Phases": "Fases"
       },
       "Common": {
         "AddItem": "Adicionar Item",
@@ -287,6 +289,8 @@
           "MoveUp": "Mover para Cima",
           "MoveDown": "Mover para Baixo",
           "Type": {
+            "start": "Início",
+            "rollAccuracy": "Rolar Precisão",
             "selectTarget": "Selecionar Alvo",
             "selectArea": "Selecionar Área",
             "roll": "Rolar Dados",
@@ -307,8 +311,29 @@
         },
         "Tabs": {
           "Details": "Detalhes",
+          "Phases": "Fases",
           "Behaviors": "Comportamentos",
           "CardPreview": "Prévia da Carta"
+        },
+        "Graph": {
+          "AddNode": "Adicionar Nó",
+          "DeleteNode": "Excluir Nó",
+          "AutoLayout": "Organizar Automaticamente",
+          "FitView": "Ajustar à Visualização",
+          "Properties": "Propriedades",
+          "SelectNodePrompt": "Selecione um nó no grafo para editar suas propriedades.",
+          "Port": {
+            "In": "Entrada",
+            "Out": "Saída",
+            "OnHit": "Acerto",
+            "OnMiss": "Erro",
+            "OnSpark": "Centelha",
+            "Always": "Sempre",
+            "RollRef": "Referência de Rolagem",
+            "AreaRef": "Referência de Área",
+            "TerrainRef": "Referência de Terreno",
+            "TargetRef": "Referência de Alvo"
+          }
         },
         "Params": {
           "TargetMode": "Modo de Alvo",

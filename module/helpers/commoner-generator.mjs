@@ -200,7 +200,7 @@ export async function generateCommoner(actor) {
   } else {
     // If deed exists with legacy structure, update its system data to match full behavior configuration
     const defaultData = getDefaultCommonerDeedData();
-    const hasBehaviors = existingDeed.system?.phases?.hit?.behaviors?.length > 0;
+    const hasBehaviors = (existingDeed.system?.phases?.hit?.behaviors?.length > 0) || (existingDeed.system?.graph?.nodes?.length > 0);
     if (!hasBehaviors) {
       await existingDeed.update({ "system": defaultData.system });
     }

@@ -62,7 +62,8 @@
         "Effects": "Effects",
         "Card": "Card",
         "Map": "Map",
-        "Behaviors": "Behaviors"
+        "Behaviors": "Behaviors",
+        "Phases": "Phases"
       },
       "Common": {
         "AddItem": "Add Item",
@@ -289,6 +290,8 @@
           "MoveUp": "Move Up",
           "MoveDown": "Move Down",
           "Type": {
+            "start": "Start",
+            "rollAccuracy": "Roll Accuracy",
             "selectTarget": "Select Target",
             "selectArea": "Select Area",
             "roll": "Roll Dice",
@@ -309,8 +312,29 @@
         },
         "Tabs": {
           "Details": "Details",
+          "Phases": "Phases",
           "Behaviors": "Behaviors",
           "CardPreview": "Card Preview"
+        },
+        "Graph": {
+          "AddNode": "Add Node",
+          "DeleteNode": "Delete Node",
+          "AutoLayout": "Auto Layout",
+          "FitView": "Fit to View",
+          "Properties": "Properties",
+          "SelectNodePrompt": "Select a node in the graph to edit its properties.",
+          "Port": {
+            "In": "In",
+            "Out": "Out",
+            "OnHit": "Hit",
+            "OnMiss": "Miss",
+            "OnSpark": "Spark",
+            "Always": "Always",
+            "RollRef": "Roll Reference",
+            "AreaRef": "Area Reference",
+            "TerrainRef": "Terrain Reference",
+            "TargetRef": "Target Reference"
+          }
         },
         "Params": {
           "TargetMode": "Target Mode",
