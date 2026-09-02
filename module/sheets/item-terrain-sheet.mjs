@@ -108,6 +108,7 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
       },
       triggers: {
         onEnter: game.i18n.localize("TRESPASSER.Sheet.Terrain.Triggers.OnEnter"),
+        onExit: game.i18n.localize("TRESPASSER.Sheet.Terrain.Triggers.OnExit"),
         onMove: game.i18n.localize("TRESPASSER.Sheet.Terrain.Triggers.OnMove"),
         onStartTurn: game.i18n.localize("TRESPASSER.Sheet.Terrain.Triggers.OnStartTurn"),
         onCreation: game.i18n.localize("TRESPASSER.Sheet.Terrain.Triggers.OnCreation"),

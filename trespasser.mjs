@@ -2508,6 +2508,14 @@ Hooks.on("regionBehaviorTokenEnter", async (behavior, region, token) => {
   }
 });
 
+Hooks.on("regionBehaviorTokenExit", async (behavior, region, token) => {
+  const tokenDoc = token.document ?? token;
+  if (globalThis._trespasserUndoSet?.has(tokenDoc.id)) return;
+  if (game.trespasser?.TerrainHelper) {
+    await game.trespasser.TerrainHelper.onTokenExitTerrain(tokenDoc, region);
+  }
+});
+
 
 
 /* -------------------------------------------- */

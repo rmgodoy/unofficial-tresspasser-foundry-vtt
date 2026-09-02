@@ -605,6 +605,7 @@
         },
         "Triggers": {
           "OnEnter": "On Enter",
+          "OnExit": "On Exit",
           "OnMove": "On Move",
           "OnStartTurn": "On Start Turn",
           "OnCreation": "On Creation",

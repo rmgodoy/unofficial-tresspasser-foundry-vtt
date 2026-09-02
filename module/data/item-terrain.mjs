@@ -27,7 +27,7 @@ export class TrespasserTerrainData extends foundry.abstract.TypeDataModel {
       behaviors: new ArrayField(new SchemaField({
         trigger: new StringField({
           initial: "onEnter",
-          choices: ["onEnter", "onMove", "onStartTurn", "onCreation", "whileInside"]
+          choices: ["onEnter", "onExit", "onMove", "onStartTurn", "onCreation", "whileInside"]
         }),
 
         // ── Action type ──────────────────────────────────────────

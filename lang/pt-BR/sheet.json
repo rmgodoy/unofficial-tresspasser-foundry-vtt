@@ -581,6 +581,7 @@
         },
         "Triggers": {
           "OnEnter": "Ao Entrar",
+          "OnExit": "Ao Sair",
           "OnMove": "Ao Mover",
           "OnStartTurn": "No Início do Turno",
           "OnCreation": "Na Criação",

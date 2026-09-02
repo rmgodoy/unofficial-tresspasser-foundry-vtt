@@ -537,6 +537,53 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
   }
 
   /**
+   * Called when a token exits a terrain region.
+   * Executes behaviors with trigger "onExit".
+   * @param {TokenDocument} token - The token or token document.
+   * @param {RegionDocument} region - The region document.
+   */
+  static async onTokenExitTerrain(token, region) {
+    if (!token || !region) return;
+    const terrainData = region.flags?.trespasser?.terrain;
+    if (!terrainData) return;
+
+    // Normalize: accept both Token placeables and TokenDocuments
+    const tokenDoc = token.document ?? token;
+    if (globalThis._trespasserUndoSet?.has(tokenDoc.id)) return;
+    const actor = tokenDoc.actor;
+    if (!actor) return;
+
+    // Reset enteredThisTurn for this region when leaving so re-entering triggers onEnter again if applicable
+    if (tokenDoc.flags?.trespasser?.terrainEnteredThisTurn?.[region.id]) {
+      await tokenDoc.unsetFlag("trespasser", `terrainEnteredThisTurn.${region.id}`);
+    }
+
+    const sys = terrainData.system;
+
+    // An actor-centered terrain should not affect the actor it is centered on
+    if (sys.centerMode === "actor" && sys.centerActorId === actor.id) return;
+
+    // Execute onExit behaviors after movement animation finishes
+    const onExitBehaviors = (sys.behaviors || []).filter(b => b.trigger === "onExit");
+    if (onExitBehaviors.length > 0) {
+      const tokenPlaceable = tokenDoc.object || canvas.tokens?.get(tokenDoc.id);
+      if (tokenPlaceable) {
+        if (tokenPlaceable.animationContexts?.size > 0) {
+          const promises = Array.from(tokenPlaceable.animationContexts.values()).map(ctx => ctx.promise);
+          await Promise.allSettled(promises);
+        } else if (tokenPlaceable._animation) {
+          await tokenPlaceable._animation;
+        }
+      }
+
+      const context = this.#buildBehaviorContext(region);
+      for (const behavior of onExitBehaviors) {
+        await this.executeBehavior(behavior, actor, region, context);
+      }
+    }
+  }
+
+  /**
    * Called at the start of a combat turn for a token that is inside a terrain region.
    * Executes behaviors with trigger "onStartTurn".
    * @param {TokenDocument} tokenDoc - The token document.
@@ -1030,7 +1077,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
 
   /**
    * Called when an effect item's intensity changes on an actor.
-   * Propagates intensity updates to all linked terrain regions and active effects.
+   * Propagates intensity updates to all linked terrain regions and active whileInside effects.
    * @param {Item} effectItem 
    * @param {object} [changes] 
    */
@@ -1042,31 +1089,6 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
       const linkedRegions = scene.regions.filter(r => this.isRegionLinkedToEffect(r, effectItem));
       for (const region of linkedRegions) {
         await this.syncWhileInsideEffectsForRegion(region);
-
-        // Also update any standalone / persistent effects applied by this region that are synced with source
-        for (const tokenDoc of scene.tokens) {
-          const actor = tokenDoc.actor;
-          if (!actor) continue;
-          const syncedEffects = actor.items.filter(i =>
-            i.type === "effect" &&
-            !i.flags?.trespasser?.whileInside &&
-            i.flags?.trespasser?.sourceRegionId === region.id &&
-            i.flags?.trespasser?.syncWithSource === true
-          );
-
-          const toUpdate = [];
-          for (const eff of syncedEffects) {
-            const formula = eff.flags?.trespasser?.sourceIntensityFormula || "<Int>";
-            const raw = this.resolveIntPlaceholder(formula, region);
-            const newIntensity = this.evaluateIntensityValue(raw, 0);
-            if (eff.system.intensity !== newIntensity) {
-              toUpdate.push({ _id: eff.id, "system.intensity": newIntensity });
-            }
-          }
-          if (toUpdate.length > 0) {
-            await actor.updateEmbeddedDocuments("Item", toUpdate);
-          }
-        }
       }
     }
   }
@@ -1274,8 +1296,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
             sourceRegionId: terrainRegion.id,
             sourceEffectUuid: eff.uuid,
             sourceIntensityFormula: eff.intensity || "1",
-            sourceLinkedEffectUuid: terrainRegion.flags?.trespasser?.linkedEffectId || terrainRegion.flags?.trespasser?.terrain?.system?.linkedEffect?.uuid || null,
-            syncWithSource: String(eff.intensity || "").toLowerCase().includes("<int>")
+            sourceLinkedEffectUuid: terrainRegion.flags?.trespasser?.linkedEffectId || terrainRegion.flags?.trespasser?.terrain?.system?.linkedEffect?.uuid || null
           });
           delete effectData._id;
           toCreate.push(effectData);
