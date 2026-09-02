@@ -63,9 +63,23 @@ export function formatBDeedTarget(system) {
     const key = typeKeyMap[params.aoeType] || "Blast";
     const typeLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Target.${key}`) || params.aoeType;
     const size = parseInt(params.aoeSize) || 1;
+    if (params.chooseCreatures) {
+      const count = parseInt(params.targetCount) || 1;
+      const unit = count === 1
+        ? (game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Creature") || "Creature")
+        : (game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Creatures") || "Creatures");
+      return `${typeLabel} ${size} (${count} ${unit})`;
+    }
     return `${typeLabel} ${size}`;
   }
   if (mode === "area") {
+    if (params.chooseCreatures) {
+      const count = parseInt(params.targetCount) || 1;
+      const unit = count === 1
+        ? (game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Creature") || "Creature")
+        : (game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Creatures") || "Creatures");
+      return `${game.i18n.localize("TRESPASSER.Sheet.Deed.Target.SelectedArea")} (${count} ${unit})`;
+    }
     return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.SelectedArea");
   }
   return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Self");

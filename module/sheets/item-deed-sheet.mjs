@@ -11,7 +11,8 @@ export const DEFAULT_PARAMS = {
     aoeType: "blast",
     aoeSize: 1,
     areaRelation: "inside",
-    ignoreSelf: false
+    ignoreSelf: false,
+    chooseCreatures: false
   },
   selectArea: {
     targetMode: "squares",

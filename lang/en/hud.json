@@ -29,6 +29,7 @@
         "Path": "Path",
         "ClosePath": "Close Path",
         "SelectTargets": "Select Target(s)",
+        "SelectTargetsFromArea": "Select Target(s) from Area",
         "Burst": "Burst",
         "MeleeBurst": "Melee Burst"
       },
@@ -49,6 +50,7 @@
         "ClosePathInitialInstruction": "Close Path {size}: Click square adjacent to caster to start path.",
         "PathStepInstruction": "Path ({current}/{max}): Click adjacent orthogonal square to expand path.",
         "SelectTargetsInstruction": "Select target(s) on canvas ({current} of {max} selected).",
+        "SelectTargetsFromAreaInstruction": "Select target(s) inside area ({current} of {max} selected).",
         "BurstInstruction": "Burst {size}: {targets} target(s) affected. Review area of effect and confirm to execute.",
         "MeleeBurstInstruction": "Melee Burst: {targets} target(s) affected. Review area of effect and confirm to execute.",
         "AuraInstruction": "Aura {size}: {targets} target(s) affected. Review area of effect and confirm to execute."

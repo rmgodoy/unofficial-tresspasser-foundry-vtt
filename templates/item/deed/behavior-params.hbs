@@ -26,11 +26,11 @@
         </div>
       {{/if}}
 
-      {{#if (eq params.targetMode "creatures")}}
+      {{#if (or (eq params.targetMode "creatures") (and (or (eq params.targetMode "aoe") (eq params.targetMode "area")) params.chooseCreatures))}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetCount"}}</label>
           <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetCount"
-                 value="{{params.targetCount}}" min="1" step="1" class="select-on-focus"/>
+                 value="{{#if params.targetCount}}{{params.targetCount}}{{else}}1{{/if}}" min="1" step="1" class="select-on-focus"/>
         </div>
       {{/if}}
 
@@ -69,19 +69,35 @@
                  value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
         </div>
       {{/if}}
-
-      {{#if (ne params.targetMode "self")}}
-        <div class="field-row checkbox-row" style="margin-top: 4px;">
-          <input type="checkbox"
-                 name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.ignoreSelf"
-                 {{#if params.ignoreSelf}}checked{{/if}}
-                 id="deed-ignore-self-{{phaseKey}}-{{index}}"/>
-          <label for="deed-ignore-self-{{phaseKey}}-{{index}}">
-            {{localize "TRESPASSER.Sheet.Deed.Params.IgnoreSelf"}}
-          </label>
-        </div>
-      {{/if}}
     </div>
+
+    {{#if (or (and (or (eq params.targetMode "aoe") (eq params.targetMode "area")) params.chooseCreatures) (ne params.targetMode "self") (eq params.targetMode "aoe") (eq params.targetMode "area"))}}
+      <div class="behavior-checkboxes-row">
+        {{#if (or (eq params.targetMode "aoe") (eq params.targetMode "area"))}}
+          <div class="field-row checkbox-row">
+            <input type="checkbox"
+                   name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.chooseCreatures"
+                   {{#if params.chooseCreatures}}checked{{/if}}
+                   id="deed-choose-creatures-{{phaseKey}}-{{index}}"/>
+            <label for="deed-choose-creatures-{{phaseKey}}-{{index}}">
+              {{localize "TRESPASSER.Sheet.Deed.Params.ChooseCreatures"}}
+            </label>
+          </div>
+        {{/if}}
+
+        {{#if (ne params.targetMode "self")}}
+          <div class="field-row checkbox-row">
+            <input type="checkbox"
+                   name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.ignoreSelf"
+                   {{#if params.ignoreSelf}}checked{{/if}}
+                   id="deed-ignore-self-{{phaseKey}}-{{index}}"/>
+            <label for="deed-ignore-self-{{phaseKey}}-{{index}}">
+              {{localize "TRESPASSER.Sheet.Deed.Params.IgnoreSelf"}}
+            </label>
+          </div>
+        {{/if}}
+      </div>
+    {{/if}}
   {{/if}}
 
   {{#if (eq type "selectArea")}}
@@ -137,14 +153,16 @@
                value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
       </div>
     </div>
-    <div class="field-row checkbox-row" style="margin-top: 4px;">
-      <input type="checkbox"
-             name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.usePowerSparks"
-             {{#if params.usePowerSparks}}checked{{/if}}
-             id="deed-use-power-{{phaseKey}}-{{index}}"/>
-      <label for="deed-use-power-{{phaseKey}}-{{index}}">
-        {{localize "TRESPASSER.Sheet.Deed.Params.UsePowerSparks"}}
-      </label>
+    <div class="behavior-checkboxes-row">
+      <div class="field-row checkbox-row">
+        <input type="checkbox"
+               name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.usePowerSparks"
+               {{#if params.usePowerSparks}}checked{{/if}}
+               id="deed-use-power-{{phaseKey}}-{{index}}"/>
+        <label for="deed-use-power-{{phaseKey}}-{{index}}">
+          {{localize "TRESPASSER.Sheet.Deed.Params.UsePowerSparks"}}
+        </label>
+      </div>
     </div>
   {{/if}}
 
@@ -161,14 +179,16 @@
                value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
       </div>
     </div>
-    <div class="field-row checkbox-row" style="margin-top: 4px;">
-      <input type="checkbox"
-             name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distribute"
-             {{#if params.distribute}}checked{{/if}}
-             id="deed-distribute-damage-{{phaseKey}}-{{index}}"/>
-      <label for="deed-distribute-damage-{{phaseKey}}-{{index}}">
-        {{localize "TRESPASSER.Sheet.Deed.Params.DistributeDamage"}}
-      </label>
+    <div class="behavior-checkboxes-row">
+      <div class="field-row checkbox-row">
+        <input type="checkbox"
+               name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distribute"
+               {{#if params.distribute}}checked{{/if}}
+               id="deed-distribute-damage-{{phaseKey}}-{{index}}"/>
+        <label for="deed-distribute-damage-{{phaseKey}}-{{index}}">
+          {{localize "TRESPASSER.Sheet.Deed.Params.DistributeDamage"}}
+        </label>
+      </div>
     </div>
   {{/if}}
 
@@ -185,14 +205,16 @@
                value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
       </div>
     </div>
-    <div class="field-row checkbox-row" style="margin-top: 4px;">
-      <input type="checkbox"
-             name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distribute"
-             {{#if params.distribute}}checked{{/if}}
-             id="deed-distribute-healing-{{phaseKey}}-{{index}}"/>
-      <label for="deed-distribute-healing-{{phaseKey}}-{{index}}">
-        {{localize "TRESPASSER.Sheet.Deed.Params.DistributeHealing"}}
-      </label>
+    <div class="behavior-checkboxes-row">
+      <div class="field-row checkbox-row">
+        <input type="checkbox"
+               name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distribute"
+               {{#if params.distribute}}checked{{/if}}
+               id="deed-distribute-healing-{{phaseKey}}-{{index}}"/>
+        <label for="deed-distribute-healing-{{phaseKey}}-{{index}}">
+          {{localize "TRESPASSER.Sheet.Deed.Params.DistributeHealing"}}
+        </label>
+      </div>
     </div>
   {{/if}}
 
@@ -208,14 +230,16 @@
 
   {{#if (eq type "applyEffects")}}
     <div class="behavior-effects-section">
-      <div class="field-row checkbox-row weapon-effects-toggle" style="margin-bottom: 6px;">
-        <input type="checkbox"
-               name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.appliesWeaponEffects"
-               {{#if params.appliesWeaponEffects}}checked{{/if}}
-               id="deed-weapon-effects-{{phaseKey}}-{{index}}"/>
-        <label for="deed-weapon-effects-{{phaseKey}}-{{index}}">
-          {{localize "TRESPASSER.Sheet.Item.Sections.WeaponEffects"}}
-        </label>
+      <div class="behavior-checkboxes-row" style="margin-top: 0; margin-bottom: 6px;">
+        <div class="field-row checkbox-row weapon-effects-toggle">
+          <input type="checkbox"
+                 name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.appliesWeaponEffects"
+                 {{#if params.appliesWeaponEffects}}checked{{/if}}
+                 id="deed-weapon-effects-{{phaseKey}}-{{index}}"/>
+          <label for="deed-weapon-effects-{{phaseKey}}-{{index}}">
+            {{localize "TRESPASSER.Sheet.Item.Sections.WeaponEffects"}}
+          </label>
+        </div>
       </div>
       <div class="behavior-effect-drop drop-zone" data-phase="{{phaseKey}}" data-behavior-id="{{id}}">
         <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}
@@ -283,29 +307,35 @@
           <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropTerrain"}}
         {{/if}}
       </div>
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Deed.Params.Placement"}}</label>
-        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.placement">
-          <option value="on_target" {{#if (eq params.placement "on_target")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnTarget"}}</option>
-          <option value="on_self" {{#if (eq params.placement "on_self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnSelf"}}</option>
-          <option value="choose" {{#if (eq params.placement "choose")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Choose"}}</option>
-          <option value="selected_area" {{#if (eq params.placement "selected_area")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.SelectedArea"}}</option>
-        </select>
+      <div class="param-row-grid" style="margin-top: 6px;">
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.Placement"}}</label>
+          <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.placement">
+            <option value="on_target" {{#if (eq params.placement "on_target")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnTarget"}}</option>
+            <option value="on_self" {{#if (eq params.placement "on_self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnSelf"}}</option>
+            <option value="choose" {{#if (eq params.placement "choose")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Choose"}}</option>
+            <option value="selected_area" {{#if (eq params.placement "selected_area")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.SelectedArea"}}</option>
+          </select>
+        </div>
+        {{#if (eq params.placement "selected_area")}}
+          <div class="field-row">
+            <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaBehaviorId"}}</label>
+            <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaBehaviorId"
+                   value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
+          </div>
+        {{/if}}
       </div>
       {{#if (eq params.placement "selected_area")}}
-        <div class="field-row checkbox-row" style="margin-top: 4px;">
-          <input type="checkbox"
-                 name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.ignoreSourceSquare"
-                 {{#if params.ignoreSourceSquare}}checked{{/if}}
-                 id="deed-ignore-source-{{phaseKey}}-{{index}}"/>
-          <label for="deed-ignore-source-{{phaseKey}}-{{index}}">
-            {{localize "TRESPASSER.Sheet.Deed.Params.IgnoreSourceSquare"}}
-          </label>
-        </div>
-        <div class="field-row">
-          <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaBehaviorId"}}</label>
-          <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaBehaviorId"
-                 value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
+        <div class="behavior-checkboxes-row">
+          <div class="field-row checkbox-row">
+            <input type="checkbox"
+                   name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.ignoreSourceSquare"
+                   {{#if params.ignoreSourceSquare}}checked{{/if}}
+                   id="deed-ignore-source-{{phaseKey}}-{{index}}"/>
+            <label for="deed-ignore-source-{{phaseKey}}-{{index}}">
+              {{localize "TRESPASSER.Sheet.Deed.Params.IgnoreSourceSquare"}}
+            </label>
+          </div>
         </div>
       {{/if}}
     </div>

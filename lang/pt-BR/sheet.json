@@ -322,6 +322,7 @@
           "DestinationMode": "Modo de Destino",
           "IgnoreSelf": "Ignorar Origem",
           "IgnoreSourceSquare": "Ignorar Quadrado da Origem",
+          "ChooseCreatures": "Escolher Criaturas da Área",
           "TargetModeChoices": {
             "Creature": "Criatura",
             "Personal": "Pessoal",

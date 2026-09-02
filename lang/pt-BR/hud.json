@@ -29,6 +29,7 @@
         "Path": "Caminho",
         "ClosePath": "Caminho Próximo",
         "SelectTargets": "Selecionar Alvo(s)",
+        "SelectTargetsFromArea": "Selecionar Alvo(s) da Área",
         "Burst": "Erupção",
         "MeleeBurst": "Explosão Corpo a Corpo"
       },
@@ -49,6 +50,7 @@
         "ClosePathInitialInstruction": "Caminho Próximo {size}: Clique no quadrado adjacente ao conjurador para iniciar.",
         "PathStepInstruction": "Caminho ({current}/{max}): Clique no quadrado ortogonal adjacente.",
         "SelectTargetsInstruction": "Selecione o(s) alvo(s) no mapa ({current} de {max} selecionado(s)).",
+        "SelectTargetsFromAreaInstruction": "Selecione o(s) alvo(s) dentro da área ({current} de {max} selecionado(s)).",
         "BurstInstruction": "Erupção {size}: {targets} alvo(s) afetado(s). Verifique a área de efeito e confirme para executar.",
         "MeleeBurstInstruction": "Explosão Corpo a Corpo: {targets} alvo(s) afetado(s). Verifique a área de efeito e confirme para executar.",
         "AuraInstruction": "Aura {size}: {targets} alvo(s) afetado(s). Verifique a área de efeito e confirme para executar."

@@ -659,6 +659,7 @@ Hooks.once("init", async () => {
   Handlebars.registerHelper("gt", (a, b) => a > b);
   Handlebars.registerHelper("eq", (a, b) => a === b);
   Handlebars.registerHelper("or", (...args) => args.slice(0, -1).some(Boolean));
+  Handlebars.registerHelper("and", (...args) => args.slice(0, -1).every(Boolean));
   Handlebars.registerHelper("ne", (a, b) => a !== b);
   Handlebars.registerHelper("array", (...args) => args.slice(0, -1));
   Handlebars.registerHelper("capitalize", (str) => {

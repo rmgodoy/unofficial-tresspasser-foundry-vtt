@@ -324,6 +324,7 @@
           "DestinationMode": "Destination Mode",
           "IgnoreSelf": "Ignore Self",
           "IgnoreSourceSquare": "Ignore Source Square",
+          "ChooseCreatures": "Choose Creatures from Area",
           "TargetModeChoices": {
             "Creature": "Creature",
             "Personal": "Personal",
