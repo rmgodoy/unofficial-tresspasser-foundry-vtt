@@ -526,9 +526,6 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
       }
     }
 
-    // Sync whileInside effects for this token
-    await this.syncWhileInsideEffectsForToken(tokenDoc);
-
     // Notify about difficult terrain movement cost
     if ((sys.category === "difficult_terrain" || sys.category === "field") && sys.extraMovementCost > 0) {
       ui.notifications.info(
@@ -580,18 +577,37 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
   // ── Terrain Queries ─────────────────────────────────────────────────────────
 
   /**
+   * Check if any square occupied by a token is inside a region.
+   * @param {TokenDocument} tokenDoc 
+   * @param {RegionDocument} region 
+   * @param {number} gridSize 
+   * @returns {boolean}
+   */
+  static isTokenInRegion(tokenDoc, region, gridSize = 100) {
+    if (!tokenDoc || !region) return false;
+    const w = tokenDoc.width || 1;
+    const h = tokenDoc.height || 1;
+    for (let dx = 0; dx < w; dx++) {
+      for (let dy = 0; dy < h; dy++) {
+        const px = tokenDoc.x + (dx + 0.5) * gridSize;
+        const py = tokenDoc.y + (dy + 0.5) * gridSize;
+        if (this.isPointInRegion(px, py, region, gridSize)) return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Get all terrain regions that contain a given token.
    * Uses Foundry's built-in region.tokens set when available, falls back to point-in-region.
    * @param {TokenDocument} tokenDoc - The token document.
    * @returns {RegionDocument[]} Array of terrain regions containing the token.
    */
   static getTerrainRegionsContainingToken(tokenDoc) {
-    const scene = tokenDoc.parent;
+    const scene = tokenDoc.parent || canvas.scene;
     if (!scene) return [];
 
-    const gridSize = scene.grid.size;
-    const tokenCenterX = tokenDoc.x + ((tokenDoc.width || 1) * gridSize / 2);
-    const tokenCenterY = tokenDoc.y + ((tokenDoc.height || 1) * gridSize / 2);
+    const gridSize = scene.grid?.size || 100;
 
     return scene.regions.filter(r => {
       const terrainData = r.flags?.trespasser?.terrain;
@@ -601,7 +617,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
       // An actor-centered terrain should not affect the actor it is centered on
       if (sys.centerMode === "actor" && sys.centerActorId === tokenDoc.actor?.id) return false;
 
-      return TerrainHelper.isPointInRegion(tokenCenterX, tokenCenterY, r, gridSize);
+      return TerrainHelper.isTokenInRegion(tokenDoc, r, gridSize);
     });
   }
 
@@ -684,7 +700,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
     for (const [tokenId, segments] of this._movementQueues.entries()) {
       if (segments.length === 0) continue;
       
-      const tokenDoc = game.scenes.active?.tokens.get(tokenId);
+      const tokenDoc = canvas.scene?.tokens.get(tokenId) || game.scenes.active?.tokens.get(tokenId);
       if (!tokenDoc) continue;
 
       await this._calculateBatchedMovement(tokenDoc, segments);
@@ -699,7 +715,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
    * @param {Array<{oldX, oldY, newX, newY}>} segments 
    */
   static async _calculateBatchedMovement(tokenDoc, segments) {
-    const scene = tokenDoc.parent;
+    const scene = tokenDoc.parent || canvas.scene;
     if (!scene) return;
 
     const actor = tokenDoc.actor;
@@ -1058,6 +1074,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
   // ── While Inside Effect Synchronization ─────────────────────────────────────
 
   static _syncWhileInsideLocks = new Set();
+  static _pendingWhileInsideSync = new Set();
 
   /**
    * Synchronize "whileInside" behavior effects on an actor based on the terrain regions
@@ -1068,11 +1085,14 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
     if (!tokenDoc || !tokenDoc.actor) return;
     const actor = tokenDoc.actor;
     if (!actor.isOwner && !game.user.isGM) return;
-    const scene = tokenDoc.parent;
+    const scene = tokenDoc.parent || canvas.scene;
     if (!scene) return;
 
     const lockKey = actor.id;
-    if (this._syncWhileInsideLocks.has(lockKey)) return;
+    if (this._syncWhileInsideLocks.has(lockKey)) {
+      this._pendingWhileInsideSync.add(lockKey);
+      return;
+    }
     this._syncWhileInsideLocks.add(lockKey);
 
     try {
@@ -1161,6 +1181,11 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
       }
     } finally {
       this._syncWhileInsideLocks.delete(lockKey);
+      if (this._pendingWhileInsideSync.has(lockKey)) {
+        this._pendingWhileInsideSync.delete(lockKey);
+        const freshTokenDoc = scene.tokens?.get(tokenDoc.id) || tokenDoc;
+        this.syncWhileInsideEffectsForToken(freshTokenDoc);
+      }
     }
   }
 

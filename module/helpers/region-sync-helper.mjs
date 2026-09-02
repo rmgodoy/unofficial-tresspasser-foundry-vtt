@@ -160,11 +160,27 @@ Hooks.on("preUpdateToken", (tokenDocument, changes, options, userId) => {
   }
 });
 
-Hooks.on("updateToken", (tokenDocument, changes, options, userId) => {
+Hooks.on("updateToken", async (tokenDocument, changes, options, userId) => {
   if (game.user.id !== userId) return;
   if (changes.x === undefined && changes.y === undefined) return;
 
-  // Process terrain events using old → new position path tracing
+  // Immediately synchronize whileInside effects for the token at its new position
+  await TerrainHelper.syncWhileInsideEffectsForToken(tokenDocument);
+
+  // If this token has an aura terrain attached, synchronize all tokens on the scene
+  const scene = tokenDocument.parent || canvas.scene;
+  if (scene) {
+    const actorId = tokenDocument.actor?.id;
+    const auraRegions = scene.regions.filter(r => {
+      const t = r.flags?.trespasser?.terrain;
+      return t?.system?.centerMode === "actor" && (t.system.centerActorId === actorId || r.flags?.trespasser?.centerActorId === actorId);
+    });
+    for (const auraRegion of auraRegions) {
+      await TerrainHelper.syncWhileInsideEffectsForRegion(auraRegion);
+    }
+  }
+
+  // Process terrain events using old → new position path tracing (for onMove, terrainDamage, slippery)
   const oldPos = options._trespasserOldPos;
   if (oldPos) {
     const newX = changes.x ?? tokenDocument.x;
@@ -173,22 +189,6 @@ Hooks.on("updateToken", (tokenDocument, changes, options, userId) => {
     const actionType = options.movementAction || tokenDocument.movementAction;
     const isJump = actionType === "jump" || actionType === "teleport" || actionType === "blink";
     TerrainHelper.processTokenMovement(tokenDocument, oldPos.x, oldPos.y, newX, newY, isJump);
-  } else {
-    TerrainHelper.syncWhileInsideEffectsForToken(tokenDocument);
-  }
-});
-
-// --- Foundry Region Behavior Event Hooks ---
-
-Hooks.on("regionBehaviorTokenExit", async (behavior, region, tokenDoc) => {
-  if (tokenDoc?.actor && (tokenDoc.actor.isOwner || game.user.isGM)) {
-    await TerrainHelper.syncWhileInsideEffectsForToken(tokenDoc);
-  }
-});
-
-Hooks.on("regionBehaviorTokenEnter", async (behavior, region, tokenDoc) => {
-  if (tokenDoc?.actor && (tokenDoc.actor.isOwner || game.user.isGM)) {
-    await TerrainHelper.syncWhileInsideEffectsForToken(tokenDoc);
   }
 });
 
