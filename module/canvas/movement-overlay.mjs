@@ -3,6 +3,7 @@ import { CanvasSelectionRenderer } from "./canvas-selection-renderer.mjs";
 import { MovementPathfinder } from "./movement/movement-pathfinder.mjs";
 import { StandardMovementMode } from "./movement/standard-movement.mjs";
 import { VaultMovementMode } from "./movement/vault-movement.mjs";
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
  * MovementOverlay facade — Coordinates token movement and vault/jump modes.
@@ -61,8 +62,18 @@ export class MovementOverlay {
         const extraAP = Math.min(2, Math.max(0, availableAP - 1));
         const maxRange = baseMove + extraAP * moveCost;
 
-        const visited = MovementPathfinder.calculateDistancesFrom(token.x, token.y, maxRange, token);
-        CanvasSelectionRenderer.drawRangeZones(this.graphics, visited, sizeX, sizeY, baseMove, moveCost, extraAP);
+        const movementType = TrespasserEffectsHelper.getMovementType(token.actor);
+        if (movementType === "teleport") {
+            const validSquares = MovementPathfinder.calculateValidVaultSquares(token, maxRange, { movementType });
+            const candidateSquares = validSquares.map(sq => ({
+                x: sq.x - (token.document.width * sizeX) / 2,
+                y: sq.y - (token.document.height * sizeY) / 2
+            }));
+            CanvasSelectionRenderer.drawCandidateSquares(this.graphics, candidateSquares, sizeX);
+        } else {
+            const visited = MovementPathfinder.calculateDistancesFrom(token.x, token.y, maxRange, token);
+            CanvasSelectionRenderer.drawRangeZones(this.graphics, visited, sizeX, sizeY, baseMove, moveCost, extraAP);
+        }
     }
 
     static clearInformativeOverlay() {
@@ -72,7 +83,15 @@ export class MovementOverlay {
     }
 
     static async activateMoveMode(token, movePoints) {
-        await StandardMovementMode.activate(this, token, movePoints);
+        const movementType = TrespasserEffectsHelper.getMovementType(token?.actor);
+        if (movementType === "teleport") {
+            await VaultMovementMode.activate(this, token, movePoints, {
+                movementType: "teleport",
+                isMoveAction: true
+            });
+        } else {
+            await StandardMovementMode.activate(this, token, movePoints);
+        }
     }
 
     static activateVaultMode(token, maxRange, options = {}) {

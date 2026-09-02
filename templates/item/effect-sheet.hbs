@@ -58,7 +58,16 @@
         <input type="number" name="system.intensityIncrement" value="{{system.intensityIncrement}}" />
       </div>
 
-      {{#unless system.isOnlyReminder}}
+      {{#if (eq system.type 'movement')}}
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.MovementType"}}</label>
+        <select name="system.movementType">
+          {{{selectOptions config.movementTypes selected=system.movementType localize=true}}}
+        </select>
+      </div>
+      {{/if}}
+
+      {{#unless (or system.isOnlyReminder (eq system.type 'movement'))}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Item.Details.TargetAttribute"}}</label>
         <select name="system.targetAttribute">
@@ -80,7 +89,9 @@
           {{{selectOptions config.triggerWhen selected=system.when localize=true}}}
         </select>
       </div>
+      {{/if}}
 
+      {{#if (or (eq system.type 'on-trigger') (eq system.type 'movement'))}}
       {{!-- Compound Duration --}}
       <div class="field-row" style="flex-direction:column;gap:4px;align-items:flex-start;">
         <label>{{localize "TRESPASSER.Sheet.Common.Duration"}}</label>

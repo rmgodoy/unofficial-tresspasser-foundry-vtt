@@ -158,10 +158,15 @@
               <div class="effect-info-wrapper">
                 <b>{{this.name}}</b>
                 {{#if (eq this.type "continuous")}} <span class="continuous-badge" style="font-size: var(--fs-9); opacity: 0.7;">({{localize "TRESPASSER.App.System.Trigger.Continuous"}})</span>{{/if}}
+                {{#if (eq this.type "movement")}} <span class="continuous-badge" style="font-size: var(--fs-9); opacity: 0.7;">({{localize "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.Movement"}})</span>{{/if}}
                 <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Common.Info'}}"><i class="fas fa-info-circle"></i></a>
                 <a class="effect-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
                 {{#if this.sourceName}} <span class="effect-source" style="font-size: var(--fs-11); font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
-                <span class="effect-details">(I: {{this.intensity}}) — {{this.target}}: {{this.modifier}}</span>
+                {{#if (eq this.type "movement")}}
+                  <span class="effect-details">— {{localize "TRESPASSER.Sheet.Item.Details.MovementType"}}: {{this.movementTypeLabel}}</span>
+                {{else}}
+                  <span class="effect-details">(I: {{this.intensity}}) — {{this.target}}: {{this.modifier}}</span>
+                {{/if}}
               </div>
               <a class="item-control effect-remove" data-action="delete-effect" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}">
                 <i class="fas fa-trash"></i>

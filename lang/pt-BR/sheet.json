@@ -441,8 +441,15 @@
           },
           "EffectTypeChoices": {
             "Continuous": "Contínuo",
-            "OnTrigger": "Ao Ativar"
+            "OnTrigger": "Ao Ativar",
+            "Movement": "Movimento"
           },
+          "MovementTypeChoices": {
+            "Walk": "Andar",
+            "Teleport": "Teleporte",
+            "Jump": "Salto"
+          },
+          "MovementType": "Tipo de Movimento",
           "StatusIcon": "Ícone de Status",
           "NoStatusIcon": "-- Nenhum --",
           "SyncWithArtwork": "Mesmo que a Arte do Efeito",

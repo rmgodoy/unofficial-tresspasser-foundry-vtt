@@ -10,7 +10,11 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
       description: new fields.HTMLField(),
       type: new fields.StringField({
         initial: "continuous",
-        choices: ["on-trigger", "continuous"]
+        choices: ["on-trigger", "continuous", "movement"]
+      }),
+      movementType: new fields.StringField({
+        initial: "walk",
+        choices: ["walk", "teleport", "jump"]
       }),
       isCombat: new fields.BooleanField({ initial: false }),
       isOnlyReminder: new fields.BooleanField({ initial: false }),

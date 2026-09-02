@@ -702,7 +702,7 @@ export class TrespasserActor extends Actor {
       if (!sourceItem) continue;
 
       const sys = sourceItem.system;
-      const isContinuous = sys.type === "continuous";
+      const isContinuous = sys.type === "continuous" || sys.type === "movement";
       const isImmediate = sys.when === "immediate" || !sys.when;
 
       // If continuousOnly is requested, only apply effects that are continuous or immediate

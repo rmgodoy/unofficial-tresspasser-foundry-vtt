@@ -2,6 +2,7 @@ import { MovementPathfinder } from "./movement-pathfinder.mjs";
 import { TrespasserCombat } from "../../documents/combat.mjs";
 import { CanvasInputSession } from "../canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../canvas-selection-renderer.mjs";
+import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 
 /**
  * Encapsulates vault / jump / teleport / walk movement mode.
@@ -218,18 +219,57 @@ export class VaultMovementMode {
     static async executeVault(host) {
         if (!host.selectedVaultSquare) return;
 
-        const { snapped } = host.selectedVaultSquare;
+        const { snapped, hoveredSquare } = host.selectedVaultSquare;
         const sizeX = canvas.grid.sizeX || canvas.grid.size;
         const sizeY = canvas.grid.sizeY || canvas.grid.size;
 
         const tokenDoc = host.token.document;
         const combatant = game.combat?.combatants.find(c => c.tokenId === tokenDoc.id);
+        const movementType = (host.options?.movementType || "jump").toLowerCase();
+        const moveDist = hoveredSquare?.distance || 1;
 
-        if (combatant && !host.options?.free) {
+        if (combatant && host.options?.isMoveAction) {
+            // Standard move action using a movement effect (teleport or jump)
+            const currentUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+            const newUsed = currentUsed + moveDist;
+            const moveActionMovements = Array.from(combatant.getFlag("trespasser", "moveActionMovements") ?? []);
+            moveActionMovements.push({
+                from: { x: tokenDoc.x, y: tokenDoc.y },
+                to: { x: snapped.x, y: snapped.y },
+                distance: moveDist
+            });
+            await combatant.update({
+                "flags.trespasser.movementUsed": newUsed,
+                "flags.trespasser.moveActionMovements": moveActionMovements,
+                "flags.trespasser.hasMovedThisTurn": true
+            });
+
+            if (combatant.actor) {
+                const isFirst = (currentUsed === 0);
+                if (isFirst && moveDist > 0) {
+                    await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
+                }
+                for (let i = 0; i < moveDist; i++) {
+                    await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+                }
+            }
+
+            const msgKey = movementType === "teleport" ? "TRESPASSER.Chat.Action.MoveTeleportMessage"
+                         : movementType === "jump" ? "TRESPASSER.Chat.Action.MoveJumpMessage"
+                         : null;
+            const defaultMsg = movementType === "teleport" ? `<strong>${host.token.name}</strong> teleports ${moveDist} sq.`
+                             : movementType === "jump" ? `<strong>${host.token.name}</strong> jumps ${moveDist} sq.`
+                             : `<strong>${host.token.name}</strong> moves ${moveDist} sq.`;
+            ChatMessage.create({
+                speaker: ChatMessage.getSpeaker({ token: host.token }),
+                content: msgKey ? (game.i18n.format(msgKey, { name: host.token.name, distance: moveDist }) || defaultMsg) : defaultMsg
+            });
+        } else if (combatant && !host.options?.free) {
+            // Standard 1 AP Vault action
             const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
             await combatant.update({
                 "flags.trespasser.actionPoints": Math.max(0, currentAP - 1),
-                "flags.trespasser.isVaulting": true,
+                "flags.trespasser.isVaulting": movementType !== "teleport",
                 "flags.trespasser.vaultStartPos": { x: tokenDoc.x, y: tokenDoc.y }
             });
 
@@ -245,17 +285,25 @@ export class VaultMovementMode {
         }
 
         if (!host.options?.phaseAction) {
+            const movementAction = movementType === "teleport" ? "blink"
+                                 : movementType === "walk" ? "walk"
+                                 : "jump";
+            const animate = movementType !== "teleport";
+
             await tokenDoc.update({x: snapped.x, y: snapped.y}, {
-                animation: { movement: "jump" },
-                movementAction: "jump",
-                trespasserPhaseAction: !!(host.options?.phaseAction || host.options?.free)
+                animation: { movement: movementAction },
+                movementAction: movementAction,
+                animate: animate,
+                trespasserPhaseAction: !!(host.options?.phaseAction || host.options?.free || host.options?.isMoveAction)
             });
 
-            if (host.token.animationContexts?.size > 0) {
-                const promises = Array.from(host.token.animationContexts.values()).map(ctx => ctx.promise);
-                await Promise.allSettled(promises);
-            } else if (host.token._animation) {
-                await host.token._animation;
+            if (animate) {
+                if (host.token.animationContexts?.size > 0) {
+                    const promises = Array.from(host.token.animationContexts.values()).map(ctx => ctx.promise);
+                    await Promise.allSettled(promises);
+                } else if (host.token._animation) {
+                    await host.token._animation;
+                }
             }
         }
 

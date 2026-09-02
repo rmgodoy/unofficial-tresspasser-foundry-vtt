@@ -16,6 +16,7 @@ import { TargetingHelper } from "./targeting-helper.mjs";
 import { MovementOverlay } from "../canvas/movement-overlay.mjs";
 import { TerrainHelper } from "./terrain-helper.mjs";
 import { MovementHelper } from "./movement-helper.mjs";
+import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 
 export class DeedResolver {
 
@@ -191,6 +192,9 @@ export class DeedResolver {
     const distance = action.movementDistance || 0;
     if (!sourceToken || distance <= 0) return;
 
+    const movementEffect = actor ? TrespasserEffectsHelper.getActiveMovementEffect(actor) : null;
+    const movementType = movementEffect ? TrespasserEffectsHelper.getMovementType(actor) : (action.movementType || "walk");
+
     const gridPx = canvas.grid.size;
 
     let destinationSquares = null;
@@ -244,7 +248,7 @@ export class DeedResolver {
           };
           Hooks.once("trespasserVaultComplete", onComplete);
           Hooks.once("trespasserVaultCancelled", onCancel);
-          MovementOverlay.activateVaultMode(sourceToken, distance, { free: true, phaseAction: true });
+          MovementOverlay.activateVaultMode(sourceToken, distance, { free: true, phaseAction: true, movementType });
         });
         if (!jumpResult) return;
         destinationSquares = [jumpResult];
@@ -259,20 +263,20 @@ export class DeedResolver {
     const tokenDoc = sourceToken.document ?? sourceToken;
 
     // Use the movementType to determine animation style
-    const movementAction = action.movementType === "jump" ? "jump"
-                         : action.movementType === "teleport" ? "teleport"
-                         : undefined;
+    const movementAction = movementType === "jump" ? "jump"
+                         : movementType === "teleport" ? "blink"
+                         : "walk";
 
     await tokenDoc.update(
       { x: finalSquare.x, y: finalSquare.y },
-      { movementAction, animate: true, trespasserPhaseAction: true }
+      { movementAction, animate: movementType !== "teleport", trespasserPhaseAction: true }
     );
 
     // Post chat message about the movement
     await ChatMessage.create({
       speaker: ChatMessage.getSpeaker({ actor }),
       content: `<div class="trespasser-chat-card">
-        <p><strong>${actor.name}</strong> ${action.movementType || "moves"} ${distance} squares.</p>
+        <p><strong>${actor.name}</strong> ${movementType || "moves"} ${distance} squares.</p>
       </div>`
     });
   }

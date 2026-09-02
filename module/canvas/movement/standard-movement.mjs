@@ -396,15 +396,30 @@ export class StandardMovementMode {
         const tokenRef = host.token;
         const tokenDoc = host.token.document;
         const combatant = game.combat?.combatants.find(c => c.tokenId === tokenDoc.id);
+        const movementType = TrespasserEffectsHelper.getMovementType(tokenRef.actor);
+        const actionName = movementType === "jump" ? "jump" : "walk";
 
         host.deactivate();
 
         globalThis._trespasserOverlaySet ??= new Set();
         globalThis._trespasserOverlaySet.add(tokenDoc.id);
 
+        // When jumping: leap from waypoint to waypoint (or directly to end if no waypoints)
+        // When walking: step square-by-square along uniquePath
+        let stepsToAnimate = uniquePath;
+        if (movementType === "jump") {
+            const destPt = uniquePath.length > 0 ? uniquePath[uniquePath.length - 1] : { x: gridX * sizeX, y: gridY * sizeY };
+            const wpSteps = host.waypoints.map(wp => ({ x: wp.x, y: wp.y }));
+            stepsToAnimate = [...wpSteps, destPt].filter(pt => !(pt.x === startX && pt.y === startY));
+            if (stepsToAnimate.length === 0) stepsToAnimate = [destPt];
+        }
+
         try {
-            for (const pt of uniquePath) {
-                await tokenDoc.update({x: pt.x, y: pt.y});
+            for (const pt of stepsToAnimate) {
+                await tokenDoc.update({x: pt.x, y: pt.y}, {
+                    movementAction: actionName,
+                    animation: { movement: actionName }
+                });
 
                 if (tokenRef.animationContexts?.size > 0) {
                     const promises = Array.from(tokenRef.animationContexts.values()).map(ctx => ctx.promise);
@@ -440,6 +455,15 @@ export class StandardMovementMode {
                     for (let i = 0; i < totalCost; i++) {
                         await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
                     }
+                }
+
+                if (movementType === "jump") {
+                    const msgKey = "TRESPASSER.Chat.Action.MoveJumpMessage";
+                    const defaultMsg = `<strong>${tokenRef.name}</strong> jumps ${totalCost} sq.`;
+                    ChatMessage.create({
+                        speaker: ChatMessage.getSpeaker({ token: tokenRef }),
+                        content: game.i18n.format(msgKey, { name: tokenRef.name, distance: totalCost }) || defaultMsg
+                    });
                 }
             }
         } finally {

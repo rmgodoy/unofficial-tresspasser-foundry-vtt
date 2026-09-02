@@ -1,5 +1,6 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
+import { TrespasserEffectsHelper } from "../effects-helper.mjs";
 
 export class MoveSourceBehavior {
   /**
@@ -101,7 +102,8 @@ export class MoveSourceBehavior {
   static async execute(behavior, context, actor) {
     const params = behavior.params || {};
     const destinationMode = params.destinationMode || "distance";
-    const movementType = params.movementType || "walk";
+    const movementEffect = actor ? TrespasserEffectsHelper.getActiveMovementEffect(actor) : null;
+    const movementType = movementEffect ? TrespasserEffectsHelper.getMovementType(actor) : (params.movementType || "walk");
 
     const token = DeedBehaviorUtils.findToken(actor);
     if (!token) return true;

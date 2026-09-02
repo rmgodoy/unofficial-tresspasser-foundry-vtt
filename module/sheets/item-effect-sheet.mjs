@@ -72,8 +72,10 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     context.config = {
       effectTypes: {
         "on-trigger": "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.OnTrigger",
-        "continuous": "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.Continuous"
+        "continuous": "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.Continuous",
+        "movement": "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.Movement"
       },
+      movementTypes: TrespasserEffectsHelper.MOVEMENT_TYPE_LABELS,
       targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
       triggerWhen: TrespasserEffectsHelper.TRIGGER_LABELS,
       durationModes: TrespasserEffectsHelper.DURATION_LABELS,

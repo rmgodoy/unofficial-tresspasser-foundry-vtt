@@ -461,8 +461,15 @@
           },
           "EffectTypeChoices": {
             "Continuous": "Continuous",
-            "OnTrigger": "On Trigger"
+            "OnTrigger": "On Trigger",
+            "Movement": "Movement"
           },
+          "MovementTypeChoices": {
+            "Walk": "Walk",
+            "Teleport": "Teleport",
+            "Jump": "Jump"
+          },
+          "MovementType": "Movement Type",
           "StatusIcon": "Status Icon",
           "NoStatusIcon": "-- None --",
           "SyncWithArtwork": "Same as Effect Artwork",

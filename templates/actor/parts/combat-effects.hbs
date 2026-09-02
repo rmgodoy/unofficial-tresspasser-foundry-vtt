@@ -13,6 +13,7 @@
               {{/if}}
               {{this.name}}
               {{#if (eq this.type "continuous")}} <span style="font-size: var(--fs-9); opacity: 0.7;">({{localize "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.Continuous"}})</span>{{/if}}
+              {{#if (eq this.type "movement")}} <span style="font-size: var(--fs-9); opacity: 0.7;">({{localize "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.Movement"}})</span>{{/if}}
               <a class="effect-info" title="{{localize 'TRESPASSER.Sheet.Common.Info'}}"><i class="fas fa-info-circle"></i></a>
               <a class="effect-edit" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
               {{#if this.sourceName}} <span style="font-size: var(--fs-11); font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}
@@ -26,7 +27,13 @@
             {{/if}}
 
             {{#unless this.isOnlyReminder}}
-            <div class="effect-mod">{{this.target}}: {{this.modifier}}</div>
+            <div class="effect-mod">
+              {{#if (eq this.type "movement")}}
+                {{this.movementTypeLabel}}
+              {{else}}
+                {{this.target}}: {{this.modifier}}
+              {{/if}}
+            </div>
             {{/unless}}
             
             <div class="effect-intensity-control">

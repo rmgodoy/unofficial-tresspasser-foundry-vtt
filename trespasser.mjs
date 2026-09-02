@@ -157,6 +157,55 @@ Hooks.once("init", async () => {
   CONFIG.Combat.documentClass = TrespasserCombat;
   CONFIG.ui.combat = TrespasserCombatTracker;
 
+  // Disable Foundry V14 default turn marker setting if present,
+  // since Trespasser provides its own phased initiative turn marker system
+  if (CONFIG.Combat?.settings?.turnMarker) {
+    CONFIG.Combat.settings.turnMarker.enabled = false;
+  }
+
+  // Prevent default turn marker from being added to tokens in Foundry V14,
+  // since Trespasser implements its own phased turn marker system (see Combat.updateTurnMarkers).
+  const TokenClass = CONFIG.Token?.objectClass || globalThis.Token;
+
+  if (TokenClass?.prototype?._refreshTurnMarker) {
+    TokenClass.prototype._refreshTurnMarker = function() {
+      if (this.turnMarker) {
+        canvas.tokens?.turnMarkers?.delete(this);
+        try {
+          this.turnMarker.destroy();
+        } catch (_) {}
+        this.turnMarker = null;
+      }
+    };
+  }
+
+  // Defensively protect _refreshSize against uninitialized turnMarker.mesh in Foundry V14
+  if (TokenClass?.prototype?._refreshSize) {
+    const origRefreshSize = TokenClass.prototype._refreshSize;
+    TokenClass.prototype._refreshSize = function() {
+      if (this.turnMarker && !this.turnMarker.mesh) {
+        const tm = this.turnMarker;
+        this.turnMarker = null;
+        try {
+          return origRefreshSize.call(this);
+        } finally {
+          this.turnMarker = tm;
+        }
+      }
+      return origRefreshSize.call(this);
+    };
+  }
+
+  if (foundry.canvas.placeables.tokens?.TokenTurnMarker) {
+    foundry.canvas.placeables.tokens.TokenTurnMarker.prototype.draw = async function() {
+      if (!this.mesh) {
+        this.mesh = new PIXI.Container();
+        this.mesh.visible = false;
+      }
+      return;
+    };
+  }
+
   CONFIG.TRESPASSER = {
     targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
     depletionDieOptions: {
@@ -824,12 +873,32 @@ Hooks.once("ready", async () => {
   // Foundry 12+ has a more specific way, but closeSettingsConfig is safe for most cases.
   // We can also use the refresh event if needed.
 
-  // Prevent default turn marker from being added to tokens, since we are implementing our own turn marker system
-  if (foundry.canvas.placeables.tokens?.TokenTurnMarker) {
-    foundry.canvas.placeables.tokens.TokenTurnMarker.prototype.draw = async function() {
-      return; 
-    };
+  // Clean up any stray turn markers on canvas tokens
+  if (canvas.ready && canvas.tokens) {
+    for (const token of canvas.tokens.placeables) {
+      if (token.turnMarker) {
+        canvas.tokens.turnMarkers?.delete(token);
+        try {
+          token.turnMarker.destroy();
+        } catch (_) {}
+        token.turnMarker = null;
+      }
+    }
   }
+
+  Hooks.on("canvasReady", () => {
+    if (canvas.tokens) {
+      for (const token of canvas.tokens.placeables) {
+        if (token.turnMarker) {
+          canvas.tokens.turnMarkers?.delete(token);
+          try {
+            token.turnMarker.destroy();
+          } catch (_) {}
+          token.turnMarker = null;
+        }
+      }
+    }
+  });
 
   // Apply token status icon scale to active effect status icons and their backgrounds on tokens
   const TokenClass = CONFIG.Token?.objectClass || globalThis.Token;

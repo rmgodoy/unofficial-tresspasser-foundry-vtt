@@ -85,6 +85,24 @@ export class TrespasserEffectsHelper {
   };
 
   /**
+   * Constant for movement types supported by effects.
+   */
+  static MOVEMENT_TYPES = {
+    WALK: "walk",
+    TELEPORT: "teleport",
+    JUMP: "jump"
+  };
+
+  /**
+   * Labels for movement types.
+   */
+  static MOVEMENT_TYPE_LABELS = {
+    "walk": "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Walk",
+    "teleport": "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Teleport",
+    "jump": "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Jump"
+  };
+
+  /**
    * Constant for target attributes.
    */
   static TARGET_ATTRIBUTES = {
@@ -240,7 +258,7 @@ export class TrespasserEffectsHelper {
     for (const eff of effArray) {
       if (!eff.uuid) continue;
       const source = await fromUuid(eff.uuid);
-      if (!bypassFilter && source && (source.system.type === "continuous" || source.system.when === "immediate" || !source.system.when)) continue;
+      if (!bypassFilter && source && (source.system.type === "continuous" || source.system.type === "movement" || source.system.when === "immediate" || !source.system.when)) continue;
       activeOnly.push(eff);
     }
     if (activeOnly.length === 0) return null;
@@ -423,6 +441,10 @@ export class TrespasserEffectsHelper {
           isCombat: item.system.isCombat,
           isOnlyReminder: item.system.isOnlyReminder,
           type: item.system.type,
+          movementType: item.system.movementType || "walk",
+          movementTypeLabel: this.MOVEMENT_TYPE_LABELS[item.system.movementType || "walk"]
+            ? game.i18n.localize(this.MOVEMENT_TYPE_LABELS[item.system.movementType || "walk"])
+            : (item.system.movementType || "walk"),
           description: item.system.description,
           source: item.name,
           sourceName,
@@ -452,6 +474,45 @@ export class TrespasserEffectsHelper {
     effects.nonCombat.sort((a, b) => a.name.localeCompare(b.name));
 
     return effects;
+  }
+
+  /**
+   * Retrieves the active movement effect item from an actor, if any.
+   * Prioritizes active combat effects during combat, then non-combat effects.
+   * @param {Actor} actor
+   * @returns {Item|null}
+   */
+  static getActiveMovementEffect(actor) {
+    if (!actor) return null;
+    const effects = this.getActorEffects(actor);
+    const inCombat = !!(game.combat && game.combat.active && game.combat.started);
+    const list = inCombat
+      ? [...effects.combat, ...effects.nonCombat]
+      : [...effects.nonCombat, ...effects.combat];
+
+    for (const eff of list) {
+      if (eff.type === "movement" && eff.item) {
+        return eff.item;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Retrieves the effective movement type for an actor based on active movement effects.
+   * Defaults to "walk" if no movement effect is active.
+   * @param {Actor} actor
+   * @returns {"walk"|"teleport"|"jump"}
+   */
+  static getMovementType(actor) {
+    const effect = this.getActiveMovementEffect(actor);
+    if (effect) {
+      const type = (effect.system.movementType || "").toLowerCase();
+      if (Object.values(this.MOVEMENT_TYPES).includes(type)) {
+        return type;
+      }
+    }
+    return "walk";
   }
 
   /**

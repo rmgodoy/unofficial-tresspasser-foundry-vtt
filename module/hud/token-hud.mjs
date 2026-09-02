@@ -95,9 +95,12 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         if (moveActionTaken && movePointsLeft > 0) canMove = true;
         if (moveActionTaken && movePointsLeft <= 0) canMove = false;
 
-        let moveBtnLabel = game.i18n.localize("TRESPASSER.HUD.Action.Move");
+        const movementType = TrespasserEffectsHelper.getMovementType(this._token?.actor);
+        const tag = movementType === "jump" ? " [J]" : movementType === "teleport" ? " [T]" : "";
+        const baseMoveLabel = game.i18n.localize("TRESPASSER.HUD.Action.Move");
+        let moveBtnLabel = `${baseMoveLabel}${tag}`;
         if (moveActionTaken) {
-            moveBtnLabel = `Move (${movePointsLeft})`;
+            moveBtnLabel = `${baseMoveLabel}${tag} (${movePointsLeft})`;
         }
 
         const actorName = this._token?.actor?.name || this._token?.name || game.i18n.localize("TRESPASSER.HUD.Title");

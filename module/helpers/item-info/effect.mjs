@@ -36,10 +36,16 @@ export function buildEffectContent(item) {
   
   
   if (!sys.isOnlyReminder) {
-    const targetLookup = TrespasserEffectsHelper.TARGET_ATTRIBUTES[sys.targetAttribute];
-    const targetLabel = targetLookup ? game.i18n.localize(targetLookup) : sys.targetAttribute;
-    
-    meta += `<div class="info-dlg-meta">${game.i18n.localize("TRESPASSER.Sheet.Common.Modifier")}: ${targetLabel}: ${sys.modifier}</div>`;
+    if (sys.type === "movement") {
+      const moveLookup = TrespasserEffectsHelper.MOVEMENT_TYPE_LABELS[sys.movementType || "walk"];
+      const moveLabel = moveLookup ? game.i18n.localize(moveLookup) : (sys.movementType || "walk");
+      meta += `<div class="info-dlg-meta">${game.i18n.localize("TRESPASSER.Sheet.Item.Details.MovementType")}: ${moveLabel}</div>`;
+    } else {
+      const targetLookup = TrespasserEffectsHelper.TARGET_ATTRIBUTES[sys.targetAttribute];
+      const targetLabel = targetLookup ? game.i18n.localize(targetLookup) : sys.targetAttribute;
+      
+      meta += `<div class="info-dlg-meta">${game.i18n.localize("TRESPASSER.Sheet.Common.Modifier")}: ${targetLabel}: ${sys.modifier}</div>`;
+    }
   }
 
   const desc = sys.description?.trim() || "";
