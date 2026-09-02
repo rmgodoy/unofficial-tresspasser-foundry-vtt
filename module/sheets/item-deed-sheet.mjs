@@ -227,8 +227,10 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
     }
 
     // Mount or refresh GraphEditor when Behaviors tab is active
+    const isBehaviorsTab = this.tabGroups.primary === "behaviors";
     const graphContainer = this.element.querySelector(".deed-graph-container");
-    if (graphContainer) {
+
+    if (graphContainer && isBehaviorsTab) {
       if (this.graphEditor) {
         this._graphViewportState = this.graphEditor.getViewportState();
         this.graphEditor.destroy();
@@ -248,6 +250,7 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
           }
           await this.document.update({
             "system.graph": graphData,
+            "system.graphVersion": 1,
             "flags.trespasser.graphViewport": this._graphViewportState
           });
         },
@@ -268,6 +271,10 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
       if (savedState?.selectedNodeId) {
         this.graphEditor.selectNode(savedState.selectedNodeId);
       }
+    } else if (!isBehaviorsTab && this.graphEditor) {
+      this._graphViewportState = this.graphEditor.getViewportState();
+      this.graphEditor.destroy();
+      this.graphEditor = null;
     }
   }
 
@@ -299,17 +306,33 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
     if (this.graphEditor) {
       this._graphViewportState = this.graphEditor.getViewportState();
       formData.object["flags.trespasser.graphViewport"] = this._graphViewportState;
+      formData.object["system.graph"] = this.graphEditor.getGraph();
+      formData.object["system.graphVersion"] = 1;
     }
     await this.document.update(formData.object);
   }
 
   // ── Action Handlers ──────────────────────────────────────────────────────────
 
-  static #onSwitchTab(event, target) {
+  static async #onSwitchTab(event, target) {
     event.preventDefault();
     const tab = target.dataset.tab;
     if (tab && this.constructor.TABS[tab]) {
       const prevTab = this.tabGroups.primary;
+      if (tab === prevTab) return;
+
+      // Persist uncommitted changes from current tab before switching
+      if (prevTab === "behaviors" && this.graphEditor) {
+        this._graphViewportState = this.graphEditor.getViewportState();
+        await this.document.update({
+          "system.graph": this.graphEditor.getGraph(),
+          "system.graphVersion": 1,
+          "flags.trespasser.graphViewport": this._graphViewportState
+        });
+      } else if (this.isEditable) {
+        await this.submit();
+      }
+
       this.tabGroups.primary = tab;
 
       // Auto-resize window width when switching to/from behaviors tab

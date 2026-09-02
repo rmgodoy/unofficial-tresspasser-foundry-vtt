@@ -187,6 +187,23 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
 
   /** @override */
   static migrateData(source) {
+    if (!source || typeof source !== "object") return super.migrateData(source);
+
+    // If already graphVersion >= 1 or graph has nodes, do not re-migrate!
+    if (source.graphVersion >= 1 || (source.graph?.nodes && source.graph.nodes.length > 0)) {
+      return super.migrateData(source);
+    }
+
+    // Only migrate if phases with actual behaviors exist in source
+    const hasLegacyBehaviors = source.phases && Object.values(source.phases).some(p => {
+      if (!p?.behaviors) return false;
+      return Array.isArray(p.behaviors) ? p.behaviors.length > 0 : Object.keys(p.behaviors).length > 0;
+    });
+
+    if (!hasLegacyBehaviors) {
+      return super.migrateData(source);
+    }
+
     const converted = convertOldDeedSystem(source);
     const migrated = migrateToGraph(converted);
     foundry.utils.mergeObject(source, migrated);
