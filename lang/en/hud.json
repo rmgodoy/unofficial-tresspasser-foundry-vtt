@@ -59,7 +59,8 @@
         "FocusCost": "{count} Focus",
         "SpentFocusMsg": "and spent {count} Focus",
         "AddAP": "Add Action Point",
-        "RemoveAP": "Remove Action Point"
+        "RemoveAP": "Remove Action Point",
+        "SpendAP": "Spend Action Point"
       },
       "Option": {
         "Deed": "{cost} AP (+{bonus} Acc)",

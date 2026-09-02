@@ -59,7 +59,8 @@
         "FocusCost": "{count} Foco",
         "SpentFocusMsg": "e gastou {count} de Foco",
         "AddAP": "Adicionar Ponto de Ação",
-        "RemoveAP": "Remover Ponto de Ação"
+        "RemoveAP": "Remover Ponto de Ação",
+        "SpendAP": "Gastar Ponto de Ação"
       },
       "Option": {
         "Deed": "{cost} PA (+{bonus} Acurácia)",

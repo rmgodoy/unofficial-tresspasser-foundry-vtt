@@ -70,6 +70,12 @@
     opacity: 1;
     filter: drop-shadow(0 0 3px var(--trp-blue));
     transform: scale(1.1) rotate(5deg);
+    cursor: pointer;
+}
+
+.trespasser-token-hud .ap-icon.active:hover {
+    transform: scale(1.25) rotate(10deg);
+    filter: drop-shadow(0 0 5px var(--trp-blue));
 }
 
 .trespasser-token-hud .hud-actions {

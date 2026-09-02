@@ -452,12 +452,16 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 case "modify-ap":
                     this._modifyAP(ev);
                     break;
+                case "spend-ap":
+                    this._onSpendAP();
+                    break;
             }
         });
 
         // Add dragging logic to header using event delegation
         this.element.addEventListener("mousedown", ev => {
             if (ev.target.closest("header")) {
+                if (ev.target.closest("button, [data-action], .ap-icon")) return;
                 this._onHeaderMouseDown(ev);
             }
         });
@@ -1289,6 +1293,19 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             name: this._token.name, 
             ap: newAP 
         }));
+        this.render();
+    }
+
+    async _onSpendAP() {
+        const combatant = this._getCombatant();
+        if (!combatant) return;
+        if (!combatant.testUserPermission(game.user, "OWNER") && !game.user.isGM) return;
+
+        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+        if (currentAP <= 0) return;
+
+        const newAP = Math.max(0, currentAP - 1);
+        await combatant.setFlag("trespasser", "actionPoints", newAP);
         this.render();
     }
 

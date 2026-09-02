@@ -8,7 +8,7 @@
                 <button class="gm-ap-btn" data-action="modify-ap" data-delta="-1" title="{{localize "TRESPASSER.HUD.Resource.RemoveAP"}}">-</button>
                 {{/if}}
                 {{#each apDots}}
-                <div class="ap-icon {{#if active}}active{{/if}}" title="{{localize "TRESPASSER.Sheet.Combat.ActionPoints"}}"></div>
+                <div class="ap-icon {{#if active}}active{{/if}}" {{#if active}}data-action="spend-ap" role="button" title="{{localize "TRESPASSER.HUD.Resource.SpendAP"}}"{{else}}title="{{localize "TRESPASSER.Sheet.Combat.ActionPoints"}}"{{/if}}></div>
                 {{/each}}
                 {{#if isGM}}
                 <button class="gm-ap-btn" data-action="modify-ap" data-delta="1" title="{{localize "TRESPASSER.HUD.Resource.AddAP"}}">+</button>
