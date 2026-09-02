@@ -539,12 +539,15 @@ export class DeedExecutor {
       }
     }
 
-    // 2. Check if there are any targets available. If none, skip accuracy check and hit/spark phases.
+    // 2. Check if there are any targets available.
+    // If none and the deed requires rolling against a target's defense (Guard/Resist), skip accuracy check and hit/spark phases.
     const targetList = (this.context.targets && this.context.targets.length > 0)
       ? this.context.targets
       : Array.from(game.user.targets);
 
-    if (targetList.length === 0) {
+    const isVersus10 = versus === "10" || !isAttack || !versus;
+
+    if (targetList.length === 0 && !isVersus10) {
       ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargetsSkippingAccuracy"));
       this.context.isHit = false;
       this.context.isSpark = false;
@@ -571,8 +574,9 @@ export class DeedExecutor {
 
     // ─────────────────────────────────────────────────────────────────────────
     // Creature Attacking Characters (Player-Facing Defense Roll via Socket)
+    // Only applies when attacking against a target's Guard or Resist
     // ─────────────────────────────────────────────────────────────────────────
-    if (isCreatureAttacker && isAttack) {
+    if (isCreatureAttacker && isAttack && !isVersus10) {
       const creatureEffBonus = this.actor ? TrespasserEffectsHelper.getAttributeBonus(this.actor, "accuracy", "use") : 0;
       const creatureAccuracy = this.actor?.system?.combat?.accuracy ?? 0;
       const creatureDC = creatureAccuracy + creatureEffBonus + apBonus;

@@ -33,10 +33,13 @@ export async function askSparkDialog(results) {
 
   for (let layer = 1; layer <= maxSparks; layer++) {
     const eligibleTargets = sparkTargets.filter(t => t.sparks >= layer);
-    const targetNames = eligibleTargets.map(t => t.tokenName).join(", ");
+    const validNames = eligibleTargets.map(t => t.tokenName).filter(Boolean);
+    const targetNamesSpan = validNames.length > 0
+      ? ` <span class="spark-layer-targets">(${validNames.join(", ")})</span>`
+      : "";
 
     html += `<div class="spark-layer" data-layer="${layer}">`;
-    html += `<h4>${game.i18n.format("TRESPASSER.Dialog.Spark.Layer", { n: layer })} <span class="spark-layer-targets">(${targetNames})</span></h4>`;
+    html += `<h4>${game.i18n.format("TRESPASSER.Dialog.Spark.Layer", { n: layer })}${targetNamesSpan}</h4>`;
 
     for (const st of sparkTypes) {
       // Deed Spark has a global limit of 1 — use radio-like logic via data attribute
