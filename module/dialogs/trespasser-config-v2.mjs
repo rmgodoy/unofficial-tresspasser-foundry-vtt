@@ -73,6 +73,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
       clockSize: game.settings.get("trespasser", "clockSize"),
       fontSizeBase: game.settings.get("trespasser", "fontSizeBase"),
       showStatusEffectsOnTokens: game.settings.get("trespasser", "showStatusEffectsOnTokens"),
+      tokenStatusIconScale: game.settings.get("trespasser", "tokenStatusIconScale"),
       automateTravelTracker: game.settings.get("trespasser", "automateTravelTracker")
     };
 
@@ -192,7 +193,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
         "bypassHavenBuildingLimits", "disregardRangeOnAttack", "allowOutOfTurnMovement", "playerFacingInitiative", 
         "hideCreatureDamageRolls", "enableRetreatDialog", "showPerilInChat", "autoEndCombatOnRetreat", "confirmItemTransfer",
         "automateTravelTracker",
-        "clockSize", "fontSizeBase", "showStatusEffectsOnTokens",
+        "clockSize", "fontSizeBase", "showStatusEffectsOnTokens", "tokenStatusIconScale",
         "colorBgDark", "colorBgPanel", "colorBgInput", "colorBgHeader", "colorBgSelect",
         "colorBorder", "colorBorderLight", "colorGold", "colorGoldDim", "colorGoldBright",
         "colorRed", "colorRedDim", "colorText", "colorTextDim", "colorTextBright",

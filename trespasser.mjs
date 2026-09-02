@@ -382,6 +382,23 @@ Hooks.once("init", async () => {
     default: true
   });
 
+  game.settings.register("trespasser", "tokenStatusIconScale", {
+    name: "TRESPASSER.Settings.Visuals.TokenStatusIconScale.Name",
+    hint: "TRESPASSER.Settings.Visuals.TokenStatusIconScale.Hint",
+    scope: "client",
+    config: false,
+    type: Number,
+    default: 1.0,
+    onChange: () => {
+      if (canvas.ready && canvas.tokens) {
+        canvas.tokens.placeables.forEach(t => {
+          if (t.renderFlags) t.renderFlags.set({ refreshEffects: true, refresh: true });
+          else if (t.refresh) t.refresh();
+        });
+      }
+    }
+  });
+
   // ── Color Theme Settings ──
   const colorSettings = [
     { key: "colorBgDark", default: "#1a1714" },
@@ -785,6 +802,13 @@ Hooks.once("ready", async () => {
         document.documentElement.style.setProperty(c.var, `${val}${alpha}`);
       }
     }
+
+    if (canvas.ready && canvas.tokens) {
+      canvas.tokens.placeables.forEach(t => {
+        if (t.renderFlags) t.renderFlags.set({ refreshEffects: true, refresh: true });
+        else if (t.refresh) t.refresh();
+      });
+    }
   };
 
   // Initial application
@@ -803,6 +827,90 @@ Hooks.once("ready", async () => {
   if (foundry.canvas.placeables.tokens?.TokenTurnMarker) {
     foundry.canvas.placeables.tokens.TokenTurnMarker.prototype.draw = async function() {
       return; 
+    };
+  }
+
+  // Apply token status icon scale to active effect status icons and their backgrounds on tokens
+  const TokenClass = CONFIG.Token?.objectClass || globalThis.Token;
+  if (TokenClass?.prototype?._refreshEffects) {
+    const origRefreshEffects = TokenClass.prototype._refreshEffects;
+    TokenClass.prototype._refreshEffects = function() {
+      // Call original to let Foundry create/manage textures, overlay, and effect visibility
+      origRefreshEffects.call(this);
+
+      if (!this.effects) return;
+
+      // Reset container scale so coordinates remain 1:1 with token space
+      this.effects.scale.set(1, 1);
+
+      const bg = this.effects.bg;
+      const overlay = this.effects.overlay;
+
+      // Collect active status effect sprites
+      const sprites = [];
+      for (const child of this.effects.children) {
+        if (child === bg || child === overlay) continue;
+        if (child.visible !== false) {
+          sprites.push(child);
+        }
+      }
+
+      if (sprites.length === 0) return;
+
+      const N = sprites.length;
+      const W = this.w;
+      const H = this.h;
+      const iconScale = game.settings.get("trespasser", "tokenStatusIconScale") ?? 1.0;
+
+      // Target base icon size (~24% of token width, minimum 14px)
+      const baseIconSize = Math.max(14, W * 0.24);
+      const targetSize = baseIconSize * iconScale;
+
+      // Find the optimal grid (columns and rows) that maximizes icon size without overflowing (W, H)
+      let bestCols = 1;
+      let bestSize = 0;
+
+      for (let c = 1; c <= N; c++) {
+        const r = Math.ceil(N / c);
+        const maxFitSize = Math.min(W / c, H / r);
+        const candidateSize = Math.min(targetSize, maxFitSize);
+        if (candidateSize > bestSize) {
+          bestSize = candidateSize;
+          bestCols = c;
+        }
+      }
+
+      const iconSize = Math.max(8, Math.floor(bestSize));
+      const radius = Math.max(2, Math.round(iconSize * 0.12));
+
+      // Redraw background boxes aligned with the new grid layout
+      if (bg) {
+        bg.clear();
+      }
+
+      sprites.forEach((sprite, index) => {
+        const col = index % bestCols;
+        const row = Math.floor(index / bestCols);
+        const x = col * iconSize;
+        const y = row * iconSize;
+
+        sprite.width = iconSize;
+        sprite.height = iconSize;
+        sprite.position.set(x, y);
+
+        if (bg) {
+          if (typeof bg.beginFill === "function") {
+            bg.beginFill(0x000000, 0.5);
+            bg.lineStyle?.(1, 0x000000, 0.75);
+            bg.drawRoundedRect(x, y, iconSize, iconSize, radius);
+            bg.endFill();
+          } else if (typeof bg.roundRect === "function") {
+            bg.roundRect(x, y, iconSize, iconSize, radius)
+              .fill({ color: 0x000000, alpha: 0.5 })
+              .stroke({ color: 0x000000, alpha: 0.75, width: 1 });
+          }
+        }
+      });
     };
   }
 
@@ -1831,13 +1939,27 @@ Hooks.on("preCreateItem", (item, createData, options, userId) => {
     }
     item.updateSource({ img: iconPath });
   }
+
+  if (item.type === "effect") {
+    const isSynced = item.system.syncStatusIcon !== false;
+    if (isSynced && !item.system.statusIcon) {
+      item.updateSource({ "system.statusIcon": item.img || "systems/trespasser/assets/icons/effect.webp" });
+    }
+  }
 });
 
 /**
- * Update placeholder icon when subType changes.
+ * Update placeholder icon and sync statusIcon when effect image changes.
  */
 Hooks.on("preUpdateItem", (item, changed, options, userId) => {
-  // TODO: update to use the new icons for sub types
+  if (item.type === "effect") {
+    if (changed.img && !foundry.utils.hasProperty(changed, "system.statusIcon")) {
+      const isSynced = changed.system?.syncStatusIcon ?? item.system.syncStatusIcon ?? true;
+      if (isSynced) {
+        foundry.utils.setProperty(changed, "system.statusIcon", changed.img);
+      }
+    }
+  }
 });
 
 /**
@@ -1991,26 +2113,75 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
                   + `<div class="ap-display flexrow"><div class="ap-indicator flexrow">${buildIcons(ap, "ap")}</div></div>`;
       }
 
+      // Extract active effects for this combatant's actor
+      const actor = combatant.actor;
+      const effectsList = [];
+      if (actor) {
+        for (const item of actor.items) {
+          if (item.type !== "effect") continue;
+          if (item.system.gmOnly && !game.user.isGM) continue;
+          const icon = (item.system.syncStatusIcon !== false)
+            ? (item.img || item.system.statusIcon)
+            : (item.system.statusIcon || item.img);
+          if (icon) {
+            effectsList.push({
+              id: item.id,
+              name: item.name,
+              icon: icon,
+              intensity: item.system.intensity || 0
+            });
+          }
+        }
+        for (const eff of (actor.effects || [])) {
+          if (eff.disabled || eff.isSuppressed) continue;
+          const sourceItemId = eff.flags?.trespasser?.sourceItem;
+          if (sourceItemId && effectsList.some(e => e.id === sourceItemId)) continue;
+          const icon = eff.img || eff.icon;
+          if (icon && !effectsList.some(e => e.icon === icon)) {
+            effectsList.push({
+              id: eff.id,
+              name: eff.name || eff.label,
+              icon: icon,
+              intensity: 0
+            });
+          }
+        }
+      }
+
+      const effectsHTML = effectsList.length > 0 ? `
+        <div class="combatant-effects">
+          ${effectsList.map(eff => `
+            <div class="combatant-effect-badge" data-effect-id="${eff.id}" title="${eff.name}">
+              <img class="combatant-effect-icon" src="${eff.icon}" alt="${eff.name}"/>
+              ${eff.intensity > 1 ? `<span class="combatant-effect-intensity">${eff.intensity}</span>` : ""}
+            </div>
+          `).join("")}
+        </div>
+      ` : "";
+
       return `
         <li class="combatant ${cls}" data-combatant-id="${combatant.id}">
-          <div class="avatar-container">
-            <img class="token-image" src="${img}" title="${name}"/>
-          </div>
-          <div class="combatant-info flexcol">
-            <div class="token-name"><h4>${name}</h4></div>
-            <div class="combatant-status flexrow">
-              <a class="combatant-control ${isHidden ? "active" : ""}" data-action="toggleHidden" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleVisibility")}">
-                <i class="fas ${isHidden ? "fa-eye-slash" : "fa-eye"}"></i>
-              </a>
-              <a class="combatant-control ${isDefeated ? "active" : ""}" data-action="toggleDefeated" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleDead")}">
-                <i class="fas fa-skull"></i>
-              </a>
-              <a class="combatant-control ${isTargeted ? "active" : ""}" data-action="toggleTarget" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleTarget")}">
-                <i class="fas fa-bullseye"></i>
-              </a>
+          <div class="combatant-main-row flexrow">
+            <div class="avatar-container">
+              <img class="token-image" src="${img}" title="${name}"/>
             </div>
+            <div class="combatant-info flexcol">
+              <div class="token-name"><h4>${name}</h4></div>
+              <div class="combatant-status flexrow">
+                <a class="combatant-control ${isHidden ? "active" : ""}" data-action="toggleHidden" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleVisibility")}">
+                  <i class="fas ${isHidden ? "fa-eye-slash" : "fa-eye"}"></i>
+                </a>
+                <a class="combatant-control ${isDefeated ? "active" : ""}" data-action="toggleDefeated" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleDead")}">
+                  <i class="fas fa-skull"></i>
+                </a>
+                <a class="combatant-control ${isTargeted ? "active" : ""}" data-action="toggleTarget" title="${game.i18n.localize("TRESPASSER.Global.Action.ToggleTarget")}">
+                  <i class="fas fa-bullseye"></i>
+                </a>
+              </div>
+            </div>
+            <div class="stats-area flexcol">${statsHTML}</div>
           </div>
-          <div class="stats-area flexcol">${statsHTML}</div>
+          ${effectsHTML}
         </li>
       `.trim();
     }).join("");
@@ -2123,6 +2294,21 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
       }
     });
   });
+
+  root.querySelectorAll(".combatant-effect-badge").forEach(el => {
+    el.addEventListener("click", async ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const effectId = el.dataset.effectId;
+      const combatantId = el.closest(".combatant")?.dataset.combatantId;
+      const combatant = game.combat?.combatants.get(combatantId);
+      const item = combatant?.actor?.items.get(effectId);
+      if (item) {
+        const { showItemInfoDialog } = await import("./module/dialogs/item-info-dialog.mjs");
+        showItemInfoDialog(item.uuid);
+      }
+    });
+  });
 });
 
 Hooks.on("refreshToken", (token) => {
@@ -2143,8 +2329,12 @@ Hooks.on("refreshToken", (token) => {
   const activeKeys = Object.entries(states).filter(([key, v]) => v && (token.document.actor.type === "character" || key !== "encumbered"));
   if (activeKeys.length === 0) return;
 
-  const iconSize = Math.max(16, Math.round(token.w * 0.22));
+  const iconScale = game.settings.get("trespasser", "tokenStatusIconScale") ?? 1.0;
   const padding = 2;
+  const count = activeKeys.length;
+  const baseSize = Math.max(14, Math.round(token.w * 0.22));
+  const maxAvailableH = Math.floor((token.h - padding * (count + 1)) / count);
+  const iconSize = Math.max(8, Math.min(Math.round(baseSize * iconScale), maxAvailableH));
 
   activeKeys.forEach(([key], index) => {
     const cfg = PASSIVE_STATES[key];

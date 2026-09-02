@@ -463,7 +463,12 @@
             "OnTrigger": "On Trigger"
           },
           "StatusIcon": "Status Icon",
-          "NoStatusIcon": "-- None --"
+          "NoStatusIcon": "-- None --",
+          "SyncWithArtwork": "Same as Effect Artwork",
+          "SyncedWithArtwork": "Synced with Effect Artwork (Click to unlink)",
+          "CustomStatusIcon": "Custom Icon",
+          "BrowseStatusIcon": "Browse Icon File",
+          "ClearStatusIcon": "Clear Icon"
         },
         "Placeholder": {
           "Name": "Item name...",

@@ -41,7 +41,11 @@ export function activateImagePicker(sheet) {
         redirectToRoot: [current],
         callback: async path => {
           const doc = sheet.document;
-          await doc.update({ [attr]: path });
+          const updateData = { [attr]: path };
+          if (attr === "system.statusIcon" && doc.type === "effect") {
+            updateData["system.syncStatusIcon"] = false;
+          }
+          await doc.update(updateData);
           if (attr === "img") {
             if (doc?.isToken && doc.token) {
               if (doc.token.texture?.src !== path) {

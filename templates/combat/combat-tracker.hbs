@@ -39,59 +39,71 @@
       <ol class="combatants-list">
         {{#each phase.combatants as |turn|}}
         <li class="combatant {{#if turn.isActive}}active{{/if}} {{#if turn.isFinished}}finished{{/if}}" data-combatant-id="{{turn.id}}">
-          <div class="avatar-container">
-            <img class="token-image" src="{{turn.img}}" title="{{turn.name}}"/>
-          </div>
-          
-          <div class="combatant-info flexcol">
-            <div class="token-name">
-              <h4>{{turn.name}}</h4>
+          <div class="combatant-main-row flexrow">
+            <div class="avatar-container">
+              <img class="token-image" src="{{turn.img}}" title="{{turn.name}}"/>
             </div>
-            <div class="combatant-status flexrow">
-              <a class="combatant-control {{#if turn.hidden}}active{{/if}}" data-action="toggleHidden" title="{{localize "TRESPASSER.Global.Action.ToggleVisibility"}}">
-                <i class="fas {{#if turn.hidden}}fa-eye-slash{{else}}fa-eye{{/if}}"></i>
-              </a>
-              <a class="combatant-control {{#if turn.defeated}}active{{/if}}" data-action="toggleDefeated" title="{{localize "TRESPASSER.Global.Action.ToggleDead"}}">
-                <i class="fas fa-skull"></i>
-              </a>
-              <a class="combatant-control {{#if turn.isTargeted}}active{{/if}}" data-action="toggleTarget" title="{{localize "TRESPASSER.Global.Action.ToggleTarget"}}">
-                <i class="fas fa-bullseye"></i>
-              </a>
-              {{#each turn.effects}}
-              <img class="effect-icon" src="{{this}}"/>
-              {{/each}}
+            
+            <div class="combatant-info flexcol">
+              <div class="token-name">
+                <h4>{{turn.name}}</h4>
+              </div>
+              <div class="combatant-status flexrow">
+                <a class="combatant-control {{#if turn.hidden}}active{{/if}}" data-action="toggleHidden" title="{{localize "TRESPASSER.Global.Action.ToggleVisibility"}}">
+                  <i class="fas {{#if turn.hidden}}fa-eye-slash{{else}}fa-eye{{/if}}"></i>
+                </a>
+                <a class="combatant-control {{#if turn.defeated}}active{{/if}}" data-action="toggleDefeated" title="{{localize "TRESPASSER.Global.Action.ToggleDead"}}">
+                  <i class="fas fa-skull"></i>
+                </a>
+                <a class="combatant-control {{#if turn.isTargeted}}active{{/if}}" data-action="toggleTarget" title="{{localize "TRESPASSER.Global.Action.ToggleTarget"}}">
+                  <i class="fas fa-bullseye"></i>
+                </a>
+              </div>
+            </div>
+
+            <div class="stats-area flexcol">
+               {{#if turn.isPending}}
+               <button class="roll-initiative-btn" style="
+                 background: var(--trp-gold-dim);
+                 color: var(--trp-bg-dark);
+                 border: none;
+                 border-radius: 3px;
+                 padding: 4px 8px;
+                 cursor: pointer;
+                 font-family: var(--trp-font-primary);
+                 font-size: var(--fs-11);
+                 font-weight: bold;
+                 white-space: nowrap;
+               ">
+                 <i class="fas fa-dice-d20"></i>
+               </button>
+               {{else}}
+               <div class="focus-display flexrow" title="{{localize "TRESPASSER.Sheet.Combat.Focus"}}">
+                  <span class="focus-number">{{turn.focus}}</span>
+               </div>
+               <div class="ap-display flexrow">
+                  <div class="ap-indicator flexrow">
+                    {{#each turn.apDots}}
+                      <div class="ap-icon {{#if active}}active{{/if}}" data-action="clickAP"></div>
+                    {{/each}}
+                  </div>
+               </div>
+               {{/if}}
             </div>
           </div>
 
-          <div class="stats-area flexcol">
-             {{#if turn.isPending}}
-             <button class="roll-initiative-btn" style="
-               background: var(--trp-gold-dim);
-               color: var(--trp-bg-dark);
-               border: none;
-               border-radius: 3px;
-               padding: 4px 8px;
-               cursor: pointer;
-               font-family: var(--trp-font-primary);
-               font-size: var(--fs-11);
-               font-weight: bold;
-               white-space: nowrap;
-             ">
-               <i class="fas fa-dice-d20"></i>
-             </button>
-             {{else}}
-             <div class="focus-display flexrow" title="{{localize "TRESPASSER.Sheet.Combat.Focus"}}">
-                <span class="focus-number">{{turn.focus}}</span>
-             </div>
-             <div class="ap-display flexrow">
-                <div class="ap-indicator flexrow">
-                  {{#each turn.apDots}}
-                    <div class="ap-icon {{#if active}}active{{/if}}" data-action="clickAP"></div>
-                  {{/each}}
-                </div>
-             </div>
-             {{/if}}
+          {{#if turn.effects.length}}
+          <div class="combatant-effects">
+            {{#each turn.effects as |eff|}}
+            <div class="combatant-effect-badge" data-effect-id="{{eff.id}}" title="{{eff.name}}">
+              <img class="combatant-effect-icon" src="{{eff.icon}}" alt="{{eff.name}}"/>
+              {{#if (gt eff.intensity 1)}}
+              <span class="combatant-effect-intensity">{{eff.intensity}}</span>
+              {{/if}}
+            </div>
+            {{/each}}
           </div>
+          {{/if}}
         </li>
         {{#each turn.extraTurns as |extra|}}
         <li class="combatant extra-turn {{#if extra.isActive}}active{{/if}}" data-combatant-id="{{extra.id}}">

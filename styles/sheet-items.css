@@ -1036,3 +1036,105 @@
   padding: 8px;
   min-height: 100px;
 }
+
+/* ── Effect Status Icon Picker ─────────────────────────── */
+.status-icon-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.status-icon-controls select {
+  flex: 1;
+}
+
+.status-icon-controls .sync-icon-btn {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--trp-bg-select);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  color: var(--trp-text-dim);
+  cursor: pointer;
+  font-size: var(--fs-12);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.status-icon-controls .sync-icon-btn.active {
+  color: var(--trp-gold-bright);
+  border-color: var(--trp-gold-dim);
+  background: var(--trp-gold-overlay);
+}
+
+.status-icon-controls .sync-icon-btn:hover {
+  background: var(--trp-bg-overlay);
+  border-color: var(--trp-gold);
+  color: var(--trp-gold-bright);
+}
+
+.status-icon-controls .file-picker-btn {
+  flex: 0 0 28px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--trp-bg-select);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  color: var(--trp-gold);
+  cursor: pointer;
+  font-size: var(--fs-12);
+  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+}
+
+.status-icon-controls .file-picker-btn:hover {
+  background: var(--trp-bg-overlay);
+  border-color: var(--trp-gold);
+  color: var(--trp-gold-bright);
+}
+
+.status-icon-controls .status-icon-preview {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  background: var(--trp-bg-overlay);
+  padding: 2px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, filter 0.15s ease;
+}
+
+.status-icon-controls .status-icon-preview:hover {
+  border-color: var(--trp-gold);
+  filter: brightness(1.2);
+}
+
+.status-icon-controls .status-icon-clear-btn {
+  flex: 0 0 24px;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--trp-text-dim);
+  cursor: pointer;
+  font-size: var(--fs-12);
+  transition: color 0.15s ease;
+}
+
+.status-icon-controls .status-icon-clear-btn:hover {
+  color: var(--trp-red);
+}
+

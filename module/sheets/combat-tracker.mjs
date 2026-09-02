@@ -1,3 +1,5 @@
+import { showItemInfoDialog } from "../dialogs/item-info-dialog.mjs";
+
 /**
  * Custom Combat Tracker for Trespasser TTRPG.
  * Compatible with Foundry V13 ApplicationV2 Sidebar.
@@ -74,6 +76,42 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
             active: i < turn.ap
         }));
 
+        // Extract active effects for this combatant's actor
+        const actor = combatant.actor;
+        const effectsList = [];
+        if (actor) {
+          for (const item of actor.items) {
+            if (item.type !== "effect") continue;
+            if (item.system.gmOnly && !game.user.isGM) continue;
+            const icon = (item.system.syncStatusIcon !== false)
+              ? (item.img || item.system.statusIcon)
+              : (item.system.statusIcon || item.img);
+            if (icon) {
+              effectsList.push({
+                id: item.id,
+                name: item.name,
+                icon: icon,
+                intensity: item.system.intensity || 0
+              });
+            }
+          }
+          for (const eff of (actor.effects || [])) {
+            if (eff.disabled || eff.isSuppressed) continue;
+            const sourceItemId = eff.flags?.trespasser?.sourceItem;
+            if (sourceItemId && effectsList.some(e => e.id === sourceItemId)) continue;
+            const icon = eff.img || eff.icon;
+            if (icon && !effectsList.some(e => e.icon === icon)) {
+              effectsList.push({
+                id: eff.id,
+                name: eff.name || eff.label,
+                icon: icon,
+                intensity: 0
+              });
+            }
+          }
+        }
+        turn.effects = effectsList;
+
         turn.isActive   = (phaseId === activePhase) && (turn.ap > 0) && !turn.defeated;
         turn.isFinished = turn.ap <= 0 || turn.defeated;
         phase.combatants.push(turn);
@@ -111,6 +149,19 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
 
     // Custom controls
     html.find(".combatant-control[data-action]").click(this._onCombatantControl.bind(this));
+
+    // Effect badge click to open info dialog
+    html.find(".combatant-effect-badge").click(ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const effectId = ev.currentTarget.dataset.effectId;
+      const combatantId = ev.currentTarget.closest(".combatant")?.dataset.combatantId;
+      const combatant = game.combat?.combatants.get(combatantId);
+      const item = combatant?.actor?.items.get(effectId);
+      if (item) {
+        showItemInfoDialog(item.uuid);
+      }
+    });
   }
 
   /** @override (ApplicationV2-style) */
@@ -148,6 +199,20 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
         ev.preventDefault();
         ev.stopPropagation();
         this._onCombatantControlEl(el);
+      });
+    });
+
+    html.querySelectorAll(".combatant-effect-badge").forEach(el => {
+      el.addEventListener("click", ev => {
+        ev.preventDefault();
+        ev.stopPropagation();
+        const effectId = el.dataset.effectId;
+        const combatantId = el.closest(".combatant")?.dataset.combatantId;
+        const combatant = game.combat?.combatants.get(combatantId);
+        const item = combatant?.actor?.items.get(effectId);
+        if (item) {
+          showItemInfoDialog(item.uuid);
+        }
       });
     });
   }

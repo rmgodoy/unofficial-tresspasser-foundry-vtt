@@ -950,9 +950,13 @@ export class TrespasserEffectsHelper {
     if (!actor) return;
 
     const showEffects = game.settings.get("trespasser", "showStatusEffectsOnTokens") ?? true;
-    // Get all active effect items on the actor that have a statusIcon selected
+    // Get all active effect items on the actor that have a statusIcon selected or synced
     const effectItems = showEffects
-      ? actor.items.filter(i => i.type === "effect" && i.system.statusIcon)
+      ? actor.items.filter(i => {
+          if (i.type !== "effect") return false;
+          const icon = (i.system.syncStatusIcon !== false) ? (i.img || i.system.statusIcon) : i.system.statusIcon;
+          return Boolean(icon);
+        })
       : [];
 
     // Get all existing ActiveEffects on the actor that were created by our sync (have our sourceItem flag)
@@ -967,7 +971,8 @@ export class TrespasserEffectsHelper {
       // Find if there is an existing ActiveEffect for this item
       const ae = existingActiveEffects.find(ae => ae.getFlag("trespasser", "sourceItem") === item.id);
       
-      const statusIconPath = item.system.statusIcon;
+      const statusIconPath = (item.system.syncStatusIcon !== false) ? (item.img || item.system.statusIcon) : item.system.statusIcon;
+      if (!statusIconPath) continue;
       // Object.values handles both the v13 array and v14 object formats
       const matchingStatus = Object.values(CONFIG.statusEffects).find(se => {
         const img = se.img || se.icon || se.src;

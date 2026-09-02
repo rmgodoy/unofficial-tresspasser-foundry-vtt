@@ -443,7 +443,12 @@
             "OnTrigger": "Ao Ativar"
           },
           "StatusIcon": "Ícone de Status",
-          "NoStatusIcon": "-- Nenhum --"
+          "NoStatusIcon": "-- Nenhum --",
+          "SyncWithArtwork": "Mesmo que a Arte do Efeito",
+          "SyncedWithArtwork": "Sincronizado com a Arte do Efeito (Clique para desvincular)",
+          "CustomStatusIcon": "Ícone Personalizado",
+          "BrowseStatusIcon": "Procurar Arquivo de Ícone",
+          "ClearStatusIcon": "Limpar Ícone"
         },
         "Placeholder": {
           "Name": "Nome do item...",

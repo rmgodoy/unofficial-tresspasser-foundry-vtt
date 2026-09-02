@@ -111,6 +111,10 @@
         "ShowStatusEffectsOnTokens": {
           "Name": "Show status effects on tokens",
           "Hint": "If enabled, selected status effect icons from Effect items will be displayed as overlay icons on active tokens."
+        },
+        "TokenStatusIconScale": {
+          "Name": "Token Status Icon Scale",
+          "Hint": "Scale multiplier for status effect and state icons rendered on tokens (default: 1.0)."
         }
       },
       "Colors": {

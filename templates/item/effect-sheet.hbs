@@ -154,17 +154,40 @@
 
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Item.Details.StatusIcon"}}</label>
-        <div style="display:flex; align-items:center; gap:10px; width: 100%;">
-          <select name="system.statusIcon" style="flex:1;">
-            <option value="">{{localize "TRESPASSER.Sheet.Item.Details.NoStatusIcon"}}</option>
+        <div class="status-icon-controls">
+          <select name="system.statusIcon">
+            <option value="__sync__" {{#if syncStatusIcon}}selected{{/if}}>
+              {{localize "TRESPASSER.Sheet.Item.Details.SyncWithArtwork"}}
+            </option>
+            <option value="" {{#if (and (not syncStatusIcon) (not system.statusIcon))}}selected{{/if}}>
+              {{localize "TRESPASSER.Sheet.Item.Details.NoStatusIcon"}}
+            </option>
+            {{#if isCustomStatus}}
+              <option value="{{system.statusIcon}}" {{#if (and (not syncStatusIcon) system.statusIcon)}}selected{{/if}}>
+                {{localize "TRESPASSER.Sheet.Item.Details.CustomStatusIcon"}}{{#if customStatusLabel}} ({{customStatusLabel}}){{/if}}
+              </option>
+            {{/if}}
             {{#each config.statusEffects as |se|}}
-              <option value="{{se.img}}" {{#if (eq ../system.statusIcon se.img)}}selected{{/if}}>
+              <option value="{{se.img}}" {{#if (and (not ../syncStatusIcon) (eq ../system.statusIcon se.img))}}selected{{/if}}>
                 {{se.name}}
               </option>
             {{/each}}
           </select>
-          {{#if system.statusIcon}}
-            <img src="{{system.statusIcon}}" style="width:24px; height:24px; border:none; background:transparent;" />
+          {{#if editable}}
+          <button type="button" class="sync-icon-btn {{#if syncStatusIcon}}active{{/if}}" data-action="toggleSyncStatusIcon" title="{{#if syncStatusIcon}}{{localize 'TRESPASSER.Sheet.Item.Details.SyncedWithArtwork'}}{{else}}{{localize 'TRESPASSER.Sheet.Item.Details.SyncWithArtwork'}}{{/if}}">
+            <i class="fas {{#if syncStatusIcon}}fa-link{{else}}fa-unlink{{/if}}"></i>
+          </button>
+          <button type="button" class="file-picker-btn" data-edit="system.statusIcon" title="{{localize 'TRESPASSER.Sheet.Item.Details.BrowseStatusIcon'}}">
+            <i class="fas fa-file-import"></i>
+          </button>
+          {{/if}}
+          {{#if effectiveStatusIcon}}
+            <img class="status-icon-preview" src="{{effectiveStatusIcon}}" data-edit="system.statusIcon" title="{{localize 'TRESPASSER.Sheet.Item.Details.BrowseStatusIcon'}}" />
+            {{#if editable}}
+            <button type="button" class="status-icon-clear-btn" data-action="clearStatusIcon" title="{{localize 'TRESPASSER.Sheet.Item.Details.ClearStatusIcon'}}">
+              <i class="fas fa-times"></i>
+            </button>
+            {{/if}}
           {{/if}}
         </div>
       </div>

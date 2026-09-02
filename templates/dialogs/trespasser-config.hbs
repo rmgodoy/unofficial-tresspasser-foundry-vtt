@@ -173,6 +173,14 @@
             </div>
 
             <div class="form-group">
+                <label>{{localize "TRESPASSER.Settings.Visuals.TokenStatusIconScale.Name"}}</label>
+                <div class="form-fields">
+                    <input type="number" name="tokenStatusIconScale" value="{{settings.tokenStatusIconScale}}" min="0.2" max="3.0" step="0.1">
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Settings.Visuals.TokenStatusIconScale.Hint"}}</p>
+            </div>
+
+            <div class="form-group">
                 <label>{{localize "TRESPASSER.Settings.Mechanics.ConfirmItemTransfer.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="confirmItemTransfer" {{checked settings.confirmItemTransfer}}>

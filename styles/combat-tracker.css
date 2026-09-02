@@ -82,8 +82,9 @@
   padding: 6px 12px;
   border-bottom: 1px solid var(--trp-border);
   display: flex !important;
-  align-items: center;
-  gap: 10px;
+  flex-direction: column !important;
+  align-items: stretch;
+  gap: 4px;
 }
 
 .combatant.active {
@@ -96,18 +97,100 @@
   filter: grayscale(1);
 }
 
+.combatant-main-row {
+  display: flex !important;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.combatant-effects {
+  display: flex !important;
+  flex-flow: row wrap !important;
+  flex-wrap: wrap !important;
+  align-items: center;
+  gap: 4px;
+  width: 100%;
+  padding-top: 4px;
+  border-top: 1px dashed var(--trp-border-light);
+  box-sizing: border-box;
+}
+
+.combatant-effect-badge {
+  position: relative;
+  width: 20px;
+  height: 20px;
+  min-width: 20px;
+  min-height: 20px;
+  max-width: 20px;
+  max-height: 20px;
+  flex: 0 0 20px !important;
+  border-radius: var(--trp-radius-sm);
+  background: var(--trp-bg-dark);
+  border: 1px solid var(--trp-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-sizing: border-box;
+  transition: transform 0.15s ease, border-color 0.15s ease;
+}
+
+.combatant-effect-badge:hover {
+  transform: scale(1.15);
+  border-color: var(--trp-gold);
+  z-index: 2;
+}
+
+.combatant-effect-icon {
+  width: 16px;
+  height: 16px;
+  object-fit: contain;
+  border: none !important;
+  border-radius: 1px;
+}
+
+.combatant-effect-intensity {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  font-size: var(--fs-8);
+  font-weight: 700;
+  background: var(--trp-bg-header);
+  color: var(--trp-gold-bright);
+  border: 1px solid var(--trp-border);
+  border-radius: 50%;
+  width: 11px;
+  height: 11px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
 .avatar-container {
   width: 44px;
   height: 44px;
+  min-width: 44px;
+  min-height: 44px;
+  max-width: 44px;
+  max-height: 44px;
+  flex: 0 0 44px !important;
+  flex-shrink: 0 !important;
+  aspect-ratio: 1 / 1;
 }
 
 .token-image {
   width: 100%;
   height: 100%;
+  min-width: 44px;
+  min-height: 44px;
+  aspect-ratio: 1 / 1;
   border-radius: 50%;
   border: 2px solid var(--trp-border);
   background: var(--trp-bg-dark);
   object-fit: cover;
+  display: block;
 }
 
 .combatant-info {

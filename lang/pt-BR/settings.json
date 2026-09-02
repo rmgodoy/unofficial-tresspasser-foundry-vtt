@@ -111,6 +111,10 @@
         "ShowStatusEffectsOnTokens": {
           "Name": "Mostrar efeitos de status nos tokens",
           "Hint": "Se ativado, os ícones de efeito de status selecionados dos itens de Efeito serão exibidos como ícones sobrepostos nos tokens ativos."
+        },
+        "TokenStatusIconScale": {
+          "Name": "Escala dos Ícones de Status no Token",
+          "Hint": "Multiplicador de escala para ícones de efeitos de status e estados renderizados nos tokens (padrão: 1.0)."
         }
       },
       "Colors": {

@@ -50,6 +50,24 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
       .filter(e => e.id && e.img)
       .sort((a, b) => a.name.localeCompare(b.name));
     
+    // Check sync status and effective status icon
+    const syncStatusIcon = system.syncStatusIcon !== false;
+    const effectiveStatusIcon = syncStatusIcon ? (item.img || "") : (system.statusIcon || "");
+
+    // Check if system.statusIcon is a custom file path (not among default statusEffects)
+    const isDefaultStatus = statusEffects.some(se => se.img === system.statusIcon);
+    const isCustomStatus = Boolean(system.statusIcon && !isDefaultStatus && !syncStatusIcon);
+    let customStatusLabel = "";
+    if (isCustomStatus) {
+      const parts = system.statusIcon.split("/");
+      customStatusLabel = decodeURIComponent(parts[parts.length - 1] || system.statusIcon);
+    }
+
+    context.syncStatusIcon = syncStatusIcon;
+    context.effectiveStatusIcon = effectiveStatusIcon;
+    context.isCustomStatus = isCustomStatus;
+    context.customStatusLabel = customStatusLabel;
+
     // Add constants for the sheet
     context.config = {
       effectTypes: {
@@ -80,6 +98,33 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     if (!this.isEditable) return;
 
     const html = this.element;
+
+    // Toggle sync status icon
+    html.querySelectorAll('[data-action="toggleSyncStatusIcon"]').forEach(btn => {
+      btn.addEventListener('click', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const currentlySynced = this.document.system.syncStatusIcon !== false;
+        const newSynced = !currentlySynced;
+        const updateData = { "system.syncStatusIcon": newSynced };
+        if (newSynced) {
+          updateData["system.statusIcon"] = this.document.img || "";
+        }
+        await this.document.update(updateData);
+      });
+    });
+
+    // Clear status icon
+    html.querySelectorAll('[data-action="clearStatusIcon"]').forEach(btn => {
+      btn.addEventListener('click', async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        await this.document.update({ 
+          "system.statusIcon": "",
+          "system.syncStatusIcon": false 
+        });
+      });
+    });
 
     // Drag-and-drop
     const dropZones = html.querySelectorAll('.drop-zone');
@@ -195,6 +240,14 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
    * Manual form submission handler for AppV2.
    */
   static async #onSubmit(event, form, formData) {
+    const statusIconVal = formData.object["system.statusIcon"];
+    if (statusIconVal === "__sync__") {
+      formData.object["system.syncStatusIcon"] = true;
+      formData.object["system.statusIcon"] = this.document.img || "";
+    } else if (statusIconVal !== undefined) {
+      formData.object["system.syncStatusIcon"] = false;
+      formData.object["system.statusIcon"] = statusIconVal;
+    }
     await this.document.update(formData.object);
   }
 }
