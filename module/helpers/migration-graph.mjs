@@ -104,7 +104,7 @@ export function migrateToGraph(source) {
 
       lastMainNodeId = b.id;
       lastMainPort = "out";
-      currentX += 220;
+      currentX += 280;
     }
   }
 
@@ -134,7 +134,7 @@ export function migrateToGraph(source) {
       type: "flow"
     });
 
-    currentX += 240;
+    currentX += 280;
 
     // Process 'hit' behaviors on onHit branch
     let lastHitId = rollAccuracyNodeId;
@@ -158,7 +158,7 @@ export function migrateToGraph(source) {
 
       lastHitId = b.id;
       lastHitPort = "out";
-      hitX += 220;
+      hitX += 280;
     }
 
     // Process 'spark' behaviors on onSpark branch
@@ -183,10 +183,10 @@ export function migrateToGraph(source) {
 
       lastSparkId = b.id;
       lastSparkPort = "out";
-      sparkX += 220;
+      sparkX += 280;
     }
 
-    currentX = Math.max(hitX, sparkX, currentX + 220);
+    currentX = Math.max(hitX, sparkX, currentX + 280);
     lastMainNodeId = rollAccuracyNodeId;
     lastMainPort = "always";
   }
@@ -214,7 +214,7 @@ export function migrateToGraph(source) {
 
       lastMainNodeId = b.id;
       lastMainPort = "out";
-      currentX += 220;
+      currentX += 280;
     }
   }
 

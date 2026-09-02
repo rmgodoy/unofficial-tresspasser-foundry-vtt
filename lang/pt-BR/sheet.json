@@ -288,6 +288,15 @@
           "Remove": "Remover",
           "MoveUp": "Mover para Cima",
           "MoveDown": "Mover para Baixo",
+          "Category": {
+            "Targeting": "Alvos e Áreas",
+            "Rolling": "Rolagens",
+            "DamageHealing": "Dano e Cura",
+            "Effects": "Efeitos",
+            "Movement": "Movimento",
+            "Terrain": "Terreno",
+            "Flow": "Controle de Fluxo"
+          },
           "Type": {
             "start": "Início",
             "rollAccuracy": "Rolar Precisão",
@@ -318,6 +327,7 @@
         "Graph": {
           "AddNode": "Adicionar Nó",
           "DeleteNode": "Excluir Nó",
+          "CannotDeleteStart": "Não é possível excluir o nó Início.",
           "AutoLayout": "Organizar Automaticamente",
           "FitView": "Ajustar à Visualização",
           "Properties": "Propriedades",
@@ -329,6 +339,10 @@
             "OnMiss": "Erro",
             "OnSpark": "Centelha",
             "Always": "Sempre",
+            "Roll": "Rolagem",
+            "Area": "Área",
+            "Terrain": "Terreno",
+            "Target": "Alvos",
             "RollRef": "Referência de Rolagem",
             "AreaRef": "Referência de Área",
             "TerrainRef": "Referência de Terreno",

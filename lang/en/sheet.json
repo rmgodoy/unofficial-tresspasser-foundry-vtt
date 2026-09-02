@@ -289,6 +289,15 @@
           "Remove": "Remove",
           "MoveUp": "Move Up",
           "MoveDown": "Move Down",
+          "Category": {
+            "Targeting": "Targeting",
+            "Rolling": "Rolling",
+            "DamageHealing": "Damage & Healing",
+            "Effects": "Effects",
+            "Movement": "Movement",
+            "Terrain": "Terrain",
+            "Flow": "Flow Control"
+          },
           "Type": {
             "start": "Start",
             "rollAccuracy": "Roll Accuracy",
@@ -319,6 +328,7 @@
         "Graph": {
           "AddNode": "Add Node",
           "DeleteNode": "Delete Node",
+          "CannotDeleteStart": "Cannot delete Start node.",
           "AutoLayout": "Auto Layout",
           "FitView": "Fit to View",
           "Properties": "Properties",
@@ -330,6 +340,10 @@
             "OnMiss": "Miss",
             "OnSpark": "Spark",
             "Always": "Always",
+            "Roll": "Roll",
+            "Area": "Area",
+            "Terrain": "Terrain",
+            "Target": "Target",
             "RollRef": "Roll Reference",
             "AreaRef": "Area Reference",
             "TerrainRef": "Terrain Reference",
