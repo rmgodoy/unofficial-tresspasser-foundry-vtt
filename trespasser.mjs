@@ -2226,7 +2226,7 @@ Hooks.on("renderCombatTracker", async (app, html, data) => {
           ${effectsList.map(eff => `
             <div class="combatant-effect-badge" data-effect-id="${eff.id}" title="${eff.name}">
               <img class="combatant-effect-icon" src="${eff.icon}" alt="${eff.name}"/>
-              ${eff.intensity > 1 ? `<span class="combatant-effect-intensity">${eff.intensity}</span>` : ""}
+              ${eff.intensity > 0 ? `<span class="combatant-effect-intensity">${eff.intensity}</span>` : ""}
             </div>
           `).join("")}
         </div>

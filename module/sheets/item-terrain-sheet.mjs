@@ -274,7 +274,7 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
       uuid: droppedItem.uuid,
       name: droppedItem.name,
       img: droppedItem.img,
-      intensity: String(droppedItem.system?.intensity || "1")
+      intensity: String(droppedItem.system?.intensity ?? "0")
     });
 
     behaviors[index].effects = effects;
@@ -328,7 +328,7 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
       uuid: droppedItem.uuid,
       name: droppedItem.name,
       img: droppedItem.img,
-      intensity: String(droppedItem.system?.intensity || "1")
+      intensity: String(droppedItem.system?.intensity ?? "0")
     });
 
     await this.document.update({

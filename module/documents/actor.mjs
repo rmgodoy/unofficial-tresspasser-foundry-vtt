@@ -708,7 +708,9 @@ export class TrespasserActor extends Actor {
       // If continuousOnly is requested, only apply effects that are continuous or immediate
       if (continuousOnly && !isContinuous && !isImmediate) continue;
       
-      const desiredIntensity = parseInt(eff.intensity) || sourceItem.system.intensity || 0;
+      const desiredIntensity = (eff.intensity !== undefined && eff.intensity !== null && eff.intensity !== "" && !isNaN(Number(eff.intensity)))
+        ? Number(eff.intensity)
+        : (sourceItem.system.intensity ?? 0);
 
       // Create the item - the preCreateItem hook will handle summing and counter states
       const itemData = sourceItem.toObject();

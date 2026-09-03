@@ -895,14 +895,15 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
     // Group effects by UUID and sum their intensities
     const groupedEffects = new Map(); // uuid → { eff, totalIntensity, terrainNames }
     for (const { eff, terrainName } of effectsToApply) {
+      const effInt = (eff.intensity !== undefined && eff.intensity !== null && !isNaN(Number(eff.intensity))) ? Number(eff.intensity) : 0;
       if (groupedEffects.has(eff.uuid)) {
         const existing = groupedEffects.get(eff.uuid);
-        existing.totalIntensity += (eff.intensity || 1);
+        existing.totalIntensity += effInt;
         existing.terrainNames.add(terrainName);
       } else {
         groupedEffects.set(eff.uuid, {
           eff,
-          totalIntensity: eff.intensity || 1,
+          totalIntensity: effInt,
           terrainNames: new Set([terrainName])
         });
       }
@@ -1578,7 +1579,9 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
     if (!sourceEffect) return;
 
     const effectData = sourceEffect.toObject();
-    effectData.system.intensity = eff.intensity || sourceEffect.system.intensity;
+    effectData.system.intensity = (eff.intensity !== undefined && eff.intensity !== null && eff.intensity !== "" && !isNaN(Number(eff.intensity)))
+      ? Number(eff.intensity)
+      : (sourceEffect.system?.intensity ?? 0);
     delete effectData._id;
     await Item.createDocuments([effectData], { parent: actor });
 

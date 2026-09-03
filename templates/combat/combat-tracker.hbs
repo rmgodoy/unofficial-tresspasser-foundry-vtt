@@ -97,7 +97,7 @@
             {{#each turn.effects as |eff|}}
             <div class="combatant-effect-badge" data-effect-id="{{eff.id}}" title="{{eff.name}}">
               <img class="combatant-effect-icon" src="{{eff.icon}}" alt="{{eff.name}}"/>
-              {{#if (gt eff.intensity 1)}}
+              {{#if (gt eff.intensity 0)}}
               <span class="combatant-effect-intensity">{{eff.intensity}}</span>
               {{/if}}
             </div>
