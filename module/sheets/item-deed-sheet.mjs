@@ -157,16 +157,7 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
   }
 
   _prepareTabs(parts) {
-    const tabs = {};
-    for (const [id, config] of Object.entries(this.constructor.TABS)) {
-      tabs[id] = {
-        ...config,
-        active: this.tabGroups[config.group] === id,
-        cssClass: this.tabGroups[config.group] === id ? "active" : "",
-        label: game.i18n.localize(config.label)
-      };
-    }
-    return Object.values(tabs);
+    return Object.values(this._getTabs());
   }
 
   _getTabs() {
@@ -254,13 +245,14 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
       resizeHandle.addEventListener("pointerdown", () => {
         const startW = this.position.width;
         const startH = this.position.height;
+        const win = this.element.ownerDocument.defaultView || window;
         const onPointerUp = () => {
-          window.removeEventListener("pointerup", onPointerUp);
+          win.removeEventListener("pointerup", onPointerUp);
           if (this.position.width !== startW || this.position.height !== startH) {
             this._hasManuallyResized = true;
           }
         };
-        window.addEventListener("pointerup", onPointerUp);
+        win.addEventListener("pointerup", onPointerUp);
       });
     }
 
@@ -270,76 +262,119 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
     const propertiesContainer = this.element.querySelector(".deed-graph-properties");
 
     if (graphContainer && propertiesContainer && isBehaviorsTab) {
-      if (this.propertiesPanel) {
-        this.propertiesPanel.destroy();
-        this.propertiesPanel = null;
-      }
-      if (this.graphEditor) {
-        this._graphViewportState = this.graphEditor.getViewportState();
-        this.graphEditor.destroy();
-      }
-
-      const savedState = this._graphViewportState || this.document.getFlag("trespasser", "graphViewport");
-
-      this.graphEditor = new GraphEditor(graphContainer, {
-        readOnly: !this.isEditable,
-        panX: savedState?.panX ?? 40,
-        panY: savedState?.panY ?? 40,
-        zoom: savedState?.zoom ?? 1.0,
-        selectedNodeId: savedState?.selectedNodeId ?? null,
-        onGraphChange: async (graphData) => {
-          if (this.graphEditor) {
-            this._graphViewportState = this.graphEditor.getViewportState();
-          }
-          await this.document.update({
-            "system.graph": graphData,
-            "system.graphVersion": 1,
-            "flags.trespasser.graphViewport": this._graphViewportState
-          });
-        },
-        onViewportChange: (viewportState) => {
-          this._graphViewportState = viewportState;
-        },
-        onNodeSelect: (nodeData) => {
-          if (this.graphEditor) {
-            this._graphViewportState = this.graphEditor.getViewportState();
-          }
-          this.propertiesPanel?.setNode(nodeData?.id ?? null);
-        }
-      });
-
-      this.propertiesPanel = new GraphPropertiesPanel(propertiesContainer, {
-        sheet: this,
-        editor: this.graphEditor,
-        readOnly: !this.isEditable
-      });
-
-      let nodes = this.document.system.graph?.nodes || [];
-      let connections = this.document.system.graph?.connections || [];
-      if (nodes.length === 0 && this.isEditable) {
-        const defaultGraph = createDefaultDeedGraph();
-        this.document.update({ "system.graph": defaultGraph }).catch(err => {
-          console.error("Trespasser | Failed to initialize default deed graph:", err);
-        });
-        nodes = defaultGraph.nodes;
-        connections = defaultGraph.connections;
-      }
-      this.graphEditor.setGraph(nodes, connections);
-
-      if (savedState?.selectedNodeId) {
-        this.graphEditor.selectNode(savedState.selectedNodeId);
-      }
+      this._mountGraphEditor(graphContainer, propertiesContainer);
     } else if (!isBehaviorsTab) {
-      if (this.propertiesPanel) {
-        this.propertiesPanel.destroy();
-        this.propertiesPanel = null;
-      }
-      if (this.graphEditor) {
-        this._graphViewportState = this.graphEditor.getViewportState();
-        this.graphEditor.destroy();
-        this.graphEditor = null;
-      }
+      this._unmountGraphEditor();
     }
+  }
+
+  /**
+   * Mounts or re-mounts the GraphEditor and GraphPropertiesPanel.
+   * @param {HTMLElement} graphContainer
+   * @param {HTMLElement} propertiesContainer
+   * @protected
+   */
+  _mountGraphEditor(graphContainer, propertiesContainer) {
+    if (this.propertiesPanel) {
+      this.propertiesPanel.destroy();
+      this.propertiesPanel = null;
+    }
+    if (this.graphEditor) {
+      this._graphViewportState = this.graphEditor.getViewportState();
+      this.graphEditor.destroy();
+    }
+
+    const savedState = this._graphViewportState || this.document.getFlag("trespasser", "graphViewport");
+
+    this.graphEditor = new GraphEditor(graphContainer, {
+      readOnly: !this.isEditable,
+      panX: savedState?.panX ?? 40,
+      panY: savedState?.panY ?? 40,
+      zoom: savedState?.zoom ?? 1.0,
+      selectedNodeId: savedState?.selectedNodeId ?? null,
+      onGraphChange: async (graphData) => {
+        if (this.graphEditor) {
+          this._graphViewportState = this.graphEditor.getViewportState();
+        }
+        await this.document.update({
+          "system.graph": graphData,
+          "system.graphVersion": 1,
+          "flags.trespasser.graphViewport": this._graphViewportState
+        });
+      },
+      onViewportChange: (viewportState) => {
+        this._graphViewportState = viewportState;
+      },
+      onNodeSelect: (nodeData) => {
+        if (this.graphEditor) {
+          this._graphViewportState = this.graphEditor.getViewportState();
+        }
+        this.propertiesPanel?.setNode(nodeData?.id ?? null);
+      }
+    });
+
+    this.propertiesPanel = new GraphPropertiesPanel(propertiesContainer, {
+      sheet: this,
+      editor: this.graphEditor,
+      readOnly: !this.isEditable
+    });
+
+    let nodes = this.document.system.graph?.nodes || [];
+    let connections = this.document.system.graph?.connections || [];
+    if (nodes.length === 0 && this.isEditable) {
+      const defaultGraph = createDefaultDeedGraph();
+      this.document.update({ "system.graph": defaultGraph }).catch(err => {
+        console.error("Trespasser | Failed to initialize default deed graph:", err);
+      });
+      nodes = defaultGraph.nodes;
+      connections = defaultGraph.connections;
+    }
+    this.graphEditor.setGraph(nodes, connections);
+
+    if (savedState?.selectedNodeId) {
+      this.graphEditor.selectNode(savedState.selectedNodeId);
+    }
+  }
+
+  /**
+   * Unmounts active graph editor components when inactive.
+   * @protected
+   */
+  _unmountGraphEditor() {
+    if (this.propertiesPanel) {
+      this.propertiesPanel.destroy();
+      this.propertiesPanel = null;
+    }
+    if (this.graphEditor) {
+      this._graphViewportState = this.graphEditor.getViewportState();
+      this.graphEditor.destroy();
+      this.graphEditor = null;
+    }
+  }
+
+  /**
+   * Rebinds graph components when window host document changes (detach/attach).
+   * @protected
+   */
+  _rebindGraphOnHostChange() {
+    if (this.tabGroups.primary !== "behaviors") return;
+    const graphContainer = this.element?.querySelector(".deed-graph-container");
+    const propertiesContainer = this.element?.querySelector(".deed-graph-properties");
+    if (graphContainer && propertiesContainer) {
+      this._mountGraphEditor(graphContainer, propertiesContainer);
+    }
+  }
+
+  /** @override */
+  _onDetach(from, to) {
+    if (super._onDetach) super._onDetach(from, to);
+    this._rebindGraphOnHostChange();
+  }
+
+  /** @override */
+  _onAttach(from, to) {
+    if (super._onAttach) super._onAttach(from, to);
+    this._rebindGraphOnHostChange();
   }
 
   /** @override */
@@ -372,14 +407,7 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
     this._hasManuallyResized = false;
     this._isAutoResizing = false;
     this._previousWidth = null;
-    if (this.propertiesPanel) {
-      this.propertiesPanel.destroy();
-      this.propertiesPanel = null;
-    }
-    if (this.graphEditor) {
-      this.graphEditor.destroy();
-      this.graphEditor = null;
-    }
+    this._unmountGraphEditor();
     super._onClose(options);
   }
 

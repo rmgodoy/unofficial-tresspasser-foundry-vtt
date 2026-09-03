@@ -11,6 +11,7 @@ import { isReferencePort } from "../../data/node-port-config.mjs";
  * @param {PointerEvent} e
  */
 export function startCanvasPan(editor, e) {
+  const win = editor.window;
   editor.dragState = {
     type: "pan",
     startX: e.clientX,
@@ -27,14 +28,20 @@ export function startCanvasPan(editor, e) {
     editor._notifyViewportChange();
   };
 
-  const onUp = () => {
+  const cleanup = () => {
     editor.dragState = null;
-    window.removeEventListener("pointermove", onMove);
-    window.removeEventListener("pointerup", onUp);
+    win.removeEventListener("pointermove", onMove);
+    win.removeEventListener("pointerup", onUp);
+    win.removeEventListener("pointercancel", cleanup);
+    win.removeEventListener("blur", cleanup);
   };
 
-  window.addEventListener("pointermove", onMove);
-  window.addEventListener("pointerup", onUp);
+  const onUp = () => cleanup();
+
+  win.addEventListener("pointermove", onMove);
+  win.addEventListener("pointerup", onUp);
+  win.addEventListener("pointercancel", cleanup);
+  win.addEventListener("blur", cleanup);
 }
 
 /**
@@ -44,6 +51,7 @@ export function startCanvasPan(editor, e) {
  * @param {string} nodeId
  */
 export function startNodeDrag(editor, e, nodeId) {
+  const win = editor.window;
   const node = editor.nodeMap.get(nodeId);
   if (!node) return;
 
@@ -64,17 +72,25 @@ export function startNodeDrag(editor, e, nodeId) {
     editor._renderConnections();
   };
 
+  const cleanup = () => {
+    editor.dragState = null;
+    win.removeEventListener("pointermove", onMove);
+    win.removeEventListener("pointerup", onUp);
+    win.removeEventListener("pointercancel", cleanup);
+    win.removeEventListener("blur", cleanup);
+  };
+
   const onUp = () => {
     if (editor.dragState?.type === "node") {
       editor._notifyChange();
     }
-    editor.dragState = null;
-    window.removeEventListener("pointermove", onMove);
-    window.removeEventListener("pointerup", onUp);
+    cleanup();
   };
 
-  window.addEventListener("pointermove", onMove);
-  window.addEventListener("pointerup", onUp);
+  win.addEventListener("pointermove", onMove);
+  win.addEventListener("pointerup", onUp);
+  win.addEventListener("pointercancel", cleanup);
+  win.addEventListener("blur", cleanup);
 }
 
 /**
@@ -84,6 +100,8 @@ export function startNodeDrag(editor, e, nodeId) {
  * @param {HTMLElement} portEl
  */
 export function startNoodleDrag(editor, e, portEl) {
+  const win = editor.window;
+  const doc = editor.document;
   const nodeId = portEl.dataset.nodeId;
   const portName = portEl.dataset.portName;
   const portDirection = portEl.dataset.portDirection;
@@ -125,13 +143,19 @@ export function startNoodleDrag(editor, e, portEl) {
     editor.tempNoodle.setAttribute("d", d);
   };
 
-  const onUp = (ev) => {
+  const cleanup = () => {
     editor.tempNoodle.style.display = "none";
-    window.removeEventListener("pointermove", onMove);
-    window.removeEventListener("pointerup", onUp);
+    win.removeEventListener("pointermove", onMove);
+    win.removeEventListener("pointerup", onUp);
+    win.removeEventListener("pointercancel", cleanup);
+    win.removeEventListener("blur", cleanup);
+  };
+
+  const onUp = (ev) => {
+    cleanup();
 
     // Check drop target port
-    const dropTarget = document.elementFromPoint(ev.clientX, ev.clientY);
+    const dropTarget = doc.elementFromPoint(ev.clientX, ev.clientY);
     const targetPortEl = dropTarget?.closest(".graph-port") || dropTarget?.closest(".graph-port-row")?.querySelector(".graph-port");
     if (targetPortEl && targetPortEl.dataset.portDirection === "in") {
       const targetNodeId = targetPortEl.dataset.nodeId;
@@ -144,8 +168,10 @@ export function startNoodleDrag(editor, e, portEl) {
     }
   };
 
-  window.addEventListener("pointermove", onMove);
-  window.addEventListener("pointerup", onUp);
+  win.addEventListener("pointermove", onMove);
+  win.addEventListener("pointerup", onUp);
+  win.addEventListener("pointercancel", cleanup);
+  win.addEventListener("blur", cleanup);
 }
 
 /**

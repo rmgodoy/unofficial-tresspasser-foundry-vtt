@@ -46,60 +46,62 @@ export class GraphEditor {
     this._updateTransform();
   }
 
+  /** Host document of the editor container element. */
+  get document() {
+    return this.container?.ownerDocument || document;
+  }
+
+  /** Host window of the editor container element. */
+  get window() {
+    return this.container?.ownerDocument?.defaultView || window;
+  }
+
   /**
    * Builds the DOM structure for the graph editor.
    * @protected
    */
   _buildDOM() {
     this.container.innerHTML = "";
-    this.root = document.createElement("div");
-    this.root.className = "graph-editor-root";
-
-    // Toolbar
-    this.toolbar = document.createElement("div");
-    this.toolbar.className = "graph-toolbar";
+    const doc = this.document;
     const fitTitle = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.FitView") || "Fit to View";
     const layoutTitle = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.AutoLayout") || "Auto Layout";
     const shortcutsTitle = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.ShortcutsTitle") || "Shortcuts & Controls";
-    this.toolbar.innerHTML = `<div class="toolbar-group">` +
-      `<button type="button" class="btn-fit" title="${fitTitle}"><i class="fas fa-expand"></i></button>` +
-      `<button type="button" class="btn-layout" title="${layoutTitle}"><i class="fas fa-wand-magic-sparkles"></i></button>` +
-      `<button type="button" class="btn-shortcuts" data-tooltip-direction="DOWN" aria-label="${shortcutsTitle}"><i class="fas fa-keyboard"></i></button>` +
-      `</div><div class="toolbar-group"><span class="zoom-label">100%</span></div>`;
+
+    this.root = doc.createElement("div");
+    this.root.className = "graph-editor-root";
+    this.root.innerHTML = `
+      <div class="graph-toolbar">
+        <div class="toolbar-group">
+          <button type="button" class="btn-fit" title="${fitTitle}"><i class="fas fa-expand"></i></button>
+          <button type="button" class="btn-layout" title="${layoutTitle}"><i class="fas fa-wand-magic-sparkles"></i></button>
+          <button type="button" class="btn-shortcuts" data-tooltip-direction="DOWN" aria-label="${shortcutsTitle}"><i class="fas fa-keyboard"></i></button>
+        </div>
+        <div class="toolbar-group"><span class="zoom-label">100%</span></div>
+      </div>
+      <div class="graph-viewport">
+        <div class="graph-content">
+          <svg class="graph-svg-layer">
+            <path class="graph-connection connection-temp" style="display: none;"></path>
+          </svg>
+          <div class="graph-nodes-layer"></div>
+        </div>
+      </div>`;
+
+    this.toolbar = this.root.querySelector(".graph-toolbar");
+    this.viewport = this.root.querySelector(".graph-viewport");
+    this.content = this.root.querySelector(".graph-content");
+    this.svg = this.root.querySelector(".graph-svg-layer");
+    this.tempNoodle = this.root.querySelector(".connection-temp");
+    this.nodesLayer = this.root.querySelector(".graph-nodes-layer");
+
     const btnShortcuts = this.toolbar.querySelector(".btn-shortcuts");
     if (btnShortcuts) btnShortcuts.dataset.tooltip = getShortcutsTooltipHtml();
 
-    this.viewport = document.createElement("div");
-    this.viewport.className = "graph-viewport";
-
-    this.content = document.createElement("div");
-    this.content.className = "graph-content";
-
-    this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
-    this.svg.setAttribute("class", "graph-svg-layer");
-
-    this.tempNoodle = document.createElementNS("http://www.w3.org/2000/svg", "path");
-    this.tempNoodle.setAttribute("class", "graph-connection connection-temp");
-    this.tempNoodle.style.display = "none";
-    this.svg.appendChild(this.tempNoodle);
-
-    this.nodesLayer = document.createElement("div");
-    this.nodesLayer.className = "graph-nodes-layer";
-
-    this.content.appendChild(this.svg);
-    this.content.appendChild(this.nodesLayer);
-    this.viewport.appendChild(this.content);
-    this.root.appendChild(this.toolbar);
-    this.root.appendChild(this.viewport);
     this.container.appendChild(this.root);
     this._updateTransform();
   }
 
-  /**
-   * Loads graph data into the editor.
-   * @param {Array<object>} nodesData
-   * @param {Array<object>} connectionsData
-   */
+  /** Loads graph data into the editor. */
   setGraph(nodesData = [], connectionsData = []) {
     this.nodesLayer.innerHTML = "";
     this.nodeMap.clear();
@@ -111,87 +113,56 @@ export class GraphEditor {
       this.nodesLayer.appendChild(node.element);
     }
 
-    // Keep only connections whose endpoints and ports still exist
     this.connections = (connectionsData || []).filter(c => {
-      const src = this.nodeMap.get(c.sourceId);
-      const tgt = this.nodeMap.get(c.targetId);
+      const src = this.nodeMap.get(c.sourceId), tgt = this.nodeMap.get(c.targetId);
       return src?.portElements.has(`out:${c.sourcePort}`) && tgt?.portElements.has(`in:${c.targetPort}`);
     });
 
     if (this.selectedNodeId && this.nodeMap.has(this.selectedNodeId)) {
       this.nodeMap.get(this.selectedNodeId).setSelected(true);
     }
-
-    for (const node of this.nodeMap.values()) {
-      node.updateSummary();
-    }
-
+    for (const node of this.nodeMap.values()) node.updateSummary();
     this._updateTransform();
     this._renderConnections();
   }
 
-  /**
-   * Returns current graph data.
-   * @returns {{ nodes: Array<object>, connections: Array<object> }}
-   */
+  /** Returns current graph data. */
   getGraph() {
-    const nodes = Array.from(this.nodeMap.values()).map(n => foundry.utils.deepClone(n.data));
     return {
-      nodes,
+      nodes: Array.from(this.nodeMap.values()).map(n => foundry.utils.deepClone(n.data)),
       connections: foundry.utils.deepClone(this.connections)
     };
   }
 
-  /**
-   * Renders all SVG connection paths.
-   * @protected
-   */
+  /** Renders all SVG connection paths. */
   _renderConnections() {
-    const existing = this.svg.querySelectorAll("path:not(.connection-temp)");
-    for (const p of existing) p.remove();
-
+    this.svg.querySelectorAll("path:not(.connection-temp)").forEach(p => p.remove());
     for (const conn of this.connections) {
-      const srcNode = this.nodeMap.get(conn.sourceId);
-      const tgtNode = this.nodeMap.get(conn.targetId);
+      const srcNode = this.nodeMap.get(conn.sourceId), tgtNode = this.nodeMap.get(conn.targetId);
       if (!srcNode || !tgtNode) continue;
-
       const p1 = srcNode.getPortCoordinates(conn.sourcePort, "out");
       const p2 = tgtNode.getPortCoordinates(conn.targetPort, "in");
-
-      const pathEl = renderConnectionPath(null, conn, p1, p2);
-      this.svg.appendChild(pathEl);
+      this.svg.appendChild(renderConnectionPath(null, conn, p1, p2));
     }
   }
 
-  /**
-   * Updates canvas CSS transform based on pan and zoom.
-   * @protected
-   */
+  /** Updates canvas CSS transform based on pan and zoom. */
   _updateTransform() {
     this.content.style.transform = `translate(${this.panX}px, ${this.panY}px) scale(${this.zoom})`;
     const zoomLabel = this.toolbar?.querySelector(".zoom-label");
-    if (zoomLabel) {
-      zoomLabel.textContent = `${Math.round(this.zoom * 100)}%`;
-    }
+    if (zoomLabel) zoomLabel.textContent = `${Math.round(this.zoom * 100)}%`;
   }
 
-  /**
-   * Converts viewport client coordinates to canvas space coordinates.
-   * @param {number} clientX
-   * @param {number} clientY
-   * @returns {{x: number, y: number}}
-   */
+  /** Converts viewport client coordinates to canvas space coordinates. */
   clientToCanvas(clientX, clientY) {
     const rect = this.viewport.getBoundingClientRect();
-    const vx = clientX - rect.left;
-    const vy = clientY - rect.top;
     return {
-      x: Math.round((vx - this.panX) / this.zoom),
-      y: Math.round((vy - this.panY) / this.zoom)
+      x: Math.round((clientX - rect.left - this.panX) / this.zoom),
+      y: Math.round((clientY - rect.top - this.panY) / this.zoom)
     };
   }
 
-  /** Selects a node by ID. @param {string|null} nodeId */
+  /** Selects a node by ID. */
   selectNode(nodeId) {
     this.selectedNodeId = nodeId;
     for (const [id, node] of this.nodeMap.entries()) {
@@ -208,23 +179,19 @@ export class GraphEditor {
   addNode(type, x = 100, y = 100, params = {}) {
     const id = foundry.utils.randomID();
     const nodeData = {
-      id,
-      type,
+      id, type,
       phase: type === "start" ? "start" : "inherit",
       params: foundry.utils.deepClone(params),
-      x: Math.round(x),
-      y: Math.round(y)
+      x: Math.round(x), y: Math.round(y)
     };
-
     const node = new GraphNode(nodeData, { editor: this });
     this.nodeMap.set(id, node);
     this.nodesLayer.appendChild(node.element);
-
     this.selectNode(id);
     this._notifyChange();
   }
 
-  /** Deletes a node and its connections. @param {string} nodeId */
+  /** Deletes a node and its connections. */
   deleteNode(nodeId) {
     if (!nodeId) return;
     const node = this.nodeMap.get(nodeId);
@@ -232,24 +199,17 @@ export class GraphEditor {
       ui.notifications?.warn(game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.CannotDeleteStart") || "Cannot delete Start node.");
       return;
     }
-
     node.element?.remove();
     this.nodeMap.delete(nodeId);
 
-    // Clean up reference parameters for nodes referencing this deleted node
     for (const c of this.connections) {
       if (c.sourceId === nodeId && (c.type === "reference" || c.targetPort.endsWith("Ref"))) {
         removeReferenceConnection(this, c.targetId, c.targetPort);
       }
     }
-
-    // Remove connected edges
     this.connections = this.connections.filter(c => c.sourceId !== nodeId && c.targetId !== nodeId);
     this._renderConnections();
-
-    if (this.selectedNodeId === nodeId) {
-      this.selectNode(null);
-    }
+    if (this.selectedNodeId === nodeId) this.selectNode(null);
     this._notifyChange();
   }
 
@@ -318,18 +278,15 @@ export class GraphEditor {
       startNode.setPosition(currentX, 180);
       currentX += 280;
     }
-
-    const otherNodes = Array.from(this.nodeMap.values()).filter(n => n.data.type !== "start");
-    otherNodes.sort((a, b) => (a.data.x ?? 0) - (b.data.x ?? 0));
+    const otherNodes = Array.from(this.nodeMap.values()).filter(n => n.data.type !== "start")
+      .sort((a, b) => (a.data.x ?? 0) - (b.data.x ?? 0));
 
     let row = 0;
     for (const node of otherNodes) {
-      const y = 80 + (row % 3) * 140;
-      node.setPosition(currentX, y);
+      node.setPosition(currentX, 80 + (row % 3) * 140);
       currentX += 280;
       row++;
     }
-
     this._renderConnections();
     this._notifyChange();
   }
@@ -338,7 +295,6 @@ export class GraphEditor {
   fitToView() {
     if (this.nodeMap.size === 0) return;
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-
     for (const node of this.nodeMap.values()) {
       minX = Math.min(minX, node.data.x ?? 0);
       minY = Math.min(minY, node.data.y ?? 0);
@@ -350,93 +306,96 @@ export class GraphEditor {
     const padding = 60;
     const graphW = Math.max(maxX - minX, 200) + padding * 2;
     const graphH = Math.max(maxY - minY, 200) + padding * 2;
-
     const scaleX = rect.width / graphW;
     const scaleY = rect.height / graphH;
     this.zoom = Math.min(Math.max(Math.min(scaleX, scaleY), 0.4), 1.2);
-
     this.panX = Math.round((rect.width - (maxX + minX) * this.zoom) / 2);
     this.panY = Math.round((rect.height - (maxY + minY) * this.zoom) / 2);
-
     this._updateTransform();
     this._notifyViewportChange();
   }
 
-  /**
-   * Notifies consumer of changes to nodes or connections.
-   * @protected
-   */
+  /** Notifies consumer of changes to nodes or connections. */
   _notifyChange() {
     if (typeof this.options.onGraphChange === "function") {
       this.options.onGraphChange(this.getGraph());
     }
   }
 
-  /**
-   * Notifies consumer of viewport state changes (pan, zoom, selected node).
-   * @protected
-   */
+  /** Notifies consumer of viewport state changes (pan, zoom, selected node). */
   _notifyViewportChange() {
     if (typeof this.options.onViewportChange === "function") {
       this.options.onViewportChange(this.getViewportState());
     }
   }
 
-  /**
-   * Attaches pointer and keyboard events.
-   * @protected
-   */
+  /** Attaches pointer and keyboard events. */
   _attachEvents() {
     this.toolbar?.querySelector(".btn-fit")?.addEventListener("click", () => this.fitToView());
     this.toolbar?.querySelector(".btn-layout")?.addEventListener("click", () => this.autoLayout());
 
-    // Wheel zoom
     this.viewport.addEventListener("wheel", (e) => {
       e.preventDefault();
       const delta = e.deltaY < 0 ? 1.1 : 0.9;
       const newZoom = Math.min(Math.max(this.zoom * delta, 0.3), 2.0);
-
       const rect = this.viewport.getBoundingClientRect();
-      const mouseX = e.clientX - rect.left;
-      const mouseY = e.clientY - rect.top;
-
+      const mouseX = e.clientX - rect.left, mouseY = e.clientY - rect.top;
       this.panX = mouseX - (mouseX - this.panX) * (newZoom / this.zoom);
       this.panY = mouseY - (mouseY - this.panY) * (newZoom / this.zoom);
       this.zoom = newZoom;
-
       this._updateTransform();
       this._notifyViewportChange();
     }, { passive: false });
 
-    // Pointer down
     this.viewport.addEventListener("pointerdown", this._onPointerDown.bind(this));
 
-    // Right-click context menu
     this.viewport.addEventListener("contextmenu", (e) => {
       e.preventDefault();
       const coords = this.clientToCanvas(e.clientX, e.clientY);
       GraphContextMenu.show({
-        x: e.clientX,
-        y: e.clientY,
-        canvasX: coords.x,
-        canvasY: coords.y,
-        parentEl: document.body,
+        x: e.clientX, y: e.clientY, canvasX: coords.x, canvasY: coords.y,
+        parentEl: this.document.body,
         onSelect: (type, cx, cy) => this.addNode(type, cx, cy)
       });
     });
 
-    // Delete keyboard shortcut
+    this._bindWindowEvents();
+  }
+
+  /** Binds global keyboard listeners to current host window. */
+  _bindWindowEvents() {
+    this._unbindWindowEvents();
+    const win = this.window;
+    this._boundListeners.targetWindow = win;
     this._boundListeners.onKeyDown = (e) => {
-      if (e.key === "Delete" || e.key === "Backspace") {
-        const activeTag = document.activeElement?.tagName?.toLowerCase();
+      if ((e.key === "Delete" || e.key === "Backspace") && this.selectedNodeId) {
+        const activeTag = this.document.activeElement?.tagName?.toLowerCase();
         if (activeTag === "input" || activeTag === "textarea" || activeTag === "select") return;
-        if (this.selectedNodeId) {
-          e.preventDefault();
-          this.deleteNode(this.selectedNodeId);
-        }
+        e.preventDefault();
+        this.deleteNode(this.selectedNodeId);
       }
     };
-    window.addEventListener("keydown", this._boundListeners.onKeyDown);
+    win?.addEventListener("keydown", this._boundListeners.onKeyDown);
+  }
+
+  /** Unbinds global keyboard listeners from host window. */
+  _unbindWindowEvents() {
+    const { targetWindow, onKeyDown } = this._boundListeners;
+    if (targetWindow && onKeyDown) {
+      targetWindow.removeEventListener("keydown", onKeyDown);
+      this._boundListeners.targetWindow = null;
+      this._boundListeners.onKeyDown = null;
+    }
+  }
+
+  /** Refreshes listeners and visual transforms when host window changes. */
+  onHostWindowChanged() {
+    this._bindWindowEvents();
+    this.dragState = null;
+    if (this.tempNoodle) this.tempNoodle.style.display = "none";
+    GraphContextMenu.close();
+    this._updateTransform();
+    this._renderConnections();
   }
 
   /**
@@ -484,9 +443,7 @@ export class GraphEditor {
    * Destroys the editor and cleans up global event listeners.
    */
   destroy() {
-    if (this._boundListeners.onKeyDown) {
-      window.removeEventListener("keydown", this._boundListeners.onKeyDown);
-    }
+    this._unbindWindowEvents();
     GraphContextMenu.close();
     this.container.innerHTML = "";
   }

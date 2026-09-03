@@ -56,21 +56,24 @@ export class GraphContextMenu {
   static show({ x, y, canvasX, canvasY, parentEl, onSelect }) {
     this.close();
 
-    const menu = document.createElement("div");
+    const doc = parentEl?.ownerDocument || document;
+    const win = doc.defaultView || window;
+
+    const menu = doc.createElement("div");
     menu.className = "graph-context-menu";
 
     // Clamp initial menu position so it doesn't spawn outside viewport
-    const initialX = Math.max(10, Math.min(x, window.innerWidth - 220));
-    const initialY = Math.max(10, Math.min(y, window.innerHeight - 320));
+    const initialX = Math.max(10, Math.min(x, win.innerWidth - 220));
+    const initialY = Math.max(10, Math.min(y, win.innerHeight - 320));
     menu.style.left = `${initialX}px`;
     menu.style.top = `${initialY}px`;
 
-    const titleEl = document.createElement("div");
+    const titleEl = doc.createElement("div");
     titleEl.className = "context-menu-title";
     titleEl.innerHTML = `<i class="fas fa-plus"></i><span>${game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.AddNode") || "Add Node"}</span>`;
     menu.appendChild(titleEl);
 
-    const listEl = document.createElement("div");
+    const listEl = doc.createElement("div");
     listEl.className = "context-menu-list";
 
     let activeCategoryEl = null;
@@ -78,28 +81,28 @@ export class GraphContextMenu {
     let closeTimeout = null;
 
     for (const group of BEHAVIOR_CATEGORIES) {
-      const categoryEl = document.createElement("div");
+      const categoryEl = doc.createElement("div");
       categoryEl.className = "context-menu-category-item";
 
       const categoryLabel = game.i18n.localize(group.categoryKey) || group.categoryKey.split(".").pop();
       const categoryIcon = group.icon || "fa-folder";
 
-      const labelWrapper = document.createElement("div");
+      const labelWrapper = doc.createElement("div");
       labelWrapper.className = "category-item-label";
       labelWrapper.innerHTML = `<i class="fas ${categoryIcon}"></i><span>${categoryLabel}</span>`;
 
-      const arrowEl = document.createElement("i");
+      const arrowEl = doc.createElement("i");
       arrowEl.className = "fas fa-chevron-right category-arrow";
 
       categoryEl.appendChild(labelWrapper);
       categoryEl.appendChild(arrowEl);
 
       // Submenu container
-      const submenuEl = document.createElement("div");
+      const submenuEl = doc.createElement("div");
       submenuEl.className = "context-submenu";
 
       for (const type of group.types) {
-        const itemEl = document.createElement("div");
+        const itemEl = doc.createElement("div");
         itemEl.className = "context-menu-item";
         itemEl.dataset.type = type;
 
@@ -126,13 +129,13 @@ export class GraphContextMenu {
 
         const rect = submenuEl.getBoundingClientRect();
         // Flip left if overflowing right viewport edge
-        if (rect.right > window.innerWidth - 10) {
+        if (rect.right > win.innerWidth - 10) {
           submenuEl.classList.add("flyout-left");
         }
 
         // Adjust top if overflowing bottom viewport edge
-        if (rect.bottom > window.innerHeight - 10) {
-          const overflow = rect.bottom - (window.innerHeight - 10);
+        if (rect.bottom > win.innerHeight - 10) {
+          const overflow = rect.bottom - (win.innerHeight - 10);
           submenuEl.style.top = `${-overflow - 4}px`;
         }
       };
@@ -220,13 +223,18 @@ export class GraphContextMenu {
       }
     };
 
-    setTimeout(() => {
-      window.addEventListener("pointerdown", onOutsideClick, { capture: true, once: true });
-      window.addEventListener("keydown", onKeyDown, { once: true });
+    const dismissTimeout = setTimeout(() => {
+      win.addEventListener("pointerdown", onOutsideClick, { capture: true, once: true });
+      win.addEventListener("keydown", onKeyDown, { once: true });
     }, 10);
 
     parentEl.appendChild(menu);
     this._currentMenu = menu;
+    this._cleanDismissListeners = () => {
+      clearTimeout(dismissTimeout);
+      win.removeEventListener("pointerdown", onOutsideClick, { capture: true });
+      win.removeEventListener("keydown", onKeyDown);
+    };
   }
 
   /**
@@ -236,6 +244,10 @@ export class GraphContextMenu {
     if (this._currentMenu) {
       this._currentMenu.remove();
       this._currentMenu = null;
+    }
+    if (this._cleanDismissListeners) {
+      this._cleanDismissListeners();
+      this._cleanDismissListeners = null;
     }
   }
 }
