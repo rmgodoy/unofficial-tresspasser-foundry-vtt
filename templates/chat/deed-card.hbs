@@ -15,7 +15,7 @@
         {{#each cardPhases as |phase|}}
           <div class="deed-card-phase">
             <em class="deed-card-phase-label">{{phase.label}}</em>:
-            {{#if phase.data.description}}{{phase.data.description}}{{/if}}
+            {{#if phase.data.description}}{{{formatDice phase.data.description}}}{{/if}}
           </div>
         {{/each}}
         {{#unless cardPhases.length}}

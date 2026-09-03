@@ -3,6 +3,7 @@
  * DOM rendering and port layout for individual behavior nodes on the canvas.
  */
 import { getNodePortConfig } from "../../data/node-port-config.mjs";
+import { formatDiceIcons } from "../../helpers/dice-icon-helper.mjs";
 
 export const BEHAVIOR_ICONS = {
   start: "fa-play",
@@ -225,18 +226,19 @@ export class GraphNode {
         const expr = params.expression?.trim();
 
         if (ref?.sourceId) {
-          const displayRef = refExpr ? `(${refExpr})` : `(#${ref.sourceId.slice(0, 6)})`;
+          const displayRef = refExpr ? `(${formatDiceIcons(refExpr)})` : `(#${ref.sourceId.slice(0, 6)})`;
           if (!expr) return `<span class="summary-ref-val">${displayRef}</span>`;
+          const formattedExpr = formatDiceIcons(expr);
           if (/^[\/*+-]/.test(expr)) {
-            return `<span class="summary-ref-val">${displayRef}</span> <span class="summary-formula">${expr}</span>`;
+            return `<span class="summary-ref-val">${displayRef}</span> <span class="summary-formula">${formattedExpr}</span>`;
           }
           if (/@roll/i.test(expr)) {
-            const replaced = expr.replace(/@roll/gi, `<span class="summary-ref-val">${displayRef}</span>`);
+            const replaced = formattedExpr.replace(/@roll/gi, `<span class="summary-ref-val">${displayRef}</span>`);
             return `<span class="summary-formula">${replaced}</span>`;
           }
-          return `<span class="summary-ref-val">${displayRef} +</span> <span class="summary-formula">${expr}</span>`;
+          return `<span class="summary-ref-val">${displayRef} +</span> <span class="summary-formula">${formattedExpr}</span>`;
         }
-        return expr ? `<span class="summary-formula">${expr}</span>` : `<span class="summary-muted">—</span>`;
+        return expr ? `<span class="summary-formula">${formatDiceIcons(expr)}</span>` : `<span class="summary-muted">—</span>`;
       }
       case "selectTarget": {
         if (params.targetMode === "area") {

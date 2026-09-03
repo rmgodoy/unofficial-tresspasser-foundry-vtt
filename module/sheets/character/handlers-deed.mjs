@@ -4,6 +4,7 @@
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { messageVisibility }         from "../../helpers/compat.mjs";
+import { formatDiceIcons }           from "../../helpers/dice-icon-helper.mjs";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main orchestrator
@@ -81,7 +82,7 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options =
   });
 
   let flavorHtml = effectsHtml || `<div class="trespasser-chat-card"><h3>${item.name} — ${options.title || phaseName}</h3>`;
-  if (!effectsHtml && hasDescription) flavorHtml += `<p><em>${pData.description}</em></p>`;
+  if (!effectsHtml && hasDescription) flavorHtml += `<p><em>${formatDiceIcons(pData.description)}</em></p>`;
   if (options.introText) flavorHtml += `<p>${options.introText}</p>`;
   flavorHtml += `</div>`;
 

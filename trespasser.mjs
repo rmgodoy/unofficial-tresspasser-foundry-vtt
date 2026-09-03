@@ -103,9 +103,11 @@ import { registerChatCommands } from "./module/helpers/chat-commands.mjs";
 import { TREASURE_CONFIG } from "./module/config/treasure-config.mjs";
 import { TreasureGenerator } from "./module/helpers/treasure-generator.mjs";
 import { TrespasserTreasureDialog } from "./module/dialogs/treasure-dialog.mjs";
+import { initDiceIcons, replaceDiceInElement, formatDiceIcons } from "./module/helpers/dice-icon-helper.mjs";
 
 Hooks.once("init", async () => {
   console.log("Trespasser | Initialising system");
+  initDiceIcons();
   MovementOverlay.init();
   registerChatCommands();
 
@@ -777,6 +779,8 @@ Hooks.once("init", async () => {
   game.trespasser.TreasureGenerator = TreasureGenerator;
   game.trespasser.TreasureDialog = TrespasserTreasureDialog;
   game.trespasser.generateTreasure = (options) => TreasureGenerator.rollTreasure(options);
+  game.trespasser.formatDiceIcons = formatDiceIcons;
+  game.trespasser.replaceDiceInElement = replaceDiceInElement;
   game.trespasser.openTreasureDialog = (options) => TrespasserTreasureDialog.open(options);
   globalThis.trespasser = game.trespasser;
 });
@@ -1176,6 +1180,8 @@ Hooks.on("deleteItem", (item, options, userId) => {
 });
 
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
+  replaceDiceInElement(html);
+
   // Determine color based on speaker instead of just author
   let borderColor = "#000000";
   const speaker = message.speaker;

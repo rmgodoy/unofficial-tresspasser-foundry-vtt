@@ -1,6 +1,7 @@
 import { DurationHelper } from "./duration-helper.mjs";
 import { showOilDialog } from "../dialogs/oil-dialog.mjs";
 import { buildTenacityButtonHtml } from "./tenacity-helper.mjs";
+import { formatDiceIcons } from "./dice-icon-helper.mjs";
 
 /**
  * Helper class for managing Trespasser effects, states, and modifier parsing.
@@ -265,7 +266,7 @@ export class TrespasserEffectsHelper {
 
     let cardHtml = `<div class="trespasser-chat-card">`;
     if (title) cardHtml += `<h3>${title}</h3>`;
-    if (description) cardHtml += `<p><em>${description}</em></p>`;
+    if (description) cardHtml += `<p><em>${formatDiceIcons(description)}</em></p>`;
 
     cardHtml += `<div class="applied-effects">
       <strong>${game.i18n.localize("TRESPASSER.Terms.ItemType.States")}</strong>`;

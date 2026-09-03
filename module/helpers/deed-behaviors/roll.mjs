@@ -1,4 +1,5 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
+import { formatDiceIcons } from "../dice-icon-helper.mjs";
 
 export class RollBehavior {
   /**
@@ -76,7 +77,7 @@ export class RollBehavior {
     context.currentPhaseOutputs.rollEntries.push(`
       <div class="roll-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
         <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-          ${game.i18n.localize("TRESPASSER.Sheet.Common.Roll") || "Roll"}: ${rollLabel}${sparkNote}
+          ${game.i18n.localize("TRESPASSER.Sheet.Common.Roll") || "Roll"}: ${formatDiceIcons(rollLabel)}${formatDiceIcons(sparkNote)}
         </h4>
         ${rollHtml}
       </div>

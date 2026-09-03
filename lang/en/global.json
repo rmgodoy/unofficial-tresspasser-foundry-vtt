@@ -153,6 +153,10 @@
       "build": "Building",
       "stronghold": "Stronghold",
       "plight": "Plight"
+    },
+    "Dice": {
+      "SkillDie": "Skill Die",
+      "WeaponDamage": "Weapon Damage"
     }
   }
 }

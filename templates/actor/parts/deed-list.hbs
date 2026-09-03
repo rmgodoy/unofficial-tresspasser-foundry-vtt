@@ -24,7 +24,7 @@
                     {{#with (lookup ../phaseDescriptions phase) as |desc|}}
                       {{#if desc}}
                         <div style="margin-bottom: 2px;">
-                          <em style="color: var(--trp-gold-dim); font-size: var(--fs-11); text-transform: uppercase;">{{localize (concat "TRESPASSER.Terms.DeedPhases." (capitalize phase))}}</em>: {{desc}}
+                          <em style="color: var(--trp-gold-dim); font-size: var(--fs-11); text-transform: uppercase;">{{localize (concat "TRESPASSER.Terms.DeedPhases." (capitalize phase))}}</em>: {{{formatDice desc}}}
                         </div>
                       {{/if}}
                     {{/with}}

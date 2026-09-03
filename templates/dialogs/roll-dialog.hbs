@@ -1,7 +1,7 @@
 <div class="roll-dialog-content">
     <div class="dice-preview">
         <i class="fas fa-dice-d20"></i>
-        <div class="formula">{{dice}}</div>
+        <div class="formula">{{{formatDice dice}}}</div>
     </div>
 
     <div class="bonus-details">
@@ -9,7 +9,7 @@
         <div class="bonuses-list">
             {{#each bonuses}}
                 <div class="bonus-row">
-                    <span class="bonus-label">{{this.label}}</span>
+                    <span class="bonus-label">{{{formatDice this.label}}}</span>
                     <span class="bonus-value">{{#if (gte this.value 0)}}+{{/if}}{{this.value}}</span>
                 </div>
             {{else}}

@@ -153,6 +153,10 @@
       "build": "Construção",
       "stronghold": "Fortaleza",
       "plight": "Aflição"
+    },
+    "Dice": {
+      "SkillDie": "Dado de Perícia",
+      "WeaponDamage": "Dano de Arma"
     }
   }
 }

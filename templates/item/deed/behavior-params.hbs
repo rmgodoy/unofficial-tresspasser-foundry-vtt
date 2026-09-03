@@ -227,7 +227,7 @@
         <div class="formula-input-group {{#if hasRefRoll}}has-reference{{/if}}">
           {{#if hasRefRoll}}
             <span class="formula-ref-badge" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedRollTooltip' id=refRollIdShort formula=refRollExpr}}">
-              {{#if refRollExpr}}({{refRollExpr}}){{else}}#{{refRollIdShort}}{{/if}}
+              {{#if refRollExpr}}({{{formatDice refRollExpr}}}){{else}}#{{refRollIdShort}}{{/if}}
             </span>
           {{/if}}
           <input type="text" name="system.graph.nodes.{{index}}.params.expression"
@@ -257,7 +257,7 @@
         <div class="formula-input-group {{#if hasRefRoll}}has-reference{{/if}}">
           {{#if hasRefRoll}}
             <span class="formula-ref-badge" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedRollTooltip' id=refRollIdShort formula=refRollExpr}}">
-              {{#if refRollExpr}}({{refRollExpr}}){{else}}#{{refRollIdShort}}{{/if}}
+              {{#if refRollExpr}}({{{formatDice refRollExpr}}}){{else}}#{{refRollIdShort}}{{/if}}
             </span>
           {{/if}}
           <input type="text" name="system.graph.nodes.{{index}}.params.expression"
@@ -287,7 +287,7 @@
         <div class="formula-input-group {{#if hasRefRoll}}has-reference{{/if}}">
           {{#if hasRefRoll}}
             <span class="formula-ref-badge" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedRollTooltip' id=refRollIdShort formula=refRollExpr}}">
-              {{#if refRollExpr}}({{refRollExpr}}){{else}}#{{refRollIdShort}}{{/if}}
+              {{#if refRollExpr}}({{{formatDice refRollExpr}}}){{else}}#{{refRollIdShort}}{{/if}}
             </span>
           {{/if}}
           <input type="text" name="system.graph.nodes.{{index}}.params.expression"

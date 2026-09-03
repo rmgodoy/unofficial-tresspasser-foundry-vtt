@@ -2,6 +2,7 @@ import { DeedBehaviorHandler } from "./deed-behavior-handler.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 import { migrateToGraph } from "./migration-graph.mjs";
+import { formatDiceIcons } from "./dice-icon-helper.mjs";
 
 /**
  * DeedExecutor — Graph-based runtime pipeline executor for Behavior-Driven Deeds in Trespasser TTRPG.
@@ -426,7 +427,7 @@ export class DeedExecutor {
       </h3>`;
 
     if (phase.description && !phase.skipPhase) {
-      content += `<p style="margin: 6px 0; font-size: var(--fs-13); font-style: italic;">${phase.description}</p>`;
+      content += `<p style="margin: 6px 0; font-size: var(--fs-13); font-style: italic;">${formatDiceIcons(phase.description)}</p>`;
     }
     if (outputs.accuracyHtml) {
       content += outputs.accuracyHtml;
@@ -436,7 +437,7 @@ export class DeedExecutor {
     }
     if (outputs.notes && outputs.notes.length > 0) {
       content += `<div class="phase-notes" style="margin-top: 8px; padding-top: 4px; border-top: 1px dashed var(--trp-border, #4a3f2f); font-size: var(--fs-12); color: var(--trp-text-dim, #a09070);">
-        ${outputs.notes.map(n => `<div>• ${n}</div>`).join("")}
+        ${outputs.notes.map(n => `<div>• ${formatDiceIcons(n)}</div>`).join("")}
       </div>`;
     }
     content += `</div>`;

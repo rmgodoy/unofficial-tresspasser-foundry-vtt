@@ -1,4 +1,5 @@
 import { esc } from "./utils.mjs";
+import { formatDiceIcons } from "../dice-icon-helper.mjs";
 
 export function buildTalentContent(item) {
   const sys  = item.system;
@@ -13,6 +14,6 @@ export function buildTalentContent(item) {
       <div class="info-dlg-title">${esc(item.name)}</div>
       ${focusLine}
       <hr style="border: 0; border-top: 1px solid var(--trp-border-light); margin: 8px 0;" />
-      ${desc ? `<div class="info-dlg-html">${desc}</div>` : `<div class="info-dlg-empty">${game.i18n.localize("TRESPASSER.Sheet.Item.Placeholder.Description")}</div>`}
+      ${desc ? `<div class="info-dlg-html">${formatDiceIcons(desc)}</div>` : `<div class="info-dlg-empty">${game.i18n.localize("TRESPASSER.Sheet.Item.Placeholder.Description")}</div>`}
     </div>`;
 }

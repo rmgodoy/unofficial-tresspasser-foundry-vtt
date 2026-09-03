@@ -27,7 +27,7 @@
           <label>{{localize "TRESPASSER.Sheet.Item.Details.RollExpression"}}</label>
           <input type="text" name="system.rollDice" value="{{system.rollDice}}" placeholder="{{localize 'TRESPASSER.Sheet.Item.Placeholder.RollExpression'}}" />
         </div>
-        <p class="notes" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: -5px; grid-column: span 2;">{{localize "TRESPASSER.Sheet.Item.Note.SkillWeaponDie"}}</p>
+        <p class="notes" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: -5px; grid-column: span 2;">{{{formatDice (localize "TRESPASSER.Sheet.Item.Note.SkillWeaponDie")}}}</p>
 
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Item.Details.FocusCost"}}</label>

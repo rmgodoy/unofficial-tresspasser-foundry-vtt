@@ -1,6 +1,7 @@
 import { esc } from "./utils.mjs";
 import { formatBDeedTarget } from "../deed-display-helper.mjs";
 import { getEffectiveDeedAttributes } from "../deed-behaviors/roll-accuracy.mjs";
+import { formatDiceIcons } from "../dice-icon-helper.mjs";
 
 const DEED_PHASES = ["start", "before", "base", "hit", "spark", "after", "end"];
 
@@ -56,8 +57,8 @@ export function buildDeedContent(item) {
 
     const label = game.i18n.localize(PHASE_LABELS[phase]) || phase;
     let body = "";
-    if (desc) body += `<span class="info-dlg-desc">${esc(desc)}</span>`;
-    if (dmg)  body += `<span class="info-dlg-sub"> — ${esc(dmg)}</span>`;
+    if (desc) body += `<span class="info-dlg-desc">${formatDiceIcons(esc(desc))}</span>`;
+    if (dmg)  body += `<span class="info-dlg-sub"> — ${formatDiceIcons(esc(dmg))}</span>`;
     if (weap) body += `<span class="info-dlg-sub"> (${game.i18n.localize("TRESPASSER.Sheet.Item.Sections.WeaponEffects")})</span>`;
     return `<div class="info-dlg-phase"><span class="info-dlg-phase-label">${esc(label)}:</span> ${body}</div>`;
   }).filter(Boolean).join("");
