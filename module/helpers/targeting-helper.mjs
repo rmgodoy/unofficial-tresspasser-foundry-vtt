@@ -984,7 +984,7 @@ export class TargetingHelper {
    * @returns {{ valid: boolean, message?: string }}
    */
   static validateWeaponCompatibility(deed, activeWeapons, actor) {
-    const deedType = deed.type;
+    const deedType = deed.effectiveAbilityType || deed.abilityType || deed.type;
 
     // Innate deeds require nothing
     if (deedType === "innate") return { valid: true };
@@ -1052,7 +1052,7 @@ export class TargetingHelper {
     if (isCreature) {
       maxRangeSq = deed.range;
     } else {
-      const deedType = deed.type;
+      const deedType = deed.effectiveAbilityType || deed.abilityType || deed.type;
       const isThrown = activeWeapons.some(w => w.system.properties?.thrown);
 
       if (deedType === "melee" || deedType === "unarmed") {

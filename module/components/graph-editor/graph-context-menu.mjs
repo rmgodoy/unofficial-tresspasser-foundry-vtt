@@ -1,35 +1,43 @@
 /**
  * graph-context-menu.mjs
- * Floating right-click context menu for adding behavior nodes to the graph.
+ * Floating right-click context menu with category submenus for adding behavior nodes to the graph.
  */
+import { BEHAVIOR_ICONS } from "./graph-node.mjs";
 
 export const BEHAVIOR_CATEGORIES = [
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Targeting",
+    icon: "fa-bullseye",
     types: ["selectTarget", "selectArea"]
   },
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Rolling",
+    icon: "fa-dice-d20",
     types: ["roll", "rollAccuracy"]
   },
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.DamageHealing",
+    icon: "fa-heart-pulse",
     types: ["applyDamage", "healTarget", "grantRecovery"]
   },
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Effects",
+    icon: "fa-wand-magic-sparkles",
     types: ["applyEffects"]
   },
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Movement",
+    icon: "fa-person-running",
     types: ["moveSource", "forceMoveTargets"]
   },
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Terrain",
+    icon: "fa-mountain",
     types: ["spawnTerrain", "moveTerrain"]
   },
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Flow",
+    icon: "fa-code-branch",
     types: ["clearTargets", "executeDeed"]
   }
 ];
@@ -50,22 +58,45 @@ export class GraphContextMenu {
 
     const menu = document.createElement("div");
     menu.className = "graph-context-menu";
-    menu.style.left = `${x}px`;
-    menu.style.top = `${y}px`;
+
+    // Clamp initial menu position so it doesn't spawn outside viewport
+    const initialX = Math.max(10, Math.min(x, window.innerWidth - 220));
+    const initialY = Math.max(10, Math.min(y, window.innerHeight - 320));
+    menu.style.left = `${initialX}px`;
+    menu.style.top = `${initialY}px`;
 
     const titleEl = document.createElement("div");
     titleEl.className = "context-menu-title";
-    titleEl.innerHTML = `<i class="fas fa-plus"></i> ${game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.AddNode") || "Add Node"}`;
+    titleEl.innerHTML = `<i class="fas fa-plus"></i><span>${game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.AddNode") || "Add Node"}</span>`;
     menu.appendChild(titleEl);
 
-    for (const group of BEHAVIOR_CATEGORIES) {
-      const groupEl = document.createElement("div");
-      groupEl.className = "context-menu-group";
+    const listEl = document.createElement("div");
+    listEl.className = "context-menu-list";
 
-      const groupHeader = document.createElement("div");
-      groupHeader.className = "context-menu-group-label";
-      groupHeader.textContent = game.i18n.localize(group.categoryKey) || group.categoryKey.split(".").pop();
-      groupEl.appendChild(groupHeader);
+    let activeCategoryEl = null;
+    let switchTimeout = null;
+    let closeTimeout = null;
+
+    for (const group of BEHAVIOR_CATEGORIES) {
+      const categoryEl = document.createElement("div");
+      categoryEl.className = "context-menu-category-item";
+
+      const categoryLabel = game.i18n.localize(group.categoryKey) || group.categoryKey.split(".").pop();
+      const categoryIcon = group.icon || "fa-folder";
+
+      const labelWrapper = document.createElement("div");
+      labelWrapper.className = "category-item-label";
+      labelWrapper.innerHTML = `<i class="fas ${categoryIcon}"></i><span>${categoryLabel}</span>`;
+
+      const arrowEl = document.createElement("i");
+      arrowEl.className = "fas fa-chevron-right category-arrow";
+
+      categoryEl.appendChild(labelWrapper);
+      categoryEl.appendChild(arrowEl);
+
+      // Submenu container
+      const submenuEl = document.createElement("div");
+      submenuEl.className = "context-submenu";
 
       for (const type of group.types) {
         const itemEl = document.createElement("div");
@@ -73,7 +104,8 @@ export class GraphContextMenu {
         itemEl.dataset.type = type;
 
         const label = game.i18n.localize(`TRESPASSER.Sheet.Deed.Behavior.Type.${type}`) || type;
-        itemEl.innerHTML = `<span class="item-name">${label}</span>`;
+        const icon = BEHAVIOR_ICONS[type] || "fa-cube";
+        itemEl.innerHTML = `<i class="fas ${icon} item-icon"></i><span class="item-name">${label}</span>`;
 
         itemEl.addEventListener("click", (e) => {
           e.stopPropagation();
@@ -83,11 +115,97 @@ export class GraphContextMenu {
           }
         });
 
-        groupEl.appendChild(itemEl);
+        submenuEl.appendChild(itemEl);
       }
 
-      menu.appendChild(groupEl);
+      categoryEl.appendChild(submenuEl);
+
+      const positionSubmenu = () => {
+        submenuEl.classList.remove("flyout-left");
+        submenuEl.style.top = "-4px";
+
+        const rect = submenuEl.getBoundingClientRect();
+        // Flip left if overflowing right viewport edge
+        if (rect.right > window.innerWidth - 10) {
+          submenuEl.classList.add("flyout-left");
+        }
+
+        // Adjust top if overflowing bottom viewport edge
+        if (rect.bottom > window.innerHeight - 10) {
+          const overflow = rect.bottom - (window.innerHeight - 10);
+          submenuEl.style.top = `${-overflow - 4}px`;
+        }
+      };
+
+      categoryEl.addEventListener("mouseenter", () => {
+        clearTimeout(closeTimeout);
+
+        if (activeCategoryEl === categoryEl) {
+          clearTimeout(switchTimeout);
+          return;
+        }
+
+        // If another submenu is open, use a small 100ms grace period so diagonal movements
+        // toward the open submenu don't instantly close it
+        const delay = activeCategoryEl ? 100 : 0;
+        clearTimeout(switchTimeout);
+
+        switchTimeout = setTimeout(() => {
+          if (activeCategoryEl && activeCategoryEl !== categoryEl) {
+            activeCategoryEl.classList.remove("active");
+            activeCategoryEl.querySelector(".context-submenu")?.classList.remove("visible");
+          }
+          activeCategoryEl = categoryEl;
+          categoryEl.classList.add("active");
+          submenuEl.classList.add("visible");
+          positionSubmenu();
+        }, delay);
+      });
+
+      categoryEl.addEventListener("mouseleave", (e) => {
+        // Only trigger close if pointer is not moving into the submenu
+        if (!categoryEl.contains(e.relatedTarget)) {
+          clearTimeout(switchTimeout);
+          closeTimeout = setTimeout(() => {
+            if (activeCategoryEl === categoryEl) {
+              categoryEl.classList.remove("active");
+              submenuEl.classList.remove("visible");
+              activeCategoryEl = null;
+            }
+          }, 150);
+        }
+      });
+
+      // Keep open when entering the submenu
+      submenuEl.addEventListener("mouseenter", () => {
+        clearTimeout(switchTimeout);
+        clearTimeout(closeTimeout);
+        activeCategoryEl = categoryEl;
+        categoryEl.classList.add("active");
+        submenuEl.classList.add("visible");
+      });
+
+      categoryEl.addEventListener("click", (e) => {
+        e.stopPropagation();
+        clearTimeout(switchTimeout);
+        clearTimeout(closeTimeout);
+        const isVisible = submenuEl.classList.contains("visible");
+        listEl.querySelectorAll(".context-submenu.visible").forEach(s => s.classList.remove("visible"));
+        listEl.querySelectorAll(".context-menu-category-item.active").forEach(c => c.classList.remove("active"));
+        if (!isVisible) {
+          activeCategoryEl = categoryEl;
+          categoryEl.classList.add("active");
+          submenuEl.classList.add("visible");
+          positionSubmenu();
+        } else {
+          activeCategoryEl = null;
+        }
+      });
+
+      listEl.appendChild(categoryEl);
     }
+
+    menu.appendChild(listEl);
 
     // Dismiss listeners
     const onOutsideClick = (e) => {

@@ -1,4 +1,24 @@
 <div class="behavior-params-form">
+  {{#if hasRefRoll}}
+    <div class="ref-chip-header">
+      <span class="ref-chip" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedSource' id=refRollId}}">
+        <i class="fas fa-link"></i> #{{refRollIdShort}} {{#if refRollExpr}}({{refRollExpr}}){{/if}}
+      </span>
+    </div>
+  {{else if hasRefArea}}
+    <div class="ref-chip-header">
+      <span class="ref-chip" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedSource' id=refAreaId}}">
+        <i class="fas fa-link"></i> #{{refAreaIdShort}} {{#if refAreaSummary}}({{refAreaSummary}}){{/if}}
+      </span>
+    </div>
+  {{else if hasRefTerrain}}
+    <div class="ref-chip-header">
+      <span class="ref-chip" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedSource' id=refTerrainId}}">
+        <i class="fas fa-link"></i> #{{refTerrainIdShort}} {{#if refTerrainName}}({{refTerrainName}}){{/if}}
+      </span>
+    </div>
+  {{/if}}
+
   {{#if (eq type "start")}}
     <div class="behavior-hint-box">
       <p class="hint-title"><i class="fas fa-play"></i> {{localize "TRESPASSER.Sheet.Deed.Behavior.Type.start"}}</p>
@@ -11,18 +31,68 @@
       <p class="hint-title"><i class="fas fa-crosshairs"></i> {{localize "TRESPASSER.Sheet.Deed.Behavior.Type.rollAccuracy"}}</p>
       <p class="hint-text">{{localize "TRESPASSER.Sheet.Deed.Params.RollAccuracyHint"}}</p>
     </div>
+
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.ActionType"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.actionType">
+          <option value="" {{#if (not params.actionType)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.InheritDeedDefault"}} ({{defaultActionTypeLabel}})</option>
+          <option value="attack" {{#if (eq params.actionType "attack")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Attack"}}</option>
+          <option value="support" {{#if (eq params.actionType "support")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Support"}}</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.AbilityType"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.abilityType">
+          <option value="" {{#if (not params.abilityType)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.InheritDeedDefault"}} ({{defaultAbilityTypeLabel}})</option>
+          <option value="innate" {{#if (eq params.abilityType "innate")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Innate"}}</option>
+          <option value="melee" {{#if (eq params.abilityType "melee")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Melee"}}</option>
+          <option value="missile" {{#if (eq params.abilityType "missile")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Missile"}}</option>
+          <option value="spell" {{#if (eq params.abilityType "spell")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Spell"}}</option>
+          <option value="tool" {{#if (eq params.abilityType "tool")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Tool"}}</option>
+          <option value="unarmed" {{#if (eq params.abilityType "unarmed")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Unarmed"}}</option>
+          <option value="versatile" {{#if (eq params.abilityType "versatile")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Versatile"}}</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Versus"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.versus">
+          <option value="" {{#if (not params.versus)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.InheritDeedDefault"}} ({{defaultVersusLabel}})</option>
+          <option value="Guard" {{#if (eq params.versus "Guard")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Guard"}}</option>
+          <option value="Resist" {{#if (eq params.versus "Resist")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Resist"}}</option>
+          <option value="10" {{#if (eq params.versus "10")}}selected{{/if}}>10</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.BranchingMode"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.branchingMode">
+          <option value="hitThenSpark" {{#if (or (eq params.branchingMode "hitThenSpark") (not params.branchingMode))}}selected{{/if}}>
+            {{localize "TRESPASSER.Sheet.Deed.Params.BranchingModeHitThenSpark"}}
+          </option>
+          <option value="hitOrSpark" {{#if (eq params.branchingMode "hitOrSpark")}}selected{{/if}}>
+            {{localize "TRESPASSER.Sheet.Deed.Params.BranchingModeHitOrSpark"}}
+          </option>
+        </select>
+      </div>
+    </div>
   {{/if}}
 
   {{#if (eq type "selectTarget")}}
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetMode"}}</label>
-        <select name="system.graph.nodes.{{index}}.params.targetMode">
-          <option value="self" {{#if (eq params.targetMode "self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Personal"}}</option>
-          <option value="creatures" {{#if (eq params.targetMode "creatures")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Creature"}}</option>
-          <option value="aoe" {{#if (eq params.targetMode "aoe")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.AoE"}}</option>
-          <option value="area" {{#if (eq params.targetMode "area")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.SelectedArea"}}</option>
+        <select name="system.graph.nodes.{{index}}.params.targetMode" {{#if hasRefArea}}disabled class="is-ref-locked" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ControlledByReference'}}"{{/if}}>
+          <option value="self" {{#if (and (eq params.targetMode "self") (not hasRefArea))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Personal"}}</option>
+          <option value="creatures" {{#if (and (eq params.targetMode "creatures") (not hasRefArea))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Creature"}}</option>
+          <option value="aoe" {{#if (and (eq params.targetMode "aoe") (not hasRefArea))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.AoE"}}</option>
+          <option value="area" {{#if (or (eq params.targetMode "area") hasRefArea)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.SelectedArea"}}</option>
         </select>
+        {{#if hasRefArea}}
+          <input type="hidden" name="system.graph.nodes.{{index}}.params.targetMode" value="area"/>
+        {{/if}}
       </div>
 
       {{#if (ne params.targetMode "self")}}
@@ -69,6 +139,7 @@
       {{/if}}
 
       {{#if (eq params.targetMode "area")}}
+        <input type="hidden" name="system.graph.nodes.{{index}}.params.areaBehaviorId" value="{{params.areaBehaviorId}}"/>
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaRelation"}}</label>
           <select name="system.graph.nodes.{{index}}.params.areaRelation">
@@ -76,11 +147,6 @@
             <option value="adjacent" {{#if (eq params.areaRelation "adjacent")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AreaRelationChoices.Adjacent"}}</option>
             <option value="insideAndAdjacent" {{#if (eq params.areaRelation "insideAndAdjacent")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AreaRelationChoices.InsideAndAdjacent"}}</option>
           </select>
-        </div>
-        <div class="field-row">
-          <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaBehaviorId"}}</label>
-          <input type="text" name="system.graph.nodes.{{index}}.params.areaBehaviorId"
-                 value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
         </div>
       {{/if}}
     </div>
@@ -158,14 +224,18 @@
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollExpression"}}</label>
-        <input type="text" name="system.graph.nodes.{{index}}.params.expression"
-               value="{{params.expression}}" placeholder="e.g. 2d6+STR, /2, -5, +1d6"/>
+        <div class="formula-input-group {{#if hasRefRoll}}has-reference{{/if}}">
+          {{#if hasRefRoll}}
+            <span class="formula-ref-badge" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedRollTooltip' id=refRollIdShort formula=refRollExpr}}">
+              {{#if refRollExpr}}({{refRollExpr}}){{else}}#{{refRollIdShort}}{{/if}}
+            </span>
+          {{/if}}
+          <input type="text" name="system.graph.nodes.{{index}}.params.expression"
+                 value="{{params.expression}}"
+                 placeholder="{{#if hasRefRoll}}/2, +5, -8, *2, +1d6{{else}}e.g. 2d6+STR, 1d8...{{/if}}"/>
+        </div>
       </div>
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollBehaviorId"}}</label>
-        <input type="text" name="system.graph.nodes.{{index}}.params.rollBehaviorId"
-               value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
-      </div>
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.rollBehaviorId" value="{{params.rollBehaviorId}}"/>
     </div>
     <div class="behavior-checkboxes-row">
       <div class="field-row checkbox-row">
@@ -184,14 +254,18 @@
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.DamageExpression"}}</label>
-        <input type="text" name="system.graph.nodes.{{index}}.params.expression"
-               value="{{params.expression}}" placeholder="e.g. 2d6+STR, /2, -5, +1d6"/>
+        <div class="formula-input-group {{#if hasRefRoll}}has-reference{{/if}}">
+          {{#if hasRefRoll}}
+            <span class="formula-ref-badge" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedRollTooltip' id=refRollIdShort formula=refRollExpr}}">
+              {{#if refRollExpr}}({{refRollExpr}}){{else}}#{{refRollIdShort}}{{/if}}
+            </span>
+          {{/if}}
+          <input type="text" name="system.graph.nodes.{{index}}.params.expression"
+                 value="{{params.expression}}"
+                 placeholder="{{#if hasRefRoll}}/2, +5, -8, *2, +1d6{{else}}e.g. 2d6+STR, /2, -5, +1d6{{/if}}"/>
+        </div>
       </div>
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollBehaviorId"}}</label>
-        <input type="text" name="system.graph.nodes.{{index}}.params.rollBehaviorId"
-               value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
-      </div>
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.rollBehaviorId" value="{{params.rollBehaviorId}}"/>
     </div>
     <div class="behavior-checkboxes-row">
       <div class="field-row checkbox-row">
@@ -210,14 +284,18 @@
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.HealingExpression"}}</label>
-        <input type="text" name="system.graph.nodes.{{index}}.params.expression"
-               value="{{params.expression}}" placeholder="e.g. 1d6+<sd>, /2, -5, +2"/>
+        <div class="formula-input-group {{#if hasRefRoll}}has-reference{{/if}}">
+          {{#if hasRefRoll}}
+            <span class="formula-ref-badge" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedRollTooltip' id=refRollIdShort formula=refRollExpr}}">
+              {{#if refRollExpr}}({{refRollExpr}}){{else}}#{{refRollIdShort}}{{/if}}
+            </span>
+          {{/if}}
+          <input type="text" name="system.graph.nodes.{{index}}.params.expression"
+                 value="{{params.expression}}"
+                 placeholder="{{#if hasRefRoll}}/2, +5, -8, *2, +1d6{{else}}e.g. 1d6+<sd>, /2, -5, +2{{/if}}"/>
+        </div>
       </div>
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollBehaviorId"}}</label>
-        <input type="text" name="system.graph.nodes.{{index}}.params.rollBehaviorId"
-               value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
-      </div>
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.rollBehaviorId" value="{{params.rollBehaviorId}}"/>
     </div>
     <div class="behavior-checkboxes-row">
       <div class="field-row checkbox-row">
@@ -301,19 +379,18 @@
       <div class="param-row-grid" style="margin-top: 6px;">
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.Placement"}}</label>
-          <select name="system.graph.nodes.{{index}}.params.placement">
-            <option value="on_target" {{#if (eq params.placement "on_target")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnTarget"}}</option>
-            <option value="on_self" {{#if (eq params.placement "on_self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnSelf"}}</option>
-            <option value="choose" {{#if (eq params.placement "choose")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Choose"}}</option>
-            <option value="selected_area" {{#if (eq params.placement "selected_area")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.SelectedArea"}}</option>
+          <select name="system.graph.nodes.{{index}}.params.placement" {{#if hasRefArea}}disabled class="is-ref-locked" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ControlledByReference'}}"{{/if}}>
+            <option value="on_target" {{#if (and (eq params.placement "on_target") (not hasRefArea))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnTarget"}}</option>
+            <option value="on_self" {{#if (and (eq params.placement "on_self") (not hasRefArea))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnSelf"}}</option>
+            <option value="choose" {{#if (and (eq params.placement "choose") (not hasRefArea))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Choose"}}</option>
+            <option value="selected_area" {{#if (or (eq params.placement "selected_area") hasRefArea)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.SelectedArea"}}</option>
           </select>
+          {{#if hasRefArea}}
+            <input type="hidden" name="system.graph.nodes.{{index}}.params.placement" value="selected_area"/>
+          {{/if}}
         </div>
         {{#if (eq params.placement "selected_area")}}
-          <div class="field-row">
-            <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaBehaviorId"}}</label>
-            <input type="text" name="system.graph.nodes.{{index}}.params.areaBehaviorId"
-                   value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
-          </div>
+          <input type="hidden" name="system.graph.nodes.{{index}}.params.areaBehaviorId" value="{{params.areaBehaviorId}}"/>
         {{/if}}
       </div>
       {{#if (eq params.placement "selected_area")}}
@@ -333,21 +410,20 @@
   {{/if}}
 
   {{#if (eq type "moveTerrain")}}
-    <div class="field-row">
-      <label>{{localize "TRESPASSER.Sheet.Deed.Params.TerrainBehaviorId"}}</label>
-      <input type="text" name="system.graph.nodes.{{index}}.params.terrainBehaviorId"
-             value="{{params.terrainBehaviorId}}" placeholder="Spawn Terrain Behavior ID (optional)"/>
-    </div>
+    <input type="hidden" name="system.graph.nodes.{{index}}.params.terrainBehaviorId" value="{{params.terrainBehaviorId}}"/>
   {{/if}}
 
   {{#if (eq type "moveSource")}}
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.DestinationMode"}}</label>
-        <select name="system.graph.nodes.{{index}}.params.destinationMode">
-          <option value="distance" {{#if (or (eq params.destinationMode "distance") (not params.destinationMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DestinationModeChoices.Distance"}}</option>
-          <option value="selectedArea" {{#if (eq params.destinationMode "selectedArea")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DestinationModeChoices.SelectedArea"}}</option>
+        <select name="system.graph.nodes.{{index}}.params.destinationMode" {{#if hasRefArea}}disabled class="is-ref-locked" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ControlledByReference'}}"{{/if}}>
+          <option value="distance" {{#if (and (or (eq params.destinationMode "distance") (not params.destinationMode)) (not hasRefArea))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DestinationModeChoices.Distance"}}</option>
+          <option value="selectedArea" {{#if (or (eq params.destinationMode "selectedArea") hasRefArea)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DestinationModeChoices.SelectedArea"}}</option>
         </select>
+        {{#if hasRefArea}}
+          <input type="hidden" name="system.graph.nodes.{{index}}.params.destinationMode" value="selectedArea"/>
+        {{/if}}
       </div>
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.MovementType"}}</label>
@@ -358,11 +434,7 @@
         </select>
       </div>
       {{#if (eq params.destinationMode "selectedArea")}}
-        <div class="field-row">
-          <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaBehaviorId"}}</label>
-          <input type="text" name="system.graph.nodes.{{index}}.params.areaBehaviorId"
-                 value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
-        </div>
+        <input type="hidden" name="system.graph.nodes.{{index}}.params.areaBehaviorId" value="{{params.areaBehaviorId}}"/>
       {{/if}}
       {{#unless (eq params.destinationMode "selectedArea")}}
         <div class="field-row">

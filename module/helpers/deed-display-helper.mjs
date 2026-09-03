@@ -2,6 +2,7 @@
  * deed-display-helper.mjs
  * Shared helpers for formatting Deeds and BDeeds for sheet presentation.
  */
+import { getEffectiveDeedAttributes } from "./deed-behaviors/roll-accuracy.mjs";
 
 /**
  * Format BDeed target description based on selectTarget behavior count.
@@ -126,15 +127,16 @@ export function prepareDeedDisplayData(d, sourceMapByUuid = {}) {
   }
 
   // Normalized subheader fields
-  const typeRaw = deedData.system.abilityType || deedData.system.type || "deed";
+  const effectiveAttrs = getEffectiveDeedAttributes(deedData.system);
+  const typeRaw = effectiveAttrs.abilityType || deedData.system.type || "deed";
   const typeKey = typeRaw ? typeRaw.charAt(0).toUpperCase() + typeRaw.slice(1) : "";
   deedData.displayType = typeKey ? (game.i18n.localize(`TRESPASSER.Sheet.Item.Details.TypeChoices.${typeKey}`) || typeRaw) : "";
 
-  const actionRaw = deedData.system.actionType || "attack";
+  const actionRaw = effectiveAttrs.actionType || "attack";
   const actionKey = actionRaw ? actionRaw.charAt(0).toUpperCase() + actionRaw.slice(1) : "";
   deedData.displayActionType = actionKey ? (game.i18n.localize(`TRESPASSER.Sheet.Item.Details.ActionTypeChoices.${actionKey}`) || actionRaw) : "";
 
-  const versusRaw = deedData.system.versus || "Guard";
+  const versusRaw = effectiveAttrs.versus || "Guard";
   deedData.displayVersus = versusRaw === "10" ? "10" : (game.i18n.localize(`TRESPASSER.Sheet.Combat.${versusRaw}`) || versusRaw);
 
   deedData.displayTarget = formatBDeedTarget(deedData.system);

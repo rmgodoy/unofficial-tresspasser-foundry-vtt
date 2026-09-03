@@ -5,6 +5,24 @@ import { askSparkDialog } from "../../dialogs/spark-dialog.mjs";
 import { requestPlayerDefenseRoll } from "../defense-roll-helper.mjs";
 
 /**
+ * Resolves effective deed attributes (actionType, abilityType, versus),
+ * defaulting to the Deed's base values, but overridden by the rollAccuracy behavior node if configured.
+ * @param {object|Item} systemOrItem
+ * @returns {{ actionType: string, abilityType: string, versus: string }}
+ */
+export function getEffectiveDeedAttributes(systemOrItem) {
+  const sys = systemOrItem?.system ?? systemOrItem ?? {};
+  const accNode = sys.graph?.nodes?.find(n => n.type === "rollAccuracy");
+  const p = accNode?.params || {};
+
+  const actionType = (p.actionType && p.actionType !== "") ? p.actionType : (sys.actionType || "attack");
+  const abilityType = (p.abilityType && p.abilityType !== "") ? p.abilityType : (sys.abilityType || "innate");
+  const versus = (p.versus && p.versus !== "") ? p.versus : (sys.versus || "Guard");
+
+  return { actionType, abilityType, versus };
+}
+
+/**
  * RollAccuracyBehavior — Implements accuracy checks for Behavior-Driven Deeds.
  *
  * Supports both:
@@ -25,9 +43,19 @@ export class RollAccuracyBehavior {
    * @returns {Promise<object|boolean>} Returns condition mapping or false if cancelled
    */
   static async execute(behavior, context, actor, item, phaseKey = "base") {
-    const isAttack = item.system.actionType !== "support";
-    const versus = item.system.versus ?? "Guard";
+    const params = behavior.params || {};
+    const actionType = (params.actionType && params.actionType !== "") ? params.actionType : (item.system.actionType || "attack");
+    const abilityType = (params.abilityType && params.abilityType !== "") ? params.abilityType : (item.system.abilityType || "innate");
+    const versus = (params.versus && params.versus !== "") ? params.versus : (item.system.versus || "Guard");
+    const branchingMode = params.branchingMode || "hitThenSpark";
+
+    const isAttack = actionType !== "support";
     const apBonus = context.apBonus || 0;
+
+    context.actionType = actionType;
+    context.abilityType = abilityType;
+    context.versus = versus;
+    context.branchingMode = branchingMode;
 
     // Check targets: context.targets or current user targets
     let targetList = (context.targets && context.targets.length > 0)
@@ -195,9 +223,10 @@ export class RollAccuracyBehavior {
       context.isSpark = applySparkPhase;
       context.sparkChoices = sparkChoices;
 
+      const onHitResult = branchingMode === "hitOrSpark" ? (anyHit && !applySparkPhase) : anyHit;
       return {
         conditions: {
-          onHit: anyHit && !applySparkPhase,
+          onHit: onHitResult,
           onMiss: !anyHit,
           onSpark: applySparkPhase,
           always: true
@@ -372,9 +401,10 @@ export class RollAccuracyBehavior {
     context.isSpark = applySparkPhase;
     context.sparkChoices = sparkChoices;
 
+    const onHitResult = branchingMode === "hitOrSpark" ? (anyHit && !applySparkPhase) : anyHit;
     return {
       conditions: {
-        onHit: anyHit && !applySparkPhase,
+        onHit: onHitResult,
         onMiss: !anyHit,
         onSpark: applySparkPhase,
         always: true

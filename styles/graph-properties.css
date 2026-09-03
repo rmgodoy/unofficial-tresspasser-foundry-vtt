@@ -126,6 +126,7 @@
 .properties-node-card.phase-border-spark  { border-left: 4px solid var(--graph-phase-spark); }
 .properties-node-card.phase-border-after  { border-left: 4px solid var(--graph-phase-after); }
 .properties-node-card.phase-border-end    { border-left: 4px solid var(--graph-phase-end); }
+.properties-node-card.phase-border-inherit{ border-left: 4px solid var(--graph-phase-inherit); }
 
 .node-card-header {
   display: flex;

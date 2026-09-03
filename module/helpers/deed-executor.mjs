@@ -46,6 +46,8 @@ export class DeedExecutor {
     };
 
     this._currentPhaseKey = null;
+    this._activePhases = new Set();
+    this._phaseOutputs = new Map();
     this._executedNodes = new Set();
     this._nodesById = new Map();
     this._outgoingFlow = new Map();
@@ -160,12 +162,14 @@ export class DeedExecutor {
     const startNode = graph.nodes.find(n => n.type === "start") || graph.nodes[0];
     if (!startNode) return;
 
-    const visited = new Set();
-    const cancelled = await this._traverseNode(startNode.id, visited);
+    this._activePhases.clear();
+    this._phaseOutputs.clear();
 
-    await this._flushPhaseCard();
+    const visited = new Set();
+    const cancelled = await this._traverseNode(startNode.id, visited, null, "start");
 
     if (!cancelled) {
+      await this._postAllPhaseCards();
       await this._commitResourceUsage();
     }
 
@@ -212,14 +216,20 @@ export class DeedExecutor {
   /**
    * Evaluate whether an accuracy condition port should be followed.
    * @param {string} port
+   * @param {string} [branchingMode="hitThenSpark"]
    * @returns {boolean}
    * @protected
    */
-  _evaluateCondition(port) {
+  _evaluateCondition(port, branchingMode = "hitThenSpark") {
     if (port === "always" || port === "out") return true;
-    if (port === "onSpark") return Boolean(this.context.isSpark);
-    if (port === "onHit") return Boolean(this.context.isHit && !this.context.isSpark);
     if (port === "onMiss") return Boolean(!this.context.isHit);
+    if (branchingMode === "hitOrSpark") {
+      if (port === "onSpark") return Boolean(this.context.isSpark);
+      if (port === "onHit") return Boolean(this.context.isHit && !this.context.isSpark);
+    } else {
+      if (port === "onHit") return Boolean(this.context.isHit);
+      if (port === "onSpark") return Boolean(this.context.isSpark);
+    }
     return false;
   }
 
@@ -285,10 +295,11 @@ export class DeedExecutor {
    * @param {string} nodeId
    * @param {Set<string>} visited
    * @param {string} [incomingPort=null]
+   * @param {string} [incomingPhase=null]
    * @returns {Promise<boolean>} True if pipeline was cancelled by user
    * @protected
    */
-  async _traverseNode(nodeId, visited, incomingPort = null) {
+  async _traverseNode(nodeId, visited, incomingPort = null, incomingPhase = null) {
     if (visited.has(nodeId)) return false;
     visited.add(nodeId);
 
@@ -301,11 +312,15 @@ export class DeedExecutor {
 
     await this._resolveReferences(node, visited);
 
-    if (node.type !== "start") {
-      const phaseKey = node.phase || "base";
-      await this._switchPhase(phaseKey);
+    let effectivePhase = node.phase;
+    if (!effectivePhase || effectivePhase === "inherit") {
+      effectivePhase = incomingPhase || "base";
+    }
 
-      const result = await this._executeBehavior(node, phaseKey);
+    if (node.type !== "start") {
+      await this._switchPhase(effectivePhase);
+
+      const result = await this._executeBehavior(node, effectivePhase);
       this._executedNodes.add(node.id);
       node._alreadyExecuted = true;
       if (result === false) return true; // Cancelled
@@ -315,15 +330,28 @@ export class DeedExecutor {
 
     const outgoing = this._getOutgoingConnections(nodeId);
     if (node.type === "rollAccuracy") {
-      for (const conn of outgoing) {
-        if (this._evaluateCondition(conn.sourcePort)) {
-          const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort);
+      const branchingMode = node.params?.branchingMode || "hitThenSpark";
+      const portPriority = { onHit: 1, onSpark: 2, onMiss: 3, always: 4, out: 5 };
+      const sortedOutgoing = [...outgoing].sort((a, b) => {
+        const pA = portPriority[a.sourcePort] ?? 99;
+        const pB = portPriority[b.sourcePort] ?? 99;
+        return pA - pB;
+      });
+
+      for (const conn of sortedOutgoing) {
+        if (this._evaluateCondition(conn.sourcePort, branchingMode)) {
+          let branchPhase = effectivePhase;
+          if (conn.sourcePort === "onHit") branchPhase = "hit";
+          else if (conn.sourcePort === "onSpark") branchPhase = "spark";
+          else if (conn.sourcePort === "onMiss") branchPhase = "after";
+
+          const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, branchPhase);
           if (cancelled) return true;
         }
       }
     } else {
       for (const conn of outgoing) {
-        const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort);
+        const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, effectivePhase);
         if (cancelled) return true;
       }
     }
@@ -337,55 +365,60 @@ export class DeedExecutor {
   }
 
   /**
-   * Switch phase for chat card consolidation. Flushes previous phase outputs if phase changed.
+   * Switch active phase and ensure phase output accumulator exists.
    * @param {string} newPhaseKey
    * @protected
    */
   async _switchPhase(newPhaseKey) {
-    if (this._currentPhaseKey && this._currentPhaseKey !== newPhaseKey) {
-      await this._flushPhaseCard();
-    }
     this._currentPhaseKey = newPhaseKey;
-    if (!this.context.currentPhaseOutputs) {
-      this.context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
+    this._activePhases.add(newPhaseKey);
+    if (!this._phaseOutputs.has(newPhaseKey)) {
+      this._phaseOutputs.set(newPhaseKey, { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" });
+    }
+    this.context.currentPhaseOutputs = this._phaseOutputs.get(newPhaseKey);
+  }
+
+  /**
+   * Posts all consolidated phase cards strictly in canonical phase order.
+   * @protected
+   */
+  async _postAllPhaseCards() {
+    const CANONICAL_PHASES = ["start", "before", "base", "hit", "spark", "after", "end"];
+    for (const phaseKey of CANONICAL_PHASES) {
+      if (this._hasOutputsToPost(phaseKey)) {
+        const phase = this.system.phases?.[phaseKey] || {};
+        const outputs = this._phaseOutputs.get(phaseKey) || { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
+        await this._postPhaseCard(phaseKey, phase, outputs);
+      }
     }
   }
 
   /**
-   * Post consolidated chat card for active phase and clear phase output state.
+   * Checks whether a phase produced output or has an active phase description to post.
+   * @param {string} phaseKey
+   * @returns {boolean}
    * @protected
    */
-  async _flushPhaseCard() {
-    if (!this._currentPhaseKey) return;
-    if (this._hasOutputsToPost(this._currentPhaseKey)) {
-      const phase = this.system.phases?.[this._currentPhaseKey] || {};
-      await this._postPhaseCard(this._currentPhaseKey, phase, false);
-    }
-    this._currentPhaseKey = null;
-    this.context.currentPhaseOutputs = null;
-    this.context.activeChatMessage = null;
-  }
-
   _hasOutputsToPost(phaseKey) {
-    const outputs = this.context.currentPhaseOutputs;
+    const outputs = this._phaseOutputs.get(phaseKey);
     if (outputs && (outputs.rolls?.length > 0 || outputs.rollEntries?.length > 0 || outputs.notes?.length > 0 || outputs.accuracyHtml)) {
       return true;
     }
     const phase = this.system.phases?.[phaseKey];
-    return Boolean(phase?.description && phase.description.trim() && !phase.skipPhase);
+    return Boolean(this._activePhases.has(phaseKey) && phase?.description && phase.description.trim() && !phase.skipPhase);
   }
 
   /**
-   * Post or update consolidated chat card for a phase.
+   * Post consolidated chat card for a phase.
    * @param {string} phaseKey
    * @param {object} phase
-   * @param {boolean} [isPartial=false]
+   * @param {object} [outputs=null]
    * @protected
    */
-  async _postPhaseCard(phaseKey, phase, isPartial = false) {
+  async _postPhaseCard(phaseKey, phase, outputs = null) {
     if (!phase) phase = this.system.phases?.[phaseKey] || {};
     const phaseLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)}`);
-    const outputs = this.context.currentPhaseOutputs || { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
+    outputs = outputs || this._phaseOutputs.get(phaseKey) || { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
 
     let content = `<div class="bdeed-phase-card" style="border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px; padding: 10px; background: var(--trp-bg-panel, #23201c); color: var(--trp-text, #ddd0aa);">
       <h3 style="margin: 0 0 6px 0; color: var(--trp-gold-bright, #e8c96b); font-family: var(--trp-font-header, 'Cinzel', serif); font-size: var(--fs-14); border-bottom: 1px solid var(--trp-gold-dim, #a88840); padding-bottom: 4px;">
@@ -419,37 +452,11 @@ export class DeedExecutor {
 
     const rollData = (outputs.rolls || []).map(r => (typeof r.toJSON === "function" ? r.toJSON() : r));
 
-    if (this.context.activeChatMessage) {
-      await this._updateChatMessage(this.context.activeChatMessage, { content, rolls: rollData });
-    } else {
-      const msg = await ChatMessage.create({
-        speaker,
-        content,
-        rolls: rollData,
-        flags: { trespasser: { bdeedId: this.item.id, phase: phaseKey } }
-      });
-      this.context.activeChatMessage = msg;
-    }
-
-    if (!isPartial) {
-      this.context.activeChatMessage = null;
-      this.context.currentPhaseOutputs = null;
-    }
-  }
-
-  /**
-   * Helper to update a chat message directly or via socket if non-GM.
-   * @param {ChatMessage} message
-   * @param {object} updates
-   * @protected
-   */
-  async _updateChatMessage(message, updates) {
-    if (!message?.id) return;
-    if (game.user.isGM) {
-      await message.update(updates);
-    } else {
-      const { TrespasserSocket } = await import("./socket/socket.mjs");
-      TrespasserSocket?.emit("UPDATE_CHAT_MESSAGE", { messageId: message.id, updates });
-    }
+    await ChatMessage.create({
+      speaker,
+      content,
+      rolls: rollData,
+      flags: { trespasser: { bdeedId: this.item.id, phase: phaseKey } }
+    });
   }
 }

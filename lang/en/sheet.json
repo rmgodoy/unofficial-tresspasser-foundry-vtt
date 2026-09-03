@@ -251,6 +251,7 @@
         "FocusCost": "Focus Cost",
         "Range": "Range",
         "Phase": {
+          "Inherit": "Inherit",
           "Start": "Start",
           "Before": "Before",
           "Base": "Base",
@@ -347,7 +348,9 @@
           "Summary": {
             "Root": "Root",
             "Branching": "Branching",
-            "Effects": "effects"
+            "Effects": "effects",
+            "Squares": "sq",
+            "Targets": "targets"
           },
           "Port": {
             "In": "In",
@@ -363,7 +366,12 @@
             "RollRef": "Roll Reference",
             "AreaRef": "Area Reference",
             "TerrainRef": "Terrain Reference",
-            "TargetRef": "Target Reference"
+            "TargetRef": "Target Reference",
+            "ReferencedRollTooltip": "From roll #{id}: {formula}",
+            "ReferencedAreaTooltip": "From area #{id}: {summary}",
+            "ReferencedTerrainTooltip": "From terrain #{id}: {name}",
+            "ControlledByReference": "Locked by graph reference connection",
+            "ReferencedSource": "Linked: #{id}"
           }
         },
         "Params": {
@@ -424,7 +432,12 @@
           "Distributed": "Distributed",
           "Intensity": "Recovery Intensity",
           "ClearTargetsHint": "Clears target list, allowing subsequent phases to acquire new targets.",
-          "RollAccuracyHint": "Inherits Versus, Action Type, and Attack Type from Details. Branches execution based on Hit, Miss, Spark, or Always connections.",
+          "InheritDeedDefault": "Default (from Deed)",
+          "BranchingMode": "Hit & Spark Branching",
+          "BranchingModeHitThenSpark": "Execute Hit and then Spark (Default)",
+          "BranchingModeHitOrSpark": "Execute Hit or Spark",
+          "HitOrSparkTag": "Hit/Spark",
+          "RollAccuracyHint": "Executes the accuracy check. Attributes default to the deed's Details, but can be overridden below. Branches on Hit, Miss, Spark, or Always.",
           "StartHint": "Root entry point for deed execution. Follows the Out flow connection.",
           "ClearEffect": "Remove Effect",
           "ClearTerrain": "Remove Terrain",

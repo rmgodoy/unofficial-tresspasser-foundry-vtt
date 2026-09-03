@@ -250,6 +250,7 @@
         "FocusCost": "Custo de Foco",
         "Range": "Alcance",
         "Phase": {
+          "Inherit": "Herdar",
           "Start": "Início",
           "Before": "Antes",
           "Base": "Base",
@@ -346,7 +347,9 @@
           "Summary": {
             "Root": "Raiz",
             "Branching": "Ramificação",
-            "Effects": "efeitos"
+            "Effects": "efeitos",
+            "Squares": "quadrados",
+            "Targets": "alvos"
           },
           "Port": {
             "In": "Entrada",
@@ -362,7 +365,12 @@
             "RollRef": "Referência de Rolagem",
             "AreaRef": "Referência de Área",
             "TerrainRef": "Referência de Terreno",
-            "TargetRef": "Referência de Alvo"
+            "TargetRef": "Referência de Alvo",
+            "ReferencedRollTooltip": "Da rolagem #{id}: {formula}",
+            "ReferencedAreaTooltip": "Da área #{id}: {summary}",
+            "ReferencedTerrainTooltip": "Do terreno #{id}: {name}",
+            "ControlledByReference": "Bloqueado por conexão de referência",
+            "ReferencedSource": "Vinculado: #{id}"
           }
         },
         "Params": {
@@ -423,7 +431,12 @@
           "Distributed": "Distribuído",
           "Intensity": "Intensidade da Recuperação",
           "ClearTargetsHint": "Limpa a lista de alvos, permitindo que fases posteriores selecionem novos alvos.",
-          "RollAccuracyHint": "Herda Versus, Tipo de Ação e Tipo de Ataque dos Detalhes. Ramifica a execução com base nas conexões de Acerto, Erro, Centelha ou Sempre.",
+          "InheritDeedDefault": "Padrão (da Habilidade)",
+          "BranchingMode": "Ramificação de Acerto & Centelha",
+          "BranchingModeHitThenSpark": "Executar Acerto e depois Centelha (Padrão)",
+          "BranchingModeHitOrSpark": "Executar Acerto ou Centelha",
+          "HitOrSparkTag": "Acerto/Centelha",
+          "RollAccuracyHint": "Executa a verificação de acurácia. Os atributos usam os valores padrão dos Detalhes da habilidade, mas podem ser substituídos abaixo. Ramifica em Acerto, Erro, Centelha ou Sempre.",
           "StartHint": "Ponto de entrada para execução da habilidade. Segue a conexão de fluxo de Saída.",
           "ClearEffect": "Remover Efeito",
           "ClearTerrain": "Remover Terreno",

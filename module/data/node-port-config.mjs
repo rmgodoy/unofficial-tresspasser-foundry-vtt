@@ -88,12 +88,12 @@ export const NODE_PORT_CONFIG = {
   moveTerrain: {
     inputs: ["in"],
     outputs: ["out"],
-    refInputs: []
+    refInputs: ["terrainRef"]
   },
   moveSource: {
     inputs: ["in"],
     outputs: ["out"],
-    refInputs: []
+    refInputs: ["areaRef"]
   },
   forceMoveTargets: {
     inputs: ["in"],

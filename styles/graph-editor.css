@@ -10,6 +10,7 @@
   --graph-phase-spark:  #ab47bc;
   --graph-phase-after:  #ff9800;
   --graph-phase-end:    #ef5350;
+  --graph-phase-inherit:#78909c;
 }
 
 /* Container inside Deed Sheet */
@@ -44,13 +45,11 @@
   z-index: 10;
   gap: 8px;
 }
-
 .graph-toolbar .toolbar-group {
   display: flex;
   align-items: center;
   gap: 6px;
 }
-
 .graph-toolbar button {
   background: var(--trp-bg-panel, #23201c);
   border: 1px solid var(--trp-border, #4a3f2f);
@@ -167,6 +166,7 @@
 .graph-node.phase-border-spark  { border-left: 4px solid var(--graph-phase-spark); }
 .graph-node.phase-border-after  { border-left: 4px solid var(--graph-phase-after); }
 .graph-node.phase-border-end    { border-left: 4px solid var(--graph-phase-end); }
+.graph-node.phase-border-inherit{ border-left: 4px solid var(--graph-phase-inherit); }
 
 /* Node Header */
 .graph-node-header {
@@ -233,6 +233,7 @@
 .phase-badge-spark  { background: rgba(171, 71, 188, 0.2); color: var(--graph-phase-spark);  border: 1px solid var(--graph-phase-spark); }
 .phase-badge-after  { background: rgba(255, 152, 0, 0.2);  color: var(--graph-phase-after);  border: 1px solid var(--graph-phase-after); }
 .phase-badge-end    { background: rgba(239, 83, 80, 0.2);  color: var(--graph-phase-end);    border: 1px solid var(--graph-phase-end); }
+.phase-badge-inherit{ background: rgba(120, 144, 156, 0.2);color: var(--graph-phase-inherit);border: 1px solid var(--graph-phase-inherit); }
 
 /* Node Body */
 .graph-node-body {
@@ -297,6 +298,21 @@
 .port-row-always .port-label  { color: #8bc34a; font-weight: 600; }
 .port-row-ref .port-label     { color: #4fc3f7; }
 
+.port-ref-badge {
+  font-size: var(--fs-9);
+  font-family: monospace;
+  color: var(--trp-cyan, #4fc3f7);
+  background: rgba(79, 195, 247, 0.15);
+  border: 1px solid rgba(79, 195, 247, 0.4);
+  border-radius: var(--trp-radius-sm, 2px);
+  padding: 0 4px;
+  line-height: 1.2;
+  margin-left: 2px;
+  user-select: none;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 /* Ports */
 .graph-port {
   width: 12px;
@@ -356,6 +372,12 @@
   font-weight: 600;
 }
 
+.node-summary .summary-ref-val {
+  font-family: monospace;
+  color: var(--trp-cyan, #4fc3f7);
+  font-weight: 600;
+}
+
 .node-summary .summary-muted {
   color: var(--trp-text-dim, #a09070);
   font-style: italic;
@@ -367,57 +389,6 @@
   color: var(--trp-text-dim, #a09070);
 }
 
-/* Context Menu */
-.graph-context-menu {
-  position: fixed;
-  z-index: 10000;
-  background: var(--trp-bg-panel, #23201c);
-  border: 1px solid var(--trp-gold-dim, #a88840);
-  border-radius: var(--trp-radius, 4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
-  min-width: 170px;
-  padding: 4px 0;
-}
-
-.context-menu-title {
-  padding: 6px 12px;
-  font-family: var(--trp-font-header, 'Cinzel', serif);
-  font-size: var(--fs-12);
-  font-weight: 700;
-  color: var(--trp-gold-bright, #e8c96b);
-  border-bottom: 1px solid var(--trp-border, #4a3f2f);
-}
-
-.context-menu-group {
-  padding: 2px 0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-}
-
-.context-menu-group:last-child {
-  border-bottom: none;
-}
-
-.context-menu-group-label {
-  padding: 3px 12px;
-  font-size: var(--fs-9);
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--trp-text-dim, #a09070);
-  font-weight: 700;
-}
-
-.context-menu-item {
-  padding: 4px 12px;
-  font-size: var(--fs-12);
-  color: var(--trp-text, #ddd0aa);
-  cursor: pointer;
-  transition: background 0.1s ease, color 0.1s ease;
-}
-
-.context-menu-item:hover {
-  background: var(--trp-bg-select, #3a3228);
-  color: var(--trp-gold-bright, #e8c96b);
-}
 
 /* Phases Tab Content */
 .deed-phases-container {

@@ -1,4 +1,4 @@
-import { BEHAVIOR_TYPES } from "../data/item-deed.mjs";
+import { BEHAVIOR_TYPES, createDefaultDeedGraph } from "../data/item-deed.mjs";
 import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { GraphEditor } from "../components/graph-editor/graph-editor.mjs";
 import { GraphPropertiesPanel } from "../components/graph-editor/graph-properties-panel.mjs";
@@ -91,6 +91,20 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
    * @protected
    */
   _previousWidth = null;
+
+  /**
+   * Flag indicating if the user has manually resized the window during this session.
+   * @type {boolean}
+   * @protected
+   */
+  _hasManuallyResized = false;
+
+  /**
+   * Guard flag to distinguish internal auto-resizing from user manual resizing.
+   * @type {boolean}
+   * @protected
+   */
+  _isAutoResizing = false;
 
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "deed", "item-sheet"],
@@ -233,6 +247,23 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
       input.addEventListener("focus", (ev) => ev.currentTarget.select());
     }
 
+    // Track manual resizing via resize handle
+    const resizeHandle = this.element.querySelector(".window-resize-handle");
+    if (resizeHandle && !resizeHandle._deedResizeBound) {
+      resizeHandle._deedResizeBound = true;
+      resizeHandle.addEventListener("pointerdown", () => {
+        const startW = this.position.width;
+        const startH = this.position.height;
+        const onPointerUp = () => {
+          window.removeEventListener("pointerup", onPointerUp);
+          if (this.position.width !== startW || this.position.height !== startH) {
+            this._hasManuallyResized = true;
+          }
+        };
+        window.addEventListener("pointerup", onPointerUp);
+      });
+    }
+
     // Mount or refresh GraphEditor and GraphPropertiesPanel when Behaviors tab is active
     const isBehaviorsTab = this.tabGroups.primary === "behaviors";
     const graphContainer = this.element.querySelector(".deed-graph-container");
@@ -283,8 +314,16 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
         readOnly: !this.isEditable
       });
 
-      const nodes = this.document.system.graph?.nodes || [];
-      const connections = this.document.system.graph?.connections || [];
+      let nodes = this.document.system.graph?.nodes || [];
+      let connections = this.document.system.graph?.connections || [];
+      if (nodes.length === 0 && this.isEditable) {
+        const defaultGraph = createDefaultDeedGraph();
+        this.document.update({ "system.graph": defaultGraph }).catch(err => {
+          console.error("Trespasser | Failed to initialize default deed graph:", err);
+        });
+        nodes = defaultGraph.nodes;
+        connections = defaultGraph.connections;
+      }
       this.graphEditor.setGraph(nodes, connections);
 
       if (savedState?.selectedNodeId) {
@@ -317,7 +356,22 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
   }
 
   /** @override */
+  setPosition(position = {}) {
+    if (!this._isAutoResizing && this.rendered) {
+      if (position.width !== undefined && this.position.width !== undefined) {
+        if (Math.round(position.width) !== Math.round(this.position.width)) {
+          this._hasManuallyResized = true;
+        }
+      }
+    }
+    return super.setPosition(position);
+  }
+
+  /** @override */
   _onClose(options) {
+    this._hasManuallyResized = false;
+    this._isAutoResizing = false;
+    this._previousWidth = null;
     if (this.propertiesPanel) {
       this.propertiesPanel.destroy();
       this.propertiesPanel = null;
@@ -336,30 +390,18 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
       this._graphViewportState = this.graphEditor.getViewportState();
       formData.object["flags.trespasser.graphViewport"] = this._graphViewportState;
 
-      const graph = this.graphEditor.getGraph();
-      const nodeKeys = [];
-
-      for (const [key, value] of Object.entries(formData.object)) {
-        const match = key.match(/^system\.graph\.nodes\.(\d+)\.(.+)$/);
-        if (match) {
-          const nodeIdx = parseInt(match[1]);
-          const propPath = match[2];
-          if (graph.nodes[nodeIdx]) {
-            foundry.utils.setProperty(graph.nodes[nodeIdx], propPath, value);
-          }
-          nodeKeys.push(key);
+      // Remove any raw node keys from formData.object so they don't corrupt the graph
+      for (const key of Object.keys(formData.object)) {
+        if (key.startsWith("system.graph.nodes.")) {
+          delete formData.object[key];
         }
       }
-
-      for (const key of nodeKeys) {
-        delete formData.object[key];
-      }
-
       if (formData.object.system?.graph?.nodes) {
         delete formData.object.system.graph.nodes;
       }
 
-      formData.object["system.graph"] = graph;
+      // Live graph from editor is the single source of truth
+      formData.object["system.graph"] = this.graphEditor.getGraph();
       formData.object["system.graphVersion"] = 1;
     }
     await this.document.update(formData.object);
@@ -388,14 +430,26 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
 
       this.tabGroups.primary = tab;
 
-      // Auto-resize window width when switching to/from behaviors tab
-      if (tab === "behaviors" && prevTab !== "behaviors") {
-        this._previousWidth = this.position.width || 620;
-        const targetWidth = Math.max(950, this._previousWidth);
-        this.setPosition({ width: targetWidth });
-      } else if (prevTab === "behaviors" && tab !== "behaviors") {
-        const targetWidth = this._previousWidth || 620;
-        this.setPosition({ width: targetWidth });
+      // Auto-resize window width when switching to/from behaviors tab if user has not manually resized
+      if (!this._hasManuallyResized) {
+        if (tab === "behaviors" && prevTab !== "behaviors") {
+          this._previousWidth = this.position.width || 620;
+          const targetWidth = Math.max(950, this._previousWidth);
+          this._isAutoResizing = true;
+          try {
+            this.setPosition({ width: targetWidth });
+          } finally {
+            this._isAutoResizing = false;
+          }
+        } else if (prevTab === "behaviors" && tab !== "behaviors") {
+          const targetWidth = this._previousWidth || 620;
+          this._isAutoResizing = true;
+          try {
+            this.setPosition({ width: targetWidth });
+          } finally {
+            this._isAutoResizing = false;
+          }
+        }
       }
 
       this.render();

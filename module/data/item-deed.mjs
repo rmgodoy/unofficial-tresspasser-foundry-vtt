@@ -1,5 +1,6 @@
 import { convertOldDeedSystem, migrateToGraph } from "../helpers/migration-deed.mjs";
 import { PHASE_KEYS } from "./node-port-config.mjs";
+import { getEffectiveDeedAttributes } from "../helpers/deed-behaviors/roll-accuracy.mjs";
 /**
  * Data model for the Trespasser TTRPG Deed item type (Behavior-Driven Deed).
  */
@@ -105,8 +106,8 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
               choices: BEHAVIOR_TYPES
             }),
             phase: new fields.StringField({
-              initial: "base",
-              choices: PHASE_KEYS
+              initial: "inherit",
+              choices: [...PHASE_KEYS, "inherit"]
             }),
             params: new fields.ObjectField({ initial: {} }),
             x: new fields.NumberField({ initial: 0 }),
@@ -146,6 +147,41 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
     super.prepareBaseData();
     if (this.graph) {
       _sanitizeEffectsInGraph(this.graph);
+    }
+  }
+
+  /**
+   * Effective action type, taking into account any rollAccuracy node override.
+   * @type {string}
+   */
+  get effectiveActionType() {
+    return getEffectiveDeedAttributes(this).actionType;
+  }
+
+  /**
+   * Effective ability type, taking into account any rollAccuracy node override.
+   * @type {string}
+   */
+  get effectiveAbilityType() {
+    return getEffectiveDeedAttributes(this).abilityType;
+  }
+
+  /**
+   * Effective versus defense, taking into account any rollAccuracy node override.
+   * @type {string}
+   */
+  get effectiveVersus() {
+    return getEffectiveDeedAttributes(this).versus;
+  }
+
+  /** @override */
+  async _preCreate(data, options, user) {
+    if ((await super._preCreate(data, options, user)) === false) return false;
+
+    const existingNodes = data.system?.graph?.nodes ?? this.graph?.nodes;
+    if (!existingNodes || existingNodes.length === 0) {
+      const defaultGraph = createDefaultDeedGraph();
+      this.parent.updateSource({ "system.graph": defaultGraph });
     }
   }
 
@@ -203,5 +239,108 @@ function _sanitizeEffectsInGraph(graph) {
       }
     }
   }
+}
+
+/**
+ * Creates the default behavior graph structure for new Deeds:
+ * start -> selectTarget -> rollAccuracy -> (onHit) applyDamage
+ *                                       -> (onSpark) applyEffects
+ * @returns {{ nodes: Array<object>, connections: Array<object> }}
+ */
+export function createDefaultDeedGraph() {
+  const startId = foundry.utils.randomID();
+  const selectTargetId = foundry.utils.randomID();
+  const rollAccuracyId = foundry.utils.randomID();
+  const applyDamageId = foundry.utils.randomID();
+  const applyEffectsId = foundry.utils.randomID();
+
+  return {
+    nodes: [
+      {
+        id: startId,
+        type: "start",
+        phase: "start",
+        params: {},
+        x: 60,
+        y: 180
+      },
+      {
+        id: selectTargetId,
+        type: "selectTarget",
+        phase: "inherit",
+        params: {
+          targetMode: "creatures",
+          disposition: "any",
+          targetCount: 1
+        },
+        x: 340,
+        y: 180
+      },
+      {
+        id: rollAccuracyId,
+        type: "rollAccuracy",
+        phase: "base",
+        params: {
+          branchingMode: "hitThenSpark"
+        },
+        x: 620,
+        y: 180
+      },
+      {
+        id: applyDamageId,
+        type: "applyDamage",
+        phase: "hit",
+        params: {
+          expression: ""
+        },
+        x: 900,
+        y: 100
+      },
+      {
+        id: applyEffectsId,
+        type: "applyEffects",
+        phase: "spark",
+        params: {
+          effects: []
+        },
+        x: 900,
+        y: 260
+      }
+    ],
+    connections: [
+      {
+        id: foundry.utils.randomID(),
+        sourceId: startId,
+        sourcePort: "out",
+        targetId: selectTargetId,
+        targetPort: "in",
+        type: "flow"
+      },
+      {
+        id: foundry.utils.randomID(),
+        sourceId: selectTargetId,
+        sourcePort: "out",
+        targetId: rollAccuracyId,
+        targetPort: "in",
+        type: "flow"
+      },
+      {
+        id: foundry.utils.randomID(),
+        sourceId: rollAccuracyId,
+        sourcePort: "onHit",
+        targetId: applyDamageId,
+        targetPort: "in",
+        type: "flow"
+      },
+      {
+        id: foundry.utils.randomID(),
+        sourceId: rollAccuracyId,
+        sourcePort: "onSpark",
+        targetId: applyEffectsId,
+        targetPort: "in",
+        type: "flow"
+      }
+    ]
+  };
 }
 

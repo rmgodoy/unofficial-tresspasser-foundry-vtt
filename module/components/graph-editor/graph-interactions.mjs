@@ -94,6 +94,9 @@ export function startNoodleDrag(editor, e, portEl) {
     const connIdx = editor.connections.findIndex(c => c.targetId === nodeId && c.targetPort === portName);
     if (connIdx !== -1) {
       const removed = editor.connections.splice(connIdx, 1)[0];
+      if (isReferencePort(removed.targetPort) || removed.type === "reference") {
+        removeReferenceConnection(editor, removed.targetId, removed.targetPort);
+      }
       editor._renderConnections();
       editor._notifyChange();
 
@@ -143,4 +146,86 @@ export function startNoodleDrag(editor, e, portEl) {
 
   window.addEventListener("pointermove", onMove);
   window.addEventListener("pointerup", onUp);
+}
+
+/**
+ * Applies parameter updates and auto-switches modes when a reference connection is added.
+ * @param {import("./graph-editor.mjs").GraphEditor} editor
+ * @param {string} sourceId
+ * @param {string} targetId
+ * @param {string} targetPort
+ */
+export function applyReferenceConnection(editor, sourceId, targetId, targetPort) {
+  const targetNode = editor.nodeMap.get(targetId);
+  if (!targetNode) return;
+  targetNode.data.params = targetNode.data.params || {};
+
+  if (targetPort === "rollRef") {
+    targetNode.data.params.rollBehaviorId = sourceId;
+  } else if (targetPort === "areaRef") {
+    targetNode.data.params.areaBehaviorId = sourceId;
+    if (targetNode.data.type === "selectTarget") {
+      targetNode.data.params.targetMode = "area";
+    } else if (targetNode.data.type === "moveSource") {
+      targetNode.data.params.destinationMode = "selectedArea";
+    } else if (targetNode.data.type === "spawnTerrain") {
+      targetNode.data.params.placement = "selected_area";
+    }
+  } else if (targetPort === "terrainRef") {
+    targetNode.data.params.terrainBehaviorId = sourceId;
+  }
+
+  targetNode.updateSummary();
+  if (editor.selectedNodeId === targetId && typeof editor.options.onNodeSelect === "function") {
+    editor.options.onNodeSelect(targetNode.data);
+  }
+}
+
+/**
+ * Clears parameter updates when a reference connection is removed.
+ * @param {import("./graph-editor.mjs").GraphEditor} editor
+ * @param {string} targetId
+ * @param {string} targetPort
+ */
+export function removeReferenceConnection(editor, targetId, targetPort) {
+  const targetNode = editor.nodeMap.get(targetId);
+  if (!targetNode) return;
+  targetNode.data.params = targetNode.data.params || {};
+
+  if (targetPort === "rollRef") {
+    targetNode.data.params.rollBehaviorId = "";
+  } else if (targetPort === "areaRef") {
+    targetNode.data.params.areaBehaviorId = "";
+    if (targetNode.data.type === "selectTarget" && targetNode.data.params.targetMode === "area") {
+      targetNode.data.params.targetMode = "creatures";
+    } else if (targetNode.data.type === "moveSource" && targetNode.data.params.destinationMode === "selectedArea") {
+      targetNode.data.params.destinationMode = "distance";
+    } else if (targetNode.data.type === "spawnTerrain" && targetNode.data.params.placement === "selected_area") {
+      targetNode.data.params.placement = "on_target";
+    }
+  } else if (targetPort === "terrainRef") {
+    targetNode.data.params.terrainBehaviorId = "";
+  }
+
+  targetNode.updateSummary();
+  if (editor.selectedNodeId === targetId && typeof editor.options.onNodeSelect === "function") {
+    editor.options.onNodeSelect(targetNode.data);
+  }
+}
+
+/**
+ * Generates localized HTML tooltip for graph keyboard shortcuts and controls.
+ * @returns {string}
+ */
+export function getShortcutsTooltipHtml() {
+  const t = (k, fb) => game.i18n.localize(`TRESPASSER.Sheet.Deed.Graph.${k}`) || fb;
+  return `<div class="graph-shortcuts-tooltip"><strong>${t("ShortcutsTitle", "Shortcuts & Controls")}</strong><ul>` +
+    `<li>• ${t("ShortcutPan", "Pan: Drag canvas")}</li>` +
+    `<li>• ${t("ShortcutZoom", "Zoom: Mouse wheel")}</li>` +
+    `<li>• ${t("ShortcutAddNode", "Add Node: Right-click")}</li>` +
+    `<li>• ${t("ShortcutMoveNode", "Move: Drag node header")}</li>` +
+    `<li>• ${t("ShortcutConnect", "Connect: Drag port to port")}</li>` +
+    `<li>• ${t("ShortcutDisconnect", "Disconnect: Drag port away")}</li>` +
+    `<li>• ${t("ShortcutSelect", "Select: Click node")}</li>` +
+    `<li>• ${t("ShortcutDelete", "Delete: Del / Backspace")}</li></ul></div>`;
 }

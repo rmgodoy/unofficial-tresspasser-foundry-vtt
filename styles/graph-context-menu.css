@@ -1,0 +1,156 @@
+/* ═══════════════════════════════════════════════════
+   GRAPH CONTEXT MENU & SUBMENUS
+   ═══════════════════════════════════════════════════ */
+
+.graph-context-menu {
+  position: fixed;
+  z-index: 10000;
+  background: var(--trp-bg-panel, #23201c);
+  border: 1px solid var(--trp-gold-dim, #a88840);
+  border-radius: var(--trp-radius, 4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  min-width: 190px;
+  padding: 4px 0;
+  user-select: none;
+}
+
+.graph-context-menu .context-menu-title {
+  padding: 6px 12px;
+  font-family: var(--trp-font-header, 'Cinzel', serif);
+  font-size: var(--fs-12);
+  font-weight: 700;
+  color: var(--trp-gold-bright, #e8c96b);
+  border-bottom: 1px solid var(--trp-border, #4a3f2f);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.graph-context-menu .context-menu-title i {
+  color: var(--trp-gold, #c9a84c);
+  font-size: var(--fs-11);
+}
+
+.graph-context-menu .context-menu-list {
+  display: flex;
+  flex-direction: column;
+  padding: 2px 0;
+}
+
+.graph-context-menu .context-menu-category-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 12px;
+  font-size: var(--fs-12);
+  color: var(--trp-text, #ddd0aa);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.graph-context-menu .context-menu-category-item:hover,
+.graph-context-menu .context-menu-category-item.active {
+  background: var(--trp-bg-select, #3a3228);
+  color: var(--trp-gold-bright, #e8c96b);
+}
+
+.graph-context-menu .category-item-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.graph-context-menu .category-item-label i {
+  width: 16px;
+  text-align: center;
+  color: var(--trp-gold, #c9a84c);
+  font-size: var(--fs-11);
+}
+
+.graph-context-menu .category-arrow {
+  font-size: var(--fs-9);
+  color: var(--trp-text-dim, #a09070);
+  margin-left: 12px;
+  transition: transform 0.12s ease, color 0.12s ease;
+}
+
+.graph-context-menu .context-menu-category-item:hover .category-arrow,
+.graph-context-menu .context-menu-category-item.active .category-arrow {
+  color: var(--trp-gold-bright, #e8c96b);
+  transform: translateX(2px);
+}
+
+/* Submenu Flyout */
+.graph-context-menu .context-submenu {
+  display: none;
+  position: absolute;
+  left: 100%;
+  top: -4px;
+  z-index: 10001;
+  background: var(--trp-bg-panel, #23201c);
+  border: 1px solid var(--trp-gold-dim, #a88840);
+  border-radius: var(--trp-radius, 4px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.7);
+  min-width: 210px;
+  padding: 4px 0;
+  margin-left: 0;
+}
+
+/* Invisible bridge extending into parent item so mouse never loses hover */
+.graph-context-menu .context-submenu::before {
+  content: "";
+  position: absolute;
+  top: -10px;
+  bottom: -10px;
+  left: -12px;
+  width: 16px;
+}
+
+.graph-context-menu .context-menu-category-item:hover > .context-submenu,
+.graph-context-menu .context-submenu.visible {
+  display: block;
+}
+
+.graph-context-menu .context-submenu.flyout-left {
+  left: auto;
+  right: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+.graph-context-menu .context-submenu.flyout-left::before {
+  left: auto;
+  right: -12px;
+  width: 16px;
+}
+
+.graph-context-menu .context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: var(--fs-12);
+  color: var(--trp-text, #ddd0aa);
+  cursor: pointer;
+  transition: background 0.12s ease, color 0.12s ease;
+  white-space: nowrap;
+}
+
+.graph-context-menu .context-menu-item:hover {
+  background: var(--trp-bg-select, #3a3228);
+  color: var(--trp-gold-bright, #e8c96b);
+}
+
+.graph-context-menu .context-menu-item .item-icon {
+  width: 16px;
+  text-align: center;
+  color: var(--trp-gold-dim, #a88840);
+  font-size: var(--fs-11);
+}
+
+.graph-context-menu .context-menu-item:hover .item-icon {
+  color: var(--trp-gold-bright, #e8c96b);
+}

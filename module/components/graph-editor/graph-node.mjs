@@ -53,16 +53,19 @@ export class GraphNode {
     // Header
     const iconClass = BEHAVIOR_ICONS[node.type] || "fa-cube";
     const typeLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Behavior.Type.${node.type}`) || node.type;
-    const phaseLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${(node.phase || "base").charAt(0).toUpperCase() + (node.phase || "base").slice(1)}`);
+    const phaseKey = node.phase || (node.type === "start" ? "start" : "inherit");
+    const phaseLabel = phaseKey === "inherit"
+      ? (game.i18n.localize("TRESPASSER.Sheet.Deed.Phase.Inherit") || "Inherit")
+      : (game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)}`));
 
     const header = document.createElement("div");
-    header.className = `graph-node-header phase-bg-${node.phase || "base"}`;
+    header.className = `graph-node-header phase-bg-${phaseKey}`;
     header.innerHTML = `
       <div class="node-title">
         <i class="fas ${iconClass}"></i>
         <span class="title-text" title="${typeLabel}">${typeLabel}</span>
       </div>
-      <span class="node-phase-badge phase-badge-${node.phase || "base"}">${phaseLabel}</span>
+      <span class="node-phase-badge phase-badge-${phaseKey}">${phaseLabel}</span>
     `;
 
     // Node body
@@ -108,6 +111,7 @@ export class GraphNode {
     el.appendChild(body);
 
     this.element = el;
+    this.updatePortBadges();
     return el;
   }
 
@@ -192,23 +196,109 @@ export class GraphNode {
         return `<span class="summary-tag">${tag}</span>`;
       }
       case "rollAccuracy": {
-        const tag = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Branching") || "Branching";
+        const parts = [];
+        if (params.actionType) {
+          const actKey = params.actionType.charAt(0).toUpperCase() + params.actionType.slice(1);
+          parts.push(game.i18n.localize(`TRESPASSER.Sheet.Item.Details.ActionTypeChoices.${actKey}`) || params.actionType);
+        }
+        if (params.abilityType) {
+          const abKey = params.abilityType.charAt(0).toUpperCase() + params.abilityType.slice(1);
+          parts.push(game.i18n.localize(`TRESPASSER.Sheet.Item.Details.TypeChoices.${abKey}`) || params.abilityType);
+        }
+        if (params.versus) {
+          const vsLabel = params.versus === "10" ? "10" : (game.i18n.localize(`TRESPASSER.Sheet.Combat.${params.versus}`) || params.versus);
+          parts.push(`vs ${vsLabel}`);
+        }
+        if (params.branchingMode === "hitOrSpark") {
+          parts.push(game.i18n.localize("TRESPASSER.Sheet.Deed.Params.HitOrSparkTag") || "Hit/Spark");
+        }
+        const tag = parts.length > 0
+          ? parts.join(" · ")
+          : (game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Branching") || "Branching");
         return `<span class="summary-tag">${tag}</span>`;
       }
       case "applyDamage":
       case "healTarget":
-      case "roll":
-        return params.expression ? `<span class="summary-formula">${params.expression}</span>` : `<span class="summary-muted">—</span>`;
-      case "selectTarget":
-        return `<span class="summary-tag">${params.targetMode || "creatures"} (${params.targetCount || 1})</span>`;
-      case "selectArea":
-        return `<span class="summary-tag">${params.aoeType || "blast"} ${params.aoeSize || 1}</span>`;
+      case "roll": {
+        const ref = this.getIncomingReference("rollRef");
+        const refExpr = ref?.sourceNode?.params?.expression?.trim();
+        const expr = params.expression?.trim();
+
+        if (ref?.sourceId) {
+          const displayRef = refExpr ? `(${refExpr})` : `(#${ref.sourceId.slice(0, 6)})`;
+          if (!expr) return `<span class="summary-ref-val">${displayRef}</span>`;
+          if (/^[\/*+-]/.test(expr)) {
+            return `<span class="summary-ref-val">${displayRef}</span> <span class="summary-formula">${expr}</span>`;
+          }
+          if (/@roll/i.test(expr)) {
+            const replaced = expr.replace(/@roll/gi, `<span class="summary-ref-val">${displayRef}</span>`);
+            return `<span class="summary-formula">${replaced}</span>`;
+          }
+          return `<span class="summary-ref-val">${displayRef} +</span> <span class="summary-formula">${expr}</span>`;
+        }
+        return expr ? `<span class="summary-formula">${expr}</span>` : `<span class="summary-muted">—</span>`;
+      }
+      case "selectTarget": {
+        if (params.targetMode === "area") {
+          const ref = this.getIncomingReference("areaRef");
+          const areaTag = formatAreaSummary(ref?.sourceNode);
+          const rel = params.areaRelation || "inside";
+          return areaTag
+            ? `<span class="summary-tag">${rel} <span class="summary-ref-val">(${areaTag})</span></span>`
+            : `<span class="summary-tag">area</span>`;
+        }
+        if (params.targetMode === "self") {
+          const selfLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Personal") || "self";
+          return `<span class="summary-tag">${selfLabel}</span>`;
+        }
+        if (params.targetMode === "aoe") {
+          return `<span class="summary-tag">${params.aoeType || "blast"} ${params.aoeSize || 1}</span>`;
+        }
+        const count = params.targetCount || 1;
+        const tgtLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Targets") || "targets";
+        return `<span class="summary-tag">${count} ${tgtLabel}</span>`;
+      }
+      case "moveSource": {
+        if (params.destinationMode === "selectedArea") {
+          const ref = this.getIncomingReference("areaRef");
+          const areaTag = formatAreaSummary(ref?.sourceNode);
+          return areaTag
+            ? `<span class="summary-tag">move &rarr; <span class="summary-ref-val">(${areaTag})</span></span>`
+            : `<span class="summary-tag">move &rarr; area</span>`;
+        }
+        return `<span class="summary-tag">${params.movementType || "walk"} ${params.distance || 1} sq</span>`;
+      }
+      case "spawnTerrain": {
+        const name = params.terrainName || "";
+        if (params.placement === "selected_area") {
+          const ref = this.getIncomingReference("areaRef");
+          const areaTag = formatAreaSummary(ref?.sourceNode);
+          return name
+            ? `<span class="summary-tag">${name} <span class="summary-ref-val">(${areaTag || "area"})</span></span>`
+            : `<span class="summary-muted">—</span>`;
+        }
+        return name ? `<span class="summary-tag">${name}</span>` : `<span class="summary-muted">—</span>`;
+      }
+      case "moveTerrain": {
+        const ref = this.getIncomingReference("terrainRef");
+        const terrainName = ref?.sourceNode?.params?.terrainName || "";
+        const dist = params.distance || 1;
+        return terrainName
+          ? `<span class="summary-tag">move <span class="summary-ref-val">(${terrainName})</span> ${dist} sq</span>`
+          : `<span class="summary-tag">move terrain ${dist} sq</span>`;
+      }
+      case "selectArea": {
+        if (params.targetMode === "aoe") {
+          return `<span class="summary-tag">${params.aoeType || "blast"} ${params.aoeSize || 1}</span>`;
+        }
+        const count = params.targetCount || 1;
+        const sqLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Squares") || "sq";
+        return `<span class="summary-tag">${count} ${sqLabel}</span>`;
+      }
       case "applyEffects": {
         const effLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Effects") || "effects";
         return params.effects?.length ? `<span class="summary-tag">${params.effects.length} ${effLabel}</span>` : `<span class="summary-muted">—</span>`;
       }
-      case "spawnTerrain":
-        return params.terrainName ? `<span class="summary-tag">${params.terrainName}</span>` : `<span class="summary-muted">—</span>`;
       default:
         return "";
     }
@@ -284,7 +374,7 @@ export class GraphNode {
    */
   setPhase(newPhase) {
     if (!newPhase) return;
-    const oldPhase = this.data.phase || "base";
+    const oldPhase = this.data.phase || (this.data.type === "start" ? "start" : "inherit");
     this.data.phase = newPhase;
 
     if (this.element) {
@@ -300,7 +390,9 @@ export class GraphNode {
       const badge = this.element.querySelector(".node-phase-badge");
       if (badge) {
         badge.className = `node-phase-badge phase-badge-${newPhase}`;
-        const phaseLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${newPhase.charAt(0).toUpperCase() + newPhase.slice(1)}`) || newPhase;
+        const phaseLabel = newPhase === "inherit"
+          ? (game.i18n.localize("TRESPASSER.Sheet.Deed.Phase.Inherit") || "Inherit")
+          : (game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${newPhase.charAt(0).toUpperCase() + newPhase.slice(1)}`) || newPhase);
         badge.textContent = phaseLabel;
       }
     }
@@ -316,7 +408,65 @@ export class GraphNode {
   }
 
   /**
-   * Refreshes the center summary label in the node card.
+   * Resolves the incoming reference connection for a given reference port name.
+   * @param {string} portName
+   * @returns {{ sourceId: string, sourceNode: object|null }|null}
+   */
+  getIncomingReference(portName) {
+    const editor = this.options.editor;
+    let sourceId = "";
+    if (editor) {
+      const conn = editor.connections?.find(c => c.targetId === this.data.id && c.targetPort === portName);
+      if (conn) sourceId = conn.sourceId;
+    }
+    if (!sourceId) {
+      const p = this.data.params || {};
+      if (portName === "rollRef") sourceId = p.rollBehaviorId;
+      else if (portName === "areaRef") sourceId = p.areaBehaviorId;
+      else if (portName === "terrainRef") sourceId = p.terrainBehaviorId;
+    }
+    if (!sourceId) return null;
+
+    let sourceNode = null;
+    if (editor?.nodeMap?.has(sourceId)) {
+      sourceNode = editor.nodeMap.get(sourceId).data;
+    } else if (editor) {
+      sourceNode = editor.getGraph()?.nodes?.find(n => n.id === sourceId)
+        || editor._rawNodesData?.find(n => n.id === sourceId) || null;
+    }
+    return { sourceId, sourceNode };
+  }
+
+  /**
+   * Refreshes reference ID badges on reference input ports.
+   */
+  updatePortBadges() {
+    if (!this.element) return;
+    const refRows = this.element.querySelectorAll(".port-row-ref");
+    for (const row of refRows) {
+      const pin = row.querySelector(".graph-port");
+      const portName = pin?.dataset.portName;
+      if (!portName) continue;
+
+      let badge = row.querySelector(".port-ref-badge");
+      const ref = this.getIncomingReference(portName);
+
+      if (ref?.sourceId) {
+        if (!badge) {
+          badge = document.createElement("span");
+          badge.className = "port-ref-badge";
+          row.appendChild(badge);
+        }
+        badge.textContent = `#${ref.sourceId.slice(0, 6)}`;
+        badge.title = game.i18n.format("TRESPASSER.Sheet.Deed.Graph.ReferencedSource", { id: ref.sourceId }) || `Linked: #${ref.sourceId}`;
+      } else if (badge) {
+        badge.remove();
+      }
+    }
+  }
+
+  /**
+   * Refreshes the center summary label in the node card and port badges.
    */
   updateSummary() {
     if (!this.element) return;
@@ -324,5 +474,20 @@ export class GraphNode {
     if (summaryEl) {
       summaryEl.innerHTML = this._getNodeSummary(this.data);
     }
+    this.updatePortBadges();
   }
+}
+
+/** Formats a short human-readable tag for an area node. */
+export function formatAreaSummary(node) {
+  if (!node) return "";
+  const p = node.params || {};
+  if (p.targetMode === "squares") {
+    const count = p.targetCount || 1;
+    const sq = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Squares") || "sq";
+    return `${count} ${sq}`;
+  }
+  if (p.aoeType) return `${p.aoeType} ${p.aoeSize || 1}`;
+  if (p.targetMode === "aoe") return `blast ${p.aoeSize || 1}`;
+  return p.targetMode || "area";
 }

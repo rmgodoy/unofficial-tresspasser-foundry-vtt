@@ -2,7 +2,7 @@
  * graph-properties-panel.mjs
  * Right-side docked properties panel component for editing node phase and parameters.
  */
-import { BEHAVIOR_ICONS } from "./graph-node.mjs";
+import { BEHAVIOR_ICONS, formatAreaSummary } from "./graph-node.mjs";
 
 export class GraphPropertiesPanel {
   /**
@@ -77,17 +77,21 @@ export class GraphPropertiesPanel {
       // Node Info Card
       const typeLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Behavior.Type.${node.type}`) || node.type;
       const iconClass = BEHAVIOR_ICONS[node.type] || "fa-cube";
-      const phaseKeys = ["start", "before", "base", "hit", "spark", "after", "end"];
+      const phaseKeys = node.type === "start"
+        ? ["start"]
+        : ["inherit", "start", "before", "base", "hit", "spark", "after", "end"];
 
       const phaseOptionsHtml = phaseKeys.map(key => {
-        const selected = (node.phase || "base") === key ? "selected" : "";
-        const label = game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${key.charAt(0).toUpperCase() + key.slice(1)}`);
+        const selected = (node.phase || "inherit") === key ? "selected" : "";
+        const label = key === "inherit"
+          ? (game.i18n.localize("TRESPASSER.Sheet.Deed.Phase.Inherit") || "Inherit")
+          : game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${key.charAt(0).toUpperCase() + key.slice(1)}`);
         return `<option value="${key}" ${selected}>${label}</option>`;
       }).join("");
 
       const copyTitle = game.i18n.format("TRESPASSER.Sheet.Deed.Graph.CopyNodeId", { id: node.id }) || `Copy Node ID: ${node.id}`;
       const nodeCard = document.createElement("div");
-      nodeCard.className = `properties-node-card phase-border-${node.phase || "base"}`;
+      nodeCard.className = `properties-node-card phase-border-${node.phase || "inherit"}`;
       nodeCard.innerHTML = `
         <div class="node-card-header">
           <div class="node-card-title">
@@ -95,7 +99,7 @@ export class GraphPropertiesPanel {
             <span>${typeLabel}</span>
           </div>
           <button type="button" class="btn-copy-id" title="${copyTitle}" data-node-id="${node.id}">
-            <i class="fas fa-fingerprint"></i> #${node.id.slice(0, 6)}
+            <i class="fas fa-copy"></i> #${node.id.slice(0, 6)}
           </button>
         </div>
         <div class="node-card-fields">
@@ -114,13 +118,49 @@ export class GraphPropertiesPanel {
       paramsContainer.className = "properties-param-section";
 
       try {
+        const item = this.sheet?.document;
+        const defaultActionType = item?.system?.actionType || "attack";
+        const defaultAbilityType = item?.system?.abilityType || "innate";
+        const defaultVersus = item?.system?.versus || "Guard";
+        const actKey = defaultActionType ? defaultActionType.charAt(0).toUpperCase() + defaultActionType.slice(1) : "";
+        const defaultActionTypeLabel = game.i18n.localize(`TRESPASSER.Sheet.Item.Details.ActionTypeChoices.${actKey}`) || defaultActionType;
+        const abKey = defaultAbilityType ? defaultAbilityType.charAt(0).toUpperCase() + defaultAbilityType.slice(1) : "";
+        const defaultAbilityTypeLabel = game.i18n.localize(`TRESPASSER.Sheet.Item.Details.TypeChoices.${abKey}`) || defaultAbilityType;
+        const defaultVersusLabel = defaultVersus === "10" ? "10" : (game.i18n.localize(`TRESPASSER.Sheet.Combat.${defaultVersus}`) || defaultVersus);
+
+        // Reference Context resolution for node
+        const p = node.params || {};
+        const conns = this.editor?.connections || [];
+        const findRef = (port, fallback) => fallback || conns.find(c => c.targetId === node.id && c.targetPort === port)?.sourceId || "";
+        const refRollId = findRef("rollRef", p.rollBehaviorId);
+        const refAreaId = findRef("areaRef", p.areaBehaviorId);
+        const refTerrainId = findRef("terrainRef", p.terrainBehaviorId);
+        const getNode = id => id ? (this.editor?.nodeMap?.get(id)?.data || graph.nodes.find(n => n.id === id) || null) : null;
+        const refRollNode = getNode(refRollId);
+        const refRollExpr = refRollNode?.params?.expression?.trim() || "";
+        const refAreaSummary = formatAreaSummary(getNode(refAreaId));
+        const refTerrainName = getNode(refTerrainId)?.params?.terrainName || "";
+
+        const hasRefRoll = Boolean(refRollId);
+        const hasRefArea = Boolean(refAreaId);
+        const hasRefTerrain = Boolean(refTerrainId);
+        node.params = node.params || {};
+        if (hasRefArea) {
+          node.params.areaBehaviorId = refAreaId;
+          if (node.type === "selectTarget") node.params.targetMode = "area";
+          else if (node.type === "moveSource") node.params.destinationMode = "selectedArea";
+          else if (node.type === "spawnTerrain") node.params.placement = "selected_area";
+        }
+        if (hasRefRoll) node.params.rollBehaviorId = refRollId;
+        if (hasRefTerrain) node.params.terrainBehaviorId = refTerrainId;
+
         const renderFn = foundry.applications?.handlebars?.renderTemplate || globalThis.renderTemplate;
         const paramsHtml = await renderFn("systems/trespasser/templates/item/deed/behavior-params.hbs", {
-          type: node.type,
-          params: node.params || {},
-          id: node.id,
-          index: nodeIndex,
-          editable: !this.readOnly
+          type: node.type, params: node.params || {}, id: node.id, index: nodeIndex, editable: !this.readOnly,
+          defaultActionType, defaultAbilityType, defaultVersus, defaultActionTypeLabel, defaultAbilityTypeLabel, defaultVersusLabel,
+          refRollId, refRollIdShort: refRollId ? refRollId.slice(0, 6) : "", refRollExpr, hasRefRoll,
+          refAreaId, refAreaIdShort: refAreaId ? refAreaId.slice(0, 6) : "", refAreaSummary, hasRefArea,
+          refTerrainId, refTerrainIdShort: refTerrainId ? refTerrainId.slice(0, 6) : "", refTerrainName, hasRefTerrain
         });
         paramsContainer.innerHTML = paramsHtml;
       } catch (err) {
@@ -223,12 +263,12 @@ export class GraphPropertiesPanel {
         targetNode.params = foundry.utils.deepClone(targetNode.params || {});
         foundry.utils.setProperty(targetNode.params, propPath, val);
         if (this.editor) {
-          this.editor.updateNodeParams(this.currentNodeId, targetNode.params);
+          this.editor.updateNodeParams(this.currentNodeId, targetNode.params, { notify: false });
         }
       }
 
       // If this property triggers conditional UI branches, re-render the panel immediately
-      const conditionalProps = ["targetMode", "placement", "destinationMode", "chooseCreatures", "property", "aoeType"];
+      const conditionalProps = ["targetMode", "placement", "destinationMode", "chooseCreatures", "property", "aoeType", "dieRecovery", "hpRecovery"];
       if (conditionalProps.includes(propPath)) {
         await this.render();
       }
@@ -236,6 +276,22 @@ export class GraphPropertiesPanel {
       // Submit to document
       if (this.sheet?.isEditable) {
         await this.sheet.submit();
+      }
+    });
+
+    paramSection?.addEventListener("input", (e) => {
+      const target = e.target;
+      if (target.tagName !== "INPUT" || target.type === "checkbox") return;
+      const match = target.name?.match(/^system\.graph\.nodes\.(\d+)\.params\.(.+)$/);
+      if (!match) return;
+      const propPath = match[2];
+      const val = target.type === "number" ? (target.value === "" ? null : Number(target.value)) : target.value;
+      const graph = this.editor?.getGraph();
+      const targetNode = graph?.nodes?.find(n => n.id === this.currentNodeId);
+      if (targetNode && this.editor) {
+        targetNode.params = foundry.utils.deepClone(targetNode.params || {});
+        foundry.utils.setProperty(targetNode.params, propPath, val);
+        this.editor.updateNodeParams(this.currentNodeId, targetNode.params, { notify: false });
       }
     });
 

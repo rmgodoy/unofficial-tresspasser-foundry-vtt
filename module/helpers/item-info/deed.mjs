@@ -1,5 +1,6 @@
 import { esc } from "./utils.mjs";
 import { formatBDeedTarget } from "../deed-display-helper.mjs";
+import { getEffectiveDeedAttributes } from "../deed-behaviors/roll-accuracy.mjs";
 
 const DEED_PHASES = ["start", "before", "base", "hit", "spark", "after", "end"];
 
@@ -15,17 +16,18 @@ const PHASE_LABELS = {
 
 export function buildDeedContent(item) {
   const sys = item.system;
+  const effectiveAttrs = getEffectiveDeedAttributes(sys);
 
   // Subtitle: "TYPE ATTACK vs. ACCURACY | TARGET"
-  const typeRaw     = sys.abilityType || sys.type || "";
+  const typeRaw     = effectiveAttrs.abilityType || sys.type || "";
   const typeKey     = typeRaw ? typeRaw.charAt(0).toUpperCase() + typeRaw.slice(1) : "";
   const typeLabel   = typeKey ? (game.i18n.localize(`TRESPASSER.Sheet.Item.Details.TypeChoices.${typeKey}`) || typeRaw) : "";
 
-  const actionRaw   = sys.actionType || "";
+  const actionRaw   = effectiveAttrs.actionType || "";
   const actionKey   = actionRaw ? actionRaw.charAt(0).toUpperCase() + actionRaw.slice(1) : "";
   const actionLabel = actionKey ? (game.i18n.localize(`TRESPASSER.Sheet.Item.Details.ActionTypeChoices.${actionKey}`) || actionRaw) : "";
 
-  const versusRaw   = sys.versus || (sys.actionType === "support" ? "10" : (sys.accuracyTest || "Guard"));
+  const versusRaw   = effectiveAttrs.versus || (effectiveAttrs.actionType === "support" ? "10" : (sys.accuracyTest || "Guard"));
   const versusLabel = versusRaw === "10" ? "10" : (game.i18n.localize(`TRESPASSER.Sheet.Combat.${versusRaw}`) || versusRaw);
   const vsText      = game.i18n.localize("TRESPASSER.Sheet.Combat.Vs");
 

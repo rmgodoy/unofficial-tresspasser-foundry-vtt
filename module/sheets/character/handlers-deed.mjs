@@ -39,7 +39,7 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options =
 
   const activeWeapons = sheet?._getActiveWeapons ? sheet._getActiveWeapons() : [];
   const validWeaponDeedTypes = ["melee", "missile", "versatile", "innate"];
-  const isWeaponDeed = validWeaponDeedTypes.includes(item?.system?.abilityType || item?.system?.type);
+  const isWeaponDeed = validWeaponDeedTypes.includes(item?.system?.effectiveAbilityType || item?.system?.abilityType || item?.system?.type);
 
   if (pData.appliesWeaponEffects || (pData.damage && pData.damage.includes("<wd>")) || isWeaponDeed) {
     for (const weapon of activeWeapons) {

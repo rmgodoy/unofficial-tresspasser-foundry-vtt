@@ -13,24 +13,21 @@
 
 /* Behavior Parameter Editors (used in Properties Panel) */
 .param-row-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 8px;
-  align-items: stretch;
 }
 
 .param-row-grid > .field-row {
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  height: 100%;
+  width: 100%;
   border-bottom: none;
   padding-bottom: 0;
   gap: 4px;
 }
 
 .param-row-grid > .field-row > label {
-  margin-bottom: auto;
   align-self: flex-start;
   font-size: var(--fs-11);
   line-height: 1.2;
@@ -38,17 +35,15 @@
 
 .param-row-grid > .field-row > input,
 .param-row-grid > .field-row > select {
-  flex: 0 0 auto;
   width: 100%;
   box-sizing: border-box;
-  margin-top: auto;
 }
 
 .behavior-checkboxes-row {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
   margin-top: 8px;
 }
 
@@ -60,7 +55,6 @@
   margin: 0;
   padding: 0;
   border-bottom: none;
-  white-space: nowrap;
 }
 
 .behavior-checkboxes-row .field-row.checkbox-row input[type="checkbox"] {
@@ -74,7 +68,7 @@
   font-size: var(--fs-11);
   color: var(--trp-text, #ddd0aa);
   margin: 0;
-  white-space: nowrap;
+  line-height: 1.2;
 }
 
 .behavior-id-badge {
@@ -224,4 +218,78 @@
 .use-bdeed-btn:hover {
   background: var(--trp-gold-dim, #a88840);
   color: var(--trp-bg-dark, #1a1714);
+}
+
+/* Reference Linked Formula Input Group */
+.formula-input-group {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+}
+
+.formula-input-group.has-reference .formula-ref-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 8px;
+  background: rgba(79, 195, 247, 0.15);
+  border: 1px solid rgba(79, 195, 247, 0.4);
+  border-right: none;
+  border-top-left-radius: var(--trp-radius-sm, 2px);
+  border-bottom-left-radius: var(--trp-radius-sm, 2px);
+  color: var(--trp-cyan, #4fc3f7);
+  font-family: monospace;
+  font-size: var(--fs-12);
+  font-weight: 700;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.formula-input-group.has-reference input {
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  border-color: rgba(79, 195, 247, 0.4);
+  flex: 1;
+  min-width: 0;
+}
+
+/* Reference Link Chip in Properties Sidebar */
+.ref-chip-header {
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+}
+
+.ref-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(79, 195, 247, 0.14);
+  border: 1px solid var(--trp-cyan, #4fc3f7);
+  border-radius: var(--trp-radius-sm, 2px);
+  padding: 3px 8px;
+  color: var(--trp-cyan, #4fc3f7);
+  font-size: var(--fs-11);
+  font-family: monospace;
+  font-weight: 600;
+  user-select: none;
+  line-height: 1.3;
+}
+
+.ref-chip i {
+  font-size: var(--fs-10);
+  opacity: 0.9;
+}
+
+/* Locked Inputs & Selects driven by Graph Reference */
+.is-ref-locked,
+select.is-ref-locked,
+input.is-ref-locked {
+  background: rgba(79, 195, 247, 0.14) !important;
+  border: 1px solid var(--trp-cyan, #4fc3f7) !important;
+  color: var(--trp-cyan, #4fc3f7) !important;
+  -webkit-text-fill-color: var(--trp-cyan, #4fc3f7) !important;
+  cursor: not-allowed !important;
+  pointer-events: none;
+  opacity: 1 !important;
+  font-weight: 600;
 }

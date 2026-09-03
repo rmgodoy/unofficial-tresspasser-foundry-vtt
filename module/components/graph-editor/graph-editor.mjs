@@ -5,7 +5,7 @@
 import { GraphNode } from "./graph-node.mjs";
 import { renderConnectionPath } from "./graph-connection.mjs";
 import { GraphContextMenu } from "./graph-context-menu.mjs";
-import { startCanvasPan, startNodeDrag, startNoodleDrag } from "./graph-interactions.mjs";
+import { startCanvasPan, startNodeDrag, startNoodleDrag, applyReferenceConnection, removeReferenceConnection, getShortcutsTooltipHtml } from "./graph-interactions.mjs";
 
 export class GraphEditor {
   /**
@@ -67,7 +67,7 @@ export class GraphEditor {
       `<button type="button" class="btn-shortcuts" data-tooltip-direction="DOWN" aria-label="${shortcutsTitle}"><i class="fas fa-keyboard"></i></button>` +
       `</div><div class="toolbar-group"><span class="zoom-label">100%</span></div>`;
     const btnShortcuts = this.toolbar.querySelector(".btn-shortcuts");
-    if (btnShortcuts) btnShortcuts.dataset.tooltip = this._getShortcutsTooltipHtml();
+    if (btnShortcuts) btnShortcuts.dataset.tooltip = getShortcutsTooltipHtml();
 
     this.viewport = document.createElement("div");
     this.viewport.className = "graph-viewport";
@@ -96,24 +96,6 @@ export class GraphEditor {
   }
 
   /**
-   * Generates localized HTML tooltip for graph keyboard shortcuts and controls.
-   * @protected
-   * @returns {string}
-   */
-  _getShortcutsTooltipHtml() {
-    const t = (k, fb) => game.i18n.localize(`TRESPASSER.Sheet.Deed.Graph.${k}`) || fb;
-    return `<div class="graph-shortcuts-tooltip"><strong>${t("ShortcutsTitle", "Shortcuts & Controls")}</strong><ul>` +
-      `<li>• ${t("ShortcutPan", "Pan: Drag canvas")}</li>` +
-      `<li>• ${t("ShortcutZoom", "Zoom: Mouse wheel")}</li>` +
-      `<li>• ${t("ShortcutAddNode", "Add Node: Right-click")}</li>` +
-      `<li>• ${t("ShortcutMoveNode", "Move: Drag node header")}</li>` +
-      `<li>• ${t("ShortcutConnect", "Connect: Drag port to port")}</li>` +
-      `<li>• ${t("ShortcutDisconnect", "Disconnect: Drag port away")}</li>` +
-      `<li>• ${t("ShortcutSelect", "Select: Click node")}</li>` +
-      `<li>• ${t("ShortcutDelete", "Delete: Del / Backspace")}</li></ul></div>`;
-  }
-
-  /**
    * Loads graph data into the editor.
    * @param {Array<object>} nodesData
    * @param {Array<object>} connectionsData
@@ -121,6 +103,7 @@ export class GraphEditor {
   setGraph(nodesData = [], connectionsData = []) {
     this.nodesLayer.innerHTML = "";
     this.nodeMap.clear();
+    this._rawNodesData = nodesData;
 
     for (const data of nodesData) {
       const node = new GraphNode(data, { editor: this });
@@ -137,6 +120,10 @@ export class GraphEditor {
 
     if (this.selectedNodeId && this.nodeMap.has(this.selectedNodeId)) {
       this.nodeMap.get(this.selectedNodeId).setSelected(true);
+    }
+
+    for (const node of this.nodeMap.values()) {
+      node.updateSummary();
     }
 
     this._updateTransform();
@@ -223,7 +210,7 @@ export class GraphEditor {
     const nodeData = {
       id,
       type,
-      phase: "base",
+      phase: type === "start" ? "start" : "inherit",
       params: foundry.utils.deepClone(params),
       x: Math.round(x),
       y: Math.round(y)
@@ -249,6 +236,13 @@ export class GraphEditor {
     node.element?.remove();
     this.nodeMap.delete(nodeId);
 
+    // Clean up reference parameters for nodes referencing this deleted node
+    for (const c of this.connections) {
+      if (c.sourceId === nodeId && (c.type === "reference" || c.targetPort.endsWith("Ref"))) {
+        removeReferenceConnection(this, c.targetId, c.targetPort);
+      }
+    }
+
     // Remove connected edges
     this.connections = this.connections.filter(c => c.sourceId !== nodeId && c.targetId !== nodeId);
     this._renderConnections();
@@ -268,24 +262,50 @@ export class GraphEditor {
   }
 
   /** Updates a node's params and refreshes its card summary. */
-  updateNodeParams(nodeId, params) {
+  updateNodeParams(nodeId, params, { notify = true } = {}) {
     const node = this.nodeMap.get(nodeId);
     if (!node) return;
     node.setParams(params);
-    this._notifyChange();
+    for (const [id, other] of this.nodeMap.entries()) {
+      if (id !== nodeId && (
+        this.connections.some(c => c.sourceId === nodeId && c.targetId === id) ||
+        other.data.params?.rollBehaviorId === nodeId ||
+        other.data.params?.areaBehaviorId === nodeId ||
+        other.data.params?.terrainBehaviorId === nodeId
+      )) {
+        other.updateSummary();
+      }
+    }
+    if (notify) this._notifyChange();
   }
 
   /** Adds a connection between two ports. */
   addConnection(sourceId, sourcePort, targetId, targetPort, type = "flow") {
     if (sourceId === targetId) return;
 
-    const exists = this.connections.some(c =>
-      c.sourceId === sourceId && c.sourcePort === sourcePort &&
-      c.targetId === targetId && c.targetPort === targetPort
-    );
-    if (exists) return;
+    if (type === "reference" || targetPort.endsWith("Ref")) {
+      const oldIdx = this.connections.findIndex(c => c.targetId === targetId && c.targetPort === targetPort);
+      if (oldIdx !== -1) {
+        const old = this.connections.splice(oldIdx, 1)[0];
+        removeReferenceConnection(this, old.targetId, old.targetPort);
+      }
+    } else {
+      const exists = this.connections.some(c =>
+        c.sourceId === sourceId && c.sourcePort === sourcePort &&
+        c.targetId === targetId && c.targetPort === targetPort
+      );
+      if (exists) return;
+    }
 
     this.connections.push({ id: foundry.utils.randomID(), sourceId, sourcePort, targetId, targetPort, type });
+    if (type === "flow" && targetPort === "in") {
+      const targetNode = this.nodeMap.get(targetId);
+      if (targetNode && targetNode.data.type !== "start" && (!targetNode.data.phase || targetNode.data.phase === "base")) {
+        targetNode.setPhase("inherit");
+      }
+    } else if (type === "reference" || targetPort.endsWith("Ref")) {
+      applyReferenceConnection(this, sourceId, targetId, targetPort);
+    }
     this._renderConnections();
     this._notifyChange();
   }
