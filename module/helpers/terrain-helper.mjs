@@ -662,7 +662,10 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
       
       const sys = terrainData.system;
       // An actor-centered terrain should not affect the actor it is centered on
-      if (sys.centerMode === "actor" && sys.centerActorId === tokenDoc.actor?.id) return false;
+      if (sys.centerMode === "actor") {
+        const centerTokenId = r.flags?.trespasser?.centerTokenId;
+        if (centerTokenId ? centerTokenId === tokenDoc.id : sys.centerActorId === tokenDoc.actor?.id) return false;
+      }
 
       return TerrainHelper.isTokenInRegion(tokenDoc, r, gridSize);
     });
@@ -962,7 +965,9 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
     // If this token has an aura terrain attached, synchronize all tokens on the scene
     const auraRegions = scene.regions.filter(r => {
       const t = r.flags?.trespasser?.terrain;
-      return t?.system?.centerMode === "actor" && (t.system.centerActorId === actor.id || r.flags?.trespasser?.centerActorId === actor.id);
+      if (t?.system?.centerMode !== "actor") return false;
+      const centerTokenId = r.flags?.trespasser?.centerTokenId;
+      return centerTokenId ? centerTokenId === tokenDoc.id : (t.system.centerActorId === actor.id || r.flags?.trespasser?.centerActorId === actor.id);
     });
     if (auraRegions.length > 0) {
       for (const auraRegion of auraRegions) {
@@ -1005,6 +1010,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
    */
   static isRegionLinkedToEffect(region, effectItem) {
     if (!region || !effectItem) return false;
+    if (effectItem.flags?.trespasser?.whileInside) return false;
     const flags = region.flags?.trespasser;
     if (!flags) return false;
 
@@ -1058,7 +1064,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
    * @param {Item} effectItem 
    */
   static async onEffectDeleted(effectItem) {
-    if (!effectItem || !game.user.isGM) return;
+    if (!effectItem || !game.user.isGM || effectItem.flags?.trespasser?.whileInside) return;
     const scenes = game.scenes?.contents || [];
     for (const scene of scenes) {
       const regionsToDelete = scene.regions
@@ -1083,7 +1089,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
    * @param {object} [changes] 
    */
   static async onEffectIntensityUpdated(effectItem, changes = {}) {
-    if (!effectItem || effectItem.type !== "effect") return;
+    if (!effectItem || effectItem.type !== "effect" || effectItem.flags?.trespasser?.whileInside) return;
 
     const scenes = game.scenes?.contents || [];
     for (const scene of scenes) {
@@ -1111,7 +1117,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
     const scene = tokenDoc.parent || canvas.scene;
     if (!scene) return;
 
-    const lockKey = actor.id;
+    const lockKey = actor.uuid || (actor.isToken ? tokenDoc.id : actor.id);
     if (this._syncWhileInsideLocks.has(lockKey)) {
       this._pendingWhileInsideSync.add(lockKey);
       return;
@@ -1126,7 +1132,10 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
         const terrainData = region.flags?.trespasser?.terrain;
         if (!terrainData) continue;
         const sys = terrainData.system;
-        if (sys.centerMode === "actor" && sys.centerActorId === actor.id) continue;
+        const centerTokenId = region.flags?.trespasser?.centerTokenId;
+        if (sys.centerMode === "actor") {
+          if (centerTokenId ? centerTokenId === tokenDoc.id : sys.centerActorId === actor.id) continue;
+        }
 
         const whileInsideBehaviors = (sys.behaviors || []).filter(b => b.trigger === "whileInside" && b.action === "applyEffect");
         for (const behavior of whileInsideBehaviors) {
@@ -1233,32 +1242,47 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
    */
   static async cleanupWhileInsideEffectsForRegion(regionId) {
     if (!regionId || !game.user.isGM) return;
-    const scenes = game.scenes?.contents || [];
-    const processedActorIds = new Set();
+    const processedActorUuids = new Set();
 
-    for (const scene of scenes) {
-      for (const tokenDoc of scene.tokens) {
-        const actor = tokenDoc.actor;
-        if (!actor || processedActorIds.has(actor.id)) continue;
-        processedActorIds.add(actor.id);
+    const cleanActor = async (actor) => {
+      const actorKey = actor.uuid || (actor.isToken ? `${actor.token?.id || actor.parent?.id}_${actor.id}` : actor.id);
+      if (!actorKey || processedActorUuids.has(actorKey)) return;
+      processedActorUuids.add(actorKey);
 
-        const effectsToDelete = actor.items.filter(i =>
-          i.type === "effect" &&
-          i.flags?.trespasser?.whileInside === true &&
-          i.flags?.trespasser?.sourceRegionId === regionId
-        ).map(i => i.id);
+      this._syncWhileInsideLocks.delete(actorKey);
+      this._pendingWhileInsideSync.delete(actorKey);
 
-        if (effectsToDelete.length > 0) {
-          const finalValid = effectsToDelete.filter(id => actor.items.has(id));
-          if (finalValid.length > 0) {
-            try {
-              await actor.deleteEmbeddedDocuments("Item", finalValid);
-            } catch (err) {
-              console.warn("Trespasser | While-inside effect deletion skipped:", err);
-            }
+      const effectsToDelete = actor.items.filter(i =>
+        i.type === "effect" &&
+        i.flags?.trespasser?.whileInside === true &&
+        i.flags?.trespasser?.sourceRegionId === regionId
+      ).map(i => i.id);
+
+      if (effectsToDelete.length > 0) {
+        const finalValid = effectsToDelete.filter(id => actor.items.has(id));
+        if (finalValid.length > 0) {
+          try {
+            await actor.deleteEmbeddedDocuments("Item", finalValid);
+          } catch (err) {
+            console.warn("Trespasser | While-inside effect deletion skipped:", err);
           }
         }
       }
+    };
+
+    // 1. Process all tokens across all scenes (covers unlinked synthetic actors per token, and placed linked actors)
+    const scenes = game.scenes?.contents || [];
+    for (const scene of scenes) {
+      for (const tokenDoc of scene.tokens) {
+        if (tokenDoc.actor) {
+          await cleanActor(tokenDoc.actor);
+        }
+      }
+    }
+
+    // 2. Process all world actors (covers linked actors without placed tokens or placed on unrendered scenes)
+    for (const actor of (game.actors?.contents || [])) {
+      await cleanActor(actor);
     }
   }
 

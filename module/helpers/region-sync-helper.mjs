@@ -173,7 +173,9 @@ Hooks.on("updateToken", async (tokenDocument, changes, options, userId) => {
     const actorId = tokenDocument.actor?.id;
     const auraRegions = scene.regions.filter(r => {
       const t = r.flags?.trespasser?.terrain;
-      return t?.system?.centerMode === "actor" && (t.system.centerActorId === actorId || r.flags?.trespasser?.centerActorId === actorId);
+      if (t?.system?.centerMode !== "actor") return false;
+      const centerTokenId = r.flags?.trespasser?.centerTokenId;
+      return centerTokenId ? centerTokenId === tokenDocument.id : (t.system.centerActorId === actorId || r.flags?.trespasser?.centerActorId === actorId);
     });
     for (const auraRegion of auraRegions) {
       await TerrainHelper.syncWhileInsideEffectsForRegion(auraRegion);
