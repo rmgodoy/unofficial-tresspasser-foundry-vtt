@@ -406,7 +406,15 @@
           "DistributeHealing": "Distribuir Cura por Alvo",
           "Distributed": "Distribuído",
           "Intensity": "Intensidade da Recuperação",
-          "ClearTargetsHint": "Limpa a lista de alvos, permitindo que fases posteriores selecionem novos alvos."
+          "ClearTargetsHint": "Limpa a lista de alvos, permitindo que fases posteriores selecionem novos alvos.",
+          "RollAccuracyHint": "Herda Versus, Tipo de Ação e Tipo de Ataque dos Detalhes. Ramifica a execução com base nas conexões de Acerto, Erro, Centelha ou Sempre.",
+          "StartHint": "Ponto de entrada para execução da façanha. Segue a conexão de fluxo de Saída.",
+          "ClearEffect": "Remover Efeito",
+          "ClearTerrain": "Remover Terreno",
+          "ClearDeed": "Remover Façanha",
+          "NodePhase": "Fase",
+          "NodeType": "Tipo",
+          "NodeId": "ID do Nó"
         }
       },
       "Item": {

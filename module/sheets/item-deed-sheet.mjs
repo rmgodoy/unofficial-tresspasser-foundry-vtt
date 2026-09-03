@@ -1,6 +1,7 @@
 import { BEHAVIOR_TYPES } from "../data/item-deed.mjs";
 import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { GraphEditor } from "../components/graph-editor/graph-editor.mjs";
+import { GraphPropertiesPanel } from "../components/graph-editor/graph-properties-panel.mjs";
 
 export const DEFAULT_PARAMS = {
   selectTarget: {
@@ -70,6 +71,12 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
    * @type {GraphEditor|null}
    */
   graphEditor = null;
+
+  /**
+   * Reference to active GraphPropertiesPanel instance when the Behaviors tab is active.
+   * @type {GraphPropertiesPanel|null}
+   */
+  propertiesPanel = null;
 
   /**
    * Cached viewport state (pan, zoom, selected node) to persist across renders and form submissions.
@@ -226,11 +233,16 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
       input.addEventListener("focus", (ev) => ev.currentTarget.select());
     }
 
-    // Mount or refresh GraphEditor when Behaviors tab is active
+    // Mount or refresh GraphEditor and GraphPropertiesPanel when Behaviors tab is active
     const isBehaviorsTab = this.tabGroups.primary === "behaviors";
     const graphContainer = this.element.querySelector(".deed-graph-container");
+    const propertiesContainer = this.element.querySelector(".deed-graph-properties");
 
-    if (graphContainer && isBehaviorsTab) {
+    if (graphContainer && propertiesContainer && isBehaviorsTab) {
+      if (this.propertiesPanel) {
+        this.propertiesPanel.destroy();
+        this.propertiesPanel = null;
+      }
       if (this.graphEditor) {
         this._graphViewportState = this.graphEditor.getViewportState();
         this.graphEditor.destroy();
@@ -261,7 +273,14 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
           if (this.graphEditor) {
             this._graphViewportState = this.graphEditor.getViewportState();
           }
+          this.propertiesPanel?.setNode(nodeData?.id ?? null);
         }
+      });
+
+      this.propertiesPanel = new GraphPropertiesPanel(propertiesContainer, {
+        sheet: this,
+        editor: this.graphEditor,
+        readOnly: !this.isEditable
       });
 
       const nodes = this.document.system.graph?.nodes || [];
@@ -271,10 +290,16 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
       if (savedState?.selectedNodeId) {
         this.graphEditor.selectNode(savedState.selectedNodeId);
       }
-    } else if (!isBehaviorsTab && this.graphEditor) {
-      this._graphViewportState = this.graphEditor.getViewportState();
-      this.graphEditor.destroy();
-      this.graphEditor = null;
+    } else if (!isBehaviorsTab) {
+      if (this.propertiesPanel) {
+        this.propertiesPanel.destroy();
+        this.propertiesPanel = null;
+      }
+      if (this.graphEditor) {
+        this._graphViewportState = this.graphEditor.getViewportState();
+        this.graphEditor.destroy();
+        this.graphEditor = null;
+      }
     }
   }
 
@@ -293,6 +318,10 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
 
   /** @override */
   _onClose(options) {
+    if (this.propertiesPanel) {
+      this.propertiesPanel.destroy();
+      this.propertiesPanel = null;
+    }
     if (this.graphEditor) {
       this.graphEditor.destroy();
       this.graphEditor = null;
@@ -306,7 +335,31 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
     if (this.graphEditor) {
       this._graphViewportState = this.graphEditor.getViewportState();
       formData.object["flags.trespasser.graphViewport"] = this._graphViewportState;
-      formData.object["system.graph"] = this.graphEditor.getGraph();
+
+      const graph = this.graphEditor.getGraph();
+      const nodeKeys = [];
+
+      for (const [key, value] of Object.entries(formData.object)) {
+        const match = key.match(/^system\.graph\.nodes\.(\d+)\.(.+)$/);
+        if (match) {
+          const nodeIdx = parseInt(match[1]);
+          const propPath = match[2];
+          if (graph.nodes[nodeIdx]) {
+            foundry.utils.setProperty(graph.nodes[nodeIdx], propPath, value);
+          }
+          nodeKeys.push(key);
+        }
+      }
+
+      for (const key of nodeKeys) {
+        delete formData.object[key];
+      }
+
+      if (formData.object.system?.graph?.nodes) {
+        delete formData.object.system.graph.nodes;
+      }
+
+      formData.object["system.graph"] = graph;
       formData.object["system.graphVersion"] = 1;
     }
     await this.document.update(formData.object);

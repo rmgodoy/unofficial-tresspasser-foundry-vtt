@@ -48,7 +48,7 @@ export const NODE_PORT_CONFIG = {
   selectTarget: {
     inputs: ["in"],
     outputs: ["out"],
-    refInputs: []
+    refInputs: ["areaRef"]
   },
   selectArea: {
     inputs: ["in"],
@@ -63,22 +63,22 @@ export const NODE_PORT_CONFIG = {
   applyDamage: {
     inputs: ["in"],
     outputs: ["out"],
-    refInputs: ["rollRef", "areaRef", "targetRef"]
+    refInputs: ["rollRef"]
   },
   healTarget: {
     inputs: ["in"],
     outputs: ["out"],
-    refInputs: ["rollRef", "areaRef", "targetRef"]
+    refInputs: ["rollRef"]
   },
   grantRecovery: {
     inputs: ["in"],
     outputs: ["out"],
-    refInputs: ["targetRef"]
+    refInputs: []
   },
   applyEffects: {
     inputs: ["in"],
     outputs: ["out"],
-    refInputs: ["areaRef", "targetRef"]
+    refInputs: []
   },
   spawnTerrain: {
     inputs: ["in"],
@@ -88,7 +88,7 @@ export const NODE_PORT_CONFIG = {
   moveTerrain: {
     inputs: ["in"],
     outputs: ["out"],
-    refInputs: ["terrainRef"]
+    refInputs: []
   },
   moveSource: {
     inputs: ["in"],
@@ -98,7 +98,7 @@ export const NODE_PORT_CONFIG = {
   forceMoveTargets: {
     inputs: ["in"],
     outputs: ["out"],
-    refInputs: ["areaRef", "targetRef"]
+    refInputs: []
   },
   clearTargets: {
     inputs: ["in"],

@@ -1,9 +1,23 @@
 <div class="behavior-params-form">
+  {{#if (eq type "start")}}
+    <div class="behavior-hint-box">
+      <p class="hint-title"><i class="fas fa-play"></i> {{localize "TRESPASSER.Sheet.Deed.Behavior.Type.start"}}</p>
+      <p class="hint-text">{{localize "TRESPASSER.Sheet.Deed.Params.StartHint"}}</p>
+    </div>
+  {{/if}}
+
+  {{#if (eq type "rollAccuracy")}}
+    <div class="behavior-hint-box">
+      <p class="hint-title"><i class="fas fa-crosshairs"></i> {{localize "TRESPASSER.Sheet.Deed.Behavior.Type.rollAccuracy"}}</p>
+      <p class="hint-text">{{localize "TRESPASSER.Sheet.Deed.Params.RollAccuracyHint"}}</p>
+    </div>
+  {{/if}}
+
   {{#if (eq type "selectTarget")}}
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetMode"}}</label>
-        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetMode">
+        <select name="system.graph.nodes.{{index}}.params.targetMode">
           <option value="self" {{#if (eq params.targetMode "self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Personal"}}</option>
           <option value="creatures" {{#if (eq params.targetMode "creatures")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Creature"}}</option>
           <option value="aoe" {{#if (eq params.targetMode "aoe")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.AoE"}}</option>
@@ -14,7 +28,7 @@
       {{#if (ne params.targetMode "self")}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.Disposition"}}</label>
-          <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.disposition">
+          <select name="system.graph.nodes.{{index}}.params.disposition">
             <option value="any" {{#if (or (eq params.disposition "any") (not params.disposition))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DispositionChoices.Any"}}</option>
             <option value="enemy" {{#if (eq params.disposition "enemy")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DispositionChoices.Enemy"}}</option>
             <option value="ally" {{#if (eq params.disposition "ally")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DispositionChoices.Ally"}}</option>
@@ -29,7 +43,7 @@
       {{#if (or (eq params.targetMode "creatures") (and (or (eq params.targetMode "aoe") (eq params.targetMode "area")) params.chooseCreatures))}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetCount"}}</label>
-          <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetCount"
+          <input type="number" name="system.graph.nodes.{{index}}.params.targetCount"
                  value="{{#if params.targetCount}}{{params.targetCount}}{{else}}1{{/if}}" min="1" step="1" class="select-on-focus"/>
         </div>
       {{/if}}
@@ -37,8 +51,8 @@
       {{#if (eq params.targetMode "aoe")}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.AoEType"}}</label>
-          <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.aoeType">
-            <option value="blast" {{#if (eq params.aoeType "blast")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Blast"}}</option>
+          <select name="system.graph.nodes.{{index}}.params.aoeType">
+            <option value="blast" {{#if (or (eq params.aoeType "blast") (not params.aoeType))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Blast"}}</option>
             <option value="close_blast" {{#if (eq params.aoeType "close_blast")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.CloseBlast"}}</option>
             <option value="burst" {{#if (eq params.aoeType "burst")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Burst"}}</option>
             <option value="melee_burst" {{#if (eq params.aoeType "melee_burst")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.MeleeBurst"}}</option>
@@ -49,15 +63,15 @@
         </div>
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.AoESize"}}</label>
-          <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.aoeSize"
-                 value="{{params.aoeSize}}" min="1" step="1" class="select-on-focus"/>
+          <input type="number" name="system.graph.nodes.{{index}}.params.aoeSize"
+                 value="{{#if params.aoeSize}}{{params.aoeSize}}{{else}}1{{/if}}" min="1" step="1" class="select-on-focus"/>
         </div>
       {{/if}}
 
       {{#if (eq params.targetMode "area")}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaRelation"}}</label>
-          <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaRelation">
+          <select name="system.graph.nodes.{{index}}.params.areaRelation">
             <option value="inside" {{#if (or (eq params.areaRelation "inside") (not params.areaRelation))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AreaRelationChoices.Inside"}}</option>
             <option value="adjacent" {{#if (eq params.areaRelation "adjacent")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AreaRelationChoices.Adjacent"}}</option>
             <option value="insideAndAdjacent" {{#if (eq params.areaRelation "insideAndAdjacent")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AreaRelationChoices.InsideAndAdjacent"}}</option>
@@ -65,7 +79,7 @@
         </div>
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaBehaviorId"}}</label>
-          <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaBehaviorId"
+          <input type="text" name="system.graph.nodes.{{index}}.params.areaBehaviorId"
                  value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
         </div>
       {{/if}}
@@ -76,10 +90,10 @@
         {{#if (or (eq params.targetMode "aoe") (eq params.targetMode "area"))}}
           <div class="field-row checkbox-row">
             <input type="checkbox"
-                   name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.chooseCreatures"
+                   name="system.graph.nodes.{{index}}.params.chooseCreatures"
                    {{#if params.chooseCreatures}}checked{{/if}}
-                   id="deed-choose-creatures-{{phaseKey}}-{{index}}"/>
-            <label for="deed-choose-creatures-{{phaseKey}}-{{index}}">
+                   id="deed-choose-creatures-{{id}}"/>
+            <label for="deed-choose-creatures-{{id}}">
               {{localize "TRESPASSER.Sheet.Deed.Params.ChooseCreatures"}}
             </label>
           </div>
@@ -88,10 +102,10 @@
         {{#if (ne params.targetMode "self")}}
           <div class="field-row checkbox-row">
             <input type="checkbox"
-                   name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.ignoreSelf"
+                   name="system.graph.nodes.{{index}}.params.ignoreSelf"
                    {{#if params.ignoreSelf}}checked{{/if}}
-                   id="deed-ignore-self-{{phaseKey}}-{{index}}"/>
-            <label for="deed-ignore-self-{{phaseKey}}-{{index}}">
+                   id="deed-ignore-self-{{id}}"/>
+            <label for="deed-ignore-self-{{id}}">
               {{localize "TRESPASSER.Sheet.Deed.Params.IgnoreSelf"}}
             </label>
           </div>
@@ -104,7 +118,7 @@
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetMode"}}</label>
-        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetMode">
+        <select name="system.graph.nodes.{{index}}.params.targetMode">
           <option value="squares" {{#if (or (eq params.targetMode "squares") (not params.targetMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Squares"}}</option>
           <option value="aoe" {{#if (eq params.targetMode "aoe")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.AoE"}}</option>
         </select>
@@ -113,7 +127,7 @@
       {{#if (or (eq params.targetMode "squares") (not params.targetMode))}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.SquareCount"}}</label>
-          <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetCount"
+          <input type="number" name="system.graph.nodes.{{index}}.params.targetCount"
                  value="{{params.targetCount}}" min="1" step="1" class="select-on-focus"/>
         </div>
       {{/if}}
@@ -121,8 +135,8 @@
       {{#if (eq params.targetMode "aoe")}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.AoEType"}}</label>
-          <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.aoeType">
-            <option value="blast" {{#if (eq params.aoeType "blast")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Blast"}}</option>
+          <select name="system.graph.nodes.{{index}}.params.aoeType">
+            <option value="blast" {{#if (or (eq params.aoeType "blast") (not params.aoeType))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Blast"}}</option>
             <option value="close_blast" {{#if (eq params.aoeType "close_blast")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.CloseBlast"}}</option>
             <option value="burst" {{#if (eq params.aoeType "burst")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Burst"}}</option>
             <option value="melee_burst" {{#if (eq params.aoeType "melee_burst")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TargetTypeChoices.MeleeBurst"}}</option>
@@ -133,8 +147,8 @@
         </div>
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.AoESize"}}</label>
-          <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.aoeSize"
-                 value="{{params.aoeSize}}" min="1" step="1" class="select-on-focus"/>
+          <input type="number" name="system.graph.nodes.{{index}}.params.aoeSize"
+                 value="{{#if params.aoeSize}}{{params.aoeSize}}{{else}}1{{/if}}" min="1" step="1" class="select-on-focus"/>
         </div>
       {{/if}}
     </div>
@@ -144,22 +158,22 @@
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollExpression"}}</label>
-        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
+        <input type="text" name="system.graph.nodes.{{index}}.params.expression"
                value="{{params.expression}}" placeholder="e.g. 2d6+STR, /2, -5, +1d6"/>
       </div>
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollBehaviorId"}}</label>
-        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.rollBehaviorId"
+        <input type="text" name="system.graph.nodes.{{index}}.params.rollBehaviorId"
                value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
       </div>
     </div>
     <div class="behavior-checkboxes-row">
       <div class="field-row checkbox-row">
         <input type="checkbox"
-               name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.usePowerSparks"
+               name="system.graph.nodes.{{index}}.params.usePowerSparks"
                {{#if params.usePowerSparks}}checked{{/if}}
-               id="deed-use-power-{{phaseKey}}-{{index}}"/>
-        <label for="deed-use-power-{{phaseKey}}-{{index}}">
+               id="deed-use-power-{{id}}"/>
+        <label for="deed-use-power-{{id}}">
           {{localize "TRESPASSER.Sheet.Deed.Params.UsePowerSparks"}}
         </label>
       </div>
@@ -170,22 +184,22 @@
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.DamageExpression"}}</label>
-        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
+        <input type="text" name="system.graph.nodes.{{index}}.params.expression"
                value="{{params.expression}}" placeholder="e.g. 2d6+STR, /2, -5, +1d6"/>
       </div>
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollBehaviorId"}}</label>
-        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.rollBehaviorId"
+        <input type="text" name="system.graph.nodes.{{index}}.params.rollBehaviorId"
                value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
       </div>
     </div>
     <div class="behavior-checkboxes-row">
       <div class="field-row checkbox-row">
         <input type="checkbox"
-               name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distribute"
+               name="system.graph.nodes.{{index}}.params.distribute"
                {{#if params.distribute}}checked{{/if}}
-               id="deed-distribute-damage-{{phaseKey}}-{{index}}"/>
-        <label for="deed-distribute-damage-{{phaseKey}}-{{index}}">
+               id="deed-distribute-damage-{{id}}"/>
+        <label for="deed-distribute-damage-{{id}}">
           {{localize "TRESPASSER.Sheet.Deed.Params.DistributeDamage"}}
         </label>
       </div>
@@ -196,22 +210,22 @@
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.HealingExpression"}}</label>
-        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.expression"
+        <input type="text" name="system.graph.nodes.{{index}}.params.expression"
                value="{{params.expression}}" placeholder="e.g. 1d6+<sd>, /2, -5, +2"/>
       </div>
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.RollBehaviorId"}}</label>
-        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.rollBehaviorId"
+        <input type="text" name="system.graph.nodes.{{index}}.params.rollBehaviorId"
                value="{{params.rollBehaviorId}}" placeholder="Referenced Roll/Behavior ID"/>
       </div>
     </div>
     <div class="behavior-checkboxes-row">
       <div class="field-row checkbox-row">
         <input type="checkbox"
-               name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distribute"
+               name="system.graph.nodes.{{index}}.params.distribute"
                {{#if params.distribute}}checked{{/if}}
-               id="deed-distribute-healing-{{phaseKey}}-{{index}}"/>
-        <label for="deed-distribute-healing-{{phaseKey}}-{{index}}">
+               id="deed-distribute-healing-{{id}}"/>
+        <label for="deed-distribute-healing-{{id}}">
           {{localize "TRESPASSER.Sheet.Deed.Params.DistributeHealing"}}
         </label>
       </div>
@@ -222,7 +236,7 @@
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.Intensity"}}</label>
-        <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.intensity"
+        <input type="number" name="system.graph.nodes.{{index}}.params.intensity"
                value="{{params.intensity}}" min="1" step="1" placeholder="1" class="select-on-focus"/>
       </div>
     </div>
@@ -233,30 +247,30 @@
       <div class="behavior-checkboxes-row" style="margin-top: 0; margin-bottom: 6px;">
         <div class="field-row checkbox-row weapon-effects-toggle">
           <input type="checkbox"
-                 name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.appliesWeaponEffects"
+                 name="system.graph.nodes.{{index}}.params.appliesWeaponEffects"
                  {{#if params.appliesWeaponEffects}}checked{{/if}}
-                 id="deed-weapon-effects-{{phaseKey}}-{{index}}"/>
-          <label for="deed-weapon-effects-{{phaseKey}}-{{index}}">
+                 id="deed-weapon-effects-{{id}}"/>
+          <label for="deed-weapon-effects-{{id}}">
             {{localize "TRESPASSER.Sheet.Item.Sections.WeaponEffects"}}
           </label>
         </div>
       </div>
-      <div class="behavior-effect-drop drop-zone" data-phase="{{phaseKey}}" data-behavior-id="{{id}}">
+      <div class="behavior-effect-drop drop-zone" data-node-id="{{id}}" data-node-index="{{index}}">
         <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}
       </div>
       {{#if params.effects.length}}
         <div class="effect-chips-list">
           {{#each params.effects}}
           <div class="effect-chip">
-            <input type="hidden" name="system.phases.{{../phaseKey}}.behaviors.{{../index}}.params.effects.{{@index}}.uuid" value="{{uuid}}"/>
-            <input type="hidden" name="system.phases.{{../phaseKey}}.behaviors.{{../index}}.params.effects.{{@index}}.name" value="{{name}}"/>
-            <input type="hidden" name="system.phases.{{../phaseKey}}.behaviors.{{../index}}.params.effects.{{@index}}.img" value="{{img}}"/>
+            <input type="hidden" name="system.graph.nodes.{{../index}}.params.effects.{{@index}}.uuid" value="{{uuid}}"/>
+            <input type="hidden" name="system.graph.nodes.{{../index}}.params.effects.{{@index}}.name" value="{{name}}"/>
+            <input type="hidden" name="system.graph.nodes.{{../index}}.params.effects.{{@index}}.img" value="{{img}}"/>
             <img src="{{img}}" title="{{name}}"/>
             <span class="chip-name">{{name}}</span>
             <label class="intensity-label">Int:</label>
-            <input type="number" name="system.phases.{{../phaseKey}}.behaviors.{{../index}}.params.effects.{{@index}}.intensity"
+            <input type="number" name="system.graph.nodes.{{../index}}.params.effects.{{@index}}.intensity"
                    value="{{intensity}}" min="0" step="1" class="select-on-focus"/>
-            <button type="button" data-action="removeBehaviorEffect" data-phase="{{../phaseKey}}" data-behavior-id="{{../id}}" data-effect-index="{{@index}}" title="Remove Effect">
+            <button type="button" class="remove-effect-btn" data-action="removeBehaviorEffect" data-node-id="{{../id}}" data-node-index="{{../index}}" data-effect-index="{{@index}}" title="{{localize 'TRESPASSER.Sheet.Deed.Params.ClearEffect'}}">
               <i class="fas fa-times"></i>
             </button>
           </div>
@@ -266,42 +280,19 @@
     </div>
   {{/if}}
 
-  {{#if (eq type "modifyBehavior")}}
-    <div class="param-row-grid">
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetBehaviorId"}}</label>
-        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.targetBehaviorId"
-               value="{{params.targetBehaviorId}}" placeholder="Behavior ID"/>
-      </div>
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Deed.Params.Property"}}</label>
-        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.property">
-          <option value="damage" {{#if (eq params.property "damage")}}selected{{/if}}>Damage</option>
-          <option value="healing" {{#if (eq params.property "healing")}}selected{{/if}}>Healing</option>
-          <option value="roll" {{#if (eq params.property "roll")}}selected{{/if}}>Roll</option>
-          <option value="intensity" {{#if (eq params.property "intensity")}}selected{{/if}}>Intensity</option>
-          <option value="size" {{#if (eq params.property "size")}}selected{{/if}}>Size</option>
-          <option value="distance" {{#if (eq params.property "distance")}}selected{{/if}}>Distance</option>
-        </select>
-      </div>
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Deed.Params.Modifier"}}</label>
-        <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.modifier"
-               value="{{params.modifier}}" placeholder="e.g. +1d6, +1, *2"/>
-      </div>
-    </div>
-  {{/if}}
-
   {{#if (eq type "spawnTerrain")}}
     <div class="behavior-terrain-section">
-      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.terrainUuid" value="{{params.terrainUuid}}"/>
-      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.terrainName" value="{{params.terrainName}}"/>
-      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.terrainImg" value="{{params.terrainImg}}"/>
-      <div class="behavior-terrain-drop drop-zone" data-phase="{{phaseKey}}" data-behavior-id="{{id}}">
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.terrainUuid" value="{{params.terrainUuid}}"/>
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.terrainName" value="{{params.terrainName}}"/>
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.terrainImg" value="{{params.terrainImg}}"/>
+      <div class="behavior-terrain-drop drop-zone" data-node-id="{{id}}" data-node-index="{{index}}">
         {{#if params.terrainName}}
           <div class="terrain-chip">
             <img src="{{params.terrainImg}}" title="{{params.terrainName}}"/>
             <span>{{params.terrainName}}</span>
+            <button type="button" class="clear-terrain-btn" data-action="clearBehaviorTerrain" data-node-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.Deed.Params.ClearTerrain'}}">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
         {{else}}
           <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropTerrain"}}
@@ -310,7 +301,7 @@
       <div class="param-row-grid" style="margin-top: 6px;">
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.Placement"}}</label>
-          <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.placement">
+          <select name="system.graph.nodes.{{index}}.params.placement">
             <option value="on_target" {{#if (eq params.placement "on_target")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnTarget"}}</option>
             <option value="on_self" {{#if (eq params.placement "on_self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.OnSelf"}}</option>
             <option value="choose" {{#if (eq params.placement "choose")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TerrainPlacementChoices.Choose"}}</option>
@@ -320,7 +311,7 @@
         {{#if (eq params.placement "selected_area")}}
           <div class="field-row">
             <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaBehaviorId"}}</label>
-            <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaBehaviorId"
+            <input type="text" name="system.graph.nodes.{{index}}.params.areaBehaviorId"
                    value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
           </div>
         {{/if}}
@@ -329,10 +320,10 @@
         <div class="behavior-checkboxes-row">
           <div class="field-row checkbox-row">
             <input type="checkbox"
-                   name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.ignoreSourceSquare"
+                   name="system.graph.nodes.{{index}}.params.ignoreSourceSquare"
                    {{#if params.ignoreSourceSquare}}checked{{/if}}
-                   id="deed-ignore-source-{{phaseKey}}-{{index}}"/>
-            <label for="deed-ignore-source-{{phaseKey}}-{{index}}">
+                   id="deed-ignore-source-{{id}}"/>
+            <label for="deed-ignore-source-{{id}}">
               {{localize "TRESPASSER.Sheet.Deed.Params.IgnoreSourceSquare"}}
             </label>
           </div>
@@ -344,7 +335,7 @@
   {{#if (eq type "moveTerrain")}}
     <div class="field-row">
       <label>{{localize "TRESPASSER.Sheet.Deed.Params.TerrainBehaviorId"}}</label>
-      <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.terrainBehaviorId"
+      <input type="text" name="system.graph.nodes.{{index}}.params.terrainBehaviorId"
              value="{{params.terrainBehaviorId}}" placeholder="Spawn Terrain Behavior ID (optional)"/>
     </div>
   {{/if}}
@@ -353,14 +344,14 @@
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.DestinationMode"}}</label>
-        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.destinationMode">
+        <select name="system.graph.nodes.{{index}}.params.destinationMode">
           <option value="distance" {{#if (or (eq params.destinationMode "distance") (not params.destinationMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DestinationModeChoices.Distance"}}</option>
           <option value="selectedArea" {{#if (eq params.destinationMode "selectedArea")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.DestinationModeChoices.SelectedArea"}}</option>
         </select>
       </div>
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.MovementType"}}</label>
-        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.movementType">
+        <select name="system.graph.nodes.{{index}}.params.movementType">
           <option value="walk" {{#if (eq params.movementType "walk")}}selected{{/if}}>Walk</option>
           <option value="jump" {{#if (eq params.movementType "jump")}}selected{{/if}}>Jump</option>
           <option value="teleport" {{#if (eq params.movementType "teleport")}}selected{{/if}}>Teleport</option>
@@ -369,14 +360,14 @@
       {{#if (eq params.destinationMode "selectedArea")}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.AreaBehaviorId"}}</label>
-          <input type="text" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.areaBehaviorId"
+          <input type="text" name="system.graph.nodes.{{index}}.params.areaBehaviorId"
                  value="{{params.areaBehaviorId}}" placeholder="Area Behavior ID (optional)"/>
         </div>
       {{/if}}
       {{#unless (eq params.destinationMode "selectedArea")}}
         <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Deed.Params.Distance"}}</label>
-          <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distance"
+          <input type="number" name="system.graph.nodes.{{index}}.params.distance"
                  value="{{params.distance}}" min="1" step="1" class="select-on-focus"/>
         </div>
       {{/unless}}
@@ -387,7 +378,7 @@
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.ForceMoveType"}}</label>
-        <select name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.type">
+        <select name="system.graph.nodes.{{index}}.params.type">
           <option value="push" {{#if (eq params.type "push")}}selected{{/if}}>{{localize "TRESPASSER.Terms.ForcedMovement.Push"}}</option>
           <option value="pull" {{#if (eq params.type "pull")}}selected{{/if}}>{{localize "TRESPASSER.Terms.ForcedMovement.Pull"}}</option>
           <option value="sweep" {{#if (eq params.type "sweep")}}selected{{/if}}>{{localize "TRESPASSER.Terms.ForcedMovement.Sweep"}}</option>
@@ -397,7 +388,7 @@
       </div>
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.Distance"}}</label>
-        <input type="number" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.distance"
+        <input type="number" name="system.graph.nodes.{{index}}.params.distance"
                value="{{params.distance}}" min="1" step="1" class="select-on-focus"/>
       </div>
     </div>
@@ -411,14 +402,17 @@
 
   {{#if (eq type "executeDeed")}}
     <div class="behavior-deed-section">
-      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.deedUuid" value="{{params.deedUuid}}"/>
-      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.deedName" value="{{params.deedName}}"/>
-      <input type="hidden" name="system.phases.{{phaseKey}}.behaviors.{{index}}.params.deedImg" value="{{params.deedImg}}"/>
-      <div class="behavior-deed-drop drop-zone" data-phase="{{phaseKey}}" data-behavior-id="{{id}}">
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.deedUuid" value="{{params.deedUuid}}"/>
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.deedName" value="{{params.deedName}}"/>
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.deedImg" value="{{params.deedImg}}"/>
+      <div class="behavior-deed-drop drop-zone" data-node-id="{{id}}" data-node-index="{{index}}">
         {{#if params.deedName}}
           <div class="deed-chip" style="display:flex; align-items:center; gap:8px;">
             <img src="{{params.deedImg}}" title="{{params.deedName}}" style="width:24px; height:24px; border:none; object-fit:contain;"/>
             <span style="font-weight:bold; font-size:var(--fs-12);">{{params.deedName}}</span>
+            <button type="button" class="clear-deed-btn" data-action="clearBehaviorDeed" data-node-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.Deed.Params.ClearDeed'}}">
+              <i class="fas fa-times"></i>
+            </button>
           </div>
         {{else}}
           <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropDeed"}}

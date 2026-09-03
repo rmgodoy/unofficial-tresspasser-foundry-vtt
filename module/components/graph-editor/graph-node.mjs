@@ -271,4 +271,52 @@ export class GraphNode {
       this.element.classList.toggle("selected", !!isSelected);
     }
   }
+
+  /**
+   * Updates the node's phase both in memory and DOM classes.
+   * @param {string} newPhase
+   */
+  setPhase(newPhase) {
+    if (!newPhase) return;
+    const oldPhase = this.data.phase || "base";
+    this.data.phase = newPhase;
+
+    if (this.element) {
+      this.element.classList.remove(`phase-border-${oldPhase}`);
+      this.element.classList.add(`phase-border-${newPhase}`);
+
+      const header = this.element.querySelector(".graph-node-header");
+      if (header) {
+        header.classList.remove(`phase-bg-${oldPhase}`);
+        header.classList.add(`phase-bg-${newPhase}`);
+      }
+
+      const badge = this.element.querySelector(".node-phase-badge");
+      if (badge) {
+        badge.className = `node-phase-badge phase-badge-${newPhase}`;
+        const phaseLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${newPhase.charAt(0).toUpperCase() + newPhase.slice(1)}`) || newPhase;
+        badge.textContent = phaseLabel;
+      }
+    }
+  }
+
+  /**
+   * Updates node parameters in memory and refreshes the card summary.
+   * @param {object} params
+   */
+  setParams(params) {
+    this.data.params = foundry.utils.deepClone(params || {});
+    this.updateSummary();
+  }
+
+  /**
+   * Refreshes the center summary label in the node card.
+   */
+  updateSummary() {
+    if (!this.element) return;
+    const summaryEl = this.element.querySelector(".node-summary");
+    if (summaryEl) {
+      summaryEl.innerHTML = this._getNodeSummary(this.data);
+    }
+  }
 }

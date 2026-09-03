@@ -39,31 +39,18 @@ export class GraphEditor {
     this._attachEvents();
   }
 
-  /**
-   * Returns current viewport state (pan, zoom, selected node).
-   * @returns {{panX: number, panY: number, zoom: number, selectedNodeId: string|null}}
-   */
+  /** Returns current viewport state (pan, zoom, selected node). */
   getViewportState() {
-    return {
-      panX: this.panX,
-      panY: this.panY,
-      zoom: this.zoom,
-      selectedNodeId: this.selectedNodeId
-    };
+    return { panX: this.panX, panY: this.panY, zoom: this.zoom, selectedNodeId: this.selectedNodeId };
   }
 
-  /**
-   * Restores viewport state (pan, zoom, selected node).
-   * @param {{panX?: number, panY?: number, zoom?: number, selectedNodeId?: string|null}} state
-   */
+  /** Restores viewport state (pan, zoom, selected node). */
   setViewportState(state) {
     if (!state) return;
     if (typeof state.panX === "number") this.panX = state.panX;
     if (typeof state.panY === "number") this.panY = state.panY;
     if (typeof state.zoom === "number") this.zoom = state.zoom;
-    if (state.selectedNodeId !== undefined) {
-      this.selectNode(state.selectedNodeId);
-    }
+    if (state.selectedNodeId !== undefined) this.selectNode(state.selectedNodeId);
     this._updateTransform();
   }
 
@@ -79,50 +66,33 @@ export class GraphEditor {
     // Toolbar
     this.toolbar = document.createElement("div");
     this.toolbar.className = "graph-toolbar";
-    this.toolbar.innerHTML = `
-      <div class="toolbar-group">
-        <button type="button" class="btn-fit" title="${game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.FitView") || "Fit to View"}">
-          <i class="fas fa-expand"></i>
-        </button>
-        <button type="button" class="btn-layout" title="${game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.AutoLayout") || "Auto Layout"}">
-          <i class="fas fa-wand-magic-sparkles"></i>
-        </button>
-      </div>
-      <div class="toolbar-group">
-        <span class="zoom-label">100%</span>
-      </div>
-    `;
+    const fitTitle = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.FitView") || "Fit to View";
+    const layoutTitle = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.AutoLayout") || "Auto Layout";
+    this.toolbar.innerHTML = `<div class="toolbar-group"><button type="button" class="btn-fit" title="${fitTitle}"><i class="fas fa-expand"></i></button><button type="button" class="btn-layout" title="${layoutTitle}"><i class="fas fa-wand-magic-sparkles"></i></button></div><div class="toolbar-group"><span class="zoom-label">100%</span></div>`;
 
-    // Viewport
     this.viewport = document.createElement("div");
     this.viewport.className = "graph-viewport";
 
-    // Canvas content (scaled and translated)
     this.content = document.createElement("div");
     this.content.className = "graph-content";
 
-    // SVG layer for connections
     this.svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
     this.svg.setAttribute("class", "graph-svg-layer");
 
-    // Temp noodle for active drag
     this.tempNoodle = document.createElementNS("http://www.w3.org/2000/svg", "path");
     this.tempNoodle.setAttribute("class", "graph-connection connection-temp");
     this.tempNoodle.style.display = "none";
     this.svg.appendChild(this.tempNoodle);
 
-    // Nodes layer
     this.nodesLayer = document.createElement("div");
     this.nodesLayer.className = "graph-nodes-layer";
 
     this.content.appendChild(this.svg);
     this.content.appendChild(this.nodesLayer);
     this.viewport.appendChild(this.content);
-
     this.root.appendChild(this.toolbar);
     this.root.appendChild(this.viewport);
     this.container.appendChild(this.root);
-
     this._updateTransform();
   }
 
@@ -134,14 +104,19 @@ export class GraphEditor {
   setGraph(nodesData = [], connectionsData = []) {
     this.nodesLayer.innerHTML = "";
     this.nodeMap.clear();
-    this.connections = foundry.utils.deepClone(connectionsData || []);
 
-    // Instantiate GraphNode objects
     for (const data of nodesData) {
       const node = new GraphNode(data, { editor: this });
       this.nodeMap.set(data.id, node);
       this.nodesLayer.appendChild(node.element);
     }
+
+    // Keep only connections whose endpoints and ports still exist
+    this.connections = (connectionsData || []).filter(c => {
+      const src = this.nodeMap.get(c.sourceId);
+      const tgt = this.nodeMap.get(c.targetId);
+      return src?.portElements.has(`out:${c.sourcePort}`) && tgt?.portElements.has(`in:${c.targetPort}`);
+    });
 
     if (this.selectedNodeId && this.nodeMap.has(this.selectedNodeId)) {
       this.nodeMap.get(this.selectedNodeId).setSelected(true);
@@ -280,6 +255,30 @@ export class GraphEditor {
   }
 
   /**
+   * Updates a node's phase and refreshes its visuals.
+   * @param {string} nodeId
+   * @param {string} newPhase
+   */
+  updateNodePhase(nodeId, newPhase) {
+    const node = this.nodeMap.get(nodeId);
+    if (!node) return;
+    node.setPhase(newPhase);
+    this._notifyChange();
+  }
+
+  /**
+   * Updates a node's params and refreshes its card summary.
+   * @param {string} nodeId
+   * @param {object} params
+   */
+  updateNodeParams(nodeId, params) {
+    const node = this.nodeMap.get(nodeId);
+    if (!node) return;
+    node.setParams(params);
+    this._notifyChange();
+  }
+
+  /**
    * Adds a connection between two ports.
    * @param {string} sourceId
    * @param {string} sourcePort
@@ -296,15 +295,7 @@ export class GraphEditor {
     );
     if (exists) return;
 
-    this.connections.push({
-      id: foundry.utils.randomID(),
-      sourceId,
-      sourcePort,
-      targetId,
-      targetPort,
-      type
-    });
-
+    this.connections.push({ id: foundry.utils.randomID(), sourceId, sourcePort, targetId, targetPort, type });
     this._renderConnections();
     this._notifyChange();
   }

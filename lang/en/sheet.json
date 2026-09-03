@@ -407,7 +407,15 @@
           "DistributeHealing": "Distribute Healing per Target",
           "Distributed": "Distributed",
           "Intensity": "Recovery Intensity",
-          "ClearTargetsHint": "Clears target list, allowing subsequent phases to acquire new targets."
+          "ClearTargetsHint": "Clears target list, allowing subsequent phases to acquire new targets.",
+          "RollAccuracyHint": "Inherits Versus, Action Type, and Attack Type from Details. Branches execution based on Hit, Miss, Spark, or Always connections.",
+          "StartHint": "Root entry point for deed execution. Follows the Out flow connection.",
+          "ClearEffect": "Remove Effect",
+          "ClearTerrain": "Remove Terrain",
+          "ClearDeed": "Remove Deed",
+          "NodePhase": "Phase",
+          "NodeType": "Type",
+          "NodeId": "Node ID"
         }
       },
       "Item": {
