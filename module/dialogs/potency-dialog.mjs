@@ -36,8 +36,11 @@ export async function askPotencyDialog(potencyPoints, effectList, targetName) {
     const baseLabel = game.i18n.localize("TRESPASSER.Dialog.Potency.BaseIntensity");
     html += `
       <div class="potency-effect-row" style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2); padding: 6px 10px; border-radius: 4px; border: 1px solid var(--trp-border, #4a3f2f);">
-        <div style="font-size: var(--fs-13); font-weight: bold; color: var(--trp-text, #ddd0aa);">
-          ${eff.name} <span style="font-size: var(--fs-11); color: var(--trp-text-dim, #a09070); font-weight: normal;">(${baseLabel}: ${baseInt})</span>
+        <div style="display: flex; align-items: center; gap: 8px;">
+          ${eff.img ? `<img src="${eff.img}" style="width: 24px; height: 24px; object-fit: cover; border-radius: 3px; border: none;" />` : ""}
+          <div style="font-size: var(--fs-13); font-weight: bold; color: var(--trp-text, #ddd0aa);">
+            ${eff.name} <span style="font-size: var(--fs-11); color: var(--trp-text-dim, #a09070); font-weight: normal;">(${baseLabel}: ${baseInt})</span>
+          </div>
         </div>
         <div class="potency-controls" style="display: flex; align-items: center; gap: 8px;">
           <button type="button" class="potency-btn btn-minus" data-index="${idx}" style="width: 28px; height: 28px; padding: 0; line-height: 1; font-size: var(--fs-14); font-weight: bold; cursor: pointer;">-</button>

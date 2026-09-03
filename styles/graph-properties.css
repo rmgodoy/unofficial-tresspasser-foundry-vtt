@@ -304,3 +304,22 @@
   color: var(--trp-text-bright, #f5eccc);
   flex: 1;
 }
+
+.terrain-chip .intensity-label {
+  font-size: var(--fs-10);
+  color: var(--trp-text-dim, #a09070);
+  margin-left: 4px;
+}
+
+.terrain-chip input[type="number"] {
+  width: 42px;
+  height: 22px;
+  padding: 1px 4px;
+  text-align: center;
+  font-size: var(--fs-11);
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--trp-border, #4a3f2f);
+  color: var(--trp-gold-bright, #e8c96b);
+  border-radius: 3px;
+}
+

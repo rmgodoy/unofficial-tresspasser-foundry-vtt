@@ -184,6 +184,20 @@
   object-fit: cover;
 }
 
+.terrain-chip .intensity-label {
+  font-size: var(--fs-10);
+  color: var(--trp-text-dim, #a09070);
+  margin-left: 2px;
+}
+
+.terrain-chip input[type="number"] {
+  width: 42px;
+  height: 22px;
+  padding: 1px 4px;
+  text-align: center;
+  font-size: var(--fs-11);
+}
+
 .hint-text {
   margin: 0;
   padding: 4px 0;

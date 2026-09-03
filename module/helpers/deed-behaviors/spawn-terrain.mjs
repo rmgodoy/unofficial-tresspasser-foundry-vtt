@@ -12,12 +12,20 @@ export class SpawnTerrainBehavior {
    * @param {Actor} [actor]   - Source actor
    * @param {Item} item       - Deed item
    */
-  static async execute(behavior, context, actor, item) {
+  static async execute(behavior, context, actor, item, phaseKey = "") {
     const params = behavior.params || {};
     if (!params.terrainUuid) return true;
 
     const terrainItem = await fromUuid(params.terrainUuid);
     if (!terrainItem) return true;
+
+    const { DeedPotencyHelper } = await import("./potency-helper.mjs");
+    await DeedPotencyHelper.ensurePotencyAllocations(context, actor, item, phaseKey);
+    const addedPotency = DeedPotencyHelper.getTerrainPotency(context, behavior.id);
+
+    const defaultTerrainInt = DeedPotencyHelper.parseIntensity(terrainItem.system?.linkedEffects?.[0]?.intensity, 1);
+    const baseIntensity = DeedPotencyHelper.parseIntensity(params.intensity, defaultTerrainInt);
+    const finalIntensity = baseIntensity + addedPotency;
 
     const placement = params.placement || "on_target";
     const gridSize = canvas.grid?.size || 100;
@@ -26,14 +34,15 @@ export class SpawnTerrainBehavior {
       casterActorId: actor?.id || null,
       casterActorUuid: actor?.uuid || null,
       sourceItemId: item?.id || null,
+      intensity: finalIntensity,
       linkedEffectId: null,
       linkedEffectUuid: null
     };
 
     // 1. Grant Linked Effects to Caster if configured
-    const hasLinked = Boolean((terrainItem.system?.linkedEffects && terrainItem.system.linkedEffects.length > 0) || terrainItem.system?.linkedEffect?.uuid);
+    const hasLinked = await DeedPotencyHelper.hasLinkedEffect(terrainItem);
     if (hasLinked && actor) {
-      await this.#ensureCasterLinkedEffect(terrainItem, actor, options);
+      await this.#ensureCasterLinkedEffect(terrainItem, actor, options, finalIntensity, baseIntensity, addedPotency, behavior.id, context);
     }
 
     const targetPositions = [];
@@ -139,7 +148,20 @@ export class SpawnTerrainBehavior {
     }
 
     if (context.currentPhaseOutputs?.notes) {
-      context.currentPhaseOutputs.notes.push(`Spawned terrain "${terrainItem.name}" on canvas`);
+      if (hasLinked) {
+        context.currentPhaseOutputs.notes.push(
+          game.i18n.format("TRESPASSER.Chat.Terrain.SpawnedWithIntensity", {
+            terrain: terrainItem.name,
+            intensity: finalIntensity
+          })
+        );
+      } else {
+        context.currentPhaseOutputs.notes.push(
+          game.i18n.format("TRESPASSER.Chat.Terrain.Spawned", {
+            terrain: terrainItem.name
+          })
+        );
+      }
     }
     return true;
   }
@@ -316,7 +338,7 @@ export class SpawnTerrainBehavior {
    * @param {object} options
    * @private
    */
-  static async #ensureCasterLinkedEffect(terrainItem, actor, options) {
+  static async #ensureCasterLinkedEffect(terrainItem, actor, options, finalIntensity, baseIntensity, addedPotency, behaviorId, context) {
     const linkedList = (terrainItem.system?.linkedEffects && terrainItem.system.linkedEffects.length > 0)
       ? terrainItem.system.linkedEffects
       : (terrainItem.system?.linkedEffect?.uuid ? [terrainItem.system.linkedEffect] : []);
@@ -334,40 +356,71 @@ export class SpawnTerrainBehavior {
         return false;
       });
 
+      let linkedDocId = existing?.id || null;
+
       if (existing) {
         if (!options.linkedEffectId) options.linkedEffectId = existing.id;
         if (!options.linkedEffectUuid) options.linkedEffectUuid = existing.uuid;
-        continue;
-      }
-
-      const sourceEffect = linkedUuid ? await fromUuid(linkedUuid) : null;
-      if (!sourceEffect) continue;
-
-      const effectData = sourceEffect.toObject();
-      delete effectData._id;
-      if (linkedItem.intensity !== undefined && linkedItem.intensity !== null && linkedItem.intensity !== "" && !isNaN(Number(linkedItem.intensity))) {
-        effectData.system.intensity = Number(linkedItem.intensity);
-      }
-      effectData.flags = foundry.utils.mergeObject(effectData.flags || {}, {
-        trespasser: {
-          sourceEffectUuid: sourceEffect.uuid,
-          linkedSource: sourceEffect.uuid
-        }
-      });
-
-      if (actor.isOwner) {
-        const [created] = await actor.createEmbeddedDocuments("Item", [effectData]);
-        if (created) {
-          if (!options.linkedEffectId) options.linkedEffectId = created.id;
-          if (!options.linkedEffectUuid) options.linkedEffectUuid = created.uuid;
+        if (existing.system?.intensity !== finalIntensity) {
+          if (actor.isOwner) {
+            await existing.update({ "system.intensity": finalIntensity });
+          } else {
+            const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
+            await emitDeedActionAndWait("applyEffects", {
+              actorId: actor.id,
+              itemDataArray: [{ _id: existing.id, "system.intensity": finalIntensity }]
+            });
+          }
         }
       } else {
-        const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
-        await emitDeedActionAndWait("applyEffects", {
-          actorId: actor.id,
-          itemDataArray: [effectData]
+        const sourceEffect = linkedUuid ? await fromUuid(linkedUuid) : null;
+        if (!sourceEffect) continue;
+
+        const effectData = sourceEffect.toObject();
+        delete effectData._id;
+        effectData.system = effectData.system || {};
+        effectData.system.intensity = finalIntensity;
+        effectData.flags = foundry.utils.mergeObject(effectData.flags || {}, {
+          trespasser: {
+            sourceEffectUuid: sourceEffect.uuid,
+            linkedSource: sourceEffect.uuid
+          }
         });
+
+        if (actor.isOwner) {
+          const [created] = await actor.createEmbeddedDocuments("Item", [effectData]);
+          if (created) {
+            linkedDocId = created.id;
+            if (!options.linkedEffectId) options.linkedEffectId = created.id;
+            if (!options.linkedEffectUuid) options.linkedEffectUuid = created.uuid;
+          }
+        } else {
+          const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
+          const res = await emitDeedActionAndWait("applyEffects", {
+            actorId: actor.id,
+            itemDataArray: [effectData]
+          });
+          if (Array.isArray(res) && res[0]) {
+            linkedDocId = res[0];
+            options.linkedEffectId = res[0];
+          }
+        }
       }
+
+      // Register with DeedPotencyHelper so retroactive updates can find it
+      const { DeedPotencyHelper } = await import("./potency-helper.mjs");
+      DeedPotencyHelper.registerAppliedEffect(context, {
+        type: "terrain",
+        actor: actor,
+        nodeId: behaviorId,
+        itemId: linkedDocId,
+        uuid: linkedUuid,
+        baseIntensity: baseIntensity,
+        addedPotency: addedPotency,
+        finalIntensity: finalIntensity,
+        terrainName: terrainItem.name,
+        img: terrainItem.img || "icons/svg/mountain.svg"
+      });
     }
   }
 }

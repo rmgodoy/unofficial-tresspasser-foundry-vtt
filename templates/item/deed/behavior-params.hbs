@@ -367,7 +367,13 @@
         {{#if params.terrainName}}
           <div class="terrain-chip">
             <img src="{{params.terrainImg}}" title="{{params.terrainName}}"/>
-            <span>{{params.terrainName}}</span>
+            <span class="chip-name">{{params.terrainName}}</span>
+            {{#if terrainHasLinkedEffect}}
+              <label class="intensity-label">{{localize "TRESPASSER.Sheet.Common.IntensityShort"}}:</label>
+              <input type="number" name="system.graph.nodes.{{index}}.params.intensity"
+                     value="{{#if (or params.intensity (eq params.intensity 0))}}{{params.intensity}}{{else}}1{{/if}}"
+                     min="0" step="1" class="select-on-focus"/>
+            {{/if}}
             <button type="button" class="clear-terrain-btn" data-action="clearBehaviorTerrain" data-node-id="{{id}}" title="{{localize 'TRESPASSER.Sheet.Deed.Params.ClearTerrain'}}">
               <i class="fas fa-times"></i>
             </button>

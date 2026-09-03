@@ -122,10 +122,27 @@ async function _handleSpendRecoveryDice(data) {
 async function _handleApplyEffects(data) {
   const token = canvas.tokens?.get(data.tokenId) || game.scenes?.current?.tokens.get(data.tokenId);
   const actor = token?.actor || game.actors.get(data.actorId);
-  if (actor) {
-    await actor.createEmbeddedDocuments("Item", data.itemDataArray);
+  if (!actor || !Array.isArray(data.itemDataArray)) return true;
+
+  const toUpdate = [];
+  const toCreate = [];
+  for (const itemData of data.itemDataArray) {
+    if (itemData._id && actor.items.has(itemData._id)) {
+      toUpdate.push(itemData);
+    } else {
+      toCreate.push(itemData);
+    }
   }
-  return true;
+
+  const createdIds = [];
+  if (toUpdate.length > 0) {
+    await actor.updateEmbeddedDocuments("Item", toUpdate);
+  }
+  if (toCreate.length > 0) {
+    const created = await actor.createEmbeddedDocuments("Item", toCreate);
+    if (Array.isArray(created)) createdIds.push(...created.map(c => c.id));
+  }
+  return createdIds;
 }
 
 async function _handleSpawnTerrain(data) {

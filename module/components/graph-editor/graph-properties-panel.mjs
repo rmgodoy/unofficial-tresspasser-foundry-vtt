@@ -154,13 +154,29 @@ export class GraphPropertiesPanel {
         if (hasRefRoll) node.params.rollBehaviorId = refRollId;
         if (hasRefTerrain) node.params.terrainBehaviorId = refTerrainId;
 
+        let terrainHasLinkedEffect = false;
+        if (node.type === "spawnTerrain" && node.params?.terrainUuid) {
+          try {
+            const terrainDoc = await fromUuid(node.params.terrainUuid);
+            if (terrainDoc) {
+              const sys = terrainDoc.system;
+              terrainHasLinkedEffect = Boolean((sys?.linkedEffects && sys.linkedEffects.length > 0) || sys?.linkedEffect?.uuid || sys?.linkedEffectKey);
+              if (terrainHasLinkedEffect && (node.params.intensity === undefined || node.params.intensity === null)) {
+                const defaultInt = parseInt(sys.linkedEffects?.[0]?.intensity, 10);
+                node.params.intensity = !isNaN(defaultInt) ? defaultInt : 1;
+              }
+            }
+          } catch {}
+        }
+
         const renderFn = foundry.applications?.handlebars?.renderTemplate || globalThis.renderTemplate;
         const paramsHtml = await renderFn("systems/trespasser/templates/item/deed/behavior-params.hbs", {
           type: node.type, params: node.params || {}, id: node.id, index: nodeIndex, editable: !this.readOnly,
           defaultActionType, defaultAbilityType, defaultVersus, defaultActionTypeLabel, defaultAbilityTypeLabel, defaultVersusLabel,
           refRollId, refRollIdShort: refRollId ? refRollId.slice(0, 6) : "", refRollExpr, hasRefRoll,
           refAreaId, refAreaIdShort: refAreaId ? refAreaId.slice(0, 6) : "", refAreaSummary, hasRefArea,
-          refTerrainId, refTerrainIdShort: refTerrainId ? refTerrainId.slice(0, 6) : "", refTerrainName, hasRefTerrain
+          refTerrainId, refTerrainIdShort: refTerrainId ? refTerrainId.slice(0, 6) : "", refTerrainName, hasRefTerrain,
+          terrainHasLinkedEffect
         });
         paramsContainer.innerHTML = paramsHtml;
       } catch (err) {
@@ -384,6 +400,9 @@ export class GraphPropertiesPanel {
       node.params.terrainUuid = item.uuid;
       node.params.terrainName = item.name;
       node.params.terrainImg = item.img || "icons/svg/mountain.svg";
+      const sys = item.system;
+      const hasLinked = Boolean((sys?.linkedEffects && sys.linkedEffects.length > 0) || sys?.linkedEffect?.uuid || sys?.linkedEffectKey);
+      node.params.intensity = hasLinked ? (parseInt(sys?.linkedEffects?.[0]?.intensity, 10) || 1) : null;
     } else if (isDeed) {
       if (item.type !== "deed") {
         ui.notifications?.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnly") || "Only Deeds can be dropped here.");
@@ -394,15 +413,9 @@ export class GraphPropertiesPanel {
       node.params.deedImg = item.img || "icons/svg/lightning.svg";
     }
 
-    if (this.editor) {
-      this.editor.updateNodeParams(this.currentNodeId, node.params);
-    }
+    if (this.editor) this.editor.updateNodeParams(this.currentNodeId, node.params);
     await this.render();
-    await this.sheet.document.update({
-      "system.graph": graph,
-      "system.graphVersion": 1,
-      "flags.trespasser.graphViewport": this.editor ? this.editor.getViewportState() : undefined
-    });
+    await this.#persistGraph(graph);
   }
 
   /**
@@ -418,15 +431,9 @@ export class GraphPropertiesPanel {
     node.params = foundry.utils.deepClone(node.params);
     node.params.effects.splice(effectIndex, 1);
 
-    if (this.editor) {
-      this.editor.updateNodeParams(this.currentNodeId, node.params);
-    }
+    if (this.editor) this.editor.updateNodeParams(this.currentNodeId, node.params);
     await this.render();
-    await this.sheet.document.update({
-      "system.graph": graph,
-      "system.graphVersion": 1,
-      "flags.trespasser.graphViewport": this.editor ? this.editor.getViewportState() : undefined
-    });
+    await this.#persistGraph(graph);
   }
 
   /**
@@ -442,16 +449,11 @@ export class GraphPropertiesPanel {
     node.params.terrainUuid = "";
     node.params.terrainName = "";
     node.params.terrainImg = "";
+    node.params.intensity = null;
 
-    if (this.editor) {
-      this.editor.updateNodeParams(this.currentNodeId, node.params);
-    }
+    if (this.editor) this.editor.updateNodeParams(this.currentNodeId, node.params);
     await this.render();
-    await this.sheet.document.update({
-      "system.graph": graph,
-      "system.graphVersion": 1,
-      "flags.trespasser.graphViewport": this.editor ? this.editor.getViewportState() : undefined
-    });
+    await this.#persistGraph(graph);
   }
 
   /**
@@ -468,10 +470,13 @@ export class GraphPropertiesPanel {
     node.params.deedName = "";
     node.params.deedImg = "";
 
-    if (this.editor) {
-      this.editor.updateNodeParams(this.currentNodeId, node.params);
-    }
+    if (this.editor) this.editor.updateNodeParams(this.currentNodeId, node.params);
     await this.render();
+    await this.#persistGraph(graph);
+  }
+
+  /** Helper to persist graph state and viewport to the item document. */
+  async #persistGraph(graph) {
     await this.sheet.document.update({
       "system.graph": graph,
       "system.graphVersion": 1,
@@ -479,14 +484,10 @@ export class GraphPropertiesPanel {
     });
   }
 
-  /**
-   * Cleans up listeners and clears container DOM.
-   */
+  /** Cleans up listeners and clears container DOM. */
   destroy() {
     this._renderVersion++;
     this._isRendering = false;
-    if (this.container) {
-      this.container.innerHTML = "";
-    }
+    if (this.container) this.container.innerHTML = "";
   }
 }

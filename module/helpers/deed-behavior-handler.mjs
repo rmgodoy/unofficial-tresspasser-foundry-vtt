@@ -46,7 +46,7 @@ export class DeedBehaviorHandler {
         case "grantRecovery":
         case "grantRecoveryToTarget": return GrantRecoveryBehavior.execute(behavior, context, actor, item, phaseKey);
         case "applyEffects":     return ApplyEffectsBehavior.execute(behavior, context, actor, item, phaseKey);
-        case "spawnTerrain":     return SpawnTerrainBehavior.execute(behavior, context, actor, item);
+        case "spawnTerrain":     return SpawnTerrainBehavior.execute(behavior, context, actor, item, phaseKey);
         case "moveTerrain":      return MoveTerrainBehavior.execute(behavior, context, item);
         case "moveSource":       return MoveSourceBehavior.execute(behavior, context, actor);
         case "forceMoveTargets": return ForceMoveTargetsBehavior.execute(behavior, context, actor, item, phaseKey);

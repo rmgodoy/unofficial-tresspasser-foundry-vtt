@@ -223,6 +223,11 @@ export class RollAccuracyBehavior {
       context.isSpark = applySparkPhase;
       context.sparkChoices = sparkChoices;
 
+      if (sparkChoices) {
+        const { DeedPotencyHelper } = await import("./potency-helper.mjs");
+        await DeedPotencyHelper.onSparksSelected(context, actor, item, phaseKey);
+      }
+
       const onHitResult = branchingMode === "hitOrSpark" ? (anyHit && !applySparkPhase) : anyHit;
       return {
         conditions: {
@@ -400,6 +405,11 @@ export class RollAccuracyBehavior {
 
     context.isSpark = applySparkPhase;
     context.sparkChoices = sparkChoices;
+
+    if (sparkChoices) {
+      const { DeedPotencyHelper } = await import("./potency-helper.mjs");
+      await DeedPotencyHelper.onSparksSelected(context, actor, item, phaseKey);
+    }
 
     const onHitResult = branchingMode === "hitOrSpark" ? (anyHit && !applySparkPhase) : anyHit;
     return {

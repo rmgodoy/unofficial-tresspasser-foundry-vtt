@@ -272,14 +272,15 @@ export class GraphNode {
       }
       case "spawnTerrain": {
         const name = params.terrainName || "";
+        const intStr = (params.intensity !== undefined && params.intensity !== null && params.intensity !== "") ? ` (Int ${params.intensity})` : "";
         if (params.placement === "selected_area") {
           const ref = this.getIncomingReference("areaRef");
           const areaTag = formatAreaSummary(ref?.sourceNode);
           return name
-            ? `<span class="summary-tag">${name} <span class="summary-ref-val">(${areaTag || "area"})</span></span>`
+            ? `<span class="summary-tag">${name}${intStr} <span class="summary-ref-val">(${areaTag || "area"})</span></span>`
             : `<span class="summary-muted">—</span>`;
         }
-        return name ? `<span class="summary-tag">${name}</span>` : `<span class="summary-muted">—</span>`;
+        return name ? `<span class="summary-tag">${name}${intStr}</span>` : `<span class="summary-muted">—</span>`;
       }
       case "moveTerrain": {
         const ref = this.getIncomingReference("terrainRef");

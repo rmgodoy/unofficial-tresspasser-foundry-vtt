@@ -103,7 +103,13 @@
         "EffectMessage": "<strong>{name}</strong> aplica <strong>{effect}</strong> em <strong>{target}</strong>.",
         "Applied": "Aplicou {effect} em {target}.",
         "AppliedWithIntensity": "Aplicou {effect}{source} (Intensidade {intensity}) em {target}.",
+        "IntensityUpdated": "Atualizou intensidade de {effect} para {intensity} (+{potency} Potência).",
         "FromSource": " (de {source})"
+      },
+      "Terrain": {
+        "Spawned": "Terreno \"{terrain}\" criado no tabuleiro.",
+        "SpawnedWithIntensity": "Terreno \"{terrain}\" criado no tabuleiro com intensidade {intensity}.",
+        "IntensityUpdated": "Atualizou intensidade do terreno \"{terrain}\" para {intensity} (+{potency} Potência)."
       },
       "Retreat": {
         "Attempt": "O grupo tenta recuar!",

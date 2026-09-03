@@ -41,6 +41,7 @@ export const DEFAULT_PARAMS = {
     terrainUuid: "",
     terrainName: "",
     terrainImg: "",
+    intensity: null,
     placement: "on_target",
     ignoreSourceSquare: false
   },

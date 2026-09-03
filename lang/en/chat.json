@@ -103,7 +103,13 @@
         "EffectMessage": "<strong>{name}</strong> applies <strong>{effect}</strong> to <strong>{target}</strong>.",
         "Applied": "Applied {effect} to {target}.",
         "AppliedWithIntensity": "Applied {effect}{source} (Intensity {intensity}) to {target}.",
+        "IntensityUpdated": "Updated {effect} intensity to {intensity} (+{potency} Potency).",
         "FromSource": " (from {source})"
+      },
+      "Terrain": {
+        "Spawned": "Spawned terrain \"{terrain}\" on canvas.",
+        "SpawnedWithIntensity": "Spawned terrain \"{terrain}\" on canvas with intensity {intensity}.",
+        "IntensityUpdated": "Updated terrain \"{terrain}\" intensity to {intensity} (+{potency} Potency)."
       },
       "Retreat": {
         "Attempt": "The party attempts to retreat!",

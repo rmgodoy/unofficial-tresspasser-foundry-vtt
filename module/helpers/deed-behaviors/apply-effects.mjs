@@ -125,51 +125,55 @@ export class ApplyEffectsBehavior {
 
     if (effectList.length === 0) return true;
 
-    const { askPotencyDialog } = await import("../../dialogs/potency-dialog.mjs");
+    const { DeedPotencyHelper } = await import("./potency-helper.mjs");
+    await DeedPotencyHelper.ensurePotencyAllocations(context, actor, item, phaseKey);
 
-    // 3. Process targets and prompt for Potency distribution if there are multiple effects and Potency sparks
+    // 3. Process targets and apply effects (with potency bonus if already resolved)
     for (const targetToken of validTargets) {
       const targetActor = targetToken.actor || (targetToken instanceof Actor ? targetToken : null);
       if (!targetActor) continue;
 
-      const targetChoices = context.sparkChoices?.perTarget?.get(targetToken.id);
-      const targetPotencyBonus = targetChoices?.potency || 0;
       const tokenName = DeedBehaviorUtils.getTokenDisplayName(targetToken);
-
-      let potencyAllocations = [];
-      if (targetPotencyBonus > 0 && effectList.length > 1) {
-        potencyAllocations = await askPotencyDialog(
-          targetPotencyBonus,
-          effectList.map(e => ({ name: e.item.name, intensity: e.baseIntensity })),
-          tokenName
-        );
-        if (!potencyAllocations) {
-          potencyAllocations = effectList.map((_, i) => (i === 0 ? targetPotencyBonus : 0));
-        }
-      } else {
-        potencyAllocations = effectList.map((_, i) => (i === 0 ? targetPotencyBonus : 0));
-      }
-
       const itemDataArray = [];
 
-      effectList.forEach((effData, idx) => {
-        const addedPotency = potencyAllocations[idx] || 0;
+      effectList.forEach((effData) => {
+        const addedPotency = DeedPotencyHelper.getEffectPotency(context, targetToken.id, effData.uuid);
         const itemData = effData.item.toObject();
         itemData.system = itemData.system || {};
         itemData.system.intensity = effData.baseIntensity + addedPotency;
-        itemDataArray.push({ itemData, effData });
+        itemDataArray.push({ itemData, effData, addedPotency });
       });
 
+      let createdDocs = [];
       if (targetActor.isOwner) {
-        await targetActor.createEmbeddedDocuments("Item", itemDataArray.map(d => d.itemData));
+        createdDocs = await targetActor.createEmbeddedDocuments("Item", itemDataArray.map(d => d.itemData));
       } else {
         const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
-        await emitDeedActionAndWait("applyEffects", { 
+        const res = await emitDeedActionAndWait("applyEffects", { 
           actorId: targetActor.id, 
           tokenId: targetToken.id, 
           itemDataArray: itemDataArray.map(d => d.itemData) 
         });
+        if (Array.isArray(res)) {
+          createdDocs = res.map(id => targetActor.items.get(id)).filter(Boolean);
+        }
       }
+
+      // Register applied effects in context for potential retroactive update
+      itemDataArray.forEach((d, idx) => {
+        const createdItem = createdDocs[idx];
+        DeedPotencyHelper.registerAppliedEffect(context, {
+          type: "effect",
+          actor: targetActor,
+          targetId: targetToken.id,
+          itemId: createdItem?.id || null,
+          uuid: d.effData.uuid,
+          name: d.effData.item.name,
+          baseIntensity: d.effData.baseIntensity,
+          addedPotency: d.addedPotency,
+          finalIntensity: d.itemData.system.intensity
+        });
+      });
 
       if (context.currentPhaseOutputs?.notes) {
         for (const { itemData, effData } of itemDataArray) {

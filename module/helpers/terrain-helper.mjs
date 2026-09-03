@@ -125,7 +125,9 @@ export class TerrainHelper {
             if (sourceEff) {
               const effData = sourceEff.toObject();
               delete effData._id;
-              if (linkedItem.intensity) {
+              if (options.intensity !== undefined && options.intensity !== null && !isNaN(Number(options.intensity))) {
+                effData.system.intensity = Number(options.intensity);
+              } else if (linkedItem.intensity) {
                 effData.system.intensity = this.evaluateIntensityValue(linkedItem.intensity, 1);
               }
               effData.flags = foundry.utils.mergeObject(effData.flags || {}, {
@@ -171,7 +173,8 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
           linkedEffectUuid: options.linkedEffectUuid || null,
           casterActorId: options.casterActorId || null,
           casterActorUuid: options.casterActorUuid || null,
-          pathSquares: options.pathSquares || null
+          pathSquares: options.pathSquares || null,
+          intensity: options.intensity ?? null
         }
       }
     };
