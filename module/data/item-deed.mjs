@@ -14,7 +14,6 @@ export const BEHAVIOR_TYPES = [
   "healTarget",
   "grantRecovery",
   "applyEffects",
-  "modifyBehavior",
   "spawnTerrain",
   "moveTerrain",
   "moveSource",
@@ -27,26 +26,13 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
   static defineSchema() {
     const fields = foundry.data.fields;
 
-    const behaviorSchema = () => new fields.SchemaField({
-      id: new fields.StringField({
-        required: true,
-        initial: () => foundry.utils.randomID()
-      }),
-      type: new fields.StringField({
-        required: true,
-        initial: "",
-        choices: BEHAVIOR_TYPES
-      }),
-      params: new fields.ObjectField({ initial: {} })
-    });
-
+    /**
+     * Phase schema for deed phases metadata (descriptions and skip toggles).
+     * Note: Behaviors are managed by the graph data model (graph.nodes & graph.connections).
+     */
     const phaseSchema = () => new fields.SchemaField({
       description: new fields.StringField({ initial: "" }),
-      skipPhase: new fields.BooleanField({ initial: false }),
-      behaviors: new fields.ArrayField(
-        behaviorSchema(),
-        { initial: [] }
-      )
+      skipPhase: new fields.BooleanField({ initial: false })
     });
 
     return {
@@ -158,9 +144,6 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
   /** @override */
   prepareBaseData() {
     super.prepareBaseData();
-    if (this.phases) {
-      _sanitizeEffectsInPhases(this.phases);
-    }
     if (this.graph) {
       _sanitizeEffectsInGraph(this.graph);
     }
@@ -171,10 +154,6 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
     const res = super._preUpdate(changes, options, user);
     if (res === false) return false;
 
-    const phases = changes.system?.phases ?? changes.phases;
-    if (phases) {
-      _sanitizeEffectsInPhases(phases);
-    }
     const graph = changes.system?.graph ?? changes.graph;
     if (graph) {
       _sanitizeEffectsInGraph(graph);
@@ -208,28 +187,6 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
     const migrated = migrateToGraph(converted);
     foundry.utils.mergeObject(source, migrated);
     return super.migrateData(source);
-  }
-}
-
-/**
- * Helper to ensure params.effects in behaviors is always a Javascript Array.
- * @param {object} phases
- */
-function _sanitizeEffectsInPhases(phases) {
-  if (!phases || typeof phases !== "object") return;
-  for (const phaseKey of Object.keys(phases)) {
-    const phase = phases[phaseKey];
-    if (!phase || typeof phase !== "object") continue;
-    const behaviors = phase.behaviors;
-    if (!behaviors) continue;
-    const behaviorList = Array.isArray(behaviors) ? behaviors : Object.values(behaviors);
-    for (const b of behaviorList) {
-      if (b && b.params && b.params.effects) {
-        if (!Array.isArray(b.params.effects) && typeof b.params.effects === "object") {
-          b.params.effects = Object.values(b.params.effects);
-        }
-      }
-    }
   }
 }
 

@@ -7,6 +7,7 @@
       "LastingStateReduced": "{name} returns to lasting intensity {intensity}.",
       "Item": {
         "DropDeedsOnly": "Only Deeds can be dropped here.",
+        "DropTerrainsOnly": "Only Terrain items can be dropped here.",
         "Added": "Added {item} to {target}.",
         "EffectMerged": "{effect} merged into the existing effect on {target} (intensity {intensity}).",
         "DropEffectsStatesOnly": "Only Effects or States can be dropped here.",

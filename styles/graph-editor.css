@@ -433,14 +433,12 @@
   background: var(--trp-bg-panel, #23201c);
   padding: 10px 14px;
 }
-
 .phase-card-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
   margin-bottom: 8px;
 }
-
 .phase-skip-toggle {
   font-size: var(--fs-11);
   color: var(--trp-text-dim, #a09070);
@@ -448,4 +446,52 @@
   align-items: center;
   gap: 5px;
   cursor: pointer;
+}
+
+.phase-description-group {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.phase-description-group textarea {
+  width: 100%;
+  background: var(--trp-bg-input, #2e2a24);
+  color: var(--trp-text, #ddd0aa);
+  border: 1px solid var(--trp-border, #4a3f2f);
+  border-radius: var(--trp-radius-sm, 2px);
+  padding: 6px;
+  font-family: inherit;
+  font-size: var(--fs-13);
+  resize: vertical;
+  box-sizing: border-box;
+}
+
+/* Shortcuts Tooltip */
+.graph-shortcuts-tooltip {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width: 320px;
+  font-size: var(--fs-11);
+  line-height: 1.35;
+  color: var(--trp-text, #ddd0aa);
+}
+.graph-shortcuts-tooltip strong {
+  color: var(--trp-gold-bright, #e8c96b);
+  font-family: var(--trp-font-header, 'Cinzel', serif);
+  font-size: var(--fs-12);
+  border-bottom: 1px solid var(--trp-gold-dim, #a88840);
+  padding-bottom: 2px;
+}
+.graph-shortcuts-tooltip ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.graph-shortcuts-tooltip li {
+  font-size: var(--fs-11);
+  color: var(--trp-text-dim, #a09070);
 }

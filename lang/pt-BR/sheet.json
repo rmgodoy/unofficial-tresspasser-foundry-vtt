@@ -309,13 +309,12 @@
             "grantRecovery": "Conceder Recuperação ao Alvo",
             "grantRecoveryToTarget": "Conceder Recuperação ao Alvo",
             "applyEffects": "Aplicar Efeitos ao Alvo",
-            "modifyBehavior": "Modificar Comportamento",
             "spawnTerrain": "Criar Terreno",
             "moveTerrain": "Mover Terreno",
             "moveSource": "Mover Ator de Origem",
             "forceMoveTargets": "Forçar Movimento dos Alvos",
             "clearTargets": "Limpar Alvos",
-            "executeDeed": "Executar Façanha Auxiliar"
+            "executeDeed": "Executar Habilidade Auxiliar"
           }
         },
         "Tabs": {
@@ -332,6 +331,23 @@
           "FitView": "Ajustar à Visualização",
           "Properties": "Propriedades",
           "SelectNodePrompt": "Selecione um nó no grafo para editar suas propriedades.",
+          "CopyNodeId": "Copiar ID do Nó: {id}",
+          "CopiedNodeId": "ID do nó \"{id}\" copiado para a área de transferência.",
+          "ParamsLoadError": "Falha ao carregar editor de parâmetros.",
+          "ShortcutsTitle": "Atalhos & Controles",
+          "ShortcutPan": "Arrastar: Arraste a tela vazia",
+          "ShortcutZoom": "Zoom: Roda do mouse",
+          "ShortcutAddNode": "Adicionar Nó: Botão direito na tela",
+          "ShortcutMoveNode": "Mover Nó: Arraste o cabeçalho do nó",
+          "ShortcutConnect": "Conectar: Arraste da saída para a entrada",
+          "ShortcutDisconnect": "Desconectar: Arraste a entrada conectada",
+          "ShortcutSelect": "Selecionar: Clique no nó",
+          "ShortcutDelete": "Excluir: Del / Backspace",
+          "Summary": {
+            "Root": "Raiz",
+            "Branching": "Ramificação",
+            "Effects": "efeitos"
+          },
           "Port": {
             "In": "Entrada",
             "Out": "Saída",
@@ -408,10 +424,10 @@
           "Intensity": "Intensidade da Recuperação",
           "ClearTargetsHint": "Limpa a lista de alvos, permitindo que fases posteriores selecionem novos alvos.",
           "RollAccuracyHint": "Herda Versus, Tipo de Ação e Tipo de Ataque dos Detalhes. Ramifica a execução com base nas conexões de Acerto, Erro, Centelha ou Sempre.",
-          "StartHint": "Ponto de entrada para execução da façanha. Segue a conexão de fluxo de Saída.",
+          "StartHint": "Ponto de entrada para execução da habilidade. Segue a conexão de fluxo de Saída.",
           "ClearEffect": "Remover Efeito",
           "ClearTerrain": "Remover Terreno",
-          "ClearDeed": "Remover Façanha",
+          "ClearDeed": "Remover Habilidade",
           "NodePhase": "Fase",
           "NodeType": "Tipo",
           "NodeId": "ID do Nó"
@@ -510,7 +526,7 @@
           "Effect": "efeito...",
           "Description": "Nenhuma descrição fornecida.",
           "DropEffects": "Solte Efeitos aqui",
-          "DropDeed": "Solte Façanha aqui",
+          "DropDeed": "Solte Habilidade aqui",
           "DropDeeds": "Solte Habilidades aqui",
           "DropIncantations": "Solte Encantamentos aqui",
           "DropTalents": "Solte Talentos aqui",

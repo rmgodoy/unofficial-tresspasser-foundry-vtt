@@ -10,15 +10,7 @@ import { startCanvasPan, startNodeDrag, startNoodleDrag } from "./graph-interact
 export class GraphEditor {
   /**
    * @param {HTMLElement} container - DOM container element
-   * @param {object} [options]
-   * @param {number}   [options.panX=40]
-   * @param {number}   [options.panY=40]
-   * @param {number}   [options.zoom=1.0]
-   * @param {string}   [options.selectedNodeId=null]
-   * @param {Function} [options.onGraphChange]    - Callback(nodes, connections)
-   * @param {Function} [options.onViewportChange] - Callback({panX, panY, zoom, selectedNodeId})
-   * @param {Function} [options.onNodeSelect]     - Callback(nodeData|null)
-   * @param {boolean}  [options.readOnly=false]
+   * @param {object} [options] - Configuration options, initial viewport, and callbacks
    */
   constructor(container, options = {}) {
     this.container = container;
@@ -68,7 +60,14 @@ export class GraphEditor {
     this.toolbar.className = "graph-toolbar";
     const fitTitle = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.FitView") || "Fit to View";
     const layoutTitle = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.AutoLayout") || "Auto Layout";
-    this.toolbar.innerHTML = `<div class="toolbar-group"><button type="button" class="btn-fit" title="${fitTitle}"><i class="fas fa-expand"></i></button><button type="button" class="btn-layout" title="${layoutTitle}"><i class="fas fa-wand-magic-sparkles"></i></button></div><div class="toolbar-group"><span class="zoom-label">100%</span></div>`;
+    const shortcutsTitle = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.ShortcutsTitle") || "Shortcuts & Controls";
+    this.toolbar.innerHTML = `<div class="toolbar-group">` +
+      `<button type="button" class="btn-fit" title="${fitTitle}"><i class="fas fa-expand"></i></button>` +
+      `<button type="button" class="btn-layout" title="${layoutTitle}"><i class="fas fa-wand-magic-sparkles"></i></button>` +
+      `<button type="button" class="btn-shortcuts" data-tooltip-direction="DOWN" aria-label="${shortcutsTitle}"><i class="fas fa-keyboard"></i></button>` +
+      `</div><div class="toolbar-group"><span class="zoom-label">100%</span></div>`;
+    const btnShortcuts = this.toolbar.querySelector(".btn-shortcuts");
+    if (btnShortcuts) btnShortcuts.dataset.tooltip = this._getShortcutsTooltipHtml();
 
     this.viewport = document.createElement("div");
     this.viewport.className = "graph-viewport";
@@ -94,6 +93,24 @@ export class GraphEditor {
     this.root.appendChild(this.viewport);
     this.container.appendChild(this.root);
     this._updateTransform();
+  }
+
+  /**
+   * Generates localized HTML tooltip for graph keyboard shortcuts and controls.
+   * @protected
+   * @returns {string}
+   */
+  _getShortcutsTooltipHtml() {
+    const t = (k, fb) => game.i18n.localize(`TRESPASSER.Sheet.Deed.Graph.${k}`) || fb;
+    return `<div class="graph-shortcuts-tooltip"><strong>${t("ShortcutsTitle", "Shortcuts & Controls")}</strong><ul>` +
+      `<li>• ${t("ShortcutPan", "Pan: Drag canvas")}</li>` +
+      `<li>• ${t("ShortcutZoom", "Zoom: Mouse wheel")}</li>` +
+      `<li>• ${t("ShortcutAddNode", "Add Node: Right-click")}</li>` +
+      `<li>• ${t("ShortcutMoveNode", "Move: Drag node header")}</li>` +
+      `<li>• ${t("ShortcutConnect", "Connect: Drag port to port")}</li>` +
+      `<li>• ${t("ShortcutDisconnect", "Disconnect: Drag port away")}</li>` +
+      `<li>• ${t("ShortcutSelect", "Select: Click node")}</li>` +
+      `<li>• ${t("ShortcutDelete", "Delete: Del / Backspace")}</li></ul></div>`;
   }
 
   /**
@@ -187,10 +204,7 @@ export class GraphEditor {
     };
   }
 
-  /**
-   * Selects a node by ID.
-   * @param {string|null} nodeId
-   */
+  /** Selects a node by ID. @param {string|null} nodeId */
   selectNode(nodeId) {
     this.selectedNodeId = nodeId;
     for (const [id, node] of this.nodeMap.entries()) {
@@ -203,13 +217,7 @@ export class GraphEditor {
     }
   }
 
-  /**
-   * Adds a new behavior node to the graph.
-   * @param {string} type
-   * @param {number} [x=100]
-   * @param {number} [y=100]
-   * @param {object} [params={}]
-   */
+  /** Adds a new behavior node to the graph. */
   addNode(type, x = 100, y = 100, params = {}) {
     const id = foundry.utils.randomID();
     const nodeData = {
@@ -229,10 +237,7 @@ export class GraphEditor {
     this._notifyChange();
   }
 
-  /**
-   * Deletes a node and its connections.
-   * @param {string} nodeId
-   */
+  /** Deletes a node and its connections. @param {string} nodeId */
   deleteNode(nodeId) {
     if (!nodeId) return;
     const node = this.nodeMap.get(nodeId);
@@ -254,11 +259,7 @@ export class GraphEditor {
     this._notifyChange();
   }
 
-  /**
-   * Updates a node's phase and refreshes its visuals.
-   * @param {string} nodeId
-   * @param {string} newPhase
-   */
+  /** Updates a node's phase and refreshes its visuals. */
   updateNodePhase(nodeId, newPhase) {
     const node = this.nodeMap.get(nodeId);
     if (!node) return;
@@ -266,11 +267,7 @@ export class GraphEditor {
     this._notifyChange();
   }
 
-  /**
-   * Updates a node's params and refreshes its card summary.
-   * @param {string} nodeId
-   * @param {object} params
-   */
+  /** Updates a node's params and refreshes its card summary. */
   updateNodeParams(nodeId, params) {
     const node = this.nodeMap.get(nodeId);
     if (!node) return;
@@ -278,14 +275,7 @@ export class GraphEditor {
     this._notifyChange();
   }
 
-  /**
-   * Adds a connection between two ports.
-   * @param {string} sourceId
-   * @param {string} sourcePort
-   * @param {string} targetId
-   * @param {string} targetPort
-   * @param {string} [type="flow"]
-   */
+  /** Adds a connection between two ports. */
   addConnection(sourceId, sourcePort, targetId, targetPort, type = "flow") {
     if (sourceId === targetId) return;
 
@@ -300,9 +290,7 @@ export class GraphEditor {
     this._notifyChange();
   }
 
-  /**
-   * Auto-layouts nodes topologically left-to-right.
-   */
+  /** Auto-layouts nodes topologically left-to-right. */
   autoLayout() {
     let currentX = 60;
     const startNode = Array.from(this.nodeMap.values()).find(n => n.data.type === "start");
@@ -326,9 +314,7 @@ export class GraphEditor {
     this._notifyChange();
   }
 
-  /**
-   * Adjusts pan and zoom to fit all nodes inside the viewport.
-   */
+  /** Adjusts pan and zoom to fit all nodes inside the viewport. */
   fitToView() {
     if (this.nodeMap.size === 0) return;
     let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;

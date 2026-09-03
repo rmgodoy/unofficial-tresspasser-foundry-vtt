@@ -85,6 +85,7 @@ export class GraphPropertiesPanel {
         return `<option value="${key}" ${selected}>${label}</option>`;
       }).join("");
 
+      const copyTitle = game.i18n.format("TRESPASSER.Sheet.Deed.Graph.CopyNodeId", { id: node.id }) || `Copy Node ID: ${node.id}`;
       const nodeCard = document.createElement("div");
       nodeCard.className = `properties-node-card phase-border-${node.phase || "base"}`;
       nodeCard.innerHTML = `
@@ -93,7 +94,7 @@ export class GraphPropertiesPanel {
             <i class="fas ${iconClass}"></i>
             <span>${typeLabel}</span>
           </div>
-          <button type="button" class="btn-copy-id" title="Copy Node ID: ${node.id}" data-node-id="${node.id}">
+          <button type="button" class="btn-copy-id" title="${copyTitle}" data-node-id="${node.id}">
             <i class="fas fa-fingerprint"></i> #${node.id.slice(0, 6)}
           </button>
         </div>
@@ -124,7 +125,7 @@ export class GraphPropertiesPanel {
         paramsContainer.innerHTML = paramsHtml;
       } catch (err) {
         console.error("Trespasser | Failed to render behavior-params.hbs in properties panel:", err);
-        paramsContainer.innerHTML = `<p class="error-text">Failed to load parameters editor.</p>`;
+        paramsContainer.innerHTML = `<p class="error-text">${game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.ParamsLoadError") || "Failed to load parameters editor."}</p>`;
       }
 
       panelEl.appendChild(paramsContainer);
@@ -174,7 +175,7 @@ export class GraphPropertiesPanel {
       } else if (game.clipboard?.copyPlainText) {
         game.clipboard.copyPlainText(id);
       }
-      ui.notifications?.info(`Copied node ID "${id}" to clipboard.`);
+      ui.notifications?.info(game.i18n.format("TRESPASSER.Sheet.Deed.Graph.CopiedNodeId", { id }) || `Copied node ID "${id}" to clipboard.`);
     });
 
     // Phase selector change -> immediately update canvas visuals and persist
@@ -321,7 +322,7 @@ export class GraphPropertiesPanel {
       });
     } else if (isTerrain) {
       if (item.type !== "terrain") {
-        ui.notifications?.warn("Dropped item must be a Terrain item.");
+        ui.notifications?.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropTerrainsOnly") || "Only Terrain items can be dropped here.");
         return;
       }
       node.params.terrainUuid = item.uuid;
@@ -329,7 +330,7 @@ export class GraphPropertiesPanel {
       node.params.terrainImg = item.img || "icons/svg/mountain.svg";
     } else if (isDeed) {
       if (item.type !== "deed") {
-        ui.notifications?.warn("Dropped item must be a Deed item.");
+        ui.notifications?.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnly") || "Only Deeds can be dropped here.");
         return;
       }
       node.params.deedUuid = item.uuid;

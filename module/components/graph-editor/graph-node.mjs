@@ -187,10 +187,14 @@ export class GraphNode {
   _getNodeSummary(node) {
     const params = node.params || {};
     switch (node.type) {
-      case "start":
-        return `<span class="summary-tag">Root</span>`;
-      case "rollAccuracy":
-        return `<span class="summary-tag">Branching</span>`;
+      case "start": {
+        const tag = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Root") || "Root";
+        return `<span class="summary-tag">${tag}</span>`;
+      }
+      case "rollAccuracy": {
+        const tag = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Branching") || "Branching";
+        return `<span class="summary-tag">${tag}</span>`;
+      }
       case "applyDamage":
       case "healTarget":
       case "roll":
@@ -199,8 +203,10 @@ export class GraphNode {
         return `<span class="summary-tag">${params.targetMode || "creatures"} (${params.targetCount || 1})</span>`;
       case "selectArea":
         return `<span class="summary-tag">${params.aoeType || "blast"} ${params.aoeSize || 1}</span>`;
-      case "applyEffects":
-        return params.effects?.length ? `<span class="summary-tag">${params.effects.length} effects</span>` : `<span class="summary-muted">—</span>`;
+      case "applyEffects": {
+        const effLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Effects") || "effects";
+        return params.effects?.length ? `<span class="summary-tag">${params.effects.length} ${effLabel}</span>` : `<span class="summary-muted">—</span>`;
+      }
       case "spawnTerrain":
         return params.terrainName ? `<span class="summary-tag">${params.terrainName}</span>` : `<span class="summary-muted">—</span>`;
       default:

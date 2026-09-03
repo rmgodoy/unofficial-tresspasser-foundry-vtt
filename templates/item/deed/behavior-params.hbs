@@ -352,9 +352,9 @@
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.MovementType"}}</label>
         <select name="system.graph.nodes.{{index}}.params.movementType">
-          <option value="walk" {{#if (eq params.movementType "walk")}}selected{{/if}}>Walk</option>
-          <option value="jump" {{#if (eq params.movementType "jump")}}selected{{/if}}>Jump</option>
-          <option value="teleport" {{#if (eq params.movementType "teleport")}}selected{{/if}}>Teleport</option>
+          <option value="walk" {{#if (eq params.movementType "walk")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Walk"}}</option>
+          <option value="jump" {{#if (eq params.movementType "jump")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Jump"}}</option>
+          <option value="teleport" {{#if (eq params.movementType "teleport")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Teleport"}}</option>
         </select>
       </div>
       {{#if (eq params.destinationMode "selectedArea")}}

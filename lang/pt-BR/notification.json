@@ -7,6 +7,7 @@
       "LastingStateReduced": "{name} retorna à intensidade duradoura de {intensity}.",
       "Item": {
         "DropDeedsOnly": "Apenas Habilidades podem ser soltas aqui.",
+        "DropTerrainsOnly": "Apenas itens de Terreno podem ser soltos aqui.",
         "Added": "{item} adicionado a {target}.",
         "EffectMerged": "{effect} foi mesclado ao efeito existente em {target} (intensidade {intensity}).",
         "DropEffectsStatesOnly": "Apenas Efeitos ou Estados podem ser soltos aqui.",
