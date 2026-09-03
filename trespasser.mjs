@@ -896,6 +896,9 @@ Hooks.once("ready", async () => {
           } catch (_) {}
           token.turnMarker = null;
         }
+        if (token.actor && game.user.isGM) {
+          TrespasserEffectsHelper.syncActorTokenEffects(token.actor);
+        }
       }
     }
   });

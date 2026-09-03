@@ -30,6 +30,20 @@ export class ApplyEffectsBehavior {
   }
 
   /**
+   * Parse intensity value safely, supporting 0 as a valid intensity.
+   * @param {any} val
+   * @param {number} [fallback=0]
+   * @returns {number}
+   * @protected
+   */
+  static _parseIntensity(val, fallback = 0) {
+    if (val !== undefined && val !== null && val !== "" && !isNaN(Number(val))) {
+      return Number(val);
+    }
+    return fallback;
+  }
+
+  /**
    * 3. applyEffects: Applies specified effects to context.targets (incorporating Potency spark bonus) and appends notes to current phase.
    * Potency spark bonus intensity applies ONLY to targets whose spark count reached the layer where Potency was selected.
    * Also supports appliesWeaponEffects flag to apply equipped weapon's effects to targets.
@@ -56,7 +70,7 @@ export class ApplyEffectsBehavior {
       effectList.push({
         item: effectItem,
         uuid: eff.uuid,
-        baseIntensity: eff.intensity || 1,
+        baseIntensity: this._parseIntensity(eff.intensity, effectItem.system?.intensity ?? 0),
         source: "deed"
       });
     }
@@ -66,17 +80,45 @@ export class ApplyEffectsBehavior {
       const equippedWeapons = this._getActorEquippedWeapons(actor);
       for (const weapon of equippedWeapons) {
         const weaponEffects = weapon.system?.effects;
-        if (!Array.isArray(weaponEffects) || weaponEffects.length === 0) continue;
-        for (const wEff of weaponEffects) {
-          if (!wEff.uuid) continue;
-          const effectItem = await fromUuid(wEff.uuid);
-          if (!effectItem) continue;
-          effectList.push({
-            item: effectItem,
-            uuid: wEff.uuid,
-            baseIntensity: wEff.intensity || 1,
-            source: weapon.name
-          });
+        if (Array.isArray(weaponEffects) && weaponEffects.length > 0) {
+          for (const wEff of weaponEffects) {
+            if (!wEff.uuid) continue;
+            const effectItem = await fromUuid(wEff.uuid);
+            if (!effectItem) continue;
+            effectList.push({
+              item: effectItem,
+              uuid: wEff.uuid,
+              baseIntensity: this._parseIntensity(wEff.intensity, effectItem.system?.intensity ?? 0),
+              source: weapon.name
+            });
+          }
+        }
+        if (phaseKey === "spark" && Array.isArray(weapon.system?.enhancementEffects)) {
+          for (const wEff of weapon.system.enhancementEffects) {
+            if (!wEff.uuid) continue;
+            const effectItem = await fromUuid(wEff.uuid);
+            if (!effectItem) continue;
+            effectList.push({
+              item: effectItem,
+              uuid: wEff.uuid,
+              baseIntensity: this._parseIntensity(wEff.intensity, effectItem.system?.intensity ?? 0),
+              source: `${weapon.name} (Enhancement)`
+            });
+          }
+        }
+        if ((phaseKey === "hit" || phaseKey === "base") && context.isHit && Array.isArray(weapon.system?.oilEffects) && weapon.system.oilEffects.length > 0) {
+          for (const wEff of weapon.system.oilEffects) {
+            if (!wEff.uuid) continue;
+            const effectItem = await fromUuid(wEff.uuid);
+            if (!effectItem) continue;
+            effectList.push({
+              item: effectItem,
+              uuid: wEff.uuid,
+              baseIntensity: this._parseIntensity(wEff.intensity, effectItem.system?.intensity ?? 0),
+              source: `${weapon.name} (Oil)`
+            });
+          }
+          await weapon.update({ "system.oilEffects": [] });
         }
       }
     }
@@ -131,9 +173,16 @@ export class ApplyEffectsBehavior {
 
       if (context.currentPhaseOutputs?.notes) {
         for (const { itemData, effData } of itemDataArray) {
-          const sourceText = effData.source !== "deed" ? ` (from ${effData.source})` : "";
+          const sourceText = effData.source !== "deed"
+            ? game.i18n.format("TRESPASSER.Chat.Effect.FromSource", { source: effData.source })
+            : "";
           context.currentPhaseOutputs.notes.push(
-            `Applied effect "${effData.item.name}"${sourceText} (Intensity ${itemData.system.intensity}) to ${tokenName}`
+            game.i18n.format("TRESPASSER.Chat.Effect.AppliedWithIntensity", {
+              effect: effData.item.name,
+              source: sourceText,
+              intensity: itemData.system.intensity ?? 0,
+              target: tokenName
+            })
           );
         }
       }

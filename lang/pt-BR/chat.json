@@ -101,7 +101,9 @@
         "TriggeredHP": "<strong>{name}</strong> disparou: {value} PV aplicados.",
         "TriggeredAdded": "<strong>{name}</strong> disparou: Adicionado efeito {target}.",
         "EffectMessage": "<strong>{name}</strong> aplica <strong>{effect}</strong> em <strong>{target}</strong>.",
-        "Applied": "Aplicou {effect} em {target}."
+        "Applied": "Aplicou {effect} em {target}.",
+        "AppliedWithIntensity": "Aplicou {effect}{source} (Intensidade {intensity}) em {target}.",
+        "FromSource": " (de {source})"
       },
       "Retreat": {
         "Attempt": "O grupo tenta recuar!",

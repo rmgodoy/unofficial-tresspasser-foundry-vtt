@@ -1,16 +1,12 @@
 import { DeedBehaviorHandler } from "./deed-behavior-handler.mjs";
-import { TrespasserEffectsHelper } from "./effects-helper.mjs";
-import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
-import { askSparkDialog } from "../dialogs/spark-dialog.mjs";
-import { requestPlayerDefenseRoll } from "./defense-roll-helper.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { askAPDialog } from "../dialogs/ap-dialog.mjs";
+import { migrateToGraph } from "./migration-graph.mjs";
 
 /**
- * DeedExecutor — Runtime pipeline executor for Behavior-Driven Deeds in Trespasser TTRPG.
- *
- * Handles sequential execution across 7 phases:
- *   Start → Before → Base → [Hit] → [Spark] → After → End
+ * DeedExecutor — Graph-based runtime pipeline executor for Behavior-Driven Deeds in Trespasser TTRPG.
+ * Traverses behavior graph nodes starting from "start", evaluating condition ports (onHit, onMiss, onSpark, always),
+ * lazily resolving reference nodes, and consolidating chat cards grouped by phase.
  */
 export class DeedExecutor {
   /**
@@ -20,13 +16,11 @@ export class DeedExecutor {
    */
   constructor(bdeedItem, actor, options = {}) {
     this.item = bdeedItem;
-    this.actor = actor || bdeedItem.actor || canvas.tokens?.controlled[0]?.actor || game.user.character || null;
+    this.actor = actor || bdeedItem.actor || canvas.tokens?.controlled[0]?.actor || game.user?.character || null;
     this.system = bdeedItem.system;
     this.options = options || {};
 
-    /**
-     * Shared runtime context passed across all phases.
-     */
+    /** Shared runtime context passed across all behavior executions. */
     this.context = {
       executor: this,
       callStack: this.options.callStack || new Set(),
@@ -36,7 +30,6 @@ export class DeedExecutor {
       areas: new Map(),
       spawnedTerrains: [],
       activePhases: [],
-      modifications: [],
       evaluatedRolls: new Map(),
       rollResult: null,
       isHit: false,
@@ -46,19 +39,26 @@ export class DeedExecutor {
       accuracyResults: [],
       accuracyResolved: false,
       currentPhaseOutputs: null,
+      activeChatMessage: null,
+      currentBranch: "out",
       apSpent: 1,
       apBonus: 0
     };
+
+    this._currentPhaseKey = null;
+    this._executedNodes = new Set();
+    this._nodesById = new Map();
+    this._outgoingFlow = new Map();
+    this._incomingRefs = new Map();
   }
 
   /**
    * Validate Focus and AP resources without mutating documents or deducting flags.
-   * Prompts for AP usage if necessary.
    * @protected
+   * @returns {Promise<boolean>}
    */
   async _validateResources() {
-    if (this.options.isSubDeed) return true;
-    if (!this.actor) return true;
+    if (this.options.isSubDeed || !this.actor) return true;
 
     const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
     const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
@@ -76,28 +76,17 @@ export class DeedExecutor {
         apSpent = Math.max(1, parseInt(this.options.apSpent) || 1);
       } else if (availableAP > 1) {
         apSpent = await askAPDialog(availableAP);
-        if (apSpent === null || apSpent === undefined) return false; // User cancelled AP dialog
+        if (apSpent === null || apSpent === undefined) return false;
       }
-
       apBonus = (apSpent - 1) * 2;
     }
 
     const usedActions = new Set(combatant?.getFlag("trespasser", "usedHUDActions") ?? []);
     const surcharge = usedActions.has("maneuver") ? 2 : 0;
-
     const tier = (this.system.tier || "light").toLowerCase();
-    let baseCost = this.system.focusCost;
-    if (baseCost === null || baseCost === undefined) {
-      if (tier === "heavy") baseCost = 2;
-      else if (tier === "mighty") baseCost = 4;
-      else baseCost = 0;
-    }
-
-    let costIncrease = this.system.focusIncrease;
-    if (costIncrease === null || costIncrease === undefined) {
-      costIncrease = (tier === "heavy" || tier === "mighty") ? 1 : 0;
-    }
-
+    const defaultCost = tier === "heavy" ? 2 : tier === "mighty" ? 4 : 0;
+    const baseCost = this.system.focusCost ?? defaultCost;
+    const costIncrease = this.system.focusIncrease ?? ((tier === "heavy" || tier === "mighty") ? 1 : 0);
     const currentBonusCost = this.system.bonusCost || 0;
     const currentUses = this.system.uses || 0;
     const totalFocusCost = baseCost + currentBonusCost + surcharge;
@@ -125,13 +114,11 @@ export class DeedExecutor {
   }
 
   /**
-   * Commit AP, Focus, and Item Uses deductions to database after successful pipeline execution.
+   * Commit AP, Focus, and Item Uses deductions to database after successful execution.
    * @protected
    */
   async _commitResourceUsage() {
-    if (this.options.isSubDeed) return;
-    if (!this.actor) return;
-
+    if (this.options.isSubDeed || !this.actor) return;
     const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
 
     // 1. Deduct AP from combatant flags
@@ -143,96 +130,45 @@ export class DeedExecutor {
     // 2. Deduct Focus from actor combat state
     if (this.context.totalFocusCost > 0) {
       const currentFocus = this.actor.system.combat?.focus ?? 0;
-      const newFocus = Math.max(0, currentFocus - this.context.totalFocusCost);
-      await this.actor.update({ "system.combat.focus": newFocus });
+      await this.actor.update({ "system.combat.focus": Math.max(0, currentFocus - this.context.totalFocusCost) });
     }
 
     // 3. Increment uses and update bonusCost on item document
     if (this.context.costIncrease > 0) {
-      const newUses = (this.context.currentUses || 0) + 1;
-      const newBonusCost = (this.context.currentBonusCost || 0) + this.context.costIncrease;
       await this.item.update({
-        "system.uses": newUses,
-        "system.bonusCost": newBonusCost
+        "system.uses": (this.context.currentUses || 0) + 1,
+        "system.bonusCost": (this.context.currentBonusCost || 0) + this.context.costIncrease
       });
     }
   }
 
   /**
-   * Execute the full BDeed pipeline sequentially.
+   * Execute the deed behavior graph natively.
    */
   async execute() {
-    // Step 0: Validate AP and Focus upfront before pipeline starts (no mutations yet)
     const valid = await this._validateResources();
     if (valid === false) return;
 
-    // Deep clone phase data so mutations don't alter the database document
-    if (this.system.graphVersion >= 1 && this.system.graph?.nodes?.length > 0) {
-      this.phases = this._buildPhasesFromGraph();
-    } else {
-      this.phases = foundry.utils.deepClone(this.system.phases ?? {});
+    let graph = this.system.graph;
+    if (!graph?.nodes?.length && this.system.phases) {
+      const migrated = migrateToGraph(this.system);
+      graph = migrated?.graph;
     }
+    if (!graph?.nodes?.length) return;
 
-    // Annotate behaviors with source phase for dependency tracking
-    for (const [pKey, phase] of Object.entries(this.phases)) {
-      if (phase?.behaviors) {
-        for (const b of phase.behaviors) {
-          b._sourcePhase = pKey;
-        }
-      }
-    }
+    this._buildAdjacencyList(graph);
+    const startNode = graph.nodes.find(n => n.type === "start") || graph.nodes[0];
+    if (!startNode) return;
 
-    // Step 1: Sequential phase processing with dependency resolution
-    let cancelled = false;
-    const phaseOrder = ["start", "before", "base", "hit", "spark", "after", "end"];
-    for (const phaseKey of phaseOrder) {
-      if (this._shouldSkipPhase(phaseKey)) continue;
+    const visited = new Set();
+    const cancelled = await this._traverseNode(startNode.id, visited);
 
-      // Check if current phase depends on a later phase (e.g. modifyBehavior in hit/spark targeting base/before)
-      if (!this.context.accuracyResolved && this._hasDependencyOnLaterPhase(phaseKey)) {
-        const needsAccuracy = this._hasContent("hit") || this._hasContent("spark");
-        if (needsAccuracy) {
-          this.context.accuracyResolved = true;
-          const accRes = await this._resolveAccuracyCheck(true);
-          if (accRes === false) {
-            cancelled = true;
-            break;
-          }
-          this._applyActiveModifications();
-        }
-      }
+    await this._flushPhaseCard();
 
-      if (phaseKey === "hit") {
-        const needsAccuracy = this._hasContent("hit") || this._hasContent("spark");
-        if (needsAccuracy && !this.context.accuracyResolved) {
-          this.context.accuracyResolved = true;
-          const accRes = await this._resolveAccuracyCheck(false);
-          if (accRes === false) {
-            cancelled = true;
-            break;
-          }
-          if (!this.context.isHit && !this.context.accuracyCardPosted) {
-            await this._postPhaseCard("hit", this.phases.hit);
-          }
-        }
-      }
-
-      if (this._shouldSkipPhase(phaseKey)) continue;
-      this.context.activePhases.push(phaseKey);
-      this._applyActiveModifications();
-      const res = await this._executePhase(phaseKey);
-      if (res === false) {
-        cancelled = true;
-        break; // User cancelled execution or target selection
-      }
-    }
-
-    // If execution was cancelled (e.g. template target selection or roll dialog cancelled), do NOT commit resources!
     if (!cancelled) {
       await this._commitResourceUsage();
     }
 
-    // Step 4: Clear targets and area highlights after pipeline execution so next execution starts fresh
     this.context.targets = [];
     if (game.user?.targets?.size > 0) {
       await game.user.updateTokenTargets([]);
@@ -241,727 +177,213 @@ export class DeedExecutor {
   }
 
   /**
-   * Temporary compatibility adapter: Reconstructs standard phase structure from graph nodes & connections.
-   * Enables the legacy sequential executor to run graph-based deeds until Phase 4 native graph traversal is built.
-   * @returns {object}
+   * Index nodes and connections for fast lookup.
+   * @param {object} graph
    * @protected
    */
-  _buildPhasesFromGraph() {
-    const phaseOrder = ["start", "before", "base", "hit", "spark", "after", "end"];
-    const phases = {};
-    for (const pKey of phaseOrder) {
-      phases[pKey] = {
-        description: this.system.phases?.[pKey]?.description || "",
-        skipPhase: Boolean(this.system.phases?.[pKey]?.skipPhase),
-        behaviors: []
-      };
-    }
+  _buildAdjacencyList(graph) {
+    this._nodesById = new Map(graph.nodes.map(n => [n.id, n]));
+    this._outgoingFlow = new Map();
+    this._incomingRefs = new Map();
 
-    const graph = this.system.graph;
-    if (!graph || !Array.isArray(graph.nodes)) return phases;
-
-    // Filter out start and rollAccuracy pseudo-nodes, which are handled implicitly by the legacy executor
-    const executableNodes = graph.nodes.filter(n => n.type !== "start" && n.type !== "rollAccuracy");
-
-    // Order nodes: compute topological/flow sequence from start, fallback to x-coordinate
-    const nodeMap = new Map(executableNodes.map(n => [n.id, n]));
-    const flowOrder = [];
-    const visited = new Set();
-
-    // Trace flow connections from start node
-    const startNode = graph.nodes.find(n => n.type === "start");
-    const queue = startNode ? [startNode.id] : [];
-
-    while (queue.length > 0) {
-      const currentId = queue.shift();
-      if (visited.has(currentId)) continue;
-      visited.add(currentId);
-
-      if (nodeMap.has(currentId)) {
-        flowOrder.push(nodeMap.get(currentId));
-      }
-
-      const outConns = (graph.connections || []).filter(c => c.sourceId === currentId && (c.type === "flow" || !c.type));
-      for (const conn of outConns) {
-        if (!visited.has(conn.targetId)) {
-          queue.push(conn.targetId);
-        }
+    for (const conn of graph.connections || []) {
+      if (conn.type === "reference") {
+        if (!this._incomingRefs.has(conn.targetId)) this._incomingRefs.set(conn.targetId, []);
+        this._incomingRefs.get(conn.targetId).push(conn);
+      } else {
+        if (!this._outgoingFlow.has(conn.sourceId)) this._outgoingFlow.set(conn.sourceId, []);
+        this._outgoingFlow.get(conn.sourceId).push(conn);
       }
     }
+  }
 
-    // Add any remaining nodes that weren't connected to the main flow (e.g. standalone nodes)
-    const remainingNodes = executableNodes.filter(n => !visited.has(n.id));
-    remainingNodes.sort((a, b) => (a.x ?? 0) - (b.x ?? 0));
-    const allOrderedNodes = [...flowOrder, ...remainingNodes];
+  _getNode(nodeId) {
+    return this._nodesById.get(nodeId) || null;
+  }
 
-    for (const node of allOrderedNodes) {
-      const pKey = phaseOrder.includes(node.phase) ? node.phase : "base";
-      phases[pKey].behaviors.push({
-        id: node.id,
-        type: node.type,
-        params: foundry.utils.deepClone(node.params || {}),
-        _sourcePhase: pKey
-      });
-    }
+  _getOutgoingConnections(nodeId) {
+    return this._outgoingFlow.get(nodeId) || [];
+  }
 
-    return phases;
+  _getIncomingReferenceConnections(nodeId) {
+    return this._incomingRefs.get(nodeId) || [];
   }
 
   /**
-   * Check if a phase has dependencies on any later phases (e.g. modifyBehavior targeting a behavior in this phase, or referenced rolls).
-   * @param {string} currentPhaseKey
+   * Evaluate whether an accuracy condition port should be followed.
+   * @param {string} port
    * @returns {boolean}
    * @protected
    */
-  _hasDependencyOnLaterPhase(currentPhaseKey) {
-    const phaseOrder = ["start", "before", "base", "hit", "spark", "after", "end"];
-    const currentIndex = phaseOrder.indexOf(currentPhaseKey);
-    if (currentIndex === -1) return false;
-
-    // Collect IDs of behaviors in current phase (and earlier phases)
-    const earlierBehaviorIds = new Set();
-    for (let i = 0; i <= currentIndex; i++) {
-      const pKey = phaseOrder[i];
-      const phase = this.phases[pKey];
-      if (phase?.behaviors) {
-        for (const b of phase.behaviors) {
-          if (b.id) earlierBehaviorIds.add(b.id);
-        }
-      }
-    }
-
-    // Check later phases for modifications targeting earlier behaviors
-    for (let i = currentIndex + 1; i < phaseOrder.length; i++) {
-      const laterPhaseKey = phaseOrder[i];
-      const laterPhase = this.phases[laterPhaseKey];
-      if (!laterPhase || laterPhase.skipPhase || !laterPhase.behaviors) continue;
-
-      for (const b of laterPhase.behaviors) {
-        if (b.type === "modifyBehavior") {
-          const targetId = b.params?.targetBehaviorId;
-          if (targetId && earlierBehaviorIds.has(targetId)) {
-            return true;
-          }
-        }
-      }
-    }
-
-    // Check if any behavior in current phase references a roll or area in a later phase
-    const currentPhase = this.phases[currentPhaseKey];
-    if (currentPhase?.behaviors) {
-      const laterBehaviorIds = new Set();
-      for (let i = currentIndex + 1; i < phaseOrder.length; i++) {
-        const lKey = phaseOrder[i];
-        const lPhase = this.phases[lKey];
-        if (lPhase?.behaviors) {
-          for (const b of lPhase.behaviors) {
-            if (b.id) laterBehaviorIds.add(b.id);
-          }
-        }
-      }
-
-      for (const b of currentPhase.behaviors) {
-        const refId = b.params?.rollBehaviorId || b.params?.areaBehaviorId || b.params?.terrainBehaviorId;
-        if (refId && laterBehaviorIds.has(refId)) {
-          return true;
-        }
-      }
-    }
-
+  _evaluateCondition(port) {
+    if (port === "always" || port === "out") return true;
+    if (port === "onSpark") return Boolean(this.context.isSpark);
+    if (port === "onHit") return Boolean(this.context.isHit && !this.context.isSpark);
+    if (port === "onMiss") return Boolean(!this.context.isHit);
     return false;
   }
 
   /**
-   * Apply pending modifyBehavior instances from all active phases to target behaviors.
-   * @protected
-   */
-  _applyActiveModifications() {
-    const candidatePhases = ["start", "before", "base", "after", "end"];
-    if (this.context.accuracyResolved && this.context.isHit) {
-      candidatePhases.push("hit");
-    }
-    if (this.context.accuracyResolved && this.context.isSpark) {
-      candidatePhases.push("spark");
-    }
-
-    for (const pKey of candidatePhases) {
-      const phase = this.phases[pKey];
-      if (!phase || phase.skipPhase || !phase.behaviors) continue;
-
-      for (const behavior of phase.behaviors) {
-        if (behavior.type === "modifyBehavior" && !behavior._alreadyExecuted) {
-          this._applySingleModification(behavior);
-        }
-      }
-    }
-  }
-
-  /**
-   * Apply a single modifyBehavior to its target behavior in memory.
-   * @param {object} modBehavior
-   * @protected
-   */
-  _applySingleModification(modBehavior) {
-    if (!modBehavior || modBehavior._alreadyExecuted) return;
-    modBehavior._alreadyExecuted = true;
-
-    const { targetBehaviorId, property, modifier } = modBehavior.params || {};
-    if (!targetBehaviorId || !modifier) return;
-
-    const targetBehavior = this._findBehavior(targetBehaviorId);
-    if (!targetBehavior) return;
-
-    targetBehavior.params = targetBehavior.params || {};
-
-    if (modBehavior._sourcePhase) {
-      this.context.modifications.push({
-        sourcePhase: modBehavior._sourcePhase,
-        id: modBehavior.id,
-        params: modBehavior.params ?? {}
-      });
-    }
-
-    switch (property) {
-      case "damage":
-      case "healing":
-      case "roll": {
-        const currentExpr = targetBehavior.params.expression ?? "";
-        const trimmedMod = modifier.trim();
-        const cleanMod = (/^[\/*+-]/.test(trimmedMod))
-          ? trimmedMod
-          : `+ ${trimmedMod}`;
-        targetBehavior.params.expression = currentExpr
-          ? `${currentExpr} ${cleanMod}`
-          : trimmedMod;
-        break;
-      }
-      case "intensity": {
-        if (Array.isArray(targetBehavior.params.effects)) {
-          const num = parseFloat(modifier) || 0;
-          for (const eff of targetBehavior.params.effects) {
-            eff.intensity = (eff.intensity || 1) + num;
-          }
-        } else {
-          const currentInt = parseFloat(targetBehavior.params.intensity) || 1;
-          const num = parseFloat(modifier) || 0;
-          targetBehavior.params.intensity = currentInt + num;
-        }
-        break;
-      }
-      case "size": {
-        const currentSize = parseFloat(targetBehavior.params.aoeSize) || 1;
-        const num = parseFloat(modifier) || 0;
-        targetBehavior.params.aoeSize = Math.max(1, currentSize + num);
-        break;
-      }
-      case "distance": {
-        const currentDist = parseFloat(targetBehavior.params.distance) || 1;
-        const num = parseFloat(modifier) || 0;
-        targetBehavior.params.distance = Math.max(0, currentDist + num);
-        break;
-      }
-    }
-  }
-
-  /**
-   * Search for a behavior by ID across all phases or within a specific target phase.
-   * @param {string} behaviorId
-   * @param {string} [targetPhaseKey]
-   * @returns {object|null}
-   * @protected
-   */
-  _findBehavior(behaviorId, targetPhaseKey) {
-    const phasesToSearch = targetPhaseKey && this.phases[targetPhaseKey]
-      ? [targetPhaseKey]
-      : ["start", "before", "base", "hit", "spark", "after", "end"];
-
-    for (const pKey of phasesToSearch) {
-      const phase = this.phases[pKey];
-      if (!phase || !phase.behaviors) continue;
-      const found = phase.behaviors.find(b => b.id === behaviorId);
-      if (found) return found;
-    }
-    return null;
-  }
-
-  /**
-   * Find the first behavior matching a given type across phases.
-   * @param {string} type
-   * @returns {object|null}
-   * @protected
-   */
-  _findBehaviorByType(type) {
-    const phaseOrder = ["start", "before", "base", "hit", "spark", "after", "end"];
-    for (const pKey of phaseOrder) {
-      const phase = this.phases[pKey];
-      if (!phase || !phase.behaviors) continue;
-      const found = phase.behaviors.find(b => b.type === type);
-      if (found) return found;
-    }
-    return null;
-  }
-
-  /**
-   * Determine if a phase has any active content (description or behaviors).
-   * @param {string} phaseKey
+   * Check if a reference node is already resolved in context.
+   * @param {object} node
+   * @param {string} targetPort
    * @returns {boolean}
    * @protected
    */
-  _hasContent(phaseKey) {
-    const phase = this.phases[phaseKey];
-    if (!phase || phase.skipPhase) return false;
-    const hasDesc = Boolean(phase.description && phase.description.trim());
-    const hasBehaviors = Boolean(phase.behaviors && phase.behaviors.some(b => !b._alreadyExecuted));
-    return hasDesc || hasBehaviors;
-  }
-
-  /**
-   * Determine if a phase should be skipped during pipeline execution.
-   * @param {string} phaseKey
-   * @returns {boolean}
-   * @protected
-   */
-  _shouldSkipPhase(phaseKey) {
-    const phase = this.phases[phaseKey];
-    if (phase?.skipPhase) return true;
-    if (phaseKey === "hit" && this.context.accuracyResolved && !this.context.isHit) return true;
-    if (phaseKey === "spark" && this.context.accuracyResolved && !this.context.isSpark) return true;
-
-    // If accuracy card was posted for hit/spark and all behaviors in phase were already executed, skip
-    if ((phaseKey === "hit" || phaseKey === "spark") && this.context.accuracyCardPosted) {
-      const hasUnexecutedBehaviors = phase?.behaviors?.some(b => !b._alreadyExecuted);
-      if (!hasUnexecutedBehaviors) return true;
-    }
-
-    return !this._hasContent(phaseKey);
-  }
-
-  /**
-   * Check if current phase outputs or description warrant posting a chat card.
-   * @param {string} phaseKey
-   * @returns {boolean}
-   * @protected
-   */
-  _hasOutputsToPost(phaseKey) {
-    const outputs = this.context.currentPhaseOutputs;
-    if (!outputs) return false;
-    if (outputs.rolls?.length > 0 || outputs.rollEntries?.length > 0 || outputs.notes?.length > 0 || outputs.accuracyHtml) {
-      return true;
-    }
-    const phase = this.phases[phaseKey];
-    if (phase?.description && phase.description.trim()) {
-      if ((phaseKey === "hit" || phaseKey === "spark") && this.context.accuracyCardPosted) {
-        return false;
-      }
-      return true;
-    }
+  _isResolved(node, targetPort) {
+    if (!node) return true;
+    if (this._executedNodes.has(node.id) || node._alreadyExecuted) return true;
+    if (targetPort === "rollRef" && this.context.evaluatedRolls?.has(node.id)) return true;
+    if (targetPort === "areaRef" && this.context.areas?.has(node.id)) return true;
     return false;
   }
 
   /**
-   * Execute a single phase.
-   * @param {string} phaseKey
+   * Lazily execute a standalone reference node.
+   * @param {object} refNode
+   * @param {Set<string>} visited
    * @protected
    */
-  async _executePhase(phaseKey) {
-    const phase = this.phases[phaseKey];
+  async _executeReferenceNode(refNode, visited) {
+    if (visited.has(refNode.id) || this._isResolved(refNode)) return;
+    visited.add(refNode.id);
+    await this._resolveReferences(refNode, visited);
+    await this._executeBehavior(refNode, refNode.phase || "base");
+    refNode._alreadyExecuted = true;
+    this._executedNodes.add(refNode.id);
+  }
 
-    // Initialize phase output container for consolidated single card rendering (if not already set by accuracy check)
-    if (!this.context.currentPhaseOutputs) {
-      this.context.currentPhaseOutputs = {
-        rolls: [],
-        rollEntries: [],
-        notes: [],
-        accuracyHtml: ""
-      };
-    }
+  /**
+   * Resolve incoming reference connections for a node before execution.
+   * @param {object} node
+   * @param {Set<string>} visited
+   * @protected
+   */
+  async _resolveReferences(node, visited) {
+    const refConnections = this._getIncomingReferenceConnections(node.id);
+    for (const refConn of refConnections) {
+      const refNode = this._getNode(refConn.sourceId);
+      if (!refNode) continue;
 
-    // Execute each behavior in order
-    for (const behavior of phase.behaviors || []) {
-      if (behavior._alreadyExecuted) continue;
-      const result = await this._executeBehavior(behavior, phaseKey);
-      if (result === false) return false;
-    }
+      if (!this._isResolved(refNode, refConn.targetPort)) {
+        await this._executeReferenceNode(refNode, visited);
+      }
 
-    // Post single consolidated chat card for this active phase if there are outputs to post
-    if (this._hasOutputsToPost(phaseKey)) {
-      await this._postPhaseCard(phaseKey, phase);
+      node.params = node.params || {};
+      if (refConn.targetPort === "rollRef") {
+        node.params.rollBehaviorId = refNode.id;
+      } else if (refConn.targetPort === "areaRef") {
+        node.params.areaBehaviorId = refNode.id;
+      } else if (refConn.targetPort === "terrainRef") {
+        node.params.terrainBehaviorId = refNode.id;
+      }
     }
   }
 
   /**
-   * Perform Base phase accuracy check matching legacy Deed logic.
-   * If creature attacking PC characters, prompts the player owner via websocket socket to roll defense.
-   * @param {boolean} [isEarly=false] - True if accuracy check is triggered early due to phase dependencies.
+   * Recursive graph node traversal following connections.
+   * @param {string} nodeId
+   * @param {Set<string>} visited
+   * @param {string} [incomingPort=null]
+   * @returns {Promise<boolean>} True if pipeline was cancelled by user
    * @protected
    */
-  async _resolveAccuracyCheck(isEarly = false) {
-    const isAttack = this.system.actionType !== "support";
-    const versus = this.system.versus ?? "Guard";
-    const apBonus = this.context.apBonus || 0;
+  async _traverseNode(nodeId, visited, incomingPort = null) {
+    if (visited.has(nodeId)) return false;
+    visited.add(nodeId);
 
-    // 1. Ensure target selection runs FIRST before accuracy DC calculation
-    if (!this.context.targets || this.context.targets.length === 0) {
-      const selectBehavior = this._findBehaviorByType("selectTarget");
-      if (selectBehavior && !selectBehavior._alreadyExecuted) {
-        selectBehavior._alreadyExecuted = true;
-        const selectRes = await DeedBehaviorHandler.dispatch(selectBehavior, this.context, this.actor, this.item);
-        if (selectRes === false) return false; // Target selection cancelled
-      }
+    const node = this._getNode(nodeId);
+    if (!node) return false;
+
+    if (incomingPort) {
+      this.context.currentBranch = incomingPort;
     }
 
-    // 2. Check if there are any targets available.
-    // If none and the deed requires rolling against a target's defense (Guard/Resist), skip accuracy check and hit/spark phases.
-    const targetList = (this.context.targets && this.context.targets.length > 0)
-      ? this.context.targets
-      : Array.from(game.user.targets);
+    await this._resolveReferences(node, visited);
 
-    const isVersus10 = versus === "10" || !isAttack || !versus;
+    if (node.type !== "start") {
+      const phaseKey = node.phase || "base";
+      await this._switchPhase(phaseKey);
 
-    if (targetList.length === 0 && !isVersus10) {
-      ui.notifications.info(game.i18n.localize("TRESPASSER.Notification.Combat.NoTargetsSkippingAccuracy"));
-      this.context.isHit = false;
-      this.context.isSpark = false;
-      this.context.maxSparks = 0;
-      this.context.sparkChoices = null;
-      this.context.accuracyResults = [];
-
-      if (!this.context.currentPhaseOutputs) {
-        this.context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
-      }
-      this.context.currentPhaseOutputs.accuracyHtml = `
-        <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
-          <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-            ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: this.item.name })}
-          </h4>
-          <div style="font-size: var(--fs-11); color: var(--trp-text-dim, #a09070); font-style: italic; margin-top: 4px;">
-            ${game.i18n.localize("TRESPASSER.Chat.Combat.NoTargetsSkipped")}
-          </div>
-        </div>`;
-      return true;
+      const result = await this._executeBehavior(node, phaseKey);
+      this._executedNodes.add(node.id);
+      node._alreadyExecuted = true;
+      if (result === false) return true; // Cancelled
+    } else if (this.system.phases?.start?.description?.trim() && !this.system.phases?.start?.skipPhase) {
+      await this._switchPhase("start");
     }
 
-    const isCreatureAttacker = this.actor?.type === "creature";
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Creature Attacking Characters (Player-Facing Defense Roll via Socket)
-    // Only applies when attacking against a target's Guard or Resist
-    // ─────────────────────────────────────────────────────────────────────────
-    if (isCreatureAttacker && isAttack && !isVersus10) {
-      const creatureEffBonus = this.actor ? TrespasserEffectsHelper.getAttributeBonus(this.actor, "accuracy", "use") : 0;
-      const creatureAccuracy = this.actor?.system?.combat?.accuracy ?? 0;
-      const creatureDC = creatureAccuracy + creatureEffBonus + apBonus;
-
-      let anyHit = false;
-      let maxSparks = 0;
-      const results = [];
-
-      for (const targetToken of targetList) {
-        const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
-        if (!targetActor) continue;
-
-        const statKey = versus.toLowerCase(); // "guard" or "resist"
-        const tokenName = DeedBehaviorHandler.getTokenDisplayName(targetToken);
-        let defTotal = 10;
-        let diceResult = 10;
-
-        if (targetActor.type === "creature") {
-          // NPC vs NPC: compare creature DC vs target creature stat directly
-          const totalDef = targetActor.system?.combat?.[statKey] ?? 10;
-          const defEffBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");
-          defTotal = totalDef + defEffBonus;
-        } else {
-          // Player character target: prompt player via websocket socket to roll defense
-          const defResult = await requestPlayerDefenseRoll({
-            targetActorId: targetActor.id,
-            targetTokenId: targetToken.id,
-            statKey,
-            creatureDC,
-            deedName: this.item.name,
-            creatureName: this.actor.name
-          });
-
-          if (!defResult) return false; // Player cancelled defense roll
-
-          defTotal = defResult.total;
-          diceResult = defResult.diceResult;
+    const outgoing = this._getOutgoingConnections(nodeId);
+    if (node.type === "rollAccuracy") {
+      for (const conn of outgoing) {
+        if (this._evaluateCondition(conn.sourcePort)) {
+          const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort);
+          if (cancelled) return true;
         }
-
-        const isHit = creatureDC >= defTotal;
-        if (isHit) anyHit = true;
-
-        const diff = creatureDC - defTotal;
-        let sparks = 0;
-        let shadows = 0;
-        if (diff >= 0) sparks = Math.floor(diff / 5);
-        else shadows = Math.floor(Math.abs(diff) / 5);
-
-        if (diceResult === 20) sparks += 1;
-        if (diceResult === 1) shadows += 1;
-
-        // Sparks cancel Shadows
-        const net = sparks - shadows;
-        sparks = Math.max(0, net);
-        shadows = Math.max(0, -net);
-
-        if (sparks > maxSparks) maxSparks = sparks;
-
-        results.push({
-          tokenId: targetToken?.id ?? null,
-          tokenName,
-          actorId: targetActor?.id ?? null,
-          isHit,
-          sparks,
-          shadows,
-          rollTotal: defTotal,
-          dc: creatureDC
-        });
       }
-
-      this.context.isHit = anyHit;
-      this.context.maxSparks = maxSparks;
-      this.context.accuracyResults = results;
-
-      // Post creature defense roll results HTML
-      let resultsHtml = "";
-      for (const res of results) {
-        resultsHtml += `
-          <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
-            <div style="display:flex;justify-content:space-between;align-items:center;">
-              <strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs DC: ${res.dc})</span></strong>
-              <span class="${res.isHit ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${res.isHit ? '#4fc3f7' : '#ff5252'};">${res.isHit ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!") : (game.i18n.localize("TRESPASSER.Chat.Combat.Miss") || "ERRO!")}</span>
-            </div>
-            <div style="display:flex;gap:10px;font-size: var(--fs-11);margin-top:2px;">
-              <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
-              <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
-            </div>
-          </div>`;
-      }
-
-      if (!this.context.currentPhaseOutputs) {
-        this.context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
-      }
-
-      this.context.currentPhaseOutputs.accuracyHtml = `
-        <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
-          <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-            ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: this.item.name })} (Creature Attack DC: ${creatureDC})
-          </h4>
-          ${resultsHtml}
-        </div>`;
-
-      // Post accuracy result in chat immediately before spark dialog
-      this.context.accuracyCardPosted = true;
-      await this._postPhaseCard("hit", this.phases.hit, true);
-      if (isEarly) {
-        this.context.activeChatMessage = null;
-        this.context.currentPhaseOutputs = null;
-      }
-
-      let sparkChoices = null;
-      if (maxSparks > 0 && anyHit) {
-        sparkChoices = await askSparkDialog(results);
-      }
-
-      const applySparkPhase = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark !== false);
-      this.context.isSpark = applySparkPhase;
-      this.context.sparkChoices = sparkChoices;
-
-      return true;
-    }
-
-    // ─────────────────────────────────────────────────────────────────────────
-    // Character Attacking (Player Roll vs Target CD/DC)
-    // ─────────────────────────────────────────────────────────────────────────
-    const isAdv = this.actor ? TrespasserEffectsHelper.hasAdvantage(this.actor, "accuracy") : false;
-    const effectBonus = this.actor ? TrespasserEffectsHelper.getAttributeBonus(this.actor, "accuracy", "use") : 0;
-    const totalAccuracy = this.actor?.system?.combat?.accuracy ?? 0;
-    const baseAccuracy = totalAccuracy - effectBonus;
-    const diceFormula = isAdv ? "2d20kh" : "1d20";
-
-    const rollDialogData = {
-      dice: diceFormula,
-      bonuses: [
-        { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Accuracy") || "Accuracy", value: baseAccuracy },
-        { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus") || "Effect Bonus", value: effectBonus }
-      ]
-    };
-
-    if (apBonus > 0) {
-      rollDialogData.bonuses.push({
-        label: game.i18n.localize("TRESPASSER.Chat.Check.AccuracyFromAP") || "Accuracy from Extra Effort",
-        value: apBonus
-      });
-    }
-
-    // Prompt user with Trespasser Roll Dialog
-    const dialogResult = await TrespasserRollDialog.wait({
-      ...rollDialogData,
-      showCD: false
-    }, { title: `${this.item.name} Roll` });
-
-    if (!dialogResult) return false; // User cancelled roll dialog
-
-    const userModifier = dialogResult.modifier || 0;
-    const totalBonuses = `${baseAccuracy} + ${effectBonus} + ${apBonus} + ${userModifier}`;
-    const formula = isAdv ? `2d20kh + ${totalBonuses}` : `1d20 + ${totalBonuses}`;
-
-    const rollData = this.actor?.getRollData() || {};
-    const accRoll = new foundry.dice.Roll(formula, rollData);
-    await accRoll.evaluate();
-
-    const rollTotal = accRoll.total;
-    const diceResult = accRoll.dice[0]?.results?.find(r => r.active)?.result ?? accRoll.dice[0]?.results[0]?.result ?? 10;
-
-    let anyHit = false;
-    let maxSparks = 0;
-    const results = [];
-
-    const actualTargets = isAttack && targetList.length > 0 ? targetList : [null];
-
-    for (const targetToken of actualTargets) {
-      const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
-      const tokenName = targetToken ? DeedBehaviorHandler.getTokenDisplayName(targetToken) : null;
-      let dc = 10;
-
-      // Support deeds automatically have DC 10
-      if (!isAttack || versus === "10" || !versus) {
-        dc = 10;
-      } else if (targetActor) {
-        const statKey = versus.toLowerCase(); // "guard" or "resist"
-        const totalDef = targetActor.system?.combat?.[statKey] ?? 10;
-        const effBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");
-        const targetCD = totalDef + effBonus;
-        dc = targetActor.type === "character" ? targetCD + 10 : targetCD;
-      }
-
-      let isHit = rollTotal >= dc;
-      if (diceResult === 20) isHit = true;
-      if (isHit) anyHit = true;
-
-      const diff = rollTotal - dc;
-      let sparks = 0;
-      let shadows = 0;
-      if (diff >= 0) sparks = Math.floor(diff / 5);
-      else shadows = Math.floor(Math.abs(diff) / 5);
-
-      if (diceResult === 20) sparks += 1;
-      if (diceResult === 1) shadows += 1;
-
-      // Sparks cancel Shadows
-      const net = sparks - shadows;
-      sparks = Math.max(0, net);
-      shadows = Math.max(0, -net);
-
-      if (sparks > maxSparks) maxSparks = sparks;
-
-      results.push({
-        tokenId: targetToken?.id ?? null,
-        tokenName,
-        actorId: targetActor?.id ?? null,
-        isHit,
-        sparks,
-        shadows,
-        rollTotal,
-        dc
-      });
-    }
-
-    this.context.rollResult = accRoll;
-    this.context.isHit = anyHit;
-    this.context.maxSparks = maxSparks;
-    this.context.accuracyResults = results;
-
-    const rollHtml = await accRoll.render();
-
-    let versusLabel;
-    if (versus === "Guard" || versus === "Resist") {
-      versusLabel = game.i18n.localize(`TRESPASSER.Sheet.Combat.${versus}`) || versus;
     } else {
-      versusLabel = game.i18n.localize("TRESPASSER.Terms.DC") || "CD";
+      for (const conn of outgoing) {
+        const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort);
+        if (cancelled) return true;
+      }
     }
 
-    let resultsHtml = "";
-    for (const res of results) {
-      const headerText = res.tokenName
-        ? `<strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs ${versusLabel}: ${res.dc})</span></strong>`
-        : `<span style="font-size: var(--fs-11);color:var(--trp-text-dim, #a09070); font-weight: bold;">(Roll: ${res.rollTotal} vs ${versusLabel}: ${res.dc})</span>`;
+    return false;
+  }
 
-      const hitLabel = res.isHit
-        ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!")
-        : (game.i18n.localize("TRESPASSER.Chat.Combat.Miss") || "ERRO!");
+  async _executeBehavior(node, phaseKey) {
+    console.log(`[DeedExecutor] Phase "${phaseKey}" — Executing behavior "${node.type}" (${node.id}):`, node.params);
+    return await DeedBehaviorHandler.dispatch(node, this.context, this.actor, this.item, phaseKey);
+  }
 
-      const hitColor = res.isHit ? '#4fc3f7' : '#ff5252';
-
-      resultsHtml += `
-        <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;">
-            ${headerText}
-            <span class="${res.isHit ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${hitColor};">${hitLabel}</span>
-          </div>
-          <div style="display:flex;gap:10px;font-size: var(--fs-11);margin-top:2px;">
-            <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
-            <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
-          </div>
-        </div>`;
+  /**
+   * Switch phase for chat card consolidation. Flushes previous phase outputs if phase changed.
+   * @param {string} newPhaseKey
+   * @protected
+   */
+  async _switchPhase(newPhaseKey) {
+    if (this._currentPhaseKey && this._currentPhaseKey !== newPhaseKey) {
+      await this._flushPhaseCard();
     }
-
+    this._currentPhaseKey = newPhaseKey;
     if (!this.context.currentPhaseOutputs) {
       this.context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
     }
-
-    this.context.currentPhaseOutputs.rolls.push(accRoll);
-    this.context.currentPhaseOutputs.accuracyHtml = `
-      <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
-        <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-          ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: this.item.name })}${isAdv ? " (Adv)" : ""}
-        </h4>
-        ${rollHtml}
-        ${resultsHtml}
-      </div>`;
-
-    // Post accuracy result in chat immediately before spark dialog
-    this.context.accuracyCardPosted = true;
-    await this._postPhaseCard("hit", this.phases.hit, true);
-    if (isEarly) {
-      this.context.activeChatMessage = null;
-      this.context.currentPhaseOutputs = null;
-    }
-
-    // Spark selection dialog prompt when sparks are generated
-    let sparkChoices = null;
-    if (maxSparks > 0 && anyHit) {
-      sparkChoices = await askSparkDialog(results);
-    }
-
-    const applySparkPhase = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark !== false);
-
-    this.context.isSpark = applySparkPhase;
-    this.context.sparkChoices = sparkChoices;
-
-    return true;
   }
 
   /**
-   * Execute an individual behavior.
-   * @param {object} behavior
-   * @param {string} phaseKey
+   * Post consolidated chat card for active phase and clear phase output state.
    * @protected
    */
-  async _executeBehavior(behavior, phaseKey) {
-    console.log(`[DeedExecutor] Phase "${phaseKey}" — Executing behavior "${behavior.type}" (${behavior.id}):`, behavior.params);
-    return await DeedBehaviorHandler.dispatch(behavior, this.context, this.actor, this.item, phaseKey);
+  async _flushPhaseCard() {
+    if (!this._currentPhaseKey) return;
+    if (this._hasOutputsToPost(this._currentPhaseKey)) {
+      const phase = this.system.phases?.[this._currentPhaseKey] || {};
+      await this._postPhaseCard(this._currentPhaseKey, phase, false);
+    }
+    this._currentPhaseKey = null;
+    this.context.currentPhaseOutputs = null;
+    this.context.activeChatMessage = null;
+  }
+
+  _hasOutputsToPost(phaseKey) {
+    const outputs = this.context.currentPhaseOutputs;
+    if (outputs && (outputs.rolls?.length > 0 || outputs.rollEntries?.length > 0 || outputs.notes?.length > 0 || outputs.accuracyHtml)) {
+      return true;
+    }
+    const phase = this.system.phases?.[phaseKey];
+    return Boolean(phase?.description && phase.description.trim() && !phase.skipPhase);
   }
 
   /**
-   * Post or update a single consolidated chat card for an active phase containing description, accuracy roll, damage rolls, and behavior notes.
+   * Post or update consolidated chat card for a phase.
    * @param {string} phaseKey
    * @param {object} phase
-   * @param {boolean} [isPartial=false] - If true, posts or updates card early without clearing active state.
+   * @param {boolean} [isPartial=false]
    * @protected
    */
   async _postPhaseCard(phaseKey, phase, isPartial = false) {
-    if (!phase) phase = {};
+    if (!phase) phase = this.system.phases?.[phaseKey] || {};
     const phaseLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)}`);
     const outputs = this.context.currentPhaseOutputs || { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
 
@@ -970,32 +392,26 @@ export class DeedExecutor {
         ${this.item.name} — ${phaseLabel}
       </h3>`;
 
-    if (phase.description) {
+    if (phase.description && !phase.skipPhase) {
       content += `<p style="margin: 6px 0; font-size: var(--fs-13); font-style: italic;">${phase.description}</p>`;
     }
-
     if (outputs.accuracyHtml) {
       content += outputs.accuracyHtml;
     }
-
     if (outputs.rollEntries && outputs.rollEntries.length > 0) {
       content += outputs.rollEntries.join("");
     }
-
     if (outputs.notes && outputs.notes.length > 0) {
       content += `<div class="phase-notes" style="margin-top: 8px; padding-top: 4px; border-top: 1px dashed var(--trp-border, #4a3f2f); font-size: var(--fs-12); color: var(--trp-text-dim, #a09070);">
         ${outputs.notes.map(n => `<div>• ${n}</div>`).join("")}
       </div>`;
     }
-
     content += `</div>`;
 
     const sourceToken = this.actor?.token?.object ||
                         canvas.tokens?.controlled.find(t => t.actor?.id === this.actor?.id) ||
                         canvas.tokens?.placeables.find(t => t.actor?.id === this.actor?.id);
-
     const alias = sourceToken ? DeedBehaviorHandler.getTokenDisplayName(sourceToken) : DeedBehaviorHandler.getTokenDisplayName(this.actor);
-
     const speaker = sourceToken
       ? ChatMessage.getSpeaker({ token: sourceToken.document || sourceToken, actor: this.actor, alias })
       : (this.actor ? ChatMessage.getSpeaker({ actor: this.actor, alias }) : ChatMessage.getSpeaker({ alias }));
@@ -1004,11 +420,7 @@ export class DeedExecutor {
     const rollData = (outputs.rolls || []).map(r => (typeof r.toJSON === "function" ? r.toJSON() : r));
 
     if (this.context.activeChatMessage) {
-      const updates = {
-        content,
-        rolls: rollData
-      };
-      await this._updateChatMessage(this.context.activeChatMessage, updates);
+      await this._updateChatMessage(this.context.activeChatMessage, { content, rolls: rollData });
     } else {
       const msg = await ChatMessage.create({
         speaker,
@@ -1032,7 +444,7 @@ export class DeedExecutor {
    * @protected
    */
   async _updateChatMessage(message, updates) {
-    if (!message || !message.id) return;
+    if (!message?.id) return;
     if (game.user.isGM) {
       await message.update(updates);
     } else {

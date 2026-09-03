@@ -101,7 +101,9 @@
         "TriggeredHP": "<strong>{name}</strong> triggered: {value} HP applied.",
         "TriggeredAdded": "<strong>{name}</strong> triggered: Added {target} effect.",
         "EffectMessage": "<strong>{name}</strong> applies <strong>{effect}</strong> to <strong>{target}</strong>.",
-        "Applied": "Applied {effect} to {target}."
+        "Applied": "Applied {effect} to {target}.",
+        "AppliedWithIntensity": "Applied {effect}{source} (Intensity {intensity}) to {target}.",
+        "FromSource": " (from {source})"
       },
       "Retreat": {
         "Attempt": "The party attempts to retreat!",

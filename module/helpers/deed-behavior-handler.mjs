@@ -1,5 +1,6 @@
 import { MovementHelper } from "./movement-helper.mjs";
 import { DeedBehaviorUtils } from "./deed-behaviors/deed-behavior-utils.mjs";
+import { RollAccuracyBehavior } from "./deed-behaviors/roll-accuracy.mjs";
 import { SelectTargetBehavior } from "./deed-behaviors/select-target.mjs";
 import { SelectAreaBehavior } from "./deed-behaviors/select-area.mjs";
 import { RollBehavior } from "./deed-behaviors/roll.mjs";
@@ -35,6 +36,7 @@ export class DeedBehaviorHandler {
   static async dispatch(behavior, context, actor, item, phaseKey = "") {
     return MovementHelper.withFreeMovement(async () => {
       switch (behavior.type) {
+        case "rollAccuracy":     return RollAccuracyBehavior.execute(behavior, context, actor, item, phaseKey);
         case "selectTarget":     return SelectTargetBehavior.execute(behavior, context, actor, item);
         case "selectArea":       return SelectAreaBehavior.execute(behavior, context, actor, item);
         case "roll":             return RollBehavior.execute(behavior, context, actor, item, phaseKey);
@@ -44,7 +46,6 @@ export class DeedBehaviorHandler {
         case "grantRecovery":
         case "grantRecoveryToTarget": return GrantRecoveryBehavior.execute(behavior, context, actor, item, phaseKey);
         case "applyEffects":     return ApplyEffectsBehavior.execute(behavior, context, actor, item, phaseKey);
-        case "modifyBehavior":   return; // Handled pre-pipeline by DeedExecutor
         case "spawnTerrain":     return SpawnTerrainBehavior.execute(behavior, context, actor, item);
         case "moveTerrain":      return MoveTerrainBehavior.execute(behavior, context, item);
         case "moveSource":       return MoveSourceBehavior.execute(behavior, context, actor);

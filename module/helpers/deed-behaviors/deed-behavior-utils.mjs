@@ -96,6 +96,7 @@ export class DeedBehaviorUtils {
     let validTargets = context.targets || [];
     if (context.accuracyResults && context.accuracyResults.length > 0) {
       const isSparkPhase = phaseKey === "spark";
+      const isMissBranch = context.currentBranch === "onMiss";
       const requiredSparks = isSparkPhase ? (context.sparkChoices?.deedSparkLayer || 1) : 0;
 
       const accuracyMap = new Map();
@@ -106,8 +107,9 @@ export class DeedBehaviorUtils {
       validTargets = validTargets.filter(t => {
         const id = t.id || t.document?.id;
         const res = accuracyMap.get(id);
-        // If target was evaluated in accuracy results, enforce hit & spark rules
+        // If target was evaluated in accuracy results, enforce hit, miss & spark rules
         if (res) {
+          if (isMissBranch) return !res.isHit;
           if (!res.isHit) return false;
           if (isSparkPhase && res.sparks < requiredSparks) return false;
           return true;

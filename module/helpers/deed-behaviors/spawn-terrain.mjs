@@ -345,8 +345,8 @@ export class SpawnTerrainBehavior {
 
       const effectData = sourceEffect.toObject();
       delete effectData._id;
-      if (linkedItem.intensity) {
-        effectData.system.intensity = parseInt(linkedItem.intensity) || 1;
+      if (linkedItem.intensity !== undefined && linkedItem.intensity !== null && linkedItem.intensity !== "" && !isNaN(Number(linkedItem.intensity))) {
+        effectData.system.intensity = Number(linkedItem.intensity);
       }
       effectData.flags = foundry.utils.mergeObject(effectData.flags || {}, {
         trespasser: {

@@ -1003,11 +1003,61 @@ export class TrespasserEffectsHelper {
     doc.sheet.render(true);
   }
 
+  static _syncTimers = new Map();
+  static _inFlightSyncs = new Set();
+  static _pendingReSyncs = new Set();
+
   /**
    * Synchronizes the actor's active status effect icons with all its active tokens.
+   * Debounced per actor to prevent race conditions when multiple effect items
+   * are created, updated, or deleted in the same frame/operation.
    * @param {Actor} actor The actor document to sync tokens for
    */
   static async syncActorTokenEffects(actor) {
+    if (!actor) return;
+    const actorKey = actor.uuid || actor.id;
+    if (!actorKey) return;
+
+    if (this._syncTimers.has(actorKey)) {
+      clearTimeout(this._syncTimers.get(actorKey));
+    }
+
+    return new Promise((resolve) => {
+      const timer = setTimeout(async () => {
+        this._syncTimers.delete(actorKey);
+
+        if (this._inFlightSyncs.has(actorKey)) {
+          this._pendingReSyncs.add(actorKey);
+          resolve();
+          return;
+        }
+
+        this._inFlightSyncs.add(actorKey);
+        try {
+          await this._performSyncActorTokenEffects(actor);
+        } catch (err) {
+          console.error(`Trespasser | Failed to sync status icons for actor ${actor.name}:`, err);
+        } finally {
+          this._inFlightSyncs.delete(actorKey);
+          if (this._pendingReSyncs.has(actorKey)) {
+            this._pendingReSyncs.delete(actorKey);
+            this.syncActorTokenEffects(actor);
+          }
+          resolve();
+        }
+      }, 50);
+
+      this._syncTimers.set(actorKey, timer);
+    });
+  }
+
+  /**
+   * Internal implementation of active status effect icon synchronization.
+   * Cleans up duplicate ActiveEffects and creates/updates missing ones.
+   * @param {Actor} actor
+   * @protected
+   */
+  static async _performSyncActorTokenEffects(actor) {
     if (!actor) return;
 
     const showEffects = game.settings.get("trespasser", "showStatusEffectsOnTokens") ?? true;
@@ -1028,12 +1078,29 @@ export class TrespasserEffectsHelper {
     const effectsToCreate = [];
     const effectsToUpdate = [];
 
+    // Group existing ActiveEffects by sourceItem to easily detect and clean up duplicates
+    const aesBySource = new Map();
+    for (const ae of existingActiveEffects) {
+      const srcId = ae.getFlag("trespasser", "sourceItem");
+      if (!aesBySource.has(srcId)) aesBySource.set(srcId, []);
+      aesBySource.get(srcId).push(ae);
+    }
+
     for (const item of effectItems) {
-      // Find if there is an existing ActiveEffect for this item
-      const ae = existingActiveEffects.find(ae => ae.getFlag("trespasser", "sourceItem") === item.id);
-      
+      const matchingAEs = aesBySource.get(item.id) || [];
+      const ae = matchingAEs[0] || null;
+
+      // If there are duplicate AEs for this same sourceItem, mark the extra ones for deletion immediately
+      for (let i = 1; i < matchingAEs.length; i++) {
+        effectsToDelete.push(matchingAEs[i].id);
+      }
+
       const statusIconPath = (item.system.syncStatusIcon !== false) ? (item.img || item.system.statusIcon) : item.system.statusIcon;
-      if (!statusIconPath) continue;
+      if (!statusIconPath) {
+        if (ae) effectsToDelete.push(ae.id);
+        continue;
+      }
+
       // Object.values handles both the v13 array and v14 object formats
       const matchingStatus = Object.values(CONFIG.statusEffects).find(se => {
         const img = se.img || se.icon || se.src;
@@ -1078,9 +1145,11 @@ export class TrespasserEffectsHelper {
       }
     }
 
+    const uniqueDeleteIds = Array.from(new Set(effectsToDelete));
+
     // Perform database operations
-    if (effectsToDelete.length > 0) {
-      await actor.deleteEmbeddedDocuments("ActiveEffect", effectsToDelete);
+    if (uniqueDeleteIds.length > 0) {
+      await actor.deleteEmbeddedDocuments("ActiveEffect", uniqueDeleteIds);
     }
     if (effectsToUpdate.length > 0) {
       await actor.updateEmbeddedDocuments("ActiveEffect", effectsToUpdate);
