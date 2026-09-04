@@ -11,20 +11,67 @@ import { EngagementHelper }          from "./engagement-helper.mjs";
  * @returns {string}
  */
 export function formatBDeedTarget(system) {
-  if (!system || !system.phases) return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Self");
+  if (!system) return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Self");
   const selectBehaviors = [];
-  const phaseKeys = ["start", "before", "base", "hit", "spark", "after", "end"];
-  for (const pKey of phaseKeys) {
-    const phase = system.phases[pKey];
-    if (phase && Array.isArray(phase.behaviors)) {
-      for (const b of phase.behaviors) {
-        if (b.type === "selectTarget" || b.type === "selectArea") selectBehaviors.push(b);
+
+  // 1. Check graph nodes (primary data source for Behavior Deeds)
+  if (Array.isArray(system.graph?.nodes)) {
+    for (const node of system.graph.nodes) {
+      if (node.type === "selectTarget" || node.type === "selectArea") {
+        selectBehaviors.push(node);
+      }
+    }
+  }
+
+  // 2. Fallback to legacy phases if graph has no select behaviors
+  if (selectBehaviors.length === 0 && system.phases) {
+    const phaseKeys = ["start", "before", "base", "hit", "spark", "after", "end"];
+    for (const pKey of phaseKeys) {
+      const phase = system.phases[pKey];
+      if (phase && Array.isArray(phase.behaviors)) {
+        for (const b of phase.behaviors) {
+          if (b.type === "selectTarget" || b.type === "selectArea") selectBehaviors.push(b);
+        }
       }
     }
   }
 
   if (selectBehaviors.length > 1) return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Special");
-  if (selectBehaviors.length === 0) return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Self");
+
+  if (selectBehaviors.length === 0) {
+    // 3. Fallback to legacy system.targetType / system.target
+    if (system.targetType) {
+      if (system.targetType === "personal" || system.targetType === "self") {
+        return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Self");
+      }
+      if (system.targetType === "creature") {
+        const count = parseInt(system.targetCount) || 1;
+        const unit = count === 1
+          ? game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Creature")
+          : game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Creatures");
+        return `${count} ${unit}`;
+      }
+      const typeKeyMap = {
+        blast: "Blast",
+        close_blast: "CloseBlast",
+        burst: "Burst",
+        melee_burst: "MeleeBurst",
+        path: "Path",
+        close_path: "ClosePath",
+        aura: "Aura"
+      };
+      const key = typeKeyMap[system.targetType];
+      if (key) {
+        const typeLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Target.${key}`) || system.targetType;
+        const size = parseInt(system.targetSize) || 1;
+        return `${typeLabel} ${size}`;
+      }
+    }
+    if (system.target && typeof system.target === "string" && system.target.trim()) {
+      return system.target.trim();
+    }
+    return game.i18n.localize("TRESPASSER.Sheet.Deed.Target.Self");
+  }
 
   const behavior = selectBehaviors[0];
   const params = behavior.params || {};

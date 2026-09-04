@@ -184,6 +184,13 @@ export class GraphEditor {
       params: foundry.utils.deepClone(params),
       x: Math.round(x), y: Math.round(y)
     };
+    if (type === "rollAccuracy") {
+      const deedSys = this.options?.sheet?.document?.system || {};
+      nodeData.params.actionType ??= deedSys.actionType || "attack";
+      nodeData.params.abilityType ??= deedSys.abilityType || "innate";
+      nodeData.params.versus ??= deedSys.versus || "Guard";
+      nodeData.params.branchingMode ??= "hitThenSpark";
+    }
     const node = new GraphNode(nodeData, { editor: this });
     this.nodeMap.set(id, node);
     this.nodesLayer.appendChild(node.element);

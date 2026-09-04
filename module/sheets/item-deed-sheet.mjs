@@ -25,7 +25,7 @@ export const DEFAULT_PARAMS = {
     rollBehaviorId: "",
     usePowerSparks: false
   },
-  rollAccuracy: {},
+  rollAccuracy: { actionType: "attack", abilityType: "innate", versus: "Guard", branchingMode: "hitThenSpark" },
   applyDamage: {
     expression: "",
     rollBehaviorId: "",

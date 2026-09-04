@@ -190,9 +190,45 @@ export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
     const res = super._preUpdate(changes, options, user);
     if (res === false) return false;
 
-    const graph = changes.system?.graph ?? changes.graph;
+    const sys = changes.system ?? {};
+    const graph = sys.graph ?? changes.graph;
     if (graph) {
       _sanitizeEffectsInGraph(graph);
+    }
+
+    // Two-way synchronization between rollAccuracy behavior node and deed attributes
+    // Direction 1: Deed sheet attributes changed -> synchronize into rollAccuracy node
+    const hasAttrChange = sys.actionType !== undefined || sys.abilityType !== undefined || sys.versus !== undefined;
+    if (hasAttrChange) {
+      const activeGraph = graph || foundry.utils.deepClone(this.graph || { nodes: [], connections: [] });
+      const accNode = activeGraph?.nodes?.find(n => n.type === "rollAccuracy");
+      if (accNode) {
+        accNode.params = accNode.params || {};
+        if (sys.actionType !== undefined) accNode.params.actionType = sys.actionType;
+        if (sys.abilityType !== undefined) accNode.params.abilityType = sys.abilityType;
+        if (sys.versus !== undefined) accNode.params.versus = sys.versus;
+        if (!graph) {
+          if (!changes.system) changes.system = {};
+          changes.system.graph = activeGraph;
+        }
+      }
+    }
+
+    // Direction 2: Graph updated -> synchronize rollAccuracy params into deed attributes
+    if (graph?.nodes) {
+      const accNode = graph.nodes.find(n => n.type === "rollAccuracy");
+      if (accNode?.params) {
+        if (!changes.system) changes.system = {};
+        if (accNode.params.actionType !== undefined && sys.actionType === undefined) {
+          changes.system.actionType = accNode.params.actionType;
+        }
+        if (accNode.params.abilityType !== undefined && sys.abilityType === undefined) {
+          changes.system.abilityType = accNode.params.abilityType;
+        }
+        if (accNode.params.versus !== undefined && sys.versus === undefined) {
+          changes.system.versus = accNode.params.versus;
+        }
+      }
     }
   }
 

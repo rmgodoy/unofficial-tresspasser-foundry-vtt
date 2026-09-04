@@ -13,9 +13,10 @@ export class RangeHelper {
    * @param {Token|TokenDocument} sourceToken
    * @param {Item|object} itemOrDeed - The deed item or deed system object
    * @param {Actor} [actor] - The owning actor
+   * @param {object} [options] - Options (e.g. { notify: boolean })
    * @returns {number|null} Max range in squares, or null if unlimited / not applicable
    */
-  static getDeedRange(sourceToken, itemOrDeed, actor = null) {
+  static getDeedRange(sourceToken, itemOrDeed, actor = null, options = {}) {
     if (!itemOrDeed) return null;
     const actorDoc = actor || sourceToken?.actor || itemOrDeed?.actor;
     const deedSys = itemOrDeed.system ?? itemOrDeed;
@@ -32,14 +33,16 @@ export class RangeHelper {
 
     let baseRange = null;
 
-    // 2. Explicit numerical range defined on deed system
+    // 2. Explicit numerical range defined on deed system (except missile deeds which strictly use weapon range)
     const deedRange = deedSys.range;
-    if (deedRange !== null && deedRange !== undefined && Number.isFinite(Number(deedRange)) && Number(deedRange) > 0) {
+    if (deedRange !== null && deedRange !== undefined && Number.isFinite(Number(deedRange)) && Number(deedRange) > 0 && abilityType !== "missile") {
       baseRange = Number(deedRange);
     } else if (actorDoc?.type === "creature") {
       // 3. Creature actor handling
       if (abilityType === "melee" || abilityType === "unarmed") {
         baseRange = actorDoc.system?.combat?.engagement_range ?? actorDoc.system?.engagement_range ?? 1;
+      } else if (abilityType === "missile") {
+        baseRange = deedRange && Number(deedRange) > 0 ? Number(deedRange) : (actorDoc.system?.combat?.range ?? 12);
       } else if (abilityType === "spell") {
         baseRange = 4;
       } else {
@@ -49,66 +52,150 @@ export class RangeHelper {
       // 4. Character / companion actors (weapon-dependent or ability-dependent)
       const activeWeapons = getActiveWeapons(actorDoc);
       const gridDist = canvas.dimensions?.distance ?? 5;
-      const isThrown = activeWeapons.some(w => w.system?.properties?.thrown);
+      const hasFree = this.hasFreeHand(actorDoc);
 
-      if (abilityType === "melee" || abilityType === "unarmed") {
+      if (abilityType === "innate") {
+        // Innate deeds require no specific weapon or implement
+        baseRange = (deedRange !== null && deedRange !== undefined && Number(deedRange) > 0) ? Number(deedRange) : null;
+      } else if (abilityType === "melee" || abilityType === "unarmed") {
         const meleeWeapons = activeWeapons.filter(w => w.system?.type === "melee");
         if (meleeWeapons.length > 0) {
           const ranges = meleeWeapons.map(w => this.getWeaponMeleeRange(w, gridDist));
           baseRange = Math.max(...ranges);
-        } else {
+        } else if (hasFree || abilityType === "unarmed") {
           baseRange = 1;
+        } else {
+          if (options.notify) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NeedMeleeWeapon"));
+          }
+          baseRange = 0;
         }
       } else if (abilityType === "missile") {
         const missileWeapons = activeWeapons.filter(w =>
           !w.system?.isThrown && (w.system?.type === "missile" || w.system?.properties?.thrown)
         );
-        let maxRange = 0;
-        for (const w of missileWeapons) {
-          if (w.system?.properties?.thrown) {
-            maxRange = Math.max(maxRange, this.getWeaponThrownRange(w, gridDist));
-          } else {
-            const raw = String(w.system?.range ?? "").trim();
-            const num = parseInt(raw);
-            if (!isNaN(num) && num > 0) {
-              const r = /ft|feet/i.test(raw) ? Math.round(num / gridDist) : num;
-              maxRange = Math.max(maxRange, r);
+        if (missileWeapons.length === 0) {
+          if (options.notify) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NeedMissileWeapon"));
+          }
+          baseRange = 0;
+        } else {
+          let maxRange = 0;
+          for (const w of missileWeapons) {
+            if (w.system?.properties?.thrown) {
+              maxRange = Math.max(maxRange, this.getWeaponThrownRange(w, gridDist));
+            } else {
+              const raw = String(w.system?.range ?? "").trim();
+              const num = parseInt(raw);
+              if (!isNaN(num) && num > 0) {
+                const r = /ft|feet/i.test(raw) ? Math.round(num / gridDist) : num;
+                maxRange = Math.max(maxRange, r);
+              }
             }
           }
-        }
-        if (maxRange > 0) {
-          baseRange = maxRange;
-        } else if (activeWeapons.length === 0) {
-          baseRange = 12;
-        } else {
-          baseRange = null;
+          if (maxRange > 0) {
+            baseRange = maxRange;
+          } else {
+            if (options.notify) {
+              ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.MissileWeaponNoRange"));
+            }
+            baseRange = 0;
+          }
         }
       } else if (abilityType === "spell") {
         const spellWeapons = activeWeapons.filter(w => w.system?.type === "spell");
-        const r = this.getWeaponRangeInSquares(spellWeapons, gridDist);
-        baseRange = r > 0 ? r : 4;
+        if (spellWeapons.length > 0) {
+          const r = this.getWeaponRangeInSquares(spellWeapons, gridDist);
+          baseRange = r > 0 ? r : 4;
+        } else if (hasFree) {
+          baseRange = 4;
+        } else {
+          if (options.notify) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NeedSpellWeapon"));
+          }
+          baseRange = 0;
+        }
       } else if (abilityType === "tool") {
-        const agility = actorDoc?.system?.attributes?.agility ?? 0;
-        baseRange = 5 + agility;
+        if (!hasFree) {
+          if (options.notify) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NeedFreeHand"));
+          }
+          baseRange = 0;
+        } else {
+          const agility = actorDoc?.system?.attributes?.agility ?? 0;
+          baseRange = 5 + agility;
+        }
       } else if (abilityType === "versatile") {
-        const r = this.getWeaponRangeInSquares(activeWeapons, gridDist);
-        baseRange = r > 0 ? r : 1;
+        const missileWeapons = activeWeapons.filter(w =>
+          !w.system?.isThrown && (w.system?.type === "missile" || w.system?.properties?.thrown)
+        );
+        const meleeWeapons = activeWeapons.filter(w => w.system?.type === "melee");
+
+        let bestRange = 0;
+        if (missileWeapons.length > 0) {
+          bestRange = Math.max(bestRange, this.getWeaponRangeInSquares(missileWeapons, gridDist));
+        }
+        if (meleeWeapons.length > 0) {
+          const meleeReaches = meleeWeapons.map(w => this.getWeaponMeleeRange(w, gridDist));
+          bestRange = Math.max(bestRange, ...meleeReaches);
+        }
+
+        if (bestRange > 0) {
+          baseRange = bestRange;
+        } else if (hasFree) {
+          baseRange = 1;
+        } else {
+          if (options.notify) {
+            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NeedWeapon"));
+          }
+          baseRange = 0;
+        }
       }
     }
 
-    if (baseRange === null || baseRange <= 0) return null;
+    if (baseRange === 0) return 0;
+    if (baseRange === null || baseRange < 0) return null;
 
     // 5. Take Aim range bonus (+4 or +8 for missile and spell deeds)
     const activeWeapons = getActiveWeapons(actorDoc);
     const isMissileOrSpell = abilityType === "missile" || abilityType === "spell"
       || (abilityType === "versatile" && activeWeapons.some(w => !w.system?.isThrown && (w.system?.type === "missile" || w.system?.type === "spell" || w.system?.properties?.thrown)));
 
-    if (isMissileOrSpell) {
+    if (isMissileOrSpell && baseRange > 0) {
       const aimBonus = this.getAimRangeBonus(sourceToken, actorDoc);
       return baseRange + aimBonus;
     }
 
     return baseRange;
+  }
+
+  /**
+   * Check if an actor has at least one free hand.
+   * A hand is considered free if:
+   * - main_hand or off_hand is empty
+   * - OR a two-handed weapon is equipped (since holding it with one hand temporarily is a free action)
+   * @param {Actor} actor
+   * @returns {boolean}
+   */
+  static hasFreeHand(actor) {
+    if (!actor) return false;
+    const mainHandId = actor.system?.equipment?.main_hand;
+    const offHandId = actor.system?.equipment?.off_hand;
+
+    // At least one slot is empty
+    if (!mainHandId || !offHandId) return true;
+
+    // Check if main_hand and off_hand reference the exact same item
+    if (mainHandId === offHandId) return true;
+
+    const mainItem = actor.items?.get(mainHandId);
+    const offItem = actor.items?.get(offHandId);
+    if (mainItem?.system?.properties?.twoHanded || mainItem?.system?.twoHanded ||
+        offItem?.system?.properties?.twoHanded || offItem?.system?.twoHanded) {
+      return true;
+    }
+
+    return false;
   }
 
   /**
@@ -279,7 +366,8 @@ export class RangeHelper {
    * @returns {boolean}
    */
   static isWithinRange(sourceToken, target, maxRangeSq) {
-    if (maxRangeSq === null || maxRangeSq === undefined || maxRangeSq <= 0) return true;
+    if (maxRangeSq === null || maxRangeSq === undefined) return true;
+    if (maxRangeSq === 0) return false;
     const enforce = game.settings.get?.("trespasser", "enforceAttackRange") ?? false;
     if (!enforce) return true;
 

@@ -65,6 +65,7 @@
         "NoWeaponEquipped": "No weapon equipped! This ability requires a weapon.",
         "NeedMeleeWeapon": "This ability requires an equipped melee weapon.",
         "NeedMissileWeapon": "This ability requires an equipped missile or thrown weapon.",
+        "MissileWeaponNoRange": "The equipped missile weapon has no range defined.",
         "NeedSpellWeapon": "This ability requires a spell weapon or a free hand.",
         "NeedFreeHand": "This ability requires a free hand.",
         "NeedWeapon": "This ability requires an equipped weapon.",

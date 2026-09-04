@@ -36,33 +36,30 @@
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.ActionType"}}</label>
         <select name="system.graph.nodes.{{index}}.params.actionType">
-          <option value="" {{#if (not params.actionType)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.InheritDeedDefault"}} ({{defaultActionTypeLabel}})</option>
-          <option value="attack" {{#if (eq params.actionType "attack")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Attack"}}</option>
-          <option value="support" {{#if (eq params.actionType "support")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Support"}}</option>
+          <option value="attack" {{#if (or (eq params.actionType "attack") (and (not params.actionType) (eq defaultActionType "attack")))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Attack"}}</option>
+          <option value="support" {{#if (or (eq params.actionType "support") (and (not params.actionType) (eq defaultActionType "support")))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Support"}}</option>
         </select>
       </div>
 
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.AbilityType"}}</label>
         <select name="system.graph.nodes.{{index}}.params.abilityType">
-          <option value="" {{#if (not params.abilityType)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.InheritDeedDefault"}} ({{defaultAbilityTypeLabel}})</option>
-          <option value="innate" {{#if (eq params.abilityType "innate")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Innate"}}</option>
-          <option value="melee" {{#if (eq params.abilityType "melee")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Melee"}}</option>
-          <option value="missile" {{#if (eq params.abilityType "missile")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Missile"}}</option>
-          <option value="spell" {{#if (eq params.abilityType "spell")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Spell"}}</option>
-          <option value="tool" {{#if (eq params.abilityType "tool")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Tool"}}</option>
-          <option value="unarmed" {{#if (eq params.abilityType "unarmed")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Unarmed"}}</option>
-          <option value="versatile" {{#if (eq params.abilityType "versatile")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Versatile"}}</option>
+          <option value="innate" {{#if (or (eq params.abilityType "innate") (and (not params.abilityType) (eq defaultAbilityType "innate")))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Innate"}}</option>
+          <option value="melee" {{#if (or (eq params.abilityType "melee") (and (not params.abilityType) (eq defaultAbilityType "melee")))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Melee"}}</option>
+          <option value="missile" {{#if (or (eq params.abilityType "missile") (and (not params.abilityType) (eq defaultAbilityType "missile")))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Missile"}}</option>
+          <option value="spell" {{#if (or (eq params.abilityType "spell") (and (not params.abilityType) (eq defaultAbilityType "spell")))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Spell"}}</option>
+          <option value="tool" {{#if (or (eq params.abilityType "tool") (and (not params.abilityType) (eq defaultAbilityType "tool")))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Tool"}}</option>
+          <option value="unarmed" {{#if (or (eq params.abilityType "unarmed") (and (not params.abilityType) (eq defaultAbilityType "unarmed")))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Unarmed"}}</option>
+          <option value="versatile" {{#if (or (eq params.abilityType "versatile") (and (not params.abilityType) (eq defaultAbilityType "versatile")))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.TypeChoices.Versatile"}}</option>
         </select>
       </div>
 
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Versus"}}</label>
         <select name="system.graph.nodes.{{index}}.params.versus">
-          <option value="" {{#if (not params.versus)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.InheritDeedDefault"}} ({{defaultVersusLabel}})</option>
-          <option value="Guard" {{#if (eq params.versus "Guard")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Guard"}}</option>
-          <option value="Resist" {{#if (eq params.versus "Resist")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Resist"}}</option>
-          <option value="10" {{#if (eq params.versus "10")}}selected{{/if}}>10</option>
+          <option value="Guard" {{#if (or (eq params.versus "Guard") (and (not params.versus) (eq defaultVersus "Guard")))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Guard"}}</option>
+          <option value="Resist" {{#if (or (eq params.versus "Resist") (and (not params.versus) (eq defaultVersus "Resist")))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Resist"}}</option>
+          <option value="10" {{#if (or (eq params.versus "10") (and (not params.versus) (eq defaultVersus "10")))}}selected{{/if}}>10</option>
         </select>
       </div>
 

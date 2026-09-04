@@ -65,6 +65,7 @@
         "NoWeaponEquipped": "Nenhuma arma equipada! Esta habilidade requer uma arma.",
         "NeedMeleeWeapon": "Esta habilidade requer uma arma de combate corpo a corpo equipada.",
         "NeedMissileWeapon": "Esta habilidade requer uma arma de projétil ou arremesso equipada.",
+        "MissileWeaponNoRange": "A arma de projétil equipada não possui alcance definido.",
         "NeedSpellWeapon": "Esta habilidade requer uma arma mágica ou uma mão livre.",
         "NeedFreeHand": "Esta habilidade requer uma mão livre.",
         "NeedWeapon": "Esta habilidade requer uma arma equipada.",
