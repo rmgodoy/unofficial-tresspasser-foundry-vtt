@@ -20,11 +20,21 @@
         "PrevailFailed": "Failed to prevail against <b>{name}</b> (Roll: {roll} vs {target}) - <b>Failed</b>",
         "SluggishAutofail": "<strong>Sluggish:</strong> Auto-failed initiative check.",
         "TemptFateHeader": "Tempt Fate — {name} Intervenes!",
-        "TemptFateShadow": "Tempt Fate Shadow:"
+        "TemptFateShadow": "Tempt Fate Shadow:",
+        "Depleted": "DEPLETED!",
+        "Safe": "SAFE",
+        "EarlyPhaseSuccess": "SUCCESS! (Early Phase)",
+        "LatePhaseFail": "FAILURE (Late Phase)",
+        "CritInitSuccess": "CRITICAL SUCCESS! (Early Phase + Extra Turn)",
+        "RollsStatVsDC": "{name} rolls {stat} vs DC {dc}",
+        "RollsStat": "{name} rolls {stat}"
       },
       "Combat": {
         "Defense": "Defense",
         "AccuracyRoll": "{name} Accuracy Roll",
+        "Defended": "DEFENDED!",
+        "DefenseFailed": "HIT!",
+        "DefenseVsHeader": "Defense vs {name} (DC: {dc})",
         "NoTargetsSkipped": "No targets available — accuracy check and hit/spark phases skipped.",
         "PendingDistribution": "Awaiting distribution choices...",
         "PendingHealing": "Awaiting healing distribution choices...",

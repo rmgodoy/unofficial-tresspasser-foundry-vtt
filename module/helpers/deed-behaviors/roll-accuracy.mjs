@@ -164,8 +164,8 @@ export class RollAccuracyBehavior {
         if (diff >= 0) sparks = Math.floor(diff / 5);
         else shadows = Math.floor(Math.abs(diff) / 5);
 
-        if (diceResult === 20) sparks += 1;
-        if (diceResult === 1) shadows += 1;
+        if (diceResult === 20) shadows += 1;
+        if (diceResult === 1) sparks += 1;
 
         // Sparks cancel Shadows
         const net = sparks - shadows;
@@ -202,16 +202,26 @@ export class RollAccuracyBehavior {
           }
         }
 
+        const defended = !res.isHit;
+        const statusLabel = defended
+          ? (game.i18n.localize("TRESPASSER.Chat.Combat.Defended") || "DEFENDEU!")
+          : (game.i18n.localize("TRESPASSER.Chat.Combat.DefenseFailed") || "ATINGIDO!");
+        const statusColor = defended ? '#4fc3f7' : '#ff5252';
+
+        // Presentation-wise, display sparks/shadows from defender perspective (mechanics untouched)
+        const defenderSparks = res.shadows;
+        const defenderShadows = res.sparks;
+
         resultsHtml += `
           <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs DC: ${res.dc})</span></strong>
-              <span class="${res.isHit ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${res.isHit ? '#4fc3f7' : '#ff5252'};">${res.isHit ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!") : (game.i18n.localize("TRESPASSER.Chat.Combat.Miss") || "ERRO!")}</span>
+              <span class="${defended ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${statusColor};">${statusLabel}</span>
             </div>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
               <div style="display:flex;gap:10px;font-size: var(--fs-11);">
-                <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
-                <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
+                <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: defenderSparks }) || `Centelhas: ${defenderSparks}`}</span>
+                <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: defenderShadows }) || `Sombras: ${defenderShadows}`}</span>
               </div>
               ${counterBtnHtml}
             </div>
@@ -223,10 +233,11 @@ export class RollAccuracyBehavior {
       }
 
       const engagementNote = hasEngagementPenalty ? ` <span style="color:#ff5252; font-size:var(--fs-10);">(-2 ${game.i18n.localize("TRESPASSER.Chat.Combat.EngagementPenalty")})</span>` : "";
+      const headerTitle = game.i18n.format("TRESPASSER.Chat.Combat.DefenseVsHeader", { name: item.name, dc: creatureDC });
       context.currentPhaseOutputs.accuracyHtml = `
         <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
           <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-            ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: item.name })} (Creature Attack DC: ${creatureDC}${engagementNote})
+            ${headerTitle}${engagementNote}
           </h4>
           ${resultsHtml}
         </div>`;

@@ -20,11 +20,21 @@
         "PrevailFailed": "Falhou em prevalecer contra <b>{name}</b> (Rolagem: {roll} vs {target}) — <b>Falha</b>",
         "SluggishAutofail": "<strong>Lento:</strong> Falhou automaticamente no teste de iniciativa.",
         "TemptFateHeader": "Desafiar o Destino — {name} Intervém!",
-        "TemptFateShadow": "Sombra do Desafiar o Destino:"
+        "TemptFateShadow": "Sombra do Desafiar o Destino:",
+        "Depleted": "ESGOTADO!",
+        "Safe": "INTACTO",
+        "EarlyPhaseSuccess": "SUCESSO! (Fase Inicial)",
+        "LatePhaseFail": "FALHA (Fase Tardia)",
+        "CritInitSuccess": "SUCESSO CRÍTICO! (Fase Inicial + Turno Extra)",
+        "RollsStatVsDC": "{name} rola {stat} vs CD {dc}",
+        "RollsStat": "{name} rola {stat}"
       },
       "Combat": {
         "Defense": "Defesa",
         "AccuracyRoll": "Rolagem de Acurácia de {name}",
+        "Defended": "DEFENDEU!",
+        "DefenseFailed": "ATINGIDO!",
+        "DefenseVsHeader": "Defesa contra {name} (CD: {dc})",
         "NoTargetsSkipped": "Nenhum alvo disponível — verificação de acurácia e fases de acerto/centelha puladas.",
         "PendingDistribution": "Aguardando distribuição do dano...",
         "PendingHealing": "Aguardando distribuição da cura...",

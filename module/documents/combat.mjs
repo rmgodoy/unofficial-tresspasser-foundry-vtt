@@ -491,18 +491,47 @@ export class TrespasserCombat extends Combat {
       const roll = new foundry.dice.Roll(`${formula} + ${initBonus}`);
       await roll.evaluate();
 
+      total = roll.total;
+      isNat20 = roll.dice[0].results[0].result === 20;
+
       // 2. Post to chat
       const combatInfo = this.getFlag("trespasser", "combatInfo") || {};
       const enemyMaxInit = combatInfo.enemyMaxInit || 0;
+      const isRetreat = this.getFlag("trespasser", "retreatPending");
+
       if (game.settings.get("trespasser", "showInitiativeInChat")) {
+        let flavor = "";
+
+        if (isRetreat) {
+          const retreatSuccess = total >= enemyMaxInit;
+          const retreatKey = retreatSuccess ? "TRESPASSER.Chat.Retreat.Success" : "TRESPASSER.Chat.Retreat.Fail";
+          flavor = game.i18n.format(retreatKey, { name: combatant.actor.name, total, dc: enemyMaxInit });
+        } else {
+          const isSuccess = total >= enemyMaxInit;
+          let outcomeLabel = isSuccess
+            ? (game.i18n.localize("TRESPASSER.Chat.Check.EarlyPhaseSuccess") || "SUCESSO! (Fase Inicial)")
+            : (game.i18n.localize("TRESPASSER.Chat.Check.LatePhaseFail") || "FALHA (Fase Tardia)");
+          let outcomeColor = isSuccess ? "var(--trp-green-bright, #4fc3f7)" : "var(--trp-red, #ff5252)";
+
+          if (isNat20) {
+            outcomeLabel = game.i18n.localize("TRESPASSER.Chat.Check.CritInitSuccess") || "SUCESSO CRÍTICO! (Fase Inicial + Turno Extra)";
+            outcomeColor = "var(--trp-gold-bright, #e8c96b)";
+          }
+
+          const baseFlavor = game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit });
+          flavor = `<div class="trespasser-chat-card">
+            <h4>${baseFlavor}</h4>
+            <div style="font-weight: bold; color: ${outcomeColor}; font-size: var(--fs-12); margin-top: 4px;">
+              ${outcomeLabel}
+            </div>
+          </div>`;
+        }
+
         await roll.toMessage({
           speaker: ChatMessage.getSpeaker({ actor: combatant.actor }),
-          flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
+          flavor
         });
       }
-
-      total = roll.total;
-      isNat20 = roll.dice[0].results[0].result === 20;
     }
 
     // 3. Handle Update (GM updates directly, Players use Flags)
@@ -662,9 +691,11 @@ export class TrespasserCombat extends Combat {
         await roll.evaluate();
         
         if (game.settings.get("trespasser", "showInitiativeInChat")) {
+          const retreatSuccess = roll.total >= enemyMaxInit;
+          const retreatKey = retreatSuccess ? "TRESPASSER.Chat.Retreat.Success" : "TRESPASSER.Chat.Retreat.Fail";
           await roll.toMessage({
             speaker: ChatMessage.getSpeaker({ actor: c.actor }),
-            flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
+            flavor: game.i18n.format(retreatKey, { name: c.actor.name, total: roll.total, dc: enemyMaxInit })
           });
         }
         

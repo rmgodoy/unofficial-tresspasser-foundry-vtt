@@ -71,9 +71,15 @@ export async function runDepletionCheck(item, sheet) {
   await roll.evaluate();
 
   const isDepleted = roll.total <= 2;
-  const flavor = isDepleted
-    ? game.i18n.format("TRESPASSER.Chat.Check.ResultVs", { total: item.name, target: `Depletion Roll: ${roll.total}`, status: "(DEPLETED/FAILED!)" })
-    : game.i18n.format("TRESPASSER.Chat.Check.ResultVs", { total: item.name, target: `Depletion Roll: ${roll.total}`, status: "(Safe)" });
+  const statusHtml = isDepleted
+    ? `<span class="miss-text" style="font-weight:bold; color:var(--trp-red, #ff5252);">${game.i18n.localize("TRESPASSER.Chat.Check.Depleted")}</span>`
+    : `<span class="hit-text" style="font-weight:bold; color:var(--trp-green-bright, #4fc3f7);">${game.i18n.localize("TRESPASSER.Chat.Check.Safe")}</span>`;
+
+  const flavor = game.i18n.format("TRESPASSER.Chat.Check.ResultVs", {
+    total: item.name,
+    target: `${game.i18n.localize("TRESPASSER.Chat.Dungeon.LightDepletion") || "Depletion"}: ${roll.total}`,
+    status: statusHtml
+  });
 
   await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor });
 

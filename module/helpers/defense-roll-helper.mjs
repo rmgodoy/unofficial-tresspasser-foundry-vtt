@@ -172,12 +172,42 @@ export async function _rollDefenseLocally(actor, statKey, creatureDC, deedName) 
   const defRoll = new foundry.dice.Roll(formula);
   await defRoll.evaluate();
 
+  const finalCD = result.cd ?? creatureDC;
+  const isDefended = defRoll.total >= finalCD;
+  const statusLabel = isDefended
+    ? (game.i18n.localize("TRESPASSER.Chat.Combat.Defended") || "DEFENDEU!")
+    : (game.i18n.localize("TRESPASSER.Chat.Combat.DefenseFailed") || "ATINGIDO!");
+  const statusColor = isDefended ? "#4fc3f7" : "#ff5252";
+  const statLabel = game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`);
+  const rollsText = game.i18n.format("TRESPASSER.Chat.Check.RollsStatVsDC", { name: actor.name, stat: statLabel, dc: finalCD });
+
+  const diff = defRoll.total - finalCD;
+  const diceResult = defRoll.dice?.[0]?.results?.[0]?.result ?? null;
+  let sparks = 0;
+  let shadows = 0;
+  if (diff >= 0) sparks = Math.floor(diff / 5);
+  else shadows = Math.floor(Math.abs(diff) / 5);
+  if (diceResult === 20) sparks += 1;
+  if (diceResult === 1) shadows += 1;
+  const net = sparks - shadows;
+  const playerSparks = Math.max(0, net);
+  const playerShadows = Math.max(0, -net);
+
   // Post defense roll to chat from the player's perspective
   await defRoll.toMessage({
     speaker: ChatMessage.getSpeaker({ actor }),
     flavor: `<div class="trespasser-chat-card">
       <h3>${deedName} — ${game.i18n.localize("TRESPASSER.Chat.Check.DefenseRoll")}</h3>
-      <p><strong>${actor.name}</strong> ${game.i18n.localize("TRESPASSER.Chat.Common.Rolls")} ${game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`)}</p>
+      <p><strong>${rollsText}</strong></p>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-top: 4px;">
+        <span class="${isDefended ? 'hit-text' : 'miss-text'}" style="font-weight: bold; color: ${statusColor}; font-size: var(--fs-13);">
+          ${statusLabel}
+        </span>
+        <div style="display:flex; gap:10px; font-size: var(--fs-11);">
+          <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: playerSparks })}</span>
+          <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: playerShadows })}</span>
+        </div>
+      </div>
     </div>`
   });
 

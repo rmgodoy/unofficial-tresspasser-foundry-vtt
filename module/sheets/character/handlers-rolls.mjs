@@ -306,6 +306,13 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
     if (dieResult === 20) sparks  += 1;
     if (dieResult === 1)  shadows += 1;
 
+    const isSuccess = diff >= 0;
+    const outcomeLabel = isSuccess
+      ? (game.i18n.localize("TRESPASSER.Chat.Common.Success") || "SUCESSO")
+      : (game.i18n.localize("TRESPASSER.Chat.Common.Failure") || "FALHA");
+    const outcomeColor = isSuccess ? "var(--trp-green-bright, #4fc3f7)" : "var(--trp-red, #ff5252)";
+    const outcomeClass = isSuccess ? "hit-text" : "miss-text";
+
     const metrics = `
       <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
         <div class="metric spark"  style="color:var(--trp-spark);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks",  { count: sparks  })}</div>
@@ -314,7 +321,12 @@ export async function evaluateAndShowRoll(roll, flavor, cd, sheet, options = {})
 
     await roll.toMessage({
       speaker: ChatMessage.getSpeaker({ actor: sheet.actor }),
-      flavor:  `${flavor}<p>${game.i18n.format("TRESPASSER.Chat.Check.VsCD", { cd })}</p>${metrics}`
+      flavor: `${flavor}
+        <div style="display:flex; justify-content:space-between; align-items:center; margin: 4px 0;">
+          <span>${game.i18n.format("TRESPASSER.Chat.Check.VsCD", { cd })}</span>
+          <span class="${outcomeClass}" style="font-weight:bold; color:${outcomeColor}; font-size:var(--fs-12);">${outcomeLabel}</span>
+        </div>
+        ${metrics}`
     });
 
     return roll;
@@ -395,7 +407,20 @@ function _buildRollMessageFlavor(baseFlavor, cd, diff, sheet, options, metricsDa
     finalFlavor = `<div class="tempt-fate-header" style="border-bottom:1px solid var(--trp-border);margin-bottom:6px;padding-bottom:4px;"><strong style="font-family:var(--trp-font-header);color:var(--trp-gold-bright);text-transform:uppercase;font-size:var(--fs-12);"><i class="fas fa-dice"></i> ${game.i18n.format("TRESPASSER.Chat.Check.TemptFateHeader", { name: sheet.actor.name })}</strong></div>${baseFlavor}`;
   }
 
-  const flavorHtml = `${finalFlavor}<p>${game.i18n.format("TRESPASSER.Chat.Check.VsCD", { cd })}</p>${metrics}${temptFateButton}`;
+  const isSuccess = diff >= 0;
+  const outcomeLabel = isSuccess
+    ? (game.i18n.localize("TRESPASSER.Chat.Common.Success") || "SUCESSO")
+    : (game.i18n.localize("TRESPASSER.Chat.Common.Failure") || "FALHA");
+  const outcomeColor = isSuccess ? "var(--trp-green-bright, #4fc3f7)" : "var(--trp-red, #ff5252)";
+  const outcomeClass = isSuccess ? "hit-text" : "miss-text";
+
+  const outcomeHtml = `
+    <div style="display:flex; justify-content:space-between; align-items:center; margin: 4px 0;">
+      <span>${game.i18n.format("TRESPASSER.Chat.Check.VsCD", { cd })}</span>
+      <span class="${outcomeClass}" style="font-weight:bold; color:${outcomeColor}; font-size:var(--fs-12);">${outcomeLabel}</span>
+    </div>`;
+
+  const flavorHtml = `${finalFlavor}${outcomeHtml}${metrics}${temptFateButton}`;
   const flags = {
     isNonCombatRoll: true,
     isTemptFate: !!options.isTemptFate,
