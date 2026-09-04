@@ -296,12 +296,15 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
 
     _getTakeAimOptions(ap) {
         const options = [];
-        const max = Math.min(2, ap);
-        for (let i = 1; i <= max; i++) {
-            options.push({
-                cost: i,
-                bonus: i === 1 ? 4 : 8
-            });
+        const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+        if (ap >= 1 || !restrictAPF) {
+            options.push({ cost: 1, bonus: 4 });
+        }
+        if (ap >= 2 || !restrictAPF) {
+            options.push({ cost: 2, bonus: 8 });
+        }
+        if (options.length === 0) {
+            options.push({ cost: 1, bonus: 4 });
         }
         return options;
     }
@@ -345,7 +348,12 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         // Handle combat start/updates
         Hooks.on("updateCombat", () => this._checkAndRenderForActiveToken());
         Hooks.on("createCombat", () => this._checkAndRenderForActiveToken());
-        Hooks.on("deleteCombat", () => this.close());
+        Hooks.on("deleteCombat", async (combat) => {
+            this.close();
+            if (this._token?.actor) {
+                await this._token.actor.unsetFlag("trespasser", "aimRangeBonus");
+            }
+        });
         Hooks.on("canvasReady", () => this._checkAndRenderForActiveToken());
 
         // Handle AP changes (stored in flags) on combatants
@@ -991,20 +999,28 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const cost = costInput ? parseInt(costInput.value) : 1;
         
         const combatant = this._getCombatant();
-        if (!combatant) return;
-
-        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
         
-        if (restrictAPF && currentAP < cost) {
-            ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
-            return;
+        if (combatant && restrictAPF) {
+            const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+            if (currentAP < cost) {
+                ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
+                return;
+            }
         }
 
-        const rangeBonus = cost === 1 ? 4 : 8;
+        const rangeBonus = cost >= 2 ? 8 : 4;
 
-        await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
-        await TrespasserCombat.recordHUDAction(this._token.actor, "take-aim");
+        if (combatant) {
+            const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+            await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+            await combatant.setFlag("trespasser", "aimRangeBonus", rangeBonus);
+        }
+
+        if (this._token?.actor) {
+            await this._token.actor.setFlag("trespasser", "aimRangeBonus", rangeBonus);
+            await TrespasserCombat.recordHUDAction(this._token.actor, "take-aim");
+        }
 
         ChatMessage.create({
             speaker: ChatMessage.getSpeaker({ token: this._token }),

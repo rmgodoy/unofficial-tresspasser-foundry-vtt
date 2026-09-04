@@ -3,6 +3,7 @@ import { TargetingHelper } from "../targeting-helper.mjs";
 import { TerrainHelper } from "../terrain-helper.mjs";
 import { CanvasInputSession } from "../../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../../canvas/canvas-selection-renderer.mjs";
+import { RangeHelper } from "../range-helper.mjs";
 
 export class SpawnTerrainBehavior {
   /**
@@ -182,7 +183,7 @@ export class SpawnTerrainBehavior {
     const hSq = terrainItem.system.height || 1;
     const wPx = wSq * gridSize;
     const hPx = hSq * gridSize;
-    const range = deedItem?.system?.range || 0;
+    const range = deedItem ? (RangeHelper.getDeedRange(sourceToken, deedItem, sourceToken?.actor) ?? deedItem.system?.range ?? 0) : 0;
 
     let selectedPos = null;
     let hoveredPos = null;

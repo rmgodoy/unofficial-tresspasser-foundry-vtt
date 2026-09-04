@@ -134,10 +134,14 @@ export class TrespasserCombat extends Combat {
           combatantUpdates.push(up);
         }
         
-        // Ensure AP and history are reset
+        // Ensure AP, history, and aim bonuses are reset
         up["flags.trespasser.actionPoints"] = 3;
         up["flags.trespasser.usedHUDActions"] = [];
         up["flags.trespasser.reactionCount"] = 0;
+        up["flags.trespasser.aimRangeBonus"] = 0;
+        if (combatant.actor) {
+          await combatant.actor.unsetFlag("trespasser", "aimRangeBonus");
+        }
       }
       
       // 3. Apply ALL combatant updates in one go
@@ -183,6 +187,10 @@ export class TrespasserCombat extends Combat {
         up["flags.trespasser.actionPoints"] = 3;
         up["flags.trespasser.usedHUDActions"] = [];
         up["flags.trespasser.reactionCount"] = 0;
+        up["flags.trespasser.aimRangeBonus"] = 0;
+        if (combatant.actor) {
+          await combatant.actor.unsetFlag("trespasser", "aimRangeBonus");
+        }
       }
       
       if (combatantUpdates.length > 0) {

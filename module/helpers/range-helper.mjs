@@ -26,69 +26,114 @@ export class RangeHelper {
       return 1;
     }
 
-    // 1. Explicit numerical range defined on deed system
-    const deedRange = deedSys.range;
-    if (deedRange !== null && deedRange !== undefined && Number.isFinite(Number(deedRange)) && Number(deedRange) > 0) {
-      return Number(deedRange);
-    }
-
-    // 2. Resolve effective abilityType and actionType
+    // 1. Resolve effective abilityType and actionType
     const { actionType, abilityType } = getEffectiveDeedAttributes(itemOrDeed);
     if (actionType === "support") return null;
 
-    // 3. Creature actor handling
-    if (actorDoc?.type === "creature") {
-      if (deedRange !== null && deedRange !== undefined && Number.isFinite(Number(deedRange)) && Number(deedRange) > 0) {
-        return Number(deedRange);
-      }
+    let baseRange = null;
+
+    // 2. Explicit numerical range defined on deed system
+    const deedRange = deedSys.range;
+    if (deedRange !== null && deedRange !== undefined && Number.isFinite(Number(deedRange)) && Number(deedRange) > 0) {
+      baseRange = Number(deedRange);
+    } else if (actorDoc?.type === "creature") {
+      // 3. Creature actor handling
       if (abilityType === "melee" || abilityType === "unarmed") {
-        return actorDoc.system?.combat?.engagement_range ?? actorDoc.system?.engagement_range ?? 1;
+        baseRange = actorDoc.system?.combat?.engagement_range ?? actorDoc.system?.engagement_range ?? 1;
+      } else if (abilityType === "spell") {
+        baseRange = 4;
+      } else {
+        baseRange = 1;
       }
-      if (abilityType === "spell") return 4;
-      return 1;
+    } else {
+      // 4. Character / companion actors (weapon-dependent or ability-dependent)
+      const activeWeapons = getActiveWeapons(actorDoc);
+      const gridDist = canvas.dimensions?.distance ?? 5;
+      const isThrown = activeWeapons.some(w => w.system?.properties?.thrown);
+
+      if (abilityType === "melee" || abilityType === "unarmed") {
+        if (isThrown) {
+          const thrownWeapons = activeWeapons.filter(w => w.system?.properties?.thrown);
+          const r = this.getWeaponRangeInSquares(thrownWeapons, gridDist);
+          baseRange = r > 0 ? r : 1;
+        } else {
+          const meleeWeapons = activeWeapons.filter(w => w.system?.type === "melee");
+          const r = this.getWeaponRangeInSquares(meleeWeapons, gridDist);
+          baseRange = r > 0 ? r : 1;
+        }
+      } else if (abilityType === "missile") {
+        const missileWeapons = activeWeapons.filter(w =>
+          w.system?.type === "missile" || w.system?.properties?.thrown
+        );
+        const r = this.getWeaponRangeInSquares(missileWeapons, gridDist);
+        baseRange = r > 0 ? r : 12;
+      } else if (abilityType === "spell") {
+        const spellWeapons = activeWeapons.filter(w => w.system?.type === "spell");
+        const r = this.getWeaponRangeInSquares(spellWeapons, gridDist);
+        baseRange = r > 0 ? r : 4;
+      } else if (abilityType === "tool") {
+        const agility = actorDoc?.system?.attributes?.agility ?? 0;
+        baseRange = 5 + agility;
+      } else if (abilityType === "versatile") {
+        const r = this.getWeaponRangeInSquares(activeWeapons, gridDist);
+        baseRange = r > 0 ? r : 1;
+      }
     }
 
-    // 4. Character / companion actors (weapon-dependent or ability-dependent)
+    if (baseRange === null || baseRange <= 0) return null;
+
+    // 5. Take Aim range bonus (+4 or +8 for missile and spell deeds)
     const activeWeapons = getActiveWeapons(actorDoc);
-    const gridDist = canvas.dimensions?.distance ?? 5;
-    const isThrown = activeWeapons.some(w => w.system?.properties?.thrown);
+    const isMissileOrSpell = abilityType === "missile" || abilityType === "spell"
+      || (abilityType === "versatile" && activeWeapons.some(w => w.system?.type === "missile" || w.system?.type === "spell" || w.system?.properties?.thrown));
 
-    if (abilityType === "melee" || abilityType === "unarmed") {
-      if (isThrown) {
-        const thrownWeapons = activeWeapons.filter(w => w.system?.properties?.thrown);
-        const r = this.getWeaponRangeInSquares(thrownWeapons, gridDist);
-        return r > 0 ? r : 1;
+    if (isMissileOrSpell) {
+      const aimBonus = this.getAimRangeBonus(sourceToken, actorDoc);
+      return baseRange + aimBonus;
+    }
+
+    return baseRange;
+  }
+
+  /**
+   * Retrieve active Take Aim range bonus in grid squares for an actor/token.
+   * Checks combatant flag first, then actor flag.
+   * @param {Token|TokenDocument} [sourceToken]
+   * @param {Actor} [actor]
+   * @returns {number} Aim bonus in squares (0 if not active)
+   */
+  static getAimRangeBonus(sourceToken, actor = null) {
+    const actorDoc = actor || sourceToken?.actor;
+    const tokenDoc = sourceToken?.document ?? sourceToken;
+    const tokenId = tokenDoc?.id ?? sourceToken?.id;
+
+    // 1. Check combatant flag if combat is active
+    let combatant = null;
+    if (game.combat) {
+      if (tokenId) {
+        combatant = game.combat.combatants.find(c => c.tokenId === tokenId);
       }
-      const meleeWeapons = activeWeapons.filter(w => w.system?.type === "melee");
-      const r = this.getWeaponRangeInSquares(meleeWeapons, gridDist);
-      return r > 0 ? r : 1;
+      if (!combatant && actorDoc) {
+        combatant = game.combat.combatants.find(c => c.actorId === actorDoc.id);
+      }
     }
 
-    if (abilityType === "missile") {
-      const missileWeapons = activeWeapons.filter(w =>
-        w.system?.type === "missile" || w.system?.properties?.thrown
-      );
-      const r = this.getWeaponRangeInSquares(missileWeapons, gridDist);
-      return r > 0 ? r : 12;
+    if (combatant) {
+      const b = combatant.getFlag("trespasser", "aimRangeBonus");
+      if (b !== undefined && b !== null && Number.isFinite(Number(b)) && Number(b) > 0) {
+        return Number(b);
+      }
     }
 
-    if (abilityType === "spell") {
-      const spellWeapons = activeWeapons.filter(w => w.system?.type === "spell");
-      const r = this.getWeaponRangeInSquares(spellWeapons, gridDist);
-      return r > 0 ? r : 4;
+    // 2. Check actor flag
+    if (actorDoc) {
+      const b = actorDoc.getFlag("trespasser", "aimRangeBonus");
+      if (b !== undefined && b !== null && Number.isFinite(Number(b)) && Number(b) > 0) {
+        return Number(b);
+      }
     }
 
-    if (abilityType === "tool") {
-      const agility = actorDoc?.system?.attributes?.agility ?? 0;
-      return 5 + agility;
-    }
-
-    if (abilityType === "versatile") {
-      const r = this.getWeaponRangeInSquares(activeWeapons, gridDist);
-      return r > 0 ? r : 1;
-    }
-
-    return null;
+    return 0;
   }
 
   /**
