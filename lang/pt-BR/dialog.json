@@ -10,6 +10,9 @@
         "Apply": "Aplicar",
         "SearchPlaceholder": "Buscar…"
       },
+      "Combat": {
+        "SelectArmorToBlock": "Selecione qual dado de armadura equipada rolar para bloquear o dano ({damage} sofrido):"
+      },
       "SkillCheck": {
         "Title": "Teste de {skill}",
         "Prompt": "Com qual atributo você gostaria de fazer o teste?",

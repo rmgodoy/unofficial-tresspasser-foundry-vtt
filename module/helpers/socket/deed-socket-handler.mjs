@@ -92,7 +92,7 @@ async function _handleApplyDamage(data) {
   const token = canvas.tokens?.get(data.tokenId) || game.scenes?.current?.tokens.get(data.tokenId);
   const actor = token?.actor || game.actors.get(data.actorId);
   if (actor && typeof actor.applyDamage === "function") {
-    await actor.applyDamage(data.damage);
+    await actor.applyDamage(data.damage, data.options || {});
   }
   return true;
 }

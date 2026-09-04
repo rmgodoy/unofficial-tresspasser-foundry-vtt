@@ -115,6 +115,18 @@
           <input type="number" name="system.prevail" value="{{system.prevail}}" class="stat-input" />
         </div>
       </div>
+
+      <!-- Row 5: Tactical Ratings (Engagement Range, Damage Die) -->
+      <div class="header-row creature-stats-row creature-tactical-row">
+        <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Creatures.EngagementRange'}}">
+          <label class="stat-label">{{localize "TRESPASSER.Sheet.Creatures.EngagementRange"}}</label>
+          <input type="number" name="system.engagement_range" value="{{system.engagement_range}}" class="stat-input" min="0" />
+        </div>
+        <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Creatures.DamageDie'}}">
+          <label class="stat-label">{{localize "TRESPASSER.Sheet.Creatures.DamageDie"}}</label>
+          <input type="text" name="system.damage_die" value="{{system.damage_die}}" class="stat-input" placeholder="d6" />
+        </div>
+      </div>
     </div>
   </header>
 

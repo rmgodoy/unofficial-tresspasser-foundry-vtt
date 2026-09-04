@@ -137,6 +137,7 @@ export class TrespasserCombat extends Combat {
         // Ensure AP and history are reset
         up["flags.trespasser.actionPoints"] = 3;
         up["flags.trespasser.usedHUDActions"] = [];
+        up["flags.trespasser.reactionCount"] = 0;
       }
       
       // 3. Apply ALL combatant updates in one go
@@ -181,6 +182,7 @@ export class TrespasserCombat extends Combat {
         }
         up["flags.trespasser.actionPoints"] = 3;
         up["flags.trespasser.usedHUDActions"] = [];
+        up["flags.trespasser.reactionCount"] = 0;
       }
       
       if (combatantUpdates.length > 0) {

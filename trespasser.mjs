@@ -63,6 +63,7 @@ import { NonCombatSparkDialog, NonCombatShadowDialog } from "./module/dialogs/te
 import { executeTemptFateFlow } from "./module/sheets/character/handlers-tempt-fate.mjs";
 import { TrespasserRollDialog } from "./module/dialogs/roll-dialog.mjs";
 import { syncBoundCompanions } from "./module/helpers/companion-formula.mjs";
+import { ReactionsHelper } from "./module/helpers/reactions-helper.mjs";
 import { registerTenacityChatListeners, buildTenacityButtonHtml } from "./module/helpers/tenacity-helper.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
@@ -1181,6 +1182,7 @@ Hooks.on("deleteItem", (item, options, userId) => {
 
 Hooks.on("renderChatMessageHTML", (message, html, data) => {
   replaceDiceInElement(html);
+  ReactionsHelper.bindChatListeners(html, message);
 
   // Determine color based on speaker instead of just author
   let borderColor = "#000000";

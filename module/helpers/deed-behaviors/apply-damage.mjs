@@ -1,5 +1,6 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 import { askDistributionDialog } from "../../dialogs/distribution-dialog.mjs";
+import { buildTenacityButtonHtml } from "../tenacity-helper.mjs";
 
 export class ApplyDamageBehavior {
   /**
@@ -148,22 +149,53 @@ export class ApplyDamageBehavior {
       const baseTargetDmg = distributedDamageMap ? (distributedDamageMap.get(targetToken.id) ?? combinedRoll.total) : baseTotal;
       const targetDmg = distributedDamageMap ? baseTargetDmg : (baseTargetDmg + targetPowerDmg);
 
+      const hpBefore = targetActor.system.health ?? 0;
+      const rawHP = hpBefore - targetDmg;
+
+      const canBlock = targetDmg > 0 && targetActor.items.some(i =>
+        i.type === "armor" && i.system.equipped && !i.system.broken
+      );
+
       if (targetActor.isOwner) {
-        await targetActor.applyDamage(targetDmg);
+        await targetActor.applyDamage(targetDmg, { skipBelowZeroChat: true });
       } else {
         const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
         await emitDeedActionAndWait("applyDamage", { 
           actorId: targetActor.id, 
           tokenId: targetToken.id, 
-          damage: targetDmg 
+          damage: targetDmg,
+          options: { skipBelowZeroChat: true }
         });
       }
 
       const powerBonusLabel = targetPowerCount > 0 ? ` <span style="font-size: var(--fs-10); color:#e8c96b;">(+${targetPowerDmg} Power)</span>` : "";
+
+      const blockBtnHtml = canBlock ? `<button type="button" class="trespasser-reaction-btn block-reaction-btn" data-action="block-reaction" data-target-id="${targetActor.id}" data-token-id="${targetToken.id}" data-damage="${targetDmg}" data-hp-before="${hpBefore}" title="${game.i18n.localize("TRESPASSER.Chat.Combat.BlockReaction")}">🛡️ ${game.i18n.localize("TRESPASSER.Chat.Combat.Block")}</button>` : "";
+
+      let belowZeroHtml = "";
+      if (targetActor.type === "character" && rawHP < 0) {
+        const belowZeroMsg = game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", {
+          name: tokenName,
+          hp: rawHP
+        });
+        const tenacityBtn = buildTenacityButtonHtml(targetActor, rawHP);
+        belowZeroHtml = `
+          <div class="target-below-zero" style="margin-top: 3px;">
+            <div class="miss-text" style="font-size: var(--fs-11); font-weight: bold;">${belowZeroMsg}</div>
+            ${tenacityBtn}
+          </div>`;
+      }
+
       targetDamageLines.push(`
-        <div style="display:flex; justify-content:space-between; align-items:center; font-size: var(--fs-12); margin-top:4px; padding-top:3px; border-top:1px dotted var(--trp-border-light, #5c4f3a);">
-          <span><strong>${tokenName}</strong>${powerBonusLabel}</span>
-          <span style="color:#ff5252; font-weight:bold;">⚡ ${targetDmg} ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Dano"}</span>
+        <div class="target-damage-row" style="border-top:1px dotted var(--trp-border-light, #5c4f3a); margin-top:4px; padding-top:3px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size: var(--fs-12);">
+            <span><strong>${tokenName}</strong>${powerBonusLabel}</span>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span style="color:#ff5252; font-weight:bold;">⚡ ${targetDmg} ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Dano"}</span>
+              ${blockBtnHtml}
+            </div>
+          </div>
+          ${belowZeroHtml}
         </div>
       `);
     }

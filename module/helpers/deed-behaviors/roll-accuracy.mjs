@@ -3,6 +3,7 @@ import { TrespasserEffectsHelper } from "../effects-helper.mjs";
 import { TrespasserRollDialog } from "../../dialogs/roll-dialog.mjs";
 import { askSparkDialog } from "../../dialogs/spark-dialog.mjs";
 import { requestPlayerDefenseRoll } from "../defense-roll-helper.mjs";
+import { TargetingHelper } from "../targeting-helper.mjs";
 
 /**
  * Resolves effective deed attributes (actionType, abilityType, versus),
@@ -106,9 +107,18 @@ export class RollAccuracyBehavior {
     // Case 1: Creature Attacking Characters (Player-Facing Defense Roll via Socket)
     // ─────────────────────────────────────────────────────────────────────────
     if (isCreatureAttacker && isAttack && !isVersus10) {
+      const creatureToken = context.executor?.sourceToken || actor?.getActiveTokens?.()[0] || null;
+      const isEngaged = creatureToken ? TargetingHelper.isEngaged(creatureToken) : false;
+      const deedType = abilityType || item.system.abilityType || item.system.type;
+      const isMissileOrSpell = ["missile", "spell"].includes(deedType) || ["missile", "spell"].includes(item.system.type);
+      const targetTokensList = targetList.filter(t => t && t.center);
+      const isExempt = TargetingHelper.isExemptFromEngagement(item.system, targetTokensList, creatureToken);
+      const hasEngagementPenalty = isEngaged && isMissileOrSpell && !isExempt;
+      const engagementMod = hasEngagementPenalty ? -2 : 0;
+
       const creatureEffBonus = actor ? TrespasserEffectsHelper.getAttributeBonus(actor, "accuracy", "use") : 0;
       const creatureAccuracy = actor?.system?.combat?.accuracy ?? 0;
-      const creatureDC = creatureAccuracy + creatureEffBonus + apBonus;
+      const creatureDC = creatureAccuracy + creatureEffBonus + apBonus + engagementMod;
 
       let anyHit = false;
       let maxSparks = 0;
@@ -183,15 +193,27 @@ export class RollAccuracyBehavior {
       // Post creature defense roll results HTML
       let resultsHtml = "";
       for (const res of results) {
+        const targetTokenObj = targetList.find(t => t.id === res.tokenId) || null;
+        let counterBtnHtml = "";
+        if (!res.isHit && res.shadows > 0 && targetTokenObj && creatureToken) {
+          const counterCheck = TargetingHelper.checkCounterEligibility(targetTokenObj, creatureToken);
+          if (counterCheck.canCounter) {
+            counterBtnHtml = `<button type="button" class="trespasser-reaction-btn counter-reaction-btn" data-action="counter-reaction" data-defender-id="${res.actorId}" data-defender-token-id="${res.tokenId}" data-attacker-id="${actor.id}" data-attacker-token-id="${creatureToken.id}" data-sparks="${res.shadows}" data-weapon-die="${counterCheck.weaponDie || 'd6'}" title="${game.i18n.localize("TRESPASSER.Chat.Combat.CounterReaction")}">⚔️ ${game.i18n.localize("TRESPASSER.Chat.Combat.Counter")} (${res.shadows}×${counterCheck.weaponDie || 'd6'})</button>`;
+          }
+        }
+
         resultsHtml += `
           <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
             <div style="display:flex;justify-content:space-between;align-items:center;">
               <strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs DC: ${res.dc})</span></strong>
               <span class="${res.isHit ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${res.isHit ? '#4fc3f7' : '#ff5252'};">${res.isHit ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!") : (game.i18n.localize("TRESPASSER.Chat.Combat.Miss") || "ERRO!")}</span>
             </div>
-            <div style="display:flex;gap:10px;font-size: var(--fs-11);margin-top:2px;">
-              <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
-              <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+              <div style="display:flex;gap:10px;font-size: var(--fs-11);">
+                <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
+                <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
+              </div>
+              ${counterBtnHtml}
             </div>
           </div>`;
       }
@@ -200,10 +222,11 @@ export class RollAccuracyBehavior {
         context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
       }
 
+      const engagementNote = hasEngagementPenalty ? ` <span style="color:#ff5252; font-size:var(--fs-10);">(-2 ${game.i18n.localize("TRESPASSER.Chat.Combat.EngagementPenalty")})</span>` : "";
       context.currentPhaseOutputs.accuracyHtml = `
         <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
           <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
-            ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: item.name })} (Creature Attack DC: ${creatureDC})
+            ${game.i18n.format("TRESPASSER.Chat.Combat.AccuracyRoll", { name: item.name })} (Creature Attack DC: ${creatureDC}${engagementNote})
           </h4>
           ${resultsHtml}
         </div>`;
@@ -242,6 +265,19 @@ export class RollAccuracyBehavior {
     // ─────────────────────────────────────────────────────────────────────────
     // Case 2: Character Attacking (Player Roll vs Target CD/DC)
     // ─────────────────────────────────────────────────────────────────────────
+    const actualTargets = isAttack && targetList.length > 0 ? targetList : [null];
+    const sourceToken = context.executor?.sourceToken 
+      || actor?.getActiveTokens?.()[0] 
+      || null;
+
+    const isEngaged = sourceToken ? TargetingHelper.isEngaged(sourceToken) : false;
+    const deedType = abilityType || item.system.abilityType || item.system.type;
+    const isMissileOrSpell = ["missile", "spell"].includes(deedType) || ["missile", "spell"].includes(item.system.type);
+    const actualTargetTokens = actualTargets.filter(t => t && t.center);
+    const isExempt = TargetingHelper.isExemptFromEngagement(item.system, actualTargetTokens, sourceToken);
+    const hasEngagementPenalty = isEngaged && isMissileOrSpell && !isExempt;
+    const engagementMod = hasEngagementPenalty ? -2 : 0;
+
     const isAdv = actor ? TrespasserEffectsHelper.hasAdvantage(actor, "accuracy") : false;
     const effectBonus = actor ? TrespasserEffectsHelper.getAttributeBonus(actor, "accuracy", "use") : 0;
     const totalAccuracy = actor?.system?.combat?.accuracy ?? 0;
@@ -255,6 +291,13 @@ export class RollAccuracyBehavior {
         { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus") || "Effect Bonus", value: effectBonus }
       ]
     };
+
+    if (hasEngagementPenalty) {
+      rollDialogData.bonuses.push({
+        label: game.i18n.localize("TRESPASSER.Chat.Combat.EngagementPenalty") || "Engaged",
+        value: -2
+      });
+    }
 
     if (apBonus > 0) {
       rollDialogData.bonuses.push({
@@ -272,7 +315,7 @@ export class RollAccuracyBehavior {
     if (!dialogResult) return false; // User cancelled roll dialog
 
     const userModifier = dialogResult.modifier || 0;
-    const totalBonuses = `${baseAccuracy} + ${effectBonus} + ${apBonus} + ${userModifier}`;
+    const totalBonuses = `${baseAccuracy} + ${effectBonus} + ${engagementMod} + ${apBonus} + ${userModifier}`;
     const formula = isAdv ? `2d20kh + ${totalBonuses}` : `1d20 + ${totalBonuses}`;
 
     const rollData = actor?.getRollData() || {};
@@ -285,8 +328,6 @@ export class RollAccuracyBehavior {
     let anyHit = false;
     let maxSparks = 0;
     const results = [];
-
-    const actualTargets = isAttack && targetList.length > 0 ? targetList : [null];
 
     for (const targetToken of actualTargets) {
       const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
@@ -362,15 +403,29 @@ export class RollAccuracyBehavior {
 
       const hitColor = res.isHit ? '#4fc3f7' : '#ff5252';
 
+      let counterBtnHtml = "";
+      if (!res.isHit && res.shadows > 0 && res.tokenId && sourceToken) {
+        const defenderTokenObj = canvas.tokens.get(res.tokenId);
+        if (defenderTokenObj) {
+          const counterCheck = TargetingHelper.checkCounterEligibility(defenderTokenObj, sourceToken);
+          if (counterCheck.canCounter) {
+            counterBtnHtml = `<button type="button" class="trespasser-reaction-btn counter-reaction-btn" data-action="counter-reaction" data-defender-id="${res.actorId}" data-defender-token-id="${res.tokenId}" data-attacker-id="${actor.id}" data-attacker-token-id="${sourceToken.id}" data-sparks="${res.shadows}" data-weapon-die="${counterCheck.weaponDie || 'd6'}" title="${game.i18n.localize("TRESPASSER.Chat.Combat.CounterReaction")}">⚔️ ${game.i18n.localize("TRESPASSER.Chat.Combat.Counter")} (${res.shadows}×${counterCheck.weaponDie || 'd6'})</button>`;
+          }
+        }
+      }
+
       resultsHtml += `
         <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
           <div style="display:flex;justify-content:space-between;align-items:center;">
             ${headerText}
             <span class="${res.isHit ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${hitColor};">${hitLabel}</span>
           </div>
-          <div style="display:flex;gap:10px;font-size: var(--fs-11);margin-top:2px;">
-            <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
-            <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">
+            <div style="display:flex;gap:10px;font-size: var(--fs-11);">
+              <span style="color: #e8c96b;">✨ ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: res.sparks }) || `Centelhas: ${res.sparks}`}</span>
+              <span style="color: #922c2c;">🌑 ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: res.shadows }) || `Sombras: ${res.shadows}`}</span>
+            </div>
+            ${counterBtnHtml}
           </div>
         </div>`;
     }

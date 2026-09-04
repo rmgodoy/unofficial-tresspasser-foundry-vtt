@@ -13,8 +13,8 @@ export function buildTenacityButtonHtml(actor, negativeHp) {
   const label = game.i18n.localize("TRESPASSER.Chat.Combat.RollTenacity");
   return `
     <div class="tenacity-action-row" style="margin-top: 8px;">
-      <button type="button" class="roll-tenacity-btn" data-actor-id="${actor.id}" data-cd="${cd}">
-        <i class="fas fa-shield-heart"></i> ${label} (CD ${cd})
+      <button type="button" class="roll-tenacity-btn" data-actor-id="${actor.id}" data-cd="${cd}" style="height: auto; min-height: 34px; padding: 6px 10px; line-height: 1.3; color: var(--trp-gold-bright, #e8c96b); background: var(--trp-bg-dark, #1a1714); border: 1px solid var(--trp-gold, #c9a84c); font-size: var(--fs-11); font-family: var(--trp-font-header, 'Cinzel', serif); font-weight: bold; text-align: center;">
+        <i class="fas fa-shield-heart" style="color: var(--trp-gold-bright, #e8c96b);"></i> ${label} (CD ${cd})
       </button>
     </div>`;
 }
@@ -34,6 +34,11 @@ export async function promptTenacityRoll(actorId, cd) {
 
   if (!actor.isOwner && !game.user.isGM) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.NotOwner") || "You do not have permission to roll for this character.");
+    return;
+  }
+
+  if (actor.system.health > 0) {
+    ui.notifications.info(game.i18n.format("TRESPASSER.Chat.Combat.NoTenacityNeeded", { name: actor.name }) || `${actor.name} has above 0 HP and does not need to roll Tenacity.`);
     return;
   }
 

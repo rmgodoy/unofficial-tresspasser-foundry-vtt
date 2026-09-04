@@ -10,6 +10,9 @@
         "Apply": "Apply",
         "SearchPlaceholder": "Search…"
       },
+      "Combat": {
+        "SelectArmorToBlock": "Select which equipped armor die to roll to block damage ({damage} incoming):"
+      },
       "SkillCheck": {
         "Title": "{skill} Check - Choose Attribute",
         "Prompt": "Which attribute drives this check?",

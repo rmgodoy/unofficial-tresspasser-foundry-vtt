@@ -132,13 +132,23 @@ export class DeedBehaviorUtils {
 
     let weaponDie = "d4";
     if (actor) {
-      // Find equipped weapon item
-      const weapons = actor.items?.filter(i => i.type === "weapon" && (i.system?.equipped || i.system?.isEquipped)) ?? [];
-      const primaryWeapon = weapons[0] || actor.items?.find(i => i.type === "weapon");
-      if (primaryWeapon?.system?.damage) {
-        weaponDie = primaryWeapon.system.damage.trim();
-      } else if (primaryWeapon?.system?.die) {
-        weaponDie = primaryWeapon.system.die.trim();
+      if (actor.type === "creature") {
+        weaponDie = actor.system?.combat?.weapon_die 
+          ?? actor.system?.combat?.damage_die 
+          ?? actor.system?.weapon_die 
+          ?? actor.system?.damage_die 
+          ?? "d6";
+      } else {
+        // Find equipped weapon item
+        const weapons = actor.items?.filter(i => i.type === "weapon" && (i.system?.equipped || i.system?.isEquipped)) ?? [];
+        const primaryWeapon = weapons[0] || actor.items?.find(i => i.type === "weapon");
+        if (primaryWeapon?.system?.damage) {
+          weaponDie = primaryWeapon.system.damage.trim();
+        } else if (primaryWeapon?.system?.die) {
+          weaponDie = primaryWeapon.system.die.trim();
+        } else if (primaryWeapon?.system?.weaponDie) {
+          weaponDie = primaryWeapon.system.weaponDie.trim();
+        }
       }
     }
 

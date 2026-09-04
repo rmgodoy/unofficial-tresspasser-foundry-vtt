@@ -27,6 +27,11 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
       initiative: new fields.NumberField({ required: true, integer: true, initial: 0 }),
       accuracy: new fields.NumberField({ required: true, integer: true, initial: 0 }),
       prevail: new fields.NumberField({ required: true, integer: true, initial: 0 }),
+      engagement_range: new fields.NumberField({ required: true, integer: true, initial: 1, min: 0 }),
+      damage_die: new fields.StringField({ required: true, initial: "d6" }),
+      skill_die: new fields.StringField({ initial: "d6" }),
+      weapon_die: new fields.StringField({ initial: "d6" }),
+      weaponDie: new fields.StringField({ initial: "d6" }),
 
       // Dynamic Bonuses (derived from states/effects)
       bonuses: new fields.SchemaField({
@@ -46,9 +51,26 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
         initiative: new fields.NumberField({ integer: true, initial: 0 }),
         speed: new fields.NumberField({ integer: true, initial: 5 }),
         accuracy: new fields.NumberField({ integer: true, initial: 0 }),
-        prevail: new fields.NumberField({ integer: true, initial: 0 })
+        prevail: new fields.NumberField({ integer: true, initial: 0 }),
+        engagement_range: new fields.NumberField({ integer: true, initial: 1, min: 0 }),
+        damage_die: new fields.StringField({ initial: "d6" }),
+        skill_die: new fields.StringField({ initial: "d6" }),
+        weapon_die: new fields.StringField({ initial: "d6" }),
+        weaponDie: new fields.StringField({ initial: "d6" })
       })
     };
+  }
+
+  get skill_die() {
+    return this.damage_die || "d6";
+  }
+
+  get weapon_die() {
+    return this.damage_die || "d6";
+  }
+
+  get weaponDie() {
+    return this.damage_die || "d6";
   }
 
   /**
@@ -74,6 +96,12 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
     this.combat.accuracy = this.accuracy; 
     this.combat.speed = this.speed;
     this.combat.prevail = this.prevail;
+    this.combat.engagement_range = (this.engagement_range !== undefined && this.engagement_range !== null) ? this.engagement_range : 1;
+    const die = this.damage_die || "d6";
+    this.combat.damage_die = die;
+    this.combat.skill_die = die;
+    this.combat.weapon_die = die;
+    this.combat.weaponDie = die;
 
     this.passiveStates = {};
     this.passiveStates.bloody = this.health < (this.max_health / 2);

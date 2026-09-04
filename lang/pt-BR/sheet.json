@@ -956,6 +956,8 @@
       },
       "CallingGrantDescription": "Itens concedidos por esta Vocação:",
       "Creatures": {
+        "EngagementRange": "Alcance de Engajamento",
+        "DamageDie": "Dado Dano Base",
         "Roles": {
           "Archer": "Arqueiro",
           "Enchanter": "Encantador",

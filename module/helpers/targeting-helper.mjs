@@ -900,27 +900,42 @@ export class TargetingHelper {
   /* -------------------------------------------- */
 
   /**
-   * Check if a token is engaged — any hostile token within melee range
-   * that has a melee weapon equipped.
+   * Check if a token is engaged — any hostile token within melee/engagement range.
+   * Creatures use their engagement_range attribute (defaults to 1).
+   * Characters/commoners engage if they have an equipped melee weapon within reach.
    * @param {Token} token
    * @returns {boolean}
    */
   static isEngaged(token) {
-    if (!token) return false;
-    const gridPx = canvas.grid.size;
-    const maxDist = 2 * gridPx; // 2 squares = max melee reach
+    if (!token || !canvas?.grid) return false;
+    const gridPx = canvas.grid.size || 100;
 
-    for (const other of canvas.tokens.placeables) {
+    for (const other of (canvas.tokens?.placeables || [])) {
       if (other.id === token.id) continue;
       if (other.document.disposition === token.document.disposition) continue;
+      if (other.actor && other.actor.system?.health <= 0) continue;
 
-      const dist = Math.hypot(other.center.x - token.center.x, other.center.y - token.center.y);
-      if (dist > maxDist) continue;
+      let engageSquares = 1;
+      if (other.actor?.type === "creature") {
+        engageSquares = other.actor.system?.combat?.engagement_range 
+          ?? other.actor.system?.engagement_range 
+          ?? 1;
+      } else {
+        const meleeWeapon = other.actor?.items.find(i =>
+          i.type === "weapon" && i.system.equipped && i.system.type === "melee"
+        );
+        if (!meleeWeapon) continue;
+        const parsedRange = parseInt(meleeWeapon.system?.range);
+        engageSquares = (!isNaN(parsedRange) && parsedRange > 0) ? parsedRange : 1;
+      }
 
-      const hasMelee = other.actor?.items.some(i =>
-        i.type === "weapon" && i.system.equipped && i.system.type === "melee"
-      );
-      if (hasMelee) return true;
+      // Chebyshev distance in squares (diagonal = 1 square)
+      const distSquares = Math.max(
+        Math.abs(other.center.x - token.center.x),
+        Math.abs(other.center.y - token.center.y)
+      ) / gridPx;
+
+      if (distSquares <= engageSquares + 0.1) return true;
     }
     return false;
   }
@@ -935,13 +950,17 @@ export class TargetingHelper {
    */
   static isExemptFromEngagement(deed, targets, sourceToken) {
     const exemptTypes = ["burst", "close_blast", "close_path", "melee_burst", "personal"];
-    if (exemptTypes.includes(deed.targetType)) return true;
+    if (exemptTypes.includes(deed?.targetType)) return true;
 
-    if (sourceToken && targets.length > 0) {
-      const gridPx = canvas.grid.size;
+    if (sourceToken && targets && targets.length > 0) {
+      const gridPx = canvas.grid.size || 100;
       for (const t of targets) {
-        const dist = Math.hypot(t.center.x - sourceToken.center.x, t.center.y - sourceToken.center.y);
-        if (dist <= gridPx * 1.5) return true;
+        if (!t?.center) continue;
+        const distSquares = Math.max(
+          Math.abs(t.center.x - sourceToken.center.x),
+          Math.abs(t.center.y - sourceToken.center.y)
+        ) / gridPx;
+        if (distSquares <= 1.1) return true; // adjacent
       }
     }
     return false;
@@ -949,26 +968,45 @@ export class TargetingHelper {
 
   /**
    * Check if a defending character has a melee weapon and is within melee range of attacker.
+   * Melee range is adjacent (1 space) or the equipped melee weapon's range.
    * @param {Token} defenderToken
    * @param {Token} attackerToken
-   * @returns {{ canCounter: boolean, weapon: Item|null }}
+   * @returns {{ canCounter: boolean, weapon: Item|null, weaponDie: string }}
    */
   static checkCounterEligibility(defenderToken, attackerToken) {
-    if (!defenderToken?.actor || !attackerToken) return { canCounter: false, weapon: null };
+    if (!defenderToken?.actor || !attackerToken || !canvas?.grid) {
+      return { canCounter: false, weapon: null, weaponDie: "d6" };
+    }
 
-    const gridPx = canvas.grid.size;
-    const dist = Math.hypot(
-      defenderToken.center.x - attackerToken.center.x,
-      defenderToken.center.y - attackerToken.center.y
-    );
-    if (dist > 2 * gridPx) return { canCounter: false, weapon: null };
+    const gridPx = canvas.grid.size || 100;
+    const distSquares = Math.max(
+      Math.abs(defenderToken.center.x - attackerToken.center.x),
+      Math.abs(defenderToken.center.y - attackerToken.center.y)
+    ) / gridPx;
+
+    if (defenderToken.actor.type === "creature") {
+      const engageRange = defenderToken.actor.system?.combat?.engagement_range 
+        ?? defenderToken.actor.system?.engagement_range 
+        ?? 1;
+      const creatureDie = defenderToken.actor.system?.combat?.damage_die
+        ?? defenderToken.actor.system?.damage_die
+        ?? "d6";
+      if (distSquares > engageRange + 0.1) return { canCounter: false, weapon: null, weaponDie: creatureDie };
+      return { canCounter: true, weapon: null, weaponDie: creatureDie };
+    }
 
     const meleeWeapon = defenderToken.actor.items.find(i =>
       i.type === "weapon" && i.system.equipped && i.system.type === "melee"
     );
-    if (!meleeWeapon) return { canCounter: false, weapon: null };
+    if (!meleeWeapon) return { canCounter: false, weapon: null, weaponDie: "d6" };
 
-    return { canCounter: true, weapon: meleeWeapon };
+    const parsedRange = parseInt(meleeWeapon.system?.range);
+    const maxRange = (!isNaN(parsedRange) && parsedRange > 0) ? parsedRange : 1;
+
+    if (distSquares > maxRange + 0.1) return { canCounter: false, weapon: null, weaponDie: "d6" };
+
+    const weaponDie = meleeWeapon.system.weaponDie || "d6";
+    return { canCounter: true, weapon: meleeWeapon, weaponDie };
   }
 
   /* -------------------------------------------- */

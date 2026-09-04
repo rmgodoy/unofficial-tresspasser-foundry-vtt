@@ -157,8 +157,15 @@ export class TrespasserEffectsHelper {
     if (!formula) return "";
     let resolved = formula;
     
-    const sd = actor?.system?.skill_die || "d6";
-    const wd = weaponDie || "d4";
+    const sd = actor?.system?.skill_die || actor?.system?.damage_die || "d6";
+    let wd = weaponDie;
+    if (!wd || wd === "d4") {
+      if (actor?.system?.weapon_die || actor?.system?.weaponDie || actor?.system?.damage_die) {
+        wd = actor.system.weapon_die || actor.system.weaponDie || actor.system.damage_die;
+      } else {
+        wd = "d4";
+      }
+    }
 
     const multiplyDice = (expression, factor) => {
         let fullExpr = /^\d/.test(expression) ? expression : `1${expression}`;

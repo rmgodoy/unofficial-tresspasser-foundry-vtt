@@ -979,6 +979,8 @@
       },
       "CallingGrantDescription": "Items granted by this Calling:",
       "Creatures": {
+        "EngagementRange": "Engagement Range",
+        "DamageDie": "Base Damage Die",
         "Roles": {
           "Archer": "Archer",
           "Enchanter": "Enchanter",

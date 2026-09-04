@@ -152,30 +152,61 @@
   box-shadow: 0 0 4px rgba(74, 138, 74, 0.3);
 }
 
-.trespasser-chat-card .roll-tenacity-btn {
+.roll-tenacity-btn,
+.chat-message .roll-tenacity-btn,
+.trespasser-chat-card .roll-tenacity-btn,
+.bdeed-phase-card .roll-tenacity-btn {
   width: 100%;
-  background: var(--trp-bg-dark);
-  border: 1px solid var(--trp-gold);
-  color: var(--trp-gold-bright);
-  border-radius: var(--trp-radius);
-  padding: 5px 8px;
+  height: auto !important;
+  min-height: 34px !important;
+  background: var(--trp-bg-dark, #1a1714) !important;
+  border: 1px solid var(--trp-gold, #c9a84c) !important;
+  color: var(--trp-gold-bright, #e8c96b) !important;
+  border-radius: var(--trp-radius, 4px);
+  padding: 6px 10px !important;
   cursor: pointer;
-  font-family: var(--trp-font-header);
+  font-family: var(--trp-font-header, 'Cinzel', serif);
   font-size: var(--fs-11);
   font-weight: bold;
-  text-transform: uppercase;
+  letter-spacing: 0.02em;
   transition: all 0.2s ease;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
+  line-height: 1.3 !important;
+  box-sizing: border-box;
+  text-align: center;
 }
 
-.trespasser-chat-card .roll-tenacity-btn:hover {
-  background: var(--trp-gold-overlay);
-  border-color: var(--trp-gold-bright);
-  color: #fff;
-  box-shadow: 0 0 5px var(--trp-gold-dim);
+.roll-tenacity-btn i,
+.chat-message .roll-tenacity-btn i {
+  color: var(--trp-gold-bright, #e8c96b) !important;
+}
+
+.roll-tenacity-btn:hover,
+.chat-message .roll-tenacity-btn:hover,
+.trespasser-chat-card .roll-tenacity-btn:hover,
+.bdeed-phase-card .roll-tenacity-btn:hover {
+  background: var(--trp-gold-overlay, rgba(201, 168, 76, 0.25)) !important;
+  border-color: var(--trp-gold-bright, #e8c96b) !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 6px var(--trp-gold-dim, #a88840);
+}
+
+.roll-tenacity-btn:hover i,
+.chat-message .roll-tenacity-btn:hover i {
+  color: #ffffff !important;
+}
+
+.roll-tenacity-btn:disabled,
+.chat-message .roll-tenacity-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--trp-border-dim, #3a3225) !important;
+  color: var(--trp-text-dim, #a09070) !important;
+  background: rgba(0, 0, 0, 0.2) !important;
+  box-shadow: none;
 }
 
 .trespasser-chat-card.tenacity-result-card {
@@ -485,4 +516,61 @@
   color: var(--trp-green-bright);
   border-color: var(--trp-green);
 }
+
+/* ═══════════════════════════════════════════════════
+   REACTION BUTTONS (BLOCK & COUNTER)
+═══════════════════════════════════════════════════ */
+.trespasser-reaction-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(30, 25, 20, 0.85);
+  border: 1px solid var(--trp-border-light);
+  color: var(--trp-text-bright);
+  font-family: var(--trp-font-body);
+  font-size: var(--fs-11);
+  font-weight: bold;
+  padding: 2px 7px;
+  border-radius: var(--trp-radius);
+  cursor: pointer;
+  line-height: 1.3;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.trespasser-reaction-btn:hover:not(:disabled) {
+  background: var(--trp-bg-input);
+  box-shadow: 0 0 5px var(--trp-shadow-gold);
+}
+
+.trespasser-reaction-btn.block-reaction-btn {
+  border-color: var(--trp-gold, #c49d48);
+  color: var(--trp-gold-bright, #e8c96b);
+}
+
+.trespasser-reaction-btn.block-reaction-btn:hover:not(:disabled) {
+  border-color: var(--trp-gold-bright, #e8c96b);
+  background: rgba(196, 157, 72, 0.2);
+}
+
+.trespasser-reaction-btn.counter-reaction-btn {
+  border-color: #ff5252;
+  color: #ff8a80;
+}
+
+.trespasser-reaction-btn.counter-reaction-btn:hover:not(:disabled) {
+  border-color: #ff1744;
+  background: rgba(255, 82, 82, 0.2);
+}
+
+.trespasser-reaction-btn:disabled,
+.trespasser-reaction-btn.reaction-btn--used {
+  opacity: 0.5;
+  cursor: not-allowed;
+  border-color: var(--trp-border-dim, #3a3225);
+  color: var(--trp-text-dim, #7a7060);
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: none;
+}
+
 

@@ -335,9 +335,10 @@ export class TrespasserActor extends Actor {
 
     const currentHealth = this.system.health ?? this.system.hp?.value ?? this.system.hp ?? 0;
     const maxHealth = this.system.max_health ?? this.system.hp?.max ?? currentHealth;
-    const newHealth = Math.clamp(currentHealth - damageNum, 0, maxHealth);
+    const rawHealth = currentHealth - damageNum;
+    const newHealth = Math.clamp(rawHealth, 0, maxHealth);
 
-    await this.update({ "system.health": newHealth });
+    await this.update({ "system.health": rawHealth }, options);
 
     return newHealth;
   }

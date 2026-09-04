@@ -161,7 +161,8 @@ export class TrespasserCreatureConfigDialog extends foundry.applications.api.Han
       "system.initiative": stats.initiative,
       "system.accuracy": stats.accuracy,
       "system.speed": stats.speed,
-      "system.prevail": stats.prevail
+      "system.prevail": stats.prevail,
+      "system.damage_die": stats.baseDamageDie || "d6"
     });
 
     ui.notifications.info(game.i18n.format("TRESPASSER.Dialog.CreatureConfig.AppliedNotification", {

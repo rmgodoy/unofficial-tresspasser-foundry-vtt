@@ -192,7 +192,8 @@
   flex: 1;
 }
 
-.creature .creature-combat-row .creature-stat-box {
+.creature .creature-combat-row .creature-stat-box,
+.creature .creature-tactical-row .creature-stat-box {
   flex: 1;
 }
 
