@@ -198,6 +198,10 @@ export class SpawnTerrainBehavior {
 
       const gfx = new PIXI.Graphics();
 
+      if (sourceToken && range > 0) {
+        CanvasSelectionRenderer.drawRangePerimeter(gfx, sourceToken, range, gridSize);
+      }
+
       if (selectedPos) {
         const placedSquares = [];
         for (let dx = 0; dx < wSq; dx++) {

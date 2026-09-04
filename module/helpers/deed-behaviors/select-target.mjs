@@ -2,6 +2,8 @@ import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
 import { CanvasInputSession } from "../../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../../canvas/canvas-selection-renderer.mjs";
+import { RangeHelper } from "../range-helper.mjs";
+import { getActiveWeapons } from "../../sheets/character/handlers-combat.mjs";
 
 export class SelectTargetBehavior {
   /**
@@ -17,7 +19,7 @@ export class SelectTargetBehavior {
   static async execute(behavior, context, actor, item) {
     const params = behavior.params || {};
     const mode = params.targetMode || "creatures";
-    const token = DeedBehaviorUtils.findToken(actor);
+    const token = context.sourceToken || DeedBehaviorUtils.findToken(actor);
 
     if (mode === "self") {
       context.targets = token ? [token] : (actor ? [actor] : []);
@@ -36,7 +38,9 @@ export class SelectTargetBehavior {
       const resultTargets = await this.#selectTokensInteractive({
         maxCount,
         sourceToken: token,
-        params
+        params,
+        item,
+        actor
       });
 
       if (!resultTargets || resultTargets.length === 0) {
@@ -53,9 +57,10 @@ export class SelectTargetBehavior {
       const aoeType = params.aoeType || "blast";
       const aoeSize = parseInt(params.aoeSize) || 1;
       const deedData = {
+        ...item?.system,
         targetType: aoeType,
         targetSize: aoeSize,
-        range: item?.system?.range || 0
+        range: item?.system?.range ?? null
       };
 
       if (!token) {
@@ -63,7 +68,9 @@ export class SelectTargetBehavior {
         return false;
       }
 
-      const result = await TargetingHelper.placeTemplate(actor, token, deedData, [], {
+      const activeWeapons = getActiveWeapons(actor);
+      const result = await TargetingHelper.placeTemplate(actor, token, deedData, activeWeapons, {
+        item,
         originOverride: context.sourcePosition || null
       });
       if (!result || !result.squares) {
@@ -225,9 +232,10 @@ export class SelectTargetBehavior {
    * @returns {Promise<Token[]|null>}
    * @private
    */
-  static async #selectTokensInteractive({ candidateTokens = null, maxCount = 1, sourceToken, params = {}, areaSquares = null }) {
+  static async #selectTokensInteractive({ candidateTokens = null, maxCount = 1, sourceToken, params = {}, areaSquares = null, item = null, actor = null }) {
     const isAreaMode = Array.isArray(areaSquares) && areaSquares.length > 0;
     const gridPx = canvas.grid.size;
+    const maxRangeSq = isAreaMode ? null : RangeHelper.getDeedRange(sourceToken, item, actor);
     let hoveredSquare = null;
 
     // If candidate tokens exist and count <= maxCount, pre-populate selection for convenience
@@ -251,6 +259,9 @@ export class SelectTargetBehavior {
       if (isAreaMode && game.i18n.has("TRESPASSER.HUD.AoE.SelectTargetsFromAreaInstruction")) {
         return game.i18n.format("TRESPASSER.HUD.AoE.SelectTargetsFromAreaInstruction", { current: count, max: maxCount });
       }
+      if (maxRangeSq && maxRangeSq > 0 && game.i18n.has("TRESPASSER.HUD.AoE.SelectTargetsRangeInstruction")) {
+        return game.i18n.format("TRESPASSER.HUD.AoE.SelectTargetsRangeInstruction", { current: count, max: maxCount, range: maxRangeSq });
+      }
       if (game.i18n.has("TRESPASSER.HUD.AoE.SelectTargetsInstruction")) {
         return game.i18n.format("TRESPASSER.HUD.AoE.SelectTargetsInstruction", { current: count, max: maxCount });
       }
@@ -268,6 +279,8 @@ export class SelectTargetBehavior {
           fillAlpha: 0.12,
           lineWeight: 1
         });
+      } else if (maxRangeSq && maxRangeSq > 0) {
+        CanvasSelectionRenderer.drawRangePerimeter(session.graphics, sourceToken, maxRangeSq, gridPx);
       }
 
       // 2. Draw candidate token outlines in green (if not yet selected)
@@ -390,6 +403,15 @@ export class SelectTargetBehavior {
             if (idx >= 0) {
               selectedTargets.splice(idx, 1);
             } else {
+              if (maxRangeSq && !RangeHelper.isWithinRange(sourceToken, hitToken, maxRangeSq)) {
+                const dist = RangeHelper.measureDistanceSquares(sourceToken, hitToken);
+                ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
+                  name: hitToken.name,
+                  range: maxRangeSq,
+                  distance: dist
+                }));
+                return;
+              }
               if (selectedTargets.length < maxCount) {
                 selectedTargets.push(hitToken);
               } else {

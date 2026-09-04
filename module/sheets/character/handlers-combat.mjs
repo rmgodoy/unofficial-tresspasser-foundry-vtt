@@ -79,8 +79,9 @@ export async function onEquipRoll(event, sheet) {
   }
 }
 
-export function getActiveWeapons(sheet) {
-  const actor     = sheet.actor;
+export function getActiveWeapons(sheetOrActor) {
+  const actor = sheetOrActor?.actor || sheetOrActor;
+  if (!actor?.system) return [];
   const mode      = actor.system.combat?.weaponMode || "main";
   const mainHandId = actor.system.equipment?.main_hand;
   const offHandId  = actor.system.equipment?.off_hand;

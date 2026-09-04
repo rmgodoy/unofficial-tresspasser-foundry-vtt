@@ -66,6 +66,7 @@
         "NeedWeapon": "Esta habilidade requer uma arma equipada.",
         "TargetOutOfRange": "{name} está fora de alcance ({distance} quadrados, máx {range}).",
         "TargetTypeBlast": "Explosão",
+        "TargetTypePath": "Caminho",
         "APModified": "{name} agora possui {ap} Pontos de Ação.",
         "MoveActionRequired": "Esta ação requer uma Ação de Movimento.",
         "MovementLimitExceeded": "Limite de movimento excedido.",

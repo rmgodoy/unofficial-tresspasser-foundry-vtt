@@ -1,5 +1,6 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
+import { getActiveWeapons } from "../../sheets/character/handlers-combat.mjs";
 
 export class SelectAreaBehavior {
   /**
@@ -13,7 +14,7 @@ export class SelectAreaBehavior {
   static async execute(behavior, context, actor, item) {
     const params = behavior.params || {};
     const mode = params.targetMode || "squares";
-    const token = DeedBehaviorUtils.findToken(actor);
+    const token = context.sourceToken || DeedBehaviorUtils.findToken(actor);
 
     if (!token) {
       ui.notifications.warn("No token found on canvas for area selection.");
@@ -28,12 +29,13 @@ export class SelectAreaBehavior {
         ui.notifications.info(`Select square ${i + 1} of ${maxCount} (Right-click canvas to finish selection early).`);
 
         const deedData = {
+          ...item?.system,
           targetType: "blast",
           targetSize: 1,
-          range: item?.system?.range || 0
+          range: item?.system?.range ?? null
         };
-
-        const result = await TargetingHelper.placeTemplate(actor, token, deedData);
+        const activeWeapons = getActiveWeapons(actor);
+        const result = await TargetingHelper.placeTemplate(actor, token, deedData, activeWeapons, { item });
 
         if (!result || !result.squares || result.squares.length === 0) {
           break;
@@ -69,12 +71,13 @@ export class SelectAreaBehavior {
       const aoeType = params.aoeType || "blast";
       const aoeSize = parseInt(params.aoeSize) || 1;
       const deedData = {
+        ...item?.system,
         targetType: aoeType,
         targetSize: aoeSize,
-        range: item?.system?.range || 0
+        range: item?.system?.range ?? null
       };
-
-      const result = await TargetingHelper.placeTemplate(actor, token, deedData);
+      const activeWeapons = getActiveWeapons(actor);
+      const result = await TargetingHelper.placeTemplate(actor, token, deedData, activeWeapons, { item });
       if (!result || !result.squares || result.squares.length === 0) {
         ui.notifications.info("AoE area selection cancelled.");
         return false;

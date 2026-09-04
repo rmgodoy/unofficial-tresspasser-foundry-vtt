@@ -22,6 +22,7 @@
 import { isAtLeastV14 } from "./compat.mjs";
 import { CanvasInputSession } from "../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs";
+import { RangeHelper } from "./range-helper.mjs";
 
 export class TargetingHelper {
 
@@ -41,14 +42,16 @@ export class TargetingHelper {
     const size = deed.targetSize ?? 1;
     const gridPx = canvas.grid.size;
 
-    const maxRangeSq = this.getMaxRangeSq(token, deed, activeWeapons);
+    const effectiveDeed = { ...(options.item?.system || {}), ...deed };
+    const maxRangeSq = RangeHelper.getDeedRange(token, effectiveDeed, actor);
+    const isClose = effectiveDeed.close === true || type === "close_blast" || type === "close_path";
 
     switch (type) {
       case "blast":
-        return this.#placeBlast(token, size, gridPx, false, maxRangeSq);
+        return this.#placeBlast(token, size, gridPx, isClose, maxRangeSq);
 
       case "close_blast":
-        return this.#placeBlast(token, size, gridPx, true);
+        return this.#placeBlast(token, size, gridPx, true, 1);
 
       case "burst":
       case "aura": {
@@ -67,10 +70,10 @@ export class TargetingHelper {
       }
 
       case "path":
-        return this.#placePath(token, size, gridPx, false);
+        return this.#placePath(token, size, gridPx, isClose, maxRangeSq);
 
       case "close_path":
-        return this.#placePath(token, size, gridPx, true);
+        return this.#placePath(token, size, gridPx, true, 1);
 
       default:
         return null;
@@ -231,6 +234,12 @@ export class TargetingHelper {
 
         const gfx = new PIXI.Graphics();
 
+        // 0. Draw dotted blue range perimeter (range 1 for close blast, or maxRangeSq for ranged blast)
+        const effectiveRange = close ? 1 : maxRangeSq;
+        if (effectiveRange !== null && effectiveRange !== undefined && effectiveRange > 0) {
+          CanvasSelectionRenderer.drawRangePerimeter(gfx, token, effectiveRange, gridPx);
+        }
+
         // 1. Draw selected origin if set (in gold/placed style)
         if (selectedOrigin) {
           for (let dx = 0; dx < size; dx++) {
@@ -271,6 +280,9 @@ export class TargetingHelper {
       const details = close
         ? game.i18n.format("TRESPASSER.HUD.AoE.CloseBlastInstruction", { size })
         : game.i18n.format("TRESPASSER.HUD.AoE.BlastInstruction", { size });
+
+      // Render initial range perimeter immediately
+      redrawPreview();
 
       await CanvasInputSession.start({
         title,
@@ -323,7 +335,8 @@ export class TargetingHelper {
           if (close) {
             if (!this.#isBlastAdjacentToToken(testSquares, token, gridPx)) {
               ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.BlastMustBeAdjacent"));
-              return;
+              const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
+              if (!disregardRange) return;
             }
           } else if (maxRangeSq !== null && maxRangeSq !== undefined && maxRangeSq > 0) {
             const tokenSquares = this.#getTokenOccupiedSquares(token, gridPx);
@@ -614,7 +627,7 @@ export class TargetingHelper {
    * double-click confirms early. Directional arrows show path flow.
    * @returns {Promise<{squares: Array, templateDoc: null}|null>}
    */
-  static async #placePath(token, maxSquares, gridPx, close) {
+  static async #placePath(token, maxSquares, gridPx, close, maxRangeSq = null) {
     return new Promise(async (resolve) => {
       const squares = [];
       const highlights = [];
@@ -742,6 +755,12 @@ export class TargetingHelper {
 
         const gfx = new PIXI.Graphics();
 
+        // 0. Draw dotted blue range perimeter (range 1 for close path, or maxRangeSq for ranged path) when selecting start
+        const effectiveRange = close ? 1 : maxRangeSq;
+        if (effectiveRange !== null && effectiveRange !== undefined && effectiveRange > 0 && squares.length === 0) {
+          CanvasSelectionRenderer.drawRangePerimeter(gfx, token, effectiveRange, gridPx);
+        }
+
         // 1. Draw selected path squares
         if (squares.length > 0) {
           CanvasSelectionRenderer.drawPath(gfx, squares, gridPx);
@@ -854,7 +873,22 @@ export class TargetingHelper {
             if (close) {
               if (!isAdjacentToCasterToken(target, token)) {
                 ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.PathMustStartAdjacent"));
-                return;
+                const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
+                if (!disregardRange) return;
+              }
+            } else if (maxRangeSq !== null && maxRangeSq !== undefined && maxRangeSq > 0) {
+              const tokenSquares = this.#getTokenOccupiedSquares(token, gridPx);
+              const distSq = this.#getMinSquareDistance([target], tokenSquares, gridPx);
+              if (distSq > maxRangeSq) {
+                ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
+                  name: game.i18n.has("TRESPASSER.Notification.Combat.TargetTypePath")
+                    ? game.i18n.localize("TRESPASSER.Notification.Combat.TargetTypePath")
+                    : "Path",
+                  range: maxRangeSq,
+                  distance: distSq
+                }));
+                const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
+                if (!disregardRange) return;
               }
             }
             squares.push(target);
@@ -1082,43 +1116,7 @@ export class TargetingHelper {
    * @returns {{ valid: boolean, message?: string }}
    */
   static getMaxRangeSq(sourceToken, deed, activeWeapons = []) {
-    let maxRangeSq = null;
-    const actorType = sourceToken?.actor?.type;
-    const isCreature = actorType === "creature";
-    const gridDist = canvas.dimensions?.distance ?? 5;
-
-    if (isCreature) {
-      maxRangeSq = deed.range;
-    } else {
-      const deedType = deed.effectiveAbilityType || deed.abilityType || deed.type;
-      const isThrown = activeWeapons.some(w => w.system.properties?.thrown);
-
-      if (deedType === "melee" || deedType === "unarmed") {
-        if (isThrown) {
-          const relevant = activeWeapons.filter(w => w.system.properties?.thrown);
-          maxRangeSq = this.#getWeaponRangeInSquares(relevant, gridDist);
-        } else {
-          const meleeWeapons = activeWeapons.filter(w => w.system.type === "melee");
-          maxRangeSq = this.#getWeaponRangeInSquares(meleeWeapons, gridDist);
-          if (maxRangeSq === 0) maxRangeSq = 1;
-        }
-      } else if (deedType === "missile") {
-        const relevant = activeWeapons.filter(w =>
-          w.system.type === "missile" || w.system.properties?.thrown
-        );
-        maxRangeSq = this.#getWeaponRangeInSquares(relevant, gridDist);
-      } else if (deedType === "spell") {
-        const spellWeapons = activeWeapons.filter(w => w.system.type === "spell");
-        maxRangeSq = this.#getWeaponRangeInSquares(spellWeapons, gridDist);
-        if (maxRangeSq === 0) maxRangeSq = 4;
-      } else if (deedType === "tool") {
-        const agility = sourceToken.actor?.system?.attributes?.agility ?? 0;
-        maxRangeSq = 5 + agility;
-      } else if (deedType === "versatile") {
-        maxRangeSq = this.#getWeaponRangeInSquares(activeWeapons, gridDist);
-      }
-    }
-    return maxRangeSq;
+    return RangeHelper.getDeedRange(sourceToken, deed, sourceToken?.actor);
   }
 
   static validateRange(targets, sourceToken, deed, activeWeapons) {
