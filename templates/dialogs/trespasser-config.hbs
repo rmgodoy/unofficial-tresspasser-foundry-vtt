@@ -60,11 +60,11 @@
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Name"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Mechanics.EnforceAttackRange.Name"}}</label>
                 <div class="form-fields">
-                    <input type="checkbox" name="disregardRangeOnAttack" {{checked settings.disregardRangeOnAttack}}>
+                    <input type="checkbox" name="enforceAttackRange" {{checked settings.enforceAttackRange}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Hint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.EnforceAttackRange.Hint"}}</p>
             </div>
 
             <div class="form-group">
@@ -76,11 +76,11 @@
             </div>
             
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.Mechanics.HideCreatureDamageRolls.Name"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Mechanics.ShowCreatureDamageRolls.Name"}}</label>
                 <div class="form-fields">
-                    <input type="checkbox" name="hideCreatureDamageRolls" {{checked settings.hideCreatureDamageRolls}}>
+                    <input type="checkbox" name="showCreatureDamageRolls" {{checked settings.showCreatureDamageRolls}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.HideCreatureDamageRolls.Hint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.ShowCreatureDamageRolls.Hint"}}</p>
             </div>
 
             <div class="form-group">
@@ -89,6 +89,14 @@
                     <input type="checkbox" name="enableRetreatDialog" {{checked settings.enableRetreatDialog}}>
                 </div>
                 <p class="notes">{{localize "TRESPASSER.Settings.Exploration.EnableRetreatDialog.Hint"}}</p>
+            </div>
+
+            <div class="form-group">
+                <label>{{localize "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Name"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="autoEndCombatOnRetreat" {{checked settings.autoEndCombatOnRetreat}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Hint"}}</p>
             </div>
 
             <div class="form-group">
@@ -113,27 +121,27 @@
         <!-- Exploration Tab -->
         <div class="tab {{#if (eq tabGroups.primary 'exploration')}}active{{/if}}" data-group="primary" data-tab="exploration">
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Name"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Exploration.EnableGroupCheckSelection.Name"}}</label>
                 <div class="form-fields">
-                    <input type="checkbox" name="groupCheckFullParty" {{checked settings.groupCheckFullParty}}>
+                    <input type="checkbox" name="enableGroupCheckSelection" {{checked settings.enableGroupCheckSelection}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Hint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.EnableGroupCheckSelection.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.Exploration.RestrictHavenEditToLeader.Name"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Exploration.AllowAllPlayersHavenEdit.Name"}}</label>
                 <div class="form-fields">
-                    <input type="checkbox" name="restrictHavenEditToLeader" {{checked settings.restrictHavenEditToLeader}}>
+                    <input type="checkbox" name="allowAllPlayersHavenEdit" {{checked settings.allowAllPlayersHavenEdit}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.RestrictHavenEditToLeader.Hint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.AllowAllPlayersHavenEdit.Hint"}}</p>
             </div>
 
             <div class="form-group">
-                <label>{{localize "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Name"}}</label>
+                <label>{{localize "TRESPASSER.Settings.Exploration.EnforceHavenBuildingLimits.Name"}}</label>
                 <div class="form-fields">
-                    <input type="checkbox" name="bypassHavenBuildingLimits" {{checked settings.bypassHavenBuildingLimits}}>
+                    <input type="checkbox" name="enforceHavenBuildingLimits" {{checked settings.enforceHavenBuildingLimits}}>
                 </div>
-                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Hint"}}</p>
+                <p class="notes">{{localize "TRESPASSER.Settings.Exploration.EnforceHavenBuildingLimits.Hint"}}</p>
             </div>
 
             <div class="form-group">

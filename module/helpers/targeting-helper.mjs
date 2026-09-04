@@ -335,8 +335,8 @@ export class TargetingHelper {
           if (close) {
             if (!this.#isBlastAdjacentToToken(testSquares, token, gridPx)) {
               ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.BlastMustBeAdjacent"));
-              const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
-              if (!disregardRange) return;
+              const enforceRange = game.settings.get("trespasser", "enforceAttackRange");
+              if (enforceRange) return;
             }
           } else if (maxRangeSq !== null && maxRangeSq !== undefined && maxRangeSq > 0) {
             const tokenSquares = this.#getTokenOccupiedSquares(token, gridPx);
@@ -347,8 +347,8 @@ export class TargetingHelper {
                 range: maxRangeSq,
                 distance: distSq
               }));
-              const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
-              if (!disregardRange) return;
+              const enforceRange = game.settings.get("trespasser", "enforceAttackRange");
+              if (enforceRange) return;
             }
           }
 
@@ -873,8 +873,8 @@ export class TargetingHelper {
             if (close) {
               if (!isAdjacentToCasterToken(target, token)) {
                 ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.PathMustStartAdjacent"));
-                const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
-                if (!disregardRange) return;
+                const enforceRange = game.settings.get("trespasser", "enforceAttackRange");
+                if (enforceRange) return;
               }
             } else if (maxRangeSq !== null && maxRangeSq !== undefined && maxRangeSq > 0) {
               const tokenSquares = this.#getTokenOccupiedSquares(token, gridPx);
@@ -887,8 +887,8 @@ export class TargetingHelper {
                   range: maxRangeSq,
                   distance: distSq
                 }));
-                const disregardRange = game.settings.get("trespasser", "disregardRangeOnAttack");
-                if (!disregardRange) return;
+                const enforceRange = game.settings.get("trespasser", "enforceAttackRange");
+                if (enforceRange) return;
               }
             }
             squares.push(target);

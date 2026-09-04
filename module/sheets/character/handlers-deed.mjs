@@ -125,8 +125,8 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options =
           <i class="fas fa-heart"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.Heal")}
         </button>
       </div>`;
-      const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
-      const mode = (actor.type === "creature" && hideCreatureRolls) ? "gm" : "public";
+      const showCreatureRolls = game.settings.get("trespasser", "showCreatureDamageRolls");
+      const mode = (actor.type === "creature" && !showCreatureRolls) ? "gm" : "public";
       await rollObj.toMessage({
         speaker: ChatMessage.getSpeaker({ actor }),
         flavor: flavorHtml + applyHealBtns

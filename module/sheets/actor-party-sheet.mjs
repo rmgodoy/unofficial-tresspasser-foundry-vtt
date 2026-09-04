@@ -313,8 +313,8 @@ export class TrespasserPartySheet extends TrespasserActorSheet {
     }
 
     let members = allMembers;
-    const alwaysFull = game.settings.get("trespasser", "groupCheckFullParty");
-    if (!alwaysFull) {
+    const promptSelection = game.settings.get("trespasser", "enableGroupCheckSelection");
+    if (promptSelection) {
       const selection = await foundry.applications.api.DialogV2.wait({
         window: { title: game.i18n.localize("TRESPASSER.Dialog.Party.SelectParticipants") },
         classes: ["trespasser", "dialog", "group-participant-select"],

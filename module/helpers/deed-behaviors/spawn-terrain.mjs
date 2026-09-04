@@ -303,8 +303,8 @@ export class SpawnTerrainBehavior {
               range: range,
               distance: minDist
             }) || `Out of range (${minDist} > ${range}).`);
-            const disregardRange = game.settings.get?.("trespasser", "disregardRangeOnAttack");
-            if (!disregardRange) return;
+            const enforceRange = game.settings.get?.("trespasser", "enforceAttackRange");
+            if (enforceRange) return;
           }
         }
 

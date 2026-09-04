@@ -71,11 +71,11 @@ export class TrespasserHavenSheet extends TrespasserActorSheet {
     // GMs always have edit access
     if ( game.user.isGM ) return true;
 
-    // If the restriction setting is disabled, anyone with ownership can edit
-    const isRestricted = game.settings.get("trespasser", "restrictHavenEditToLeader");
-    if ( !isRestricted ) return this.document.isOwner;
+    // If player editing is enabled, anyone with ownership can edit
+    const allowAll = game.settings.get("trespasser", "allowAllPlayersHavenEdit");
+    if ( allowAll ) return this.document.isOwner;
 
-    // If restricted, check if the current user owns the character assigned as leader
+    // Otherwise, check if the current user owns the character assigned as leader
     const leaderId = this.document.system.leaderId;
     const leader = leaderId ? game.actors.get(leaderId) : null;
     if ( leader?.isOwner ) return true;
@@ -376,8 +376,8 @@ export class TrespasserHavenSheet extends TrespasserActorSheet {
       if (["hireling", "room", "build", "stronghold"].includes(item.type)) {
         if (item.parent === this.document) return; // Already here
 
-        // Check limits if not bypassed
-        if (item.type === "build" && !game.settings.get("trespasser", "bypassHavenBuildingLimits")) {
+        // Check limits if enforced
+        if (item.type === "build" && game.settings.get("trespasser", "enforceHavenBuildingLimits")) {
           const system = this.document.system;
           const allBuildings = this.document.items.filter(i => i.type === "build");
           const numConstruction = allBuildings.filter(b => b.system.progress < b.system.buildClock).length;
@@ -849,8 +849,8 @@ export class TrespasserHavenSheet extends TrespasserActorSheet {
     itemData.system.progress = 0;
     itemData.system.replacesId = item.id;
 
-    // Check slots if not bypassed
-    if (!game.settings.get("trespasser", "bypassHavenBuildingLimits")) {
+    // Check slots if enforced
+    if (game.settings.get("trespasser", "enforceHavenBuildingLimits")) {
       const system = this.document.system;
       const construction = this.document.items.filter(i => i.type === "build" && i.system.progress < i.system.buildClock);
       

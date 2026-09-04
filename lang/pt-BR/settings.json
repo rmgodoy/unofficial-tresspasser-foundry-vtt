@@ -33,20 +33,24 @@
           "Hint": "Se ativado, as regras de sobrecarga (penalidades de Guarda e Velocidade) serão aplicadas automaticamente com base na Classificação de Armadura. O ícone de estado ainda será mostrado mesmo se isso estiver desativado."
         },
         "PlayerFacingInitiative": {
-          "Name": "Rolagens de Iniciativa pelos Jogadores",
+          "Name": "Habilitar Rolagens de Iniciativa pelos Jogadores",
           "Hint": "Quando ativado, os jogadores rolam sua própria iniciativa no início de cada rodada, em vez de ser automático."
         },
         "RestrictMovementAction": {
-          "Name": "Restringir Ação de Movimento",
+          "Name": "Exigir Ação de Movimento para Mover",
           "Hint": "Se ativado, o movimento só é permitido após realizar uma ação de Mover ou Salto. Se desativado, os tokens podem se mover livremente."
         },
         "RestrictHUDActions": {
-          "Name": "Restringir Ações por Turno",
+          "Name": "Aplicar Limite de Ações por Turno",
           "Hint": "Se ativado, as ações do HUD (Defender, Ajudar, etc.) só podem ser usadas uma vez por turno, a menos que especificado de outra forma."
         },
         "RestrictAPFocusUsage": {
-          "Name": "Restringir uso de ações de PA e Foco",
+          "Name": "Aplicar Custos de PA e Foco",
           "Hint": "Se ativado, o sistema impõe custos de PA e Foco. Se desativado, as ações podem ser usadas sem pontos suficientes."
+        },
+        "EnforceAttackRange": {
+          "Name": "Aplicar Alcance de Ataque",
+          "Hint": "Quando ativado, atacar alvos fora de alcance é proibido. Quando desativado, atacar alvos fora de alcance exibe um aviso, mas permite que o ataque prossiga."
         },
         "DisregardRangeOnAttack": {
           "Name": "Desconsiderar Alcance no Ataque",
@@ -60,19 +64,35 @@
           "Name": "Confirmar Transferências de Itens",
           "Hint": "Se ativado, você será solicitado a aceitar ou rejeitar itens transferidos para você por outros jogadores."
         },
+        "ShowCreatureDamageRolls": {
+          "Name": "Mostrar Rolagens de Dano de Criaturas para os Jogadores",
+          "Hint": "Se ativado, as rolagens de dano feitas por criaturas serão visíveis para todos os jogadores no chat. Se desativado, serão sussurradas apenas para o Mestre."
+        },
         "HideCreatureDamageRolls": {
           "Name": "Ocultar Rolagens de Dano de Criaturas",
           "Hint": "Se ativado, as rolagens de dano feitas por criaturas serão sussurradas apenas para o Mestre e para quem rolou."
         }
       },
       "Exploration": {
+        "EnableGroupCheckSelection": {
+          "Name": "Habilitar Diálogo de Seleção nos Testes de Grupo",
+          "Hint": "Se ativado, uma janela solicitará a seleção dos membros que participam do teste de grupo. Se desativado, todos os membros do grupo são incluídos automaticamente."
+        },
         "GroupCheckFullParty": {
-          "Name": "Teste de Grupo sempre usa grupo completo",
+          "Name": "Incluir Grupo Completo nos Testes de Grupo",
           "Hint": "Se ativado, os testes de grupo sempre incluirão todos os membros do grupo sem mostrar um popup de seleção."
         },
+        "AllowAllPlayersHavenEdit": {
+          "Name": "Permitir que Todos os Jogadores Editem o Abrigo",
+          "Hint": "Se ativado, todos os jogadores que possuem personagens no grupo podem adicionar ou modificar construções e projetos no Abrigo. Se desativado, apenas o líder do grupo pode editar o Abrigo."
+        },
         "RestrictHavenEditToLeader": {
-          "Name": "Restringir Edição do Abrigo ao Líder",
-          "Hint": "Apenas o líder do grupo pode adicionar ou remover construções e projetos no Abrigo."
+          "Name": "Limitar Edição do Abrigo ao Líder do Grupo",
+          "Hint": "Se ativado, apenas o líder do grupo pode adicionar ou remover construções e projetos no Abrigo. Se desativado, todos os jogadores podem editar o Abrigo."
+        },
+        "EnforceHavenBuildingLimits": {
+          "Name": "Habilitar Limites de Construção do Abrigo",
+          "Hint": "Se ativado, os Abrigos seguem o Limite de Construção e Espaços de Construção definidos na tabela de progressão. Se desativado, os Abrigos podem construir sem restrições."
         },
         "BypassHavenBuildingLimits": {
           "Name": "Ignorar Limites de Construção do Abrigo",
@@ -95,8 +115,8 @@
           "Hint": "Se ativado, o Mestre e os jogadores serão solicitados a escolher suas Centelhas e Sombras após uma rolagem de habilidade ou atributo fora de combate. Se desativado, a janela de seleção é ignorada e a quantidade de centelhas e sombras roladas é mostrada no cartão do chat."
         },
         "AutomateTravelTracker": {
-          "Name": "Automatizar Rolagens de Acampamento",
-          "Hint": "Se ativado, resolver o acampamento solicitará automaticamente que os jogadores rolem para as ações escolhidas. Se desativado, apenas as ações escolhidas serão mostradas no chat sem rolagens adicionais."
+          "Name": "Habilitar Rolagens Automáticas de Acampamento",
+          "Hint": "Se ativado, resolver o acampamento solicita automaticamente que os jogadores rolem para as ações escolhidas. Se desativado, apenas as ações escolhidas são mostradas no chat sem solicitar rolagens."
         }
       },
       "Visuals": {

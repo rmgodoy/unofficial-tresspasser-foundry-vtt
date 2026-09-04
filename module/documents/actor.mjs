@@ -1052,8 +1052,8 @@ export class TrespasserActor extends Actor {
         let expr = TrespasserEffectsHelper.replacePlaceholders(dmg, this);
         const roll = new foundry.dice.Roll(expr);
         await roll.evaluate();
-        const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
-        const visibility = messageVisibility((this.type === "creature" && hideCreatureRolls) ? "gm" : "public");
+        const showCreatureRolls = game.settings.get("trespasser", "showCreatureDamageRolls");
+        const visibility = messageVisibility((this.type === "creature" && !showCreatureRolls) ? "gm" : "public");
         await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: this }), flavor: flavorHtml }, visibility);
       } catch (e) {
         console.error(e);

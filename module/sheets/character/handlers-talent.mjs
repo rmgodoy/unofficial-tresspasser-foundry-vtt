@@ -109,8 +109,8 @@ export async function onTalentRoll(event, sheet) {
       </button>
     </div>`;
 
-    const hideCreatureRolls = game.settings.get("trespasser", "hideCreatureDamageRolls");
-    const mode = (sheet.actor.type === "creature" && hideCreatureRolls) ? "gm" : "public";
+    const showCreatureRolls = game.settings.get("trespasser", "showCreatureDamageRolls");
+    const mode = (sheet.actor.type === "creature" && !showCreatureRolls) ? "gm" : "public";
     await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor: cardHtml + applyHealBtns }, messageVisibility(mode));
 
     if (item.system.rollDice?.includes("<wd>")) {

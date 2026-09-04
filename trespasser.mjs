@@ -290,6 +290,15 @@ Hooks.once("init", async () => {
     default: false
   });
 
+  game.settings.register("trespasser", "showCreatureDamageRolls", {
+    name: "TRESPASSER.Settings.Mechanics.ShowCreatureDamageRolls.Name",
+    hint: "TRESPASSER.Settings.Mechanics.ShowCreatureDamageRolls.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
   game.settings.register("trespasser", "hideCreatureDamageRolls", {
     name: "TRESPASSER.Settings.Mechanics.HideCreatureDamageRolls.Name",
     hint: "TRESPASSER.Settings.Mechanics.HideCreatureDamageRolls.Hint",
@@ -344,6 +353,15 @@ Hooks.once("init", async () => {
     default: false
   });
 
+  game.settings.register("trespasser", "enableGroupCheckSelection", {
+    name: "TRESPASSER.Settings.Exploration.EnableGroupCheckSelection.Name",
+    hint: "TRESPASSER.Settings.Exploration.EnableGroupCheckSelection.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
   game.settings.register("trespasser", "groupCheckFullParty", {
     name: "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Name",
     hint: "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Hint",
@@ -351,6 +369,15 @@ Hooks.once("init", async () => {
     config: false,
     type: Boolean,
     default: true
+  });
+
+  game.settings.register("trespasser", "allowAllPlayersHavenEdit", {
+    name: "TRESPASSER.Settings.Exploration.AllowAllPlayersHavenEdit.Name",
+    hint: "TRESPASSER.Settings.Exploration.AllowAllPlayersHavenEdit.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
   });
 
   game.settings.register("trespasser", "restrictHavenEditToLeader", {
@@ -362,9 +389,27 @@ Hooks.once("init", async () => {
     default: true
   });
 
+  game.settings.register("trespasser", "enforceHavenBuildingLimits", {
+    name: "TRESPASSER.Settings.Exploration.EnforceHavenBuildingLimits.Name",
+    hint: "TRESPASSER.Settings.Exploration.EnforceHavenBuildingLimits.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
   game.settings.register("trespasser", "bypassHavenBuildingLimits", {
     name: "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Name",
     hint: "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: false
+  });
+
+  game.settings.register("trespasser", "enforceAttackRange", {
+    name: "TRESPASSER.Settings.Mechanics.EnforceAttackRange.Name",
+    hint: "TRESPASSER.Settings.Mechanics.EnforceAttackRange.Hint",
     scope: "world",
     config: false,
     type: Boolean,
@@ -797,6 +842,40 @@ Hooks.once("ready", async () => {
 
   // Initialize Sockets
   TrespasserSocket.init();
+
+  // Migrate legacy settings with inverted logic to positive settings
+  if (game.user.isGM) {
+    try {
+      const worldStorage = game.settings.storage.get("world");
+      if (worldStorage?.getItem("trespasser.disregardRangeOnAttack") !== undefined &&
+          worldStorage?.getItem("trespasser.enforceAttackRange") === undefined) {
+        const oldVal = game.settings.get("trespasser", "disregardRangeOnAttack");
+        await game.settings.set("trespasser", "enforceAttackRange", !oldVal);
+      }
+      if (worldStorage?.getItem("trespasser.bypassHavenBuildingLimits") !== undefined &&
+          worldStorage?.getItem("trespasser.enforceHavenBuildingLimits") === undefined) {
+        const oldVal = game.settings.get("trespasser", "bypassHavenBuildingLimits");
+        await game.settings.set("trespasser", "enforceHavenBuildingLimits", !oldVal);
+      }
+      if (worldStorage?.getItem("trespasser.hideCreatureDamageRolls") !== undefined &&
+          worldStorage?.getItem("trespasser.showCreatureDamageRolls") === undefined) {
+        const oldVal = game.settings.get("trespasser", "hideCreatureDamageRolls");
+        await game.settings.set("trespasser", "showCreatureDamageRolls", !oldVal);
+      }
+      if (worldStorage?.getItem("trespasser.groupCheckFullParty") !== undefined &&
+          worldStorage?.getItem("trespasser.enableGroupCheckSelection") === undefined) {
+        const oldVal = game.settings.get("trespasser", "groupCheckFullParty");
+        await game.settings.set("trespasser", "enableGroupCheckSelection", !oldVal);
+      }
+      if (worldStorage?.getItem("trespasser.restrictHavenEditToLeader") !== undefined &&
+          worldStorage?.getItem("trespasser.allowAllPlayersHavenEdit") === undefined) {
+        const oldVal = game.settings.get("trespasser", "restrictHavenEditToLeader");
+        await game.settings.set("trespasser", "allowAllPlayersHavenEdit", !oldVal);
+      }
+    } catch (err) {
+      console.warn("Trespasser | Settings migration check encountered an issue:", err);
+    }
+  }
 
   // Function to apply settings to CSS variables
   game.trespasser.applySystemSettings = () => {

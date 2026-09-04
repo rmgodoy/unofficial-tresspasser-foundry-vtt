@@ -33,20 +33,24 @@
           "Hint": "If enabled, encumbrance rules (Guard and Speed penalties) will be automatically applied based on Armor Rating. The state icon will still be shown even if this is disabled."
         },
         "PlayerFacingInitiative": {
-          "Name": "Player-Facing Initiative Rolls",
+          "Name": "Enable Player-Facing Initiative Rolls",
           "Hint": "When enabled, players roll their own initiative at the start of each round instead of it being automatic."
         },
         "RestrictMovementAction": {
-          "Name": "Restrict Movement Action",
+          "Name": "Require Move Action for Movement",
           "Hint": "If enabled, movement is only allowed after taking a Move or Vault action. If disabled, tokens can move freely."
         },
         "RestrictHUDActions": {
-          "Name": "Restrict Actions per Turn",
+          "Name": "Enforce Actions per Turn Limit",
           "Hint": "If enabled, HUD actions (Defend, Help, etc.) can only be used once per turn unless otherwise specified."
         },
         "RestrictAPFocusUsage": {
-          "Name": "Restrict AP and Focus action usage",
+          "Name": "Enforce AP and Focus Costs",
           "Hint": "If enabled, the system enforces AP and Focus costs. If disabled, actions can be used without sufficient points."
+        },
+        "EnforceAttackRange": {
+          "Name": "Enforce Attack Range",
+          "Hint": "When enabled, attacking out-of-range targets is prohibited. When disabled, attacking out-of-range targets displays a warning but proceeds."
         },
         "DisregardRangeOnAttack": {
           "Name": "Disregard Range on Attack",
@@ -60,19 +64,35 @@
           "Name": "Confirm Item Transfers",
           "Hint": "If enabled, you will be prompted to accept or reject items transferred to you by other players."
         },
+        "ShowCreatureDamageRolls": {
+          "Name": "Show Creature Damage Rolls to Players",
+          "Hint": "If enabled, damage rolls made by creatures will be visible to all players in chat. If disabled, they will be whispered to the GM only."
+        },
         "HideCreatureDamageRolls": {
           "Name": "Hide Creature Damage Rolls",
           "Hint": "If enabled, damage rolls made by creatures (creature actors) will be whispered to the GM and the roller only."
         }
       },
       "Exploration": {
+        "EnableGroupCheckSelection": {
+          "Name": "Enable Member Selection for Group Checks",
+          "Hint": "If enabled, a dialog prompts you to select which party members participate in the group check. If disabled, all party members are automatically included."
+        },
         "GroupCheckFullParty": {
-          "Name": "Group Check always use full party",
+          "Name": "Include Full Party in Group Checks",
           "Hint": "If enabled, group checks will always include all party members without showing a selection popup."
         },
+        "AllowAllPlayersHavenEdit": {
+          "Name": "Allow All Players to Edit Haven",
+          "Hint": "If enabled, all players who own party characters can add or modify buildings and projects in Haven. If disabled, only the party leader can edit the Haven."
+        },
         "RestrictHavenEditToLeader": {
-          "Name": "Restrict Haven Edit to Leader",
-          "Hint": "Only the party leader can add or remove buildings and projects in Haven."
+          "Name": "Limit Haven Editing to Party Leader",
+          "Hint": "If enabled, only the party leader can add or remove buildings and projects in Haven. If disabled, all players can edit the Haven."
+        },
+        "EnforceHavenBuildingLimits": {
+          "Name": "Enable Haven Building Limits",
+          "Hint": "If enabled, Havens follow the Building Limit and Build Slots defined in the progression table. If disabled, Havens can build without restrictions."
         },
         "BypassHavenBuildingLimits": {
           "Name": "Bypass Haven Building Limits",
@@ -95,8 +115,8 @@
           "Hint": "If enabled, the GM and players will be prompted to pick their Spark and Shadow after a non-combat skill or attribute roll. If disabled, the prompt is skipped and the amount of sparks and shadows rolled is shown in the chat card."
         },
         "AutomateTravelTracker": {
-          "Name": "Automate Camp Rolls",
-          "Hint": "If enabled, resolving a camp will automatically prompt players to roll for their chosen camp actions. If disabled, only the chosen actions are shown in chat without prompting."
+          "Name": "Enable Automatic Camp Rolls",
+          "Hint": "If enabled, resolving a camp will automatically prompt players to roll for their chosen camp actions. If disabled, only the chosen actions are shown in chat without prompting rolls."
         }
       },
       "Visuals": {
