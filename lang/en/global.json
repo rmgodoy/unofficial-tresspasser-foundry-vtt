@@ -8,6 +8,10 @@
       "Encumbered": {
         "Name": "Encumbered",
         "Description": "Armor Rating is +6 or higher. Agility is not added to Guard checks, and Speed Bonus is limited to +2."
+      },
+      "Engaged": {
+        "Name": "Engaged",
+        "Description": "A hostile enemy is within melee reach. -2 Accuracy with missile and spell attacks."
       }
     },
     "Plight": {

@@ -69,20 +69,21 @@
         "SpendAP": "Spend Action Point"
       },
       "Option": {
-        "Deed": "{cost} AP (+{bonus} Acc)",
-        "DeedBase": "{cost} AP (Base)",
-        "TakeAim": "{cost} AP (+{bonus} sq)",
-        "Interact": "{cost} AP (+{bonus} Check)",
-        "Maneuver": "{cost} AP (+{bonus} Acc)",
-        "Smash": "{cost} AP (+{bonus} Might)",
-        "Throw": "{cost} AP ({range} sq)",
-        "DefendSingle": "1 AP (Chosen type)",
-        "DefendBoth": "2 AP (Both Guard & Resist)",
+        "Deed": "{cost} ✦ (+{bonus} Acc)",
+        "DeedBase": "{cost} ✦ (Base)",
+        "TakeAim": "{cost} ✦ (+{bonus} sq)",
+        "Interact": "{cost} ✦ (+{bonus} Check)",
+        "Maneuver": "{cost} ✦ (+{bonus} Acc)",
+        "Smash": "{cost} ✦ (+{bonus} Might)",
+        "Throw": "{cost} ✦ ({range} sq)",
+        "DefendSingle": "1 ✦ (Chosen type)",
+        "DefendBoth": "2 ✦ (Both Guard & Resist)",
         "VaultTip": "Jump in a straight line (orthogonal or diagonal). AP Cost: 1.",
         "WaitTip": "Move your turn to the Late Phase, carrying over AP and Movement. Only available in Early Phase."
       },
       "Common": {
         "SelectAlly": "Select Ally",
+        "SelectDeed": "Select Deed",
         "Attribute": "Attribute",
         "Confirm": "Confirm",
         "WithBonus": "(Bonus: +{bonus})"

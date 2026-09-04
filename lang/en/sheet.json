@@ -66,6 +66,22 @@
         "Phases": "Phases"
       },
       "Common": {
+        "NewItem": "New {type}",
+        "Slots": {
+          "main_hand": "Main Hand",
+          "off_hand": "Off Hand",
+          "hand": "Hand",
+          "head": "Head",
+          "body": "Body",
+          "arms": "Arms",
+          "legs": "Legs",
+          "outer": "Outer",
+          "shield": "Shield",
+          "accessory": "Accessory",
+          "amulet": "Amulet",
+          "ring": "Ring",
+          "talisman": "Talisman"
+        },
         "AddItem": "Add Item",
         "Delete": "Delete",
         "Edit": "Edit",
@@ -372,7 +388,12 @@
             "ReferencedTerrainTooltip": "From terrain #{id}: {name}",
             "ControlledByReference": "Locked by graph reference connection",
             "ReferencedSource": "Linked: #{id}"
-          }
+          },
+          "ReferencedSource": "Linked: #{id}",
+          "ControlledByReference": "Locked by graph reference connection",
+          "ReferencedRollTooltip": "From roll #{id}: {formula}",
+          "ReferencedAreaTooltip": "From area #{id}: {summary}",
+          "ReferencedTerrainTooltip": "From terrain #{id}: {name}"
         },
         "Params": {
           "TargetMode": "Target Mode",
@@ -473,6 +494,8 @@
           "ArmorDie": "Armor Die",
           "WeaponDie": "Weapon Die",
           "WeaponType": "Weapon Type",
+          "MeleeRange": "Melee Range",
+          "ThrownRange": "Thrown Range",
           "Properties": "Properties",
           "Melee": "Melee",
           "Missile": "Missile",
@@ -584,6 +607,8 @@
         "States": {
           "ActiveLit": "Active (Lit)",
           "UsedBroken": "Used / Broken",
+          "Thrown": "THROWN",
+          "ThrownTooltip": "This weapon was thrown and is lost for the encounter.",
           "Usable": "Usable?",
           "Equippable": "Equippable",
           "IsCombat": "Is Combat?",
@@ -591,6 +616,9 @@
           "IsReminder": "Is Reminder Only?",
           "IsPrevailable": "Is Prevailable?",
           "IsLasting": "Is Lasting?"
+        },
+        "Actions": {
+          "RecoverThrown": "Recover thrown weapon"
         },
         "Sections": {
           "DeedEffects": "Deed Effects",
@@ -1034,13 +1062,13 @@
           "Label": "sq"
         },
         "Option": {
-          "Maneuver": "{cost} AP (+{bonus} Focus)",
-          "TakeAim": "{cost} AP (+{bonus} Range)",
-          "Interact": "{cost} AP (+{bonus} bonus)",
-          "Smash": "{cost} AP (Break {bonus})",
-          "Throw": "{cost} AP ({range} sq)",
-          "DefendSingle": "1 AP (Chosen type)",
-          "DefendBoth": "2 AP (Both Guard & Resist)",
+          "Maneuver": "{cost} ✦ (+{bonus} Focus)",
+          "TakeAim": "{cost} ✦ (+{bonus} Range)",
+          "Interact": "{cost} ✦ (+{bonus} bonus)",
+          "Smash": "{cost} ✦ (Break {bonus})",
+          "Throw": "{cost} ✦ ({range} sq)",
+          "DefendSingle": "1 ✦ (Chosen type)",
+          "DefendBoth": "2 ✦ (Both Guard & Resist)",
           "VaultTip": "Jump across obstacles",
           "WaitTip": "Move to Late Phase"
         },
@@ -1084,6 +1112,13 @@
         "Inventory": "Inventory",
         "InventoryCapacity": "Capacity",
         "InventorySlots": "{used}/{max} slots",
+        "EquippedItems": "Equipped Items",
+        "EngagementRange": "Engagement Range",
+        "MainHand": "Main Hand",
+        "OffHand": "Off Hand",
+        "EmptySlot": "Empty",
+        "TwoHandOccupied": "Occupied by 2H Weapon",
+        "OtherEquipped": "Other Equipment",
         "ConfigureFormulas": "Configure Attribute Formulas (GM)",
         "Notes": "Notes"
       }

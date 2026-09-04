@@ -40,10 +40,23 @@
 
       <div class="attribute-fields">
         <div class="attribute-group flex-row">
-          <div class="field-item">
-            <label>{{localize "TRESPASSER.Sheet.Common.Range"}}</label>
-            <input type="text" name="system.range" value="{{system.range}}" placeholder="30ft" />
-          </div>
+          {{#if (eq system.type "melee")}}
+            <div class="field-item">
+              <label>{{localize "TRESPASSER.Sheet.Item.Details.MeleeRange"}}</label>
+              <input type="text" name="system.meleeRange" value="{{system.meleeRange}}" placeholder="1" />
+            </div>
+            {{#if system.properties.thrown}}
+            <div class="field-item">
+              <label>{{localize "TRESPASSER.Sheet.Item.Details.ThrownRange"}}</label>
+              <input type="text" name="system.thrownRange" value="{{system.thrownRange}}" placeholder="4 sq" />
+            </div>
+            {{/if}}
+          {{else}}
+            <div class="field-item">
+              <label>{{localize "TRESPASSER.Sheet.Common.Range"}}</label>
+              <input type="text" name="system.range" value="{{system.range}}" placeholder="30ft" />
+            </div>
+          {{/if}}
 
           <div class="field-item">
             <label>{{localize "TRESPASSER.Sheet.Item.Details.DepletionDie"}}</label>
@@ -83,9 +96,19 @@
         <div class="attribute-group flex-row" style="margin-top: 10px;">
           <div class="field-item">
             <label>{{localize "TRESPASSER.Sheet.Item.Details.Properties"}}</label>
-            <div style="display: flex; gap: 15px; flex: 1;">
+            <div style="display: flex; gap: 15px; flex: 1; align-items: center; flex-wrap: wrap;">
               <label style="font-size: var(--fs-11); display: flex; align-items: center; gap: 4px;"><input type="checkbox" name="system.properties.twoHanded" {{checked system.properties.twoHanded}} /> {{localize "TRESPASSER.Sheet.Item.Details.TwoHanded"}}</label>
               <label style="font-size: var(--fs-11); display: flex; align-items: center; gap: 4px;"><input type="checkbox" name="system.properties.thrown" {{checked system.properties.thrown}} /> {{localize "TRESPASSER.Sheet.Item.Details.Thrown"}}</label>
+              {{#if system.properties.thrown}}
+                <div style="display: inline-flex; align-items: center; gap: 4px;">
+                  <span style="font-size: var(--fs-11); color: var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Item.Details.ThrownRange"}}:</span>
+                  <input type="text" name="system.thrownRange" value="{{system.thrownRange}}" placeholder="4 sq" style="width: 70px; height: 24px; font-size: var(--fs-11); padding: 2px 4px; text-align: center;" />
+                </div>
+                <label style="font-size: var(--fs-11); display: flex; align-items: center; gap: 4px; color: var(--trp-gold-bright);">
+                  <input type="checkbox" name="system.isThrown" {{checked system.isThrown}} />
+                  {{localize "TRESPASSER.Sheet.Item.States.Thrown"}}
+                </label>
+              {{/if}}
               <label style="font-size: var(--fs-11); display: flex; align-items: center; gap: 4px;"><input type="checkbox" name="system.properties.fragile" {{checked system.properties.fragile}} /> {{localize "TRESPASSER.Sheet.Item.Details.Fragile"}}</label>
             </div>
           </div>

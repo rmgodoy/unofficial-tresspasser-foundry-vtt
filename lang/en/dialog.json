@@ -13,6 +13,7 @@
       "Combat": {
         "SelectArmorToBlock": "Select which equipped armor die to roll to block damage ({damage} incoming):"
       },
+      "SkillCheckTitle": "{skill} Check - Choose Attribute",
       "SkillCheck": {
         "Title": "{skill} Check - Choose Attribute",
         "Prompt": "Which attribute drives this check?",
@@ -25,6 +26,7 @@
         "Title": "Roll Check",
         "Dice": "Dice",
         "Bonuses": "Bonuses",
+        "PermanentBonus": "Permanent Bonus",
         "AdditionalModifier": "Additional Modifier",
         "BaseAttribute": "Base Attribute",
         "EffectBonus": "Effect Bonus",

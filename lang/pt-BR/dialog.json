@@ -13,6 +13,7 @@
       "Combat": {
         "SelectArmorToBlock": "Selecione qual dado de armadura equipada rolar para bloquear o dano ({damage} sofrido):"
       },
+      "SkillCheckTitle": "Teste de {skill} - Escolher Atributo",
       "SkillCheck": {
         "Title": "Teste de {skill}",
         "Prompt": "Com qual atributo você gostaria de fazer o teste?",
@@ -25,6 +26,7 @@
         "Title": "Teste de Rolagem",
         "Dice": "Dados",
         "Bonuses": "Bônus",
+        "PermanentBonus": "Bônus Permanente",
         "AdditionalModifier": "Modificador Adicional",
         "BaseAttribute": "Atributo Base",
         "EffectBonus": "Bônus de Efeito",

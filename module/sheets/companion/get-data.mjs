@@ -1,5 +1,7 @@
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { PASSIVE_STATES } from "../../config/state-config.mjs";
+import { EngagementHelper } from "../../helpers/engagement-helper.mjs";
+import { prepareDeedDisplayData } from "../../helpers/deed-display-helper.mjs";
 
 /**
  * Data preparation for TrespasserCompanionSheet.
@@ -40,36 +42,18 @@ export async function getCompanionData(sheet, options = {}) {
   // Features
   context.features = actor.items.filter(i => i.type === "feature");
 
+  // Build source map for features/effects
+  const sourceMapByUuid = {};
+  for (const item of actor.items) {
+    if (item.type === "feature") {
+      (item.system.deeds || []).forEach(d => { if (d.uuid) sourceMapByUuid[d.uuid] = item.name; });
+      (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
+    }
+  }
+
   // Deeds processing & grouping for parts/deed-list.hbs
   const allDeeds = actor.items.filter(i => i.type === "deed").map(d => {
-    const deedData = d.toObject ? d.toObject(false) : d.toJSON();
-    deedData.id = d.id;
-
-    const tier = deedData.system.tier;
-    let baseCost = deedData.system.focusCost;
-    if (baseCost === null || baseCost === undefined) {
-      if (tier === "heavy") baseCost = 2;
-      else if (tier === "mighty") baseCost = 4;
-      else baseCost = 0;
-    }
-
-    let costIncrease = deedData.system.focusIncrease;
-    if (costIncrease === null || costIncrease === undefined) {
-      if (tier === "heavy" || tier === "mighty") costIncrease = 1;
-      else costIncrease = 0;
-    }
-
-    const bonusCost = deedData.system.bonusCost || 0;
-    const uses = deedData.system.uses || 0;
-    deedData.displayCost = baseCost + bonusCost;
-    deedData.showCost = deedData.displayCost > 0;
-    deedData.hasUses = costIncrease > 0;
-
-    if (deedData.hasUses) {
-      deedData.usesCheckboxes = Array.from({ length: 3 }, (_, i) => ({ index: i + 1, checked: i < uses }));
-    }
-
-    return deedData;
+    return prepareDeedDisplayData(d, sourceMapByUuid);
   });
 
   context.deeds = allDeeds;
@@ -83,15 +67,34 @@ export async function getCompanionData(sheet, options = {}) {
   // Effects items
   context.effects = actor.items.filter(i => i.type === "effect");
 
-  // Inventory (non-deed, non-feature, non-effect)
-  const specialTypes = ["deed", "feature", "effect"];
-  context.inventory = actor.items.filter(i => !specialTypes.includes(i.type));
+  // Inventory & Equipment (non-deed, non-feature, non-effect, non-state)
+  const specialTypes = ["deed", "feature", "effect", "state"];
+  const physicalItems = actor.items.filter(i => !specialTypes.includes(i.type));
+
+  context.equippedItems = physicalItems.filter(i => i.system?.equipped);
+  context.inventory = physicalItems.filter(i => !i.system?.equipped);
+  context.unequippedItems = context.inventory;
+
   const totalOccupancy = context.inventory.reduce((acc, i) => {
     const val = i.system.slotOccupancy !== undefined ? parseFloat(i.system.slotOccupancy) : 1;
     return acc + (isNaN(val) ? 1 : val);
   }, 0);
   context.inventoryUsed = totalOccupancy % 1 === 0 ? totalOccupancy : totalOccupancy.toFixed(1);
   context.inventoryMax = actor.system.inventory_max ?? 3;
+
+  // Specific hand slots & other equipped gear
+  const eq = actor.system.equipment ?? {};
+  const mainHandItem = eq.main_hand ? actor.items.get(eq.main_hand) : null;
+  const offHandItem  = eq.off_hand ? actor.items.get(eq.off_hand) : null;
+  const isTwoHanded  = mainHandItem?.type === "weapon" ? !!mainHandItem.system.properties?.twoHanded : false;
+
+  context.equippedMainHand = mainHandItem;
+  context.equippedOffHand  = offHandItem;
+  context.isTwoHanded      = isTwoHanded;
+  context.otherEquipped    = context.equippedItems.filter(i => i.id !== mainHandItem?.id && i.id !== offHandItem?.id);
+
+  // Engagement Range in squares
+  context.engagementRange = EngagementHelper.getActorEngagementRange(actor);
 
   // Transfer Target check
   const targets = game.user?.targets;
@@ -131,10 +134,13 @@ export async function getCompanionData(sheet, options = {}) {
   };
 
   // Passive states
+  const isEngaged = EngagementHelper.isActorEngaged(actor);
   context.passiveStates = Object.entries(PASSIVE_STATES)
     .map(([key, cfg]) => ({
       key,
-      active: actor.system.passiveStates?.[key] ?? (key === "bloody" ? actor.system.health < (actor.system.max_health / 2) : false),
+      active: key === "engaged" 
+        ? isEngaged 
+        : (actor.system.passiveStates?.[key] ?? (key === "bloody" ? actor.system.health < (actor.system.max_health / 2) : false)),
       icon: cfg.icon,
       label: cfg.label,
       description: cfg.description

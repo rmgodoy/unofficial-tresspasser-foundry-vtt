@@ -82,6 +82,11 @@
         "Peril": "Peril",
         "Panic": "Panic",
         "Types": {
+          "Weapon": {
+            "melee": "Melee",
+            "missile": "Missile",
+            "spell": "Spell"
+          },
           "Actor": {
             "character": "Character",
             "creature": "Creature",

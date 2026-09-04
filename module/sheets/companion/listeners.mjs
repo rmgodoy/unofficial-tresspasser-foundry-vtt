@@ -83,6 +83,36 @@ export function activateCompanionListeners(html, sheet) {
     });
   });
 
+  // Item Equip
+  root.querySelectorAll(".item-equip").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const itemId = ev.currentTarget.dataset.itemId || ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;
+      if (itemId) await sheet.actor.equipItem(itemId);
+    });
+  });
+
+  // Item Unequip
+  root.querySelectorAll(".item-unequip").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const itemId = ev.currentTarget.dataset.itemId || ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;
+      if (itemId) await sheet.actor.unequipItem(itemId);
+    });
+  });
+
+  // Item Recover Thrown
+  root.querySelectorAll(".item-recover-thrown").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const itemId = ev.currentTarget.dataset.itemId || ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;
+      if (itemId) {
+        const item = sheet.actor.items.get(itemId);
+        if (item) await item.update({ "system.isThrown": false });
+      }
+    });
+  });
+
   // Item Depletion
   root.querySelectorAll(".item-deplete").forEach(btn => {
     btn.addEventListener("click", (ev) => {

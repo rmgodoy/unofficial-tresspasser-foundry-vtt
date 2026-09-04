@@ -52,21 +52,37 @@ export class RangeHelper {
       const isThrown = activeWeapons.some(w => w.system?.properties?.thrown);
 
       if (abilityType === "melee" || abilityType === "unarmed") {
-        if (isThrown) {
-          const thrownWeapons = activeWeapons.filter(w => w.system?.properties?.thrown);
-          const r = this.getWeaponRangeInSquares(thrownWeapons, gridDist);
-          baseRange = r > 0 ? r : 1;
+        const meleeWeapons = activeWeapons.filter(w => w.system?.type === "melee");
+        if (meleeWeapons.length > 0) {
+          const ranges = meleeWeapons.map(w => this.getWeaponMeleeRange(w, gridDist));
+          baseRange = Math.max(...ranges);
         } else {
-          const meleeWeapons = activeWeapons.filter(w => w.system?.type === "melee");
-          const r = this.getWeaponRangeInSquares(meleeWeapons, gridDist);
-          baseRange = r > 0 ? r : 1;
+          baseRange = 1;
         }
       } else if (abilityType === "missile") {
         const missileWeapons = activeWeapons.filter(w =>
-          w.system?.type === "missile" || w.system?.properties?.thrown
+          !w.system?.isThrown && (w.system?.type === "missile" || w.system?.properties?.thrown)
         );
-        const r = this.getWeaponRangeInSquares(missileWeapons, gridDist);
-        baseRange = r > 0 ? r : 12;
+        let maxRange = 0;
+        for (const w of missileWeapons) {
+          if (w.system?.properties?.thrown) {
+            maxRange = Math.max(maxRange, this.getWeaponThrownRange(w, gridDist));
+          } else {
+            const raw = String(w.system?.range ?? "").trim();
+            const num = parseInt(raw);
+            if (!isNaN(num) && num > 0) {
+              const r = /ft|feet/i.test(raw) ? Math.round(num / gridDist) : num;
+              maxRange = Math.max(maxRange, r);
+            }
+          }
+        }
+        if (maxRange > 0) {
+          baseRange = maxRange;
+        } else if (activeWeapons.length === 0) {
+          baseRange = 12;
+        } else {
+          baseRange = null;
+        }
       } else if (abilityType === "spell") {
         const spellWeapons = activeWeapons.filter(w => w.system?.type === "spell");
         const r = this.getWeaponRangeInSquares(spellWeapons, gridDist);
@@ -85,7 +101,7 @@ export class RangeHelper {
     // 5. Take Aim range bonus (+4 or +8 for missile and spell deeds)
     const activeWeapons = getActiveWeapons(actorDoc);
     const isMissileOrSpell = abilityType === "missile" || abilityType === "spell"
-      || (abilityType === "versatile" && activeWeapons.some(w => w.system?.type === "missile" || w.system?.type === "spell" || w.system?.properties?.thrown));
+      || (abilityType === "versatile" && activeWeapons.some(w => !w.system?.isThrown && (w.system?.type === "missile" || w.system?.type === "spell" || w.system?.properties?.thrown)));
 
     if (isMissileOrSpell) {
       const aimBonus = this.getAimRangeBonus(sourceToken, actorDoc);
@@ -137,6 +153,54 @@ export class RangeHelper {
   }
 
   /**
+   * Get the melee reach in grid squares for a single weapon.
+   * Prioritizes system.meleeRange, falling back to system.range only if NOT thrown.
+   * Defaults to 1 square.
+   * @param {Item} weapon
+   * @param {number} [gridDist=5]
+   * @returns {number}
+   */
+  static getWeaponMeleeRange(weapon, gridDist = 5) {
+    if (!weapon?.system) return 1;
+    const sys = weapon.system;
+    let raw = String(sys.meleeRange ?? "").trim();
+    if (!raw && !sys.properties?.thrown && sys.type === "melee") {
+      raw = String(sys.range ?? "").trim();
+    }
+    if (!raw) return 1;
+    const num = parseInt(raw);
+    if (isNaN(num) || num <= 0) return 1;
+    if (/ft|feet/i.test(raw)) {
+      return Math.max(1, Math.round(num / gridDist));
+    }
+    return Math.max(1, num);
+  }
+
+  /**
+   * Get the thrown range in grid squares for a single weapon.
+   * @param {Item} weapon
+   * @param {number} [gridDist=5]
+   * @returns {number} Thrown range in squares (0 if not thrown)
+   */
+  static getWeaponThrownRange(weapon, gridDist = 5) {
+    if (!weapon?.system?.properties?.thrown) return 0;
+    const sys = weapon.system;
+    let raw = String(sys.thrownRange ?? "").trim();
+    if (!raw && sys.type !== "melee") {
+      raw = String(sys.range ?? "").trim();
+    } else if (!raw && sys.range && sys.range !== "1" && sys.range !== sys.meleeRange) {
+      raw = String(sys.range).trim();
+    }
+    if (!raw) return 4;
+    const num = parseInt(raw);
+    if (isNaN(num) || num <= 0) return 4;
+    if (/ft|feet/i.test(raw)) {
+      return Math.max(1, Math.round(num / gridDist));
+    }
+    return Math.max(1, num);
+  }
+
+  /**
    * Parse max range in grid squares from a collection of weapons.
    * Handles formats like "5", "10 squares", "30 ft", "6 sq", etc.
    * @param {Item[]} weapons
@@ -146,6 +210,11 @@ export class RangeHelper {
   static getWeaponRangeInSquares(weapons = [], gridDist = 5) {
     let best = 0;
     for (const w of weapons) {
+      if (w.system?.isThrown) continue;
+      if (w.system?.properties?.thrown) {
+        best = Math.max(best, this.getWeaponThrownRange(w, gridDist));
+        continue;
+      }
       const raw = String(w.system?.range ?? "").trim();
       if (!raw) continue;
       const num = parseInt(raw);

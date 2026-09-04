@@ -9,6 +9,11 @@
                 <div class="deed-slot-header">
                   <span class="deed-slot-title deed-rollable rollable" title="{{localize 'TRESPASSER.Sheet.Combat.UseDeed'}}">{{this.name}}{{#if this.sourceName}} <span style="font-size: var(--fs-11); font-weight: normal; color: var(--trp-text-dim);">({{this.sourceName}})</span>{{/if}}</span>
                   <div style="display: flex; gap: 6px; align-items: center;">
+                    {{#if this.hasEngagementPenalty}}
+                      <span class="deed-engagement-badge" data-tooltip="{{localize 'TRESPASSER.Chat.Combat.EngagementPenaltyDeedTooltip'}}">
+                        <i class="fas fa-crosshairs"></i> -2 {{localize "TRESPASSER.Chat.Combat.EngagedTag"}}
+                      </span>
+                    {{/if}}
                     {{#if this.showCost}}
                       <span class="deed-slot-skill">{{this.displayCost}}</span>
                     {{/if}}

@@ -8,7 +8,16 @@ export function buildEquipmentContent(item) {
   if (item.type === "weapon") {
     meta += ` | ${game.i18n.localize("TRESPASSER.Sheet.Common.WD")}: ${sys.weaponDie}`;
     meta += ` | ${game.i18n.localize("TRESPASSER.Sheet.Item.Details.WeaponType")}: ${sys.type}`;
-    if (sys.range) meta += ` | ${game.i18n.localize("TRESPASSER.Sheet.Common.Range")}: ${sys.range}`;
+    if (sys.type === "melee") {
+      const meleeR = sys.meleeRange || (!sys.properties?.thrown ? sys.range : "") || "1";
+      meta += ` | ${game.i18n.localize("TRESPASSER.Sheet.Item.Details.MeleeRange")}: ${meleeR}`;
+      if (sys.properties?.thrown) {
+        const thrownR = sys.thrownRange || sys.range || "";
+        if (thrownR) meta += ` | ${game.i18n.localize("TRESPASSER.Sheet.Item.Details.ThrownRange")}: ${thrownR}`;
+      }
+    } else if (sys.range) {
+      meta += ` | ${game.i18n.localize("TRESPASSER.Sheet.Common.Range")}: ${sys.range}`;
+    }
   } else if (item.type === "armor") {
     meta += ` | ${game.i18n.localize("TRESPASSER.Sheet.Common.AR")}: ${sys.armorRating}`;
     meta += ` | ${game.i18n.localize("TRESPASSER.Sheet.Common.DIE")}: ${sys.armorDie}`;

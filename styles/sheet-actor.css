@@ -855,6 +855,39 @@
   text-shadow: 0 0 2px black;
 }
 
+.inventory-card.is-thrown {
+  opacity: 0.75;
+  border-color: var(--trp-gold-dim);
+  box-shadow: inset 0 0 10px rgba(168, 136, 64, 0.25);
+}
+
+.inventory-card .thrown-tag {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  background: var(--trp-gold-dim);
+  color: var(--trp-bg-dark);
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-9);
+  font-weight: bold;
+  padding: 1px 4px;
+  border-radius: var(--trp-radius-sm);
+  line-height: 1;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  z-index: 2;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.inventory-card .item-recover-thrown {
+  color: var(--trp-gold-bright);
+}
+
+.inventory-card .item-recover-thrown:hover {
+  color: var(--trp-gold);
+  transform: scale(1.15);
+}
+
 .inventory-separator {
   grid-column: 1 / -1;
   border-bottom: 2px solid var(--trp-border);
@@ -1206,6 +1239,24 @@
   font-family: var(--trp-font-header);
   font-size: var(--fs-11);
   color: var(--trp-gold-dim);
+}
+
+.deed-engagement-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(231, 76, 60, 0.18);
+  border: 1px solid #ff5252;
+  color: #ff7675;
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-10);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  line-height: 1.2;
+  white-space: nowrap;
 }
 
 .deed-slot-subheader {

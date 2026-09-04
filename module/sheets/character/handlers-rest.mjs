@@ -80,9 +80,12 @@ export async function handleRestAction(type, data, actorOrSheet, { chat = true }
     chatMessages.push(game.i18n.localize("TRESPASSER.Sheet.Rest.WeekRestAll"));
   }
 
-  // 3. Uncheck all broken items
+  // 3. Uncheck all broken items and recover thrown weapons
   const brokenItems = actor.items.filter(i => i.system.broken);
   for (const item of brokenItems) await item.update({ "system.broken": false });
+
+  const thrownItems = actor.items.filter(i => i.type === "weapon" && i.system.isThrown);
+  for (const item of thrownItems) await item.update({ "system.isThrown": false });
 
   // Reset snapshot flags
   const snapshot = foundry.utils.deepClone(actor.system.combat.equipment_snapshot || {});

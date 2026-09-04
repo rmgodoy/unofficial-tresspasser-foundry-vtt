@@ -3,6 +3,7 @@
  * Shared helpers for formatting Deeds and BDeeds for sheet presentation.
  */
 import { getEffectiveDeedAttributes } from "./deed-behaviors/roll-accuracy.mjs";
+import { EngagementHelper }          from "./engagement-helper.mjs";
 
 /**
  * Format BDeed target description based on selectTarget behavior count.
@@ -147,6 +148,12 @@ export function prepareDeedDisplayData(d, sourceMapByUuid = {}) {
   for (const pKey of phaseKeys) {
     deedData.phaseDescriptions[pKey] = deedData.system.phases?.[pKey]?.description || "";
   }
+
+  // Tactical engagement penalty detection
+  const penaltyCheck = EngagementHelper.checkDeedEngagementPenalty(d);
+  deedData.hasEngagementPenalty = penaltyCheck.hasPenalty;
+  deedData.engagementPenalty = penaltyCheck.penaltyValue;
+  deedData.isEngaged = penaltyCheck.isEngaged;
 
   return deedData;
 }

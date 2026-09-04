@@ -3,6 +3,7 @@
 @import url('./base.css');
 @import url('./sheet-actor.css');
 @import url('./sheet-companion.css');
+@import url('./sheet-companion-equipment.css');
 @import url('./sheet-creature.css');
 @import url('./sheet-items.css');
 @import url('./sheet-past-life.css');

@@ -8,6 +8,7 @@ import { TrespasserCreatureConfigDialog } from "../dialogs/creature-config-dialo
 import { PASSIVE_STATES } from "../config/state-config.mjs";
 
 import { prepareDeedDisplayData } from "../helpers/deed-display-helper.mjs";
+import { EngagementHelper } from "../helpers/engagement-helper.mjs";
 
 const { api, sheets } = foundry.applications;
 import { TrespasserActorSheet } from "./base-sheet.mjs";
@@ -102,10 +103,11 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
     };
     context.deeds = allDeeds;
 
+    const isEngaged = EngagementHelper.isActorEngaged(actor);
     context.passiveStates = Object.entries(PASSIVE_STATES)
       .map(([key, cfg]) => ({
         key,
-        active: context.system.passiveStates?.[key] ?? false,
+        active: key === "engaged" ? isEngaged : (context.system.passiveStates?.[key] ?? false),
         icon: cfg.icon,
         label: cfg.label,
         description: cfg.description

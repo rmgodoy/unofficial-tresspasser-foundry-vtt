@@ -28,7 +28,7 @@ export function activateCharacterListeners(html, sheet) {
   if (sheet._onPlightAdd)       html.find(".plight-add").on("click",              sheet._onPlightAdd.bind(sheet));
   if (sheet._onLastingStateAdd) html.find(".lasting-state-add").on("click",       sheet._onLastingStateAdd.bind(sheet));
 
-  // Equip / Unequip
+  // Equip / Unequip / Recover Thrown
   html.find(".item-equip").on("click", (ev) => {
     const li = ev.currentTarget.closest(".inventory-card");
     actor?.equipItem(li.dataset.itemId);
@@ -36,6 +36,11 @@ export function activateCharacterListeners(html, sheet) {
   html.find(".item-unequip").on("click", (ev) => {
     const itemId = ev.currentTarget.dataset.itemId || ev.currentTarget.closest(".inventory-card")?.dataset.itemId;
     if (itemId) actor?.unequipItem(itemId);
+  });
+  html.find(".item-recover-thrown").on("click", async (ev) => {
+    const itemId = ev.currentTarget.dataset.itemId || ev.currentTarget.closest(".inventory-card")?.dataset.itemId;
+    const item = actor?.items.get(itemId);
+    if (item) await item.update({ "system.isThrown": false });
   });
   html.find(".item-broken-toggle").on("change", async (ev) => {
     const li   = ev.currentTarget.closest("[data-item-id]");

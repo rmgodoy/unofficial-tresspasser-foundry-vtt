@@ -5,7 +5,7 @@ import { onCompanionStatRoll, onCompanionDamageRoll, onCompanionSpeedRoll } from
 import { onDeedRoll, postDeedPhase, requestCDAndRoll } from "./character/handlers-deed.mjs";
 import { evaluateAndShowRoll } from "./character/handlers-rolls.mjs";
 import { askAPDialog } from "../dialogs/ap-dialog.mjs";
-import { getAccuracyFromTarget } from "./character/handlers-combat.mjs";
+import { getAccuracyFromTarget, getActiveWeapons } from "./character/handlers-combat.mjs";
 import { onPrevailRoll, onIntensityChange, onEffectRemove, onEffectInfo, onEffectEdit } from "./character/handlers-effects.mjs";
 import { onFeatureRoll } from "./character/handlers-talent.mjs";
 import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck, onItemTransfer } from "./character/handlers-items.mjs";
@@ -177,7 +177,7 @@ export class TrespasserCompanionSheet extends TrespasserActorSheet {
   }
 
   _getActiveWeapons() {
-    return [];
+    return getActiveWeapons(this);
   }
 
   async _selectAmmoDialog(ammoItems, weapon) {

@@ -1,6 +1,8 @@
 {
   "TRESPASSER": {
     "Notification": {
+      "ActorNotFound": "Ator não encontrado.",
+      "NotOwner": "Você não tem permissão para controlar este personagem.",
       "AttributeSuppressed": "{plight}: Nenhum bônus aplicado a testes de {attr}.",
       "DiscouragedTemptFate": "Você não pode desafiar o destino enquanto estiver Desencorajado.",
       "OppositeLastingActive": "Não é possível receber {newEffect} — o estado duradouro oposto {lasting} está ativo.",
@@ -39,9 +41,11 @@
         "TwoHandedEquip": "Você deve desequipar ambas as mãos para equipar uma arma de Duas Mãos.",
         "HeavyArmorLimit": "Você só pode ter uma armadura Pesada equipada.",
         "HeavyItemsExceeded": "Você equipou {total} itens Pesados, o que excede seu limite de {limit}.",
-        "HeavyEquipWarning": "Equipar {name} excederá seu limite de {limit} itens Pesados."
+        "HeavyEquipWarning": "Equipar {name} excederá seu limite de {limit} itens Pesados.",
+        "WeaponIsThrown": "Esta arma foi jogada e deve ser recuperada antes de equipar."
       },
       "Combat": {
+        "WeaponThrown": "{actor} joga {weapon}! A arma sai de sua mão e está perdida pelo resto do encontro.",
         "NoTargets": "Nenhum alvo selecionado. Abortando.",
         "RecordedTargetsGone": "Os alvos registrados neste cartão não estão mais na cena.",
         "NoTargetsAbort": "Nenhum alvo selecionado! Rolagem abortada, exibindo Acurácia básica para referência.",
@@ -87,7 +91,8 @@
         "PlaceClosePath": "Posicionar Caminho Próximo {size}: comece adjacente ao seu token, clique duplo para confirmar, botão direito para desfazer.",
         "PlaceTerrain": "Posicionar {name}: clique para posicionar.",
         "TerrainPlacementCancelled": "Posicionamento do terreno cancelado.",
-        "NoAreaSelected": "Nenhuma área selecionada encontrada para posicionar o terreno."
+        "NoAreaSelected": "Nenhuma área selecionada encontrada para posicionar o terreno.",
+        "InvalidJump": "Destino de salto inválido."
       },
       "Dungeon": {
         "NeedsDungeon": "Esta sala deve estar em uma Masmorra para adicionar conexões.",

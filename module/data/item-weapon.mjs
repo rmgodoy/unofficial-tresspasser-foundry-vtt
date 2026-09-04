@@ -12,6 +12,8 @@ export class TrespasserWeaponData extends foundry.abstract.TypeDataModel {
         choices: ["melee", "missile", "spell"] 
       }),
       range: new fields.StringField({ initial: "" }),
+      meleeRange: new fields.StringField({ initial: "1" }),
+      thrownRange: new fields.StringField({ initial: "" }),
       needsAmmo: new fields.BooleanField({ initial: false }),
       properties: new fields.SchemaField({
         twoHanded: new fields.BooleanField({ initial: false }),
@@ -26,6 +28,7 @@ export class TrespasserWeaponData extends foundry.abstract.TypeDataModel {
       slotOccupancy: new fields.NumberField({ initial: 1, min: 0 }),
       price: new fields.NumberField({ initial: 0, min: 0 }),
       equipped: new fields.BooleanField({ initial: false }),
+      isThrown: new fields.BooleanField({ initial: false }),
       effects: new fields.ArrayField(new fields.SchemaField({
         uuid: new fields.StringField({ required: true }),
         type: new fields.StringField({ required: true }),
@@ -54,5 +57,22 @@ export class TrespasserWeaponData extends foundry.abstract.TypeDataModel {
         img: new fields.StringField({ required: true })
       }), { initial: [] })
     };
+  }
+
+  /** @override */
+  prepareDerivedData() {
+    super.prepareDerivedData?.();
+    if (this.type === "melee") {
+      if (!this.meleeRange && this.range && !this.properties?.thrown) {
+        this.meleeRange = this.range;
+      }
+      if (!this.thrownRange && this.properties?.thrown) {
+        if (this.range && this.range !== "1" && this.range !== this.meleeRange) {
+          this.thrownRange = this.range;
+        } else {
+          this.thrownRange = "4 sq";
+        }
+      }
+    }
   }
 }

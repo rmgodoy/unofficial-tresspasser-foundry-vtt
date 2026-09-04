@@ -10,5 +10,11 @@ export const PASSIVE_STATES = {
     label: "TRESPASSER.State.Encumbered.Name",
     description: "TRESPASSER.State.Encumbered.Description",
     tint: "#ffa726"
+  },
+  engaged: {
+    icon: "systems/trespasser/assets/icons/state-engaged.svg",
+    label: "TRESPASSER.State.Engaged.Name",
+    description: "TRESPASSER.State.Engaged.Description",
+    tint: "#c9a84c"
   }
 };

@@ -324,8 +324,13 @@
                 <td style="text-align: center;">{{#if equippedWeapon.main_hand}}{{equippedWeapon.main_hand.system.weaponDie}}{{/if}}</td>
                 <td style="text-align: center;">
                   {{#if equippedWeapon.main_hand}}
-                    {{capitalize equippedWeapon.main_hand.system.type}}
-                    {{#if equippedWeapon.main_hand.system.range}}/ {{equippedWeapon.main_hand.system.range}}{{/if}}
+                    {{localize (concat "TRESPASSER.Sheet.Item.Details." (capitalize equippedWeapon.main_hand.system.type))}}
+                    {{#if (eq equippedWeapon.main_hand.system.type "melee")}}
+                      / {{#if equippedWeapon.main_hand.system.meleeRange}}{{equippedWeapon.main_hand.system.meleeRange}}{{else}}1{{/if}}
+                      {{#if equippedWeapon.main_hand.system.properties.thrown}} ({{localize "TRESPASSER.Sheet.Item.Details.Thrown"}}: {{#if equippedWeapon.main_hand.system.thrownRange}}{{equippedWeapon.main_hand.system.thrownRange}}{{else}}{{equippedWeapon.main_hand.system.range}}{{/if}}){{/if}}
+                    {{else}}
+                      {{#if equippedWeapon.main_hand.system.range}}/ {{equippedWeapon.main_hand.system.range}}{{/if}}
+                    {{/if}}
                   {{/if}}
                 </td>
               {{/if}}
@@ -357,8 +362,13 @@
                 <td style="text-align: center;">{{#if equippedWeapon.off_hand}}{{equippedWeapon.off_hand.system.weaponDie}}{{/if}}</td>
                 <td style="text-align: center;">
                   {{#if equippedWeapon.off_hand}}
-                    {{capitalize equippedWeapon.off_hand.system.type}}
-                    {{#if equippedWeapon.off_hand.system.range}}/ {{equippedWeapon.off_hand.system.range}}{{/if}}
+                    {{localize (concat "TRESPASSER.Sheet.Item.Details." (capitalize equippedWeapon.off_hand.system.type))}}
+                    {{#if (eq equippedWeapon.off_hand.system.type "melee")}}
+                      / {{#if equippedWeapon.off_hand.system.meleeRange}}{{equippedWeapon.off_hand.system.meleeRange}}{{else}}1{{/if}}
+                      {{#if equippedWeapon.off_hand.system.properties.thrown}} ({{localize "TRESPASSER.Sheet.Item.Details.Thrown"}}: {{#if equippedWeapon.off_hand.system.thrownRange}}{{equippedWeapon.off_hand.system.thrownRange}}{{else}}{{equippedWeapon.off_hand.system.range}}{{/if}}){{/if}}
+                    {{else}}
+                      {{#if equippedWeapon.off_hand.system.range}}/ {{equippedWeapon.off_hand.system.range}}{{/if}}
+                    {{/if}}
                   {{/if}}
                 </td>
               {{/if}}

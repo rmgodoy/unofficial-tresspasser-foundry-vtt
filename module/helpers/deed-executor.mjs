@@ -3,6 +3,9 @@ import { TrespasserCombat } from "../documents/combat.mjs";
 import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 import { migrateToGraph } from "./migration-graph.mjs";
 import { formatDiceIcons } from "./dice-icon-helper.mjs";
+import { getEffectiveDeedAttributes } from "./deed-behaviors/roll-accuracy.mjs";
+import { getActiveWeapons } from "../sheets/character/handlers-combat.mjs";
+import { RangeHelper } from "./range-helper.mjs";
 
 /**
  * DeedExecutor — Graph-based runtime pipeline executor for Behavior-Driven Deeds in Trespasser TTRPG.
@@ -172,6 +175,7 @@ export class DeedExecutor {
     const cancelled = await this._traverseNode(startNode.id, visited, null, "start");
 
     if (!cancelled) {
+      await this._handleThrownWeapons();
       await this._postAllPhaseCards();
       await this._commitResourceUsage();
     }
@@ -444,9 +448,7 @@ export class DeedExecutor {
     }
     content += `</div>`;
 
-    const sourceToken = this.actor?.token?.object ||
-                        canvas.tokens?.controlled.find(t => t.actor?.id === this.actor?.id) ||
-                        canvas.tokens?.placeables.find(t => t.actor?.id === this.actor?.id);
+    const sourceToken = this.actor?.token?.object || canvas.tokens?.controlled.find(t => t.actor?.id === this.actor?.id) || canvas.tokens?.placeables.find(t => t.actor?.id === this.actor?.id);
     const alias = sourceToken ? DeedBehaviorHandler.getTokenDisplayName(sourceToken) : DeedBehaviorHandler.getTokenDisplayName(this.actor);
     const speaker = sourceToken
       ? ChatMessage.getSpeaker({ token: sourceToken.document || sourceToken, actor: this.actor, alias })
@@ -454,12 +456,40 @@ export class DeedExecutor {
     speaker.alias = alias;
 
     const rollData = (outputs.rolls || []).map(r => (typeof r.toJSON === "function" ? r.toJSON() : r));
-
     await ChatMessage.create({
       speaker,
       content,
       rolls: rollData,
       flags: { trespasser: { bdeedId: this.item.id, phase: phaseKey } }
     });
+  }
+
+  /**
+   * Handle unequipped and lost status for thrown weapons used in missile deeds.
+   * Pure missile weapons (bows, crossbows) do not incur this.
+   */
+  async _handleThrownWeapons() {
+    if (!this.actor) return;
+    const { abilityType } = getEffectiveDeedAttributes(this.item);
+    const eff = this.context.abilityType || abilityType || this.system.abilityType || this.system.type;
+    if (eff !== "missile" && eff !== "versatile") return;
+
+    const thrown = getActiveWeapons(this.actor).filter(w => w.type === "weapon" && w.system?.properties?.thrown && !w.system?.isThrown);
+    if (!thrown.length) return;
+
+    if (eff === "versatile" && this.context.targets?.length) {
+      const hasRanged = this.context.targets.some(t => RangeHelper.measureDistanceSquares(this.sourceToken, t) > 1);
+      if (!hasRanged) return;
+    }
+
+    for (const weapon of thrown) {
+      if (typeof this.actor.unequipItem === "function") await this.actor.unequipItem(weapon.id);
+      else await weapon.update({ "system.equipped": false });
+      await weapon.update({ "system.isThrown": true });
+      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.WeaponThrown", {
+        actor: this.actor.name,
+        weapon: weapon.name
+      }));
+    }
   }
 }

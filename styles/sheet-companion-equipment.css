@@ -1,0 +1,232 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   Companion Sheet — Equipped Items & Tactical Reach
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+.companion .companion-equipment-section {
+  background: var(--trp-bg-overlay);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  padding: 8px 10px;
+  margin-bottom: 6px;
+}
+
+.companion .equipment-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.companion .section-title-group {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  justify-content: space-between;
+}
+
+.companion .companion-equipment-section .section-title {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-12);
+  color: var(--trp-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.companion .engagement-range-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: rgba(201, 168, 76, 0.15);
+  border: 1px solid var(--trp-gold-dim);
+  border-radius: var(--trp-radius-sm);
+  padding: 2px 8px;
+  font-size: var(--fs-11);
+  color: var(--trp-gold-bright);
+}
+
+.companion .engagement-range-badge strong {
+  font-size: var(--fs-13);
+  color: var(--trp-text-bright);
+}
+
+.companion .equipped-slots-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.companion .equipped-slot-card {
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  padding: 6px 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.companion .equipped-slot-card .slot-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.companion .equipped-slot-card .slot-name {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-10);
+  text-transform: uppercase;
+  color: var(--trp-text-dim);
+  letter-spacing: 0.5px;
+}
+
+.companion .equipped-item-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.companion .equipped-item-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: cover;
+  border-radius: var(--trp-radius-sm);
+  border: 1px solid var(--trp-border);
+  flex-shrink: 0;
+}
+
+.companion .equipped-item-details {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.companion .equipped-item-details .item-name {
+  font-size: var(--fs-13);
+  font-weight: bold;
+  color: var(--trp-text-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+
+.companion .equipped-item-details .item-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.companion .equipped-item-details .meta-tag {
+  font-size: var(--fs-9);
+  padding: 1px 4px;
+  border-radius: 2px;
+  background: rgba(0, 0, 0, 0.4);
+  color: var(--trp-text-dim);
+  border: 1px solid var(--trp-border-light);
+}
+
+.companion .equipped-item-details .meta-tag.weapon-die {
+  color: var(--trp-gold-bright);
+  font-weight: bold;
+}
+
+.companion .equipped-item-row .item-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.companion .equipped-item-row .item-actions a {
+  color: var(--trp-text-dim);
+  font-size: var(--fs-12);
+  cursor: pointer;
+  transition: color 0.15s ease;
+}
+
+.companion .equipped-item-row .item-actions a:hover {
+  color: var(--trp-gold-bright);
+}
+
+.companion .equipped-item-row .item-actions .item-unequip:hover {
+  color: var(--trp-red);
+}
+
+.companion .equipped-slot-empty,
+.companion .equipped-slot-occupied {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  border: 1px dashed var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  font-size: var(--fs-11);
+  color: var(--trp-text-dim);
+  font-style: italic;
+}
+
+.companion .other-equipped-list {
+  margin-top: 8px;
+  padding-top: 6px;
+  border-top: 1px dotted var(--trp-border);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.companion .other-equipped-title {
+  font-size: var(--fs-10);
+  color: var(--trp-text-dim);
+  text-transform: uppercase;
+}
+
+.companion .other-equipped-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.companion .equipped-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  padding: 2px 6px;
+  font-size: var(--fs-11);
+}
+
+.companion .equipped-chip .chip-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 2px;
+}
+
+.companion .equipped-chip .chip-name {
+  color: var(--trp-text-bright);
+  cursor: pointer;
+}
+
+.companion .equipped-chip .chip-slot {
+  color: var(--trp-text-dim);
+  font-size: var(--fs-9);
+}
+
+.companion .equipped-chip .item-unequip {
+  color: var(--trp-text-dim);
+  font-size: var(--fs-11);
+  cursor: pointer;
+}
+
+.companion .equipped-chip .item-unequip:hover {
+  color: var(--trp-red);
+}

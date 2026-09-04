@@ -7,6 +7,7 @@ import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { PASSIVE_STATES } from "../../config/state-config.mjs";
 import { COMMON_PLIGHTS } from "../../config/plight-config.mjs";
 import { prepareDeedDisplayData } from "../../helpers/deed-display-helper.mjs";
+import { EngagementHelper } from "../../helpers/engagement-helper.mjs";
 
 export async function getCharacterData(sheet, options = {}) {
   const actor   = sheet.actor;
@@ -320,10 +321,11 @@ export async function getCharacterData(sheet, options = {}) {
     rollData: actor.getRollData()
   });
 
+  const isEngaged = EngagementHelper.isActorEngaged(actor);
   context.passiveStates = Object.entries(PASSIVE_STATES)
     .map(([key, cfg]) => ({
       key,
-      active: actor.system.passiveStates?.[key] ?? false,
+      active: key === "engaged" ? isEngaged : (actor.system.passiveStates?.[key] ?? false),
       icon: cfg.icon,
       label: cfg.label,
       description: cfg.description

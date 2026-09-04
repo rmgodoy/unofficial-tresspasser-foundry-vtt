@@ -3,6 +3,7 @@ import { TrespasserCombat }        from "../documents/combat.mjs";
 import { TrespasserRollDialog }    from "../dialogs/roll-dialog.mjs";
 import { ForcedMovementHelper }    from "../helpers/forced-movement-helper.mjs";
 import { MovementOverlay }         from "../canvas/movement-overlay.mjs";
+import { EngagementHelper }        from "../helpers/engagement-helper.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -15,6 +16,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         super(options);
         this._token = null;
         this._activePanel = null;
+        this._selectedDeedId = null;
+        this._deedDropdownOpen = false;
         this._initHooks();
     }
 
@@ -83,6 +86,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
 
         const deeds         = this._getSortedDeeds();
+        const selectedDeed  = deeds.find(d => d.id === this._selectedDeedId) || deeds[0] || null;
+        if (selectedDeed) this._selectedDeedId = selectedDeed.id;
         const concoctions   = this._getAvailableConcoctions();
 
         const hasLateTurn = game.combat?.combatants.some(c => 
@@ -138,6 +143,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
             moveOptions,
             states,
             deeds,
+            selectedDeed,
+            deedDropdownOpen: Boolean(this._deedDropdownOpen),
             concoctions,
             usedActions: [...usedActions],
             throwOptions: this._getThrowOptions(ap),
@@ -330,6 +337,8 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
     _initHooks() {
         // Handle token selection changes
         Hooks.on("controlToken", (token, controlled) => {
+            this._selectedDeedId = null;
+            this._deedDropdownOpen = false;
             if (controlled) {
                 this._token = token;
                 this.render({force: true});
@@ -405,10 +414,31 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
     /** @override */
     _onFirstRender(context, options) {
         this.element.addEventListener("click", ev => {
+            const deedOpt = ev.target.closest(".hud-deed-option");
+            if (deedOpt) {
+                const deedId = deedOpt.dataset.deedId;
+                if (deedId) {
+                    this._selectDeed(deedId);
+                }
+                return;
+            }
+
             const action = ev.target.closest("[data-action]")?.dataset.action;
-            if (!action) return;
+            if (!action) {
+                if (!ev.target.closest(".hud-deed-select")) {
+                    this._closeDeedDropdown();
+                }
+                return;
+            }
+
+            if (action !== "toggle-deed-dropdown") {
+                this._closeDeedDropdown();
+            }
 
             switch (action) {
+                case "toggle-deed-dropdown":
+                    this._toggleDeedDropdown();
+                    break;
                 case "toggle-panel":
                     this._togglePanel(ev.target.closest("[data-panel]").dataset.panel);
                     break;
@@ -476,6 +506,13 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                 this._onHeaderMouseDown(ev);
             }
         });
+
+        // Close custom deed dropdown on outside click
+        document.addEventListener("click", ev => {
+            if (!this.element?.contains(ev.target)) {
+                this._closeDeedDropdown();
+            }
+        });
     }
 
     /**
@@ -515,6 +552,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
     }
 
     _togglePanel(panelId) {
+        this._closeDeedDropdown();
         if (panelId === "move") {
             const combatant = this._getCombatant();
             const moveActionTaken = combatant?.getFlag("trespasser", "moveActionTaken");
@@ -898,6 +936,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                     else focusCost = 0;
                 }
                 const totalCost = focusCost + (d.system.bonusCost || 0);
+                const penaltyCheck = EngagementHelper.checkDeedEngagementPenalty(d, this._token.actor);
                 return {
                     id: d.id,
                     name: d.name,
@@ -905,10 +944,37 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
                     tierLabel: tierLabels[tier] || "L",
                     order: tierOrder[tier] || 1,
                     focusCost: totalCost,
+                    hasEngagementPenalty: penaltyCheck.hasPenalty,
+                    engagementPenalty: penaltyCheck.penaltyValue,
                     displayName: `[${tierLabels[tier] || "L"}] - ${d.name} (${totalCost})`
                 };
             })
             .sort((a, b) => a.order !== b.order ? a.order - b.order : a.name.localeCompare(b.name));
+    }
+
+    _toggleDeedDropdown() {
+        this._deedDropdownOpen = !this._deedDropdownOpen;
+        const menu = this.element.querySelector(".hud-deed-select .hud-custom-select-menu");
+        const selectEl = this.element.querySelector(".hud-deed-select");
+        if (menu) menu.classList.toggle("hidden", !this._deedDropdownOpen);
+        if (selectEl) selectEl.classList.toggle("open", this._deedDropdownOpen);
+    }
+
+    _closeDeedDropdown() {
+        if (!this._deedDropdownOpen) return;
+        this._deedDropdownOpen = false;
+        const menu = this.element.querySelector(".hud-deed-select .hud-custom-select-menu");
+        const selectEl = this.element.querySelector(".hud-deed-select");
+        if (menu) menu.classList.add("hidden");
+        if (selectEl) selectEl.classList.remove("open");
+    }
+
+    _selectDeed(deedId) {
+        this._selectedDeedId = deedId;
+        this._deedDropdownOpen = false;
+        const input = this.element.querySelector("[name='attempt-deed-id']");
+        if (input) input.value = deedId;
+        this.render();
     }
 
     /**
@@ -916,6 +982,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
      * Reads the deed and AP selection from the panel, then calls the shared onDeedRoll handler.
      */
     async _executeAttemptDeed() {
+        this._deedDropdownOpen = false;
         const deedSelect = this.element.querySelector("[name='attempt-deed-id']");
         const apSelect   = this.element.querySelector("[name='attempt-deed-ap']");
         if (!deedSelect || !apSelect) return;

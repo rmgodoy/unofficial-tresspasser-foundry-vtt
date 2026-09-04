@@ -31,11 +31,38 @@
                 </button>
                 <div class="hud-sub-panel hidden" id="panel-attempt-deed">
                     <div class="field-row">
-                        <select name="attempt-deed-id">
-                            {{#each deeds}}
-                            <option value="{{id}}">[{{tierLabel}}] {{name}} ({{focusCost}}F)</option>
-                            {{/each}}
-                        </select>
+                        <input type="hidden" name="attempt-deed-id" value="{{selectedDeed.id}}">
+                        <div class="hud-custom-select hud-deed-select {{#if deedDropdownOpen}}open{{/if}}">
+                            <div class="hud-custom-select-trigger" data-action="toggle-deed-dropdown" tabindex="0">
+                                {{#if selectedDeed}}
+                                    <span class="hud-tier-badge tier-{{selectedDeed.tier}}">{{selectedDeed.tierLabel}}</span>
+                                    <span class="hud-deed-name">{{selectedDeed.name}}</span>
+                                    <div class="hud-deed-tags">
+                                        <span class="hud-deed-focus-chip">{{selectedDeed.focusCost}}F</span>
+                                         {{#if selectedDeed.hasEngagementPenalty}}
+                                            <span class="hud-deed-penalty-chip" title="{{localize 'TRESPASSER.Chat.Combat.EngagementPenaltyDeedTooltip'}}">-2 {{localize "TRESPASSER.Chat.Combat.EngagedTag"}}</span>
+                                        {{/if}}
+                                    </div>
+                                {{else}}
+                                    <span class="hud-deed-name placeholder">{{localize "TRESPASSER.HUD.Common.SelectDeed"}}...</span>
+                                {{/if}}
+                                <i class="fas fa-chevron-down hud-dropdown-arrow"></i>
+                            </div>
+                            <div class="hud-custom-select-menu {{#unless deedDropdownOpen}}hidden{{/unless}}">
+                                {{#each deeds}}
+                                <div class="hud-deed-option {{#if (eq id ../selectedDeed.id)}}selected{{/if}}" data-deed-id="{{id}}" title="{{name}}">
+                                    <span class="hud-tier-badge tier-{{tier}}">{{tierLabel}}</span>
+                                    <span class="hud-deed-name">{{name}}</span>
+                                    <div class="hud-deed-tags">
+                                        <span class="hud-deed-focus-chip">{{focusCost}}F</span>
+                                        {{#if hasEngagementPenalty}}
+                                            <span class="hud-deed-penalty-chip" title="{{localize 'TRESPASSER.Chat.Combat.EngagementPenaltyDeedTooltip'}}">-2 {{localize "TRESPASSER.Chat.Combat.EngagedTag"}}</span>
+                                        {{/if}}
+                                    </div>
+                                </div>
+                                {{/each}}
+                            </div>
+                        </div>
                     </div>
                     <div class="field-row">
                         <label>{{localize "TRESPASSER.HUD.Resource.APCost"}}</label>
@@ -131,7 +158,7 @@
                         <label>{{localize "TRESPASSER.HUD.Resource.APCost"}}</label>
                         <select name="move-cost">
                             {{#each moveOptions}}
-                            <option value="{{cost}}">{{cost}} AP ({{localize "TRESPASSER.HUD.SpeedValue" value=dist}})</option>
+                            <option value="{{cost}}">{{cost}} ✦ ({{localize "TRESPASSER.HUD.SpeedValue" value=dist}})</option>
                             {{/each}}
                         </select>
                     </div>
@@ -171,9 +198,9 @@
                     <div class="field-row">
                         <label>{{localize "TRESPASSER.HUD.Resource.APCost"}}</label>
                         <select name="help-cost">
-                            <option value="1">1 {{localize "TRESPASSER.Terms.Combat.AP"}} (+1)</option>
-                            <option value="2" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>2 {{localize "TRESPASSER.Terms.Combat.AP"}} (+2)</option>
-                            <option value="3" {{#if (trespasserGt 3 availableAP)}}disabled{{/if}}>3 {{localize "TRESPASSER.Terms.Combat.AP"}} (+3)</option>
+                            <option value="1">1 ✦ (+1)</option>
+                            <option value="2" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>2 ✦ (+2)</option>
+                            <option value="3" {{#if (trespasserGt 3 availableAP)}}disabled{{/if}}>3 ✦ (+3)</option>
                         </select>
                     </div>
                     <button class="action-confirm-btn" data-action="execute-help">{{localize "TRESPASSER.HUD.Confirm"}}</button>
@@ -201,9 +228,9 @@
                     <div class="field-row">
                         <label>{{localize "TRESPASSER.HUD.Resource.APCost"}}</label>
                         <select name="prevail-extra-ap">
-                            <option value="0">1 {{localize "TRESPASSER.Terms.Combat.AP"}} (+0)</option>
-                            <option value="1" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>2 {{localize "TRESPASSER.Terms.Combat.AP"}} (+2)</option>
-                            <option value="2" {{#if (trespasserGt 3 availableAP)}}disabled{{/if}}>3 {{localize "TRESPASSER.Terms.Combat.AP"}} (+4)</option>
+                            <option value="0">1 ✦ (+0)</option>
+                            <option value="1" {{#if (trespasserGt 2 availableAP)}}disabled{{/if}}>2 ✦ (+2)</option>
+                            <option value="2" {{#if (trespasserGt 3 availableAP)}}disabled{{/if}}>3 ✦ (+4)</option>
                         </select>
                     </div>
                     <button class="action-confirm-btn" data-action="execute-prevail">{{localize "TRESPASSER.HUD.Confirm"}}</button>

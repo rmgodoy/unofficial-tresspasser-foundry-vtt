@@ -61,10 +61,27 @@
         "Progression": "Progressão",
         "Effects": "Efeitos",
         "Card": "Card",
+        "Map": "Mapa",
         "Behaviors": "Comportamentos",
         "Phases": "Fases"
       },
       "Common": {
+        "NewItem": "Novo(a) {type}",
+        "Slots": {
+          "main_hand": "Mão Principal",
+          "off_hand": "Mão Secundária",
+          "hand": "Mão",
+          "head": "Cabeça",
+          "body": "Corpo",
+          "arms": "Braços",
+          "legs": "Pernas",
+          "outer": "Vestimenta Externa",
+          "shield": "Escudo",
+          "accessory": "Acessório",
+          "amulet": "Amuleto",
+          "ring": "Anel",
+          "talisman": "Talismã"
+        },
         "AddItem": "Adicionar Item",
         "Delete": "Excluir",
         "Edit": "Editar",
@@ -371,7 +388,12 @@
             "ReferencedTerrainTooltip": "Do terreno #{id}: {name}",
             "ControlledByReference": "Bloqueado por conexão de referência",
             "ReferencedSource": "Vinculado: #{id}"
-          }
+          },
+          "ReferencedSource": "Vinculado: #{id}",
+          "ControlledByReference": "Bloqueado por conexão de referência do grafo",
+          "ReferencedRollTooltip": "Da rolagem #{id}: {formula}",
+          "ReferencedAreaTooltip": "Da área #{id}: {summary}",
+          "ReferencedTerrainTooltip": "Do terreno #{id}: {name}"
         },
         "Params": {
           "TargetMode": "Modo de Alvo",
@@ -472,6 +494,8 @@
           "ArmorDie": "Dado de Armadura",
           "WeaponDie": "Dado de Arma",
           "WeaponType": "Tipo de Arma",
+          "MeleeRange": "Alcance Corpo a Corpo",
+          "ThrownRange": "Alcance de Arremesso",
           "Properties": "Propriedades",
           "Melee": "Corpo a Corpo",
           "Missile": "Projétil",
@@ -515,6 +539,24 @@
             "ClosePath": "Caminho Próximo",
             "Aura": "Aura"
           },
+          "ForcedMovementTypeChoices": {
+            "Push": "Empurrar",
+            "Pull": "Puxar",
+            "Sweep": "Varrer",
+            "Shove": "Investir",
+            "Drag": "Arrastar"
+          },
+          "ForcedMovementModeChoices": {
+            "Additive": "Aditivo",
+            "Replace": "Substituir"
+          },
+          "TerrainPlacementChoices": {
+            "OnTarget": "No Alvo",
+            "OnSelf": "Em Si Mesmo",
+            "Choose": "Escolher Local",
+            "SelectedArea": "Área Selecionada",
+            "Aura": "Aura"
+          },
           "EffectTypeChoices": {
             "Continuous": "Contínuo",
             "OnTrigger": "Ao Ativar",
@@ -539,7 +581,9 @@
           "Effect": "efeito...",
           "Description": "Nenhuma descrição fornecida.",
           "DropEffects": "Solte Efeitos aqui",
+          "DropTerrain": "Solte Terreno aqui",
           "DropDeed": "Solte Habilidade aqui",
+          "LinkedEffectUuid": "UUID do Efeito Vinculado",
           "DropDeeds": "Solte Habilidades aqui",
           "DropIncantations": "Solte Encantamentos aqui",
           "DropTalents": "Solte Talentos aqui",
@@ -563,6 +607,8 @@
         "States": {
           "ActiveLit": "Ativo (Aceso)",
           "UsedBroken": "Usado / Quebrado",
+          "Thrown": "JOGADA",
+          "ThrownTooltip": "Esta arma foi jogada e está perdida pelo resto do encontro.",
           "Usable": "Usável?",
           "Equippable": "Equipável",
           "IsCombat": "É Combate?",
@@ -571,8 +617,13 @@
           "IsPrevailable": "Pode Prevalecer?",
           "IsLasting": "É Duradouro?"
         },
+        "Actions": {
+          "RecoverThrown": "Recuperar arma jogada"
+        },
         "Sections": {
           "DeedEffects": "Efeitos da Habilidade",
+          "ForcedMovement": "Movimento Forçado",
+          "TerrainSpawn": "Geração de Terreno",
           "ArmorEffects": "Efeitos da Armadura",
           "WeaponEffects": "Efeitos da Arma",
           "EnhancementEffects": "Efeitos de Aprimoramento",
@@ -1011,13 +1062,13 @@
           "Label": "qdr"
         },
         "Option": {
-          "Maneuver": "{cost} PA (+{bonus} Foco)",
-          "TakeAim": "{cost} PA (+{bonus} Alcance)",
-          "Interact": "{cost} PA (+{bonus} bônus)",
-          "Smash": "{cost} PA (Quebra {bonus})",
-          "Throw": "{cost} PA ({range} qdr)",
-          "DefendSingle": "1 PA (Tipo escolhido)",
-          "DefendBoth": "2 PA (Guarda & Resistir)",
+          "Maneuver": "{cost} ✦ (+{bonus} Foco)",
+          "TakeAim": "{cost} ✦ (+{bonus} Alcance)",
+          "Interact": "{cost} ✦ (+{bonus} bônus)",
+          "Smash": "{cost} ✦ (Quebra {bonus})",
+          "Throw": "{cost} ✦ ({range} qdr)",
+          "DefendSingle": "1 ✦ (Tipo escolhido)",
+          "DefendBoth": "2 ✦ (Guarda & Resistir)",
           "VaultTip": "Saltar sobre obstáculos",
           "WaitTip": "Mover para a Fase Tardia"
         },
@@ -1061,6 +1112,13 @@
         "Inventory": "Inventário",
         "InventoryCapacity": "Capacidade",
         "InventorySlots": "{used}/{max} espaços",
+        "EquippedItems": "Itens Equipados",
+        "EngagementRange": "Alcance de Engajamento",
+        "MainHand": "Mão Principal",
+        "OffHand": "Segunda Mão",
+        "EmptySlot": "Vazio",
+        "TwoHandOccupied": "Ocupado por Arma de 2 Mãos",
+        "OtherEquipped": "Outros Equipamentos",
         "ConfigureFormulas": "Configurar Fórmulas de Atributos (GM)",
         "Notes": "Notas"
       }

@@ -8,6 +8,10 @@
       "Encumbered": {
         "Name": "Sobrecarregado",
         "Description": "A Classificação de Armadura é +6 ou maior. Agilidade não é adicionada às verificações de Guarda, e o Bônus de Velocidade é limitado a +2."
+      },
+      "Engaged": {
+        "Name": "Engajado",
+        "Description": "Um inimigo hostil está ao alcance corpo a corpo. -2 de Acurácia com ataques de projétil e magia."
       }
     },
     "Plight": {

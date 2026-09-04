@@ -184,9 +184,129 @@
 
     </div>
 
-    <!-- ─── TAB 2: INVENTORY ─── -->
+    <!-- ─── TAB 2: INVENTORY & EQUIPMENT ─── -->
     <div class="tab tab-body {{#if (eq tabs.primary 'inventory')}}active{{/if}}" data-group="primary" data-tab="inventory">
-      <div class="inventory-header">
+      
+      <!-- Equipped Items Section -->
+      <div class="companion-equipment-section">
+        <div class="equipment-section-header">
+          <div class="section-title-group">
+            <h4 class="section-title">
+              <i class="fas fa-shield-alt"></i> {{localize "TRESPASSER.Sheet.Companion.EquippedItems"}}
+            </h4>
+            <span class="engagement-range-badge">
+              <i class="fas fa-crosshairs"></i> {{localize "TRESPASSER.Sheet.Creatures.EngagementRange"}}: <strong>{{engagementRange}}</strong> {{localize "TRESPASSER.HUD.Movement.Label"}}
+            </span>
+          </div>
+        </div>
+
+        <div class="equipped-slots-grid">
+          <!-- Main Hand -->
+          <div class="equipped-slot-card main-hand-slot" data-slot="main_hand">
+            <div class="slot-header">
+              <span class="slot-name">{{localize "TRESPASSER.Sheet.Companion.MainHand"}}</span>
+            </div>
+            {{#if equippedMainHand}}
+              <div class="equipped-item-row" data-item-id="{{equippedMainHand.id}}">
+                <img src="{{equippedMainHand.img}}" class="equipped-item-icon" title="{{equippedMainHand.name}}" />
+                <div class="equipped-item-details">
+                  <span class="item-name" title="{{equippedMainHand.name}}">{{equippedMainHand.name}}</span>
+                  <div class="item-meta">
+                    {{#if (eq equippedMainHand.type "weapon")}}
+                      <span class="meta-tag weapon-die">{{equippedMainHand.system.weaponDie}}</span>
+                      <span class="meta-tag weapon-type">{{localize (concat "TRESPASSER.Sheet.Item.Details." (capitalize equippedMainHand.system.type))}}</span>
+                      {{#if (eq equippedMainHand.system.type "melee")}}
+                        <span class="meta-tag weapon-range">{{localize "TRESPASSER.Sheet.Item.Details.MeleeRange"}} {{#if equippedMainHand.system.meleeRange}}{{equippedMainHand.system.meleeRange}}{{else}}1{{/if}}</span>
+                        {{#if equippedMainHand.system.properties.thrown}}
+                          <span class="meta-tag weapon-range">{{localize "TRESPASSER.Sheet.Item.Details.ThrownRange"}} {{#if equippedMainHand.system.thrownRange}}{{equippedMainHand.system.thrownRange}}{{else}}{{equippedMainHand.system.range}}{{/if}}</span>
+                        {{/if}}
+                      {{else}}
+                        <span class="meta-tag weapon-range">{{localize "TRESPASSER.Sheet.Common.Range"}} {{equippedMainHand.system.range}}</span>
+                      {{/if}}
+                    {{else if equippedMainHand.system.armorDie}}
+                      <span class="meta-tag armor-die">{{equippedMainHand.system.armorDie}}</span>
+                    {{/if}}
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <a class="item-edit" data-item-id="{{equippedMainHand.id}}" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+                  <a class="item-unequip" data-item-id="{{equippedMainHand.id}}" title="{{localize 'TRESPASSER.Sheet.Common.Unequip'}}"><i class="fas fa-times-circle"></i></a>
+                </div>
+              </div>
+            {{else}}
+              <div class="equipped-slot-empty">
+                <span>{{localize "TRESPASSER.Sheet.Companion.EmptySlot"}}</span>
+              </div>
+            {{/if}}
+          </div>
+
+          <!-- Off Hand -->
+          <div class="equipped-slot-card off-hand-slot" data-slot="off_hand">
+            <div class="slot-header">
+              <span class="slot-name">{{localize "TRESPASSER.Sheet.Companion.OffHand"}}</span>
+            </div>
+            {{#if isTwoHanded}}
+              <div class="equipped-slot-occupied">
+                <i class="fas fa-link"></i>
+                <span>{{localize "TRESPASSER.Sheet.Companion.TwoHandOccupied"}}</span>
+              </div>
+            {{else if equippedOffHand}}
+              <div class="equipped-item-row" data-item-id="{{equippedOffHand.id}}">
+                <img src="{{equippedOffHand.img}}" class="equipped-item-icon" title="{{equippedOffHand.name}}" />
+                <div class="equipped-item-details">
+                  <span class="item-name" title="{{equippedOffHand.name}}">{{equippedOffHand.name}}</span>
+                  <div class="item-meta">
+                    {{#if (eq equippedOffHand.type "weapon")}}
+                      <span class="meta-tag weapon-die">{{equippedOffHand.system.weaponDie}}</span>
+                      <span class="meta-tag weapon-type">{{localize (concat "TRESPASSER.Sheet.Item.Details." (capitalize equippedOffHand.system.type))}}</span>
+                      {{#if (eq equippedOffHand.system.type "melee")}}
+                        <span class="meta-tag weapon-range">{{localize "TRESPASSER.Sheet.Item.Details.MeleeRange"}} {{#if equippedOffHand.system.meleeRange}}{{equippedOffHand.system.meleeRange}}{{else}}1{{/if}}</span>
+                        {{#if equippedOffHand.system.properties.thrown}}
+                          <span class="meta-tag weapon-range">{{localize "TRESPASSER.Sheet.Item.Details.ThrownRange"}} {{#if equippedOffHand.system.thrownRange}}{{equippedOffHand.system.thrownRange}}{{else}}{{equippedOffHand.system.range}}{{/if}}</span>
+                        {{/if}}
+                      {{else}}
+                        <span class="meta-tag weapon-range">{{localize "TRESPASSER.Sheet.Common.Range"}} {{equippedOffHand.system.range}}</span>
+                      {{/if}}
+                    {{else if equippedOffHand.system.armorDie}}
+                      <span class="meta-tag armor-die">{{equippedOffHand.system.armorDie}}</span>
+                    {{/if}}
+                  </div>
+                </div>
+                <div class="item-actions">
+                  <a class="item-edit" data-item-id="{{equippedOffHand.id}}" title="{{localize 'TRESPASSER.Sheet.Common.Edit'}}"><i class="fas fa-edit"></i></a>
+                  <a class="item-unequip" data-item-id="{{equippedOffHand.id}}" title="{{localize 'TRESPASSER.Sheet.Common.Unequip'}}"><i class="fas fa-times-circle"></i></a>
+                </div>
+              </div>
+            {{else}}
+              <div class="equipped-slot-empty">
+                <span>{{localize "TRESPASSER.Sheet.Companion.EmptySlot"}}</span>
+              </div>
+            {{/if}}
+          </div>
+        </div>
+
+        {{#if otherEquipped.length}}
+        <!-- Other Equipped Items (Armor, Shield, Accessories) -->
+        <div class="other-equipped-list">
+          <div class="other-equipped-title">{{localize "TRESPASSER.Sheet.Companion.OtherEquipped"}}:</div>
+          <div class="other-equipped-chips">
+            {{#each otherEquipped}}
+            <div class="equipped-chip" data-item-id="{{this.id}}">
+              <img src="{{this.img}}" class="chip-icon" title="{{this.name}}" />
+              <span class="chip-name item-name">{{this.name}}</span>
+              {{#if this.system.placement}}
+                <span class="chip-slot">({{localize (concat "TRESPASSER.Sheet.Common.Slots." this.system.placement)}})</span>
+              {{/if}}
+              <a class="item-unequip" data-item-id="{{this.id}}" title="{{localize 'TRESPASSER.Sheet.Common.Unequip'}}"><i class="fas fa-times-circle"></i></a>
+            </div>
+            {{/each}}
+          </div>
+        </div>
+        {{/if}}
+      </div>
+
+      <!-- Inventory / Stored Items Header -->
+      <div class="inventory-header" style="margin-top: 14px;">
         <span class="inventory-cap">{{localize "TRESPASSER.Sheet.Companion.Inventory"}}: {{inventoryUsed}} / {{inventoryMax}}</span>
         <div style="display: flex; gap: 8px; align-items: center;">
           {{#if isGM}}

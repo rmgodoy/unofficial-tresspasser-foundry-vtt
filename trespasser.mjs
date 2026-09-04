@@ -65,6 +65,8 @@ import { TrespasserRollDialog } from "./module/dialogs/roll-dialog.mjs";
 import { syncBoundCompanions } from "./module/helpers/companion-formula.mjs";
 import { ReactionsHelper } from "./module/helpers/reactions-helper.mjs";
 import { registerTenacityChatListeners, buildTenacityButtonHtml } from "./module/helpers/tenacity-helper.mjs";
+import { TargetingHelper }          from "./module/helpers/targeting-helper.mjs";
+import { EngagementHelper }         from "./module/helpers/engagement-helper.mjs";
 
 // ── Party imports ────────────────────────────────────────────────────────────
 import { TrespasserPartyData }    from "./module/data/actor-party.mjs";
@@ -1684,6 +1686,12 @@ Hooks.on("deleteCombat", async (combat) => {
           await eff.delete();
         }
       }
+
+      // Automatically recover thrown weapons after the encounter
+      const thrownWeapons = c.actor.items.filter(i => i.type === "weapon" && i.system?.isThrown);
+      for (const w of thrownWeapons) {
+        await w.update({ "system.isThrown": false });
+      }
     }
   }
 });
@@ -2484,10 +2492,21 @@ Hooks.on("refreshToken", (token) => {
     c.destroy();
   });
 
-  const states = token.document?.actor?.system?.passiveStates;
-  if (!states) return;
+  const states = token.document?.actor?.system?.passiveStates || {};
+  const isEngaged = TargetingHelper.isEngaged(token);
 
-  const activeKeys = Object.entries(states).filter(([key, v]) => v && (token.document.actor.type === "character" || key !== "encumbered"));
+  if (token._trespasserEngaged === undefined) {
+    token._trespasserEngaged = isEngaged;
+  } else if (token._trespasserEngaged !== isEngaged) {
+    token._trespasserEngaged = isEngaged;
+    EngagementHelper.refreshAllEngagement();
+  }
+
+  const actor = token.actor ?? token.document?.actor;
+  const activeKeys = Object.entries(states).filter(([key, v]) => v && (actor?.type === "character" || key !== "encumbered"));
+  if (isEngaged) {
+    activeKeys.push(["engaged", true]);
+  }
   if (activeKeys.length === 0) return;
 
   const iconScale = game.settings.get("trespasser", "tokenStatusIconScale") ?? 1.0;
@@ -2508,7 +2527,7 @@ Hooks.on("refreshToken", (token) => {
     // Position at top-right corner, stacked vertically
     sprite.x = token.w - iconSize - padding;
     sprite.y = padding + index * (iconSize + padding);
-    sprite.alpha = 0.9;
+    sprite.alpha = 1.0;
     sprite._trespasserPassiveState = true;
 
     // Tooltip on hover. TooltipManager#activate requires an HTMLElement, so
@@ -2534,6 +2553,26 @@ Hooks.on("refreshToken", (token) => {
     token.addChild(sprite);
   });
 });
+
+// Tactical engagement sync hooks
+Hooks.on("updateToken", (tokenDoc, changed) => {
+  if (changed.x !== undefined || changed.y !== undefined || changed.elevation !== undefined || changed.disposition !== undefined || changed.width !== undefined || changed.height !== undefined) {
+    EngagementHelper.refreshAllEngagement();
+  }
+});
+Hooks.on("createToken", () => EngagementHelper.refreshAllEngagement());
+Hooks.on("deleteToken", () => EngagementHelper.refreshAllEngagement());
+Hooks.on("updateActor", (actor, changed) => {
+  if (changed.system?.health !== undefined || changed.system?.equipment !== undefined || changed.system?.engagement_range !== undefined || changed.system?.combat?.engagement_range !== undefined) {
+    EngagementHelper.refreshAllEngagement();
+  }
+});
+Hooks.on("updateItem", (item, changed) => {
+  if (item.type === "weapon" && changed.system?.equipped !== undefined) {
+    EngagementHelper.refreshAllEngagement();
+  }
+});
+Hooks.on("updateCombat", () => EngagementHelper.refreshAllEngagement());
 
 /**
  * Prompt the current user to roll for any owned, unrolled actors in a pending group check.

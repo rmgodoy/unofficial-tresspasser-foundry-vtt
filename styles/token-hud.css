@@ -236,6 +236,196 @@
     border-radius: var(--trp-radius-sm);
 }
 
+/* Sub-panel specific width for deeds */
+/* Sub-panel specific width for deeds */
+.trespasser-token-hud .hud-sub-panel#panel-attempt-deed {
+    min-width: 280px;
+}
+
+/* Custom Deed Selector */
+.trespasser-token-hud .hud-custom-select {
+    position: relative;
+    width: 100%;
+}
+
+.trespasser-token-hud .hud-custom-select-trigger {
+    width: 100%;
+    min-height: 28px;
+    height: auto;
+    background-color: var(--trp-bg-input);
+    border: 1px solid var(--trp-border);
+    border-radius: var(--trp-radius-sm);
+    padding: 4px 6px;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    cursor: pointer;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease, background-color 0.15s ease;
+    user-select: none;
+}
+
+.trespasser-token-hud .hud-custom-select-trigger:hover,
+.trespasser-token-hud .hud-custom-select.open .hud-custom-select-trigger {
+    border-color: var(--trp-gold);
+    background-color: var(--trp-bg-select);
+}
+
+.trespasser-token-hud .hud-tier-badge {
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-10);
+    font-weight: bold;
+    padding: 1px 5px;
+    border-radius: var(--trp-radius-sm);
+    letter-spacing: 0.05em;
+    flex-shrink: 0;
+    text-align: center;
+    min-width: 14px;
+    line-height: 1.2;
+    align-self: flex-start;
+    margin-top: 1px;
+}
+
+.trespasser-token-hud .hud-tier-badge.tier-light {
+    background: rgba(76, 175, 80, 0.2);
+    border: 1px solid rgba(139, 195, 74, 0.55);
+    color: #8bc34a;
+}
+
+.trespasser-token-hud .hud-tier-badge.tier-heavy {
+    background: rgba(255, 152, 0, 0.2);
+    border: 1px solid rgba(255, 152, 0, 0.55);
+    color: #ffb74d;
+}
+
+.trespasser-token-hud .hud-tier-badge.tier-mighty {
+    background: rgba(149, 117, 205, 0.2);
+    border: 1px solid rgba(149, 117, 205, 0.55);
+    color: #ce93d8;
+}
+
+.trespasser-token-hud .hud-tier-badge.tier-special {
+    background: rgba(232, 201, 107, 0.2);
+    border: 1px solid rgba(232, 201, 107, 0.55);
+    color: #e8c96b;
+}
+
+.trespasser-token-hud .hud-deed-name {
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-12);
+    color: var(--trp-text-bright);
+    white-space: normal;
+    word-break: break-word;
+    overflow-wrap: break-word;
+    flex: 1;
+    min-width: 0;
+    text-align: left;
+    line-height: 1.25;
+}
+
+.trespasser-token-hud .hud-deed-name.placeholder {
+    color: var(--trp-text-dim);
+    font-style: italic;
+}
+
+.trespasser-token-hud .hud-deed-tags {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+    margin-left: auto;
+    align-self: flex-start;
+    margin-top: 1px;
+}
+
+.trespasser-token-hud .hud-deed-focus-chip {
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-10);
+    font-weight: bold;
+    color: var(--trp-cyan);
+    background: rgba(79, 195, 247, 0.12);
+    border: 1px solid rgba(79, 195, 247, 0.35);
+    padding: 1px 4px;
+    border-radius: var(--trp-radius-sm);
+    flex-shrink: 0;
+    line-height: 1.2;
+}
+
+.trespasser-token-hud .hud-deed-penalty-chip {
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-9);
+    font-weight: bold;
+    color: var(--trp-red);
+    background: rgba(255, 82, 82, 0.18);
+    border: 1px solid rgba(255, 82, 82, 0.45);
+    padding: 1px 4px;
+    border-radius: var(--trp-radius-sm);
+    flex-shrink: 0;
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    line-height: 1.2;
+}
+
+.trespasser-token-hud .hud-dropdown-arrow {
+    margin-left: 4px;
+    font-size: var(--fs-10);
+    color: var(--trp-gold-dim);
+    flex-shrink: 0;
+    align-self: center;
+    transition: transform 0.15s ease;
+}
+
+.trespasser-token-hud .hud-custom-select.open .hud-dropdown-arrow {
+    transform: rotate(180deg);
+}
+
+.trespasser-token-hud .hud-custom-select-menu {
+    position: absolute;
+    top: calc(100% + 3px);
+    left: 0;
+    right: 0;
+    background: var(--trp-bg-panel);
+    border: 1px solid var(--trp-gold-dim);
+    border-radius: var(--trp-radius-sm);
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.7);
+    z-index: 120;
+    max-height: 200px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--trp-gold-dim) transparent;
+    display: flex;
+    flex-direction: column;
+    padding: 2px 0;
+}
+
+.trespasser-token-hud .hud-custom-select-menu.hidden {
+    display: none !important;
+}
+
+.trespasser-token-hud .hud-deed-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+    padding: 5px 6px;
+    min-height: 28px;
+    height: auto;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    user-select: none;
+    border-left: 2px solid transparent;
+    box-sizing: border-box;
+}
+
+.trespasser-token-hud .hud-deed-option:hover {
+    background: rgba(201, 168, 76, 0.18);
+}
+
+.trespasser-token-hud .hud-deed-option.selected {
+    background: rgba(201, 168, 76, 0.25);
+    border-left-color: var(--trp-gold);
+}
+
 .trespasser-token-hud .action-confirm-btn {
     width: 100%;
     background: var(--trp-gold-dim);

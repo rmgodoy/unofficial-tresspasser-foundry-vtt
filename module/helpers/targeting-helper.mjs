@@ -23,6 +23,7 @@ import { isAtLeastV14 } from "./compat.mjs";
 import { CanvasInputSession } from "../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs";
 import { RangeHelper } from "./range-helper.mjs";
+import { getActiveWeapons } from "../sheets/character/handlers-combat.mjs";
 
 export class TargetingHelper {
 
@@ -946,30 +947,63 @@ export class TargetingHelper {
 
     for (const other of (canvas.tokens?.placeables || [])) {
       if (other.id === token.id) continue;
-      if (other.document.disposition === token.document.disposition) continue;
+      // Enemy check based on token hostility / disposition
+      if (!this.matchesDisposition(other, "enemy", token)) continue;
+      // Skip defeated / dead tokens
       if (other.actor && other.actor.system?.health <= 0) continue;
+      if (other.document?.defeated || other.actor?.statuses?.has("dead")) continue;
 
       let engageSquares = 1;
-      if (other.actor?.type === "creature") {
-        engageSquares = other.actor.system?.combat?.engagement_range 
-          ?? other.actor.system?.engagement_range 
+      const otherActor = other.actor;
+      if (otherActor?.type === "creature") {
+        engageSquares = otherActor.system?.combat?.engagement_range 
+          ?? otherActor.system?.engagement_range 
           ?? 1;
-      } else {
-        const meleeWeapon = other.actor?.items.find(i =>
-          i.type === "weapon" && i.system.equipped && i.system.type === "melee"
-        );
-        if (!meleeWeapon) continue;
-        const parsedRange = parseInt(meleeWeapon.system?.range);
-        engageSquares = (!isNaN(parsedRange) && parsedRange > 0) ? parsedRange : 1;
+      } else if (otherActor) {
+        // For characters, commoners, and companions:
+        const activeWeapons = getActiveWeapons(otherActor);
+        const meleeWeapons = activeWeapons.filter(w => w.system?.type === "melee");
+        let meleeWeapon = meleeWeapons[0];
+        if (!meleeWeapon) {
+          const equipment = otherActor.system?.equipment || {};
+          const ids = [equipment.main_hand, equipment.off_hand].filter(Boolean);
+          meleeWeapon = ids.map(id => otherActor.items.get(id)).find(i => i?.type === "weapon" && i.system?.type === "melee");
+        }
+
+        if (meleeWeapon) {
+          engageSquares = RangeHelper.getWeaponMeleeRange(meleeWeapon);
+        } else {
+          // If holding only ranged/missile weapons, they cannot threaten melee engagement
+          const equippedWeaponIds = [otherActor.system?.equipment?.main_hand, otherActor.system?.equipment?.off_hand].filter(Boolean);
+          const equippedWeapons = equippedWeaponIds.map(id => otherActor.items.get(id)).filter(w => w && w.type === "weapon");
+          const onlyRanged = equippedWeapons.length > 0 && equippedWeapons.every(w => w.system?.type === "missile" || w.system?.type === "ranged");
+          if (onlyRanged) continue;
+          // Unarmed / natural reach:
+          engageSquares = (otherActor.type === "companion" && otherActor.system?.combat?.engagement_range)
+            ? otherActor.system.combat.engagement_range
+            : 1;
+        }
       }
 
-      // Chebyshev distance in squares (diagonal = 1 square)
-      const distSquares = Math.max(
-        Math.abs(other.center.x - token.center.x),
-        Math.abs(other.center.y - token.center.y)
-      ) / gridPx;
+      // Edge-to-edge Chebyshev distance in squares (supports 1x1, 2x2, 3x3+ tokens)
+      const docA = token.document ?? token;
+      const docB = other.document ?? other;
 
-      if (distSquares <= engageSquares + 0.1) return true;
+      const x1A = Math.round((docA.x ?? token.x ?? 0) / gridPx);
+      const y1A = Math.round((docA.y ?? token.y ?? 0) / gridPx);
+      const x2A = x1A + (docA.width ?? token.width ?? 1) - 1;
+      const y2A = y1A + (docA.height ?? token.height ?? 1) - 1;
+
+      const x1B = Math.round((docB.x ?? other.x ?? 0) / gridPx);
+      const y1B = Math.round((docB.y ?? other.y ?? 0) / gridPx);
+      const x2B = x1B + (docB.width ?? other.width ?? 1) - 1;
+      const y2B = y1B + (docB.height ?? other.height ?? 1) - 1;
+
+      const dx = Math.max(0, x1A - x2B, x1B - x2A);
+      const dy = Math.max(0, y1A - y2B, y1B - y2A);
+      const distSquares = Math.max(dx, dy);
+
+      if (distSquares <= engageSquares) return true;
     }
     return false;
   }
@@ -1032,10 +1066,17 @@ export class TargetingHelper {
     const meleeWeapon = defenderToken.actor.items.find(i =>
       i.type === "weapon" && i.system.equipped && i.system.type === "melee"
     );
-    if (!meleeWeapon) return { canCounter: false, weapon: null, weaponDie: "d6" };
+    if (!meleeWeapon) {
+      if (defenderToken.actor.type === "companion") {
+        const skillDie = defenderToken.actor.system?.skill_die || defenderToken.actor.system?.damageDie || "d6";
+        const engageRange = defenderToken.actor.system?.combat?.engagement_range ?? 1;
+        if (distSquares > engageRange + 0.1) return { canCounter: false, weapon: null, weaponDie: skillDie };
+        return { canCounter: true, weapon: null, weaponDie: skillDie };
+      }
+      return { canCounter: false, weapon: null, weaponDie: "d6" };
+    }
 
-    const parsedRange = parseInt(meleeWeapon.system?.range);
-    const maxRange = (!isNaN(parsedRange) && parsedRange > 0) ? parsedRange : 1;
+    const maxRange = RangeHelper.getWeaponMeleeRange(meleeWeapon);
 
     if (distSquares > maxRange + 0.1) return { canCounter: false, weapon: null, weaponDie: "d6" };
 
@@ -1070,7 +1111,7 @@ export class TargetingHelper {
     // Melee: requires melee weapon, thrown missile weapon, OR free hand
     if (deedType === "melee") {
       const hasMelee = hasFreeHand || activeWeapons.some(w =>
-        w.system.type === "melee" || (w.system.type === "missile" && w.system.properties?.thrown)
+        !w.system?.isThrown && (w.system.type === "melee" || (w.system.type === "missile" && w.system.properties?.thrown))
       );
       if (!hasMelee) {
         return { valid: false, message: game.i18n.localize("TRESPASSER.Notification.Combat.NeedMeleeWeapon") };
@@ -1079,7 +1120,7 @@ export class TargetingHelper {
     // Missile: requires missile weapon OR thrown melee weapon
     else if (deedType === "missile") {
       const hasMissile = activeWeapons.some(w =>
-        w.system.type === "missile" || (w.system.type === "melee" && w.system.properties?.thrown)
+        !w.system?.isThrown && (w.system.type === "missile" || (w.system.type === "melee" && w.system.properties?.thrown))
       );
       if (!hasMissile) {
         return { valid: false, message: game.i18n.localize("TRESPASSER.Notification.Combat.NeedMissileWeapon") };
@@ -1201,7 +1242,7 @@ export class TargetingHelper {
     );
     if (weapons.length === 0) return 1;
     const gridDist = canvas.dimensions?.distance ?? 5;
-    const parsed = this.#getWeaponRangeInSquares(weapons, gridDist);
+    const parsed = Math.max(...weapons.map(w => RangeHelper.getWeaponMeleeRange(w, gridDist)));
     return Math.max(1, parsed);
   }
 }

@@ -1,5 +1,6 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { buildFormulaContext, evaluateFormula, evaluateDieFormula } from "../helpers/companion-formula.mjs";
+import { RangeHelper } from "../helpers/range-helper.mjs";
 
 /**
  * Data model for the Trespasser TTRPG Companion actor type.
@@ -48,13 +49,34 @@ export class TrespasserCompanionData extends foundry.abstract.TypeDataModel {
 
       // Derived combat stats (computed from formulas in prepareDerivedData)
       combat: new fields.SchemaField({
-        speed:       new fields.NumberField({ integer: true, initial: 5 }),
-        speed_bonus: new fields.NumberField({ integer: true, initial: 2 }),
-        initiative:  new fields.NumberField({ integer: true, initial: 0 }),
-        accuracy:    new fields.NumberField({ integer: true, initial: 0 }),
-        guard:       new fields.NumberField({ integer: true, initial: 0 }),
-        resist:      new fields.NumberField({ integer: true, initial: 0 }),
-        prevail:     new fields.NumberField({ integer: true, initial: 0 }),
+        speed:            new fields.NumberField({ integer: true, initial: 5 }),
+        speed_bonus:      new fields.NumberField({ integer: true, initial: 2 }),
+        initiative:       new fields.NumberField({ integer: true, initial: 0 }),
+        accuracy:         new fields.NumberField({ integer: true, initial: 0 }),
+        guard:            new fields.NumberField({ integer: true, initial: 0 }),
+        resist:           new fields.NumberField({ integer: true, initial: 0 }),
+        prevail:          new fields.NumberField({ integer: true, initial: 0 }),
+        engagement_range: new fields.NumberField({ integer: true, initial: 1, min: 0 }),
+        weaponMode:       new fields.StringField({ initial: "main", choices: ["main", "off", "dual"] }),
+        equipment_snapshot: new fields.SchemaField({
+          weapon:   new fields.SchemaField({ die: new fields.StringField({ initial: "" }), effect: new fields.StringField({ initial: "" }), used: new fields.BooleanField({ initial: false }) }),
+          off_hand: new fields.SchemaField({ die: new fields.StringField({ initial: "" }), effect: new fields.StringField({ initial: "" }), used: new fields.BooleanField({ initial: false }) }),
+        }),
+      }),
+
+      // Equipment slots
+      equipment: new fields.SchemaField({
+        head:      new fields.StringField({ blank: true }),
+        arms:      new fields.StringField({ blank: true }),
+        body:      new fields.StringField({ blank: true }),
+        legs:      new fields.StringField({ blank: true }),
+        outer:     new fields.StringField({ blank: true }),
+        shield:    new fields.StringField({ blank: true }),
+        main_hand: new fields.StringField({ blank: true }),
+        off_hand:  new fields.StringField({ blank: true }),
+        amulet:    new fields.StringField({ blank: true }),
+        ring:      new fields.StringField({ blank: true }),
+        talisman:  new fields.StringField({ blank: true }),
       }),
 
       // Dynamic Bonuses (from effects)
@@ -128,6 +150,25 @@ export class TrespasserCompanionData extends foundry.abstract.TypeDataModel {
     this.combat.guard      = evaluateFormula(f.guard || "<lvl>+<c.agility>", ctx) + this.bonuses.guard;
     this.combat.resist     = evaluateFormula(f.resist || "<lvl>+<c.spirit>", ctx) + this.bonuses.resist;
     this.combat.prevail    = evaluateFormula(f.prevail || "<lvl>+<c.intellect>", ctx) + this.bonuses.prevail;
+
+    // 5. Engagement Range (derived from equipped melee weapons or natural reach 1)
+    const eq = this.equipment ?? {};
+    const equippedIds = [eq.main_hand, eq.off_hand].filter(Boolean);
+    const equippedWeapons = equippedIds
+      .map(id => actor.items?.get?.(id))
+      .filter(i => i?.type === "weapon");
+
+    const meleeWeapons = equippedWeapons.filter(w => w.system?.type === "melee");
+    if (meleeWeapons.length > 0) {
+      const ranges = meleeWeapons.map(w => RangeHelper.getWeaponMeleeRange(w));
+      this.combat.engagement_range = Math.max(...ranges);
+    } else if (equippedWeapons.length > 0 && equippedWeapons.every(w => w.system?.type === "missile" || w.system?.type === "ranged")) {
+      // Missile/ranged only weapon wielders do not threaten melee engagement
+      this.combat.engagement_range = 0;
+    } else {
+      // Unarmed natural reach
+      this.combat.engagement_range = 1;
+    }
 
     // Passive states
     this.passiveStates = {};

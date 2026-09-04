@@ -54,7 +54,7 @@ export async function rollWayfindingCheck(actor, dc) {
       { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
     ]
   };
-  if (attrBonus !== 0) rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
+  if (attrBonus !== 0) rollData.bonuses.push({ label: game.i18n.localize("TRESPASSER.Dialog.Roll.PermanentBonus") || "Permanent Bonus", value: attrBonus });
 
   const result = await TrespasserRollDialog.wait({
     ...rollData,

@@ -82,6 +82,11 @@
         "Peril": "Perigo",
         "Panic": "Pânico",
         "Types": {
+          "Weapon": {
+            "melee": "Corpo a Corpo",
+            "missile": "Projétil",
+            "spell": "Magia"
+          },
           "Actor": {
             "character": "Personagem",
             "creature": "Criatura",

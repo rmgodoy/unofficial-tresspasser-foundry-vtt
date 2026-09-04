@@ -1,6 +1,8 @@
 {
   "TRESPASSER": {
     "Notification": {
+      "ActorNotFound": "Actor not found.",
+      "NotOwner": "You do not have permission to control this character.",
       "AttributeSuppressed": "{plight}: No bonus applied to {attr} checks.",
       "DiscouragedTemptFate": "You cannot tempt fate while Discouraged.",
       "OppositeLastingActive": "Cannot gain {newEffect} — opposite lasting state {lasting} is active.",
@@ -39,9 +41,11 @@
         "TwoHandedEquip": "You must unequip both hands to equip a Two-Handed weapon.",
         "HeavyArmorLimit": "You can only have one Heavy armor equipped.",
         "HeavyItemsExceeded": "You have equipped {total} Heavy items, which exceeds your limit of {limit}.",
-        "HeavyEquipWarning": "Equipping {name} will exceed your Heavy item limit of {limit}."
+        "HeavyEquipWarning": "Equipping {name} will exceed your Heavy item limit of {limit}.",
+        "WeaponIsThrown": "This weapon was thrown and must be recovered before equipping."
       },
       "Combat": {
+        "WeaponThrown": "{actor} throws {weapon}! It leaves their hand and is lost for the encounter.",
         "NoTargets": "No targets selected. Aborting.",
         "RecordedTargetsGone": "The targets recorded on this card are no longer on the scene.",
         "NoTargetsAbort": "No targets selected! Roll aborted, showing basic Accuracy for reference.",
@@ -87,7 +91,8 @@
         "PlaceClosePath": "Place Close Path {size}: start adjacent to your token, double-click to confirm, right-click to undo.",
         "PlaceTerrain": "Place {name}: click to place.",
         "TerrainPlacementCancelled": "Terrain placement cancelled.",
-        "NoAreaSelected": "No selected area found for terrain placement."
+        "NoAreaSelected": "No selected area found for terrain placement.",
+        "InvalidJump": "Invalid jump destination."
       },
       "Dungeon": {
         "NeedsDungeon": "This room must be in a Dungeon to add connections.",

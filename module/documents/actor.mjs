@@ -399,6 +399,11 @@ export class TrespasserActor extends Actor {
     const item = this.items.get(itemId);
     if (!item || item.system.equipped) return;
 
+    if (item.system?.isThrown) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Inventory.WeaponIsThrown") || "This weapon was thrown and must be recovered before equipping.");
+      return;
+    }
+
     // Determine target slots
     let placement = item.system.placement;
     if (!placement && item.type === "weapon") placement = "hand";
@@ -477,17 +482,19 @@ export class TrespasserActor extends Actor {
 
     // Snapshots
     if (item.type === "armor") {
-      actorUpdates[`system.combat.equipment_snapshot.${placement}`] = {
-        die: item.system.armorDie,
-        effect: item.system.effects?.length > 0 ? item.system.effects.map(e => e.name).join(", ") : "",
-        used: item.system.broken
-      };
+      if (this.system.combat?.equipment_snapshot?.[placement]) {
+        actorUpdates[`system.combat.equipment_snapshot.${placement}`] = {
+          die: item.system.armorDie,
+          effect: item.system.effects?.length > 0 ? item.system.effects.map(e => e.name).join(", ") : "",
+          used: item.system.broken
+        };
+      }
     } else if (item.type === "weapon") {
       const effectsStr = [...(item.system.effects || []), ...(item.system.enhancementEffects || [])].map(e => e.name).join(", ");
-      if (handKeys.includes("main_hand")) {
+      if (handKeys.includes("main_hand") && this.system.combat?.equipment_snapshot?.weapon) {
         actorUpdates[`system.combat.equipment_snapshot.weapon`] = { die: item.system.weaponDie, effect: effectsStr, used: false };
       }
-      if (handKeys.includes("off_hand")) {
+      if (handKeys.includes("off_hand") && this.system.combat?.equipment_snapshot?.off_hand) {
         actorUpdates[`system.combat.equipment_snapshot.off_hand`] = { die: item.system.weaponDie, effect: effectsStr, used: false };
       }
     }
@@ -605,13 +612,15 @@ export class TrespasserActor extends Actor {
     if (item.type === "armor") {
       // 2. Update Actor Equipment Slot and Reset Combat Snapshot
       const updates = {
-        [`system.equipment.${placement}`]: "",
-        [`system.combat.equipment_snapshot.${placement}`]: {
+        [`system.equipment.${placement}`]: ""
+      };
+      if (this.system.combat?.equipment_snapshot?.[placement]) {
+        updates[`system.combat.equipment_snapshot.${placement}`] = {
           die: "",
           effect: "",
           used: false
-        }
-      };
+        };
+      }
       await this.update(updates);
     } else if (item.type === "weapon") {
       if (item.system.enhancementEffects && item.system.enhancementEffects.length > 0) {
@@ -631,19 +640,23 @@ export class TrespasserActor extends Actor {
 
       if (mainHandId === itemId) {
         updates[`system.equipment.main_hand`] = "";
-        updates[`system.combat.equipment_snapshot.weapon`] = {
-          die: "",
-          effect: "",
-          used: false
-        };
+        if (this.system.combat?.equipment_snapshot?.weapon) {
+          updates[`system.combat.equipment_snapshot.weapon`] = {
+            die: "",
+            effect: "",
+            used: false
+          };
+        }
       }
       if (offHandId === itemId) {
         updates[`system.equipment.off_hand`] = "";
-        updates[`system.combat.equipment_snapshot.off_hand`] = {
-          die: "",
-          effect: "",
-          used: false
-        };
+        if (this.system.combat?.equipment_snapshot?.off_hand) {
+          updates[`system.combat.equipment_snapshot.off_hand`] = {
+            die: "",
+            effect: "",
+            used: false
+          };
+        }
       }
 
       await this.update(updates);
