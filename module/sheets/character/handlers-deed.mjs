@@ -18,7 +18,8 @@ export async function onDeedRoll(event, sheet) {
   if (!item) return;
 
   const { DeedExecutor } = await import("../../helpers/deed-executor.mjs");
-  const executor = new DeedExecutor(item, sheet.actor);
+  const sourceToken = sheet.token?.object || sheet.actor?.token?.object || canvas.tokens?.controlled.find(t => t.actor?.id === sheet.actor?.id) || null;
+  const executor = new DeedExecutor(item, sheet.actor, { token: sourceToken });
   return await executor.execute();
 }
 

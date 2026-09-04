@@ -62,6 +62,8 @@ export class DeedBehaviorUtils {
    */
   static findToken(actor) {
     if (actor?.token?.object) return actor.token.object;
+    const controlled = canvas.tokens?.controlled.find(t => t.actor?.id === actor?.id);
+    if (controlled) return controlled;
     if (actor?.id) {
       const found = canvas.tokens?.placeables.find(t => t.actor?.id === actor.id);
       if (found) return found;

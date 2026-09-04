@@ -20,10 +20,12 @@ export class DeedExecutor {
     this.actor = actor || bdeedItem.actor || canvas.tokens?.controlled[0]?.actor || game.user?.character || null;
     this.system = bdeedItem.system;
     this.options = options || {};
+    this.sourceToken = options.token || this.actor?.token?.object || canvas.tokens?.controlled.find(t => t.actor?.id === this.actor?.id) || this.actor?.getActiveTokens?.()[0] || null;
 
     /** Shared runtime context passed across all behavior executions. */
     this.context = {
       executor: this,
+      sourceToken: this.sourceToken,
       callStack: this.options.callStack || new Set(),
       sourcePosition: this.options.sourcePosition || null,
       targets: [],

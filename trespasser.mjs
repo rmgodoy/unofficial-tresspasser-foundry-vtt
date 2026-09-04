@@ -1066,9 +1066,10 @@ Hooks.on("updateActor", (actor, updateData, options, userId) => {
     const oldHp = options._trespasserOldHealth;
     const newHp = actor.system?.health ?? 0;
     const damage = oldHp - newHp;
-    const token = actor.token?.object 
-      || canvas.tokens?.get(actor.token?.id) 
-      || canvas.tokens?.placeables.find(t => t.actor?.id === actor.id || t.document?.actorId === actor.id);
+    let token = actor.token?.object || canvas.tokens?.get(actor.token?.id);
+    if (!token && (actor.isToken || actor.prototypeToken?.actorLink)) {
+      token = canvas.tokens?.placeables.find(t => t.actor?.id === actor.id || t.document?.actorId === actor.id);
+    }
 
     if (damage > 0 && token) {
       TrespasserActor.queueDamageAnimation(token, damage);

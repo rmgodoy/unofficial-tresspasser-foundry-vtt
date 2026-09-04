@@ -107,7 +107,7 @@ export class RollAccuracyBehavior {
     // Case 1: Creature Attacking Characters (Player-Facing Defense Roll via Socket)
     // ─────────────────────────────────────────────────────────────────────────
     if (isCreatureAttacker && isAttack && !isVersus10) {
-      const creatureToken = context.executor?.sourceToken || actor?.getActiveTokens?.()[0] || null;
+      const creatureToken = context.sourceToken || context.executor?.sourceToken || actor?.getActiveTokens?.()[0] || null;
       const isEngaged = creatureToken ? TargetingHelper.isEngaged(creatureToken) : false;
       const deedType = abilityType || item.system.abilityType || item.system.type;
       const isMissileOrSpell = ["missile", "spell"].includes(deedType) || ["missile", "spell"].includes(item.system.type);
@@ -277,7 +277,8 @@ export class RollAccuracyBehavior {
     // Case 2: Character Attacking (Player Roll vs Target CD/DC)
     // ─────────────────────────────────────────────────────────────────────────
     const actualTargets = isAttack && targetList.length > 0 ? targetList : [null];
-    const sourceToken = context.executor?.sourceToken 
+    const sourceToken = context.sourceToken 
+      || context.executor?.sourceToken 
       || actor?.getActiveTokens?.()[0] 
       || null;
 

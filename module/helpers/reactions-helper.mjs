@@ -327,7 +327,7 @@ export class ReactionsHelper {
    * @param {HTMLElement} [buttonElement]
    * @returns {Promise<boolean>}
    */
-  static async executeCounter(defenderActor, attackerActor, sparks, weaponDie = "d6", buttonElement = null, message = null) {
+  static async executeCounter(defenderActor, attackerActor, sparks, weaponDie = "d6", buttonElement = null, message = null, options = {}) {
     if (!defenderActor || !attackerActor || sparks <= 0) return false;
 
     // 1. Check if reaction allowed
@@ -345,12 +345,17 @@ export class ReactionsHelper {
     const roll = new foundry.dice.Roll(formula);
     await roll.evaluate();
 
-    // 4. Apply damage to attacker
+    // 4. Apply damage to attacker (prioritizing specific canvas token)
+    const targetTokenId = options.attackerTokenId || attackerActor.token?.id || null;
     if (attackerActor.isOwner) {
       await attackerActor.applyDamage(roll.total);
     } else {
       const { emitDeedActionAndWait } = await import("./socket/deed-socket-handler.mjs");
-      await emitDeedActionAndWait("applyDamage", { actorId: attackerActor.id, damage: roll.total });
+      await emitDeedActionAndWait("applyDamage", {
+        actorId: attackerActor.id,
+        tokenId: targetTokenId,
+        damage: roll.total
+      });
     }
 
     // 5. Post Counter Chat Message
@@ -391,7 +396,9 @@ export class ReactionsHelper {
       try {
         const parser = new DOMParser();
         const doc = parser.parseFromString(chatMsg.content, "text/html");
-        const btnInDoc = doc.querySelector(`.counter-reaction-btn[data-defender-id="${defenderActor.id}"]`);
+        const defTokenId = options.defenderTokenId;
+        const btnInDoc = (defTokenId ? doc.querySelector(`.counter-reaction-btn[data-defender-token-id="${defTokenId}"]`) : null)
+          || doc.querySelector(`.counter-reaction-btn[data-defender-id="${defenderActor.id}"]`);
         if (btnInDoc) {
           btnInDoc.setAttribute("disabled", "true");
           btnInDoc.classList.add("reaction-btn--used");
@@ -424,7 +431,9 @@ export class ReactionsHelper {
     const blockBtns = htmlElement.querySelectorAll('[data-action="block-reaction"]');
     for (const btn of blockBtns) {
       const targetActorId = btn.dataset.targetId;
-      const targetActor = game.actors.get(targetActorId);
+      const targetTokenId = btn.dataset.tokenId;
+      const targetToken = targetTokenId ? (canvas.tokens?.get(targetTokenId) || game.scenes?.current?.tokens.get(targetTokenId)) : null;
+      const targetActor = targetToken?.actor || game.actors.get(targetActorId);
       if (!targetActor || !targetActor.isOwner) {
         btn.style.display = "none";
         continue;
@@ -448,9 +457,15 @@ export class ReactionsHelper {
     const counterBtns = htmlElement.querySelectorAll('[data-action="counter-reaction"]');
     for (const btn of counterBtns) {
       const defenderId = btn.dataset.defenderId;
+      const defenderTokenId = btn.dataset.defenderTokenId;
       const attackerId = btn.dataset.attackerId;
-      const defenderActor = game.actors.get(defenderId);
-      const attackerActor = game.actors.get(attackerId);
+      const attackerTokenId = btn.dataset.attackerTokenId;
+
+      const defenderToken = defenderTokenId ? (canvas.tokens?.get(defenderTokenId) || game.scenes?.current?.tokens.get(defenderTokenId)) : null;
+      const defenderActor = defenderToken?.actor || game.actors.get(defenderId);
+
+      const attackerToken = attackerTokenId ? (canvas.tokens?.get(attackerTokenId) || game.scenes?.current?.tokens.get(attackerTokenId)) : null;
+      const attackerActor = attackerToken?.actor || game.actors.get(attackerId);
 
       if (!defenderActor || !defenderActor.isOwner || !attackerActor) {
         btn.style.display = "none";
@@ -464,7 +479,10 @@ export class ReactionsHelper {
         btn.disabled = true;
         const sparks = parseInt(btn.dataset.sparks) || 0;
         const weaponDie = btn.dataset.weaponDie || "d6";
-        const success = await ReactionsHelper.executeCounter(defenderActor, attackerActor, sparks, weaponDie, btn, message);
+        const success = await ReactionsHelper.executeCounter(defenderActor, attackerActor, sparks, weaponDie, btn, message, {
+          attackerTokenId: attackerToken?.id || attackerTokenId,
+          defenderTokenId: defenderToken?.id || defenderTokenId
+        });
         if (!success) {
           btn.disabled = false;
         }
