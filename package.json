@@ -1,4 +1,8 @@
 {
+  "scripts": {
+    "pack": "npx fvtt package pack trespasser-content --in json-packs/trespasser-content --out packs/ --leveldb --clean",
+    "unpack": "npx fvtt package unpack --id trespasser-content --type Module --in packs --out json-packs/trespasser-content -n trespasser-content --clean"
+  },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^3.0.4"
   }
