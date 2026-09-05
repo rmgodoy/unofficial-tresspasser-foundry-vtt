@@ -1,4 +1,5 @@
 import { showItemInfoDialog } from "./item-info-dialog.mjs";
+import { resolveItem, isLinkedItemMatch } from "../helpers/item-resolver.mjs";
 
 const ALL_SKILL_KEYS = [
   "acrobatics", "alchemy", "athletics", "crafting",
@@ -37,6 +38,28 @@ export class TrespasserCallingDialog extends foundry.applications.api.Handlebars
     for (let i = 1; i < numLevels; i++) {
       this.collapsedLevels.add(i);
     }
+
+    const callingSkills = new Set(sys.skills || []);
+    const currentSkills = actor.system.skills || {};
+    const isCorrectCalling = actor.system.calling === callingItem.name;
+    this.selectedSkills = new Set(
+      ALL_SKILL_KEYS.filter(k => callingSkills.has(k) && isCorrectCalling && !!currentSkills[k])
+    );
+
+    const checkPicked = (entry) => actor.items.some(it => 
+      isLinkedItemMatch(it, entry) && 
+      it.flags.trespasser?.linkedSource === callingItem.name
+    );
+
+    this.selectedTalents = new Set(
+      (sys.talents || []).map((e, i) => checkPicked(e) ? i : null).filter(i => i !== null)
+    );
+    this.selectedFeatures = new Set(
+      (sys.features || []).map((e, i) => checkPicked(e) ? i : null).filter(i => i !== null)
+    );
+    this.selectedEnhancements = new Set(
+      (sys.enhancements || []).map((e, i) => checkPicked(e) ? i : null).filter(i => i !== null)
+    );
   }
 
   static DEFAULT_OPTIONS = {
@@ -95,18 +118,15 @@ export class TrespasserCallingDialog extends foundry.applications.api.Handlebars
         label: game.i18n.localize(`TRESPASSER.Terms.Skill.${k.charAt(0).toUpperCase() + k.slice(1)}`),
         alreadyTrained: !!currentSkills[k],
         isFromThisCalling: isCorrectCalling && !!currentSkills[k],
+        isSelected: this.selectedSkills.has(k),
         index: i
       }));
 
-    const mapList = (list) => {
+    const mapList = (list, selectedSet) => {
       return (list || []).map((entry, i) => {
-        const isPicked = this.actor.items.some(it => 
-          (it.name === entry.name || it.flags.trespasser?.linkedSourceUuid === entry.uuid) && 
-          it.flags.trespasser?.linkedSource === this.callingItem.name
-        );
         return {
           ...entry,
-          isPicked,
+          isPicked: selectedSet ? selectedSet.has(i) : false,
           index: i
         };
       });
@@ -115,9 +135,9 @@ export class TrespasserCallingDialog extends foundry.applications.api.Handlebars
     context.callingName = this.callingItem.name;
     context.description = sys.description;
     context.skills = skillRows;
-    context.talents = mapList(sys.talents);
-    context.features = mapList(sys.features);
-    context.enhancements = mapList(sys.enhancements);
+    context.talents = mapList(sys.talents, this.selectedTalents);
+    context.features = mapList(sys.features, this.selectedFeatures);
+    context.enhancements = mapList(sys.enhancements, this.selectedEnhancements);
     context.progression = (sys.progression || []).map((p, i) => ({
       ...p,
       index: i,
@@ -140,6 +160,31 @@ export class TrespasserCallingDialog extends foundry.applications.api.Handlebars
   _onRender(context, options) {
     super._onRender(context, options);
     const html = this.element;
+
+    // Selection change listeners to maintain tracking state
+    html.querySelectorAll(".calling-dlg-check").forEach(chk => {
+      chk.addEventListener("change", (ev) => {
+        const list = ev.currentTarget.dataset.list;
+        const idx = parseInt(ev.currentTarget.dataset.index);
+        const checked = ev.currentTarget.checked;
+        if (list === "skills") {
+          const key = ev.currentTarget.dataset.key;
+          if (key) {
+            if (checked) this.selectedSkills.add(key);
+            else this.selectedSkills.delete(key);
+          }
+        } else if (list === "talents") {
+          if (checked) this.selectedTalents.add(idx);
+          else this.selectedTalents.delete(idx);
+        } else if (list === "features") {
+          if (checked) this.selectedFeatures.add(idx);
+          else this.selectedFeatures.delete(idx);
+        } else if (list === "enhancements") {
+          if (checked) this.selectedEnhancements.add(idx);
+          else this.selectedEnhancements.delete(idx);
+        }
+      });
+    });
 
     // Search input listener
     const searchInputs = html.querySelectorAll(".calling-dlg-search");
@@ -240,22 +285,23 @@ export class TrespasserCallingDialog extends foundry.applications.api.Handlebars
     const linkedItems = actor.items.filter(it => it.flags.trespasser?.linkedSource === callingName);
     
     // Items to delete (unchecked)
-    const toDelete = linkedItems.filter(li => !picks.some(p => p.name === li.name || p.uuid === li.flags.trespasser?.linkedSourceUuid)).map(li => li.id);
+    const toDelete = linkedItems.filter(li => !picks.some(p => isLinkedItemMatch(li, p))).map(li => li.id);
     if (toDelete.length > 0) await actor.deleteEmbeddedDocuments("Item", toDelete);
 
     // Items to create (newly checked)
     const toCreateData = [];
     for (const entry of picks) {
-      const alreadyHas = linkedItems.some(li => li.name === entry.name || li.flags.trespasser?.linkedSourceUuid === entry.uuid);
+      const alreadyHas = linkedItems.some(li => isLinkedItemMatch(li, entry));
       if (alreadyHas) continue;
 
-      const sourceItem = await fromUuid(entry.uuid);
+      const sourceItem = await resolveItem(entry);
       if (!sourceItem) continue;
       
       const itemData = sourceItem.toObject();
       delete itemData._id;
       foundry.utils.setProperty(itemData, "flags.trespasser.linkedSource", callingName);
-      foundry.utils.setProperty(itemData, "flags.trespasser.linkedSourceUuid", entry.uuid);
+      foundry.utils.setProperty(itemData, "flags.trespasser.linkedSourceUuid", entry.uuid || sourceItem.uuid);
+      foundry.utils.setProperty(itemData, "flags.trespasser.linkedSourceId", (entry.uuid || sourceItem.uuid)?.split(".").pop() || sourceItem.id);
       toCreateData.push(itemData);
     }
 
@@ -278,14 +324,24 @@ export class TrespasserCallingDialog extends foundry.applications.api.Handlebars
 
   static _onTabSelect(event, target) {
     event.preventDefault();
-    this.tabGroups.primary = target.dataset.tab;
-    this.render();
+    const tabId = target.dataset.tab;
+    if (!tabId) return;
+    this.tabGroups.primary = tabId;
+
+    const html = this.element;
+    html.querySelectorAll(".calling-dlg-tab-btn").forEach(btn => {
+      btn.classList.toggle("active", btn.dataset.tab === tabId);
+    });
+    html.querySelectorAll(".calling-dlg-pane").forEach(pane => {
+      pane.classList.toggle("active", pane.dataset.tab === tabId);
+    });
   }
 
   static async _onInfoClick(event, target) {
     event.preventDefault();
     event.stopPropagation();
-    await showItemInfoDialog(target.dataset.uuid);
+    const name = target.dataset.name || target.closest(".calling-dlg-chip-row")?.querySelector(".calling-dlg-name")?.textContent?.trim();
+    await showItemInfoDialog(target.dataset.uuid, { name });
   }
 
   static _onToggleLevel(event, target) {

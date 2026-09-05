@@ -83,14 +83,16 @@
   padding: 8px 12px;
 }
 
-.calling-display .calling-controls {
+.calling-display .calling-controls,
+.craft-slot-display .craft-controls {
   opacity: 0;
   transition: opacity 0.2s;
   display: flex !important;
   gap: 8px;
 }
 
-.calling-display:hover .calling-controls {
+.calling-display:hover .calling-controls,
+.craft-slot-display:hover .craft-controls {
   opacity: 1;
 }
 

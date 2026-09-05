@@ -40,7 +40,9 @@
         "ItemTitle": "Delete Item",
         "ItemContent": "Are you sure you want to delete {name}?",
         "CallingTitle": "Remove Calling: {name}",
-        "CallingConfirm": "Are you sure you want to remove the Calling <strong>{name}</strong>? This will also delete all Talents and Features granted by this Calling."
+        "CallingConfirm": "Are you sure you want to remove the Calling <strong>{name}</strong>? This will also delete all Talents and Features granted by this Calling.",
+        "CraftTitle": "Remove Craft: {name}",
+        "CraftConfirm": "Are you sure you want to remove the Craft <strong>{name}</strong>? This will also delete all Deeds and Features granted by this Craft."
       },
       "Reset": {
         "ConfigTitle": "Reset Configuration?",

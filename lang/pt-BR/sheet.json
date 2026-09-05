@@ -148,6 +148,7 @@
         "Skills": "Perícias",
         "Injuries": "Ferimentos",
         "EditCalling": "Editar Seleção de Vocação",
+        "EditCraft": "Editar Seleção de Ofício",
         "NonCombatEffects": "Efeitos Fora de Combate",
         "UnequippedSlots": "Espaços Não Equipados",
         "NoNonCombatEffects": "Nenhum efeito fora de combate ativo.",
@@ -155,6 +156,7 @@
         "NoTalents": "Nenhum talento ainda.",
         "NoIncantations": "Nenhum encantamento ainda.",
         "DeleteCalling": "Excluir Vocação",
+        "DeleteCraft": "Excluir Ofício",
         "Inventory": {
           "EmptyInventory": "Nenhum item não equipado.",
           "EmptyEquipped": "Nenhum item equipado.",

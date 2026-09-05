@@ -14,6 +14,8 @@ export function activateCharacterListeners(html, sheet) {
   if (sheet._onSpendRDHeader)  html.find('[data-action="spend-rd"] label.rollable').on("click", sheet._onSpendRDHeader.bind(sheet));
   if (sheet._onCallingEdit)    html.find(".calling-edit").on("click",      sheet._onCallingEdit.bind(sheet));
   if (sheet._onCallingDelete)  html.find(".calling-delete").on("click",    sheet._onCallingDelete.bind(sheet));
+  if (sheet._onCraftEdit)      html.find(".craft-edit").on("click",        sheet._onCraftEdit.bind(sheet));
+  if (sheet._onCraftDelete)    html.find(".craft-delete").on("click",      sheet._onCraftDelete.bind(sheet));
 
   // Effect listeners
   if (sheet._onPrevailRoll)     html.find(".effect-prevail").on("click",           sheet._onPrevailRoll.bind(sheet));

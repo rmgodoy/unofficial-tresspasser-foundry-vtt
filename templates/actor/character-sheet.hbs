@@ -146,11 +146,24 @@
             </div>
             <input type="hidden" name="system.calling" value="{{system.calling}}" />
           </div>
-          <div class="field-block">
+          <div class="field-block craft-block">
             <label>{{localize "TRESPASSER.Sheet.Character.Crafts"}}</label>
-            <input type="text" name="system.crafts.0" value="{{craftsSlots.[0]}}" />
-            <input type="text" name="system.crafts.1" value="{{craftsSlots.[1]}}" />
-            <input type="text" name="system.crafts.2" value="{{craftsSlots.[2]}}" />
+            <div class="crafts-list" style="display: flex; flex-direction: column; gap: 4px;">
+              {{#each craftsSlots as |craftName idx|}}
+                <div class="craft-slot-display" data-slot="{{idx}}" data-craft="{{craftName}}" style="display: flex; align-items: center; justify-content: space-between; background: var(--trp-bg-overlay); padding: 4px 8px; border: 1px solid var(--trp-border); border-radius: 4px; min-height: 28px;">
+                  <span class="craft-name" style="font-weight: {{#if craftName}}bold{{else}}normal{{/if}}; color: {{#if craftName}}var(--trp-gold-bright){{else}}var(--trp-text-dim){{/if}};">
+                    {{#if craftName}}{{craftName}}{{else}}—{{/if}}
+                  </span>
+                  <div class="craft-controls">
+                    {{#if craftName}}
+                      <a class="craft-edit" data-slot="{{idx}}" data-craft="{{craftName}}" title="{{localize 'TRESPASSER.Sheet.Character.EditCraft'}}" style="cursor: pointer; color: var(--trp-text-dim);"><i class="fas fa-cog"></i></a>
+                      <a class="craft-delete" data-slot="{{idx}}" data-craft="{{craftName}}" title="{{localize 'TRESPASSER.Sheet.Character.DeleteCraft'}}" style="cursor: pointer; color: var(--trp-text-dim);"><i class="fas fa-trash"></i></a>
+                    {{/if}}
+                  </div>
+                  <input type="hidden" name="system.crafts.{{idx}}" value="{{craftName}}" />
+                </div>
+              {{/each}}
+            </div>
           </div>
           <div class="field-block">
             <label>{{localize "TRESPASSER.Sheet.Character.PastLife"}}</label>

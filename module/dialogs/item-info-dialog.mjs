@@ -4,6 +4,7 @@ import { buildTalentContent }    from "../helpers/item-info/talent.mjs";
 import { buildGenericContent }   from "../helpers/item-info/generic.mjs";
 import { buildEffectContent }    from "../helpers/item-info/effect.mjs";
 import { buildEquipmentContent } from "../helpers/item-info/equipment.mjs";
+import { resolveItem }           from "../helpers/item-resolver.mjs";
 
 /**
  * Item Info Dialog — read-only preview of any item using ApplicationsV2.
@@ -54,12 +55,14 @@ export class TrespasserItemInfoDialog extends foundry.applications.api.Handlebar
 }
 
 /**
- * Show a read-only info dialog for any item by UUID.
+ * Show a read-only info dialog for any item by UUID or name.
  * @param {string} uuid  The item's UUID
+ * @param {object|string} [options={}]  Options or item name
  */
-export async function showItemInfoDialog(uuid) {
-  if (!uuid) return;
-  const item = await fromUuid(uuid);
+export async function showItemInfoDialog(uuid, options = {}) {
+  const name = typeof options === "string" ? options : options.name;
+  if (!uuid && !name) return;
+  const item = await resolveItem({ uuid, name }, { notify: false });
   if (!item) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.NotFound"));
     return;

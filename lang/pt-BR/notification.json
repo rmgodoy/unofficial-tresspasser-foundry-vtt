@@ -156,6 +156,9 @@
         "Calling": "Vocação '{name}' aplicada a {actor}.",
         "CallingRemoved": "Vocação '{name}' e itens associados removidos de {actor}.",
         "Craft": "Ofício '{name}' aplicado a {actor}.",
+        "CraftRemoved": "Ofício '{name}' e itens associados removidos de {actor}.",
+        "CraftNotFound": "Ofício '{name}' não foi encontrado.",
+        "CouldNotCreateItem": "Não foi possível criar o item '{name}': item não encontrado no mundo ou compêndios.",
         "PastLife": "Vida Passada '{name}' aplicada a {actor}."
       },
       "Save": {

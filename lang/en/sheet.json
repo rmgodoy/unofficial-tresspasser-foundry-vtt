@@ -148,6 +148,7 @@
         "Skills": "Skills",
         "Injuries": "Injuries",
         "EditCalling": "Edit Calling Selection",
+        "EditCraft": "Edit Craft Selection",
         "NonCombatEffects": "Non-Combat Effects",
         "UnequippedSlots": "Unequipped Slots",
         "NoNonCombatEffects": "No active non-combat effects.",
@@ -155,6 +156,7 @@
         "NoTalents": "No talents yet.",
         "NoIncantations": "No incantations yet.",
         "DeleteCalling": "Delete Calling",
+        "DeleteCraft": "Delete Craft",
         "Inventory": {
           "EmptyInventory": "No unequipped items.",
           "EmptyEquipped": "No items equipped.",

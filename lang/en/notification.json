@@ -156,6 +156,9 @@
         "Calling": "Calling '{name}' applied to {actor}.",
         "CallingRemoved": "Calling '{name}' and associated items removed from {actor}.",
         "Craft": "Craft '{name}' applied to {actor}.",
+        "CraftRemoved": "Craft '{name}' and associated items removed from {actor}.",
+        "CraftNotFound": "Craft '{name}' could not be found.",
+        "CouldNotCreateItem": "Could not create item '{name}': item not found in world or compendiums.",
         "PastLife": "Past Life '{name}' applied to {actor}."
       },
       "Save": {

@@ -6,6 +6,7 @@
  */
 
 import { addItemToActor } from "../helpers/item-transfer-helper.mjs";
+import { resolveItem }    from "../helpers/item-resolver.mjs";
 import { TrespasserSocket } from "../helpers/socket/socket.mjs";
 import { TrespasserCallingDialog }     from "../dialogs/calling-dialog.mjs";
 import { TrespasserCraftDialog }       from "../dialogs/craft-dialog.mjs";
@@ -380,6 +381,55 @@ export class TrespasserCharacterSheet extends TrespasserActorSheet {
     ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Apply.CallingRemoved", { name: callingName, actor: this.actor.name }));
   }
 
+  async _onCraftEdit(event) {
+    event.preventDefault();
+    const slotIdx = event.currentTarget.dataset.slot;
+    const craftName = (event.currentTarget.dataset.craft || this.actor.system.crafts?.[slotIdx])?.trim();
+    if (!craftName) return;
+
+    const lower = craftName.toLowerCase();
+    let craftItem = this.actor.items.find(i => i.type === "craft" && i.name.trim().toLowerCase() === lower)
+      || game.items.find(i => i.type === "craft" && i.name.trim().toLowerCase() === lower);
+
+    if (!craftItem) {
+      const pack = game.packs.get("trespasser.trespasser-content");
+      const entry = pack?.index.find(e => e.type === "craft" && e.name.trim().toLowerCase() === lower);
+      if (entry) craftItem = await pack.getDocument(entry._id);
+    }
+
+    if (!craftItem) return ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Apply.CraftNotFound", { name: craftName }));
+    return TrespasserCraftDialog.wait(craftItem, this.actor);
+  }
+
+  async _onCraftDelete(event) {
+    event.preventDefault();
+    const slotIdx = parseInt(event.currentTarget.dataset.slot);
+    const craftName = event.currentTarget.dataset.craft || this.actor.system.crafts?.[slotIdx];
+    if (!craftName) return;
+
+    const confirm = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.CraftTitle", { name: craftName }) },
+      content: `<p>${game.i18n.format("TRESPASSER.Dialog.Delete.CraftConfirm", { name: craftName })}</p>`,
+      classes: ["trespasser", "dialog"],
+      rejectClose: false
+    });
+    if (!confirm) return;
+
+    const toDelete = this.actor.items
+      .filter(it => it.flags.trespasser?.linkedSource === craftName || (it.type === "craft" && it.name === craftName))
+      .map(it => it.id);
+    if (toDelete.length > 0) await this.actor.deleteEmbeddedDocuments("Item", toDelete);
+
+    const current = [...(this.actor.system.crafts ?? ["", "", ""])];
+    if (slotIdx >= 0 && slotIdx < current.length) current[slotIdx] = "";
+    else {
+      const idx = current.findIndex(c => c === craftName);
+      if (idx !== -1) current[idx] = "";
+    }
+    await this.actor.update({ "system.crafts": current });
+    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Apply.CraftRemoved", { name: craftName, actor: this.actor.name }));
+  }
+
   /**
    * Apply a Past Life template to the character.
    * @param {Item} pastLifeItem 
@@ -412,7 +462,7 @@ export class TrespasserCharacterSheet extends TrespasserActorSheet {
     // 4. Create items from the Past Life template
     const itemsToCreate = [];
     for (const entry of system.items) {
-      const sourceItem = await fromUuid(entry.uuid);
+      const sourceItem = await resolveItem(entry);
       if (sourceItem) {
         const itemData = sourceItem.toObject();
         delete itemData._id;

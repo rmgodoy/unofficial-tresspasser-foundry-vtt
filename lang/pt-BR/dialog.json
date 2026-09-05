@@ -40,7 +40,9 @@
         "ItemTitle": "Excluir Item",
         "ItemContent": "Tem certeza que deseja excluir <strong>{name}</strong>?",
         "CallingTitle": "Remover Vocação: {name}",
-        "CallingConfirm": "Tem certeza que deseja remover a Vocação <strong>{name}</strong>? Isso também excluirá todos os Talentos e Características concedidos por esta Vocação."
+        "CallingConfirm": "Tem certeza que deseja remover a Vocação <strong>{name}</strong>? Isso também excluirá todos os Talentos e Características concedidos por esta Vocação.",
+        "CraftTitle": "Remover Ofício: {name}",
+        "CraftConfirm": "Tem certeza que deseja remover o Ofício <strong>{name}</strong>? Isso também excluirá todos os Feitos e Características concedidos por este Ofício."
       },
       "Reset": {
         "ConfigTitle": "Redefinir Configuração?",

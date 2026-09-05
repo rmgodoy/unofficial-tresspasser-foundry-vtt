@@ -1,4 +1,5 @@
 import { generateCommoner } from "../../helpers/commoner-generator.mjs";
+import { resolveItem }      from "../../helpers/item-resolver.mjs";
 
 /**
  * Triggered when a user manually modifies any attribute field on the Commoner sheet.
@@ -67,7 +68,7 @@ export async function handlePastLifeDrop(actor, itemData) {
   const itemsToCreate = [];
   if (Array.isArray(sysData.items) && sysData.items.length > 0) {
     for (const entry of sysData.items) {
-      const sourceItem = entry.uuid ? await fromUuid(entry.uuid) : null;
+      const sourceItem = await resolveItem(entry);
       if (sourceItem) {
         const itemObj = sourceItem.toObject();
         delete itemObj._id;

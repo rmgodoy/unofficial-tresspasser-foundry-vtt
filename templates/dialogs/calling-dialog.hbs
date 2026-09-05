@@ -21,7 +21,7 @@
       <div class="calling-dlg-list">
         {{#each skills}}
           <label class="calling-dlg-chip {{#if (and this.alreadyTrained (not this.isFromThisCalling))}}already-trained{{/if}}" data-list="skills" data-index="{{this.index}}">
-            <input type="checkbox" class="calling-dlg-check" data-list="skills" data-index="{{this.index}}" {{#if this.isFromThisCalling}}checked{{/if}} />
+            <input type="checkbox" class="calling-dlg-check" data-list="skills" data-index="{{this.index}}" data-key="{{this.key}}" {{#if this.isSelected}}checked{{/if}} />
             <span class="calling-dlg-name">
               {{this.label}}
               {{#if (and this.alreadyTrained (not this.isFromThisCalling))}}

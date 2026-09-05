@@ -28,7 +28,7 @@
           </label>
         {{else}}
           <label class="craft-dlg-chip" style="justify-content:flex-start;">
-            <input type="checkbox" id="craft-attr-check" />
+            <input type="checkbox" id="craft-attr-check" {{#if selectedAttr}}checked{{/if}} />
             <span class="craft-dlg-name" style="margin-left:8px;">{{keyAttrLabel}}</span>
           </label>
         {{/if}}
@@ -50,10 +50,15 @@
       <div class="craft-dlg-list">
         {{#each deeds}}
           <div class="craft-dlg-chip-row">
-            <label class="craft-dlg-chip" data-list="deeds" data-index="{{@index}}" style="flex:1;margin:0;">
-              <input type="checkbox" class="craft-dlg-check" data-list="deeds" data-index="{{@index}}" />
+            <label class="craft-dlg-chip {{#if this.ownedByOther}}already-trained{{/if}}" data-list="deeds" data-index="{{this.index}}" style="flex:1;margin:0;">
+              <input type="checkbox" class="craft-dlg-check" data-list="deeds" data-index="{{this.index}}" {{#if this.isPicked}}checked{{/if}} />
               <img src="{{this.img}}" width="20" height="20" style="border:none;border-radius:50%;flex-shrink:0;" />
-              <span class="craft-dlg-name">{{this.name}}</span>
+              <span class="craft-dlg-name">
+                {{this.name}}
+                {{#if this.ownedByOther}}
+                  <em>({{localize "TRESPASSER.Dialog.Calling.AlreadyTrained"}})</em>
+                {{/if}}
+              </span>
             </label>
             {{#if this.uuid}}
               <a class="dlg-info-btn" data-action="info" data-uuid="{{this.uuid}}" title="{{localize 'TRESPASSER.Dialog.Item.ViewDetails'}}">
@@ -73,10 +78,15 @@
       <div class="craft-dlg-list">
         {{#each features}}
           <div class="craft-dlg-chip-row">
-            <label class="craft-dlg-chip" data-list="features" data-index="{{@index}}" style="flex:1;margin:0;">
-              <input type="checkbox" class="craft-dlg-check" data-list="features" data-index="{{@index}}" />
+            <label class="craft-dlg-chip {{#if this.ownedByOther}}already-trained{{/if}}" data-list="features" data-index="{{this.index}}" style="flex:1;margin:0;">
+              <input type="checkbox" class="craft-dlg-check" data-list="features" data-index="{{this.index}}" {{#if this.isPicked}}checked{{/if}} />
               <img src="{{this.img}}" width="20" height="20" style="border:none;border-radius:50%;flex-shrink:0;" />
-              <span class="craft-dlg-name">{{this.name}}</span>
+              <span class="craft-dlg-name">
+                {{this.name}}
+                {{#if this.ownedByOther}}
+                  <em>({{localize "TRESPASSER.Dialog.Calling.AlreadyTrained"}})</em>
+                {{/if}}
+              </span>
             </label>
             {{#if this.uuid}}
               <a class="dlg-info-btn" data-action="info" data-uuid="{{this.uuid}}" title="{{localize 'TRESPASSER.Dialog.Item.ViewDetails'}}">
