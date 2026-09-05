@@ -1,5 +1,20 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
-import { resolveItem } from "../helpers/item-resolver.mjs";
+import {
+  handleRoomDrop,
+  removeRoomConnection,
+  changeRoomConnectionType,
+  changeRoomConnectionDesc,
+  toggleRoomConnectionFlag,
+  openConnectedRoom,
+  addConnectionFromDropdown,
+  createBidirectionalConnection
+} from "./room/room-connections.mjs";
+import {
+  addDetailTrap,
+  removeDetailTrap,
+  changeDetailTrapField,
+  toggleDetailTrapFlag
+} from "./room/room-detail-traps.mjs";
 
 /**
  * Item Sheet for Room items in the Trespasser TTRPG system.
@@ -239,42 +254,7 @@ export class TrespasserRoomSheet extends TrespasserItemSheet {
   /* -------------------------------------------- */
 
   async _onDrop(event) {
-    const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
-    if (!data || data.type !== "Item") return;
-
-    const droppedItem = await resolveItem(data);
-    if (!droppedItem) return;
-    if (droppedItem.type !== "room") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Dungeon.DropRoomsOnly"));
-      return;
-    }
-
-    // This room must belong to a dungeon actor
-    const dungeon = this.document.parent;
-    if (!dungeon || dungeon.type !== "dungeon") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Dungeon.NeedsDungeon"));
-      return;
-    }
-
-    // Resolve the target room — if it doesn't exist on this dungeon yet, add it
-    let targetRoom = dungeon.items.get(droppedItem.id);
-
-    if (!targetRoom) {
-      // The dropped room is external (sidebar, compendium, or another dungeon).
-      // Create a copy on this dungeon actor.
-      const itemData = droppedItem.toObject();
-      delete itemData._id;
-      // Clear connections from the source — they reference rooms on the original parent
-      itemData.system.connections = [];
-
-      const created = await dungeon.createEmbeddedDocuments("Item", [itemData]);
-      targetRoom = created[0];
-      if (!targetRoom) return;
-
-      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Dungeon.RoomAdded", { name: targetRoom.name }));
-    }
-
-    await this._createBidirectionalConnection(targetRoom);
+    return handleRoomDrop(this, event);
   }
 
   /* -------------------------------------------- */
@@ -313,129 +293,41 @@ export class TrespasserRoomSheet extends TrespasserItemSheet {
   async _onRemoveConnection(event) {
     event.preventDefault();
     const roomId = event.currentTarget.dataset.roomId;
-    if (!roomId) return;
-
-    // Remove from this room
-    const connections = (this.document.system.connections ?? []).filter(c => c.roomId !== roomId);
-    await this.document.update({
-      ...this._getUnsavedEditorsData(),
-      "system.connections": connections
-    });
-
-    // Remove reverse connection from the other room
-    if (this.document.parent) {
-      const otherRoom = this.document.parent.items.get(roomId);
-      if (otherRoom) {
-        const otherConns = (otherRoom.system.connections ?? []).filter(c => c.roomId !== this.document.id);
-        await otherRoom.update({ "system.connections": otherConns });
-      }
-    }
+    return removeRoomConnection(this, roomId);
   }
 
   async _onChangeConnectionType(event) {
     const roomId = event.currentTarget.dataset.roomId;
     const newType = event.currentTarget.value;
-    if (!roomId) return;
-    const connections = (this.document.system.connections ?? []).map(c =>
-      c.roomId === roomId ? { ...c, type: newType } : c
-    );
-    await this.document.update({
-      ...this._getUnsavedEditorsData(),
-      "system.connections": connections
-    });
+    return changeRoomConnectionType(this, roomId, newType);
   }
 
   async _onChangeConnectionDesc(event) {
     const roomId = event.currentTarget.dataset.roomId;
     const desc = event.currentTarget.value;
-    if (!roomId) return;
-    const connections = (this.document.system.connections ?? []).map(c =>
-      c.roomId === roomId ? { ...c, description: desc } : c
-    );
-    await this.document.update({
-      ...this._getUnsavedEditorsData(),
-      "system.connections": connections
-    });
+    return changeRoomConnectionDesc(this, roomId, desc);
   }
 
   async _onToggleConnectionFlag(flag, event) {
     const roomId = event.currentTarget.dataset.roomId;
-    if (!roomId) return;
-    const connections = (this.document.system.connections ?? []).map(c =>
-      c.roomId === roomId ? { ...c, [flag]: !c[flag] } : c
-    );
-    await this.document.update({
-      ...this._getUnsavedEditorsData(),
-      "system.connections": connections
-    });
-
-    // Sync flag to the reverse connection
-    if (this.document.parent) {
-      const otherRoom = this.document.parent.items.get(roomId);
-      if (otherRoom) {
-        const otherConns = (otherRoom.system.connections ?? []).map(c =>
-          c.roomId === this.document.id ? { ...c, [flag]: connections.find(x => x.roomId === roomId)?.[flag] } : c
-        );
-        await otherRoom.update({ "system.connections": otherConns });
-      }
-    }
+    return toggleRoomConnectionFlag(this, roomId, flag);
   }
 
   async _onOpenConnectedRoom(event) {
     event.preventDefault();
     const roomId = event.currentTarget.dataset.roomId;
-    if (!roomId || !this.document.parent) return;
-    const room = this.document.parent.items.get(roomId);
-    if (room) room.sheet.render(true);
+    return openConnectedRoom(this, roomId);
   }
 
   async _onAddConnectionFromDropdown(event) {
     event.preventDefault();
     const select = this.element.querySelector(".room-add-connection-select");
     const roomId = select?.value;
-    if (!roomId) return;
-    const dungeon = this.document.parent;
-    if (!dungeon) return;
-    const targetRoom = dungeon.items.get(roomId);
-    if (!targetRoom) return;
-    await this._createBidirectionalConnection(targetRoom);
+    return addConnectionFromDropdown(this, roomId);
   }
 
   async _createBidirectionalConnection(targetRoom) {
-    if (targetRoom.id === this.document.id) return;
-
-    const existingConnections = this.document.system.connections ?? [];
-    if (existingConnections.some(c => c.roomId === targetRoom.id)) {
-      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Dungeon.AlreadyConnected", { name: targetRoom.name }));
-      return;
-    }
-
-    const myConnections = [...existingConnections, {
-      roomId: targetRoom.id,
-      type: "doorway",
-      description: "",
-      locked: false,
-      hidden: false
-    }];
-
-    const theirConnections = [...(targetRoom.system.connections ?? [])];
-    if (!theirConnections.some(c => c.roomId === this.document.id)) {
-      theirConnections.push({
-        roomId: this.document.id,
-        type: "doorway",
-        description: "",
-        locked: false,
-        hidden: false
-      });
-    }
-
-    await this.document.update({
-      ...this._getUnsavedEditorsData(),
-      "system.connections": myConnections
-    });
-    await targetRoom.update({ "system.connections": theirConnections });
-
-    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Dungeon.ConnectionCreated", { name: targetRoom.name }));
+    return createBidirectionalConnection(this, targetRoom);
   }
 
   /* -------------------------------------------- */
@@ -444,58 +336,23 @@ export class TrespasserRoomSheet extends TrespasserItemSheet {
 
   async _onAddDetailTrap(event) {
     event.preventDefault();
-    const traps = [...(this.document.system.detailTraps ?? [])];
-    traps.push({
-      featureIndex: 0,
-      hiddenValue: 0,
-      trigger: "",
-      effect: "",
-      magical: false,
-      disarmed: false
-    });
-    await this.document.update({
-      ...this._getUnsavedEditorsData(),
-      "system.detailTraps": traps
-    });
+    return addDetailTrap(this);
   }
 
   async _onRemoveDetailTrap(event) {
     event.preventDefault();
     const index = parseInt(event.currentTarget.dataset.trapIndex);
-    if (isNaN(index)) return;
-    const traps = [...(this.document.system.detailTraps ?? [])];
-    traps.splice(index, 1);
-    await this.document.update({
-      ...this._getUnsavedEditorsData(),
-      "system.detailTraps": traps
-    });
+    return removeDetailTrap(this, index);
   }
 
   async _onChangeDetailTrapField(field, event) {
     const index = parseInt(event.currentTarget.dataset.trapIndex);
-    if (isNaN(index)) return;
-    const traps = [...(this.document.system.detailTraps ?? [])];
-    if (!traps[index]) return;
-    const value = field === "featureIndex" || field === "hiddenValue"
-      ? parseInt(event.currentTarget.value) || 0
-      : event.currentTarget.value;
-    traps[index] = { ...traps[index], [field]: value };
-    await this.document.update({
-      ...this._getUnsavedEditorsData(),
-      "system.detailTraps": traps
-    });
+    return changeDetailTrapField(this, index, field, event.currentTarget.value);
   }
 
   async _onToggleDetailTrapFlag(flag, event) {
     const index = parseInt(event.currentTarget.dataset.trapIndex);
-    if (isNaN(index)) return;
-    const traps = [...(this.document.system.detailTraps ?? [])];
-    if (!traps[index]) return;
-    traps[index] = { ...traps[index], [flag]: !traps[index][flag] };
-    await this.document.update({
-      ...this._getUnsavedEditorsData(),
-      "system.detailTraps": traps
-    });
+    return toggleDetailTrapFlag(this, index, flag);
   }
 
   static async #onSubmit(event, form, formData) {

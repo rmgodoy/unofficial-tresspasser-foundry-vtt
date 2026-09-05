@@ -11,12 +11,10 @@
  * sheet to add them, or use the dropdown picker.
  */
 
-import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserPartyHelper } from "../helpers/party-helper.mjs";
-import { NonCombatSparkDialog, NonCombatShadowDialog } from "../dialogs/tempt-fate-dialogs.mjs";
-import * as NonCombatHelper from "../helpers/non-combat-helper.mjs";
-
 import { TrespasserActorSheet } from "./base-sheet.mjs";
+import { buildMemberContext, getActiveDungeonDC } from "./party/party-member-context.mjs";
+import { runGroupCheck } from "./party/party-group-check.mjs";
 
 export class TrespasserPartySheet extends TrespasserActorSheet {
 
@@ -109,52 +107,7 @@ export class TrespasserPartySheet extends TrespasserActorSheet {
    * @returns {Object}
    */
   _buildMemberContext(actor, lightTags) {
-    const s = actor.system;
-
-    // Count rations (total quantity of all 'rations' type items)
-    const rations = actor.items
-      .filter(i => i.type === "rations")
-      .reduce((sum, i) => sum + (i.system.quantity ?? 1), 0);
-
-    // Count injuries (total number of 'injury' type items)
-    const injuries = actor.items.filter(i => i.type === "injury").length;
-
-    // Light sources (as requested: sub-type of light source or weapons with light source property)
-    const lightSources = [];
-    for (const item of actor.items) {
-      let isLight = false;
-
-      if (item.type === "item" && item.system.subType === "light_source") isLight = true;
-      else if (item.type === "weapon" && item.system.isLightSource) isLight = true;
-      else if (item.system.isLightFuel) isLight = true;
-
-      if (isLight) {
-        lightSources.push({
-          name: item.name,
-          depletionDie: item.system.depletionDie ?? "",
-          quantity: item.system.quantity ?? 1
-        });
-      }
-    }
-
-    return {
-      _id: actor.id,
-      name: actor.name,
-      img: actor.img,
-      level: actor.type === "commoner" ? 0 : (s.level ?? 1),
-      hp: s.health ?? 0,
-      hpMax: s.max_health ?? 0,
-      endurance: s.endurance ?? 0,
-      enduranceMax: s.max_endurance ?? 0,
-      recoveryDice: s.recovery_dice ?? 0,
-      recoveryDiceMax: s.max_recovery_dice ?? 0,
-      resolve: s.resolve ?? 0,
-      armor: s.armorDieAmmount ?? 0,
-      armorMax: actor.items.filter(i => i.type === "armor" && i.system.equipped).length,
-      rations,
-      injuries,
-      lightSources
-    };
+    return buildMemberContext(actor, lightTags);
   }
 
   /**
@@ -162,17 +115,7 @@ export class TrespasserPartySheet extends TrespasserActorSheet {
    * @returns {number|null}
    */
   _getActiveDungeonDC() {
-    try {
-      const { DungeonTracker } = foundry.utils.getType(globalThis.trespasser?.DungeonTracker) === "function"
-        ? globalThis.trespasser
-        : {};
-      const tracker = DungeonTracker?._instance;
-      if (tracker?.dungeon && tracker.sessionState === "active") {
-        const tier = tracker.dungeon.system.hostilityTier ?? 1;
-        return CONFIG.TRESPASSER?.dungeon?.hostilityTiers?.[tier]?.dc ?? null;
-      }
-    } catch { /* no tracker available */ }
-    return null;
+    return getActiveDungeonDC();
   }
 
   /* -------------------------------------------- */
@@ -293,104 +236,7 @@ export class TrespasserPartySheet extends TrespasserActorSheet {
    * Posts individual rolls and a summary to chat.
    */
   static async #onRollGroupCheck(event, target) {
-    const attribute = this.element.querySelector(".group-check-attribute")?.value;
-    const skill = this.element.querySelector(".group-check-skill")?.value;
-    const dc = parseInt(this.element.querySelector(".group-check-dc")?.value) || 12;
-
-    if (!attribute) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Dialog.Party.SelectAttribute"));
-      return;
-    }
-
-    const memberIds = this.document.system.members ?? [];
-    const allMembers = memberIds
-      .map(id => game.actors.get(id))
-      .filter(a => a?.type === "character" || a?.type === "commoner");
-
-    if (allMembers.length === 0) {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Party.NoMembers"));
-      return;
-    }
-
-    let members = allMembers;
-    const promptSelection = game.settings.get("trespasser", "enableGroupCheckSelection");
-    if (promptSelection) {
-      const selection = await foundry.applications.api.DialogV2.wait({
-        window: { title: game.i18n.localize("TRESPASSER.Dialog.Party.SelectParticipants") },
-        classes: ["trespasser", "dialog", "group-participant-select"],
-        content: `
-          <p>${game.i18n.localize("TRESPASSER.Dialog.Party.SelectParticipantsHint")}</p>
-          <div class="participant-selection" style="max-height: 300px; overflow-y: auto; margin-bottom: 10px;">
-            ${allMembers.map(m => `
-              <div class="form-group" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px; border-bottom: 1px solid var(--trp-border); padding: 4px;">
-                <input type="checkbox" name="participant" value="${m.id}" checked>
-                <img src="${m.img}" style="width: 40px !important; height: 40px !important; flex: 0 0 40px !important; object-fit: cover !important; border-radius: 4px; border: 1px solid var(--trp-text-dim);">
-                <label style="flex: 1;">${m.name}</label>
-              </div>
-            `).join('')}
-          </div>
-        `,
-        buttons: [
-          {
-            action: "run",
-            label: game.i18n.localize("TRESPASSER.Global.Action.RunCheck"),
-            icon: "fas fa-dice",
-            default: true,
-            callback: (event, button) => {
-              const selectedIds = Array.from(button.form.querySelectorAll('input[name="participant"]:checked')).map(el => el.value);
-              return allMembers.filter(m => selectedIds.includes(m.id));
-            }
-          },
-          {
-            action: "cancel",
-            label: game.i18n.localize("TRESPASSER.Global.Action.Cancel"),
-            icon: "fas fa-times",
-            callback: () => null
-          }
-        ],
-        rejectClose: false
-      });
-
-      if (!selection || selection.length === 0) return;
-      members = selection;
-    }
-
-    // Build the check label
-    const attrLabels = {
-      mighty: "TRESPASSER.Terms.Attribute.Mighty",
-      agility: "TRESPASSER.Terms.Attribute.Agility",
-      intellect: "TRESPASSER.Terms.Attribute.Intellect",
-      spirit: "TRESPASSER.Terms.Attribute.Spirit"
-    };
-    const attrLabel = game.i18n.localize(attrLabels[attribute]);
-    const skillLabel = skill
-      ? game.i18n.localize(`TRESPASSER.Terms.Skill.${skill.charAt(0).toUpperCase() + skill.slice(1)}`)
-      : null;
-    const checkLabel = skillLabel ? `${attrLabel} | ${skillLabel}` : attrLabel;
-
-    // Create the pending Chat Message
-    const results = [];
-    const messageFlags = {
-      trespasser: {
-        groupCheck: {
-          attribute,
-          skill,
-          dc,
-          checkLabel,
-          participants: members.map(m => m.id),
-          results: [],
-          status: "pending"
-        }
-      }
-    };
-
-    const content = TrespasserPartyHelper.buildGroupCheckPendingHtml(checkLabel, dc, members.map(m => m.id), []);
-
-    await ChatMessage.create({
-      content,
-      speaker: ChatMessage.getSpeaker({ alias: this.document.name }),
-      flags: messageFlags
-    });
+    return runGroupCheck(this, event, target);
   }
 
   /* -------------------------------------------- */
@@ -399,7 +245,6 @@ export class TrespasserPartySheet extends TrespasserActorSheet {
 
   async _onDropActor(event, data) {
     if (!this.isEditable) return false;
-    // v14 passes the resolved Actor document; raw drag data still resolves
     const actor = data instanceof Actor ? data : await Actor.implementation.fromDropData(data ?? {});
     if (!actor || (actor.type !== "character" && actor.type !== "commoner")) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Party.DropCharactersOnly"));

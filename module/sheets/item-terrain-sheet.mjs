@@ -1,5 +1,13 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
-import { resolveItem } from "../helpers/item-resolver.mjs";
+import {
+  handleDropBehaviorEffect,
+  handleDropLinkedEffect,
+  addTerrainBehavior,
+  removeTerrainBehavior,
+  removeTerrainLinkedEffect,
+  removeTerrainBehaviorEffect,
+  toggleTerrainBehaviorEffectSync
+} from "./terrain/terrain-behaviors-handler.mjs";
 
 const { api, sheets } = foundry.applications;
 
@@ -208,139 +216,20 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
     const effectDropZones = this.element.querySelectorAll(".behavior-effect-drop");
     for (const zone of effectDropZones) {
       zone.addEventListener("dragover", (ev) => ev.preventDefault());
-      zone.addEventListener("drop", this.#onDropBehaviorEffect.bind(this));
+      zone.addEventListener("drop", (ev) => handleDropBehaviorEffect(this.document, ev));
     }
 
     // Drop zone for linked effect on details tab
     const linkedEffectDropZones = this.element.querySelectorAll(".linked-effect-drop-zone");
     for (const zone of linkedEffectDropZones) {
       zone.addEventListener("dragover", (ev) => ev.preventDefault());
-      zone.addEventListener("drop", this.#onDropLinkedEffect.bind(this));
+      zone.addEventListener("drop", (ev) => handleDropLinkedEffect(this.document, ev));
     }
 
     const selectOnFocus = this.element.querySelectorAll(".select-on-focus");
     for (const input of selectOnFocus) {
       input.addEventListener("focus", (ev) => ev.currentTarget.select());
     }
-  }
-
-  /**
-   * Handle dropping an effect/state item onto a behavior row's effect drop zone.
-   */
-  async #onDropBehaviorEffect(event) {
-    event.preventDefault();
-    const zone = event.currentTarget.closest("[data-behavior-index]");
-    if (!zone) return;
-    const index = parseInt(zone.dataset.behaviorIndex);
-    if (isNaN(index)) return;
-
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer.getData("text/plain"));
-    } catch {
-      return;
-    }
-
-    if (data.type !== "Item") return;
-
-    const droppedItem = await resolveItem(data);
-    if (!droppedItem) return;
-
-    if (droppedItem.type !== "effect" && droppedItem.type !== "state") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnlyEffects"));
-      return;
-    }
-
-    const behaviors = foundry.utils.deepClone(this.document.system.behaviors) || [];
-    if (!behaviors[index]) return;
-
-    const b = behaviors[index];
-    let effects = Array.isArray(b.effects) ? [...b.effects] : [];
-    if (effects.length === 0 && b.effectUuid) {
-      effects.push({
-        uuid: b.effectUuid,
-        name: b.effectName || "",
-        img: b.effectImg || "",
-        intensity: b.effectIntensity || "1"
-      });
-    }
-
-    // Check duplicate
-    if (effects.some(e => e.uuid === droppedItem.uuid || e.name === droppedItem.name)) {
-      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: droppedItem.name }));
-      return;
-    }
-
-    effects.push({
-      uuid: droppedItem.uuid,
-      name: droppedItem.name,
-      img: droppedItem.img,
-      intensity: String(droppedItem.system?.intensity ?? "0")
-    });
-
-    behaviors[index].effects = effects;
-    // Set legacy fields to first effect for compatibility
-    behaviors[index].effectUuid = effects[0].uuid;
-    behaviors[index].effectName = effects[0].name;
-    behaviors[index].effectImg = effects[0].img;
-    behaviors[index].effectIntensity = effects[0].intensity;
-
-    await this.document.update({ "system.behaviors": behaviors });
-  }
-
-  /**
-   * Handle dropping an effect/state item onto the Linked Effects drop zone.
-   */
-  async #onDropLinkedEffect(event) {
-    event.preventDefault();
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer.getData("text/plain"));
-    } catch {
-      return;
-    }
-
-    if (data.type !== "Item") return;
-
-    const droppedItem = await resolveItem(data);
-    if (!droppedItem) return;
-
-    if (droppedItem.type !== "effect" && droppedItem.type !== "state") {
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnlyEffects"));
-      return;
-    }
-
-    let linkedList = Array.isArray(this.document.system.linkedEffects) ? [...this.document.system.linkedEffects] : [];
-    if (linkedList.length === 0 && this.document.system.linkedEffect?.uuid) {
-      linkedList.push({
-        uuid: this.document.system.linkedEffect.uuid,
-        name: this.document.system.linkedEffect.name || "",
-        img: this.document.system.linkedEffect.img || "",
-        intensity: "1"
-      });
-    }
-
-    if (linkedList.some(e => e.uuid === droppedItem.uuid || e.name === droppedItem.name)) {
-      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: droppedItem.name }));
-      return;
-    }
-
-    linkedList.push({
-      uuid: droppedItem.uuid,
-      name: droppedItem.name,
-      img: droppedItem.img,
-      intensity: String(droppedItem.system?.intensity ?? "0")
-    });
-
-    await this.document.update({
-      "system.linkedEffects": linkedList,
-      "system.linkedEffect": {
-        uuid: linkedList[0].uuid,
-        name: linkedList[0].name,
-        img: linkedList[0].img
-      },
-      "system.linkedEffectKey": linkedList[0].uuid
-    });
   }
 
   // ── Actions ─────────────────────────────────────────────────────────────────
@@ -355,105 +244,34 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
   }
 
   static async #onAddBehavior(event, target) {
-    const behaviors = foundry.utils.deepClone(this.document.system.behaviors) || [];
-    behaviors.push({
-      trigger: "onEnter",
-      action: "applyEffect",
-      effects: [],
-      effectUuid: "",
-      effectName: "",
-      effectImg: "",
-      effectIntensity: "1",
-      forcedMovementType: "",
-      forcedMovementDistance: "0",
-      forcedMovementDirection: "away_from_origin",
-      damageFormula: "",
-      script: "",
-      onlyOnFirstEntry: true
-    });
-    await this.document.update({ "system.behaviors": behaviors });
+    return addTerrainBehavior(this.document);
   }
 
   static async #onRemoveBehavior(event, target) {
     const row = target.closest("[data-behavior-index]");
     if (!row) return;
     const index = parseInt(row.dataset.behaviorIndex);
-    if (isNaN(index)) return;
-
-    const behaviors = foundry.utils.deepClone(this.document.system.behaviors) || [];
-    behaviors.splice(index, 1);
-    await this.document.update({ "system.behaviors": behaviors });
+    return removeTerrainBehavior(this.document, index);
   }
 
   static async #onRemoveLinkedEffect(event, target) {
     event.preventDefault();
     const effectIndex = parseInt(target.dataset.effectIndex);
-    let linkedList = Array.isArray(this.document.system.linkedEffects) ? foundry.utils.deepClone(this.document.system.linkedEffects) : [];
-    
-    if (isNaN(effectIndex) || linkedList.length === 0) {
-      linkedList = [];
-    } else {
-      linkedList.splice(effectIndex, 1);
-    }
-
-    const first = linkedList[0] || { uuid: "", name: "", img: "" };
-    await this.document.update({
-      "system.linkedEffects": linkedList,
-      "system.linkedEffect": {
-        uuid: first.uuid || "",
-        name: first.name || "",
-        img: first.img || ""
-      },
-      "system.linkedEffectKey": first.uuid || ""
-    });
+    return removeTerrainLinkedEffect(this.document, effectIndex);
   }
 
   static async #onRemoveBehaviorEffect(event, target) {
     event.preventDefault();
     const behaviorIndex = parseInt(target.dataset.behaviorIndex);
     const effectIndex = parseInt(target.dataset.effectIndex);
-    if (isNaN(behaviorIndex) || isNaN(effectIndex)) return;
-
-    const behaviors = foundry.utils.deepClone(this.document.system.behaviors) || [];
-    if (!behaviors[behaviorIndex]) return;
-
-    let effects = Array.isArray(behaviors[behaviorIndex].effects) ? behaviors[behaviorIndex].effects : [];
-    effects.splice(effectIndex, 1);
-    behaviors[behaviorIndex].effects = effects;
-
-    if (effects.length > 0) {
-      behaviors[behaviorIndex].effectUuid = effects[0].uuid;
-      behaviors[behaviorIndex].effectName = effects[0].name;
-      behaviors[behaviorIndex].effectImg = effects[0].img;
-      behaviors[behaviorIndex].effectIntensity = effects[0].intensity;
-    } else {
-      behaviors[behaviorIndex].effectUuid = "";
-      behaviors[behaviorIndex].effectName = "";
-      behaviors[behaviorIndex].effectImg = "";
-      behaviors[behaviorIndex].effectIntensity = "1";
-    }
-
-    await this.document.update({ "system.behaviors": behaviors });
+    return removeTerrainBehaviorEffect(this.document, behaviorIndex, effectIndex);
   }
 
   static async #onToggleBehaviorEffectSync(event, target) {
     event.preventDefault();
     const behaviorIndex = parseInt(target.dataset.behaviorIndex);
     const effectIndex = parseInt(target.dataset.effectIndex);
-    if (isNaN(behaviorIndex) || isNaN(effectIndex)) return;
-
-    const behaviors = foundry.utils.deepClone(this.document.system.behaviors) || [];
-    if (!behaviors[behaviorIndex]?.effects?.[effectIndex]) return;
-
-    const eff = behaviors[behaviorIndex].effects[effectIndex];
-    const current = String(eff.intensity || "").trim();
-    if (current.toLowerCase().includes("<int>")) {
-      eff.intensity = "1";
-    } else {
-      eff.intensity = "<Int>";
-    }
-
-    await this.document.update({ "system.behaviors": behaviors });
+    return toggleTerrainBehaviorEffectSync(this.document, behaviorIndex, effectIndex);
   }
 
   static async #onOpenEffectDoc(event, target) {

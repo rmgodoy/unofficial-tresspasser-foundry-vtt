@@ -3,7 +3,10 @@
  * DOM rendering and port layout for individual behavior nodes on the canvas.
  */
 import { getNodePortConfig } from "../../data/node-port-config.mjs";
-import { formatDiceIcons } from "../../helpers/dice-icon-helper.mjs";
+import { getNodeSummary, formatAreaSummary } from "./graph-node-summary.mjs";
+import { createPortRow, computePortCoordinates } from "./graph-node-ports.mjs";
+
+export { formatAreaSummary };
 
 export const BEHAVIOR_ICONS = {
   start: "fa-play",
@@ -121,68 +124,7 @@ export class GraphNode {
    * @protected
    */
   _createPortRow(direction, portName, portType) {
-    const row = document.createElement("div");
-    row.className = `graph-port-row port-row-${direction} port-row-${portName} ${portType === "reference" ? "port-row-ref" : "port-row-flow"}`;
-
-    const pinEl = document.createElement("div");
-    const portClass = `port-${direction} port-${portName} ${portType === "reference" ? "port-ref" : "port-flow"}`;
-    pinEl.className = `graph-port ${portClass}`;
-    pinEl.dataset.nodeId = this.data.id;
-    pinEl.dataset.portName = portName;
-    pinEl.dataset.portDirection = direction;
-    pinEl.dataset.portType = portType;
-
-    let portLabel = portName;
-    let tooltip = portName;
-    if (portName === "in") {
-      portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.In") || "In";
-      tooltip = portLabel;
-    } else if (portName === "out") {
-      portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Out") || "Out";
-      tooltip = portLabel;
-    } else if (portName === "onHit") {
-      portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.OnHit") || "Hit";
-      tooltip = portLabel;
-    } else if (portName === "onMiss") {
-      portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.OnMiss") || "Miss";
-      tooltip = portLabel;
-    } else if (portName === "onSpark") {
-      portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.OnSpark") || "Spark";
-      tooltip = portLabel;
-    } else if (portName === "always") {
-      portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Always") || "Always";
-      tooltip = portLabel;
-    } else if (portName === "rollRef") {
-      portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Roll") || "Roll";
-      tooltip = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.RollRef") || "Roll Reference";
-    } else if (portName === "areaRef") {
-      portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Area") || "Area";
-      tooltip = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.AreaRef") || "Area Reference";
-    } else if (portName === "terrainRef") {
-      portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Terrain") || "Terrain";
-      tooltip = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.TerrainRef") || "Terrain Reference";
-    } else if (portName === "targetRef") {
-      portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Target") || "Target";
-      tooltip = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.TargetRef") || "Target Reference";
-    }
-
-    pinEl.setAttribute("title", tooltip);
-
-    const labelEl = document.createElement("span");
-    labelEl.className = "port-label";
-    labelEl.textContent = portLabel;
-
-    if (direction === "in") {
-      row.appendChild(pinEl);
-      row.appendChild(labelEl);
-    } else {
-      row.appendChild(labelEl);
-      row.appendChild(pinEl);
-    }
-
-    const key = `${direction}:${portName}`;
-    this.portElements.set(key, pinEl);
-    return row;
+    return createPortRow(this.data.id, direction, portName, portType, this.portElements);
   }
 
   /**
@@ -190,121 +132,7 @@ export class GraphNode {
    * @protected
    */
   _getNodeSummary(node) {
-    const params = node.params || {};
-    switch (node.type) {
-      case "start": {
-        const tag = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Root") || "Root";
-        return `<span class="summary-tag">${tag}</span>`;
-      }
-      case "rollAccuracy": {
-        const parts = [];
-        if (params.actionType) {
-          const actKey = params.actionType.charAt(0).toUpperCase() + params.actionType.slice(1);
-          parts.push(game.i18n.localize(`TRESPASSER.Sheet.Item.Details.ActionTypeChoices.${actKey}`) || params.actionType);
-        }
-        if (params.abilityType) {
-          const abKey = params.abilityType.charAt(0).toUpperCase() + params.abilityType.slice(1);
-          parts.push(game.i18n.localize(`TRESPASSER.Sheet.Item.Details.TypeChoices.${abKey}`) || params.abilityType);
-        }
-        if (params.versus) {
-          const vsLabel = params.versus === "10" ? "10" : (game.i18n.localize(`TRESPASSER.Sheet.Combat.${params.versus}`) || params.versus);
-          parts.push(`vs ${vsLabel}`);
-        }
-        if (params.branchingMode === "hitOrSpark") {
-          parts.push(game.i18n.localize("TRESPASSER.Sheet.Deed.Params.HitOrSparkTag") || "Hit/Spark");
-        }
-        const tag = parts.length > 0
-          ? parts.join(" · ")
-          : (game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Branching") || "Branching");
-        return `<span class="summary-tag">${tag}</span>`;
-      }
-      case "applyDamage":
-      case "healTarget":
-      case "roll": {
-        const ref = this.getIncomingReference("rollRef");
-        const refExpr = ref?.sourceNode?.params?.expression?.trim();
-        const expr = params.expression?.trim();
-
-        if (ref?.sourceId) {
-          const displayRef = refExpr ? `(${formatDiceIcons(refExpr)})` : `(#${ref.sourceId.slice(0, 6)})`;
-          if (!expr) return `<span class="summary-ref-val">${displayRef}</span>`;
-          const formattedExpr = formatDiceIcons(expr);
-          if (/^[\/*+-]/.test(expr)) {
-            return `<span class="summary-ref-val">${displayRef}</span> <span class="summary-formula">${formattedExpr}</span>`;
-          }
-          if (/@roll/i.test(expr)) {
-            const replaced = formattedExpr.replace(/@roll/gi, `<span class="summary-ref-val">${displayRef}</span>`);
-            return `<span class="summary-formula">${replaced}</span>`;
-          }
-          return `<span class="summary-ref-val">${displayRef} +</span> <span class="summary-formula">${formattedExpr}</span>`;
-        }
-        return expr ? `<span class="summary-formula">${formatDiceIcons(expr)}</span>` : `<span class="summary-muted">—</span>`;
-      }
-      case "selectTarget": {
-        if (params.targetMode === "area") {
-          const ref = this.getIncomingReference("areaRef");
-          const areaTag = formatAreaSummary(ref?.sourceNode);
-          const rel = params.areaRelation || "inside";
-          return areaTag
-            ? `<span class="summary-tag">${rel} <span class="summary-ref-val">(${areaTag})</span></span>`
-            : `<span class="summary-tag">area</span>`;
-        }
-        if (params.targetMode === "self") {
-          const selfLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Personal") || "self";
-          return `<span class="summary-tag">${selfLabel}</span>`;
-        }
-        if (params.targetMode === "aoe") {
-          return `<span class="summary-tag">${params.aoeType || "blast"} ${params.aoeSize || 1}</span>`;
-        }
-        const count = params.targetCount || 1;
-        const tgtLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Targets") || "targets";
-        return `<span class="summary-tag">${count} ${tgtLabel}</span>`;
-      }
-      case "moveSource": {
-        if (params.destinationMode === "selectedArea") {
-          const ref = this.getIncomingReference("areaRef");
-          const areaTag = formatAreaSummary(ref?.sourceNode);
-          return areaTag
-            ? `<span class="summary-tag">move &rarr; <span class="summary-ref-val">(${areaTag})</span></span>`
-            : `<span class="summary-tag">move &rarr; area</span>`;
-        }
-        return `<span class="summary-tag">${params.movementType || "walk"} ${params.distance || 1} sq</span>`;
-      }
-      case "spawnTerrain": {
-        const name = params.terrainName || "";
-        const intStr = (params.intensity !== undefined && params.intensity !== null && params.intensity !== "") ? ` (Int ${params.intensity})` : "";
-        if (params.placement === "selected_area") {
-          const ref = this.getIncomingReference("areaRef");
-          const areaTag = formatAreaSummary(ref?.sourceNode);
-          return name
-            ? `<span class="summary-tag">${name}${intStr} <span class="summary-ref-val">(${areaTag || "area"})</span></span>`
-            : `<span class="summary-muted">—</span>`;
-        }
-        return name ? `<span class="summary-tag">${name}${intStr}</span>` : `<span class="summary-muted">—</span>`;
-      }
-      case "moveTerrain": {
-        const ref = this.getIncomingReference("terrainRef");
-        const terrainName = ref?.sourceNode?.params?.terrainName || "";
-        const dist = params.distance || 1;
-        return terrainName
-          ? `<span class="summary-tag">move <span class="summary-ref-val">(${terrainName})</span> ${dist} sq</span>`
-          : `<span class="summary-tag">move terrain ${dist} sq</span>`;
-      }
-      case "selectArea": {
-        if (params.targetMode === "aoe") {
-          return `<span class="summary-tag">${params.aoeType || "blast"} ${params.aoeSize || 1}</span>`;
-        }
-        const count = params.targetCount || 1;
-        const sqLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Squares") || "sq";
-        return `<span class="summary-tag">${count} ${sqLabel}</span>`;
-      }
-      case "applyEffects": {
-        const effLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Effects") || "effects";
-        return params.effects?.length ? `<span class="summary-tag">${params.effects.length} ${effLabel}</span>` : `<span class="summary-muted">—</span>`;
-      }
-      default:
-        return "";
-    }
+    return getNodeSummary(node, (port) => this.getIncomingReference(port));
   }
 
   /**
@@ -314,37 +142,14 @@ export class GraphNode {
    * @returns {{x: number, y: number}}
    */
   getPortCoordinates(portName, direction = "out") {
-    let portEl = this.portElements.get(`${direction}:${portName}`);
-    if (!portEl) {
-      // Fallback search across registered ports
-      for (const [k, el] of this.portElements.entries()) {
-        if (k.endsWith(`:${portName}`)) {
-          portEl = el;
-          break;
-        }
-      }
-    }
-
-    if (!portEl || !this.element) {
-      return { x: this.data.x ?? 0, y: this.data.y ?? 0 };
-    }
-
-    const nodeX = this.data.x ?? 0;
-    const nodeY = this.data.y ?? 0;
-    const portRect = portEl.getBoundingClientRect();
-    const nodeRect = this.element.getBoundingClientRect();
-
-    const scale = (this.element.offsetWidth > 0 && nodeRect.width > 0)
-      ? (nodeRect.width / this.element.offsetWidth)
-      : (this.options.editor?.zoom || 1);
-
-    const relX = ((portRect.left + portRect.width / 2) - nodeRect.left) / scale;
-    const relY = ((portRect.top + portRect.height / 2) - nodeRect.top) / scale;
-
-    return {
-      x: Math.round(nodeX + relX),
-      y: Math.round(nodeY + relY)
-    };
+    return computePortCoordinates(
+      this.element,
+      this.data,
+      this.portElements,
+      portName,
+      direction,
+      this.options.editor?.zoom || 1
+    );
   }
 
   /**
@@ -479,18 +284,4 @@ export class GraphNode {
     }
     this.updatePortBadges();
   }
-}
-
-/** Formats a short human-readable tag for an area node. */
-export function formatAreaSummary(node) {
-  if (!node) return "";
-  const p = node.params || {};
-  if (p.targetMode === "squares") {
-    const count = p.targetCount || 1;
-    const sq = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Squares") || "sq";
-    return `${count} ${sq}`;
-  }
-  if (p.aoeType) return `${p.aoeType} ${p.aoeSize || 1}`;
-  if (p.targetMode === "aoe") return `blast ${p.aoeSize || 1}`;
-  return p.targetMode || "area";
 }

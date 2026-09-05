@@ -1,9 +1,8 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
-import { showItemInfoDialog }  from "../dialogs/item-info-dialog.mjs";
 import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 import { onDeedRoll, postDeedPhase } from "./character/handlers-deed.mjs";
+import { onPrevailRoll, onIntensityChange, onEffectInfo } from "./character/handlers-effects.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
-import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 import { TrespasserCreatureConfigDialog } from "../dialogs/creature-config-dialog.mjs";
 import { PASSIVE_STATES } from "../config/state-config.mjs";
 
@@ -239,17 +238,8 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
     }
   }
 
-  /**
-   * Handle manually changing the intensity of an effect item.
-   */
   async _onIntensityChange(event) {
-    const li = event.currentTarget.closest(".effect-row");
-    if (!li) return;
-    const itemId = li.dataset.itemId;
-    const val = parseInt(event.currentTarget.value);
-    if (isNaN(val)) return;
-    const item = this.actor.items.get(itemId);
-    if (item) await item.update({ "system.intensity": val });
+    return onIntensityChange(event, this);
   }
 
   async _onDurationChange(event) {
@@ -299,63 +289,8 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
     });
   }
 
-  /**
-   * Handle rolling a prevail check for an effect/state on a creature.
-   */
   async _onPrevailRoll(event) {
-    event.preventDefault();
-    const li = event.currentTarget.closest(".effect-row");
-    const itemId = li.dataset.itemId;
-    const effectItem = this.actor.items.get(itemId);
-    if (!effectItem) return;
-
-    let extraAP = 0;
-    const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
-    
-    if (combatant && this.actor.type === "creature") {
-      const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
-      const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-      if (restrictAPF && availableAP < 1) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
-        return;
-      }
-
-      let apSpent = 1;
-      if (availableAP > 1) {
-        apSpent = await askAPDialog(availableAP);
-        if (apSpent === null) return;
-      }
-      
-      extraAP = apSpent - 1;
-      await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - apSpent));
-    }
-
-    const intensity = effectItem.system.intensity || 0;
-    const defaultCD = Math.min(20, 10 + intensity);
-    const prevailStat = this.actor.system.combat?.prevail || 0;
-    const apBonus = extraAP * 2;
-
-    const isAdv = TrespasserEffectsHelper.hasAdvantage(this.actor, "prevail");
-    
-    const diceFormula = isAdv ? "2d20kh" : "1d20";
-
-    const result = await TrespasserRollDialog.wait({
-      dice: diceFormula,
-      showCD: true,
-      cd: defaultCD,
-      bonuses: [
-        { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Prevail"), value: prevailStat },
-        { label: game.i18n.format("TRESPASSER.Chat.Trigger.APGained", { value: 1 }), value: apBonus }
-      ]
-    }, { title: game.i18n.format("TRESPASSER.Chat.Check.PrevailCheck", { name: effectItem.name }) });
-
-    if (!result) return;
-
-    await this.actor.rollPrevail(effectItem.id, extraAP, {
-      modifier: result.modifier,
-      cd: result.cd
-    });
-    await TrespasserCombat.recordHUDAction(this.actor, "prevail");
+    return onPrevailRoll(event, this);
   }
 
   /**
@@ -387,14 +322,7 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
     await TrespasserCreatureConfigDialog.wait(sheet.actor);
   }
 
-  /**
-   * Show info dialog for an effect.
-   */
   async _onEffectInfo(event) {
-    const li = event.currentTarget.closest("[data-item-id]");
-    const itemId = li?.dataset.itemId;
-    if (!itemId) return;
-    const item = this.actor.items.get(itemId);
-    if (item) showItemInfoDialog(item.uuid);
+    return onEffectInfo(event, this);
   }
 }

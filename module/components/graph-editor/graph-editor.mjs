@@ -3,9 +3,16 @@
  * Main node graph editor controller managing canvas viewport, pan/zoom, nodes, and connections.
  */
 import { GraphNode } from "./graph-node.mjs";
-import { renderConnectionPath } from "./graph-connection.mjs";
 import { GraphContextMenu } from "./graph-context-menu.mjs";
-import { startCanvasPan, startNodeDrag, startNoodleDrag, applyReferenceConnection, removeReferenceConnection, getShortcutsTooltipHtml } from "./graph-interactions.mjs";
+import {
+  startCanvasPan,
+  startNodeDrag,
+  startNoodleDrag,
+  removeReferenceConnection,
+  getShortcutsTooltipHtml
+} from "./graph-interactions.mjs";
+import { autoLayoutNodes, fitGraphToView } from "./graph-editor-layout.mjs";
+import { renderAllConnections, addGraphConnection } from "./graph-editor-connections.mjs";
 
 export class GraphEditor {
   /**
@@ -136,14 +143,7 @@ export class GraphEditor {
 
   /** Renders all SVG connection paths. */
   _renderConnections() {
-    this.svg.querySelectorAll("path:not(.connection-temp)").forEach(p => p.remove());
-    for (const conn of this.connections) {
-      const srcNode = this.nodeMap.get(conn.sourceId), tgtNode = this.nodeMap.get(conn.targetId);
-      if (!srcNode || !tgtNode) continue;
-      const p1 = srcNode.getPortCoordinates(conn.sourcePort, "out");
-      const p2 = tgtNode.getPortCoordinates(conn.targetPort, "in");
-      this.svg.appendChild(renderConnectionPath(null, conn, p1, p2));
-    }
+    renderAllConnections(this);
   }
 
   /** Updates canvas CSS transform based on pan and zoom. */
@@ -248,78 +248,17 @@ export class GraphEditor {
 
   /** Adds a connection between two ports. */
   addConnection(sourceId, sourcePort, targetId, targetPort, type = "flow") {
-    if (sourceId === targetId) return;
-
-    if (type === "reference" || targetPort.endsWith("Ref")) {
-      const oldIdx = this.connections.findIndex(c => c.targetId === targetId && c.targetPort === targetPort);
-      if (oldIdx !== -1) {
-        const old = this.connections.splice(oldIdx, 1)[0];
-        removeReferenceConnection(this, old.targetId, old.targetPort);
-      }
-    } else {
-      const exists = this.connections.some(c =>
-        c.sourceId === sourceId && c.sourcePort === sourcePort &&
-        c.targetId === targetId && c.targetPort === targetPort
-      );
-      if (exists) return;
-    }
-
-    this.connections.push({ id: foundry.utils.randomID(), sourceId, sourcePort, targetId, targetPort, type });
-    if (type === "flow" && targetPort === "in") {
-      const targetNode = this.nodeMap.get(targetId);
-      if (targetNode && targetNode.data.type !== "start" && (!targetNode.data.phase || targetNode.data.phase === "base")) {
-        targetNode.setPhase("inherit");
-      }
-    } else if (type === "reference" || targetPort.endsWith("Ref")) {
-      applyReferenceConnection(this, sourceId, targetId, targetPort);
-    }
-    this._renderConnections();
-    this._notifyChange();
+    addGraphConnection(this, sourceId, sourcePort, targetId, targetPort, type);
   }
 
   /** Auto-layouts nodes topologically left-to-right. */
   autoLayout() {
-    let currentX = 60;
-    const startNode = Array.from(this.nodeMap.values()).find(n => n.data.type === "start");
-    if (startNode) {
-      startNode.setPosition(currentX, 180);
-      currentX += 280;
-    }
-    const otherNodes = Array.from(this.nodeMap.values()).filter(n => n.data.type !== "start")
-      .sort((a, b) => (a.data.x ?? 0) - (b.data.x ?? 0));
-
-    let row = 0;
-    for (const node of otherNodes) {
-      node.setPosition(currentX, 80 + (row % 3) * 140);
-      currentX += 280;
-      row++;
-    }
-    this._renderConnections();
-    this._notifyChange();
+    autoLayoutNodes(this);
   }
 
   /** Adjusts pan and zoom to fit all nodes inside the viewport. */
   fitToView() {
-    if (this.nodeMap.size === 0) return;
-    let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-    for (const node of this.nodeMap.values()) {
-      minX = Math.min(minX, node.data.x ?? 0);
-      minY = Math.min(minY, node.data.y ?? 0);
-      maxX = Math.max(maxX, (node.data.x ?? 0) + 240);
-      maxY = Math.max(maxY, (node.data.y ?? 0) + 120);
-    }
-
-    const rect = this.viewport.getBoundingClientRect();
-    const padding = 60;
-    const graphW = Math.max(maxX - minX, 200) + padding * 2;
-    const graphH = Math.max(maxY - minY, 200) + padding * 2;
-    const scaleX = rect.width / graphW;
-    const scaleY = rect.height / graphH;
-    this.zoom = Math.min(Math.max(Math.min(scaleX, scaleY), 0.4), 1.2);
-    this.panX = Math.round((rect.width - (maxX + minX) * this.zoom) / 2);
-    this.panY = Math.round((rect.height - (maxY + minY) * this.zoom) / 2);
-    this._updateTransform();
-    this._notifyViewportChange();
+    fitGraphToView(this);
   }
 
   /** Notifies consumer of changes to nodes or connections. */

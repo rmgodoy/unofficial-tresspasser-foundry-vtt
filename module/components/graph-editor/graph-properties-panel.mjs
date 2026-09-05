@@ -2,8 +2,14 @@
  * graph-properties-panel.mjs
  * Right-side docked properties panel component for editing node phase and parameters.
  */
-import { BEHAVIOR_ICONS, formatAreaSummary } from "./graph-node.mjs";
-import { resolveItem } from "../../helpers/item-resolver.mjs";
+import { BEHAVIOR_ICONS } from "./graph-node.mjs";
+import { renderBehaviorParamsHtml } from "./graph-properties-context.mjs";
+import {
+  handlePropertiesDrop,
+  removeEffectFromNode,
+  clearTerrainFromNode,
+  clearDeedFromNode
+} from "./graph-properties-drops.mjs";
 
 export class GraphPropertiesPanel {
   /**
@@ -119,65 +125,13 @@ export class GraphPropertiesPanel {
       paramsContainer.className = "properties-param-section";
 
       try {
-        const item = this.sheet?.document;
-        const defaultActionType = item?.system?.actionType || "attack";
-        const defaultAbilityType = item?.system?.abilityType || "innate";
-        const defaultVersus = item?.system?.versus || "Guard";
-        const actKey = defaultActionType ? defaultActionType.charAt(0).toUpperCase() + defaultActionType.slice(1) : "";
-        const defaultActionTypeLabel = game.i18n.localize(`TRESPASSER.Sheet.Item.Details.ActionTypeChoices.${actKey}`) || defaultActionType;
-        const abKey = defaultAbilityType ? defaultAbilityType.charAt(0).toUpperCase() + defaultAbilityType.slice(1) : "";
-        const defaultAbilityTypeLabel = game.i18n.localize(`TRESPASSER.Sheet.Item.Details.TypeChoices.${abKey}`) || defaultAbilityType;
-        const defaultVersusLabel = defaultVersus === "10" ? "10" : (game.i18n.localize(`TRESPASSER.Sheet.Combat.${defaultVersus}`) || defaultVersus);
-
-        // Reference Context resolution for node
-        const p = node.params || {};
-        const conns = this.editor?.connections || [];
-        const findRef = (port, fallback) => fallback || conns.find(c => c.targetId === node.id && c.targetPort === port)?.sourceId || "";
-        const refRollId = findRef("rollRef", p.rollBehaviorId);
-        const refAreaId = findRef("areaRef", p.areaBehaviorId);
-        const refTerrainId = findRef("terrainRef", p.terrainBehaviorId);
-        const getNode = id => id ? (this.editor?.nodeMap?.get(id)?.data || graph.nodes.find(n => n.id === id) || null) : null;
-        const refRollNode = getNode(refRollId);
-        const refRollExpr = refRollNode?.params?.expression?.trim() || "";
-        const refAreaSummary = formatAreaSummary(getNode(refAreaId));
-        const refTerrainName = getNode(refTerrainId)?.params?.terrainName || "";
-
-        const hasRefRoll = Boolean(refRollId);
-        const hasRefArea = Boolean(refAreaId);
-        const hasRefTerrain = Boolean(refTerrainId);
-        node.params = node.params || {};
-        if (hasRefArea) {
-          node.params.areaBehaviorId = refAreaId;
-          if (node.type === "selectTarget") node.params.targetMode = "area";
-          else if (node.type === "moveSource") node.params.destinationMode = "selectedArea";
-          else if (node.type === "spawnTerrain") node.params.placement = "selected_area";
-        }
-        if (hasRefRoll) node.params.rollBehaviorId = refRollId;
-        if (hasRefTerrain) node.params.terrainBehaviorId = refTerrainId;
-
-        let terrainHasLinkedEffect = false;
-        if (node.type === "spawnTerrain" && node.params?.terrainUuid) {
-          try {
-            const terrainDoc = await resolveItem(node.params.terrainUuid, { type: "terrain", notify: false });
-            if (terrainDoc) {
-              const sys = terrainDoc.system;
-              terrainHasLinkedEffect = Boolean((sys?.linkedEffects && sys.linkedEffects.length > 0) || sys?.linkedEffect?.uuid || sys?.linkedEffectKey);
-              if (terrainHasLinkedEffect && (node.params.intensity === undefined || node.params.intensity === null)) {
-                const defaultInt = parseInt(sys.linkedEffects?.[0]?.intensity, 10);
-                node.params.intensity = !isNaN(defaultInt) ? defaultInt : 1;
-              }
-            }
-          } catch {}
-        }
-
-        const renderFn = foundry.applications?.handlebars?.renderTemplate || globalThis.renderTemplate;
-        const paramsHtml = await renderFn("systems/trespasser/templates/item/deed/behavior-params.hbs", {
-          type: node.type, params: node.params || {}, id: node.id, index: nodeIndex, editable: !this.readOnly,
-          defaultActionType, defaultAbilityType, defaultVersus, defaultActionTypeLabel, defaultAbilityTypeLabel, defaultVersusLabel,
-          refRollId, refRollIdShort: refRollId ? refRollId.slice(0, 6) : "", refRollExpr, hasRefRoll,
-          refAreaId, refAreaIdShort: refAreaId ? refAreaId.slice(0, 6) : "", refAreaSummary, hasRefArea,
-          refTerrainId, refTerrainIdShort: refTerrainId ? refTerrainId.slice(0, 6) : "", refTerrainName, hasRefTerrain,
-          terrainHasLinkedEffect
+        const paramsHtml = await renderBehaviorParamsHtml({
+          node,
+          nodeIndex,
+          sheet: this.sheet,
+          editor: this.editor,
+          readOnly: this.readOnly,
+          graph
         });
         paramsContainer.innerHTML = paramsHtml;
       } catch (err) {
@@ -316,7 +270,13 @@ export class GraphPropertiesPanel {
     const dropZones = panelEl.querySelectorAll(".drop-zone");
     for (const zone of dropZones) {
       zone.addEventListener("dragover", (ev) => ev.preventDefault());
-      zone.addEventListener("drop", (ev) => this._onDrop(ev));
+      zone.addEventListener("drop", (ev) => handlePropertiesDrop({
+        event: ev,
+        currentNodeId: this.currentNodeId,
+        editor: this.editor,
+        sheet: this.sheet,
+        onUpdated: () => this.render()
+      }));
     }
 
     // Remove effect buttons
@@ -325,20 +285,38 @@ export class GraphPropertiesPanel {
       btn.addEventListener("click", (ev) => {
         ev.preventDefault();
         const effIndex = parseInt(btn.dataset.effectIndex);
-        if (!isNaN(effIndex)) this._onRemoveEffect(effIndex);
+        if (!isNaN(effIndex)) {
+          removeEffectFromNode({
+            currentNodeId: this.currentNodeId,
+            effectIndex: effIndex,
+            editor: this.editor,
+            sheet: this.sheet,
+            onUpdated: () => this.render()
+          });
+        }
       });
     }
 
     // Clear terrain button
     panelEl.querySelector(".clear-terrain-btn")?.addEventListener("click", (ev) => {
       ev.preventDefault();
-      this._onClearTerrain();
+      clearTerrainFromNode({
+        currentNodeId: this.currentNodeId,
+        editor: this.editor,
+        sheet: this.sheet,
+        onUpdated: () => this.render()
+      });
     });
 
     // Clear deed button
     panelEl.querySelector(".clear-deed-btn")?.addEventListener("click", (ev) => {
       ev.preventDefault();
-      this._onClearDeed();
+      clearDeedFromNode({
+        currentNodeId: this.currentNodeId,
+        editor: this.editor,
+        sheet: this.sheet,
+        onUpdated: () => this.render()
+      });
     });
 
     // Auto-select text on focus for number/text inputs
@@ -346,143 +324,6 @@ export class GraphPropertiesPanel {
     for (const input of selectOnFocus) {
       input.addEventListener("focus", (ev) => ev.currentTarget.select());
     }
-  }
-
-  /**
-   * Handles dropping Items (effects, terrains, deeds) onto drop zones.
-   * @param {DragEvent} event
-   * @protected
-   */
-  async _onDrop(event) {
-    event.preventDefault();
-    const zone = event.currentTarget;
-    const isEffect = zone.classList.contains("behavior-effect-drop");
-    const isTerrain = zone.classList.contains("behavior-terrain-drop");
-    const isDeed = zone.classList.contains("behavior-deed-drop");
-    if (!isEffect && !isTerrain && !isDeed) return;
-
-    let data;
-    try {
-      data = JSON.parse(event.dataTransfer.getData("text/plain"));
-    } catch {
-      return;
-    }
-    if (data.type !== "Item") return;
-
-    const item = await resolveItem(data);
-    if (!item) return;
-
-    const graph = this.editor ? this.editor.getGraph() : foundry.utils.deepClone(this.sheet.document.system.graph || { nodes: [] });
-    const node = graph.nodes.find(n => n.id === this.currentNodeId);
-    if (!node) return;
-    node.params = foundry.utils.deepClone(node.params || {});
-
-    if (isEffect) {
-      if (item.type !== "effect" && item.type !== "state") {
-        ui.notifications?.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnlyEffects") || "Only effects or states can be dropped here.");
-        return;
-      }
-      node.params.effects = Array.isArray(node.params.effects) ? [...node.params.effects] : [];
-      if (node.params.effects.some(e => e.uuid === item.uuid || e.name === item.name)) {
-        ui.notifications?.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: item.name }) || `${item.name} is already added.`);
-        return;
-      }
-      node.params.effects.push({
-        uuid: item.uuid,
-        name: item.name,
-        img: item.img || "icons/svg/aura.svg",
-        intensity: 1
-      });
-    } else if (isTerrain) {
-      if (item.type !== "terrain") {
-        ui.notifications?.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropTerrainsOnly") || "Only Terrain items can be dropped here.");
-        return;
-      }
-      node.params.terrainUuid = item.uuid;
-      node.params.terrainName = item.name;
-      node.params.terrainImg = item.img || "icons/svg/mountain.svg";
-      const sys = item.system;
-      const hasLinked = Boolean((sys?.linkedEffects && sys.linkedEffects.length > 0) || sys?.linkedEffect?.uuid || sys?.linkedEffectKey);
-      node.params.intensity = hasLinked ? (parseInt(sys?.linkedEffects?.[0]?.intensity, 10) || 1) : null;
-    } else if (isDeed) {
-      if (item.type !== "deed") {
-        ui.notifications?.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnly") || "Only Deeds can be dropped here.");
-        return;
-      }
-      node.params.deedUuid = item.uuid;
-      node.params.deedName = item.name;
-      node.params.deedImg = item.img || "icons/svg/lightning.svg";
-    }
-
-    if (this.editor) this.editor.updateNodeParams(this.currentNodeId, node.params);
-    await this.render();
-    await this.#persistGraph(graph);
-  }
-
-  /**
-   * Removes an effect chip from an applyEffects node.
-   * @param {number} effectIndex
-   * @protected
-   */
-  async _onRemoveEffect(effectIndex) {
-    const graph = this.editor ? this.editor.getGraph() : foundry.utils.deepClone(this.sheet.document.system.graph || { nodes: [] });
-    const node = graph.nodes.find(n => n.id === this.currentNodeId);
-    if (!node || !Array.isArray(node.params?.effects)) return;
-
-    node.params = foundry.utils.deepClone(node.params);
-    node.params.effects.splice(effectIndex, 1);
-
-    if (this.editor) this.editor.updateNodeParams(this.currentNodeId, node.params);
-    await this.render();
-    await this.#persistGraph(graph);
-  }
-
-  /**
-   * Clears the referenced terrain from a spawnTerrain node.
-   * @protected
-   */
-  async _onClearTerrain() {
-    const graph = this.editor ? this.editor.getGraph() : foundry.utils.deepClone(this.sheet.document.system.graph || { nodes: [] });
-    const node = graph.nodes.find(n => n.id === this.currentNodeId);
-    if (!node || !node.params) return;
-
-    node.params = foundry.utils.deepClone(node.params);
-    node.params.terrainUuid = "";
-    node.params.terrainName = "";
-    node.params.terrainImg = "";
-    node.params.intensity = null;
-
-    if (this.editor) this.editor.updateNodeParams(this.currentNodeId, node.params);
-    await this.render();
-    await this.#persistGraph(graph);
-  }
-
-  /**
-   * Clears the referenced deed from an executeDeed node.
-   * @protected
-   */
-  async _onClearDeed() {
-    const graph = this.editor ? this.editor.getGraph() : foundry.utils.deepClone(this.sheet.document.system.graph || { nodes: [] });
-    const node = graph.nodes.find(n => n.id === this.currentNodeId);
-    if (!node || !node.params) return;
-
-    node.params = foundry.utils.deepClone(node.params);
-    node.params.deedUuid = "";
-    node.params.deedName = "";
-    node.params.deedImg = "";
-
-    if (this.editor) this.editor.updateNodeParams(this.currentNodeId, node.params);
-    await this.render();
-    await this.#persistGraph(graph);
-  }
-
-  /** Helper to persist graph state and viewport to the item document. */
-  async #persistGraph(graph) {
-    await this.sheet.document.update({
-      "system.graph": graph,
-      "system.graphVersion": 1,
-      "flags.trespasser.graphViewport": this.editor ? this.editor.getViewportState() : undefined
-    });
   }
 
   /** Cleans up listeners and clears container DOM. */

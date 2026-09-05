@@ -1,5 +1,20 @@
-import { handleRestAction } from "../sheets/character/handlers-rest.mjs";
-import { resolveItem } from "../helpers/item-resolver.mjs";
+import {
+  calculateWeeklyExpenses,
+  calculateWeeklyIncome,
+  calculateTotalAttributes,
+  getTrainedSkills
+} from "../haven/haven-calc.mjs";
+import {
+  isItemMatch,
+  processHirelingProduction,
+  syncStrongholdBenefit
+} from "../haven/haven-production.mjs";
+import {
+  weeksRest,
+  resolveHirelings,
+  populationCheck,
+  eventCheck
+} from "../haven/haven-upkeep.mjs";
 
 /**
  * Data model for the Haven actor type.
@@ -58,11 +73,9 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
         id: new fields.StringField({ initial: () => foundry.utils.randomID() }),
         name: new fields.StringField({ initial: "New Production Chain" }),
         active: new fields.BooleanField({ initial: true }),
-        // Array of hireling item IDs assigned to this chain in order
         hirelings: new fields.ArrayField(new fields.StringField(), { initial: [] })
       }), { initial: [] }),
 
-      // Internal inventory managed by data, allowing stacking of all types
       inventory: new fields.ArrayField(new fields.SchemaField({
         item: new fields.ObjectField(),
         quantity: new fields.NumberField({ initial: 1, integer: true, min: 0 })
@@ -84,85 +97,26 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     };
   }
 
-  /**
-   * Total expenses per week (Hirelings + Completed Strongholds).
-   * @returns {number}
-   */
   get totalWeeklyExpenses() {
-    const actor = this.parent;
-    const hirelings = actor.items.filter(i => i.type === "hireling" && i.system.active);
-    const completedStrongholds = actor.items.filter(i => i.type === "stronghold" && i.system.isCompleted);
-    
-    const hirelingCost = hirelings.reduce((total, h) => total + (h.system.cost * h.system.quantity), 0);
-    const strongholdCost = completedStrongholds.reduce((total, s) => total + (s.system.weeklyCost || 0), 0);
-    
-    return hirelingCost + strongholdCost;
+    return calculateWeeklyExpenses(this);
   }
 
-  /**
-   * Total income per week (Completed Strongholds).
-   * @returns {number}
-   */
   get totalWeeklyIncome() {
-    const actor = this.parent;
-    const completedStrongholds = actor.items.filter(i => i.type === "stronghold" && i.system.isCompleted);
-    return completedStrongholds.reduce((total, s) => total + (s.system.income || 0), 0);
+    return calculateWeeklyIncome(this);
   }
 
-  /**
-   * Total balance per week (Income - Expenses).
-   * @returns {number}
-   */
   get weeklyBalance() {
     return this.totalWeeklyIncome - this.totalWeeklyExpenses;
   }
 
-  /**
-   * Get calculated total attributes (Base + Bonus)
-   * @returns {Record<string, number>}
-   */
   get totalAttributes() {
-    const actor = this.parent;
-    const totals = {};
-    const buildings = actor.items.filter(i => i.type === "build" && (i.system.progress >= i.system.buildClock));
-    const strongholds = actor.items.filter(i => i.type === "stronghold" && (i.system.progress >= i.system.buildClock));
-
-    for ( const key of ["military", "efficiency", "resources", "expertise", "allegiance", "appeal"] ) {
-      const base = this.attributes[key] ?? 0;
-      const bonus = (this.bonuses?.attributes?.[key] ?? 0);
-      
-      // Add building bonuses
-      const buildingBonus = buildings.reduce((sum, b) => {
-        const itemBonuses = b.system.bonuses || [];
-        return sum + itemBonuses.filter(attr => attr.attribute === key).reduce((s, a) => s + a.value, 0);
-      }, 0);
-
-      // Add stronghold bonuses
-      const strongholdBonus = strongholds.reduce((sum, s) => {
-        const itemBonuses = s.system.bonuses || [];
-        return sum + itemBonuses.filter(attr => attr.attribute === key).reduce((s, a) => s + a.value, 0);
-      }, 0);
-
-      totals[key] = base + bonus + buildingBonus + strongholdBonus;
-    }
-    return totals;
+    return calculateTotalAttributes(this);
   }
 
-  /**
-   * Thresholds for Population Rank required for each level.
-   * 0:0, 1:5, 2:10, 3:20, 4:30, 5:40, 6:50, 7:60, 8:80, 9:100
-   */
   get populationThresholds() {
     return [0, 5, 10, 20, 30, 40, 50, 60, 80, 100];
   }
 
-  /**
-   * Skill Bonus based on Haven Level:
-   * Level 0-2: +2
-   * Level 3-5: +3
-   * Level 6-8: +4
-   * Level 9: +5
-   */
   get skillBonus() {
     const lvl = this.level;
     if (lvl >= 9) return 5;
@@ -171,9 +125,6 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     return 2;
   }
 
-  /**
-   * Maximum number of building slots (under construction) based on level.
-   */
   get maxBuildSlots() {
     const lvl = this.level;
     if (lvl >= 9) return 4;
@@ -182,17 +133,10 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     return 1;
   }
 
-  /**
-   * Maximum number of completed buildings based on level.
-   */
   get maxBuildingLimit() {
-    const lvl = this.level;
-    return (lvl + 1) * 3;
+    return (this.level + 1) * 3;
   }
 
-  /**
-   * Returns true if the Haven has reached the population rank required for the next level.
-   */
   get isStagnant() {
     if (this.level >= 9) return false;
     const thresholds = this.populationThresholds;
@@ -200,481 +144,35 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
     return this.populationRank >= requiredRank;
   }
 
-  /**
-   * Returns a Set of all trained skill keys (from Haven itself or completed buildings).
-   */
   get trainedSkills() {
-    const actor = this.parent;
-    const trained = new Set();
-    
-    // Check Haven's own skills
-    for ( const [key, isTrained] of Object.entries(this.skills) ) {
-      if ( isTrained ) trained.add(key);
-    }
-
-    // Check completed buildings
-    const buildings = actor.items.filter(i => i.type === "build" && (i.system.progress >= i.system.buildClock));
-    for ( const b of buildings ) {
-      for ( const s of (b.system.skills || []) ) {
-        trained.add(s);
-      }
-    }
-
-    return trained;
+    return getTrainedSkills(this);
   }
 
-  /**
-   * Step 1: Week's Rest.
-   * Automatically applies rest benefits to characters whose owners also own this Haven.
-   */
   async weeksRest() {
-    const actor = this.parent;
-    const havenOwnership = actor.ownership;
-    
-    // Get IDs of all users who have OWNER permission for the Haven
-    const havenOwners = Object.entries(havenOwnership)
-      .filter(([id, level]) => id !== "default" && level === 3)
-      .map(([id]) => id);
-
-    // Find characters owned by any of those users
-    const characters = game.actors.filter(a => a.type === "character");
-    const affected = characters.filter(char => {
-      return havenOwners.some(uid => char.ownership[uid] === 3);
-    });
-
-    const results = [];
-    for (const char of affected) {
-      await handleRestAction("week", {}, char, { chat: false });
-      results.push(char.name);
-    }
-
-    await ChatMessage.create({
-      content: `<div class="trespasser-chat-card haven-report">
-        <h3>${game.i18n.localize("TRESPASSER.Terms.HavenUpkeepWeeksRest")}</h3>
-        <p>${game.i18n.localize("TRESPASSER.Chat.Haven.WeeksRestFlavor")}</p>
-        <p><strong>${game.i18n.localize("TRESPASSER.Terms.CharactersRested")}:</strong> ${results.length ? results.join(", ") : game.i18n.localize("TRESPASSER.Global.Status.None")}</p>
-      </div>`,
-      speaker: ChatMessage.getSpeaker({ actor })
-    });
+    return weeksRest(this);
   }
 
-  /**
-   * Combined Step 2 & 3: Resolve Hirelings (includes paying expenses).
-   */
   async resolveHirelings() {
-    const actor = this.parent;
-    const hirelings = actor.items.filter(i => i.type === "hireling");
-    
-    // Combine Step 2 & 3 Payment logic
-    const balance = this.weeklyBalance;
-    const expenses = this.totalWeeklyExpenses;
-    const income = this.totalWeeklyIncome;
-
-    if (this.treasury + balance < 0) {
-      ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Haven.InsufficientFunds", { cost: expenses - income, treasury: this.treasury }));
-      return false;
-    }
-    
-    const newTreasury = Math.max(0, this.treasury + balance);
-    const updates = { "system.treasury": newTreasury };
-
-    // Identify assigned hirelings
-    const assignedHirelingIds = new Set();
-    for (const chain of this.productionChains) {
-      if (!chain.active) continue;
-      for (const hid of chain.hirelings) assignedHirelingIds.add(hid);
-    }
-
-    const messages = [];
-    messages.push(`<h3>${game.i18n.localize("TRESPASSER.Terms.HavenUpkeepResolveProduction")}</h3>`);
-    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Terms.HavenWeeklyExpenses")}:</strong> ${expenses}</p>`);
-    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Terms.HavenWeeklyIncome")}:</strong> ${income}</p>`);
-    messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Terms.HavenWeeklyBalance")}:</strong> ${balance >= 0 ? "+" : ""}${balance}</p>`);
-
-    // Temporary inventory state for the week's processing
-    let currentInventory = foundry.utils.duplicate(this.inventory);
-
-    // 2. Process production chains sequentially
-    for (const chain of this.productionChains) {
-      if (!chain.active) continue;
-      messages.push(`<h4>${chain.name}</h4>`);
-      for (const hid of chain.hirelings) {
-        const hireling = actor.items.get(hid);
-        if (hireling && hireling.system.active) {
-          const { result, newInventory } = await this._processHirelingProduction(hireling, currentInventory);
-          messages.push(result);
-          currentInventory = newInventory;
-        }
-      }
-    }
-
-    // 3. Process unassigned active hirelings
-    messages.push(`<h4>${game.i18n.localize("TRESPASSER.Terms.HavenUnassignedHirelings")}</h4>`);
-    for (const h of hirelings) {
-      if (h.system.active && !assignedHirelingIds.has(h.id)) {
-        const { result, newInventory } = await this._processHirelingProduction(h, currentInventory);
-        messages.push(result);
-        currentInventory = newInventory;
-      }
-    }
-
-    // Update treasury and inventory
-    updates["system.inventory"] = currentInventory;
-    
-    // 4. Process Strongholds (progression and features)
-    const strongholds = actor.items.filter(i => i.type === "stronghold");
-    if (strongholds.length > 0) {
-      messages.push(`<h4>${game.i18n.localize("TRESPASSER.Terms.HavenStrongholds")}</h4>`);
-      for (const s of strongholds) {
-        if (s.system.isCompleted) continue; // Already handled for income/outcome
-        
-        const oldProgress = s.system.progress;
-        const newProgress = Math.min(s.system.buildClock, oldProgress + 1);
-        await s.update({ "system.progress": newProgress });
-        
-        if (newProgress === s.system.buildClock) {
-          messages.push(`<p style="color:var(--trp-green-bright);"><strong>${s.name} ${game.i18n.localize("TRESPASSER.Global.Completed")}!</strong></p>`);
-          // Apply features to owner if set
-          if (s.system.ownerId) {
-            const owner = game.actors.get(s.system.ownerId);
-            if (owner && s.system.features?.length > 0) {
-              await owner._applyLinkedItems(s.system.features);
-              ui.notifications.info(`Stronghold ${s.name} features applied to ${owner.name}.`);
-            }
-          }
-        } else {
-          messages.push(`<p>${s.name}: ${game.i18n.localize("TRESPASSER.Global.Progress")} ${newProgress}/${s.system.buildClock}</p>`);
-        }
-      }
-    }
-
-    await actor.update(updates);
-
-    await ChatMessage.create({
-      content: `<div class="trespasser-chat-card haven-report">${messages.join("")}</div>`,
-      speaker: ChatMessage.getSpeaker({ actor })
-    });
+    return resolveHirelings(this);
   }
 
-  /**
-   * Step 4: Population Check
-   * Roll a Skill check of Hospitality (if trained) and Appeal vs 10.
-   * Success increases Population Rank by 1, +1 per spark.
-   * Also checks for Level Up based on requirements.
-   */
   async populationCheck() {
-    const actor = this.parent;
-    const isStagnant = this.isStagnant;
-    const state = this.populationState || "growth";
-    const messages = [];
-    messages.push(`<h3>${game.i18n.localize("TRESPASSER.Terms.HavenUpkeepPopulationCheck")}</h3>`);
-    
-    const oldRank = this.populationRank || 0;
-    let newRank = oldRank;
-    const updates = {};
-    
-    // Check type based on state
-    if (state === "growth") {
-      const appeal = this.totalAttributes.appeal ?? 0;
-      const isHospitality = this.trainedSkills.has("hospitality");
-      const bonus = isHospitality ? this.skillBonus : 0;
-      const formula = `1d20 + ${appeal} + ${bonus}`;
-
-      const roll = new foundry.dice.Roll(formula);
-      await roll.evaluate();
-
-      const total = roll.total;
-      const diceResult = roll.dice[0].results[0].result;
-      const cd = 10;
-      const isSuccess = total >= cd;
-
-      let sparks = 0;
-      if (isSuccess) {
-        const diff = total - cd;
-        sparks = Math.floor(diff / 5);
-        if (diceResult === 20) sparks += 1;
-      }
-
-      // Rank Increase: +1 for success, +1 per spark
-      let increase = isSuccess ? (1 + sparks) : 0;
-      const nextThreshold = (this.level < 9) ? this.populationThresholds[this.level + 1] : Infinity;
-      
-      if (oldRank >= nextThreshold && increase > 0) {
-        messages.push(`<p class="warning" style="color:var(--trp-gold); font-weight:bold; margin-bottom:4px;">${game.i18n.localize("TRESPASSER.Terms.HavenStagnant")}</p>`);
-        messages.push(`<p style="font-size:var(--fs-11); font-style:italic;">${game.i18n.localize("TRESPASSER.Chat.Haven.GrowthBlocked")}</p>`);
-        increase = 0;
-      } else if (oldRank + increase > nextThreshold) {
-        increase = nextThreshold - oldRank;
-        messages.push(`<p class="warning" style="font-size:var(--fs-11); font-style:italic; color:var(--trp-gold);">${game.i18n.format("TRESPASSER.Chat.Haven.GrowthCapped", { threshold: nextThreshold })}</p>`);
-      }
-      
-      newRank = oldRank + increase;
-      updates["system.populationRank"] = newRank;
-
-      if (isSuccess) {
-        messages.push(`<p class="success" style="color:var(--trp-green-bright);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Common.Success")}</p>`);
-        if (increase > 0) messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Terms.HavenPopulationIncrease")}:</strong> +${increase} (Rank: ${newRank})</p>`);
-        
-        if (sparks > 0) {
-          messages.push(`<p style="color:var(--trp-spark);"><i class="fas fa-sun"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks", { count: sparks })}</p>`);
-          messages.push(`<p style="color:var(--trp-spark); font-weight:bold;"><i class="fas fa-walking"></i> ${game.i18n.localize("TRESPASSER.Chat.Haven.Arrivals")}</p>`);
-          messages.push(`<p style="font-size:var(--fs-11); font-style:italic;">${game.i18n.localize("TRESPASSER.Chat.Haven.ArrivalsInstruction")}</p>`);
-        }
-      } else {
-        messages.push(`<p class="failure" style="color:var(--trp-red);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Common.Failure")}</p>`);
-      }
-
-      await roll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor }),
-        flavor: `<div class="trespasser-chat-card haven-report">${messages.join("")}</div>`
-      });
-    } else {
-      // DECLINE
-      const allegiance = this.totalAttributes.allegiance ?? 0;
-      const isFaith = this.trainedSkills.has("faith");
-      const bonus = isFaith ? this.skillBonus : 0;
-      const formula = `1d20 + ${allegiance} + ${bonus}`;
-
-      const roll = new foundry.dice.Roll(formula);
-      await roll.evaluate();
-
-      const total = roll.total;
-      const isSuccess = total >= 20;
-      
-      if (isSuccess) {
-        messages.push(`<p class="success" style="color:var(--trp-green-bright);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Common.Success")} ${game.i18n.localize("TRESPASSER.Chat.Haven.DeclineHalted")}</p>`);
-        messages.push(`<p>${game.i18n.format("TRESPASSER.Chat.Haven.PopulationStable", { rank: oldRank })}</p>`);
-      } else {
-        // Failure: Lose 1 rank. (One per shadow - we'll ignore shadow specifics for now as per rules image core)
-        messages.push(`<p class="failure" style="color:var(--trp-shadow);font-weight:bold;">${game.i18n.localize("TRESPASSER.Chat.Common.Failure")} ${game.i18n.localize("TRESPASSER.Chat.Haven.PopulationDecline")}</p>`);
-        newRank = Math.max(0, oldRank - 1);
-        updates["system.populationRank"] = newRank;
-        messages.push(`<p><strong>${game.i18n.localize("TRESPASSER.Terms.PopulationRank")}:</strong> -1 ${game.i18n.format("TRESPASSER.Chat.Haven.NewRank", { rank: newRank })}</p>`);
-      }
-
-      await roll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor }),
-        flavor: `<div class="trespasser-chat-card haven-report">${messages.join("")}</div>`
-      });
-    }
-
-    // Level up check is separate
-    const currentLevel = this.level || 0;
-    if (currentLevel < 9) {
-      const nextLevel = currentLevel + 1;
-      const thresholds = this.populationThresholds;
-      const requiredRank = thresholds[nextLevel];
-      const characters = game.actors.filter(a => a.type === "character");
-      const partyLevel = characters.length ? Math.max(...characters.map(c => c.system.level ?? 0)) : 0;
-      
-      if (newRank >= requiredRank && partyLevel >= nextLevel) {
-        updates["system.level"] = nextLevel;
-        ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Haven.LevelUp", { name: actor.name, level: nextLevel }));
-      }
-    }
-
-    if (Object.keys(updates).length) await actor.update(updates);
+    return populationCheck(this);
   }
 
-  /**
-   * Step 5: Event Check
-   * If no active event: Roll d10 vs Skill Bonus. Success (<=) starts a new event at current=1.
-   * If active event: Clock advances by 1.
-   */
   async eventCheck() {
-    const actor = this.parent;
-    const event = this.event;
-    const isActive = !!event.title?.trim();
-    
-    if (isActive) {
-      const nextValue = Math.min(event.current + 1, event.clock);
-      await actor.update({ "system.event.current": nextValue });
-      
-      const isComplete = nextValue >= event.clock;
-      
-      await ChatMessage.create({
-        content: `<div class="trespasser-chat-card haven-report">
-          <h3>${game.i18n.localize("TRESPASSER.Terms.HavenUpkeepEventCheck")}</h3>
-          <p><strong>${event.title}</strong> ${game.i18n.localize("TRESPASSER.Chat.Haven.EventAdvances")}</p>
-          <div class="haven-event-status">
-            <span class="label">${game.i18n.localize("TRESPASSER.Terms.ThreatClock")}:</span>
-            <span class="value">${nextValue} / ${event.clock}</span>
-          </div>
-          ${isComplete ? `<p class="critical" style="color:var(--trp-red); font-weight:bold; margin-top:10px; border:2px solid var(--trp-red); padding:5px; text-align:center;">${game.i18n.localize("TRESPASSER.Chat.Haven.EventComplete")}</p>` : ""}
-        </div>`,
-        speaker: ChatMessage.getSpeaker({ actor })
-      });
-    } else {
-      const skillBonus = this.skillBonus;
-      const roll = new foundry.dice.Roll("1d10");
-      await roll.evaluate();
-      
-      const starts = roll.total <= skillBonus;
-      
-      let content = `<div class="trespasser-chat-card haven-report">
-        <h3>${game.i18n.localize("TRESPASSER.Terms.HavenUpkeepEventCheck")}</h3>
-        <p>${game.i18n.localize("TRESPASSER.Chat.Haven.RollingThreat")}</p>
-        <div class="haven-check-details">
-          <span>${game.i18n.localize("TRESPASSER.Terms.HavenDCSkillBonus")}: <strong>${skillBonus}</strong></span>
-        </div>`;
-      
-      if (starts) {
-        content += `<p class="success" style="color:var(--trp-green-bright); font-weight:bold; margin-top:8px;">${game.i18n.localize("TRESPASSER.Chat.Haven.NewEventStarts")}</p>
-                   <p style="font-size:var(--fs-11); font-style:italic;">${game.i18n.localize("TRESPASSER.Chat.Haven.DefineEventInstruction")}</p>`;
-        await actor.update({ "system.event.current": 1 });
-      } else {
-        content += `<p class="failure" style="color:var(--trp-text-dim); font-style:italic; margin-top:8px;">${game.i18n.localize("TRESPASSER.Chat.Haven.QuietWeek")}</p>`;
-      }
-      content += `</div>`;
-      
-      await roll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor }),
-        flavor: content
-      });
-    }
+    return eventCheck(this);
   }
 
-  /**
-   * Helper to consume and produce items for a single hireling.
-   * @param {Item} hireling
-   * @param {Array} inventory - Current list of {item, quantity}
-   * @returns {Object} { result: string, newInventory: Array }
-   */
   async _processHirelingProduction(hireling, inventory) {
-    const system = hireling.system;
-    const results = [];
-    let newInventory = [...inventory];
-
-    // Check if items can be consumed
-    let canConsume = true;
-    const itemsToConsume = []; // { index, amount }
-
-    for (const consumeData of system.consume) {
-      const needed = (consumeData.system.quantity || 1) * system.quantity;
-      const index = newInventory.findIndex(entry => this._isItemMatch(entry.item, consumeData));
-      
-      if (index === -1 || newInventory[index].quantity < needed) {
-        canConsume = false;
-        results.push(`<p class="failure">${game.i18n.format("TRESPASSER.Notification.Haven.MissingIngredients", { name: hireling.name, item: consumeData.name })}</p>`);
-        break;
-      }
-      itemsToConsume.push({ index, amount: needed });
-    }
-
-    if (canConsume) {
-      // Consume
-      for (const entry of itemsToConsume) {
-        newInventory[entry.index].quantity -= entry.amount;
-      }
-      // Clean up empty stacks
-      newInventory = newInventory.filter(e => e.quantity > 0);
-
-      // Produce
-      for (const produceData of system.produce) {
-        const qty = (produceData.system.quantity || 1) * system.quantity;
-        const index = newInventory.findIndex(entry => this._isItemMatch(entry.item, produceData));
-        
-        if (index !== -1) {
-          newInventory[index].quantity += qty;
-        } else {
-          newInventory.push({
-            item: foundry.utils.duplicate(produceData),
-            quantity: qty
-          });
-        }
-        results.push(`<p class="success">${game.i18n.format("TRESPASSER.Chat.Haven.Produced", { name: hireling.name, quantity: qty, item: produceData.name })}</p>`);
-      }
-      
-      if (system.produce.length === 0 && system.consume.length > 0) {
-        results.push(`<p class="success">${game.i18n.format("TRESPASSER.Chat.Haven.ConsumedOnly", { name: hireling.name })}</p>`);
-      } else if (system.produce.length === 0 && system.consume.length === 0) {
-        results.push(`<p>${game.i18n.format("TRESPASSER.Chat.Haven.DidNothing", { name: hireling.name })}</p>`);
-      }
-    }
-
-    return { result: results.join(""), newInventory };
+    return processHirelingProduction(this, hireling, inventory);
   }
 
-  /**
-   * Check if two items match based on name and type.
-   */
   _isItemMatch(item1, item2) {
-    if (item1.name !== item2.name || item1.type !== item2.type) return false;
-    // Handle both Document-like objects and schema-wrapped data
-    const s1 = item1.system || {};
-    const s2 = item2.system || {};
-    if (s1.subType !== s2.subType) return false;
-    if (s1.tier !== s2.tier) return false;
-    return true;
+    return isItemMatch(item1, item2);
   }
 
-  /**
-   * Syncs stronghold features to its owner.
-   * Handles:
-   * - Removing features from previous owner if owner changed.
-   * - Removing features if stronghold is no longer completed.
-   * - Adding features if stronghold is completed and has an owner.
-   * @param {Item} stronghold - The stronghold item document.
-   * @param {Object} [delta] - The update delta, if called from a hook.
-   */
   async syncStrongholdBenefit(stronghold, delta = {}) {
-    const actor = this.parent;
-    if (stronghold.type !== "stronghold") return;
-    
-    const strongholdUuid = stronghold.uuid;
-    const isCompleted = stronghold.system.isCompleted;
-    const ownerId = stronghold.system.ownerId;
-    
-    console.log(`Trespasser | Syncing Stronghold: ${stronghold.name} (${strongholdUuid})`);
-    console.log(`Trespasser | Status: Completed=${isCompleted}, OwnerID=${ownerId}`);
-
-    const allCharacters = game.actors.filter(a => a.type === "character");
-    
-    // 1. Cleanup
-    for (const char of allCharacters) {
-      const existing = char.items.filter(i => i.getFlag("trespasser", "strongholdSource") === strongholdUuid);
-      if (existing.length > 0) {
-        console.log(`Trespasser | Removing ${existing.length} features from ${char.name}`);
-        await char.deleteEmbeddedDocuments("Item", existing.map(i => i.id));
-      }
-    }
-
-    // 2. Addition
-    if (!delta.deleted && isCompleted && ownerId) {
-      const owner = game.actors.get(ownerId);
-      if (owner) {
-        const features = stronghold.system.features || [];
-        console.log(`Trespasser | Applying ${features.length} features to ${owner.name}`);
-        
-        for (const feat of features) {
-            console.log(`Trespasser | Looking for feature UUID: ${feat.uuid}`);
-            const sourceItem = await resolveItem(feat);
-            if (!sourceItem) continue;
-
-            const itemData = sourceItem.toObject();
-            delete itemData._id;
-            
-            // Mark source
-            itemData.flags = itemData.flags || {};
-            itemData.flags.trespasser = itemData.flags.trespasser || {};
-            itemData.flags.trespasser.strongholdSource = strongholdUuid;
-            
-            console.log(`Trespasser | Attempting to create feature ${sourceItem.name} on ${owner.name}`);
-            try {
-              const created = await owner.createEmbeddedDocuments("Item", [itemData]);
-              if (created.length > 0) {
-                console.log(`Trespasser | SUCCESS: Created ${sourceItem.name} (ID: ${created[0].id})`);
-              } else {
-                console.error(`Trespasser | FAILED: creation returned empty array for ${sourceItem.name}`);
-              }
-            } catch (err) {
-              console.error(`Trespasser | ERROR creating feature:`, err);
-            }
-        }
-        ui.notifications.info(`Stronghold ${stronghold.name} features updated for ${owner.name}.`);
-      } else {
-        console.warn(`Trespasser | FAILED: No Actor found for ID ${ownerId}`);
-      }
-    }
+    return syncStrongholdBenefit(this, stronghold, delta);
   }
 }

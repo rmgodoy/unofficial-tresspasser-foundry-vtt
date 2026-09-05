@@ -1,1170 +1,181 @@
-import { DurationHelper } from "./duration-helper.mjs";
-import { showOilDialog } from "../dialogs/oil-dialog.mjs";
-import { buildTenacityButtonHtml } from "./tenacity-helper.mjs";
-import { formatDiceIcons } from "./dice-icon-helper.mjs";
-import { resolveItem } from "./item-resolver.mjs";
-
 /**
  * Helper class for managing Trespasser effects, states, and modifier parsing.
+ * Modular facade coordinating effects constants, evaluation, aggregation, triggers, dialogs, and token sync.
  */
+
+import {
+  TRIGGER_WHEN,
+  TRIGGER_LABELS,
+  DURATION_MODES,
+  DURATION_LABELS,
+  MOVEMENT_TYPES,
+  MOVEMENT_TYPE_LABELS,
+  TARGET_ATTRIBUTES
+} from "../effects/effects-constants.mjs";
+
+import {
+  parseModifier,
+  replacePlaceholders,
+  evaluateModifier,
+  asyncStringReplace
+} from "../effects/effects-evaluator.mjs";
+
+import {
+  getActorEffects,
+  getActiveMovementEffect,
+  getMovementType,
+  getAttributeBonus,
+  hasAdvantage
+} from "../effects/effects-aggregate.mjs";
+
+import {
+  updateFocus,
+  updateActionPoints,
+  updateCombatPhase,
+  evaluateAttributeBonus,
+  evaluateDamageBonus,
+  triggerEffects,
+  triggerImmediate,
+  decrementRound
+} from "../effects/effects-trigger.mjs";
+
+import {
+  applyEffectChat,
+  applyOilDialog,
+  openEffectSheet
+} from "../effects/effects-dialogs.mjs";
+
+import {
+  syncActorTokenEffects,
+  performSyncActorTokenEffects
+} from "../effects/effects-token-sync.mjs";
+
+export {
+  TRIGGER_WHEN,
+  TRIGGER_LABELS,
+  DURATION_MODES,
+  DURATION_LABELS,
+  MOVEMENT_TYPES,
+  MOVEMENT_TYPE_LABELS,
+  TARGET_ATTRIBUTES,
+  parseModifier,
+  replacePlaceholders,
+  evaluateModifier,
+  asyncStringReplace,
+  getActorEffects,
+  getActiveMovementEffect,
+  getMovementType,
+  getAttributeBonus,
+  hasAdvantage,
+  updateFocus,
+  updateActionPoints,
+  updateCombatPhase,
+  evaluateAttributeBonus,
+  evaluateDamageBonus,
+  triggerEffects,
+  triggerImmediate,
+  decrementRound,
+  applyEffectChat,
+  applyOilDialog,
+  openEffectSheet,
+  syncActorTokenEffects,
+  performSyncActorTokenEffects
+};
+
 export class TrespasserEffectsHelper {
-  /**
-   * Constant for effect trigger timings.
-   */
-  static TRIGGER_WHEN = {
-    START_COMBAT: "start-of-combat",
-    START_ROUND: "start-of-round",
-    START_TURN: "start-of-turn",
-    END_TURN: "end-of-turn",
-    END_ROUND: "end-of-round",
-    END_COMBAT: "end-of-combat",
-    ON_FIRST_MOVE: "on-first-move",
-    ON_MOVE: "on-move",
-    USE: "use",
-    TARGETED: "targeted",
-    DAMAGE_DEALT: "damage-dealt",
-    DAMAGE_RECEIVED: "damage-received",
-    HEAL_GIVEN: "heal-given",
-    HEAL_RECEIVED: "heal-received",
-    ON_PREVAIL: "on-prevail",
-    ON_USE_DEED: "on-use-deed",
-    ON_TARGETED_DEED: "on-targeted-deed",
-    ON_DEED_HIT_RECEIVED: "on-deed-hit-received",
-    ON_DEED_MISS_RECEIVED: "on-deed-miss-received",
-    ON_DEED_HIT: "on-deed-hit",
-    ON_DEED_MISS: "on-deed-miss",
-    IMMEDIATE: "immediate",
-    CONTINUOUS: "continuous"
-  };
+  static TRIGGER_WHEN = TRIGGER_WHEN;
+  static TRIGGER_LABELS = TRIGGER_LABELS;
+  static DURATION_MODES = DURATION_MODES;
+  static DURATION_LABELS = DURATION_LABELS;
+  static MOVEMENT_TYPES = MOVEMENT_TYPES;
+  static MOVEMENT_TYPE_LABELS = MOVEMENT_TYPE_LABELS;
+  static TARGET_ATTRIBUTES = TARGET_ATTRIBUTES;
 
-  /**
-   * Labels for effect trigger timings.
-   */
-  static TRIGGER_LABELS = {
-    "start-of-combat": "TRESPASSER.App.System.Trigger.StartOfCombat",
-    "start-of-round": "TRESPASSER.App.System.Trigger.StartOfRound",
-    "start-of-turn": "TRESPASSER.App.System.Trigger.StartOfTurn",
-    "end-of-turn": "TRESPASSER.App.System.Trigger.EndOfTurn",
-    "end-of-round": "TRESPASSER.App.System.Trigger.EndOfRound",
-    "end-of-combat": "TRESPASSER.App.System.Trigger.EndOfCombat",
-    "on-first-move": "TRESPASSER.App.System.Trigger.OnFirstMove",
-    "on-move": "TRESPASSER.App.System.Trigger.OnMove",
-    "use": "TRESPASSER.App.System.Trigger.Use",
-    "targeted": "TRESPASSER.App.System.Trigger.Targeted",
-    "damage-dealt": "TRESPASSER.App.System.Trigger.DamageDealt",
-    "damage-received": "TRESPASSER.App.System.Trigger.DamageReceived",
-    "heal-given": "TRESPASSER.App.System.Trigger.HealGiven",
-    "heal-received": "TRESPASSER.App.System.Trigger.HealReceived",
-    "on-prevail": "TRESPASSER.App.System.Trigger.OnPrevail",
-    "on-use-deed": "TRESPASSER.App.System.Trigger.OnUseDeed",
-    "on-targeted-deed": "TRESPASSER.App.System.Trigger.OnTargetedDeed",
-    "on-deed-hit-received": "TRESPASSER.App.System.Trigger.OnDeedHitReceived",
-    "on-deed-miss-received": "TRESPASSER.App.System.Trigger.OnDeedMissReceived",
-    "on-deed-hit": "TRESPASSER.App.System.Trigger.OnDeedHit",
-    "on-deed-miss": "TRESPASSER.App.System.Trigger.OnDeedMiss",
-    "immediate": "TRESPASSER.App.System.Trigger.Immediate",
-    "continuous": "TRESPASSER.App.System.Trigger.Continuous"
-  };
-
-  /**
-   * Constant for effect duration modes.
-   */
-  static DURATION_MODES = {
-    INDEFINITE: "indefinite",
-    COMBAT: "combat",
-    ROUND: "round",
-    TRIGGER: "trigger"
-  };
-
-  /**
-   * Labels for effect duration modes.
-   */
-  static DURATION_LABELS = {
-    "indefinite": "TRESPASSER.App.System.Duration.Indefinite",
-    "combat": "TRESPASSER.App.System.Duration.Combat",
-    "round": "TRESPASSER.App.System.Duration.Round",
-    "trigger": "TRESPASSER.App.System.Duration.Trigger"
-  };
-
-  /**
-   * Constant for movement types supported by effects.
-   */
-  static MOVEMENT_TYPES = {
-    WALK: "walk",
-    TELEPORT: "teleport",
-    JUMP: "jump"
-  };
-
-  /**
-   * Labels for movement types.
-   */
-  static MOVEMENT_TYPE_LABELS = {
-    "walk": "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Walk",
-    "teleport": "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Teleport",
-    "jump": "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Jump"
-  };
-
-  /**
-   * Constant for target attributes.
-   */
-  static TARGET_ATTRIBUTES = {
-    "mighty": "TRESPASSER.Terms.Attribute.Mighty",
-    "agility": "TRESPASSER.Terms.Attribute.Agility",
-    "intellect": "TRESPASSER.Terms.Attribute.Intellect",
-    "spirit": "TRESPASSER.Terms.Attribute.Spirit",
-    "initiative": "TRESPASSER.Sheet.Combat.Initiative",
-    "accuracy": "TRESPASSER.Sheet.Combat.Accuracy",
-    "guard": "TRESPASSER.Sheet.Combat.Guard",
-    "resist": "TRESPASSER.Sheet.Combat.Resist",
-    "prevail": "TRESPASSER.Sheet.Combat.Prevail",
-    "tenacity": "TRESPASSER.Sheet.Combat.Tenacity",
-    "speed": "TRESPASSER.Sheet.Combat.Speed",
-    "speed_bonus": "TRESPASSER.Sheet.Combat.SpeedBonus",
-    "armor": "TRESPASSER.Sheet.Item.Details.ArmorRating",
-    "health": "TRESPASSER.Sheet.Header.HP",
-    "max_health": "TRESPASSER.Sheet.Header.Health",
-    "focus": "TRESPASSER.Sheet.Combat.Focus",
-    "action_points": "TRESPASSER.Sheet.Combat.ActionPoints",
-    "combat_phase": "TRESPASSER.Sheet.Combat.Phase",
-    "damage_dealt": "TRESPASSER.App.System.Trigger.DamageDealt",
-    "damage_received": "TRESPASSER.App.System.Trigger.DamageReceived",
-    "heal_given": "TRESPASSER.App.System.Trigger.HealGiven",
-    "heal_received": "TRESPASSER.App.System.Trigger.HealReceived",
-    "endurance": "TRESPASSER.Sheet.Header.Endurance",
-    "max_endurance": "TRESPASSER.Sheet.Header.Endurance"
-  };
-
-  /**
-   * Replaces the <Int> placeholder in a string with the provided intensity value.
-   * @param {string} modifierString 
-   * @param {number} intensity 
-   * @returns {string}
-   */
   static parseModifier(modifierString, intensity) {
-    if (!modifierString) return "0";
-    return modifierString.toString().replace(/<Int>/g, intensity.toString());
+    return parseModifier(modifierString, intensity);
   }
 
-  /**
-   * Replaces <sd> and <wd> placeholders in a formula, handling multipliers correctly.
-   * If <sd> is "2d6", "2<sd>" becomes "4d6".
-   * 
-   * @param {string} formula The dice formula (e.g., "2<sd> + 5")
-   * @param {Actor} actor The actor providing the skill die
-   * @param {string} [weaponDie] Optional weapon die override
-   * @returns {string} The resolved formula
-   */
   static replacePlaceholders(formula, actor, weaponDie = "d4") {
-    if (!formula) return "";
-    let resolved = formula;
-    
-    const sd = actor?.system?.skill_die || actor?.system?.damage_die || "d6";
-    let wd = weaponDie;
-    if (!wd || wd === "d4") {
-      if (actor?.system?.weapon_die || actor?.system?.weaponDie || actor?.system?.damage_die) {
-        wd = actor.system.weapon_die || actor.system.weaponDie || actor.system.damage_die;
-      } else {
-        wd = "d4";
-      }
-    }
-
-    const multiplyDice = (expression, factor) => {
-        let fullExpr = /^\d/.test(expression) ? expression : `1${expression}`;
-        const match = fullExpr.match(/^(\d+)(d\d+.*)$/i);
-        if (!match) return expression;
-        const count = parseInt(match[1]) * factor;
-        return `${count}${match[2]}`;
-    };
-
-    const placeholderRegex = /(\d*)<(sd|wd|sb)>/gi;
-    resolved = resolved.replace(placeholderRegex, (match, factorStr, type) => {
-        const factor = factorStr === "" ? 1 : parseInt(factorStr);
-        const ltype = type.toLowerCase();
-        
-        if (ltype === "sb") {
-            const skillBonus = actor?.system?.skill ?? actor?.system?.skillBonus ?? 0;
-            return (skillBonus * factor).toString();
-        }
-
-        const diceExpr = (ltype === "sd") ? sd : wd;
-        return multiplyDice(diceExpr, factor);
-    });
-
-    return resolved;
+    return replacePlaceholders(formula, actor, weaponDie);
   }
 
-  /**
-   * Evaluates a modifier string, replacing <Int> and rolling any dice formulas.
-   * @param {string} modifierString 
-   * @param {number} intensity 
-   * @param {Object} [options] 
-   * @param {Actor} [options.actor] Optional actor for roll data
-   * @param {boolean} [options.toMessage] Whether to post the roll to chat
-   * @returns {Promise<number|Roll>}
-   */
-  static async evaluateModifier(modifierString, intensity, { actor = null, toMessage = false, weaponDie = null, returnRoll = false } = {}) {
-    let parsed = this.parseModifier(modifierString, intensity);
-
-    // Resolve <sd> (skill die) and <wd> (weapon die) tokens dynamically
-    parsed = this.replacePlaceholders(parsed, actor, weaponDie);
-    
-    // 2. Handle max(...) and min(...) functions recursively
-    // Regex matches max(args) or min(args) where args don't contain other parentheses
-    const mathRegex = /(max|min)\(([^()]+)\)/gi;
-    while (mathRegex.test(parsed)) {
-      parsed = await this._asyncStringReplace(parsed, mathRegex, async (match, func, args) => {
-        const values = args.split(',').map(arg => arg.trim());
-        const resolvedValues = await Promise.all(values.map(val => 
-          this.evaluateModifier(val, intensity, { actor, toMessage: false, weaponDie })
-        ));
-        
-        if (func.toLowerCase() === 'max') {
-          return Math.max(...resolvedValues).toString();
-        } else {
-          return Math.min(...resolvedValues).toString();
-        }
-      });
-    }
-
-    // 3. Evaluate the remaining formula
-    // Check if it looks like a dice formula (has 'd' and numbers) or basic math
-    const isFormula = /[0-9]*d[0-9]+|[\+\-\*\/\(\)]/.test(parsed);
-    
-    if (!isFormula) {
-      return parseFloat(parsed) || 0;
-    }
-
-    // It's a formula, roll it
-    const roll = new foundry.dice.Roll(parsed, actor?.getRollData() || {});
-    await roll.evaluate();
-    
-    if (toMessage) {
-      await roll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor }),
-        flavor: game.i18n.localize("TRESPASSER.Chat.Trigger.Evaluation")
-      });
-    }
-    
-    if (returnRoll) return roll;
-    return roll.total;
+  static async evaluateModifier(modifierString, intensity, options = {}) {
+    return evaluateModifier(modifierString, intensity, options);
   }
 
-  /**
-   * Posts or renders a standardized chat card with buttons to apply effects manually.
-   * This is the system standard for situational effects from armor, weapons, or deeds.
-   * @param {Object|Object[]} effects - Single effect or array of effects from item data
-   * @param {Actor} actor - The source actor
-   * @param {Object} options - title, description, renderOnly (returns HTML instead of creating msg)
-   * @returns {Promise<string|ChatMessage>}
-   */
-  static async applyEffectChat(effects, actor, { title = "", description = "", renderOnly = false, bypassFilter = false } = {}) {
-    if (!effects) return null;
-    const effArray = Array.isArray(effects) ? effects : [effects];
-    if (effArray.length === 0) return null;
-
-    // Filter out continuous effects (they should be already applied as documents)
-    const activeOnly = [];
-    for (const eff of effArray) {
-      if (!eff.uuid) continue;
-      const source = await resolveItem(eff, { type: "effect", notify: false });
-      if (!bypassFilter && source && (source.system.type === "continuous" || source.system.type === "movement" || source.system.when === "immediate" || !source.system.when)) continue;
-      activeOnly.push(eff);
-    }
-    if (activeOnly.length === 0) return null;
-
-    let cardHtml = `<div class="trespasser-chat-card">`;
-    if (title) cardHtml += `<h3>${title}</h3>`;
-    if (description) cardHtml += `<p><em>${formatDiceIcons(description)}</em></p>`;
-
-    cardHtml += `<div class="applied-effects">
-      <strong>${game.i18n.localize("TRESPASSER.Terms.ItemType.States")}</strong>`;
-
-    for (const eff of activeOnly) {
-      const intensity = parseInt(eff.intensity) || 0;
-      const nameLabel = intensity !== 0 ? `${eff.name} ${intensity}` : eff.name;
-      cardHtml += `
-        <a class="apply-effect-btn" data-uuid="${eff.uuid}" data-intensity="${intensity}">
-          <img src="${eff.img}" width="20" height="20" /><span>${nameLabel}</span><i class="fas fa-hand-sparkles"></i>
-        </a>`;
-    }
-    cardHtml += `</div></div>`;
-
-    if (renderOnly) return cardHtml;
-
-    return ChatMessage.create({
-      speaker: ChatMessage.getSpeaker({ actor }),
-      content: cardHtml
-    });
-  }
-
-  /**
-   * Helper for asynchronous string replacement with regex.
-   * @private
-   */
   static async _asyncStringReplace(str, regex, replacer) {
-    const matches = [];
-    str.replace(regex, (...args) => {
-      matches.push(args);
-      return args[0];
-    });
-
-    let offset = 0;
-    for (const match of matches) {
-      const replacement = await replacer(...match);
-      const matchIndex = match[match.length - 2];
-      const matchString = match[0];
-      
-      str = str.slice(0, matchIndex + offset) + replacement + str.slice(matchIndex + matchString.length + offset);
-      offset += replacement.length - matchString.length;
-    }
-    return str;
+    return asyncStringReplace(str, regex, replacer);
   }
 
-  /**
-   * Aggregates all active effects (Combat and Non-Combat) from an actor.
-   * @param {Actor} actor 
-   * @returns {Object} { combat: Array, nonCombat: Array, continuous: Array }
-   */
   static getActorEffects(actor) {
-    const effects = {
-      combat: [],
-      nonCombat: []
-    };
-
-    const sourceMapByUuid = {};
-    for (const item of actor.items) {
-      if (item.type === "feature") {
-        (item.system.deeds || []).forEach(d => { if (d.uuid) sourceMapByUuid[d.uuid] = item.name; });
-        (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
-      } else if (item.type === "weapon" && item.system.equipped) {
-        (item.system.extraDeeds || []).forEach(d => { if (d.uuid) sourceMapByUuid[d.uuid] = item.name; });
-        (item.system.enhancementEffects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
-      } else if (item.type === "armor" && item.system.equipped) {
-        (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
-      }
-    }
-
-    for (const item of actor.items) {
-      // Passive/Built-in effects from equipped items
-      const equippableTypes = ["weapon", "armor", "accessory", "item"];
-      const isEquippable = equippableTypes.includes(item.type);
-
-      // Passive/Built-in effects from equipped items (excluding weapons whose basic effects are applied to targets via deeds)
-      if (item.type !== "weapon" && item.system.equipped && Array.isArray(item.system.effects)) {
-        item.system.effects.forEach((eff, index) => {
-          // If it's an equippable, we skip immediate/continuous effects because those should have been converted to real Effect documents
-          if (isEquippable && (eff.type === "continuous" || eff.when === "immediate" || !eff.when)) return;
-
-          const property = "effects";
-          const effData = {
-            id: `${item.id}-${property}-${index}`, // Stable Synthetic ID
-            name: eff.name ? `${item.name}: ${eff.name}` : `${item.name} (${eff.type || "effect"})`,
-            intensity: eff.intensity || 0,
-            modifier: this.parseModifier(eff.modifier, eff.intensity || 0),
-            target: eff.target,
-            isCombat: eff.isCombat,
-            isOnlyReminder: !!eff.isOnlyReminder,
-            gmOnly: !!eff.gmOnly,
-            type: eff.type,
-            description: eff.description || "",
-            source: item.name,
-            itemId: item.id,
-            item: item,
-            when: eff.when,
-            duration: eff.duration || "indefinite",
-            durationValue: eff.durationValue || 0,
-            durationConditions: eff.durationConditions || [],
-            durationOperator: eff.durationOperator || "OR",
-            durationSummary: null, // inline effects don't have a live item; no compound summary
-            intensityIncrement: eff.intensityIncrement || 0,
-            property,
-            index,
-            isPrevailable: !!eff.isPrevailable,
-            synthetic: true,
-            hiddenOnSheet: isEquippable // Hide equippable-derived effects from the sheet; they trigger in chat
-          };
-          if (eff.isCombat) effects.combat.push(effData);
-          else effects.nonCombat.push(effData);
-        });
-      }
-
-      // Synthetic enhancement effects from equipped weapons
-      if (item.type === "weapon" && item.system.equipped && Array.isArray(item.system.enhancementEffects)) {
-        item.system.enhancementEffects.forEach((eff, index) => {
-          if (eff.type === "continuous" || eff.when === "immediate" || !eff.when) return;
-
-          const property = "enhancementEffects";
-          const effData = {
-            id: `${item.id}-${property}-${index}`,
-            name: eff.name ? `${item.name}: ${eff.name}` : `${item.name} (${eff.type || "effect"})`,
-            intensity: eff.intensity || 0,
-            modifier: this.parseModifier(eff.modifier, eff.intensity || 0),
-            target: eff.target,
-            isCombat: eff.isCombat,
-            isOnlyReminder: !!eff.isOnlyReminder,
-            gmOnly: !!eff.gmOnly,
-            type: eff.type,
-            description: eff.description || "",
-            source: item.name,
-            itemId: item.id,
-            item: item,
-            when: eff.when,
-            duration: eff.duration || "indefinite",
-            durationValue: eff.durationValue || 0,
-            durationConditions: eff.durationConditions || [],
-            durationOperator: eff.durationOperator || "OR",
-            durationSummary: null,
-            intensityIncrement: eff.intensityIncrement || 0,
-            property,
-            index,
-            isPrevailable: !!eff.isPrevailable,
-            synthetic: true,
-            hiddenOnSheet: isEquippable
-          };
-          if (eff.isCombat) effects.combat.push(effData);
-          else effects.nonCombat.push(effData);
-        });
-      }
-
-      // Standalone Effect items currently on the actor
-      if (item.type === "effect") {
-        const linkedUuid  = item.flags?.trespasser?.linkedSource;
-        const fromInjury  = item.flags?.trespasser?.fromInjury === true;
-        const injuryId    = item.flags?.trespasser?.injuryId;
-
-        // Resolve source name: injury name takes priority, then the UUID source map
-        let sourceName = null;
-        if (fromInjury && injuryId) {
-          const injuryItem = actor.items.get(injuryId);
-          sourceName = injuryItem ? injuryItem.name : null;
-        } else if (linkedUuid) {
-          sourceName = sourceMapByUuid[linkedUuid] ?? null;
-        }
-
-        const effData = {
-          id: item.id,
-          name: item.name,
-          intensity: item.system.intensity || 0,
-          modifier: this.parseModifier(item.system.modifier, item.system.intensity || 0),
-          target: item.system.targetAttribute,
-          isCombat: item.system.isCombat,
-          isOnlyReminder: item.system.isOnlyReminder,
-          type: item.system.type,
-          movementType: item.system.movementType || "walk",
-          movementTypeLabel: this.MOVEMENT_TYPE_LABELS[item.system.movementType || "walk"]
-            ? game.i18n.localize(this.MOVEMENT_TYPE_LABELS[item.system.movementType || "walk"])
-            : (item.system.movementType || "walk"),
-          description: item.system.description,
-          source: item.name,
-          sourceName,
-          when: item.system.when,
-          duration: item.system.duration || "indefinite",
-          durationValue: item.system.durationValue || 0,
-          durationConditions: item.system.durationConditions || [],
-          durationOperator: item.system.durationOperator || "OR",
-          durationSummary: DurationHelper.formatSummary(item),
-          intensityIncrement: item.system.intensityIncrement || 0,
-          isPrevailable: !!item.system.isPrevailable,
-          isLasting: !!item.system.isLasting,
-          gmOnly: !!item.system.gmOnly,
-          item: item,
-          fromInjury
-        };
-
-        if (effData.isCombat) {
-          effects.combat.push(effData);
-        } else {
-          effects.nonCombat.push(effData);
-        }
-      }
-    }
-
-    effects.combat.sort((a, b) => a.name.localeCompare(b.name));
-    effects.nonCombat.sort((a, b) => a.name.localeCompare(b.name));
-
-    return effects;
+    return getActorEffects(actor);
   }
 
-  /**
-   * Retrieves the active movement effect item from an actor, if any.
-   * Prioritizes active combat effects during combat, then non-combat effects.
-   * @param {Actor} actor
-   * @returns {Item|null}
-   */
   static getActiveMovementEffect(actor) {
-    if (!actor) return null;
-    const effects = this.getActorEffects(actor);
-    const inCombat = !!(game.combat && game.combat.active && game.combat.started);
-    const list = inCombat
-      ? [...effects.combat, ...effects.nonCombat]
-      : [...effects.nonCombat, ...effects.combat];
-
-    for (const eff of list) {
-      if (eff.type === "movement" && eff.item) {
-        return eff.item;
-      }
-    }
-    return null;
+    return getActiveMovementEffect(actor);
   }
 
-  /**
-   * Retrieves the effective movement type for an actor based on active movement effects.
-   * Defaults to "walk" if no movement effect is active.
-   * @param {Actor} actor
-   * @returns {"walk"|"teleport"|"jump"}
-   */
   static getMovementType(actor) {
-    const effect = this.getActiveMovementEffect(actor);
-    if (effect) {
-      const type = (effect.system.movementType || "").toLowerCase();
-      if (Object.values(this.MOVEMENT_TYPES).includes(type)) {
-        return type;
-      }
-    }
-    return "walk";
+    return getMovementType(actor);
   }
 
-  /**
-   * Calculates the total numeric bonus for a specific attribute from all active effects.
-   * @param {Actor} actor 
-   * @param {string} attributeKey 
-   * @param {string} [includeTiming] Optional timing to include (e.g. "use")
-   * @returns {number}
-   */
   static getAttributeBonus(actor, attributeKey, includeTiming = null) {
-    if (!actor) return 0;
-    const effects = this.getActorEffects(actor);
-    const allEffects = [...effects.combat, ...effects.nonCombat];
-    
-    let total = 0;
-    for (const eff of allEffects) {
-      if (eff.target !== attributeKey) continue;
-
-      // Skip on-trigger effects that have a specific trigger timing (they aren't constant bonuses)
-      // UNLESS the specific timing is explicitly requested (e.g. when making a roll)
-      if (eff.type === "on-trigger" && eff.when && eff.when !== "immediate" && eff.when !== includeTiming) continue;
-      
-      // Resolve placeholders (like <Int>, <sb>) before parsing numeric value
-      const resolvedMod = this.replacePlaceholders(eff.modifier.toString(), actor);
-      const modStr = resolvedMod.replace("+", "").trim();
-      const value = parseFloat(modStr);
-      if (!isNaN(value)) {
-        total += value;
-      }
-    }
-    return total;
+    return getAttributeBonus(actor, attributeKey, includeTiming);
   }
 
-  /**
-   * Evaluates and triggers all 'use' effects for a specific attribute.
-   * Sums the results, replaces placeholders, rolls any dice formulas, and
-   * decrements/triggers the usage conditions on the original effect items.
-   *
-   * @param {Actor}  actor
-   * @param {string} attributeKey  The attribute to get bonuses for (e.g., "mighty", "accuracy")
-   * @param {Object} [options]
-   * @param {boolean} [options.toMessage]  Whether to post the evaluation rolls to chat
-   * @returns {Promise<number>}  The total numeric bonus from triggered effects
-   */
-  static async evaluateAttributeBonus(actor, attributeKey, { toMessage = true } = {}) {
-    if (!actor) return 0;
-    const effects = this.getActorEffects(actor);
-    const allEffects = [...effects.combat, ...effects.nonCombat];
-
-    let total = 0;
-    for (const eff of allEffects) {
-      // We only care about effects targeting this attribute and triggering on 'use'
-      if (eff.target !== attributeKey || eff.when !== "use") continue;
-      
-      const value = await this.evaluateModifier(
-        eff.modifier,
-        eff.intensity || 0,
-        { actor, toMessage }
-      );
-      total += value;
-
-      // Trigger usage decrement and expiry
-      if (eff.item) {
-        const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "trigger");
-        if (shouldExpire) {
-            if (eff.item.type === "effect" || eff.item.type === "state") await eff.item.delete();
-        } else {
-            await eff.item.update({ "system.durationConditions": updatedConditions });
-        }
-      }
-    }
-    return total;
+  static async evaluateAttributeBonus(actor, attributeKey, options = {}) {
+    return evaluateAttributeBonus(actor, attributeKey, options);
   }
 
-  /**
-   * Asynchronously evaluates all modifiers for a damage attribute key (damage_dealt / damage_received),
-   * rolling any dice expressions and resolving <sd> / <wd> tokens from the actor's current state.
-   *
-   * @param {Actor}  actor
-   * @param {string} attributeKey  "damage_dealt" or "damage_received"
-   * @param {string} [weaponDie]   Weapon die string (e.g. "d6"). Defaults to "d4" when not provided.
-   * @returns {Promise<number>}    Summed total (may be negative for damage_received reductions)
-   */
-  static async evaluateDamageBonus(actor, attributeKey, weaponDie = "d4", { toMessage = true } = {}) {
-    if (!actor) return 0;
-    const effects = this.getActorEffects(actor);
-    const allEffects = [...effects.combat, ...effects.nonCombat];
-
-    let total = 0;
-    for (const eff of allEffects) {
-      if (eff.target !== attributeKey) continue;
-      // Skip timed actives that haven't fired yet
-      if (eff.type === "active" && eff.when && eff.when !== "immediate" && eff.when !== "continuous") continue;
-
-      const value = await this.evaluateModifier(
-        eff.modifier,
-        eff.intensity || 0,
-        { actor, weaponDie, toMessage }
-      );
-      total += value;
-
-      // Decrement triggers-based conditions and evaluate expiry
-      const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "triggers");
-      if (shouldExpire) {
-        if (eff.item?.type === "effect" || eff.item?.type === "state") {
-          await eff.item.delete();
-        }
-      } else {
-        await eff.item.update({ "system.durationConditions": updatedConditions });
-      }
-    }
-    return total;
+  static async evaluateDamageBonus(actor, attributeKey, weaponDie = "d4", options = {}) {
+    return evaluateDamageBonus(actor, attributeKey, weaponDie, options);
   }
 
-  /**
-   * Checks if any active effect provides advantage ('adv') for a specific attribute.
-   * @param {Actor} actor 
-   * @param {string} attributeKey 
-   * @returns {boolean}
-   */
   static hasAdvantage(actor, attributeKey) {
-    if (!actor) return false;
-    const effects = this.getActorEffects(actor);
-    const allEffects = [...effects.combat, ...effects.nonCombat];
-    
-    for (const eff of allEffects) {
-      if (eff.target !== attributeKey) continue;
-      if (eff.modifier.toString().toLowerCase() === "adv") return true;
-    }
-    return false;
+    return hasAdvantage(actor, attributeKey);
   }
 
-
-  /**
-   * Triggers automated effects on an actor based on the timing (e.g. "start-of-turn", "end-of-turn").
-   * Generates a chat message and automatically applies health adjustments if applicable.
-   * @param {Actor} actor
-   * @param {string} timing "start-of-round", "start-of-turn", "end-of-turn", "end-of-round"
-   */
-  static async triggerEffects(actor, timing, { filterTarget = null } = {}) {
-    if (!actor) return;
-    const effects = this.getActorEffects(actor);
-    const allEffects = [...effects.combat, ...effects.nonCombat];
-    
-    // Filter effects that match the required timing (and target if specified)
-    const triggered = allEffects.filter(e => {
-      const matchTiming = e.when === timing;
-      const matchTarget = !filterTarget || e.target === filterTarget;
-      return matchTiming && matchTarget;
-    });
-    if (triggered.length === 0) return;
-
-    for (const eff of triggered) {
-      const label = this.TRIGGER_LABELS[timing] || timing;
-      
-      // Title format: [Effect] [Int.]
-      const title = `${eff.name} [${eff.intensity}]`;
-      
-      let flavor = `<div class="trespasser-chat-card">
-        <h3>${title}</h3>
-        <p style="font-style: italic;">${game.i18n.format("TRESPASSER.Chat.Trigger.TriggeredAt", { label: game.i18n.localize(label) })}</p>`;
-
-      if (eff.isOnlyReminder) {
-        // Only show text if it exists
-        if (eff.description) {
-          flavor += `<div class="reminder-text">${eff.description}</div>`;
-        }
-      } else {
-        const roll = await this.evaluateModifier(eff.modifier, eff.intensity || 0, { actor, toMessage: false, returnRoll: true });
-        const modValue = typeof roll === "number" ? roll : roll.total;
-        
-        if (eff.target === "health") {
-          const rawHP = actor.system.health + modValue;
-          const newHP = Math.clamp(rawHP, 0, actor.system.max_health);
-          await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
-          
-          if (modValue > 0) {
-            flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthRecovered", { value: modValue })}</p>`;
-          } else if (modValue < 0) {
-            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
-            if (actor.type === "character" && rawHP < 0) {
-              flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: rawHP })}</p>`;
-              flavor += buildTenacityButtonHtml(actor, rawHP);
-            }
-          } else {
-            flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.HealthUnaffected")}</p>`;
-          }
-        } else if (eff.target === "endurance") {
-          const newEnd = Math.clamp(actor.system.endurance + modValue, 0, actor.system.max_endurance);
-          await actor.update({ "system.endurance": newEnd });
-          if (modValue > 0) {
-            flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.EnduranceRecovered", { value: modValue })}</p>`;
-          } else if (modValue < 0) {
-            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.EnduranceLost", { value: Math.abs(modValue) })}</p>`;
-          } else {
-            flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.EnduranceUnaffected")}</p>`;
-          }
-        } else if (eff.target === "focus") {
-          flavor += await TrespasserEffectsHelper.updateFocus(actor, modValue);
-        } else if (eff.target === "action_points") {
-          flavor += await TrespasserEffectsHelper.updateActionPoints(actor, modValue);
-        } else if (eff.target === "combat_phase") {
-          flavor += await TrespasserEffectsHelper.updateCombatPhase(actor, modValue);
-        } else {
-          const targetLabel = game.i18n.localize(this.TARGET_ATTRIBUTES[eff.target]) || eff.target;
-          flavor += `<p>${game.i18n.format("TRESPASSER.Chat.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
-        }
-
-        // Add the rendered roll if it was a dice roll
-        if (roll instanceof foundry.dice.Roll) {
-          flavor += await roll.render();
-        }
-      }
-      
-      flavor += `</div>`;
-
-      const chatData = {
-        speaker: ChatMessage.getSpeaker({ actor }),
-        content: flavor
-      };
-
-      if (eff.gmOnly) {
-        chatData.whisper = ChatMessage.getWhisperRecipients("GM");
-      }
-
-      const isDefend = eff.item?.getFlag?.("trespasser", "isDefend") === true;
-      if (!isDefend) {
-        await ChatMessage.create(chatData);
-      }
-
-      // Apply intensity increment after triggering
-      const currentIntensity = eff.intensity || 0;
-      const increment = eff.intensityIncrement || 0;
-      if (increment !== 0) {
-        await eff.item.update({ "system.intensity": currentIntensity + increment });
-      }
-
-      // Process duration consumption
-      const durationConditions = eff.item.system.durationConditions || [];
-      const hasRoundDuration = durationConditions.some(c => c.mode === "round");
-      const hasTriggerDuration = durationConditions.some(c => c.mode === "trigger");
-
-      if (timing === "end-of-round" && hasRoundDuration) {
-        const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "round");
-        if (shouldExpire) await eff.item.delete();
-        else await eff.item.update({ "system.durationConditions": updatedConditions });
-      } else if (hasTriggerDuration) {
-        const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "trigger");
-        if (shouldExpire) await eff.item.delete();
-        else await eff.item.update({ "system.durationConditions": updatedConditions });
-      }
-    }
+  static async triggerEffects(actor, timing, options = {}) {
+    return triggerEffects(actor, timing, options);
   }
 
-  /**
-   * Dialog to apply an oil to an equipped weapon.
-   * @param {Actor} actor 
-   * @param {Item} oilItem 
-   */
-  static async applyOilDialog(actor, oilItem) {
-    const equippedWeapons = actor.items.filter(i => 
-      i.type === "weapon" && 
-      i.system.equipped && 
-      ["melee", "missile"].includes(i.system.type)
-    );
-    if (equippedWeapons.length === 0) {
-      ui.notifications.warn("No equipped weapons to apply oil to.");
-      return;
-    }
-
-    const weaponId = await showOilDialog(equippedWeapons, oilItem);
-    if (!weaponId) return;
-
-    const weapon = actor.items.get(weaponId);
-    if (!weapon) return;
-
-    const existingOilEffects = weapon.system.oilEffects || [];
-    const newEffects = (oilItem.system.effects || []).map(e => ({
-      ...e,
-      sourceOil: oilItem.id
-    }));
-
-    await weapon.update({ "system.oilEffects": [...existingOilEffects, ...newEffects] });
-    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Save.OilApplied", { oil: oilItem.name, weapon: weapon.name }));
-    
-    // Consume oil if it's an item
-    if (oilItem.system.quantity !== undefined) {
-      if (oilItem.system.quantity > 1) await oilItem.update({ "system.quantity": oilItem.system.quantity - 1 });
-      else await oilItem.delete();
-    }
-  }
-
-  /**
-   * Triggers a single effect item immediately.
-   * @param {Actor} actor 
-   * @param {Item} item 
-   */
   static async triggerImmediate(actor, item) {
-    if (!actor || !item) return;
-    
-    // Ensure it's an effect or state and has immediate timing
-    const when = item.system.when || item.system.triggerWhen;
-    if (when !== "immediate") return;
-
-    const target = item.system.targetAttribute || item.system.target;
-    const intensity = item.system.intensity || 0;
-    const modifier = item.system.modifier;
-
-    const label = this.TRIGGER_LABELS["immediate"] || "immediate";
-    const title = `${item.name} [${intensity}]`;
-
-    let flavor = `<div class="trespasser-chat-card">
-      <h3>${title}</h3>
-      <p style="font-style: italic;">${game.i18n.format("TRESPASSER.Chat.Trigger.TriggeredAt", { label: game.i18n.localize(label) })}</p>`;
-
-    if (item.system.isOnlyReminder) {
-      if (item.system.description) {
-        flavor += `<div class="reminder-text">${item.system.description}</div>`;
-      }
-    } else {
-      const roll = await this.evaluateModifier(modifier, intensity, { actor, toMessage: false, returnRoll: true });
-      const modValue = typeof roll === "number" ? roll : roll.total;
-
-      if (target === "health") {
-        const rawHP = actor.system.health + modValue;
-        const newHP = Math.clamp(rawHP, 0, actor.system.max_health);
-        await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
-        if (modValue > 0) flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthRecovered", { value: modValue })}</p>`;
-        else if (modValue < 0) {
-          flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
-          if (actor.type === "character" && rawHP < 0) {
-            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: rawHP })}</p>`;
-            flavor += buildTenacityButtonHtml(actor, rawHP);
-          }
-        }
-        else flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.HealthUnaffected")}</p>`;
-      } 
-      else if (target === "endurance") {
-        const newEnd = Math.clamp(actor.system.endurance + modValue, 0, actor.system.max_endurance);
-        await actor.update({ "system.endurance": newEnd });
-        if (modValue > 0) flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.EnduranceRecovered", { value: modValue })}</p>`;
-        else if (modValue < 0) flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.EnduranceLost", { value: Math.abs(modValue) })}</p>`;
-        else flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.EnduranceUnaffected")}</p>`;
-      }
-      else if (target === "focus") flavor += await TrespasserEffectsHelper.updateFocus(actor, modValue);
-      else if (target === "action_points") flavor += await TrespasserEffectsHelper.updateActionPoints(actor, modValue);
-      else if (target === "combat_phase") flavor += await TrespasserEffectsHelper.updateCombatPhase(actor, modValue);
-      else {
-        const targetLabel = game.i18n.localize(this.TARGET_ATTRIBUTES[target]) || target;
-        flavor += `<p>${game.i18n.format("TRESPASSER.Chat.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
-      }
-
-      if (roll instanceof foundry.dice.Roll) flavor += await roll.render();
-    }
-
-    flavor += `</div>`;
-
-    const chatData = {
-      speaker: ChatMessage.getSpeaker({ actor }),
-      content: flavor
-    };
-    if (item.system.gmOnly) chatData.whisper = ChatMessage.getWhisperRecipients("GM");
-
-    await ChatMessage.create(chatData);
-
-    // Apply intensity increment
-    const increment = item.system.intensityIncrement || 0;
-    if (increment !== 0) {
-      await item.update({ "system.intensity": intensity + increment });
-    }
-
-    await item.delete();
+    return triggerImmediate(actor, item);
   }
 
-  /**
-   * Updates the focus of an actor.
-   * @param {Actor} actor
-   * @param {number} modValue
-   * @returns {string} The flavor text to be added to the chat message.
-   */
   static async updateFocus(actor, modValue) {
-    const currentFocus = actor.system.combat?.focus ?? null;
-    let flavor = '';
-    if (currentFocus !== null) {
-      const newFocus = Math.max(0, currentFocus + modValue);
-      await actor.update({ "system.combat.focus": newFocus });
-
-      if (modValue > 0) {
-        flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.FocusRecovered", { value: modValue })}</p>`;
-      } else if (modValue < 0) {
-        flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.FocusLost", { value: Math.abs(modValue) })}</p>`;
-      } else {
-        flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.FocusUnaffected")}</p>`;
-      }
-    } else {
-      const targetLabel = game.i18n.localize(this.TARGET_ATTRIBUTES["focus"]) || "focus";
-      flavor += `<p>${game.i18n.format("TRESPASSER.Chat.Trigger.ModifierGenerated", { value: modValue, target: targetLabel })}</p>`;
-    }
-    return flavor;
+    return updateFocus(actor, modValue);
   }
 
-  /**
-   * Updates the action points of an actor.
-   * @param {Actor} actor
-   * @param {number} modValue
-   * @returns {string} The flavor text to be added to the chat message.
-   */
   static async updateActionPoints(actor, modValue) {
-    let flavor = '';
-    if (game.combat) {
-      const combatant = game.combat.combatants.find(c => c.actorId === actor.id);
-      if (combatant) {
-        const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 3;
-        const newAP = Math.max(0, currentAP + modValue);
-        await combatant.setFlag("trespasser", "actionPoints", newAP);
-        
-        if (modValue > 0) {
-          flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.APGained", { value: modValue })}</p>`;
-        } else if (modValue < 0) {
-          flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.APLost", { value: Math.abs(modValue) })}</p>`;
-        }
-      }
-    }
-    return flavor;
+    return updateActionPoints(actor, modValue);
   }
 
-  /**
-   * Updates the combat phase of an actor.
-   * @param {Actor} actor
-   * @param {number} modValue
-   * @returns {string} The flavor text to be added to the chat message.
-   */
   static async updateCombatPhase(actor, modValue) {
-    let flavor = '';
-    if (game.combat) {
-      const combatant = game.combat.combatants.find(c => c.actorId === actor.id);
-      if (combatant) {
-        const phaseValues = [40, 30, 20, 10, 0];
-        const closestPhase = phaseValues.reduce((prev, curr) => 
-          Math.abs(curr - modValue) < Math.abs(prev - modValue) ? curr : prev
-        );
-        
-        await combatant.update({ initiative: closestPhase });
-        
-        if (game.combat?.verifyPhaseAdvancement) {
-          await game.combat.verifyPhaseAdvancement();
-        }
-
-        const combatClass = CONFIG.Combat.documentClass;
-        let phaseLabel = closestPhase;
-        if (combatClass && combatClass.PHASE_LABELS) {
-          phaseLabel = game.i18n.localize(combatClass.PHASE_LABELS[closestPhase]) || closestPhase;
-        }
-        
-        flavor += `<p>${game.i18n.format("TRESPASSER.Chat.Trigger.PhaseChanged", { phase: phaseLabel })}</p>`;
-      }
-    }
-    return flavor;
+    return updateCombatPhase(actor, modValue);
   }
-  /**
-   * Decrements "round" duration for all standalone effects on an actor.
-   * @param {Actor} actor 
-   */
+
   static async decrementRound(actor) {
-    if (!actor) return;
-    const effects = actor.items.filter(i => i.type === "effect");
-    for (const item of effects) {
-      const { shouldExpire, updatedConditions } = DurationHelper.processEvent(item, "round");
-      if (shouldExpire) {
-        await item.delete();
-      } else {
-        // Only update if round were actually decremented
-        const current = DurationHelper.getConditions(item);
-        const hasChanged = JSON.stringify(current) !== JSON.stringify(updatedConditions);
-        if (hasChanged) {
-          await item.update({ "system.durationConditions": updatedConditions });
-        }
-      }
-    }
+    return decrementRound(actor);
+  }
+
+  static async applyEffectChat(effects, actor, options = {}) {
+    return applyEffectChat(effects, actor, options);
+  }
+
+  static async applyOilDialog(actor, oilItem) {
+    return applyOilDialog(actor, oilItem);
   }
 
   static async openEffectSheet(uuid, callback) {
-    const doc = await resolveItem(uuid, { type: "effect" });
-    if (!doc) return;
-    doc.sheet._updateObject = async (_event, formData) => {
-      if (callback) await callback(doc, formData);
-    } 
-    doc.sheet.render(true);
+    return openEffectSheet(uuid, callback);
   }
 
-  static _syncTimers = new Map();
-  static _inFlightSyncs = new Set();
-  static _pendingReSyncs = new Set();
-
-  /**
-   * Synchronizes the actor's active status effect icons with all its active tokens.
-   * Debounced per actor to prevent race conditions when multiple effect items
-   * are created, updated, or deleted in the same frame/operation.
-   * @param {Actor} actor The actor document to sync tokens for
-   */
   static async syncActorTokenEffects(actor) {
-    if (!actor) return;
-    const actorKey = actor.uuid || actor.id;
-    if (!actorKey) return;
-
-    if (this._syncTimers.has(actorKey)) {
-      clearTimeout(this._syncTimers.get(actorKey));
-    }
-
-    return new Promise((resolve) => {
-      const timer = setTimeout(async () => {
-        this._syncTimers.delete(actorKey);
-
-        if (this._inFlightSyncs.has(actorKey)) {
-          this._pendingReSyncs.add(actorKey);
-          resolve();
-          return;
-        }
-
-        this._inFlightSyncs.add(actorKey);
-        try {
-          await this._performSyncActorTokenEffects(actor);
-        } catch (err) {
-          console.error(`Trespasser | Failed to sync status icons for actor ${actor.name}:`, err);
-        } finally {
-          this._inFlightSyncs.delete(actorKey);
-          if (this._pendingReSyncs.has(actorKey)) {
-            this._pendingReSyncs.delete(actorKey);
-            this.syncActorTokenEffects(actor);
-          }
-          resolve();
-        }
-      }, 50);
-
-      this._syncTimers.set(actorKey, timer);
-    });
+    return syncActorTokenEffects(actor);
   }
 
-  /**
-   * Internal implementation of active status effect icon synchronization.
-   * Cleans up duplicate ActiveEffects and creates/updates missing ones.
-   * @param {Actor} actor
-   * @protected
-   */
   static async _performSyncActorTokenEffects(actor) {
-    if (!actor) return;
-
-    const showEffects = game.settings.get("trespasser", "showStatusEffectsOnTokens") ?? true;
-    // Get all active effect items on the actor that have a statusIcon selected or synced
-    const effectItems = showEffects
-      ? actor.items.filter(i => {
-          if (i.type !== "effect") return false;
-          const icon = (i.system.syncStatusIcon !== false) ? (i.img || i.system.statusIcon) : i.system.statusIcon;
-          return Boolean(icon);
-        })
-      : [];
-
-    // Get all existing ActiveEffects on the actor that were created by our sync (have our sourceItem flag)
-    const existingActiveEffects = actor.effects ? actor.effects.filter(ae => ae.getFlag("trespasser", "sourceItem")) : [];
-
-    const itemsToKeep = new Set();
-    const effectsToDelete = [];
-    const effectsToCreate = [];
-    const effectsToUpdate = [];
-
-    // Group existing ActiveEffects by sourceItem to easily detect and clean up duplicates
-    const aesBySource = new Map();
-    for (const ae of existingActiveEffects) {
-      const srcId = ae.getFlag("trespasser", "sourceItem");
-      if (!aesBySource.has(srcId)) aesBySource.set(srcId, []);
-      aesBySource.get(srcId).push(ae);
-    }
-
-    for (const item of effectItems) {
-      const matchingAEs = aesBySource.get(item.id) || [];
-      const ae = matchingAEs[0] || null;
-
-      // If there are duplicate AEs for this same sourceItem, mark the extra ones for deletion immediately
-      for (let i = 1; i < matchingAEs.length; i++) {
-        effectsToDelete.push(matchingAEs[i].id);
-      }
-
-      const statusIconPath = (item.system.syncStatusIcon !== false) ? (item.img || item.system.statusIcon) : item.system.statusIcon;
-      if (!statusIconPath) {
-        if (ae) effectsToDelete.push(ae.id);
-        continue;
-      }
-
-      // Object.values handles both the v13 array and v14 object formats
-      const matchingStatus = Object.values(CONFIG.statusEffects).find(se => {
-        const img = se.img || se.icon || se.src;
-        return img === statusIconPath;
-      });
-      const statusId = matchingStatus?.id || "effect";
-
-      const effectData = {
-        name: item.name,
-        img: statusIconPath,
-        statuses: [statusId],
-        showIcon: 2,
-        flags: {
-          trespasser: {
-            sourceItem: item.id
-          }
-        }
-      };
-
-      if (ae) {
-        itemsToKeep.add(ae.id);
-        // Check if we need to update the image, name, or status ID
-        const currentStatuses = Array.from(ae.statuses || []);
-        const statusesChanged = currentStatuses.length !== 1 || currentStatuses[0] !== statusId;
-        if (ae.name !== effectData.name || ae.img !== effectData.img || statusesChanged) {
-          effectsToUpdate.push({
-            _id: ae.id,
-            name: effectData.name,
-            img: effectData.img,
-            statuses: [statusId]
-          });
-        }
-      } else {
-        effectsToCreate.push(effectData);
-      }
-    }
-
-    // Identify ActiveEffects to delete (sourceItem is set but the item no longer exists or no longer has a statusIcon)
-    for (const ae of existingActiveEffects) {
-      if (!itemsToKeep.has(ae.id)) {
-        effectsToDelete.push(ae.id);
-      }
-    }
-
-    const uniqueDeleteIds = Array.from(new Set(effectsToDelete));
-
-    // Perform database operations
-    if (uniqueDeleteIds.length > 0) {
-      await actor.deleteEmbeddedDocuments("ActiveEffect", uniqueDeleteIds);
-    }
-    if (effectsToUpdate.length > 0) {
-      await actor.updateEmbeddedDocuments("ActiveEffect", effectsToUpdate);
-    }
-    if (effectsToCreate.length > 0) {
-      await actor.createEmbeddedDocuments("ActiveEffect", effectsToCreate);
-    }
+    return performSyncActorTokenEffects(actor);
   }
 }

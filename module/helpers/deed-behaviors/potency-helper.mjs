@@ -1,5 +1,14 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
-import { resolveItem } from "../item-resolver.mjs";
+import {
+  hasLinkedEffect,
+  parseIntensity,
+  getActorEquippedWeapons,
+  collectPotencyCandidates
+} from "./potency-candidates.mjs";
+import {
+  registerAppliedEffect,
+  updateAlreadyApplied
+} from "./potency-applied.mjs";
 
 /**
  * DeedPotencyHelper — Coordinates Potency spark distribution among Deed effects and terrains with linked effects.
@@ -12,22 +21,7 @@ export class DeedPotencyHelper {
    * @returns {Promise<boolean>|boolean}
    */
   static async hasLinkedEffect(terrainItemOrUuid) {
-    if (!terrainItemOrUuid) return false;
-    let doc = terrainItemOrUuid;
-    if (typeof terrainItemOrUuid === "string") {
-      try {
-        doc = await resolveItem(terrainItemOrUuid, { notify: false, type: "terrain" });
-      } catch {
-        return false;
-      }
-    }
-    if (!doc) return false;
-    const sys = doc.system;
-    return Boolean(
-      (sys?.linkedEffects && sys.linkedEffects.length > 0) ||
-      sys?.linkedEffect?.uuid ||
-      sys?.linkedEffectKey
-    );
+    return hasLinkedEffect(terrainItemOrUuid);
   }
 
   /**
@@ -37,10 +31,7 @@ export class DeedPotencyHelper {
    * @returns {number}
    */
   static parseIntensity(val, fallback = 0) {
-    if (val !== undefined && val !== null && val !== "" && !isNaN(Number(val))) {
-      return Number(val);
-    }
-    return fallback;
+    return parseIntensity(val, fallback);
   }
 
   /**
@@ -49,25 +40,7 @@ export class DeedPotencyHelper {
    * @returns {Item[]}
    */
   static getActorEquippedWeapons(actor) {
-    if (!actor?.system) return [];
-    const mode = actor.system.combat?.weaponMode || "main";
-    const mainHandId = actor.system.equipment?.main_hand;
-    const offHandId = actor.system.equipment?.off_hand;
-    const weapons = [];
-
-    if (mode === "dual") {
-      const main = mainHandId ? actor.items.get(mainHandId) : null;
-      const off = offHandId ? actor.items.get(offHandId) : null;
-      if (main?.type === "weapon") weapons.push(main);
-      if (off?.type === "weapon" && off.id !== main?.id) weapons.push(off);
-    } else if (mode === "off") {
-      const off = offHandId ? actor.items.get(offHandId) : null;
-      if (off?.type === "weapon") weapons.push(off);
-    } else {
-      const main = mainHandId ? actor.items.get(mainHandId) : null;
-      if (main?.type === "weapon") weapons.push(main);
-    }
-    return weapons;
+    return getActorEquippedWeapons(actor);
   }
 
   /**
@@ -79,98 +52,7 @@ export class DeedPotencyHelper {
    * @returns {Promise<Array<object>>}
    */
   static async collectPotencyCandidates(context, actor, item, phaseKey = "") {
-    const candidates = [];
-    const graphNodes = context.executor?.system?.graph?.nodes || item?.system?.graph?.nodes || [];
-
-    for (const node of graphNodes) {
-      if (node.type === "applyEffects") {
-        const rawEffects = node.params?.effects || [];
-        const effects = Array.isArray(rawEffects) ? rawEffects : Object.values(rawEffects);
-        for (const eff of effects) {
-          if (!eff) continue;
-          const effectItem = await resolveItem(eff, { notify: false, type: "effect" });
-          if (!effectItem) continue;
-          candidates.push({
-            type: "effect",
-            nodeId: node.id,
-            uuid: eff.uuid,
-            item: effectItem,
-            name: effectItem.name,
-            displayName: effectItem.name,
-            img: eff.img || effectItem.img || "icons/svg/aura.svg",
-            baseIntensity: this.parseIntensity(eff.intensity, effectItem.system?.intensity ?? 0),
-            source: "deed"
-          });
-        }
-
-        if (node.params?.appliesWeaponEffects && actor) {
-          const weapons = this.getActorEquippedWeapons(actor);
-          for (const weapon of weapons) {
-            const wEffects = weapon.system?.effects;
-            if (Array.isArray(wEffects)) {
-              for (const wEff of wEffects) {
-                if (!wEff) continue;
-                const effectItem = await resolveItem(wEff, { notify: false, type: "effect" });
-                if (!effectItem) continue;
-                candidates.push({
-                  type: "effect",
-                  nodeId: node.id,
-                  uuid: wEff.uuid,
-                  item: effectItem,
-                  name: effectItem.name,
-                  displayName: `${effectItem.name} (${weapon.name})`,
-                  img: wEff.img || effectItem.img || "icons/svg/aura.svg",
-                  baseIntensity: this.parseIntensity(wEff.intensity, effectItem.system?.intensity ?? 0),
-                  source: weapon.name
-                });
-              }
-            }
-            if (phaseKey === "spark" && Array.isArray(weapon.system?.enhancementEffects)) {
-              for (const wEff of weapon.system.enhancementEffects) {
-                if (!wEff) continue;
-                const effectItem = await resolveItem(wEff, { notify: false, type: "effect" });
-                if (!effectItem) continue;
-                candidates.push({
-                  type: "effect",
-                  nodeId: node.id,
-                  uuid: wEff.uuid,
-                  item: effectItem,
-                  name: effectItem.name,
-                  displayName: `${effectItem.name} (${weapon.name} Enhancement)`,
-                  img: wEff.img || effectItem.img || "icons/svg/aura.svg",
-                  baseIntensity: this.parseIntensity(wEff.intensity, effectItem.system?.intensity ?? 0),
-                  source: `${weapon.name} (Enhancement)`
-                });
-              }
-            }
-          }
-        }
-      } else if (node.type === "spawnTerrain") {
-        if (!node.params?.terrainUuid) continue;
-        const terrainItem = await resolveItem(node.params.terrainUuid, { notify: false, type: "terrain" });
-        if (!terrainItem) continue;
-        const hasLinked = await this.hasLinkedEffect(terrainItem);
-        if (!hasLinked) continue;
-
-        const defaultTerrainInt = this.parseIntensity(terrainItem.system?.linkedEffects?.[0]?.intensity, 1);
-        const baseIntensity = this.parseIntensity(node.params.intensity, defaultTerrainInt);
-        const terrainLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Behavior.Type.spawnTerrain") || "Terrain";
-
-        candidates.push({
-          type: "terrain",
-          nodeId: node.id,
-          uuid: terrainItem.uuid,
-          item: terrainItem,
-          name: terrainItem.name,
-          displayName: `${terrainItem.name} (${terrainLabel})`,
-          img: node.params.terrainImg || terrainItem.img || "icons/svg/mountain.svg",
-          baseIntensity: baseIntensity,
-          source: "terrain"
-        });
-      }
-    }
-
-    return candidates;
+    return collectPotencyCandidates(context, actor, item, phaseKey);
   }
 
   /**
@@ -304,8 +186,7 @@ export class DeedPotencyHelper {
    * @param {object} record
    */
   static registerAppliedEffect(context, record) {
-    if (!context.appliedDeedEffects) context.appliedDeedEffects = [];
-    context.appliedDeedEffects.push(record);
+    registerAppliedEffect(context, record);
   }
 
   /**
@@ -313,106 +194,7 @@ export class DeedPotencyHelper {
    * @param {object} context
    */
   static async updateAlreadyApplied(context) {
-    const appliedList = context.appliedDeedEffects || [];
-    for (const record of appliedList) {
-      if (record.type === "terrain") {
-        const bonus = context.potencyAllocations?.terrainBonuses?.get(record.nodeId) || 0;
-        if (bonus > (record.addedPotency || 0)) {
-          const newIntensity = record.baseIntensity + bonus;
-          record.addedPotency = bonus;
-          record.finalIntensity = newIntensity;
-
-          // 1. Locate and update the caster's linked effect document
-          const actor = game.actors?.get(record.actor?.id) || record.actor;
-          let doc = record.itemId ? actor?.items?.get(record.itemId) : null;
-          if (!doc && actor) {
-            doc = actor.items?.find(i =>
-              i.type === "effect" && (
-                (record.itemId && i.id === record.itemId) ||
-                (record.uuid && (i.flags?.trespasser?.sourceEffectUuid === record.uuid || i.flags?.trespasser?.linkedSource === record.uuid)) ||
-                (record.terrainName && (i.name === record.terrainName || i.name.toLowerCase().includes(record.terrainName.toLowerCase())))
-              )
-            );
-          }
-
-          if (doc && doc.system?.intensity !== newIntensity) {
-            if (actor.isOwner) {
-              await doc.update({ "system.intensity": newIntensity });
-            } else {
-              const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
-              await emitDeedActionAndWait("applyEffects", {
-                actorId: actor.id,
-                itemDataArray: [{ _id: doc.id, "system.intensity": newIntensity }]
-              });
-            }
-          }
-
-          // 2. Update any canvas terrain regions placed during this execution
-          const spawned = context.spawnedTerrains || [];
-          const { TerrainHelper } = await import("../terrain-helper.mjs");
-          for (const st of spawned) {
-            if (st && typeof st.update === "function") {
-              try {
-                await st.update({ "flags.trespasser.intensity": newIntensity });
-                await TerrainHelper.syncWhileInsideEffectsForRegion(st);
-              } catch (e) {
-                console.warn("Trespasser | Failed to sync terrain region intensity:", e);
-              }
-            }
-          }
-
-          // 3. Post note to chat
-          if (context.currentPhaseOutputs?.notes) {
-            context.currentPhaseOutputs.notes.push(
-              game.i18n.format("TRESPASSER.Chat.Terrain.IntensityUpdated", {
-                terrain: record.terrainName,
-                intensity: newIntensity,
-                potency: bonus
-              })
-            );
-          }
-        }
-      } else if (record.type === "effect") {
-        const bonus = context.potencyAllocations?.effectBonuses?.get(`${record.targetId}_${record.uuid}`) ??
-                      context.potencyAllocations?.effectBonuses?.get(`global_${record.uuid}`) ?? 0;
-        if (bonus > (record.addedPotency || 0)) {
-          const newIntensity = record.baseIntensity + bonus;
-          record.addedPotency = bonus;
-          record.finalIntensity = newIntensity;
-          const actor = game.actors?.get(record.actor?.id) || record.actor;
-          let doc = record.itemId ? actor?.items?.get(record.itemId) : null;
-          if (!doc && actor) {
-            doc = actor.items?.find(i =>
-              i.type === "effect" && (
-                (record.itemId && i.id === record.itemId) ||
-                (record.uuid && (i.flags?.trespasser?.sourceEffectUuid === record.uuid || i.flags?.trespasser?.linkedSource === record.uuid)) ||
-                (record.name && i.name === record.name)
-              )
-            );
-          }
-          if (doc && doc.system?.intensity !== newIntensity) {
-            if (actor.isOwner) {
-              await doc.update({ "system.intensity": newIntensity });
-            } else {
-              const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
-              await emitDeedActionAndWait("applyEffects", {
-                actorId: actor.id,
-                itemDataArray: [{ _id: doc.id, "system.intensity": newIntensity }]
-              });
-            }
-          }
-          if (context.currentPhaseOutputs?.notes) {
-            context.currentPhaseOutputs.notes.push(
-              game.i18n.format("TRESPASSER.Chat.Effect.IntensityUpdated", {
-                effect: record.name,
-                intensity: newIntensity,
-                potency: bonus
-              })
-            );
-          }
-        }
-      }
-    }
+    return updateAlreadyApplied(context);
   }
 
   /**
@@ -448,3 +230,12 @@ export class DeedPotencyHelper {
     await this.ensurePotencyAllocations(context, actor, item, phaseKey);
   }
 }
+
+export {
+  hasLinkedEffect,
+  parseIntensity,
+  getActorEquippedWeapons,
+  collectPotencyCandidates,
+  registerAppliedEffect,
+  updateAlreadyApplied
+};

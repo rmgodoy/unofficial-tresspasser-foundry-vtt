@@ -5,16 +5,9 @@
  * This file only wires Foundry's lifecycle hooks to those modules.
  */
 
-import { addItemToActor } from "../helpers/item-transfer-helper.mjs";
-import { resolveItem }    from "../helpers/item-resolver.mjs";
-import { TrespasserSocket } from "../helpers/socket/socket.mjs";
-import { TrespasserCallingDialog }     from "../dialogs/calling-dialog.mjs";
-import { TrespasserCraftDialog }       from "../dialogs/craft-dialog.mjs";
 import { showRestDialog }              from "../dialogs/rest-dialog.mjs";
 import { showAmmoDialog }              from "../dialogs/ammo-dialog.mjs";
-import { askAPDialog }               from "../dialogs/ap-dialog.mjs";
-import { PlightPickerDialog }          from "../dialogs/plight-picker-dialog.mjs";
-import { COMMON_PLIGHTS }              from "../config/plight-config.mjs";
+import { askAPDialog }                 from "../dialogs/ap-dialog.mjs";
 
 import { getCharacterData, buildClockSegments } from "./character/get-data.mjs";
 import { activateCharacterListeners }           from "./character/listeners.mjs";
@@ -27,6 +20,21 @@ import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck, onItem
 import { onPrevailRoll, onIntensityChange, onEffectRemove, onEffectInfo, onEffectEdit }   from "./character/handlers-effects.mjs";
 import { onEquipRoll, getActiveWeapons, getAccuracyFromTarget }             from "./character/handlers-combat.mjs";
 import { onInjuryClockClick, onToggleLight, onSpendRDHeader }               from "./character/handlers-misc.mjs";
+import {
+  onCallingEdit,
+  onCallingDelete,
+  onCraftEdit,
+  onCraftDelete,
+  applyPastLife,
+  onPlightAdd,
+  onLastingStateAdd
+} from "./character/handlers-advancement.mjs";
+import {
+  bindItemDragHandlers,
+  onDropHavenTransfer,
+  onSortItem,
+  handleDropItem
+} from "./character/handlers-drag-drop.mjs";
 
 import { TrespasserActorSheet } from "./base-sheet.mjs";
 
@@ -109,27 +117,14 @@ export class TrespasserCharacterSheet extends TrespasserActorSheet {
   }
 
   /**
-   * Make item rows draggable with standard Foundry drag data. Core's v14
-   * sheet drag-drop rework no longer binds drag handlers to system markup,
-   * so the sheet wires its own dragstart listeners.
+   * Make item rows draggable with standard Foundry drag data.
    */
   #bindItemDragHandlers() {
-    for (const el of this.element.querySelectorAll('[draggable="true"]')) {
-      if (el._trespasserDragBound) continue;
-      el._trespasserDragBound = true;
-      el.addEventListener("dragstart", ev => {
-        const id = el.dataset.itemId ?? el.closest("[data-item-id]")?.dataset.itemId;
-        const item = id ? this.actor.items.get(id) : null;
-        if (!item) return;
-        ev.dataTransfer.setData("text/plain", JSON.stringify(item.toDragData()));
-      });
-    }
+    bindItemDragHandlers(this);
   }
 
   /** @override */
   async _onDrop(event) {
-    // Haven withdrawals carry a custom payload without a uuid, which core's
-    // drop pipeline cannot resolve to an Item — handle them before it runs.
     const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (data?.isHavenTransfer) return this.#onDropHavenTransfer(data);
     return super._onDrop(event);
@@ -140,85 +135,19 @@ export class TrespasserCharacterSheet extends TrespasserActorSheet {
    * @param {object} data  The haven-transfer drag payload.
    */
   async #onDropHavenTransfer(data) {
-    const sourceHaven = game.actors.get(data.actorId);
-    if (!sourceHaven) return false;
-
-    const entry = sourceHaven.system.inventory[data.havenIndex];
-    if (!entry) return false;
-
-    const itemData = foundry.utils.duplicate(entry.item);
-    const qtyToTransfer = data.transferAll ? entry.quantity : 1;
-
-    const success = await addItemToActor(this.actor, itemData, qtyToTransfer);
-    console.log(`Trespasser | Haven Transfer: Item added to character: ${success}`);
-
-    if (success) {
-      console.log(`Trespasser | Haven Transfer: Emitting HAVEN_WITHDRAWAL socket for index ${data.havenIndex}`);
-      // Notify through socket to update Haven (handles permissions)
-      TrespasserSocket.emit("HAVEN_WITHDRAWAL", {
-        havenUuid: sourceHaven.uuid,
-        index: data.havenIndex,
-        targetActorUuid: this.actor.uuid,
-        transferAll: !!data.transferAll
-      });
-
-      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Transfer.Complete", {
-        item: entry.item.name,
-        target: this.actor.name
-      }));
-    }
-
-    return false;
+    return onDropHavenTransfer(this, data);
   }
 
   /** @override */
   async _onDropItem(event, dropped) {
-    // Guard against the drop being processed twice if both core's pipeline
-    // and a fallback listener route the same event here.
-    if (event._trespasserItemDropHandled) return false;
-    event._trespasserItemDropHandled = true;
-
-    // v14 passes the resolved Item document; raw drag data is normalized
-    // here as well so the handler tolerates either calling convention.
-    const sourceItem = dropped instanceof Item
-      ? dropped
-      : ((await Item.implementation.fromDropData(dropped ?? {})) || (await resolveItem(dropped)));
-
-    // A drop from another actor is a transfer, which the receiving user may
-    // accept without owning this sheet; anything else (sidebar/compendium
-    // cloning) still requires ownership.
-    const isTransfer = !!sourceItem?.parent && (sourceItem.parent !== this.actor);
-    if (!this.actor.isOwner && !isTransfer) return false;
-
-    if (isTransfer) {
-      // Trigger the unified transfer logic
-      await onItemTransfer(null, this, { item: sourceItem, targetActor: this.actor });
-      return false; // Prevent duplicate handling
-    }
-
-    // Dropping an item onto its own sheet reorders it
-    if (sourceItem && sourceItem.parent === this.actor) return this.#onSortItem(event, sourceItem);
-
-    if (!sourceItem) return super._onDropItem(event, dropped);
-    if (sourceItem.type === "calling")   return TrespasserCallingDialog.wait(sourceItem, this.actor);
-    if (sourceItem.type === "craft")     return TrespasserCraftDialog.wait(sourceItem, this.actor);
-    if (sourceItem.type === "past_life") return this._applyPastLife(sourceItem);
-    return super._onDropItem(event, dropped);
+    return handleDropItem(this, event, dropped, (ev, dr) => super._onDropItem(ev, dr));
   }
 
   /**
-   * Reorder an item dropped onto another row of the same sheet. Inventory
-   * lists render in sort order, so adjust sort values relative to the row
-   * under the drop point.
+   * Reorder an item dropped onto another row of the same sheet.
    */
   async #onSortItem(event, item) {
-    const targetEl = event.target?.closest?.("[data-item-id]");
-    const target = targetEl ? this.actor.items.get(targetEl.dataset.itemId) : null;
-    if (!target || target.id === item.id) return false;
-
-    const siblings = this.actor.items.filter(i => i.id !== item.id);
-    const updates = foundry.utils.performIntegerSort(item, { target, siblings });
-    return this.actor.updateEmbeddedDocuments("Item", updates.map(u => ({ _id: u.target.id, sort: u.update.sort })));
+    return onSortItem(this, event, item);
   }
 
   // ── Delegate methods (kept here so Foundry's .bind(this) chains work) ─────
@@ -272,58 +201,11 @@ export class TrespasserCharacterSheet extends TrespasserActorSheet {
   async _onDurationChange(event)            { return onDurationChange(event, this); }
 
   async _onPlightAdd(event) {
-    event.preventDefault();
-    const plightId = await PlightPickerDialog.wait(this.actor);
-    if (!plightId) return;
-
-    if (plightId === "custom") {
-      const created = await Item.implementation.create({
-        name: game.i18n.localize("TRESPASSER.Plight.Custom.Name"),
-        type: "plight",
-        img: "systems/trespasser/assets/icons/effect.webp",
-        system: {
-          plightId: "",
-          description: ""
-        }
-      }, { parent: this.actor });
-      if (created) {
-        created.sheet.render(true);
-      }
-    } else {
-      const config = COMMON_PLIGHTS[plightId];
-      if (config) {
-        // Double check duplicate prevention
-        const alreadyHas = this.actor.items.some(i => i.type === "plight" && i.system.plightId === plightId);
-        if (alreadyHas) {
-          ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: game.i18n.localize(config.label) }));
-          return;
-        }
-
-        await Item.implementation.create({
-          name: game.i18n.localize(config.label),
-          type: "plight",
-          img: "systems/trespasser/assets/icons/effect.webp",
-          system: {
-            plightId: plightId,
-            description: game.i18n.localize(config.description)
-          }
-        }, { parent: this.actor });
-      }
-    }
+    return onPlightAdd(this, event);
   }
 
   async _onLastingStateAdd(event) {
-    event.preventDefault();
-    const type = "effect";
-    const name = "New Lasting State";
-    const system = {
-      isLasting: true,
-      isCombat: true
-    };
-    const created = await Item.implementation.create({ name, type, system }, { parent: this.actor });
-    if (created) {
-      created.sheet.render(true);
-    }
+    return onLastingStateAdd(this, event);
   }
 
   // ── Combat / Equipment ─────────────────────────────────────────────────────
@@ -336,151 +218,22 @@ export class TrespasserCharacterSheet extends TrespasserActorSheet {
   async _onToggleLight(event)               { return onToggleLight(event, this); }
 
   async _onCallingEdit(event) {
-    event.preventDefault();
-    const callingItem = this.actor.items.find(i => i.type === "calling");
-    if (!callingItem) return ui.notifications.warn("No calling item found on this actor.");
-    return TrespasserCallingDialog.wait(callingItem, this.actor);
+    return onCallingEdit(this, event);
   }
 
   async _onCallingDelete(event) {
-    event.preventDefault();
-    const callingItem = this.actor.items.find(i => i.type === "calling");
-    if (!callingItem) return;
-
-    const callingName = callingItem.name;
-
-    const confirm = await foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.CallingTitle", { name: callingName }) },
-      content: `<p>${game.i18n.format("TRESPASSER.Dialog.Delete.CallingConfirm", { name: callingName })}</p>`,
-      classes: ["trespasser", "dialog"],
-      rejectClose: false
-    });
-
-    if (!confirm) return;
-
-    // 1. Collect linked items
-    const toDelete = this.actor.items
-      .filter(it => it.flags.trespasser?.linkedSource === callingName || it.id === callingItem.id)
-      .map(it => it.id);
-
-    // 2. Identify skills to un-train
-    const skillUpdates = {};
-    if (callingItem.system.skills) {
-      for (const skillKey of callingItem.system.skills) {
-        skillUpdates[`system.skills.${skillKey}`] = false;
-      }
-    }
-
-    // 3. Perform updates
-    await this.actor.deleteEmbeddedDocuments("Item", toDelete);
-    await this.actor.update({
-      ...skillUpdates,
-      "system.calling": ""
-    });
-
-    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Apply.CallingRemoved", { name: callingName, actor: this.actor.name }));
+    return onCallingDelete(this, event);
   }
 
   async _onCraftEdit(event) {
-    event.preventDefault();
-    const slotIdx = event.currentTarget.dataset.slot;
-    const craftName = (event.currentTarget.dataset.craft || this.actor.system.crafts?.[slotIdx])?.trim();
-    if (!craftName) return;
-
-    const lower = craftName.toLowerCase();
-    let craftItem = this.actor.items.find(i => i.type === "craft" && i.name.trim().toLowerCase() === lower)
-      || game.items.find(i => i.type === "craft" && i.name.trim().toLowerCase() === lower);
-
-    if (!craftItem) {
-      const pack = game.packs.get("trespasser.trespasser-content");
-      const entry = pack?.index.find(e => e.type === "craft" && e.name.trim().toLowerCase() === lower);
-      if (entry) craftItem = await pack.getDocument(entry._id);
-    }
-
-    if (!craftItem) return ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Apply.CraftNotFound", { name: craftName }));
-    return TrespasserCraftDialog.wait(craftItem, this.actor);
+    return onCraftEdit(this, event);
   }
 
   async _onCraftDelete(event) {
-    event.preventDefault();
-    const slotIdx = parseInt(event.currentTarget.dataset.slot);
-    const craftName = event.currentTarget.dataset.craft || this.actor.system.crafts?.[slotIdx];
-    if (!craftName) return;
-
-    const confirm = await foundry.applications.api.DialogV2.confirm({
-      window: { title: game.i18n.format("TRESPASSER.Dialog.Delete.CraftTitle", { name: craftName }) },
-      content: `<p>${game.i18n.format("TRESPASSER.Dialog.Delete.CraftConfirm", { name: craftName })}</p>`,
-      classes: ["trespasser", "dialog"],
-      rejectClose: false
-    });
-    if (!confirm) return;
-
-    const toDelete = this.actor.items
-      .filter(it => it.flags.trespasser?.linkedSource === craftName || (it.type === "craft" && it.name === craftName))
-      .map(it => it.id);
-    if (toDelete.length > 0) await this.actor.deleteEmbeddedDocuments("Item", toDelete);
-
-    const current = [...(this.actor.system.crafts ?? ["", "", ""])];
-    if (slotIdx >= 0 && slotIdx < current.length) current[slotIdx] = "";
-    else {
-      const idx = current.findIndex(c => c === craftName);
-      if (idx !== -1) current[idx] = "";
-    }
-    await this.actor.update({ "system.crafts": current });
-    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Apply.CraftRemoved", { name: craftName, actor: this.actor.name }));
+    return onCraftDelete(this, event);
   }
 
-  /**
-   * Apply a Past Life template to the character.
-   * @param {Item} pastLifeItem 
-   */
   async _applyPastLife(pastLifeItem) {
-    const actor = this.actor;
-    const system = pastLifeItem.system;
-    
-    // 1. Prepare updates for actor
-    const updates = {
-      "system.past_life": pastLifeItem.name,
-    };
-
-    // 2. Sum attribute bonuses
-    for (const [key, bonus] of Object.entries(system.attributes)) {
-      const currentVal = actor.system.attributes[key] || 0;
-      updates[`system.attributes.${key}`] = currentVal + (bonus || 0);
-    }
-
-    // 3. Mark skills as trained (true)
-    for (const [key, trained] of Object.entries(system.skills)) {
-      if (trained) {
-        updates[`system.skills.${key}`] = true;
-      }
-    }
-
-    // Apply actor updates
-    await actor.update(updates);
-
-    // 4. Create items from the Past Life template
-    const itemsToCreate = [];
-    for (const entry of system.items) {
-      const sourceItem = await resolveItem(entry);
-      if (sourceItem) {
-        const itemData = sourceItem.toObject();
-        delete itemData._id;
-        // Optionally override quantity if specified in the template
-        if (entry.quantity !== undefined) {
-          itemData.system.quantity = entry.quantity;
-        }
-        itemsToCreate.push(itemData);
-      }
-    }
-
-    if (itemsToCreate.length > 0) {
-      await actor.createEmbeddedDocuments("Item", itemsToCreate);
-    }
-
-    ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Apply.PastLife", {
-      name: pastLifeItem.name,
-      actor: actor.name
-    }));
+    return applyPastLife(this, pastLifeItem);
   }
 }

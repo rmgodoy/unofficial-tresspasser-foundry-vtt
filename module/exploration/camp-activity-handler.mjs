@@ -10,6 +10,9 @@
 
 import { TravelTracker } from "./travel-tracker.mjs";
 import { TrespasserSocket } from "../helpers/socket/socket.mjs";
+import { performCampRoll } from "./camp-activity-roll.mjs";
+
+export { performCampRoll };
 
 /** @type {Map<string, string>} actorId → chosen activity key */
 let _pendingSelections = new Map();
@@ -54,14 +57,12 @@ export async function handleCampActivityRequest(data, senderId) {
   const { regionId, regionName, memberIds } = data;
 
   if (game.user.isGM) {
-    // GM: switch tracker to camp-pending mode
     const tracker = TravelTracker.getInstance();
     
     if (!tracker._campPending) {
       tracker._campPending = true;
       tracker._campSelections = new Map(memberIds.map(id => [id, null]));
     } else {
-      // If we are already pending, we are reprompting specific members
       for (const id of memberIds) {
         tracker._campSelections.set(id, null);
       }
@@ -71,14 +72,11 @@ export async function handleCampActivityRequest(data, senderId) {
     return;
   }
 
-  // Player: find which of my characters are in the party
   for (const memberId of memberIds) {
     const actor = game.actors.get(memberId);
     if (!actor) continue;
-    // Check if this player owns this character
     if (!actor.isOwner) continue;
 
-    // Open camp activity dialog
     openCampActivityDialog(actor, regionId, regionName, memberIds);
   }
 }
@@ -107,7 +105,6 @@ async function openCampActivityDialog(actor, regionId, regionName, memberIds) {
     };
   });
 
-  // Potential targets (other party members)
   const targets = memberIds
     .filter(id => id !== actor.id)
     .map(id => game.actors.get(id))
@@ -116,7 +113,6 @@ async function openCampActivityDialog(actor, regionId, regionName, memberIds) {
 
   let targetOptions = targets.map(t => `<option value="${t.id}">${t.name}</option>`).join("");
 
-  // Build dialog content with activity grid
   let content = `<div class="trespasser-dialog camp-activity-dialog">`;
   content += `<p>${game.i18n.format("TRESPASSER.Dialog.Camp.Prompt", { name: actor.name, region: regionName })}</p>`;
   content += `<div class="camp-activity-grid scrollable">`;
@@ -161,14 +157,12 @@ async function openCampActivityDialog(actor, regionId, regionName, memberIds) {
     render: (event, dialog) => {
       _activeDialogs.set(actor.id, dialog);
       
-      // Add event listener to show/hide target dropdown
       const el = dialog.element;
       const options = el.querySelectorAll('.camp-activity-option');
       const targetDiv = el.querySelector('.camp-target-selection');
       
       options.forEach(option => {
         option.addEventListener('click', (ev) => {
-          // Use setTimeout to ensure the radio input's state is updated before checking
           setTimeout(() => {
             const radio = option.querySelector('input[name="campActivity"]');
             if (radio && targetDiv) {
@@ -210,7 +204,6 @@ async function openCampActivityDialog(actor, regionId, regionName, memberIds) {
   });
 
   if (result) {
-    // Send response back via socket
     TrespasserSocket.emit("CAMP_ACTIVITY_RESPONSE", {
       regionId,
       actorId: actor.id,
@@ -243,7 +236,6 @@ export function handleCampActivityResponse(data) {
  */
 export function handleCampActivityCancel(data) {
   if (!game.user.isGM) {
-    // Close any open camp dialogs
     for (const [actorId, dialog] of _activeDialogs.entries()) {
       dialog.close();
     }
@@ -276,14 +268,12 @@ export async function handleCampActivityConfirm(data) {
   const { regionId, selections } = data;
   
   if (!game.user.isGM) {
-    // Close any remaining dialogs
     for (const [actorId, dialog] of _activeDialogs.entries()) {
       dialog.close();
     }
     _activeDialogs.clear();
   }
 
-  // Find characters owned by this client (only execute once per actor)
   const myActors = [];
   for (const [actorId, selection] of Object.entries(selections)) {
     const actor = game.actors.get(actorId);
@@ -295,14 +285,13 @@ export async function handleCampActivityConfirm(data) {
   if (myActors.length === 0) return;
 
   const region = game.actors.get(regionId);
-  const hostilityDC = region ? (CONFIG.TRESPASSER.dungeon.hostilityTiers[region.system.hostilityTier]?.dc ?? 10) : 10;
+  const hostilityDC = region ? (CONFIG.TRESPASSER.dungeon.hostilityTiers[region.system?.hostilityTier]?.dc ?? 10) : 10;
 
   for (const { actor, selection } of myActors) {
     const { activityKey, targetId } = selection;
     const activityConfig = CONFIG.TRESPASSER.travel.campActivities[activityKey];
     if (!activityConfig) continue;
 
-    // Calculate how many assists this actor received
     let assists = 0;
     for (const [otherActorId, otherSelection] of Object.entries(selections)) {
       if (otherSelection.activityKey === "assist" && otherSelection.targetId === actor.id) {
@@ -310,7 +299,6 @@ export async function handleCampActivityConfirm(data) {
       }
     }
 
-    // Print chat card for all actions
     const label = game.i18n.localize(activityConfig.label);
     const icon = activityConfig.icon;
     let targetName = "";
@@ -343,139 +331,12 @@ export async function handleCampActivityConfirm(data) {
     });
 
     if (activityConfig.check) {
-      // Trigger automated roll
       const automate = game.settings.get("trespasser", "automateTravelTracker");
       if (automate) {
         await performCampRoll(actor, activityConfig, activityKey, hostilityDC, assists);
       }
     }
   }
-}
-
-/**
- * Automate a skill check for a camp activity.
- */
-import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
-import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
-
-async function performCampRoll(actor, activityConfig, activityKey, dc, assists) {
-  const { attribute, skill } = activityConfig.check;
-  const attrKey = attribute;
-  const skillKey = skill;
-  
-  let attrVal    = actor.system.attributes[attrKey]    ?? 0;
-  let attrBonus  = actor.system.bonuses[attrKey] ?? 0;
-  let effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, attrKey, "use");
-
-  // Befuddled & Sickly checks
-  let plightName = "";
-  if ((attrKey === "intellect" || attrKey === "spirit") && actor.system.hasPlight?.("befuddled")) {
-    plightName = "Befuddled";
-  } else if ((attrKey === "mighty" || attrKey === "agility") && actor.system.hasPlight?.("sickly")) {
-    plightName = "Sickly";
-  }
-
-  if (plightName) {
-    attrVal = 0;
-    attrBonus = 0;
-    effectBonus = 0;
-    const attrLabel = game.i18n.localize(`TRESPASSER.Terms.Attribute.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
-    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.AttributeSuppressed", { plight: plightName, attr: attrLabel }));
-  }
-
-  const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, attrKey);
-  const diceFormula = isAdv ? "2d20kh" : "1d20";
-
-  // Check if they are trained
-  const skillVal = actor.system.skill;
-  const isTrained = actor.system.skills?.[skillKey] ?? false;
-  const skillBonus = isTrained ? skillVal : 0;
-  const trainedLabel = isTrained ? game.i18n.localize("TRESPASSER.Chat.Common.Trained") : "";
-
-  const activityLabel = game.i18n.localize(activityConfig.label);
-
-  const rollData = {
-    dice: diceFormula,
-    bonuses: [
-      { label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`), value: attrVal },
-      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus },
-      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
-    ]
-  };
-  if (attrBonus !== 0) rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
-
-  const result = await TrespasserRollDialog.wait({
-    ...rollData,
-    showCD: true,
-    cd: dc
-  }, { title: `${activityLabel} Check` });
-
-  if (!result) return null;
-
-  let formula = `${diceFormula} + ${attrVal} + ${result.modifier}`;
-  if (attrBonus !== 0) formula += ` + ${attrBonus}`;
-  if (effectBonus !== 0) formula += ` + ${effectBonus}`;
-  if (skillBonus > 0) formula += ` + ${skillBonus}`;
-
-  const roll = new foundry.dice.Roll(formula);
-  const flavorStr = game.i18n.format("TRESPASSER.Chat.Check.SkillCheck", { name: actor.name, skill: activityLabel });
-  const flavorFull = isAdv 
-    ? flavorStr.replace("Check", "Check (Advantage)") + ` (${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)} | ${skillKey.charAt(0).toUpperCase() + skillKey.slice(1)})${trainedLabel}`
-    : flavorStr + ` (${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)} | ${skillKey.charAt(0).toUpperCase() + skillKey.slice(1)})${trainedLabel}`;
-
-  const finalCD = result.cd ?? dc;
-  
-  // Custom evaluation logic for camp actions to inject assists
-  await roll.evaluate();
-  const total = roll.total;
-  let diff = total - finalCD;
-  let sparks = 0, shadows = 0;
-
-  const dieResult = roll.dice[0]?.results[0]?.result;
-  const isNatural20 = dieResult === 20;
-  const isNatural1 = dieResult === 1;
-
-  if (isNatural20) {
-    diff = Math.max(0, diff);
-    sparks = Math.floor(diff / 5) + 1;
-  } else {
-    if (diff >= 0) {
-      sparks = Math.floor(diff / 5);
-    } else {
-      shadows = Math.floor(Math.abs(diff) / 5);
-      if (isNatural1) shadows += 1;
-    }
-  }
-
-  // Inject assists if it's a success
-  if (diff >= 0 && assists > 0) {
-    sparks += assists;
-    ui.notifications.info(`${actor.name} gains ${assists} extra spark(s) from assists!`);
-  }
-
-  sparks = Math.min(5, sparks);
-  shadows = Math.min(5, shadows);
-
-  const flavorWithAssist = assists > 0 ? `${flavorFull}<div style="font-size: var(--fs-13);color:var(--trp-spark);margin-top:2px;">[+${assists} Assist${assists > 1 ? 's' : ''}]</div>` : flavorFull;
-
-  // We can format a simplified chat card since the full sheet._evaluateAndShowRoll is complex to invoke standalone.
-  // We'll construct a simple chat message matching the style.
-  const metrics = `
-    <div class="incantation-metrics" style="display:flex;gap:10px;margin:10px 0;font-weight:bold;">
-      <div class="metric spark"  style="color:var(--trp-spark);"><i class="fas fa-sun"></i>  ${game.i18n.format("TRESPASSER.Chat.Combat.Sparks",  { count: sparks  })}</div>
-      <div class="metric shadow" style="color:var(--trp-shadow);"><i class="fas fa-moon"></i> ${game.i18n.format("TRESPASSER.Chat.Combat.Shadows", { count: shadows })}</div>
-    </div>`;
-
-  await roll.toMessage({
-    speaker: ChatMessage.getSpeaker({ actor }),
-    flavor:  `${flavorWithAssist}<p>${game.i18n.format("TRESPASSER.Chat.Check.VsCD", { cd: finalCD })}</p>${metrics}`
-  });
-
-  if (diff >= 0) {
-    await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: attrKey });
-  }
-
-  return roll;
 }
 
 /**
@@ -494,4 +355,3 @@ export function repromptMember(actorId) {
     memberIds: [actorId]
   });
 }
-

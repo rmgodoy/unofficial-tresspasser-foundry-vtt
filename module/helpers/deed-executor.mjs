@@ -1,11 +1,24 @@
 import { DeedBehaviorHandler } from "./deed-behavior-handler.mjs";
-import { TrespasserCombat } from "../documents/combat.mjs";
-import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 import { migrateToGraph } from "./migration-graph.mjs";
-import { formatDiceIcons } from "./dice-icon-helper.mjs";
-import { getEffectiveDeedAttributes } from "./deed-behaviors/roll-accuracy.mjs";
-import { getActiveWeapons } from "../sheets/character/handlers-combat.mjs";
-import { RangeHelper } from "./range-helper.mjs";
+import {
+  validateResources,
+  commitResourceUsage,
+  handleThrownWeapons
+} from "./deed-executor/deed-executor-resources.mjs";
+import {
+  hasOutputsToPost,
+  postPhaseCard,
+  postAllPhaseCards
+} from "./deed-executor/deed-executor-cards.mjs";
+
+export {
+  validateResources,
+  commitResourceUsage,
+  handleThrownWeapons,
+  hasOutputsToPost,
+  postPhaseCard,
+  postAllPhaseCards
+};
 
 /**
  * DeedExecutor — Graph-based runtime pipeline executor for Behavior-Driven Deeds in Trespasser TTRPG.
@@ -60,94 +73,28 @@ export class DeedExecutor {
     this._incomingRefs = new Map();
   }
 
-  /**
-   * Validate Focus and AP resources without mutating documents or deducting flags.
-   * @protected
-   * @returns {Promise<boolean>}
-   */
   async _validateResources() {
-    if (this.options.isSubDeed || !this.actor) return true;
-
-    const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
-    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
-    let apSpent = 1;
-    let apBonus = 0;
-
-    if (combatant) {
-      const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-      if (restrictAPF && availableAP < 1) {
-        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
-        return false;
-      }
-
-      if (this.options.apSpent !== undefined && this.options.apSpent !== null) {
-        apSpent = Math.max(1, parseInt(this.options.apSpent) || 1);
-      } else if (availableAP > 1) {
-        apSpent = await askAPDialog(availableAP);
-        if (apSpent === null || apSpent === undefined) return false;
-      }
-      apBonus = (apSpent - 1) * 2;
-    }
-
-    const usedActions = new Set(combatant?.getFlag("trespasser", "usedHUDActions") ?? []);
-    const surcharge = usedActions.has("maneuver") ? 2 : 0;
-    const tier = (this.system.tier || "light").toLowerCase();
-    const defaultCost = tier === "heavy" ? 2 : tier === "mighty" ? 4 : 0;
-    const baseCost = this.system.focusCost ?? defaultCost;
-    const costIncrease = this.system.focusIncrease ?? ((tier === "heavy" || tier === "mighty") ? 1 : 0);
-    const currentBonusCost = this.system.bonusCost || 0;
-    const currentUses = this.system.uses || 0;
-    const totalFocusCost = baseCost + currentBonusCost + surcharge;
-
-    if (totalFocusCost > 0) {
-      const currentFocus = this.actor.system.combat?.focus ?? 0;
-      if (restrictAPF && currentFocus < totalFocusCost) {
-        ui.notifications.error(game.i18n.format("TRESPASSER.Notification.Combat.NotEnoughFocus", {
-          name: this.item.name,
-          cost: totalFocusCost,
-          current: currentFocus
-        }));
-        return false;
-      }
-    }
-
-    this.context.apSpent = apSpent;
-    this.context.apBonus = apBonus;
-    this.context.totalFocusCost = totalFocusCost;
-    this.context.costIncrease = costIncrease;
-    this.context.currentBonusCost = currentBonusCost;
-    this.context.currentUses = currentUses;
-
-    return true;
+    return validateResources(this);
   }
 
-  /**
-   * Commit AP, Focus, and Item Uses deductions to database after successful execution.
-   * @protected
-   */
   async _commitResourceUsage() {
-    if (this.options.isSubDeed || !this.actor) return;
-    const combatant = TrespasserCombat.getPhaseCombatant(this.actor);
+    return commitResourceUsage(this);
+  }
 
-    // 1. Deduct AP from combatant flags
-    if (combatant && this.context.apSpent > 0) {
-      const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-      await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - this.context.apSpent));
-    }
+  async _handleThrownWeapons() {
+    return handleThrownWeapons(this);
+  }
 
-    // 2. Deduct Focus from actor combat state
-    if (this.context.totalFocusCost > 0) {
-      const currentFocus = this.actor.system.combat?.focus ?? 0;
-      await this.actor.update({ "system.combat.focus": Math.max(0, currentFocus - this.context.totalFocusCost) });
-    }
+  async _postAllPhaseCards() {
+    return postAllPhaseCards(this);
+  }
 
-    // 3. Increment uses and update bonusCost on item document
-    if (this.context.costIncrease > 0) {
-      await this.item.update({
-        "system.uses": (this.context.currentUses || 0) + 1,
-        "system.bonusCost": (this.context.currentBonusCost || 0) + this.context.costIncrease
-      });
-    }
+  _hasOutputsToPost(phaseKey) {
+    return hasOutputsToPost(this, phaseKey);
+  }
+
+  async _postPhaseCard(phaseKey, phase, outputs = null) {
+    return postPhaseCard(this, phaseKey, phase, outputs);
   }
 
   /**
@@ -220,13 +167,6 @@ export class DeedExecutor {
     return this._incomingRefs.get(nodeId) || [];
   }
 
-  /**
-   * Evaluate whether an accuracy condition port should be followed.
-   * @param {string} port
-   * @param {string} [branchingMode="hitThenSpark"]
-   * @returns {boolean}
-   * @protected
-   */
   _evaluateCondition(port, branchingMode = "hitThenSpark") {
     if (port === "always" || port === "out") return true;
     if (port === "onMiss") return Boolean(!this.context.isHit);
@@ -240,13 +180,6 @@ export class DeedExecutor {
     return false;
   }
 
-  /**
-   * Check if a reference node is already resolved in context.
-   * @param {object} node
-   * @param {string} targetPort
-   * @returns {boolean}
-   * @protected
-   */
   _isResolved(node, targetPort) {
     if (!node) return true;
     if (this._executedNodes.has(node.id) || node._alreadyExecuted) return true;
@@ -255,12 +188,6 @@ export class DeedExecutor {
     return false;
   }
 
-  /**
-   * Lazily execute a standalone reference node.
-   * @param {object} refNode
-   * @param {Set<string>} visited
-   * @protected
-   */
   async _executeReferenceNode(refNode, visited) {
     if (visited.has(refNode.id) || this._isResolved(refNode)) return;
     visited.add(refNode.id);
@@ -270,12 +197,6 @@ export class DeedExecutor {
     this._executedNodes.add(refNode.id);
   }
 
-  /**
-   * Resolve incoming reference connections for a node before execution.
-   * @param {object} node
-   * @param {Set<string>} visited
-   * @protected
-   */
   async _resolveReferences(node, visited) {
     const refConnections = this._getIncomingReferenceConnections(node.id);
     for (const refConn of refConnections) {
@@ -297,15 +218,6 @@ export class DeedExecutor {
     }
   }
 
-  /**
-   * Recursive graph node traversal following connections.
-   * @param {string} nodeId
-   * @param {Set<string>} visited
-   * @param {string} [incomingPort=null]
-   * @param {string} [incomingPhase=null]
-   * @returns {Promise<boolean>} True if pipeline was cancelled by user
-   * @protected
-   */
   async _traverseNode(nodeId, visited, incomingPort = null, incomingPhase = null) {
     if (visited.has(nodeId)) return false;
     visited.add(nodeId);
@@ -330,7 +242,7 @@ export class DeedExecutor {
       const result = await this._executeBehavior(node, effectivePhase);
       this._executedNodes.add(node.id);
       node._alreadyExecuted = true;
-      if (result === false) return true; // Cancelled
+      if (result === false) return true;
     } else if (this.system.phases?.start?.description?.trim() && !this.system.phases?.start?.skipPhase) {
       await this._switchPhase("start");
     }
@@ -371,11 +283,6 @@ export class DeedExecutor {
     return await DeedBehaviorHandler.dispatch(node, this.context, this.actor, this.item, phaseKey);
   }
 
-  /**
-   * Switch active phase and ensure phase output accumulator exists.
-   * @param {string} newPhaseKey
-   * @protected
-   */
   async _switchPhase(newPhaseKey) {
     this._currentPhaseKey = newPhaseKey;
     this._activePhases.add(newPhaseKey);
@@ -383,113 +290,5 @@ export class DeedExecutor {
       this._phaseOutputs.set(newPhaseKey, { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" });
     }
     this.context.currentPhaseOutputs = this._phaseOutputs.get(newPhaseKey);
-  }
-
-  /**
-   * Posts all consolidated phase cards strictly in canonical phase order.
-   * @protected
-   */
-  async _postAllPhaseCards() {
-    const CANONICAL_PHASES = ["start", "before", "base", "hit", "spark", "after", "end"];
-    for (const phaseKey of CANONICAL_PHASES) {
-      if (this._hasOutputsToPost(phaseKey)) {
-        const phase = this.system.phases?.[phaseKey] || {};
-        const outputs = this._phaseOutputs.get(phaseKey) || { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
-        await this._postPhaseCard(phaseKey, phase, outputs);
-      }
-    }
-  }
-
-  /**
-   * Checks whether a phase produced output or has an active phase description to post.
-   * @param {string} phaseKey
-   * @returns {boolean}
-   * @protected
-   */
-  _hasOutputsToPost(phaseKey) {
-    const outputs = this._phaseOutputs.get(phaseKey);
-    if (outputs && (outputs.rolls?.length > 0 || outputs.rollEntries?.length > 0 || outputs.notes?.length > 0 || outputs.accuracyHtml)) {
-      return true;
-    }
-    const phase = this.system.phases?.[phaseKey];
-    return Boolean(this._activePhases.has(phaseKey) && phase?.description && phase.description.trim() && !phase.skipPhase);
-  }
-
-  /**
-   * Post consolidated chat card for a phase.
-   * @param {string} phaseKey
-   * @param {object} phase
-   * @param {object} [outputs=null]
-   * @protected
-   */
-  async _postPhaseCard(phaseKey, phase, outputs = null) {
-    if (!phase) phase = this.system.phases?.[phaseKey] || {};
-    const phaseLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)}`);
-    outputs = outputs || this._phaseOutputs.get(phaseKey) || { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
-
-    let content = `<div class="bdeed-phase-card" style="border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px; padding: 10px; background: var(--trp-bg-panel, #23201c); color: var(--trp-text, #ddd0aa);">
-      <h3 style="margin: 0 0 6px 0; color: var(--trp-gold-bright, #e8c96b); font-family: var(--trp-font-header, 'Cinzel', serif); font-size: var(--fs-14); border-bottom: 1px solid var(--trp-gold-dim, #a88840); padding-bottom: 4px;">
-        ${this.item.name} — ${phaseLabel}
-      </h3>`;
-
-    if (phase.description && !phase.skipPhase) {
-      content += `<p style="margin: 6px 0; font-size: var(--fs-13); font-style: italic;">${formatDiceIcons(phase.description)}</p>`;
-    }
-    if (outputs.accuracyHtml) {
-      content += outputs.accuracyHtml;
-    }
-    if (outputs.rollEntries && outputs.rollEntries.length > 0) {
-      content += outputs.rollEntries.join("");
-    }
-    if (outputs.notes && outputs.notes.length > 0) {
-      content += `<div class="phase-notes" style="margin-top: 8px; padding-top: 4px; border-top: 1px dashed var(--trp-border, #4a3f2f); font-size: var(--fs-12); color: var(--trp-text-dim, #a09070);">
-        ${outputs.notes.map(n => `<div>• ${formatDiceIcons(n)}</div>`).join("")}
-      </div>`;
-    }
-    content += `</div>`;
-
-    const sourceToken = this.actor?.token?.object || canvas.tokens?.controlled.find(t => t.actor?.id === this.actor?.id) || canvas.tokens?.placeables.find(t => t.actor?.id === this.actor?.id);
-    const alias = sourceToken ? DeedBehaviorHandler.getTokenDisplayName(sourceToken) : DeedBehaviorHandler.getTokenDisplayName(this.actor);
-    const speaker = sourceToken
-      ? ChatMessage.getSpeaker({ token: sourceToken.document || sourceToken, actor: this.actor, alias })
-      : (this.actor ? ChatMessage.getSpeaker({ actor: this.actor, alias }) : ChatMessage.getSpeaker({ alias }));
-    speaker.alias = alias;
-
-    const rollData = (outputs.rolls || []).map(r => (typeof r.toJSON === "function" ? r.toJSON() : r));
-    await ChatMessage.create({
-      speaker,
-      content,
-      rolls: rollData,
-      flags: { trespasser: { bdeedId: this.item.id, phase: phaseKey } }
-    });
-  }
-
-  /**
-   * Handle unequipped and lost status for thrown weapons used in missile deeds.
-   * Pure missile weapons (bows, crossbows) do not incur this.
-   */
-  async _handleThrownWeapons() {
-    if (!this.actor) return;
-    const { abilityType } = getEffectiveDeedAttributes(this.item);
-    const eff = this.context.abilityType || abilityType || this.system.abilityType || this.system.type;
-    if (eff !== "missile" && eff !== "versatile") return;
-
-    const thrown = getActiveWeapons(this.actor).filter(w => w.type === "weapon" && w.system?.properties?.thrown && !w.system?.isThrown);
-    if (!thrown.length) return;
-
-    if (eff === "versatile" && this.context.targets?.length) {
-      const hasRanged = this.context.targets.some(t => RangeHelper.measureDistanceSquares(this.sourceToken, t) > 1);
-      if (!hasRanged) return;
-    }
-
-    for (const weapon of thrown) {
-      if (typeof this.actor.unequipItem === "function") await this.actor.unequipItem(weapon.id);
-      else await weapon.update({ "system.equipped": false });
-      await weapon.update({ "system.isThrown": true });
-      ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.WeaponThrown", {
-        actor: this.actor.name,
-        weapon: weapon.name
-      }));
-    }
   }
 }

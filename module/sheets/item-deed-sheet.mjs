@@ -1,69 +1,10 @@
 import { BEHAVIOR_TYPES, createDefaultDeedGraph } from "../data/item-deed.mjs";
 import { TrespasserItemSheet } from "./base-sheet.mjs";
-import { GraphEditor } from "../components/graph-editor/graph-editor.mjs";
-import { GraphPropertiesPanel } from "../components/graph-editor/graph-properties-panel.mjs";
+import { DEFAULT_PARAMS } from "../data/deed-default-params.mjs";
+import { mountGraphEditor, unmountGraphEditor } from "./deed/deed-graph-manager.mjs";
+import { handleDeedSwitchTab } from "./deed/deed-tab-manager.mjs";
 
-export const DEFAULT_PARAMS = {
-  selectTarget: {
-    targetMode: "creatures",
-    disposition: "any",
-    targetCount: 1,
-    aoeType: "blast",
-    aoeSize: 1,
-    areaRelation: "inside",
-    ignoreSelf: false,
-    chooseCreatures: false
-  },
-  selectArea: {
-    targetMode: "squares",
-    targetCount: 1,
-    aoeType: "blast",
-    aoeSize: 1
-  },
-  roll: {
-    expression: "",
-    rollBehaviorId: "",
-    usePowerSparks: false
-  },
-  rollAccuracy: { actionType: "attack", abilityType: "innate", versus: "Guard", branchingMode: "hitThenSpark" },
-  applyDamage: {
-    expression: "",
-    rollBehaviorId: "",
-    distribute: false
-  },
-  healTarget: { expression: "", rollBehaviorId: "", distribute: false },
-  grantRecovery: { intensity: 1 },
-  applyEffects: {
-    effects: [],
-    appliesWeaponEffects: false
-  },
-  spawnTerrain: {
-    terrainUuid: "",
-    terrainName: "",
-    terrainImg: "",
-    intensity: null,
-    placement: "on_target",
-    ignoreSourceSquare: false
-  },
-  moveTerrain: {
-    terrainBehaviorId: ""
-  },
-  moveSource: {
-    destinationMode: "distance",
-    movementType: "walk",
-    distance: 1
-  },
-  forceMoveTargets: {
-    type: "push",
-    distance: 1
-  },
-  clearTargets: {},
-  executeDeed: {
-    deedUuid: "",
-    deedName: "",
-    deedImg: ""
-  }
-};
+export { DEFAULT_PARAMS };
 
 export class TrespasserDeedSheet extends TrespasserItemSheet {
 
@@ -276,65 +217,7 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
    * @protected
    */
   _mountGraphEditor(graphContainer, propertiesContainer) {
-    if (this.propertiesPanel) {
-      this.propertiesPanel.destroy();
-      this.propertiesPanel = null;
-    }
-    if (this.graphEditor) {
-      this._graphViewportState = this.graphEditor.getViewportState();
-      this.graphEditor.destroy();
-    }
-
-    const savedState = this._graphViewportState || this.document.getFlag("trespasser", "graphViewport");
-
-    this.graphEditor = new GraphEditor(graphContainer, {
-      readOnly: !this.isEditable,
-      panX: savedState?.panX ?? 40,
-      panY: savedState?.panY ?? 40,
-      zoom: savedState?.zoom ?? 1.0,
-      selectedNodeId: savedState?.selectedNodeId ?? null,
-      onGraphChange: async (graphData) => {
-        if (this.graphEditor) {
-          this._graphViewportState = this.graphEditor.getViewportState();
-        }
-        await this.document.update({
-          "system.graph": graphData,
-          "system.graphVersion": 1,
-          "flags.trespasser.graphViewport": this._graphViewportState
-        });
-      },
-      onViewportChange: (viewportState) => {
-        this._graphViewportState = viewportState;
-      },
-      onNodeSelect: (nodeData) => {
-        if (this.graphEditor) {
-          this._graphViewportState = this.graphEditor.getViewportState();
-        }
-        this.propertiesPanel?.setNode(nodeData?.id ?? null);
-      }
-    });
-
-    this.propertiesPanel = new GraphPropertiesPanel(propertiesContainer, {
-      sheet: this,
-      editor: this.graphEditor,
-      readOnly: !this.isEditable
-    });
-
-    let nodes = this.document.system.graph?.nodes || [];
-    let connections = this.document.system.graph?.connections || [];
-    if (nodes.length === 0 && this.isEditable) {
-      const defaultGraph = createDefaultDeedGraph();
-      this.document.update({ "system.graph": defaultGraph }).catch(err => {
-        console.error("Trespasser | Failed to initialize default deed graph:", err);
-      });
-      nodes = defaultGraph.nodes;
-      connections = defaultGraph.connections;
-    }
-    this.graphEditor.setGraph(nodes, connections);
-
-    if (savedState?.selectedNodeId) {
-      this.graphEditor.selectNode(savedState.selectedNodeId);
-    }
+    mountGraphEditor(this, graphContainer, propertiesContainer);
   }
 
   /**
@@ -342,15 +225,7 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
    * @protected
    */
   _unmountGraphEditor() {
-    if (this.propertiesPanel) {
-      this.propertiesPanel.destroy();
-      this.propertiesPanel = null;
-    }
-    if (this.graphEditor) {
-      this._graphViewportState = this.graphEditor.getViewportState();
-      this.graphEditor.destroy();
-      this.graphEditor = null;
-    }
+    unmountGraphEditor(this);
   }
 
   /**
@@ -439,49 +314,6 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
   // ── Action Handlers ──────────────────────────────────────────────────────────
 
   static async #onSwitchTab(event, target) {
-    event.preventDefault();
-    const tab = target.dataset.tab;
-    if (tab && this.constructor.TABS[tab]) {
-      const prevTab = this.tabGroups.primary;
-      if (tab === prevTab) return;
-
-      // Persist uncommitted changes from current tab before switching
-      if (prevTab === "behaviors" && this.graphEditor) {
-        this._graphViewportState = this.graphEditor.getViewportState();
-        await this.document.update({
-          "system.graph": this.graphEditor.getGraph(),
-          "system.graphVersion": 1,
-          "flags.trespasser.graphViewport": this._graphViewportState
-        });
-      } else if (this.isEditable) {
-        await this.submit();
-      }
-
-      this.tabGroups.primary = tab;
-
-      // Auto-resize window width when switching to/from behaviors tab if user has not manually resized
-      if (!this._hasManuallyResized) {
-        if (tab === "behaviors" && prevTab !== "behaviors") {
-          this._previousWidth = this.position.width || 620;
-          const targetWidth = Math.max(950, this._previousWidth);
-          this._isAutoResizing = true;
-          try {
-            this.setPosition({ width: targetWidth });
-          } finally {
-            this._isAutoResizing = false;
-          }
-        } else if (prevTab === "behaviors" && tab !== "behaviors") {
-          const targetWidth = this._previousWidth || 620;
-          this._isAutoResizing = true;
-          try {
-            this.setPosition({ width: targetWidth });
-          } finally {
-            this._isAutoResizing = false;
-          }
-        }
-      }
-
-      this.render();
-    }
+    return handleDeedSwitchTab(this, event, target);
   }
 }
