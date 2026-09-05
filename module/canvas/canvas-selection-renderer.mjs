@@ -229,7 +229,7 @@ export class CanvasSelectionRenderer {
    * @param {number} [options.gap]
    */
   static drawRangePerimeter(graphics, token, rangeSq, gridPx, options = {}) {
-    if (!graphics || !token || rangeSq <= 0) return;
+    if (!graphics || (!token && !options.originOverride) || rangeSq <= 0) return;
     const color = options.color ?? 0x00BFFF;
     const haloColor = options.haloColor ?? 0x001A33;
     const alpha = options.alpha ?? 1.0;
@@ -238,12 +238,15 @@ export class CanvasSelectionRenderer {
     const gap = options.gap ?? 6;
     const fillAlpha = options.fillAlpha ?? 0.08;
 
-    const tokenDoc = token.document ?? token;
-    const tokenW = tokenDoc.width ?? 1;
-    const tokenH = tokenDoc.height ?? 1;
+    const tokenDoc = token?.document ?? token;
+    const tokenW = tokenDoc?.width ?? 1;
+    const tokenH = tokenDoc?.height ?? 1;
 
-    const minX = tokenDoc.x - rangeSq * gridPx;
-    const minY = tokenDoc.y - rangeSq * gridPx;
+    const originX = options.originOverride?.x ?? tokenDoc?.x ?? 0;
+    const originY = options.originOverride?.y ?? tokenDoc?.y ?? 0;
+
+    const minX = originX - rangeSq * gridPx;
+    const minY = originY - rangeSq * gridPx;
     const totalW = (tokenW + 2 * rangeSq) * gridPx;
     const totalH = (tokenH + 2 * rangeSq) * gridPx;
     const maxX = minX + totalW;

@@ -15,10 +15,11 @@ import { RangeHelper } from "../range-helper.mjs";
  * @param {Actor} [options.actor] - Source actor
  * @returns {Promise<Token[]|null>}
  */
-export async function selectTokensInteractive({ candidateTokens = null, maxCount = 1, sourceToken, params = {}, areaSquares = null, item = null, actor = null }) {
+export async function selectTokensInteractive({ candidateTokens = null, maxCount = 1, sourceToken, params = {}, areaSquares = null, item = null, actor = null, originOverride = null }) {
   const isAreaMode = Array.isArray(areaSquares) && areaSquares.length > 0;
   const gridPx = canvas.grid.size;
   const maxRangeSq = isAreaMode ? null : RangeHelper.getDeedRange(sourceToken, item, actor, { notify: true });
+  const origin = originOverride || params.originOverride || (sourceToken ? { x: sourceToken.document?.x ?? sourceToken.x, y: sourceToken.document?.y ?? sourceToken.y } : null);
   let hoveredSquare = null;
 
   // If candidate tokens exist and count <= maxCount, pre-populate selection for convenience
@@ -63,7 +64,7 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
         lineWeight: 1
       });
     } else if (maxRangeSq && maxRangeSq > 0) {
-      CanvasSelectionRenderer.drawRangePerimeter(session.graphics, sourceToken, maxRangeSq, gridPx);
+      CanvasSelectionRenderer.drawRangePerimeter(session.graphics, sourceToken, maxRangeSq, gridPx, { originOverride: origin });
     }
 
     // 2. Draw candidate token outlines in green (if not yet selected)
@@ -186,8 +187,8 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
           if (idx >= 0) {
             selectedTargets.splice(idx, 1);
           } else {
-            if (maxRangeSq !== null && maxRangeSq !== undefined && !RangeHelper.isWithinRange(sourceToken, hitToken, maxRangeSq)) {
-              const dist = RangeHelper.measureDistanceSquares(sourceToken, hitToken);
+            if (maxRangeSq !== null && maxRangeSq !== undefined && !RangeHelper.isWithinRange(sourceToken, hitToken, maxRangeSq, { originOverride: origin })) {
+              const dist = RangeHelper.measureDistanceSquares(sourceToken, hitToken, { originOverride: origin });
               ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
                 name: hitToken.name,
                 range: maxRangeSq,

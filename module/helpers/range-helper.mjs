@@ -320,18 +320,23 @@ export class RangeHelper {
    * Target can be a Token, TokenDocument, or a canvas point {x, y}.
    * @param {Token|TokenDocument} sourceToken
    * @param {Token|TokenDocument|{x: number, y: number}} target
+   * @param {object} [options]
+   * @param {{x: number, y: number}} [options.originOverride]
    * @returns {number} Distance in squares (0 if overlapping / adjacent = 1)
    */
-  static measureDistanceSquares(sourceToken, target) {
-    if (!sourceToken || !target) return 0;
+  static measureDistanceSquares(sourceToken, target, options = {}) {
+    if (!sourceToken && !options.originOverride) return 0;
+    if (!target) return 0;
 
     const gridPx = canvas.grid.size || 100;
-    const sDoc = sourceToken.document ?? sourceToken;
+    const sDoc = sourceToken?.document ?? sourceToken;
 
-    const sLeft = Math.floor(sDoc.x / gridPx);
-    const sTop = Math.floor(sDoc.y / gridPx);
-    const sW = sDoc.width ?? 1;
-    const sH = sDoc.height ?? 1;
+    const srcX = options.originOverride?.x ?? sDoc?.x ?? 0;
+    const srcY = options.originOverride?.y ?? sDoc?.y ?? 0;
+    const sLeft = Math.floor(srcX / gridPx);
+    const sTop = Math.floor(srcY / gridPx);
+    const sW = sDoc?.width ?? 1;
+    const sH = sDoc?.height ?? 1;
     const sRight = sLeft + sW - 1;
     const sBottom = sTop + sH - 1;
 
@@ -363,15 +368,16 @@ export class RangeHelper {
    * @param {Token|TokenDocument} sourceToken
    * @param {Token|TokenDocument|{x: number, y: number}} target
    * @param {number|null} maxRangeSq
+   * @param {object} [options]
    * @returns {boolean}
    */
-  static isWithinRange(sourceToken, target, maxRangeSq) {
+  static isWithinRange(sourceToken, target, maxRangeSq, options = {}) {
     if (maxRangeSq === null || maxRangeSq === undefined) return true;
     if (maxRangeSq === 0) return false;
     const enforce = game.settings.get?.("trespasser", "enforceAttackRange") ?? false;
     if (!enforce) return true;
 
-    const dist = this.measureDistanceSquares(sourceToken, target);
+    const dist = this.measureDistanceSquares(sourceToken, target, options);
     return dist <= maxRangeSq;
   }
 }

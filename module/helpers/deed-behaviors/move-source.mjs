@@ -54,11 +54,12 @@ export class MoveSourceBehavior {
 
     // First attempt BFS restricted inside areaSquares
     const areaPath = bfs(true);
-    if (areaPath && areaPath.length > 0) return areaPath;
-
-    // Fallback to standard grid BFS
-    const fallbackPath = bfs(false);
-    return fallbackPath || [destPos];
+    const chosenPath = (areaPath && areaPath.length > 0) ? areaPath : bfs(false);
+    if (chosenPath && chosenPath.length > 0) {
+      chosenPath[chosenPath.length - 1] = destPos;
+      return chosenPath;
+    }
+    return [destPos];
   }
 
   /**
@@ -237,6 +238,7 @@ export class MoveSourceBehavior {
     await withMovementAction(actionName, async () => {
       await this._animateTokenAlongPath(token, pathSquares, movementType !== "teleport");
     });
+    context.sourceToken = token;
     context.sourcePosition = { x: destPos.x, y: destPos.y };
 
     if (context.currentPhaseOutputs?.notes) {

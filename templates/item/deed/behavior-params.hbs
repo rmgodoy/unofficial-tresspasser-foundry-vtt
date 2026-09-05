@@ -81,15 +81,12 @@
     <div class="param-row-grid">
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetMode"}}</label>
-        <select name="system.graph.nodes.{{index}}.params.targetMode" {{#if hasRefArea}}disabled class="is-ref-locked" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ControlledByReference'}}"{{/if}}>
-          <option value="self" {{#if (and (eq params.targetMode "self") (not hasRefArea))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Personal"}}</option>
-          <option value="creatures" {{#if (and (eq params.targetMode "creatures") (not hasRefArea))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Creature"}}</option>
-          <option value="aoe" {{#if (and (eq params.targetMode "aoe") (not hasRefArea))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.AoE"}}</option>
-          <option value="area" {{#if (or (eq params.targetMode "area") hasRefArea)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.SelectedArea"}}</option>
+        <select name="system.graph.nodes.{{index}}.params.targetMode">
+          <option value="self" {{#if (eq params.targetMode "self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Personal"}}</option>
+          <option value="creatures" {{#if (or (eq params.targetMode "creatures") (not params.targetMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.Creature"}}</option>
+          <option value="aoe" {{#if (eq params.targetMode "aoe")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.AoE"}}</option>
+          <option value="area" {{#if (eq params.targetMode "area")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetModeChoices.SelectedArea"}}</option>
         </select>
-        {{#if hasRefArea}}
-          <input type="hidden" name="system.graph.nodes.{{index}}.params.targetMode" value="area"/>
-        {{/if}}
       </div>
 
       {{#if (ne params.targetMode "self")}}

@@ -9,7 +9,10 @@ import {
   startNodeDrag,
   startNoodleDrag,
   removeReferenceConnection,
-  getShortcutsTooltipHtml
+  getShortcutsTooltipHtml,
+  applyNodeDefaults,
+  bindGraphKeyboardEvents,
+  unbindGraphKeyboardEvents
 } from "./graph-interactions.mjs";
 import { autoLayoutNodes, fitGraphToView } from "./graph-editor-layout.mjs";
 import { renderAllConnections, addGraphConnection } from "./graph-editor-connections.mjs";
@@ -76,6 +79,7 @@ export class GraphEditor {
 
     this.root = doc.createElement("div");
     this.root.className = "graph-editor-root";
+    this.root.setAttribute("tabindex", "-1");
     this.root.innerHTML = `
       <div class="graph-toolbar">
         <div class="toolbar-group">
@@ -184,13 +188,7 @@ export class GraphEditor {
       params: foundry.utils.deepClone(params),
       x: Math.round(x), y: Math.round(y)
     };
-    if (type === "rollAccuracy") {
-      const deedSys = this.options?.sheet?.document?.system || {};
-      nodeData.params.actionType ??= deedSys.actionType || "attack";
-      nodeData.params.abilityType ??= deedSys.abilityType || "innate";
-      nodeData.params.versus ??= deedSys.versus || "Guard";
-      nodeData.params.branchingMode ??= "hitThenSpark";
-    }
+    applyNodeDefaults(nodeData, type, this.options?.sheet?.document?.system);
     const node = new GraphNode(nodeData, { editor: this });
     this.nodeMap.set(id, node);
     this.nodesLayer.appendChild(node.element);
@@ -310,28 +308,12 @@ export class GraphEditor {
 
   /** Binds global keyboard listeners to current host window. */
   _bindWindowEvents() {
-    this._unbindWindowEvents();
-    const win = this.window;
-    this._boundListeners.targetWindow = win;
-    this._boundListeners.onKeyDown = (e) => {
-      if ((e.key === "Delete" || e.key === "Backspace") && this.selectedNodeId) {
-        const activeTag = this.document.activeElement?.tagName?.toLowerCase();
-        if (activeTag === "input" || activeTag === "textarea" || activeTag === "select") return;
-        e.preventDefault();
-        this.deleteNode(this.selectedNodeId);
-      }
-    };
-    win?.addEventListener("keydown", this._boundListeners.onKeyDown);
+    bindGraphKeyboardEvents(this);
   }
 
   /** Unbinds global keyboard listeners from host window. */
   _unbindWindowEvents() {
-    const { targetWindow, onKeyDown } = this._boundListeners;
-    if (targetWindow && onKeyDown) {
-      targetWindow.removeEventListener("keydown", onKeyDown);
-      this._boundListeners.targetWindow = null;
-      this._boundListeners.onKeyDown = null;
-    }
+    unbindGraphKeyboardEvents(this);
   }
 
   /** Refreshes listeners and visual transforms when host window changes. */
@@ -350,6 +332,7 @@ export class GraphEditor {
    */
   _onPointerDown(e) {
     if (e.button === 2) return;
+    this.root?.focus({ preventScroll: true });
 
     // 1. Port click / drag
     const portEl = e.target.closest(".graph-port") || e.target.closest(".graph-port-row")?.querySelector(".graph-port");

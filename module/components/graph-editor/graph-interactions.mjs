@@ -162,6 +162,29 @@ export function startNoodleDrag(editor, e, portEl) {
       const targetPortName = targetPortEl.dataset.portName;
       const targetPortType = targetPortEl.dataset.portType;
 
+      // Validate reference port compatibility
+      if (targetPortName === "areaRef") {
+        const srcNode = editor.nodeMap.get(nodeId);
+        const isAreaProvider = srcNode && (srcNode.data.type === "selectArea" || (srcNode.data.type === "selectTarget" && srcNode.data.params?.targetMode === "aoe"));
+        if (!isAreaProvider) {
+          ui.notifications?.warn(game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.InvalidAreaRef") || "Area reference requires an Area or AoE node.");
+          return;
+        }
+      } else if (targetPortName === "rollRef") {
+        const srcNode = editor.nodeMap.get(nodeId);
+        const isRollProvider = srcNode && ["roll", "applyDamage", "healTarget", "grantRecovery"].includes(srcNode.data.type);
+        if (!isRollProvider) {
+          ui.notifications?.warn(game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.InvalidRollRef") || "Roll reference requires a Roll, Damage, or Heal node.");
+          return;
+        }
+      } else if (targetPortName === "terrainRef") {
+        const srcNode = editor.nodeMap.get(nodeId);
+        if (srcNode?.data?.type !== "spawnTerrain") {
+          ui.notifications?.warn(game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.InvalidTerrainRef") || "Terrain reference requires a Spawn Terrain node.");
+          return;
+        }
+      }
+
       // Ensure flow connects to flow and ref connects to ref
       const connType = isReferencePort(targetPortName) || portType === "reference" ? "reference" : "flow";
       editor.addConnection(nodeId, portName, targetNodeId, targetPortName, connType);
@@ -190,9 +213,7 @@ export function applyReferenceConnection(editor, sourceId, targetId, targetPort)
     targetNode.data.params.rollBehaviorId = sourceId;
   } else if (targetPort === "areaRef") {
     targetNode.data.params.areaBehaviorId = sourceId;
-    if (targetNode.data.type === "selectTarget") {
-      targetNode.data.params.targetMode = "area";
-    } else if (targetNode.data.type === "moveSource") {
+    if (targetNode.data.type === "moveSource") {
       targetNode.data.params.destinationMode = "selectedArea";
     } else if (targetNode.data.type === "spawnTerrain") {
       targetNode.data.params.placement = "selected_area";
@@ -222,9 +243,7 @@ export function removeReferenceConnection(editor, targetId, targetPort) {
     targetNode.data.params.rollBehaviorId = "";
   } else if (targetPort === "areaRef") {
     targetNode.data.params.areaBehaviorId = "";
-    if (targetNode.data.type === "selectTarget" && targetNode.data.params.targetMode === "area") {
-      targetNode.data.params.targetMode = "creatures";
-    } else if (targetNode.data.type === "moveSource" && targetNode.data.params.destinationMode === "selectedArea") {
+    if (targetNode.data.type === "moveSource" && targetNode.data.params.destinationMode === "selectedArea") {
       targetNode.data.params.destinationMode = "distance";
     } else if (targetNode.data.type === "spawnTerrain" && targetNode.data.params.placement === "selected_area") {
       targetNode.data.params.placement = "on_target";
@@ -254,4 +273,76 @@ export function getShortcutsTooltipHtml() {
     `<li>• ${t("ShortcutDisconnect", "Disconnect: Drag port away")}</li>` +
     `<li>• ${t("ShortcutSelect", "Select: Click node")}</li>` +
     `<li>• ${t("ShortcutDelete", "Delete: Del / Backspace")}</li></ul></div>`;
+}
+
+/**
+ * Applies default parameters for a new node based on its type.
+ * @param {object} nodeData
+ * @param {string} type
+ * @param {object} [deedSys]
+ */
+export function applyNodeDefaults(nodeData, type, deedSys = {}) {
+  if (type === "rollAccuracy") {
+    nodeData.params.actionType ??= deedSys.actionType || "attack";
+    nodeData.params.abilityType ??= deedSys.abilityType || "innate";
+    nodeData.params.versus ??= deedSys.versus || "Guard";
+    nodeData.params.branchingMode ??= "hitThenSpark";
+  } else if (type === "selectTarget") {
+    nodeData.params.targetMode ??= "creatures";
+    nodeData.params.disposition ??= "any";
+    nodeData.params.targetCount ??= 1;
+  } else if (type === "moveSource") {
+    nodeData.params.destinationMode ??= "distance";
+    nodeData.params.distance ??= 1;
+    nodeData.params.movementType ??= "walk";
+  } else if (type === "selectArea") {
+    nodeData.params.aoeType ??= "blast";
+    nodeData.params.aoeSize ??= 1;
+  } else if (type === "forceMoveTargets") {
+    nodeData.params.type ??= "push";
+    nodeData.params.distance ??= 1;
+  }
+}
+
+/**
+ * Binds global keyboard listeners to host window for node deletion.
+ * @param {object} editor - GraphEditor instance
+ */
+export function bindGraphKeyboardEvents(editor) {
+  unbindGraphKeyboardEvents(editor);
+  const win = editor.window;
+  editor._boundListeners.targetWindow = win;
+  editor._boundListeners.onKeyDown = (e) => {
+    if ((e.key === "Delete" || e.key === "Backspace") && editor.selectedNodeId) {
+      const active = editor.document.activeElement;
+      const activeTag = active?.tagName?.toLowerCase();
+      if (activeTag === "input" || activeTag === "textarea" || activeTag === "select" || active?.isContentEditable) return;
+
+      const appEl = editor.container.closest(".application, .window-app");
+      const isFocusedOrHovered = editor.root.contains(active) ||
+        appEl?.contains(active) ||
+        editor.root.matches(":hover") ||
+        appEl?.matches(":hover");
+      if (!isFocusedOrHovered) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      editor.deleteNode(editor.selectedNodeId);
+    }
+  };
+  win?.addEventListener("keydown", editor._boundListeners.onKeyDown, { capture: true });
+}
+
+/**
+ * Unbinds global keyboard listeners from host window.
+ * @param {object} editor - GraphEditor instance
+ */
+export function unbindGraphKeyboardEvents(editor) {
+  const { targetWindow, onKeyDown } = editor._boundListeners;
+  if (targetWindow && onKeyDown) {
+    targetWindow.removeEventListener("keydown", onKeyDown, { capture: true });
+    editor._boundListeners.targetWindow = null;
+    editor._boundListeners.onKeyDown = null;
+  }
 }

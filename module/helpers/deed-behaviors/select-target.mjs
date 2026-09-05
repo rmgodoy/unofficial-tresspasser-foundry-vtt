@@ -38,7 +38,8 @@ export class SelectTargetBehavior {
         sourceToken: token,
         params,
         item,
-        actor
+        actor,
+        originOverride: context.sourcePosition || null
       });
 
       if (!resultTargets || resultTargets.length === 0) {
@@ -121,7 +122,10 @@ export class SelectTargetBehavior {
         maxCount,
         sourceToken: token,
         params,
-        areaSquares: result.squares
+        areaSquares: result.squares,
+        item,
+        actor,
+        originOverride: context.sourcePosition || null
       });
 
       if (resultTargets === null) {
@@ -200,9 +204,12 @@ export class SelectTargetBehavior {
       const resultTargets = await selectTokensInteractive({
         candidateTokens: selectedTargets,
         maxCount,
-        sourceToken,
+        sourceToken: token,
         params,
-        areaSquares: evalSquares
+        areaSquares: evalSquares,
+        item,
+        actor,
+        originOverride: context.sourcePosition || null
       });
 
       if (resultTargets === null) {

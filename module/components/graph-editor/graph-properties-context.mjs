@@ -26,24 +26,24 @@ export async function renderBehaviorParamsHtml({ node, nodeIndex, sheet, editor,
   // Reference Context resolution for node
   const p = node.params || {};
   const conns = editor?.connections || [];
-  const findRef = (port, fallback) => fallback || conns.find(c => c.targetId === node.id && c.targetPort === port)?.sourceId || "";
+  const findRef = (port, fallback) => conns.find(c => c.targetId === node.id && c.targetPort === port)?.sourceId
+    || (fallback && graph.nodes.some(n => n.id === fallback) ? fallback : "");
+  const getNode = id => id ? (editor?.nodeMap?.get(id)?.data || graph.nodes.find(n => n.id === id) || null) : null;
   const refRollId = findRef("rollRef", p.rollBehaviorId);
   const refAreaId = findRef("areaRef", p.areaBehaviorId);
   const refTerrainId = findRef("terrainRef", p.terrainBehaviorId);
-  const getNode = id => id ? (editor?.nodeMap?.get(id)?.data || graph.nodes.find(n => n.id === id) || null) : null;
   const refRollNode = getNode(refRollId);
   const refRollExpr = refRollNode?.params?.expression?.trim() || "";
   const refAreaSummary = formatAreaSummary(getNode(refAreaId));
   const refTerrainName = getNode(refTerrainId)?.params?.terrainName || "";
 
-  const hasRefRoll = Boolean(refRollId);
-  const hasRefArea = Boolean(refAreaId);
-  const hasRefTerrain = Boolean(refTerrainId);
+  const hasRefRoll = Boolean(refRollId && refRollNode);
+  const hasRefArea = Boolean(refAreaId && getNode(refAreaId));
+  const hasRefTerrain = Boolean(refTerrainId && getNode(refTerrainId));
   node.params = node.params || {};
   if (hasRefArea) {
     node.params.areaBehaviorId = refAreaId;
-    if (node.type === "selectTarget") node.params.targetMode = "area";
-    else if (node.type === "moveSource") node.params.destinationMode = "selectedArea";
+    if (node.type === "moveSource") node.params.destinationMode = "selectedArea";
     else if (node.type === "spawnTerrain") node.params.placement = "selected_area";
   }
   if (hasRefRoll) node.params.rollBehaviorId = refRollId;
