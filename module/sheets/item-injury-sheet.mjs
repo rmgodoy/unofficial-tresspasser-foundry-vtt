@@ -1,5 +1,6 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Sheet for the Injury item type.
@@ -208,7 +209,7 @@ export class TrespasserInjurySheet extends TrespasserItemSheet {
     try { dropData = JSON.parse(dataText); } catch(e) { return; }
     if (dropData.type !== "Item") return;
 
-    const sourceItem = await fromUuid(dropData.uuid);
+    const sourceItem = await resolveItem(dropData);
     if (!sourceItem) return;
     if (sourceItem.type !== "effect" && sourceItem.type !== "state") {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropEffectsStatesOnly"));

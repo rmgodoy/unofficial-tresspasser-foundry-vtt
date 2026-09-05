@@ -11,6 +11,7 @@ import { onFeatureRoll } from "./character/handlers-talent.mjs";
 import { onItemCreate, onItemConsume, onDepletionRoll, runDepletionCheck, onItemTransfer } from "./character/handlers-items.mjs";
 import { onToggleLight } from "./character/handlers-misc.mjs";
 import { CompanionFormulasDialog } from "../dialogs/companion-formulas-dialog.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Companion Sheet class for Trespasser TTRPG.
@@ -95,7 +96,7 @@ export class TrespasserCompanionSheet extends TrespasserActorSheet {
 
     const sourceItem = dropped instanceof Item
       ? dropped
-      : await Item.implementation.fromDropData(dropped ?? {});
+      : ((await Item.implementation.fromDropData(dropped ?? {})) || (await resolveItem(dropped)));
 
     const isTransfer = !!sourceItem?.parent && (sourceItem.parent !== this.actor);
     if (!this.actor.isOwner && !isTransfer) return false;

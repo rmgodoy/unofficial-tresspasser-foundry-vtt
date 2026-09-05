@@ -1,4 +1,5 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Item Sheet for the Craft item type.
@@ -137,7 +138,7 @@ export class TrespasserCraftSheet extends TrespasserItemSheet {
     if (!dropData || dropData.type !== "Item") return;
 
     const listKey    = event.currentTarget.dataset.list; // "deeds" | "features"
-    const sourceItem = await fromUuid(dropData.uuid);
+    const sourceItem = await resolveItem(dropData);
     if (!sourceItem) return;
 
     if (listKey === "deeds" && sourceItem.type !== "deed") {

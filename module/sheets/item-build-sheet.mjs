@@ -1,4 +1,5 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Item Sheet for Building (Build) items.
@@ -80,7 +81,7 @@ export class TrespasserBuildSheet extends TrespasserItemSheet {
     // Resolve upgrade path name
     context.upgradeName = "";
     if (system.upgradeTo) {
-        const upgrade = await fromUuid(system.upgradeTo);
+        const upgrade = await resolveItem(system.upgradeTo, { notify: false, type: "build" });
         context.upgradeName = upgrade?.name || "Unknown Building";
     }
 
@@ -143,7 +144,7 @@ export class TrespasserBuildSheet extends TrespasserItemSheet {
         dropZone.classList.remove('drag-over');
         const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(ev);
         if (data.type !== "Item") return;
-        const sourceItem = await fromUuid(data.uuid);
+        const sourceItem = await resolveItem(data);
         if (sourceItem?.type !== "build") {
             ui.notifications.warn("You can only drop Building items here.");
             return;

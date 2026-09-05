@@ -1,4 +1,5 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Item Sheet for Room items in the Trespasser TTRPG system.
@@ -241,8 +242,9 @@ export class TrespasserRoomSheet extends TrespasserItemSheet {
     const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (!data || data.type !== "Item") return;
 
-    const droppedItem = await fromUuid(data.uuid);
-    if (!droppedItem || droppedItem.type !== "room") {
+    const droppedItem = await resolveItem(data);
+    if (!droppedItem) return;
+    if (droppedItem.type !== "room") {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Dungeon.DropRoomsOnly"));
       return;
     }

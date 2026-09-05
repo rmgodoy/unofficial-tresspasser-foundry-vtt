@@ -17,6 +17,7 @@ import { MovementOverlay } from "../canvas/movement-overlay.mjs";
 import { TerrainHelper } from "./terrain-helper.mjs";
 import { MovementHelper } from "./movement-helper.mjs";
 import { TrespasserEffectsHelper } from "./effects-helper.mjs";
+import { resolveItem } from "./item-resolver.mjs";
 
 export class DeedResolver {
 
@@ -161,7 +162,7 @@ export class DeedResolver {
     context.spawnTerrainNow = false;
 
     if (phaseData?.terrainSpawn?.uuid) {
-      const terrainItem = await fromUuid(phaseData.terrainSpawn.uuid);
+      const terrainItem = await resolveItem(phaseData.terrainSpawn, { type: "terrain" });
       if (terrainItem) {
         const options = { spawnedInCombat: true, casterActorId: actor.id };
         if (phaseData.terrainSpawn?.placement === "on_path" && context.pathSquares) {
@@ -288,7 +289,7 @@ export class DeedResolver {
   static async #executeSelfEffectAction(action, actor) {
     if (!action.effectUuid) return;
 
-    const sourceEffect = await fromUuid(action.effectUuid);
+    const sourceEffect = await resolveItem({ uuid: action.effectUuid, name: action.effectName }, { type: "effect" });
     if (!sourceEffect) return;
 
     const effectData = sourceEffect.toObject();

@@ -2,6 +2,7 @@ import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat } from './combat.mjs';
 import { messageVisibility } from "../helpers/compat.mjs";
 import { buildTenacityButtonHtml } from "../helpers/tenacity-helper.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Custom Actor document class for Trespasser TTRPG.
@@ -710,9 +711,9 @@ export class TrespasserActor extends Actor {
     if (!itemsArray || !Array.isArray(itemsArray)) return;
     
     for (const eff of itemsArray) {
-      if (!eff.uuid) continue;
+      if (!eff) continue;
       
-      const sourceItem = await fromUuid(eff.uuid);
+      const sourceItem = await resolveItem(eff);
       if (!sourceItem) continue;
 
       const sys = sourceItem.system;

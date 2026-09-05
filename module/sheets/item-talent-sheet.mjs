@@ -1,5 +1,6 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Item Sheet for Talents in the Trespasser TTRPG system.
@@ -121,7 +122,7 @@ export class TrespasserTalentSheet extends TrespasserItemSheet {
     const targetEl = event.currentTarget;
     const targetType = targetEl.dataset.type; // "effects"
 
-    const sourceItem = await fromUuid(dropData.uuid);
+    const sourceItem = await resolveItem(dropData);
     if (!sourceItem) return;
 
     if (targetType === "effects" && (sourceItem.type !== "effect" && sourceItem.type !== "state")) {

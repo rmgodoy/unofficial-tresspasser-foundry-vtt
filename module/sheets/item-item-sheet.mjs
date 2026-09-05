@@ -1,5 +1,6 @@
 import { TrespasserBaseItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Extend the basic ItemSheet with some very simple logic.
@@ -169,7 +170,7 @@ export class TrespasserItemSheet extends TrespasserBaseItemSheet {
     const targetEl = event.currentTarget;
     const targetType = targetEl.dataset.type; // "effects", "deeds", etc.
 
-    const sourceItem = await fromUuid(data.uuid);
+    const sourceItem = await resolveItem(data);
     if (!sourceItem) return;
 
     if (sourceItem.parent) {

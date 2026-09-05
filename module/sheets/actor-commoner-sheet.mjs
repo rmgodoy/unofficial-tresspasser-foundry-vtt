@@ -6,6 +6,7 @@ import {
   handlePastLifeDrop
 } from "./commoner/handlers-commoner.mjs";
 import { upgradeCommonerToTrespasser } from "../helpers/commoner-upgrade-helper.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Commoner Sheet class for Trespasser TTRPG (ApplicationsV2).
@@ -68,7 +69,7 @@ export class TrespasserCommonerSheet extends TrespasserCharacterSheet {
   async _onDrop(event) {
     const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (data?.type === "Item") {
-      const item = await Item.implementation.fromDropData(data);
+      const item = (await Item.implementation.fromDropData(data)) || (await resolveItem(data));
       if (item?.type === "past_life") {
         await handlePastLifeDrop(this.actor, item);
         return;

@@ -1,5 +1,6 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Item Sheet for Rations in the Trespasser TTRPG system.
@@ -105,7 +106,7 @@ export class TrespasserRationsSheet extends TrespasserItemSheet {
     const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (!data || data.type !== "Item") return;
 
-    const item = await fromUuid(data.uuid);
+    const item = await resolveItem(data);
     if (!item) return;
     
     // Only allow Effect or State items

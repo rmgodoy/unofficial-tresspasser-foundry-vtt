@@ -1,4 +1,5 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Item Sheet for Stronghold items.
@@ -133,7 +134,7 @@ export class TrespasserStrongholdSheet extends TrespasserItemSheet {
         featuresZone.classList.remove('drag-over');
         const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(ev);
         if (data.type !== "Item") return;
-        const sourceItem = await fromUuid(data.uuid);
+        const sourceItem = await resolveItem(data);
         if (sourceItem?.type !== "feature") {
             ui.notifications.warn("Only Features can be added here.");
             return;

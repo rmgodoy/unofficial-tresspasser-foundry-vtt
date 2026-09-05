@@ -1,3 +1,5 @@
+import { resolveItem } from "../item-resolver.mjs";
+
 export class ExecuteDeedBehavior {
   /**
    * 9. executeDeed: Execute another auxiliary deed document as a sub-routine.
@@ -16,13 +18,15 @@ export class ExecuteDeedBehavior {
       return true;
     }
 
-    let subDeedItem = await fromUuid(deedUuid);
+    let subDeedItem = await resolveItem(deedUuid, { type: "deed", notify: false });
     if (!subDeedItem && actor) {
       subDeedItem = actor.items?.get(deedUuid) || actor.items?.find(i => i.uuid === deedUuid || i.id === deedUuid);
     }
 
     if (!subDeedItem) {
-      ui.notifications.warn(`Could not find linked Deed item (${deedUuid}).`);
+      ui.notifications.error(
+        game.i18n.format("TRESPASSER.Notification.Apply.CouldNotCreateItem", { name: deedUuid })
+      );
       return true;
     }
 

@@ -21,9 +21,16 @@
  * @returns {Promise<Item|null>} The resolved Item document, or null if not found
  */
 export async function resolveItem(query, options = {}) {
+  if (query instanceof Item) return query;
+  if (!query && !options.uuid) return null;
+
   let uuid = typeof query === "string" ? query : (query?.uuid ?? options.uuid);
   const name = typeof query === "object" && query !== null ? (query.name ?? options.name) : (options.name ?? "");
-  const type = typeof query === "object" && query !== null ? (query.type ?? options.type) : options.type;
+
+  // Foundry drag data sets type: "Item" (documentName), ignore it so it doesn't conflict with item sub-types (e.g. "item", "weapon", "effect")
+  let queryType = typeof query === "object" && query !== null ? query.type : undefined;
+  if (queryType === "Item") queryType = undefined;
+  const type = options.type ?? queryType;
   const notify = options.notify ?? true;
 
   if (!uuid && typeof query === "object" && query?._id) {

@@ -1,3 +1,5 @@
+import { resolveItem } from "../item-resolver.mjs";
+
 const pendingDeedRequests = new Map();
 
 /**
@@ -147,7 +149,7 @@ async function _handleApplyEffects(data) {
 
 async function _handleSpawnTerrain(data) {
   if (data.useTerrainHelper) {
-    const terrainItem = await fromUuid(data.terrainUuid);
+    const terrainItem = await resolveItem(data.terrainUuid, { type: "terrain" });
     const { TerrainHelper } = await import("../terrain-helper.mjs");
     const created = await TerrainHelper.placeTerrainOnCanvas(terrainItem, data.dropPosition, data.options);
     if (!created) return [];

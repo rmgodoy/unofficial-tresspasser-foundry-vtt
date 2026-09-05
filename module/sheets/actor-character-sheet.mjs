@@ -182,7 +182,7 @@ export class TrespasserCharacterSheet extends TrespasserActorSheet {
     // here as well so the handler tolerates either calling convention.
     const sourceItem = dropped instanceof Item
       ? dropped
-      : await Item.implementation.fromDropData(dropped ?? {});
+      : ((await Item.implementation.fromDropData(dropped ?? {})) || (await resolveItem(dropped)));
 
     // A drop from another actor is a transfer, which the receiving user may
     // accept without owning this sheet; anything else (sidebar/compendium

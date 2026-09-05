@@ -1,5 +1,6 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Item Sheet for Armor in the Trespasser TTRPG system.
@@ -107,7 +108,7 @@ export class TrespasserArmorSheet extends TrespasserItemSheet {
     const targetEl = event.currentTarget;
     const targetType = targetEl.dataset.type; // Always "effects" for armor
 
-    const sourceItem = await fromUuid(data.uuid);
+    const sourceItem = await resolveItem(data);
     if (!sourceItem) return;
 
     if (sourceItem.parent) {

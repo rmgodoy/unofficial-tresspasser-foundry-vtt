@@ -1,4 +1,5 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 const ALL_SKILL_KEYS = [
   "acrobatics", "alchemy", "athletics", "crafting",
@@ -179,7 +180,7 @@ export class TrespasserPastLifeSheet extends TrespasserItemSheet {
     const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (!data || data.type !== "Item") return;
 
-    const sourceItem = await fromUuid(data.uuid);
+    const sourceItem = await resolveItem(data);
     if (!sourceItem) return;
 
     // Allowed types: item, weapon, armor

@@ -2,6 +2,7 @@ import { DurationHelper } from "./duration-helper.mjs";
 import { showOilDialog } from "../dialogs/oil-dialog.mjs";
 import { buildTenacityButtonHtml } from "./tenacity-helper.mjs";
 import { formatDiceIcons } from "./dice-icon-helper.mjs";
+import { resolveItem } from "./item-resolver.mjs";
 
 /**
  * Helper class for managing Trespasser effects, states, and modifier parsing.
@@ -265,7 +266,7 @@ export class TrespasserEffectsHelper {
     const activeOnly = [];
     for (const eff of effArray) {
       if (!eff.uuid) continue;
-      const source = await fromUuid(eff.uuid);
+      const source = await resolveItem(eff, { type: "effect", notify: false });
       if (!bypassFilter && source && (source.system.type === "continuous" || source.system.type === "movement" || source.system.when === "immediate" || !source.system.when)) continue;
       activeOnly.push(eff);
     }
@@ -1003,7 +1004,7 @@ export class TrespasserEffectsHelper {
   }
 
   static async openEffectSheet(uuid, callback) {
-    const doc = await fromUuid(uuid);
+    const doc = await resolveItem(uuid, { type: "effect" });
     if (!doc) return;
     doc.sheet._updateObject = async (_event, formData) => {
       if (callback) await callback(doc, formData);

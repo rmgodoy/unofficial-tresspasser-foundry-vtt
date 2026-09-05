@@ -4,6 +4,7 @@ import { TerrainHelper } from "../terrain-helper.mjs";
 import { CanvasInputSession } from "../../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../../canvas/canvas-selection-renderer.mjs";
 import { RangeHelper } from "../range-helper.mjs";
+import { resolveItem } from "../item-resolver.mjs";
 
 export class SpawnTerrainBehavior {
   /**
@@ -17,7 +18,7 @@ export class SpawnTerrainBehavior {
     const params = behavior.params || {};
     if (!params.terrainUuid) return true;
 
-    const terrainItem = await fromUuid(params.terrainUuid);
+    const terrainItem = await resolveItem(params.terrainUuid, { type: "terrain" });
     if (!terrainItem) return true;
 
     const { DeedPotencyHelper } = await import("./potency-helper.mjs");
@@ -378,7 +379,7 @@ export class SpawnTerrainBehavior {
           }
         }
       } else {
-        const sourceEffect = linkedUuid ? await fromUuid(linkedUuid) : null;
+        const sourceEffect = linkedUuid ? await resolveItem(linkedItem, { type: "effect" }) : null;
         if (!sourceEffect) continue;
 
         const effectData = sourceEffect.toObject();

@@ -1,4 +1,5 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
+import { resolveItem } from "../item-resolver.mjs";
 
 /**
  * DeedPotencyHelper — Coordinates Potency spark distribution among Deed effects and terrains with linked effects.
@@ -15,7 +16,7 @@ export class DeedPotencyHelper {
     let doc = terrainItemOrUuid;
     if (typeof terrainItemOrUuid === "string") {
       try {
-        doc = await fromUuid(terrainItemOrUuid);
+        doc = await resolveItem(terrainItemOrUuid, { notify: false, type: "terrain" });
       } catch {
         return false;
       }
@@ -86,8 +87,8 @@ export class DeedPotencyHelper {
         const rawEffects = node.params?.effects || [];
         const effects = Array.isArray(rawEffects) ? rawEffects : Object.values(rawEffects);
         for (const eff of effects) {
-          if (!eff.uuid) continue;
-          const effectItem = await fromUuid(eff.uuid);
+          if (!eff) continue;
+          const effectItem = await resolveItem(eff, { notify: false, type: "effect" });
           if (!effectItem) continue;
           candidates.push({
             type: "effect",
@@ -108,8 +109,8 @@ export class DeedPotencyHelper {
             const wEffects = weapon.system?.effects;
             if (Array.isArray(wEffects)) {
               for (const wEff of wEffects) {
-                if (!wEff.uuid) continue;
-                const effectItem = await fromUuid(wEff.uuid);
+                if (!wEff) continue;
+                const effectItem = await resolveItem(wEff, { notify: false, type: "effect" });
                 if (!effectItem) continue;
                 candidates.push({
                   type: "effect",
@@ -126,8 +127,8 @@ export class DeedPotencyHelper {
             }
             if (phaseKey === "spark" && Array.isArray(weapon.system?.enhancementEffects)) {
               for (const wEff of weapon.system.enhancementEffects) {
-                if (!wEff.uuid) continue;
-                const effectItem = await fromUuid(wEff.uuid);
+                if (!wEff) continue;
+                const effectItem = await resolveItem(wEff, { notify: false, type: "effect" });
                 if (!effectItem) continue;
                 candidates.push({
                   type: "effect",
@@ -146,7 +147,7 @@ export class DeedPotencyHelper {
         }
       } else if (node.type === "spawnTerrain") {
         if (!node.params?.terrainUuid) continue;
-        const terrainItem = await fromUuid(node.params.terrainUuid);
+        const terrainItem = await resolveItem(node.params.terrainUuid, { notify: false, type: "terrain" });
         if (!terrainItem) continue;
         const hasLinked = await this.hasLinkedEffect(terrainItem);
         if (!hasLinked) continue;

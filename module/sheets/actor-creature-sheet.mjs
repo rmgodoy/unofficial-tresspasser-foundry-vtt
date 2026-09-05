@@ -9,6 +9,7 @@ import { PASSIVE_STATES } from "../config/state-config.mjs";
 
 import { prepareDeedDisplayData } from "../helpers/deed-display-helper.mjs";
 import { EngagementHelper } from "../helpers/engagement-helper.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 const { api, sheets } = foundry.applications;
 import { TrespasserActorSheet } from "./base-sheet.mjs";
@@ -166,7 +167,7 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
         if (ev._trespasserItemDropHandled) return;
         const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(ev);
         if (data?.type !== "Item") return;
-        const item = await Item.implementation.fromDropData(data);
+        const item = (await Item.implementation.fromDropData(data)) || (await resolveItem(data));
         if (!item || item.parent === this.actor) return;
         ev._trespasserItemDropHandled = true;
         if (!this.actor.isOwner) return;

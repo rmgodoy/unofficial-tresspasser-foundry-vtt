@@ -2,6 +2,7 @@ import { buildClockSegments } from "./character/get-data.mjs";
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 import { addItemToActor } from "../helpers/item-transfer-helper.mjs";
 import { TrespasserSocket } from "../helpers/socket/socket.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 import { TrespasserActorSheet } from "./base-sheet.mjs";
 
@@ -369,7 +370,7 @@ export class TrespasserHavenSheet extends TrespasserActorSheet {
     else {
       // General drop - Add to custom inventory
       if (data.type !== "Item") return;
-      const item = await fromUuid(data.uuid);
+      const item = await resolveItem(data);
       if (!item) return;
 
       // Handle special types that should be embedded documents
@@ -839,11 +840,8 @@ export class TrespasserHavenSheet extends TrespasserActorSheet {
     const item = this.document.items.get(itemId);
     if ( !item || !item.system.upgradeTo ) return;
 
-    const template = await fromUuid(item.system.upgradeTo);
-    if ( !template || template.type !== "build" ) {
-      ui.notifications.error("Upgrade template not found or invalid.");
-      return;
-    }
+    const template = await resolveItem(item.system.upgradeTo, { type: "build" });
+    if ( !template ) return;
 
     const itemData = template.toObject();
     itemData.system.progress = 0;

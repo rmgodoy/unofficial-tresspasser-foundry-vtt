@@ -1,4 +1,5 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 // Full list of skill keys matching the Character data model
 const ALL_SKILL_KEYS = [
@@ -155,7 +156,7 @@ export class TrespasserCallingSheet extends TrespasserItemSheet {
     if (!data || data.type !== "Item") return;
 
     const listKey = event.currentTarget.dataset.list; // "talents" | "features" | "enhancements"
-    const sourceItem = await fromUuid(data.uuid);
+    const sourceItem = await resolveItem(data);
     if (!sourceItem) return;
 
     // Validate allowed types per zone

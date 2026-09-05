@@ -1,5 +1,6 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Item sheet for Trespasser Effect items.
@@ -167,7 +168,7 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
     if (data.type !== "Item") return;
     
-    const sourceItem = await fromUuid(data.uuid);
+    const sourceItem = await resolveItem(data);
     if (!sourceItem) return;
     
     // Validate types: Only effects can be counter states
@@ -208,9 +209,8 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     event.preventDefault();
     const el = event.currentTarget.closest('.effect-chip');
     const uuid = el.dataset.uuid;
-    const item = await fromUuid(uuid);
+    const item = await resolveItem(uuid);
     if (item) item.sheet.render(true);
-    else ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.NotFound"));
   }
 
   async _onAddDurationCondition(event) {

@@ -24,6 +24,7 @@ import { TrespasserActor }         from "./module/documents/actor.mjs";
 import { TrespasserCombat }        from "./module/documents/combat.mjs";
 import { TrespasserEffectsHelper } from "./module/helpers/effects-helper.mjs";
 import { DurationHelper }          from "./module/helpers/duration-helper.mjs";
+import { resolveItem }             from "./module/helpers/item-resolver.mjs";
 import { TrespasserCharacterSheet } from "./module/sheets/actor-character-sheet.mjs";
 import { TrespasserCommonerSheet }  from "./module/sheets/actor-commoner-sheet.mjs";
 import { TrespasserCompanionSheet } from "./module/sheets/actor-companion-sheet.mjs";
@@ -1323,11 +1324,8 @@ Hooks.on("renderChatMessageHTML", (message, html, data) => {
       const itemIntensity = parseInt(btn.dataset.intensity);
       if (!uuid) return;
 
-      const sourceItem = await fromUuid(uuid);
-      if (!sourceItem) {
-        ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Item.NotFound"));
-        return;
-      }
+      const sourceItem = await resolveItem({ uuid, name: btn.dataset.name }, { type: "effect" });
+      if (!sourceItem) return;
 
       const baseIntensity = !isNaN(itemIntensity) ? itemIntensity : (sourceItem.system.intensity || 0);
 

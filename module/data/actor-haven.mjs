@@ -1,4 +1,5 @@
 import { handleRestAction } from "../sheets/character/handlers-rest.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Data model for the Haven actor type.
@@ -647,11 +648,8 @@ export class TrespasserHavenData extends foundry.abstract.TypeDataModel {
         
         for (const feat of features) {
             console.log(`Trespasser | Looking for feature UUID: ${feat.uuid}`);
-            const sourceItem = await fromUuid(feat.uuid);
-            if (!sourceItem) {
-              console.warn(`Trespasser | FAILED: Could not find feature with UUID: ${feat.uuid}`);
-              continue;
-            }
+            const sourceItem = await resolveItem(feat);
+            if (!sourceItem) continue;
 
             const itemData = sourceItem.toObject();
             delete itemData._id;

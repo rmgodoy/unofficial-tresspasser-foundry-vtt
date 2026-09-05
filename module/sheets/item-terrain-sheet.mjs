@@ -1,4 +1,5 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 const { api, sheets } = foundry.applications;
 
@@ -242,7 +243,7 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
 
     if (data.type !== "Item") return;
 
-    const droppedItem = await fromUuid(data.uuid);
+    const droppedItem = await resolveItem(data);
     if (!droppedItem) return;
 
     if (droppedItem.type !== "effect" && droppedItem.type !== "state") {
@@ -301,7 +302,7 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
 
     if (data.type !== "Item") return;
 
-    const droppedItem = await fromUuid(data.uuid);
+    const droppedItem = await resolveItem(data);
     if (!droppedItem) return;
 
     if (droppedItem.type !== "effect" && droppedItem.type !== "state") {

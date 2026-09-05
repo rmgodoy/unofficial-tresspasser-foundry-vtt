@@ -1,4 +1,5 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
+import { resolveItem } from "../item-resolver.mjs";
 
 export class ApplyEffectsBehavior {
   /**
@@ -64,8 +65,8 @@ export class ApplyEffectsBehavior {
     // 1. Gather all base effect items from behavior params
     const effectList = [];
     for (const eff of effects) {
-      if (!eff.uuid) continue;
-      const effectItem = await fromUuid(eff.uuid);
+      if (!eff) continue;
+      const effectItem = await resolveItem(eff, { type: "effect" });
       if (!effectItem) continue;
       effectList.push({
         item: effectItem,
@@ -82,8 +83,8 @@ export class ApplyEffectsBehavior {
         const weaponEffects = weapon.system?.effects;
         if (Array.isArray(weaponEffects) && weaponEffects.length > 0) {
           for (const wEff of weaponEffects) {
-            if (!wEff.uuid) continue;
-            const effectItem = await fromUuid(wEff.uuid);
+            if (!wEff) continue;
+            const effectItem = await resolveItem(wEff, { type: "effect" });
             if (!effectItem) continue;
             effectList.push({
               item: effectItem,
@@ -95,8 +96,8 @@ export class ApplyEffectsBehavior {
         }
         if (phaseKey === "spark" && Array.isArray(weapon.system?.enhancementEffects)) {
           for (const wEff of weapon.system.enhancementEffects) {
-            if (!wEff.uuid) continue;
-            const effectItem = await fromUuid(wEff.uuid);
+            if (!wEff) continue;
+            const effectItem = await resolveItem(wEff, { type: "effect" });
             if (!effectItem) continue;
             effectList.push({
               item: effectItem,
@@ -108,8 +109,8 @@ export class ApplyEffectsBehavior {
         }
         if ((phaseKey === "hit" || phaseKey === "base") && context.isHit && Array.isArray(weapon.system?.oilEffects) && weapon.system.oilEffects.length > 0) {
           for (const wEff of weapon.system.oilEffects) {
-            if (!wEff.uuid) continue;
-            const effectItem = await fromUuid(wEff.uuid);
+            if (!wEff) continue;
+            const effectItem = await resolveItem(wEff, { type: "effect" });
             if (!effectItem) continue;
             effectList.push({
               item: effectItem,

@@ -3,6 +3,7 @@
  * Right-side docked properties panel component for editing node phase and parameters.
  */
 import { BEHAVIOR_ICONS, formatAreaSummary } from "./graph-node.mjs";
+import { resolveItem } from "../../helpers/item-resolver.mjs";
 
 export class GraphPropertiesPanel {
   /**
@@ -157,7 +158,7 @@ export class GraphPropertiesPanel {
         let terrainHasLinkedEffect = false;
         if (node.type === "spawnTerrain" && node.params?.terrainUuid) {
           try {
-            const terrainDoc = await fromUuid(node.params.terrainUuid);
+            const terrainDoc = await resolveItem(node.params.terrainUuid, { type: "terrain", notify: false });
             if (terrainDoc) {
               const sys = terrainDoc.system;
               terrainHasLinkedEffect = Boolean((sys?.linkedEffects && sys.linkedEffects.length > 0) || sys?.linkedEffect?.uuid || sys?.linkedEffectKey);
@@ -368,7 +369,7 @@ export class GraphPropertiesPanel {
     }
     if (data.type !== "Item") return;
 
-    const item = await fromUuid(data.uuid);
+    const item = await resolveItem(data);
     if (!item) return;
 
     const graph = this.editor ? this.editor.getGraph() : foundry.utils.deepClone(this.sheet.document.system.graph || { nodes: [] });

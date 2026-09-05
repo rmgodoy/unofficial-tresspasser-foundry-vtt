@@ -1,5 +1,6 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Item Sheet for Weapons in the Trespasser TTRPG system.
@@ -142,7 +143,7 @@ export class TrespasserWeaponSheet extends TrespasserItemSheet {
     const targetType = targetEl.dataset.type; // "effects", "enhancementEffects", "oilEffects", or "extraDeeds"
     if (!targetType) return;
 
-    const sourceItem = await fromUuid(data.uuid);
+    const sourceItem = await resolveItem(data);
     if (!sourceItem) return;
     
     // Validate types implicitly

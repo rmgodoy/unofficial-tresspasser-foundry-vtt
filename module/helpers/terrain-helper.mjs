@@ -3,6 +3,7 @@ import { ForcedMovementHelper } from "./forced-movement-helper.mjs";
 import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 import { CanvasInputSession } from "../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs";
+import { resolveItem } from "./item-resolver.mjs";
 
 export class TerrainHelper {
   
@@ -121,7 +122,7 @@ export class TerrainHelper {
             )
           );
           if (!hasLinked) {
-            const sourceEff = await fromUuid(linkedUuid);
+            const sourceEff = await resolveItem(linkedItem, { type: "effect" });
             if (sourceEff) {
               const effData = sourceEff.toObject();
               delete effData._id;
@@ -929,7 +930,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
 
       // Batch-create effect items on the actor with summed intensities
       for (const [uuid, data] of groupedEffects) {
-        const sourceEffect = await fromUuid(uuid);
+        const sourceEffect = await resolveItem({ uuid, name: data.name }, { type: "effect" });
         if (!sourceEffect) continue;
         const effectData = sourceEffect.toObject();
         effectData.system.intensity = data.totalIntensity;
@@ -1191,7 +1192,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
           (e.flags?.trespasser?.sourceEffectUuid === desired.effectUuid || e.flags?.trespasser?.linkedSource === desired.effectUuid || e.uuid === desired.effectUuid)
         );
         if (!existing) {
-          const sourceEffect = await fromUuid(desired.effectUuid);
+          const sourceEffect = await resolveItem(desired.effectUuid, { type: "effect" });
           if (!sourceEffect) continue;
           const effectData = sourceEffect.toObject();
           effectData.system.intensity = desired.intensity;
@@ -1313,7 +1314,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
         const toCreate = [];
         for (const eff of effList) {
           if (!eff.uuid) continue;
-          const sourceEffect = await fromUuid(eff.uuid);
+          const sourceEffect = await resolveItem(eff, { type: "effect" });
           if (!sourceEffect) continue;
           const effectData = sourceEffect.toObject();
           const rawIntensity = this.resolveIntPlaceholder(eff.intensity || "1", terrainRegion);
@@ -1602,7 +1603,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
    * @param {string} terrainName - The terrain region name for chat messages.
    */
   static async #applyEffect(actor, eff, terrainName) {
-    const sourceEffect = await fromUuid(eff.uuid);
+    const sourceEffect = await resolveItem(eff, { type: "effect" });
     if (!sourceEffect) return;
 
     const effectData = sourceEffect.toObject();
@@ -1817,6 +1818,13 @@ Hooks.on("dropCanvasData", (canvasWrapper, data) => {
     if (item && item.type === "terrain") {
       TerrainHelper.placeTerrainOnCanvas(item, { x: data.x, y: data.y });
       return false;
+    }
+    if (data.uuid) {
+      resolveItem(data, { type: "terrain", notify: false }).then((resolved) => {
+        if (resolved && resolved.type === "terrain") {
+          TerrainHelper.placeTerrainOnCanvas(resolved, { x: data.x, y: data.y });
+        }
+      });
     }
   }
 });

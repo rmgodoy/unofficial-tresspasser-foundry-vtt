@@ -8,7 +8,7 @@
  */
 
 import { messageVisibility } from "../helpers/compat.mjs";
-
+import { resolveItem } from "../helpers/item-resolver.mjs";
 import { TrespasserActorSheet } from "./base-sheet.mjs";
 
 export class TrespasserDungeonSheet extends TrespasserActorSheet {
@@ -329,7 +329,7 @@ export class TrespasserDungeonSheet extends TrespasserActorSheet {
   async _onDropItem(event, data) {
     if (!this.isEditable) return false;
     // v14 passes the resolved Item document; raw drag data still resolves
-    const item = data instanceof Item ? data : await Item.implementation.fromDropData(data ?? {});
+    const item = data instanceof Item ? data : ((await Item.implementation.fromDropData(data ?? {})) || (await resolveItem(data)));
     if (!item) return false;
 
     // Only allow room items on dungeons
