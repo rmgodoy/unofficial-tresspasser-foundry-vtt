@@ -1,0 +1,32 @@
+{
+  "folder": "zyi18GQve52I6ZFI",
+  "name": "Bellwether",
+  "type": "feature",
+  "_id": "OpgW5GQ5UNFKINXL",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your refined sense for the hidden signals of a storm's arrival give you the ability to predict the weather. By spending a minute in concentration, you can sense how the weather is going to change over the next week. Further, you can lead the party through even harsh storms with shrewdness: while you are among them, the party can travel at normal speed despite poor and severe weather. Whenever you test the limits of your abilities at this, the Judge may call for an AGILITY | NATURE check.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!OpgW5GQ5UNFKINXL"
+}

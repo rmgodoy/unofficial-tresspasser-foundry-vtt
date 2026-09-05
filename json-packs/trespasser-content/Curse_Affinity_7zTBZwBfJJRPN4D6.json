@@ -1,0 +1,32 @@
+{
+  "folder": "6fCaVKcMguvMFB3M",
+  "name": "Curse Affinity",
+  "type": "feature",
+  "_id": "7zTBZwBfJJRPN4D6",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>To your developed senses, black magic like curses are often accompanied by sense impression, such as the smell of burned flowers or the taste of metal on your tongue. You can always sense when you are in the presence of a curse, and when you make a casting check for any incantation or ritual that involves placing or lifting one, gain an extra spark on a success.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!7zTBZwBfJJRPN4D6"
+}

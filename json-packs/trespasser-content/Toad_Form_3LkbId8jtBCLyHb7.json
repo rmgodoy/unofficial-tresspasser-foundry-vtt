@@ -1,0 +1,111 @@
+{
+  "name": "Toad Form",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "mighty",
+    "actionType": "attack",
+    "type": "spell",
+    "target": "1 Creature",
+    "accuracyTest": "Resist",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Confer toad form 1. The affected creature becomes a tiny toad and gains a +4 bonus to guard and resist. On its turn, it can only take a single action to jump 4. At the end of its turn, this state loses 1 INTENSITY.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.ElBcoLPY7R6xzrBl",
+            "type": "effect",
+            "name": "Toad Form (guard effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 1
+          },
+          {
+            "uuid": "Item.Q0txBu3mHNh6kKaO",
+            "type": "effect",
+            "name": "Toad Form (resist effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 1
+          },
+          {
+            "uuid": "Item.yefMIhqkoJRDCxfm",
+            "type": "effect",
+            "name": "Toad Form (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 1
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "Confer toad form 2 instead.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.yefMIhqkoJRDCxfm",
+            "type": "effect",
+            "name": "Toad Form (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 2
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 4,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "3LkbId8jtBCLyHb7",
+  "effects": [],
+  "folder": "uFFLaEtNTCEuRm1e",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!3LkbId8jtBCLyHb7"
+}

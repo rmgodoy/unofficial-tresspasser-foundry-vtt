@@ -1,0 +1,146 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Prowess",
+  "type": "craft",
+  "_id": "XHT0R7SnDfeznc9e",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>Unlike many who brandish a blade, you have learned to wield yours with grace and dignity. You are a student of martial tradition, a fencer of forms and geometries- iron becomes lightning in your hands. Prowess deeds have the melee keyword, meaning they must be used with a melee weapon, such as a sword or warhammer. Practitioners of this craft excel at dueling single opponents and can adopt stances that empower them for the encounter.</p>",
+    "keyAttribute": "intellect",
+    "deeds": [
+      {
+        "uuid": "Item.q9z3484bWu6XfdLO",
+        "name": "Brilliant Disarm",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.CXjsVdEQ3BYCGeu1",
+        "name": "Coordinated Assault",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.bz9L4NwJeMSw4bDd",
+        "name": "Cunning Defense",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.w6luOQ02h87IIKYR",
+        "name": "Defensive Finisher",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.tVBJF2n1mP1WGhjU",
+        "name": "Final Flourish",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.zdniLnSKeat5tFJ2",
+        "name": "Flesh Wound",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.epoihheT2PvnNXcF",
+        "name": "Focused Assault",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.MDEUMqbQlaUpzeHU",
+        "name": "Infallible Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.4luiZlo4Fn1QDVWk",
+        "name": "Jester Stance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.wiqUwAz5Z8YCWRou",
+        "name": "Lion Stance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.05AQ73S77jfDrJhO",
+        "name": "Offensive Finisher",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.kkOW0bsAXno4sKWJ",
+        "name": "Outmatch",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.kwAUIAiZC4wumKM5",
+        "name": "Precise Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.BjF2xmvmotMdcNpa",
+        "name": "Pressing Advance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.QJqIU7BrDvklhV1V",
+        "name": "Sentry Stance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.Yuy8giWznBZuRygv",
+        "name": "Unicorn Stance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.Pt7ZYBJ7vZTzEGqP",
+        "name": "Windmill Stance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.HKUMgN87eHBbn5Hz",
+        "name": "Skillful Counter",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.aEEpcKRbLWP8Vdj3",
+        "name": "Threat Assessment",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!XHT0R7SnDfeznc9e"
+}

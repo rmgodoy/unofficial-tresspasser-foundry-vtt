@@ -1,0 +1,146 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Wrath",
+  "type": "craft",
+  "_id": "C64hknsxQc0llMHR",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>You may lack refinement, but your reckless anger and refusal to submit make you as deadly as any formally trained warrior. Wrath actions have the melee keyword, meaning they must be made with a melee weapon, such as a longsword or warhammer. Those who take up this craft excel at dealing damage to groups and single targets and staggering enemies with incredible force.</p>",
+    "keyAttribute": "spirit",
+    "deeds": [
+      {
+        "uuid": "Item.P8wFLRmQpV9yoVKR",
+        "name": "Annihilate",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.1BpOt3Q4nY0cLyD4",
+        "name": "Brutalize",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.k4zrEZTClH6wt2yp",
+        "name": "Brute Force",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.YAUElIlGm5hcczPY",
+        "name": "Bull Stance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.PCKDvKaJXTnCbXsP",
+        "name": "Crushing Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.3nWRVPy6QArH2A13",
+        "name": "Cry Havoc",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.e1ic5Ha03LHRW76P",
+        "name": "Cry Terror",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.nCUxWd0zeiDnet53",
+        "name": "Gut Wrench",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.w6o7jMwpnmImO97w",
+        "name": "Hurl Object",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.KLgVK3vZTRXd18pN",
+        "name": "Mounting Rage",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.lBDBDBw3CIn38L50",
+        "name": "Raise Hell",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.699UwEseVv7q6Ewf",
+        "name": "Rending Cleave",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.qGlj6x4yhlRVMn32",
+        "name": "Rough Landing",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.9JOMOBNIFZAPD0RK",
+        "name": "Scatter the Ranks",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.txWNMoRbEJy3mgMN",
+        "name": "Seethe",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.0ienNxp56rEfDils",
+        "name": "Stubborn Refusal",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.3zoYfFbFx39vtmZp",
+        "name": "Tumble",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.pxmdI8K8rTdkDbDu",
+        "name": "Vengeful Might",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.RllU4S8jqOISEPA0",
+        "name": "Foul Temper",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!C64hknsxQc0llMHR"
+}

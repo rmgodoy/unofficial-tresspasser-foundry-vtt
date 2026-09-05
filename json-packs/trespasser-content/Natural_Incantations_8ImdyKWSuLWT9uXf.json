@@ -1,0 +1,32 @@
+{
+  "folder": "eLMBfi1QLnmfRBo4",
+  "name": "Natural Incantations",
+  "type": "feature",
+  "_id": "8ImdyKWSuLWT9uXf",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your attunement to nature grants you magic. When you take up this calling, learn INTELLECT + 1 incantations. Whenever your INTELLECT increases at higher level, learn another. You learn them randomly from the natural magic table.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!8ImdyKWSuLWT9uXf"
+}

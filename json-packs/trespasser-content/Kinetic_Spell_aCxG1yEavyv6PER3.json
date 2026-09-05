@@ -1,0 +1,37 @@
+{
+  "folder": "BQJ6JR4B09WSPXrF",
+  "name": "Kinetic Spell",
+  "type": "talent",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>If you hit one or more targets with your next spell deed, sweep one of them up to 2 squares. If you spend an extra action point, sweep 4 instead.</p>",
+    "usable": true,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "action"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "_id": "aCxG1yEavyv6PER3",
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!aCxG1yEavyv6PER3"
+}

@@ -1,0 +1,58 @@
+{
+  "name": "Lockpickers",
+  "type": "past_life",
+  "img": "systems/trespasser/assets/icons/pesant.webp",
+  "folder": "tb3DrPDyVNHxuP0m",
+  "system": {
+    "attributes": {
+      "mighty": 0,
+      "agility": 1,
+      "intellect": 0,
+      "spirit": 0
+    },
+    "skills": {
+      "acrobatics": false,
+      "alchemy": false,
+      "athletics": false,
+      "crafting": false,
+      "folklore": false,
+      "letters": false,
+      "magic": false,
+      "nature": false,
+      "perception": false,
+      "speech": false,
+      "stealth": false,
+      "tinkering": true
+    },
+    "items": [
+      {
+        "uuid": "Item.ZYwmHQesWETkrX8N",
+        "name": "Lockpicks",
+        "img": "systems/trespasser/assets/icons/item.webp",
+        "type": "item",
+        "quantity": 1
+      }
+    ],
+    "description": ""
+  },
+  "_id": "vXkTZIhgyaq4wVZS",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!vXkTZIhgyaq4wVZS"
+}

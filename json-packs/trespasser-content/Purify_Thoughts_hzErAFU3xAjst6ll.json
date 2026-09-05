@@ -1,0 +1,81 @@
+{
+  "name": "Purify Thoughts",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "support",
+    "type": "spell",
+    "target": "Burst 4",
+    "accuracyTest": "10",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Remove a harmful state from one willing creature in the area.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Remove a second state from the same or a different creature.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "Remove a third state.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "hzErAFU3xAjst6ll",
+  "effects": [],
+  "folder": "WnrEgB3as5x16pbX",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!hzErAFU3xAjst6ll"
+}

@@ -1,0 +1,134 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Blood",
+  "type": "craft",
+  "_id": "YDWnJvwowMn6svok",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>You study biological applications of magic, manipulating the very essence of life that runs in the veins of living creatures. When used benevolently, your magic can restore vitality and cure disease. When used for ill purposes, it is among the greatest profanities of nature. Most blood deeds have the spell keyword, meaning they must be used with a bare hand or an implement, such as a wand, rod, or staff. Practitioners of blood magic excel at restoring hit points, but unlike other healers, they do not grant recoveries, instead restoring hit points directly from the damage they deal.</p>",
+    "keyAttribute": "mighty",
+    "deeds": [
+      {
+        "uuid": "Item.9GNRgSuqWDijwlPW",
+        "name": "Arterial Font",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.x0cPrlN8LKfonY25",
+        "name": "Blood Gift",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.l8OcTRiKbMOkaFfB",
+        "name": "Blood Mist",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.52AFQeXVpxHQbxmN",
+        "name": "Blood Puppet",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.tfLkodj6AzQcRCRN",
+        "name": "Boiling Blood",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.QXNOGcGEUI9ncKdn",
+        "name": "Crimson Lash",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.J2a89Exa6fwlJRTn",
+        "name": "Exsanguinate",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.4kFKGVJeIlA6Kle0",
+        "name": "Hematic Pulse",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.P36s4yG9Xj6Z5CXd",
+        "name": "Humoral Shift",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.hohkgsEb4Of2kQL0",
+        "name": "Incision",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.6cO6KhYVEC70k3lx",
+        "name": "Leech",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.fgHWOie8Th5y18gY",
+        "name": "Mass Wounds",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.uHFk2TYUyi0Emoy3",
+        "name": "Run Cold",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.OQhai3FcvZEIr3gE",
+        "name": "Sanguine Veil",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.9kiwjZpEjmBzLxNo",
+        "name": "Transfusion",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.Mc205vJyOoESzjLT",
+        "name": "Blood Manipulation",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.Rh1R9L31SjRws0LZ",
+        "name": "Life Affinity",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!YDWnJvwowMn6svok"
+}

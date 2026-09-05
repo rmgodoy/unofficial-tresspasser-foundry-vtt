@@ -1,0 +1,32 @@
+{
+  "folder": "W9r7DBNyoVqrw6QH",
+  "name": "Shepherd of Radiance",
+  "type": "feature",
+  "_id": "WZyRQkWd6DRV59ja",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Even tender flames draw comfort from your presence, and light sources are comfortable in your hands, burning longer. While you hold a light source, it only depletes on a roll of 1 instead of 1 or 2. </p><p></p><p>Torches, lanterns, and candles gain the spell 6 property, meaning you can use them to execute any of your spell deeds at a base range of 6 squares.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!WZyRQkWd6DRV59ja"
+}

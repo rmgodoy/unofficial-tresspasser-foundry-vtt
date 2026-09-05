@@ -1,0 +1,89 @@
+{
+  "name": "Sucker Punch",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "light",
+    "actionType": "attack",
+    "type": "innate",
+    "target": "1 Adjacent Creature",
+    "accuracyTest": "Guard",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Deal 2 Skill Die damage.",
+        "damage": "2<sd>",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "The target loses 1 Action Point at the start of its next turn.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.B6X9F26w5xWLXfVJ",
+            "type": "effect",
+            "name": "Loose AP (Sucker Punch)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 1
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "GL6M4o1Rie49Kl3o",
+  "effects": [],
+  "folder": "4vByKoIHbkvJO9vb",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!GL6M4o1Rie49Kl3o"
+}

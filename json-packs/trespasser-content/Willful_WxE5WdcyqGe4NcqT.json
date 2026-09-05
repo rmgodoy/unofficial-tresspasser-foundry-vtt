@@ -1,0 +1,53 @@
+{
+  "folder": "Kv0IrtLterUKyUss",
+  "name": "Willful",
+  "type": "effect",
+  "img": "systems/trespasser/assets/icons/states/Willful.svg",
+  "system": {
+    "description": "<p>You take an INTENSITY bonus to resist checks. Cancels out weary.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "resist",
+    "modifier": "<Int>",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [
+      {
+        "uuid": "Item.QdTFOleqJtLyflOr",
+        "name": "Weary",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "type": "effect"
+      }
+    ],
+    "isPrevailable": true,
+    "statusIcon": "systems/trespasser/assets/icons/states/Willful.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788358042682,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "_id": "WxE5WdcyqGe4NcqT",
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!WxE5WdcyqGe4NcqT"
+}

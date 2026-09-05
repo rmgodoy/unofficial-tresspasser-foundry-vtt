@@ -1,0 +1,89 @@
+{
+  "name": "Winter's Breath",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "light",
+    "actionType": "attack",
+    "type": "spell",
+    "target": "Path 4",
+    "accuracyTest": "Resist",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Deal 1 Skill Die damage. Sweep 1.",
+        "damage": "<sd>",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "Confer weary 2.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.QdTFOleqJtLyflOr",
+            "type": "effect",
+            "name": "Weary",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 2
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "VaXJm5b0tpKrSxj8",
+  "effects": [],
+  "folder": "cCATdaerpXIgEXa1",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!VaXJm5b0tpKrSxj8"
+}

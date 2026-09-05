@@ -1,0 +1,30 @@
+{
+  "name": "Knock",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Completing this incantation will create the sound of a heavy hand rapping upon a hollow wooden surface. In response to the knock, a nearby portal or container of your choice will unlock itself and swing open. Your casting check increases the strength of the effect: with three sparks, every non-magical door, window, and container within audible range of the knock will enthusiastically swing open.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "Z98wK210cuHuZy7G",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Z98wK210cuHuZy7G"
+}

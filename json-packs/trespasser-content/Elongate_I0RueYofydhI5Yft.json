@@ -1,0 +1,30 @@
+{
+  "name": "Elongate",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>When you cast this incantation, one or more of your arms becomes long and flexible like tentacles for up to <b>10 minutes (1 dungeon action)</b>. You can stretch them up to four times the length of your body. If the spell ends while you are stretched, your limbs will spring back to their normal size, potentially harming you if you are occupied with a task. Each sparks doubles the duration or the stretchable distance.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "I0RueYofydhI5Yft",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!I0RueYofydhI5Yft"
+}

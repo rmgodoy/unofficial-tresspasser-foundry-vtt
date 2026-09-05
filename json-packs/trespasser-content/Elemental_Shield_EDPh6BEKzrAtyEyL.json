@@ -1,0 +1,32 @@
+{
+  "folder": "eLMBfi1QLnmfRBo4",
+  "name": "Elemental Shield",
+  "type": "feature",
+  "_id": "EDPh6BEKzrAtyEyL",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>When an ally in spell range is hit by an attack, you can take this reaction to shield them with your invoked element. Reduce the damage they take by Skill Die. After the attack, grant the effect based on the element. Your invoked element is expended.</p><ul><li><p>Earth: Create a stone obstacle in 1 empty square adjacent to the target.</p></li><li><p>Flames: Confer hastened 2.</p></li><li><p>Frost: Confer mending 2.</p></li><li><p>Shadow: Confer guarded 2.</p></li><li><p>Light: Confer willful 2.</p></li><li><p>Wind: The target may jump 4.</p></li></ul>",
+    "type": "reaction",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!EDPh6BEKzrAtyEyL"
+}

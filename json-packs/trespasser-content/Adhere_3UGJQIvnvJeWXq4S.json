@@ -1,0 +1,30 @@
+{
+  "name": "Adhere",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation covers a nearby surface with a sticky, sap-like substance. Pressing an object against the sap for 10 seconds sticks it firmly in place. While stuck, it requires the full strength of two people to be pulled apart.</p><p>The effect lasts <b>1 day (3 travel actions)</b>. Each spark doubles either the strength of the ichor or the duration of the spell.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "3UGJQIvnvJeWXq4S",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!3UGJQIvnvJeWXq4S"
+}

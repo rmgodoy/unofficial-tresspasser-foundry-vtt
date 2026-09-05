@@ -1,0 +1,57 @@
+{
+  "name": "Rod",
+  "type": "weapon",
+  "img": "systems/trespasser/assets/icons/weapon.webp",
+  "folder": "dTEoo2MfxCrvwTUA",
+  "system": {
+    "type": "melee",
+    "range": "8 (spell)",
+    "weaponDie": "d4",
+    "depletionDie": "d4",
+    "price": 125,
+    "effects": [
+      {
+        "uuid": "Item.QdTFOleqJtLyflOr",
+        "type": "effect",
+        "name": "Weary",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 2
+      }
+    ],
+    "needsAmmo": false,
+    "properties": {
+      "twoHanded": false,
+      "thrown": false,
+      "fragile": false
+    },
+    "isLightSource": false,
+    "radius": 0,
+    "active": false,
+    "usesFuel": false,
+    "slotOccupancy": 1,
+    "equipped": false,
+    "enhancementEffects": [],
+    "oilEffects": [],
+    "extraDeeds": []
+  },
+  "_id": "0X3K2RqA39pNdh5i",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!0X3K2RqA39pNdh5i"
+}

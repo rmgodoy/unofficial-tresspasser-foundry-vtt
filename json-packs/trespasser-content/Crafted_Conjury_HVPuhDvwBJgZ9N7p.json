@@ -1,0 +1,32 @@
+{
+  "folder": "YvsnqBcVsw6sVVbp",
+  "name": "Crafted Conjury",
+  "type": "feature",
+  "_id": "HVPuhDvwBJgZ9N7p",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Magicians design their own powerful conjuries. You gain two special deeds that you craft yourself by combining a form with a lesser and greater arcana. Wherever the form you choose says \"LESSER ARCANA\" or \"GREATER ARCANA,\" slot in the arcana effect of your choice. You can replace the greater arcana with a second lesser arcana if you want.</p><p></p><p>Your crafted conjuries each cost 1 focus to attempt. When you use one of your conjuries, it is expended and cannot be used for the rest of the encounter.</p><p></p><p>As a camp activity, you can make changes to one or both of your conjuries, swapping out the form or arcana for other ones that you know. During the haven frame, youcan alter them freely.</p><p></p><p>When you take up this calling, you learn two lesser arcana, two greater arcana, and two forms, enough to craft two totally unique conjuries. Each level thereafter, you learn one additional form or arcana of your choice.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!HVPuhDvwBJgZ9N7p"
+}

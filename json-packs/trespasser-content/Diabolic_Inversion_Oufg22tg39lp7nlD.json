@@ -1,0 +1,37 @@
+{
+  "folder": "LGeJdS4GJlqCm4Z8",
+  "name": "Diabolic Inversion",
+  "type": "talent",
+  "_id": "Oufg22tg39lp7nlD",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>Take this action after you prevail against a beneficial state with an opposite, such as accurate or guarded. Instead of removing it, change that state to its opposite, keeping the intensity the same.</p>",
+    "usable": true,
+    "rollDice": "",
+    "focusCost": 1,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "action"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Oufg22tg39lp7nlD"
+}

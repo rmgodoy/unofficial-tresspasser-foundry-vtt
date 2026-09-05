@@ -1,0 +1,30 @@
+{
+  "name": "Mud Thrall",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation binds mud into an animated being, creating a temporary servant that you can command. The thrall is roughly humanoid in shape and may dissolve into a creeping pool of mud and reform itself as commanded.</p><p>It can comprehend simple instructions and will obey any order from its master, even one that would result in its own destruction, though it may show reluctance. A mud thrall may only communicate by nodding or shaking its featureless head.</p><p>Mud thralls never tire and excel at manual labor. A thrall of human size can carry a load of <b>50 lbs.</b>, whereas smaller specimens can carry proportionally less. Timid and unable to fight, a mud thrall fearfully collapses into normal mud as soon as it encounters a creature hostile to it or its master.</p><p>A mud thrall disintegrates after <b>1 hour</b>. Each spark affects its size: the thrall is diminutive with zero sparks, tiny with one, small with two, medium with three, large with four, or huge with five or more.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "49RG8cEWjY5s53RD",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!49RG8cEWjY5s53RD"
+}

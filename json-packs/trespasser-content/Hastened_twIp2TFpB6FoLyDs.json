@@ -1,0 +1,53 @@
+{
+  "folder": "Kv0IrtLterUKyUss",
+  "name": "Hastened",
+  "type": "effect",
+  "_id": "twIp2TFpB6FoLyDs",
+  "img": "systems/trespasser/assets/icons/states/Hastened.svg",
+  "system": {
+    "description": "<p>You gain an INTENSITY bonus to initiative checks. Cancels out hindered.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "initiative",
+    "modifier": "<Int>",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [
+      {
+        "uuid": "Item.zeSukJfflKejuW1v",
+        "name": "Hindred",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "type": "effect"
+      }
+    ],
+    "isPrevailable": true,
+    "statusIcon": "systems/trespasser/assets/icons/states/Hastened.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788357927562,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!twIp2TFpB6FoLyDs"
+}

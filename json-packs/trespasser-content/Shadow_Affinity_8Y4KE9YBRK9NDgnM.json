@@ -1,0 +1,32 @@
+{
+  "folder": "rd8qkIjMGUz9id2Q",
+  "name": "Shadow Affinity",
+  "type": "feature",
+  "_id": "8Y4KE9YBRK9NDgnM",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your study of darkness empowers your incantations. When you make a casting check for any incantation or ritual that involves darkness, secrecy, or deception, gain an extra spark on a success.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!8Y4KE9YBRK9NDgnM"
+}

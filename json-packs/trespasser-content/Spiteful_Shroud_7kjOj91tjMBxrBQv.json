@@ -1,0 +1,97 @@
+{
+  "name": "Spiteful Shroud",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "support",
+    "type": "spell",
+    "target": "1 Creature",
+    "accuracyTest": "10",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Confer vengeful hex 4. Whenever the affected creature suffers damage from an attack, it deals half that much to the attacker.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.KM3V9a4jBRbkusap",
+            "type": "effect",
+            "name": "Vegenful Hex (Spitefule Shroud)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 4
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "It also pushes the attacker 2 squares.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "It also confers inaccurate 2 to the attacker.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.yZCy3pwbhrRK45sq",
+            "type": "effect",
+            "name": "Inaccurate",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 2
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "7kjOj91tjMBxrBQv",
+  "effects": [],
+  "folder": "JrwFfUNREdQDQuOx",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!7kjOj91tjMBxrBQv"
+}

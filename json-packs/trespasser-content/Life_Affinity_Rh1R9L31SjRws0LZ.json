@@ -1,0 +1,32 @@
+{
+  "folder": "BjC4vRHcWKKk2vKt",
+  "name": "Life Affinity",
+  "type": "feature",
+  "_id": "Rh1R9L31SjRws0LZ",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your study of lifeblood empowers your magic. When you make a casting check for any incantation or ritual that involves manipulating blood or affecting the energy of life by some other means, gain an extra spark.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Rh1R9L31SjRws0LZ"
+}

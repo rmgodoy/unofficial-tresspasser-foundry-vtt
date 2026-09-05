@@ -1,0 +1,37 @@
+{
+  "folder": "ylesecywDbJtTb47",
+  "name": "Charge",
+  "type": "talent",
+  "_id": "AECh0biMYuPY4p7r",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>When you spend at least 2 Action Points to move, you gain +2 accuracy on your next melee attack against creatures that were at least 4 squares away before you moved.</p>",
+    "usable": false,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!AECh0biMYuPY4p7r"
+}

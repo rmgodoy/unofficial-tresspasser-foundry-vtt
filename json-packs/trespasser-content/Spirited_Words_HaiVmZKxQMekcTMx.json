@@ -1,0 +1,32 @@
+{
+  "folder": "tAtmYxwuJWb7wctS",
+  "name": "Spirited Words",
+  "type": "feature",
+  "_id": "HaiVmZKxQMekcTMx",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your presence comforts and inspires those around you. And especially your companions, who rely on your steady hand on the rudder. When you use the SPEECH skill to persuade someone to adopt a course of action, you gain an extra spark on a success. Further, you can spark on the lift spirits camp action, granting the benefit to an additional ally for each spark you roll.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!HaiVmZKxQMekcTMx"
+}

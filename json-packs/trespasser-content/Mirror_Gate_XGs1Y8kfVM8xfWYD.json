@@ -1,0 +1,30 @@
+{
+  "name": "Mirror Gate",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>When you finish this incantation, a mirror before you becomes a magical gateway for one minute, connecting to any one other mirror that you looked in within the last <b>24 hours</b>. If both mirrors are large enough to step through, you and other creatures can travel between the two surfaces. If either mirror is cracked, stepping through will spell certain death. Smaller mirrors can be used to transfer objects and supplies. The gateway lasts for <b>1 minute</b>. Each spark doubles the duration. With seven sparks, the spell is everlasting.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "XGs1Y8kfVM8xfWYD",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!XGs1Y8kfVM8xfWYD"
+}

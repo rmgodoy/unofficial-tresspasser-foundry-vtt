@@ -1,0 +1,32 @@
+{
+  "folder": "xbosWVe5nlqzPxK7",
+  "name": "Vandal",
+  "type": "feature",
+  "_id": "VQYjtfY1ABkJO2UW",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>You have a natural predilection toward property damage. Outside of combat, gain an extra spark on MIGHT checks to damage or destroy things. In combat, you can pass through obstacles as if they were difficult terrain. When you do, replace them with difficult terrain.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!VQYjtfY1ABkJO2UW"
+}

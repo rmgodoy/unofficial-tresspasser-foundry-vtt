@@ -1,0 +1,146 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Earth",
+  "type": "craft",
+  "_id": "zPJXdPg6fsShFULz",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>Your physique and skill with magic lets you command the element of stone and soil, toppling enemies and keeping them down. Most deeds of this craft have the spell keyword, meaning they must be performed with a free hand or an implement such as a wand, rod, or staff. Practitioners of earth magic excel at shielding allies and at creating obstacles and difficult terrain.</p>",
+    "keyAttribute": "mighty",
+    "deeds": [
+      {
+        "uuid": "Item.dNIhDY15QisTniir",
+        "name": "Cairns",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.D8QJiPnAzm95YIym",
+        "name": "Calcify",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.TLPPOlWAAuzfmYdQ",
+        "name": "Crystal Spear",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.FvRj4Kl1Pgj00Eht",
+        "name": "Dancing Dust",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.sYESfPNDyO8QSL9V",
+        "name": "Deconstruct",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.hda1yyFKyW9uPym9",
+        "name": "Earth Spike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.24asKDcJiPsc9P8n",
+        "name": "Earthquake",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.JiwInBHsybYwmZj7",
+        "name": "Falling Rocks",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.DzV6fZd3RpqNZSrq",
+        "name": "Gravel Blast",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.pchgdoUfp8PJqO3o",
+        "name": "Mudslide",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.w0cX4cnyjRFHLPzo",
+        "name": "Raise Pillar",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.pFNcJwCEw5wLlwuM",
+        "name": "Sandstorm",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.whL8Wu6cvCYbxehO",
+        "name": "Shockwave",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.aJdmQsm81J6IhqQ8",
+        "name": "Stone Armor",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.NXqhPkXqWgjAarUE",
+        "name": "Stone Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.FvmHnSZD5RnZ60bS",
+        "name": "Sudden Demolition",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.WWbF9Xaf6A5FgRLO",
+        "name": "Wall of Stone",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.UkmoCi09nItRRMyi",
+        "name": "Earthwarp",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.bRijzmZmGsdDVOHo",
+        "name": "Earth Affinity",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!zPJXdPg6fsShFULz"
+}

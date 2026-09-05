@@ -1,0 +1,30 @@
+{
+  "name": "Peer Beyond",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>When you cast this incantation, you gain the ability to see through one opaque object or surface up to <b>5 ft.</b> thick as if it were transparent jelly. The effect lasts for up to <b>one dungeon round</b>, as long as you concentrate on the surface and do nothing else. Each spark improves the clarity of your sight: with no sparks, you can only see vague outlines and impressions of what lies beyond, while with three or more, you can see with perfect clarity.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "XFiiGr3oc70fIDAf",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!XFiiGr3oc70fIDAf"
+}

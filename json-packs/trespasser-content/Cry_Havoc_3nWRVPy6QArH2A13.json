@@ -1,0 +1,97 @@
+{
+  "name": "Cry Havoc",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "support",
+    "type": "innate",
+    "target": "Burst 3",
+    "accuracyTest": "10",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Confer strong 1 to up to three creatures in the area.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.WuMgBh4aN4u2lNCh",
+            "type": "effect",
+            "name": "Strong",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 1
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Confer strong 2 instead. On their attacks this round, those creatures can reroll any number of damage dice one time.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.WuMgBh4aN4u2lNCh",
+            "type": "effect",
+            "name": "Strong",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 2
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "3nWRVPy6QArH2A13",
+  "effects": [],
+  "folder": "rFvht1hov5aw9JDk",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!3nWRVPy6QArH2A13"
+}

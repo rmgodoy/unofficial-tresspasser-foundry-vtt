@@ -1,0 +1,45 @@
+{
+  "folder": "2ZrR3lvV1b9LmL6W",
+  "name": "Condemnation",
+  "type": "talent",
+  "_id": "VQ65LHhwopGdtqiL",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>Confer frail 2 to an enemy in spell range. For each additional action point you spend, increase the intensity by +1.</p>",
+    "usable": true,
+    "rollDice": "",
+    "focusCost": 1,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [
+      {
+        "uuid": "Item.v6OzCfu9c4fY1a5B",
+        "type": "effect",
+        "name": "Frail",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 2
+      }
+    ],
+    "type": "action"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!VQ65LHhwopGdtqiL"
+}

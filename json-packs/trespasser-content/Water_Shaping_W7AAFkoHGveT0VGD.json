@@ -1,0 +1,30 @@
+{
+  "name": "Water Shaping",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>You can move water against its natural inclinations or change its state of matter. You may alter a quantity of water that could fit into a cubical space <b>100 ft.</b> on each side, though the amount need not be confined to such dimensions. This incantation can freeze the surface of a pond or river for easy passage, empty the contents of a well, or hold aside waves such that a sunken wreck near the shore might be investigated. When the incantation unravels, the water resumes obeisance of natural laws: water held in place will come crashing into any available vacuum, and ice will start to melt.</p><p>The effect lasts <b>10 minutes (1 dungeon action)</b>. Each spark either doubles the duration or the quantity of water affected.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "W7AAFkoHGveT0VGD",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!W7AAFkoHGveT0VGD"
+}

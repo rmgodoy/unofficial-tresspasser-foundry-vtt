@@ -1,0 +1,32 @@
+{
+  "folder": "eLMBfi1QLnmfRBo4",
+  "name": "Elemental Strike",
+  "type": "feature",
+  "_id": "9t8dpDsi3PubsPBB",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>After you make an attack, you can take this reaction to channel the elements into one target you hit. Add % extra damage, and confer an effect based on your invoked element. Your invoked element is expended.</p><ul><li><p>Earth: Confer toppled 2.</p></li><li><p>Flames: Confer burning 2.</p></li><li><p>Frost: Confer slow 2.</p></li><li><p>Shadow: Confer weary 2.</p></li><li><p>Light: Confer unguarded 2.</p></li><li><p>Wind: Sweep 4.</p></li></ul>",
+    "type": "reaction",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!9t8dpDsi3PubsPBB"
+}

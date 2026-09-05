@@ -1,0 +1,81 @@
+{
+  "name": "Humoral Shift",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "attack",
+    "type": "spell",
+    "target": "1 Creature",
+    "accuracyTest": "Resist",
+    "effects": {
+      "start": {
+        "description": "If you target yourself or an ally with this deed, treat it as a SPELL SUPPORT VS. 10.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Choose one state affecting the target that has an opposite state. Change it to the opposite state, keeping the same INTENSITY.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Add +1 INTENSITY to the changed state.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "Add +1 INTENSITY to the changed state.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "P36s4yG9Xj6Z5CXd",
+  "effects": [],
+  "folder": "ZNRMLc90LE8fC8eb",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!P36s4yG9Xj6Z5CXd"
+}

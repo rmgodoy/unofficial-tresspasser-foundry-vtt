@@ -1,0 +1,53 @@
+{
+  "folder": "Kv0IrtLterUKyUss",
+  "name": "Strong",
+  "type": "effect",
+  "_id": "WuMgBh4aN4u2lNCh",
+  "img": "systems/trespasser/assets/icons/states/Strong.svg",
+  "system": {
+    "description": "<p>You gain an INTENSITY bonus to damage rolls on attacks. Cancels out weak.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "damage_dealt",
+    "modifier": "<Int>",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [
+      {
+        "uuid": "Item.dIW1YCC9Gr4kt04x",
+        "name": "Weak",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "type": "effect"
+      }
+    ],
+    "isPrevailable": true,
+    "statusIcon": "systems/trespasser/assets/icons/states/Strong.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788358007602,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!WuMgBh4aN4u2lNCh"
+}

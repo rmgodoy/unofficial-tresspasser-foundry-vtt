@@ -1,0 +1,30 @@
+{
+  "name": "Invisibility",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>You or a nearby creature or object becomes invisible, though you still produce sound as normal. Making any kind of attack while invisible ends the spell immediately. The effect lasts for up to <b>10 minutes (1 dungeon action)</b>. Each spark increases the duration by another 10 minutes (1 dungeon action) or allows one additional creature to be affected.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "JTeq6yzdiAA16RCT",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!JTeq6yzdiAA16RCT"
+}

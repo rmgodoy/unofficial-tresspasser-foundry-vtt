@@ -1,0 +1,53 @@
+{
+  "folder": "Kv0IrtLterUKyUss",
+  "name": "Accurate",
+  "type": "effect",
+  "_id": "Y8qxLMIhwa81ihS5",
+  "img": "systems/trespasser/assets/icons/states/Accurate.svg",
+  "system": {
+    "description": "<p>You take an INTENSITY bonus to accuracy checks. Cancels out inaccurate.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "accuracy",
+    "modifier": "<Int>",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [
+      {
+        "uuid": "Item.yZCy3pwbhrRK45sq",
+        "name": "Inaccurate",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "type": "effect"
+      }
+    ],
+    "isPrevailable": true,
+    "statusIcon": "systems/trespasser/assets/icons/states/Accurate.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788355610940,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Y8qxLMIhwa81ihS5"
+}

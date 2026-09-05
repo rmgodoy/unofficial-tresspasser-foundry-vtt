@@ -1,0 +1,97 @@
+{
+  "name": "Alter Mass",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "support",
+    "type": "spell",
+    "target": "Personal",
+    "accuracyTest": "10",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Gain alter mass 2, an aura 4. When a creature moves or is subject to forced movement inside the aura, you can take an Action Point reaction to increase or decrease the distance by INTENSITY squares.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.6AowbfQE8247Hsrq",
+            "type": "effect",
+            "name": "Alter Mass (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 2
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Gain alter mass 4 instead.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.6AowbfQE8247Hsrq",
+            "type": "effect",
+            "name": "Alter Mass (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 4
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "4rYE1DmIDNlY1teS",
+  "effects": [],
+  "folder": "WnrEgB3as5x16pbX",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!4rYE1DmIDNlY1teS"
+}

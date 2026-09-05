@@ -1,0 +1,89 @@
+{
+  "name": "Ensnaring Vine",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "attack",
+    "type": "spell",
+    "target": "Special",
+    "accuracyTest": "Guard",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "Gain ensnaring vine 6, a state controlling an indestructible obstacle. Create it in one empty square in spell range. After each of your turns, it can target one adjacent creature with the following attack.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Deal 2 Skill Die damage.",
+        "damage": "2<sd>",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "The vine confers grappled (INTENSITY) to the target. When a creature escapes its grapple, your ensnaring vine loses 2 INTENSITY.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.risZeWoRLbDjgmHA",
+            "type": "effect",
+            "name": "Grappled",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 1
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "BPUgMwe3V4SbEDTR",
+  "effects": [],
+  "folder": "uFFLaEtNTCEuRm1e",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!BPUgMwe3V4SbEDTR"
+}

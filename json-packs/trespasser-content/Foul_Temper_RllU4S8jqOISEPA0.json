@@ -1,0 +1,32 @@
+{
+  "folder": "QMRH89XcsRElp0Zg",
+  "name": "Foul Temper",
+  "type": "feature",
+  "_id": "RllU4S8jqOISEPA0",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>When wrath rises up inside you, cooler heads seldom prevail in keeping you down. The dangerous gleam in your eyes is something few can ignore. When you use the SPEECH skill to intimidate others into obeying you, gain an extra spark on a success.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!RllU4S8jqOISEPA0"
+}

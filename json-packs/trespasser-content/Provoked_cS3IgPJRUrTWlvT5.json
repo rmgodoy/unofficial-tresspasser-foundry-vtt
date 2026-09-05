@@ -1,0 +1,51 @@
+{
+  "folder": "Kv0IrtLterUKyUss",
+  "name": "Provoked",
+  "type": "effect",
+  "_id": "cS3IgPJRUrTWlvT5",
+  "img": "systems/trespasser/assets/icons/states/Provoked.svg",
+  "system": {
+    "description": "<p>You take an INTENSITY penalty to attacks that do not include the provoking creature as a target. If a different creature confers this state on you, it becomes the provoking creature.</p>",
+    "type": "on-trigger",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "on-use-deed",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "indefinite",
+        "value": null
+      }
+    ],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": true,
+    "statusIcon": "systems/trespasser/assets/icons/states/Provoked.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788357991110,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!cS3IgPJRUrTWlvT5"
+}

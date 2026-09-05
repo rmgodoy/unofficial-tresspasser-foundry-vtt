@@ -1,0 +1,47 @@
+{
+  "folder": "xbosWVe5nlqzPxK7",
+  "name": "Bloodlust",
+  "type": "feature",
+  "_id": "9Sj2zEVraQg0wp0C",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>The revelry of battle fills you with such wild enthusiasm that you fight at the expense of self-preservation. You gain a bloodlust die in combat.</p><p></p><p>Your bloodlust die is one die size smaller than your SKILL DIE and increases in size whenever your SKILL DIE does. At the start of combat, roll it. You may reroll it at the start of each round, or you can choose to keep it the same. Each time you reroll it, you suffer damage equal to the result.</p><p></p><p>When you hit with an attack, you deal extra damage to the target equal to the number on your bloodlust die.</p>",
+    "effects": [
+      {
+        "uuid": "Item.ex1fZk2DQkdnTCTi",
+        "type": "effect",
+        "name": "Bloodlust (dmg dealt)",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 0
+      },
+      {
+        "uuid": "Item.XSyAvDYBgFgpdH8D",
+        "type": "effect",
+        "name": "Bloodlust (dmg received)",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 0
+      }
+    ],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!9Sj2zEVraQg0wp0C"
+}

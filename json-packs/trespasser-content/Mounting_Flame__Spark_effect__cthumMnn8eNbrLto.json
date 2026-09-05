@@ -1,0 +1,50 @@
+{
+  "folder": "zYnQ8lTjoTqCeCKC",
+  "name": "Mounting Flame (Spark effect)",
+  "type": "effect",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "<p>When the target suffers damage, all damaged creatures also gain burning 2.</p>",
+    "type": "on-trigger",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "damage-received",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "indefinite",
+        "value": null
+      }
+    ],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": false
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "_id": "cthumMnn8eNbrLto",
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!cthumMnn8eNbrLto"
+}

@@ -1,0 +1,45 @@
+{
+  "folder": "zYnQ8lTjoTqCeCKC",
+  "name": "Sparking Weapons (effect)",
+  "type": "effect",
+  "_id": "JJqY7bJfuOAKEWbx",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "<p>On its next attack, an affected creature deals INTENSITY extra damage and gains an extra spark on each creature it hits. Then this state is removed.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "damage_dealt",
+    "modifier": "<Int>",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": true
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!JJqY7bJfuOAKEWbx"
+}

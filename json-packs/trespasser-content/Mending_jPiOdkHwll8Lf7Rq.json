@@ -1,0 +1,58 @@
+{
+  "folder": "Kv0IrtLterUKyUss",
+  "name": "Mending",
+  "type": "effect",
+  "img": "systems/trespasser/assets/icons/states/Mending.svg",
+  "system": {
+    "description": "<p>You regain INTENSITY hit points at the start of your turn. Cancels out afflicted.</p>",
+    "type": "on-trigger",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "<Int>",
+    "conferredState": "",
+    "when": "start-of-turn",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "indefinite",
+        "value": null
+      }
+    ],
+    "intensityIncrement": 0,
+    "counterStates": [
+      {
+        "uuid": "Item.xClBUuzde7pga8Z5",
+        "name": "Afflicted",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "type": "effect"
+      }
+    ],
+    "isPrevailable": true,
+    "statusIcon": "systems/trespasser/assets/icons/states/Mending.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788357972487,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "_id": "jPiOdkHwll8Lf7Rq",
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!jPiOdkHwll8Lf7Rq"
+}

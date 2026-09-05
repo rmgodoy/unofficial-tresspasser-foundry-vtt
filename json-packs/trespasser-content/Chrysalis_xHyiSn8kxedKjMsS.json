@@ -1,0 +1,97 @@
+{
+  "name": "Chrysalis",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "support",
+    "type": "spell",
+    "target": "1 Creature",
+    "accuracyTest": "10",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Confer chrysalis 4. An affected creature becomes an indestructible obstacle immune to damage and skips their next turn. At the start of their following turn, they lose this state, gain strong (INTENSITY), and can make a recovery (INTENSITY).",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.3tMMJnZ7wsqIq6O8",
+            "type": "effect",
+            "name": "Chrysalis (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 4
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Confer chrysalis 6 instead.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.3tMMJnZ7wsqIq6O8",
+            "type": "effect",
+            "name": "Chrysalis (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 6
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "xHyiSn8kxedKjMsS",
+  "effects": [],
+  "folder": "uFFLaEtNTCEuRm1e",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!xHyiSn8kxedKjMsS"
+}

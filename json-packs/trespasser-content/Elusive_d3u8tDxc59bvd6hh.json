@@ -1,0 +1,32 @@
+{
+  "folder": "0dA8hEYzgvD7BDQN",
+  "name": "Elusive",
+  "type": "feature",
+  "_id": "d3u8tDxc59bvd6hh",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>A thief can slink through the shadows, emerging to strike when the moment is right. At the end of your turn, if you didn't attempt an attack deed, you become elusive. This special state grants several benefits:</p><ul><li><p>You gain a +2 bonus to guard and resist checks.</p></li><li><p>Enemies more than 4 squares away do not have line of sight to you.</p></li><li><p>When you make an attack deed, you lose elusive immediately, but you gain an extra spark against each target you hit.</p></li></ul>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!d3u8tDxc59bvd6hh"
+}

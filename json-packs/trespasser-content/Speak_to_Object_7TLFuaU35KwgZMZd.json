@@ -1,0 +1,30 @@
+{
+  "name": "Speak to Object",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation briefly grants speech to an inanimate object no larger than a cottage. The chosen item speaks from whatever mouth-like opening you think makes most sense, or otherwise grows a simple mouth with which to elocute. An object speaks in the languages known to its crafter and can relate events that have taken place near it, to a point.</p><p>An object has allegiance to its most recent owner, provided it has been treated fairly well, and may regard you warily. The conversation lasts no longer than <b>10 minutes (1 dungeon action).</b></p><p>With no sparks, the object is able to answer simple yes-or-no questions; with one, its vocabulary is limited to simple phrases and terms; with two, it may speak with a level of sophistication befitting the quality of its craftsmanship; and with three or more, the object speaks impeccably and will readily impart whatever it knows.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "7TLFuaU35KwgZMZd",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!7TLFuaU35KwgZMZd"
+}

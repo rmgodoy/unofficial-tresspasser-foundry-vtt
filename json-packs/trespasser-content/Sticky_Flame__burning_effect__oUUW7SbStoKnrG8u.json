@@ -1,0 +1,50 @@
+{
+  "folder": "zYnQ8lTjoTqCeCKC",
+  "name": "Sticky Flame (burning effect)",
+  "type": "effect",
+  "_id": "oUUW7SbStoKnrG8u",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "<p>While the target is affected, their movement is reduced by INTENSITY, and they take twice that much damage each time they move or are moved.</p>",
+    "type": "on-trigger",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "-<Int>*2",
+    "conferredState": "",
+    "when": "on-move",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "indefinite",
+        "value": null
+      }
+    ],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": true
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!oUUW7SbStoKnrG8u"
+}

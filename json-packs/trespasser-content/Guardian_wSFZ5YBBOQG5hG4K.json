@@ -1,0 +1,37 @@
+{
+  "folder": "ylesecywDbJtTb47",
+  "name": "Guardian",
+  "type": "talent",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>When you take the defend action, one ally within 4 squares also gains the benefits until the end of the round.</p>",
+    "usable": false,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "_id": "wSFZ5YBBOQG5hG4K",
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!wSFZ5YBBOQG5hG4K"
+}

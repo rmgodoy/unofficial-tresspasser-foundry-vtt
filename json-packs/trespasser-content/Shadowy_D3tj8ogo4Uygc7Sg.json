@@ -1,0 +1,46 @@
+{
+  "folder": "EtoWy6iRAXCIBITx",
+  "name": "Shadowy",
+  "type": "effect",
+  "_id": "D3tj8ogo4Uygc7Sg",
+  "img": "systems/trespasser/assets/icons/states/Shadowy.svg",
+  "system": {
+    "description": "<p>You gain this state while lurking in darkness and lose it while illuminated by a light source.</p><p></p><p>Most monsters can see perfectly in the dark and gain a +4 bonus to accuracy, guard, and resist while they have this state. Trespassers gain half these bonuses (+2), but only when attacking or defending against a light-dependent creature who is illuminated. Two light-dependent creatures in darkness have no bonuses against each other.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": false,
+    "statusIcon": "systems/trespasser/assets/icons/states/Shadowy.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788358173779,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!D3tj8ogo4Uygc7Sg"
+}

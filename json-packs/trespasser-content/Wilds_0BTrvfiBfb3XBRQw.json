@@ -1,0 +1,146 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Wilds",
+  "type": "craft",
+  "_id": "0BTrvfiBfb3XBRQw",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>The secret magic of the wilderness has been made known to you. You can channel the ferocity of beasts and cause plants to grow and decay at your whim. Wilds actions have the spell keyword, meaning they require a free hand or an implement such as a wand, rod, or staff. Those who take up the craft of the wilds can grant recoveries to allies, poison foes, change the battlefield, and alter the forms of friends and foes alike.</p>",
+    "keyAttribute": "spirit",
+    "deeds": [
+      {
+        "uuid": "Item.04iF2oA2dQtPY9fe",
+        "name": "Blooming Wave",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.JY4aoDxdiRPZJuci",
+        "name": "Briar Lash",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.xHyiSn8kxedKjMsS",
+        "name": "Chrysalis",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.BPUgMwe3V4SbEDTR",
+        "name": "Ensnaring Vine",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.I9UqLwp4mbXNYuDH",
+        "name": "Invigorate",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.i7izrDbxXzcUnrKr",
+        "name": "Lashing Growth",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.KEJ78o7GsooOcOIX",
+        "name": "Primal Fury",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.3nSD0yh5wZFAOt1Z",
+        "name": "Renewal",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.RJvHvcUOZnbHAvtn",
+        "name": "Spreading Toxin",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.hsR3xqvOjjH0T94l",
+        "name": "Springtide",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.702zjADs6shEwVbb",
+        "name": "Stinging Swarm",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.fIpuBG47xmSq0i6T",
+        "name": "Sunbeam",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.Ot1jLKxi1WtI8vbx",
+        "name": "Thorn Skin",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.3LkbId8jtBCLyHb7",
+        "name": "Toad Form",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.qrc3r708Id0gwccG",
+        "name": "Twisting Briars",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.rw20ADhLRmCA1wU4",
+        "name": "Twisting Roots",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.awChaKnINIgzKuZB",
+        "name": "Wild Surge",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.jQ80tkjugBq42cBc",
+        "name": "Greenblood",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.PV0JpXJsUcB0YfnH",
+        "name": "Wild Affinity",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!0BTrvfiBfb3XBRQw"
+}

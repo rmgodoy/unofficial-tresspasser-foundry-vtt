@@ -1,0 +1,30 @@
+{
+  "name": "Comprehend",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation grants you fluency and literacy in all mortal languages for up to <b>10 minutes (1 dungeon action)</b>. With no sparks, you can merely understand all words that are spoken to you. With one spark, you can speak the same language back to an interlocutor. With two sparks, you can read all languages. With three or more sparks, you can write in them as well.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "Q7DxVv3vN6d8RD6x",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Q7DxVv3vN6d8RD6x"
+}

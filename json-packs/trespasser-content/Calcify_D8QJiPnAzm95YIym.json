@@ -1,0 +1,96 @@
+{
+  "name": "Calcify",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "attack",
+    "type": "spell",
+    "target": "1 Creature",
+    "accuracyTest": "Resist",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Deal 2 Skill Die damage.",
+        "damage": "2<sd>",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Confer calcify 4 to the target. An affected creature loses 1 Action Point at the start of its turn, and damage against it is reduced by half. This state gains +2 INTENSITY at start of each round. At INTENSITY 10 or higher, the creature is immune to damage, takes no turn, and loses this state at the end of the round.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.WlchOHXFtt06GiWL",
+            "type": "effect",
+            "name": "Calcify (AP)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 4
+          },
+          {
+            "uuid": "Item.ZHqlljmu9kKSwQb4",
+            "type": "effect",
+            "name": "Calcify (Dmg)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 4
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "D8QJiPnAzm95YIym",
+  "effects": [],
+  "folder": "wkMakOFEmRRMkgCq",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!D8QJiPnAzm95YIym"
+}

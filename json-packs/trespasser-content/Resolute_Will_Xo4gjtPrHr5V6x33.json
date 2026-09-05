@@ -1,0 +1,32 @@
+{
+  "folder": "tAtmYxwuJWb7wctS",
+  "name": "Resolute Will",
+  "type": "feature",
+  "_id": "Xo4gjtPrHr5V6x33",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>The pain of a fresh wound only strengthens your will to endure. The first time are bloodied in combat, gain willful 2.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Xo4gjtPrHr5V6x33"
+}

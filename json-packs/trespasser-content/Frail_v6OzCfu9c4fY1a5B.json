@@ -1,0 +1,53 @@
+{
+  "folder": "Kv0IrtLterUKyUss",
+  "name": "Frail",
+  "type": "effect",
+  "_id": "v6OzCfu9c4fY1a5B",
+  "img": "systems/trespasser/assets/icons/states/Frail.svg",
+  "system": {
+    "description": "<p>Damage you take from attacks is increased by INTENSITY. Cancels out fortified.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "damage_received",
+    "modifier": "<Int>",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [
+      {
+        "uuid": "Item.dQEHNFfCf5zzM0Eg",
+        "name": "Fortified",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "type": "effect"
+      }
+    ],
+    "isPrevailable": true,
+    "statusIcon": "systems/trespasser/assets/icons/states/Frail.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788357910711,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!v6OzCfu9c4fY1a5B"
+}

@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": "9H6lzio5jLLVbGfk",
+  "name": "Prowess",
+  "color": null,
+  "sorting": "a",
+  "_id": "EwyY4fm3bI045dcj",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341956982,
+    "modifiedTime": 1773341956982,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "_key": "!folders!EwyY4fm3bI045dcj"
+}

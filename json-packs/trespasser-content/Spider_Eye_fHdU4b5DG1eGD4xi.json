@@ -1,0 +1,30 @@
+{
+  "name": "Spider Eye",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Casting this incantation causes your eye to jump out of its socket and sprout eight spidery legs for <b>10 minutes (1 dungeon action)</b>. You retain the ability to see through the eye and can control its movement with your thoughts. If the eye is damaged or destroyed, a new eye will grow in the socket of the course of several days. Each spark doubles the duration. With seven sparks, the magic becomes permanent. The spider eye will remain under your control until it is destroyed, and a new eye will grow in your socket.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "fHdU4b5DG1eGD4xi",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!fHdU4b5DG1eGD4xi"
+}

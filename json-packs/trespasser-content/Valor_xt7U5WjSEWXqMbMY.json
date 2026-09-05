@@ -1,0 +1,32 @@
+{
+  "folder": "V7GYEMQWPnsByh6d",
+  "name": "Valor",
+  "type": "feature",
+  "_id": "xt7U5WjSEWXqMbMY",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your knightly determination lets you shrug off the blows that rain down upon you in battle. You start each combat with valor. You can spend your valor to protect yourself and your allies; after you spend it, you regain it at the start of the next round. Track your valor with a coin or other token.</p><p></p><p>When you are hit by an attack, you can take a reaction and spend your valor to mitigate its effects. Choose one:</p><p></p><ul><li><p>Reduce damage you take by Skill Die.</p></li><li><p>Reduce the INTENSITY of a state conferred to you by half, to a minimum of 1.</p></li><li><p>Negate any forced movement effect that is part of the attack.</p></li></ul><p></p><p>You can also spend your valor to shield an ally from harm. If an ally in sight is hit by an attack, you can take a reaction ï‚ˆ to move up to your base speed to a square adjacent to that ally, then spend your valor on their behalf. You cannot use this ability if you cannot reach an adjacent square, or if your valor is spent.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "reaction"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!xt7U5WjSEWXqMbMY"
+}

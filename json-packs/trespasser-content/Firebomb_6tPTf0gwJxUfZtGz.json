@@ -1,0 +1,50 @@
+{
+  "name": "Firebomb",
+  "type": "item",
+  "img": "systems/trespasser/assets/icons/item.webp",
+  "folder": "bmSVYvyBZw44xI1C",
+  "system": {
+    "subType": "bombs",
+    "quantity": 1,
+    "damage": "3d6",
+    "description": "deals 3d6 in blast 3",
+    "price": 0,
+    "slotOccupancy": 1,
+    "equipped": false,
+    "equippable": false,
+    "placement": "hand",
+    "active": false,
+    "isLightFuel": false,
+    "isAmmo": false,
+    "usesFuel": false,
+    "resourceType": "ingredients",
+    "radius": 0,
+    "depletionDie": "d4",
+    "tier": "lesser",
+    "effects": [],
+    "deeds": [],
+    "incantations": [],
+    "talents": [],
+    "features": []
+  },
+  "_id": "6tPTf0gwJxUfZtGz",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!6tPTf0gwJxUfZtGz"
+}

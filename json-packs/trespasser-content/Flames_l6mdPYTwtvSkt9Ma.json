@@ -1,0 +1,158 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Flames",
+  "type": "craft",
+  "_id": "l6mdPYTwtvSkt9Ma",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>Your magic lets you command the element of fire, lighting enemies aflame and showering cinders upon the battlefield. Most Flames deeds have the spell keyword, meaning they must be performed with a free hand or an implement such as a wand, rod, or staff. Practitioners of flame magic excel at inflicting damage to groups of enemies and creating painful hazards on the battlefield, like clouds of flame and carpets of burning cinders.</p>",
+    "keyAttribute": "spirit",
+    "deeds": [
+      {
+        "uuid": "Item.EcS2C6UWfTRKUwcu",
+        "name": "Blazing Cloud",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.mUWeQyCzd3KYW2Vx",
+        "name": "Cauterize",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.j868EKYogYhmok5R",
+        "name": "Cinder Sweep",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.MU1Tqc90DtqImzS2",
+        "name": "Combustion",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.8yLpaoIh3swpSENN",
+        "name": "Curtain of Flames",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.AvSA8cRLrym13GI2",
+        "name": "Dehydrate",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.wRkdMhNtnX9zdrj2",
+        "name": "Dragon Breath",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.nmWxu6pB6xFUaDQc",
+        "name": "Ember",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.NWqN2rJmuoaVfmTe",
+        "name": "Fireball",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.vQMh3R8dgFSlGYhH",
+        "name": "Heat Wave",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.qswSx2fVTYGEXBaU",
+        "name": "Inferno",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.WcNf0FkjYosLSWHX",
+        "name": "Inner Flame",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.u5RQwmkbRz96Xz8y",
+        "name": "Leaping Flames",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.H4Wm2EBIkaZRETEj",
+        "name": "Melting Point",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.GOVcD078lgT4dwET",
+        "name": "Mounting Flame",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.1z90m4EyZJe6yx18",
+        "name": "Phoenix Blaze",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.sqNXcKKqNu4bhDzJ",
+        "name": "Scalding Blast",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.JvAFDleAM8cOlmPC",
+        "name": "Sticky Flame",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.yU0w1yuUJCp6M8V2",
+        "name": "Swelter",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.6dtPXl1c4ljQ1xpT",
+        "name": "Flamewarp",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.HGXeeyGPfPPNuac6",
+        "name": "Fire Affinity",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!l6mdPYTwtvSkt9Ma"
+}

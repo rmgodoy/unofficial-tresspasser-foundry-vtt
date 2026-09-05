@@ -1,0 +1,105 @@
+{
+  "name": "Mounting Flame",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "mighty",
+    "actionType": "attack",
+    "type": "spell",
+    "target": "1 Creature",
+    "accuracyTest": "Guard",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "At the end of the round, the target suffers burning damage. Add 1 Skill Die for each time it was hit by another attack this round.",
+        "damage": "<sd>",
+        "appliedEffects": [
+          {
+            "uuid": "Item.KJiG1Ez7rNJfsUwE",
+            "type": "effect",
+            "name": "Mounting Flame (base effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 0
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "When the target suffers damage, enemies in a burst 2 centered on the target take half as much damage.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.sPdHk4RjN3cC0PmE",
+            "type": "effect",
+            "name": "Mounting Flame (hit effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 0
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "When the target suffers damage, all damaged creatures also gain burning 2.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.cthumMnn8eNbrLto",
+            "type": "effect",
+            "name": "Mounting Flame (Spark effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 0
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 4,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "GOVcD078lgT4dwET",
+  "effects": [],
+  "folder": "UNuFsGQZBBrUVHwV",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!GOVcD078lgT4dwET"
+}

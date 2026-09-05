@@ -1,0 +1,30 @@
+{
+  "name": "Puppet Speech",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Another creature within sight of you becomes your mouthpiece. The next <b>thirteen words</b> you say will issue forth from that creature's mouth instead of your own, and in their voice. There is no time limit on this effect, and it renders the subject mute until you choose to speak. Each spark doubles the number of words you can say.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "UiJIxY26GtWg0SqX",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!UiJIxY26GtWg0SqX"
+}

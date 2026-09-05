@@ -1,0 +1,30 @@
+{
+  "name": "Wolfnose",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Your face twists and contorts into the grotesque image of a wolf, and you gain the powerful nose of that beast. The effect lasts for <b>1 hour.</b></p><p>Your casting check determines how accurate your ability to detect scents is: with no sparks, you can only vaguely smell creatures that have been in the area. With one, you can identify the precise types of creatures that have been in the area. With two, you can identify the number of creatures and how recently they have been nearby. With three or more, you can perfectly identify the scent trails of people you are familiar with.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "SbrghtyPTNa3Ojxv",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!SbrghtyPTNa3Ojxv"
+}

@@ -1,0 +1,32 @@
+{
+  "folder": "s2icBJbOcJYYKUJA",
+  "name": "Demonic Bargain",
+  "type": "feature",
+  "_id": "YoWOun2S23rSlqv5",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>You carry a demon as a passenger within your flesh in exchange for its power and insight. When you take up this calling, you must choose the type of demon with whom you have struck this bargain.</p><p></p><p>Choose or roll on the table below to determine a species. Demons are rarely seen, so their name in common parlance often refers to the way in which their presence is felt or heard.</p><p></p><p>Your demonic passenger has partial influence over your mind. Replace one of your alignment traits with its influence. You lose 1 endurance whenever you deny that trait. If you deny it three times, your demon abandons you; you must strike a new bargain with another.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!YoWOun2S23rSlqv5"
+}

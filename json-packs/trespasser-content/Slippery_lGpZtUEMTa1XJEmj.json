@@ -1,0 +1,37 @@
+{
+  "folder": "e2r3evndmbuKkexp",
+  "name": "Slippery",
+  "type": "talent",
+  "_id": "lGpZtUEMTa1XJEmj",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>When you spend two or more action points to move, you also gain a +2 bonus to either guard or resist until the end of the round.</p>",
+    "usable": false,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!lGpZtUEMTa1XJEmj"
+}

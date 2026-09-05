@@ -1,0 +1,146 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Illusion",
+  "type": "craft",
+  "_id": "o2rk97ovLH9DiaAy",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>With care and practice, you have learned to harness magic to manipulate the minds of others. Your illusions and enchantments alter the physical and mental state of friend and foe alike, bolstering your allies and debilitating your adversaries. Deeds of this craft all have the spell keyword, meaning they must be performed with a free hand or an implement, such as a wand, rod, or staff. Practitioners of illusion excel at supporting their allies, as well as combining, manipulating, and erasing magical energy.</p>",
+    "keyAttribute": "intellect",
+    "deeds": [
+      {
+        "uuid": "Item.4rYE1DmIDNlY1teS",
+        "name": "Alter Mass",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.CkhrYvemrzv4KlTR",
+        "name": "Beckoning Word",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.IzKPeoWmWA790iNG",
+        "name": "Dazing Light",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.JW4hicJeAitSkGlS",
+        "name": "Drowse",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.VORb8mgRsXvG2I7q",
+        "name": "Enthrall",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.j8udQEhbfEncrFqH",
+        "name": "Gleaming Treasure",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.0QZ0nKfktCzUaTqL",
+        "name": "Haze of Dreams",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.KJZXw1QaBWrFcbOz",
+        "name": "Illusory Terrain",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.zDI2O2mLKqMD52iv",
+        "name": "Maddening Mirth",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.yuMRCN4R9yKRWAsd",
+        "name": "Mirror Cage",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.pK154CIFoWanms9n",
+        "name": "Phantom Beast",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.hzErAFU3xAjst6ll",
+        "name": "Purify Thoughts",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.ja6yZlJ3vwo5zKkA",
+        "name": "Reflection Swarm",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.9wpxYs6FfiBvgJcy",
+        "name": "Repulsion",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.5wLIwZ08lyz4XCfg",
+        "name": "Spectral Slash",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.1Q2hDsMBt3FyQ1Kl",
+        "name": "Vexing Babble",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.5EZzEhorJB5yB515",
+        "name": "Warping Door",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.EDYetAsXsh9bouRO",
+        "name": "Minor Projection",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.RQeCErmhu36oHDu3",
+        "name": "Illusion Affinity",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!o2rk97ovLH9DiaAy"
+}

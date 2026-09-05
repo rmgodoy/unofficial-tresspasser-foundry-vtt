@@ -1,0 +1,39 @@
+{
+  "name": "Cloak",
+  "type": "armor",
+  "img": "systems/trespasser/assets/icons/armor.webp",
+  "folder": "bghEb2L1A8OBEE75",
+  "system": {
+    "placement": "outer",
+    "weight": "L",
+    "armorRating": 0,
+    "armorDie": "d6",
+    "price": 20,
+    "depletionDie": "d4",
+    "slotOccupancy": 1,
+    "broken": false,
+    "effects": [],
+    "description": "",
+    "equipped": false
+  },
+  "_id": "XHNA7z7jAhh5Q1dA",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!XHNA7z7jAhh5Q1dA"
+}

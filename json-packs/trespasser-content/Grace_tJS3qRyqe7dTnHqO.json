@@ -1,0 +1,134 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Grace",
+  "type": "craft",
+  "_id": "tJS3qRyqe7dTnHqO",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>Your swiftness and precision make up for a lack of raw strength. You are an agile fighter who soars effortlessly through the battlefield, dizzying others with your speed and precision and always staying one step ahead of the next swing. Most deeds of this craft are melee or versatile, meaning a graceful character can be effective with a melee weapon, missile weapon, or both. Those who employ grace as their craft excel at battlefield mobility, striking multiple targets and debilitating their enemies with bleeding and other states.</p>",
+    "keyAttribute": "agility",
+    "deeds": [
+      {
+        "uuid": "Item.cgdKXOnpxYCXA3YC",
+        "name": "Blinding Blitz",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.XzRy5AQ1CAN9lAMK",
+        "name": "Cat Stance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.Wfx77mb9YDEUY6Ak",
+        "name": "Delayed Flurry",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.OZ7MjPbSDnl7dwzY",
+        "name": "Dizzying Dance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.7WOFv0XIqToYQt0Q",
+        "name": "Faltering Flurry",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.iWayU5ZATfw1FQMG",
+        "name": "Impelling Word",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.koka6Q39DD7994aS",
+        "name": "Impossible Speed",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.zFpqJ27AxCULCmno",
+        "name": "Momentum",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.lG3eKcZq96VQrU62",
+        "name": "Nimble Steps",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.r2LnOgLKjQTLWiL0",
+        "name": "One Thousand Cuts",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.cnHdmP98GZ09Kgdj",
+        "name": "Passing Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.2D2X2M7TaQECfUAq",
+        "name": "Razor's Edge",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.SeWhFVdIZNXYpsXk",
+        "name": "Running Razor",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.o4nvW6TsbUz0szsw",
+        "name": "Soaring Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.vV4C1VIu2tXdOIRV",
+        "name": "Steel Drift",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.2iQtnqDcsOQ31r3i",
+        "name": "Counter Rush",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.H966f2qDt2nchUbp",
+        "name": "Swift Retreat",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!tJS3qRyqe7dTnHqO"
+}

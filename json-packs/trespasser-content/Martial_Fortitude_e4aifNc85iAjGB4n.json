@@ -1,0 +1,40 @@
+{
+  "folder": "xbosWVe5nlqzPxK7",
+  "name": "Martial Fortitude",
+  "type": "feature",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>When you take up this calling, your hit points increase by an extra +10. This makes your hit point total at first level equal to 20 + 2 (MIGHT).</p>",
+    "effects": [
+      {
+        "uuid": "Item.BNejgZydElAVColT",
+        "type": "effect",
+        "name": "Martial Fortitude (effect)",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 0
+      }
+    ],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "_id": "e4aifNc85iAjGB4n",
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!e4aifNc85iAjGB4n"
+}

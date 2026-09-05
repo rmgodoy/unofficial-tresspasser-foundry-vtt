@@ -1,0 +1,32 @@
+{
+  "folder": "nNCj2YKS5jj1KqDL",
+  "name": "Greater Onslaught",
+  "type": "feature",
+  "_id": "uQGaM38fS7Z5wB82",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>When you use onslaught, you can spend 2 Action Points to make two weapon attacks or maneuvers, instead of one.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!uQGaM38fS7Z5wB82"
+}

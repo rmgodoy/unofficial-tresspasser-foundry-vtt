@@ -1,0 +1,134 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Brawling",
+  "type": "craft",
+  "_id": "7ajWI3GRLsgG2inL",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>You don't need magic, clever tricks, or even a weapon- you're deadly with your bare hands. You may have had some formal training, but it's more likely you've picked up the art of barehanded fighting from the school of hard knocks. Brawlers excel at moving foes, toppling them, and breaking their defenses. </p><p></p><p>All brawling deeds have the innate keyword, meaning they don't require a particular weapon or implement to be used. You can attempt them while holding a sword and shield, a two-handed weapon, or even while your hands are empty. Most brawling deeds target one or more adjacent creatures. Brawling deeds can always be used in place of melee deeds when a feature, talent, or magic item specifies a melee deed.</p>",
+    "keyAttribute": "mighty",
+    "deeds": [
+      {
+        "uuid": "Item.Kg5CxXDO8gBIoy14",
+        "name": "Bell Ringer",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.5v5q0wdLLtH2Hkc4",
+        "name": "Bounce Back",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.iNVFM8oWwYBNtRu2",
+        "name": "Composure",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.HnkYC1QmxSWkKfyU",
+        "name": "Fling",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.U7S6l3rrsNjSrP5q",
+        "name": "Haymaker",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.wofbQSaAYJicNshS",
+        "name": "Heaven on High",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.Smzy7vrWiULRAhRb",
+        "name": "Iron Grip",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.mi0PpOLfAQ4oWobo",
+        "name": "Kick Up Dust",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.jJbGvRoJIOQd5ERU",
+        "name": "Leaping Tackle",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.jOqRENSk9HvBBC4u",
+        "name": "Repelling Kick",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.VFnQeL009fZfyfl7",
+        "name": "Staggering Force",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.XOfWVZvlr8aiHvlH",
+        "name": "Stone Breaker",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.x7tqE4q8s66vxXp2",
+        "name": "Stone Shatter",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.VkACgUU8uoHVR8rt",
+        "name": "Storm Kick",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.GL6M4o1Rie49Kl3o",
+        "name": "Sucker Punch",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.LTfPkWi2IQzKiRU3",
+        "name": "Sharpened Focus",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.BK2o7cio0tcPrBa9",
+        "name": "Surpassing Vigor",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!7ajWI3GRLsgG2inL"
+}

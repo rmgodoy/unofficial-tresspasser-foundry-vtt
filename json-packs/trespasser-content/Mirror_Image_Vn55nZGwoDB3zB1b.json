@@ -1,0 +1,30 @@
+{
+  "name": "Mirror Image",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Upon finishing this incantation, an illusory duplicate splits off of your body. It resembles you as you are dressed and equipped at the time of casting, though it is immaterial and cannot affect the physical world, though it does dissipate into blue smoke if struck. You can issue telepathic commands to the illusion. It persists for <b>10 minutes (1 dungeon action)</b>. Each spark increases the duration by another <b>10 minutes</b> or grants an additional duplicate.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "Vn55nZGwoDB3zB1b",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Vn55nZGwoDB3zB1b"
+}

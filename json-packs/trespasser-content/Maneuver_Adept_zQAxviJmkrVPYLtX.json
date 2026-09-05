@@ -1,0 +1,32 @@
+{
+  "folder": "bSRpanFmva0YymEQ",
+  "name": "Maneuver Adept",
+  "type": "feature",
+  "_id": "zQAxviJmkrVPYLtX",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Unlike other characters, you can earn sparks on your accuracy check when you attempt a maneuver. Further, when you hit with a maneuver, you deal Skill Die damage to the target. Maneuvers are listed in Chapter III: Combat.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!zQAxviJmkrVPYLtX"
+}

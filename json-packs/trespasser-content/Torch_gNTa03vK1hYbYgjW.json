@@ -1,0 +1,58 @@
+{
+  "name": "Torch",
+  "type": "item",
+  "img": "systems/trespasser/assets/icons/item.webp",
+  "folder": "D0JtOtdvJg3F3oSM",
+  "system": {
+    "subType": "light_source",
+    "price": 5,
+    "radius": 6,
+    "depletionDie": "d4",
+    "description": "<p>Provides light in a radius of 4. When used as a weapon, it deals 1d4 damage and can confer Burning.</p>",
+    "effects": [
+      {
+        "uuid": "Item.U8u8iFYvAEaL6Y5Z",
+        "type": "effect",
+        "name": "Burning",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 2
+      }
+    ],
+    "quantity": 1,
+    "slotOccupancy": 1,
+    "equipped": false,
+    "equippable": false,
+    "placement": "hand",
+    "active": false,
+    "isLightFuel": false,
+    "isAmmo": false,
+    "usesFuel": false,
+    "resourceType": "ingredients",
+    "tier": "lesser",
+    "damage": "",
+    "deeds": [],
+    "incantations": [],
+    "talents": [],
+    "features": []
+  },
+  "_id": "gNTa03vK1hYbYgjW",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!gNTa03vK1hYbYgjW"
+}

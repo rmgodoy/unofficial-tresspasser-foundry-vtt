@@ -1,0 +1,32 @@
+{
+  "folder": "EAhBRWmey2GCzDgS",
+  "name": "Minor Projection",
+  "type": "feature",
+  "_id": "EDYetAsXsh9bouRO",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>If you concentrate, you can create small illusions in your environment, such as a false object in hand or a person walking down a nearby hallway. They cannot be touched, heard, or perceived in any way other than sight, and close inspection will reveal obvious flaws. The further away you are, the less detailed a form you can create- forming an effect beyond a distance of one hundred feet produces little more than a blurry outline. When you test the limit of your abilities with this feature, the Judge may call for an INTELLECT | MAGIC check.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!EDYetAsXsh9bouRO"
+}

@@ -1,0 +1,37 @@
+{
+  "folder": "e2r3evndmbuKkexp",
+  "name": "Pilfer",
+  "type": "talent",
+  "_id": "RCJNuVhWKtl1eaWR",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>On your next melee attack deed, take a random object from the inventory of one target you hit. If you spent an extra action point, you can take their weapon or another held object instead. You must have a free hand to use this talent.</p>",
+    "usable": true,
+    "rollDice": "",
+    "focusCost": 1,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "action"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!RCJNuVhWKtl1eaWR"
+}

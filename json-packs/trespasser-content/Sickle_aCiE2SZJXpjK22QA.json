@@ -1,0 +1,57 @@
+{
+  "name": "Sickle",
+  "type": "weapon",
+  "img": "systems/trespasser/assets/icons/weapon.webp",
+  "folder": "dTEoo2MfxCrvwTUA",
+  "system": {
+    "type": "melee",
+    "weaponDie": "d4",
+    "depletionDie": "d4",
+    "price": 50,
+    "effects": [
+      {
+        "uuid": "Item.dMCSC3lbB5v70qwR",
+        "type": "effect",
+        "name": "Bleeding",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 2
+      }
+    ],
+    "range": "",
+    "needsAmmo": false,
+    "properties": {
+      "twoHanded": false,
+      "thrown": false,
+      "fragile": false
+    },
+    "isLightSource": false,
+    "radius": 0,
+    "active": false,
+    "usesFuel": false,
+    "slotOccupancy": 1,
+    "equipped": false,
+    "enhancementEffects": [],
+    "oilEffects": [],
+    "extraDeeds": []
+  },
+  "_id": "aCiE2SZJXpjK22QA",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!aCiE2SZJXpjK22QA"
+}

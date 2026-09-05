@@ -1,0 +1,45 @@
+{
+  "folder": "LGeJdS4GJlqCm4Z8",
+  "name": "Flanker",
+  "type": "talent",
+  "_id": "lG3RahnFysQXCFN8",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>When you and an ally engage a creature from direct opposite sides, that enemy has -2 penalty to guard against either of your attacks.</p>",
+    "usable": false,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [
+      {
+        "uuid": "Item.WfuOEuseO6gw4foS",
+        "type": "effect",
+        "name": "Flanked",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 0
+      }
+    ],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!lG3RahnFysQXCFN8"
+}

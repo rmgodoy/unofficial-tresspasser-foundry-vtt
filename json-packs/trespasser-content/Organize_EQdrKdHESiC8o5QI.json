@@ -1,0 +1,30 @@
+{
+  "name": "Organize",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>A hallmark of classical magicians, this incantation cleans a messy interior space. Books will return to their shelves, chairs and tables will be straightened, and dishware will find its way to the proper cupboard. Objects that fail to find a proper place will neatly stack themselves on the edges of the room.</p><p>With zero or one enhancement, this incantation merely returns stray objects to their proper place. With two, it also dusts the room. With three, it mops the floor. With five or more, it dusts the room, mops the floor, cleanses soiled clothes, removes carpet stains, and spritzes the air with a pleasant, odor-neutralizing scent.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "EQdrKdHESiC8o5QI",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!EQdrKdHESiC8o5QI"
+}

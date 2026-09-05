@@ -1,0 +1,45 @@
+{
+  "folder": "ylesecywDbJtTb47",
+  "name": "Armored Swiftness",
+  "type": "talent",
+  "_id": "vvmsKSaHbFlhMw6s",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>Your base speed increases by +1, and you can wear any amount of heavy armor, regardless of your MIGHT.</p>",
+    "usable": false,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [
+      {
+        "uuid": "Item.tZThrbpEO2X8reHw",
+        "type": "effect",
+        "name": "Bonus Speed (Armored Swiftness)",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 1
+      }
+    ],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!vvmsKSaHbFlhMw6s"
+}

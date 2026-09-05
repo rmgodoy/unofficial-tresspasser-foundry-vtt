@@ -1,0 +1,50 @@
+{
+  "name": "Prybar",
+  "type": "item",
+  "img": "systems/trespasser/assets/icons/item.webp",
+  "folder": "D0JtOtdvJg3F3oSM",
+  "system": {
+    "subType": "tool",
+    "price": 15,
+    "description": "<p>A prybar can be used to quietly break doors and locks. If the situation is appropriate, the party can use a prybar to attempt the <strong>vandalize</strong> dungeon action without producing noise and raising the alarm level. Make a <strong>depletion check</strong> for a prybar each time you use it.</p>",
+    "quantity": 1,
+    "slotOccupancy": 1,
+    "equipped": false,
+    "equippable": false,
+    "placement": "hand",
+    "active": false,
+    "isLightFuel": false,
+    "isAmmo": false,
+    "usesFuel": false,
+    "resourceType": "ingredients",
+    "radius": 0,
+    "depletionDie": "d4",
+    "tier": "lesser",
+    "damage": "",
+    "effects": [],
+    "deeds": [],
+    "incantations": [],
+    "talents": [],
+    "features": []
+  },
+  "_id": "sJ9hdx6BSSEQC7zv",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!sJ9hdx6BSSEQC7zv"
+}

@@ -1,0 +1,50 @@
+{
+  "name": "Cooking Set",
+  "type": "item",
+  "img": "systems/trespasser/assets/icons/item.webp",
+  "folder": "D0JtOtdvJg3F3oSM",
+  "system": {
+    "subType": "tool",
+    "price": 50,
+    "description": "<p>This humble set of pots, pans, and ladles allows you to cook more efficiently on the road. When you take the <strong>cook</strong> camp activity, you can spend up to three ingredients instead of just one. On a success, you create that many <strong>fine rations</strong>.</p>",
+    "quantity": 1,
+    "slotOccupancy": 1,
+    "equipped": false,
+    "equippable": false,
+    "placement": "hand",
+    "active": false,
+    "isLightFuel": false,
+    "isAmmo": false,
+    "usesFuel": false,
+    "resourceType": "ingredients",
+    "radius": 0,
+    "depletionDie": "d4",
+    "tier": "lesser",
+    "damage": "",
+    "effects": [],
+    "deeds": [],
+    "incantations": [],
+    "talents": [],
+    "features": []
+  },
+  "_id": "xnZXqWFPLY6Iq2lA",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!xnZXqWFPLY6Iq2lA"
+}

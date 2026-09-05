@@ -1,0 +1,97 @@
+{
+  "name": "Staggering Force",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "mighty",
+    "actionType": "attack",
+    "type": "innate",
+    "target": "1 Adjacent Creature",
+    "accuracyTest": "Guard",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Deal 2 Skill Die damage. Push 2.",
+        "damage": "2<sd>",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Add 1 Skill Die damage. The target loses 2 Action Points at the start of its next turn.",
+        "damage": "<sd>",
+        "appliedEffects": [
+          {
+            "uuid": "Item.M24kmNvtHu4OBiY8",
+            "type": "effect",
+            "name": "Loose AP (Staggering Force)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 2
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "It loses 3 Action Points instead.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.M24kmNvtHu4OBiY8",
+            "type": "effect",
+            "name": "Loose AP (Staggering Force)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 3
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 4,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "VFnQeL009fZfyfl7",
+  "effects": [],
+  "folder": "4vByKoIHbkvJO9vb",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!VFnQeL009fZfyfl7"
+}

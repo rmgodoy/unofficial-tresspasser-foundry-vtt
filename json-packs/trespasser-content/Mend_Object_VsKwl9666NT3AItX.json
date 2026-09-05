@@ -1,0 +1,30 @@
+{
+  "name": "Mend Object",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation may be used to quickly repair an object or structure. Because it calls upon the lingering shadow of the original artisan to make the repairs, this incantation may only affect items wrought by an artisan's hand. Further, it cannot revert an object to an organic state, i.e., turn a wooden plank back into tree. If used upon a structure, this incantation may only repair ten cubic feet of material at a time.</p><p>An object may not be repaired unless all its constituent parts are present or other suitable materials are within <b>100 ft.</b> of your ritual site. The phantom favors unworked materials but will resort to claiming whatever are available, so trespassers should take caution in attempting to restore a rare magical artifact, lest their other relics be salvaged in the process.</p><p>The number of sparks affects the quality of the work: with no sparks, the incantation recalls a weary phantom whose work is second-rate; with three or more, the invoked phantom works with the same skill and efficiency it possessed at the time of the original crafting.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "VsKwl9666NT3AItX",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!VsKwl9666NT3AItX"
+}

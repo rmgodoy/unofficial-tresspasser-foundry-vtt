@@ -1,0 +1,30 @@
+{
+  "name": "Shadow Sphere",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Completing this incantation causes a <b>100-ft.-diameter</b> sphere of darkness to appear at a point within sight. No light from outside penetrates the interior of the sphere, and no light, magical or otherwise, can be produced inside of it. The sphere persists for up to ten minutes. Each spark doubles either the duration or the diameter of the sphere.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "U5Jr0Fz0r8anQDeK",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!U5Jr0Fz0r8anQDeK"
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Compass Stone",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>You attune yourself to a specific small stone of your choosing. For <b>1 day (3 travel actions)</b>, you instinctively know the location of that stone and can find your way back to it. This incantation only gives you a heading, not an exact path back.</p><p>Each spark will double the duration and increase the precision of the magic and your ability to navigate to the stone.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "l2n1PCn55W4FJp2I",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!l2n1PCn55W4FJp2I"
+}

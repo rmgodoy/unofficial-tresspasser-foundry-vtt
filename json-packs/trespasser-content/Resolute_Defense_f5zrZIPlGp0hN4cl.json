@@ -1,0 +1,32 @@
+{
+  "folder": "tA0bfW3qB2iQEeiu",
+  "name": "Resolute Defense",
+  "type": "feature",
+  "_id": "f5zrZIPlGp0hN4cl",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p> The pain of a fresh wound heightens your awareness and tightens your defenses. When you become bloodied in combat, gain guarded 2.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!f5zrZIPlGp0hN4cl"
+}

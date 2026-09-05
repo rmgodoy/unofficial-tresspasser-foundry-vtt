@@ -1,0 +1,32 @@
+{
+  "folder": "HOEd4pJSqdnr8S4Y",
+  "name": "Pin Down",
+  "type": "feature",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your mastery over melee fighting lets you trap enemies where they cannot escape you. When an enemy in your melee range spends movement points, you can take a reaction to deal Weapon Die damage to them. If you deal 5 or more damage, they do not move, and their movement points are set to 0. After you use this ability with a reach weapon, the enemy can always move 1 square toward you.</p>",
+    "type": "reaction",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "_id": "9irrpfFyrBLgNCpQ",
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!9irrpfFyrBLgNCpQ"
+}

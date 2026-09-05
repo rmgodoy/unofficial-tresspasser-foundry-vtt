@@ -1,0 +1,32 @@
+{
+  "folder": "7AfI2UFVY4FKaIB2",
+  "name": "Myriad Aspects",
+  "type": "feature",
+  "_id": "84C397qYkChU41u2",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Choose a second aspect appropriate for the deity or power you worship. You gain its benefit, and you can confer either revelation effect with your revelation. You can choose this enhancement multiple times.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!84C397qYkChU41u2"
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Find Familiar",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This ritual grants you a mystical servant of dubious origin. Once your familiar is found, it cannot be changed. It remains in your service even beyond death.</p><p>Familiars take the form of small animals or miniature monsters. Regardless of its shape, it possesses enough intelligence to follow simple commands. Your familiar can speak if it possesses a mouth; it knows the languages of its master. You can see through its eyes for up to <b>10 minutes (1 dungeon action)</b> per day.</p><p>Your familiar flees to your pocket at the first sign of danger. When caught in the open, it uses your <b>defense</b> and possesses a hit point total equal to half your own. If your familiar is defeated, it dies on the spot.</p><p>You can cast this incantation again to call back your familiar after its death. On a success, it will find its way back in <b>2d6</b> weeks; the Judge makes this roll in secret. Each spark you roll reduces its journey by one week.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "cYwS2TvSFS9vtI98",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!cYwS2TvSFS9vtI98"
+}

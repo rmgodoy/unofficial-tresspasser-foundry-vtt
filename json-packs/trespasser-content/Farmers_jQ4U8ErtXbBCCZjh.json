@@ -1,0 +1,23 @@
+{
+  "name": "Farmers",
+  "type": "Item",
+  "folder": "sClj6SInayupgqD6",
+  "_id": "jQ4U8ErtXbBCCZjh",
+  "description": "",
+  "sorting": "a",
+  "sort": 0,
+  "color": null,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341956982,
+    "modifiedTime": 1773341956982,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "_key": "!folders!jQ4U8ErtXbBCCZjh"
+}

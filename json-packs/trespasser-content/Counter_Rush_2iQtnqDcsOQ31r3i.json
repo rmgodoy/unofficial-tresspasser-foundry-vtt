@@ -1,0 +1,32 @@
+{
+  "folder": "X8qsCbcdHMhHpol8",
+  "name": "Counter Rush",
+  "type": "feature",
+  "_id": "2iQtnqDcsOQ31r3i",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>When you spark on a guard or resist check against a spell or missile attack deed, you can take a reaction to move 5 toward the attacker. Then, if you are engaging them, you can deal $ damage to them per spark.</p>",
+    "type": "reaction",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!2iQtnqDcsOQ31r3i"
+}

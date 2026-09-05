@@ -1,0 +1,30 @@
+{
+  "name": "Instill Emotions",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>When you cast this incantation, up to ten nearby creatures experience an emotion of your choice: fear, joy, sorrow, guilt, etc. The effect lasts for up to <b>10 minutes (1 dungeon action)</b>, while the power of the effect depends upon your casting check. With no sparks, the emotion will be no more than a subtle undercurrent. With three or more sparks, you overwhelm the subjects with a rush of emotion.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "wc0Sg7vNw9Cv7Jco",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!wc0Sg7vNw9Cv7Jco"
+}

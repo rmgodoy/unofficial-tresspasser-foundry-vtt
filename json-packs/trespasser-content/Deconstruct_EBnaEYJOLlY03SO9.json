@@ -1,0 +1,30 @@
+{
+  "name": "Deconstruct",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation causes a single brittle object in sight to shatter. Durable materials like iron are far more resistant to the effect than glass, porcelain, ceramic, or wood. The power of the spell is dependent on your casting check: with no sparks, the object merely forms a number of hairline cracks that render it easier to shatter by hand, while with three or more, the object violently explodes into tiny pieces.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "EBnaEYJOLlY03SO9",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!EBnaEYJOLlY03SO9"
+}

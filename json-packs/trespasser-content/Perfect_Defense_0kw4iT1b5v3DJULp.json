@@ -1,0 +1,32 @@
+{
+  "folder": "94i4SA5yeWXnmRcb",
+  "name": "Perfect Defense",
+  "type": "feature",
+  "_id": "0kw4iT1b5v3DJULp",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>When you spend your valor, you can choose to reduce the damage you or the chosen ally takes by 5 Skill Die. If you do, you no longer regain valor for the rest of the encounter.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!0kw4iT1b5v3DJULp"
+}

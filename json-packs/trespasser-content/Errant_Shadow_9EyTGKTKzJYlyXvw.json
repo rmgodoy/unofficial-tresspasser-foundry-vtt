@@ -1,0 +1,32 @@
+{
+  "folder": "rd8qkIjMGUz9id2Q",
+  "name": "Errant Shadow",
+  "type": "feature",
+  "_id": "9EyTGKTKzJYlyXvw",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your shadow is a separate entity from yourself, and you can dispatch in your service a few minutes at a time. It cannot speak, but it can gesture. It can also interact with other shadows, and by extension, objects that cast them. It could, for example, pick up a quill by its shadow to write a message. Whenever a task or challenge tests its abilities, make an AGILITY | MAGIC check to control it.</p><p></p><p>While dispatched, your errant shadow can suffer harm, and the wounds it suffers appear upon you. Combat and other disturbances will send it scampering back to your side.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!9EyTGKTKzJYlyXvw"
+}

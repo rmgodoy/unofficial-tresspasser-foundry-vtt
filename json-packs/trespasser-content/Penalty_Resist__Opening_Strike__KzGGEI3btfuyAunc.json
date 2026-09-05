@@ -1,0 +1,54 @@
+{
+  "folder": "zYnQ8lTjoTqCeCKC",
+  "name": "Penalty Resist (Opening Strike)",
+  "type": "effect",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "",
+    "type": "on-trigger",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "resist",
+    "modifier": "-2",
+    "conferredState": "",
+    "when": "use",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "round",
+        "value": 1
+      },
+      {
+        "mode": "trigger",
+        "value": 1
+      }
+    ],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": false
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "_id": "KzGGEI3btfuyAunc",
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!KzGGEI3btfuyAunc"
+}

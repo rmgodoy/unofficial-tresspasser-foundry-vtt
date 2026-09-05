@@ -1,0 +1,146 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Treachery",
+  "type": "craft",
+  "_id": "EiH7vzP1M5ajzkK0",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>Honor has no place on the battlefield, and you've found a way to become formidable without it. You are an expert at dirty fighting, using any cruel ploy at your disposal to gain an upper hand, however small- after all, battlefields across the land are littered with the corpses of those who chose to fight honorably. </p><p></p><p>Treachery deeds encompass a variety of tactics- many have the tool type, meaning they require a free hand to deploy some kind of item or instrument. Treacherous fighters excel at misdirecting, disabling and poisoning their enemies.</p>",
+    "keyAttribute": "intellect",
+    "deeds": [
+      {
+        "uuid": "Item.nVbSkBaBn9Uqn4EA",
+        "name": "Afflicted Edge",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.smwyKo7D0EHmaiYe",
+        "name": "Black Powder Bomb",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.u2lUPAQZO7m5Q9vX",
+        "name": "Black Powder Trap",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.lE7EfYYXeOCX9CoI",
+        "name": "Blinding Escape",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.Lk5MJYzWzk4RRArz",
+        "name": "Blinding Powder",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.DTbklCadAlgRLxbF",
+        "name": "Bottled Smoke",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.sYjiMM7gwBAn6AaL",
+        "name": "Confound",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.AtBBQSRjqQP32vsL",
+        "name": "From Every Shadow",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.Ao2rE7jSVQtK9QMc",
+        "name": "Gang Up",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.tSRRfKobx4BKNYBE",
+        "name": "Grappling Hook",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.Z83fgHn7usQUWDz1",
+        "name": "Misdirect",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.Ndhu2Jcg3GIEdYqd",
+        "name": "Nightshade Dust",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.KO1ZEDKo8iBhQuSp",
+        "name": "Rat Stance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.J7o38xtCbp0nKzNG",
+        "name": "Snap Trap",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.5jgurYxIPVVdic9N",
+        "name": "Swerving Step",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.eVXk26K28LNFC6YL",
+        "name": "Victimize",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.cT5gwiN2t9C2PyiP",
+        "name": "Viper Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.rR9O613LoLd9hVly",
+        "name": "Cowardly Flight",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.dsGBinADIkLH13FA",
+        "name": "Mask Intentions",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!EiH7vzP1M5ajzkK0"
+}

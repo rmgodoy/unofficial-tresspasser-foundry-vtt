@@ -1,0 +1,46 @@
+{
+  "folder": "EtoWy6iRAXCIBITx",
+  "name": "Defeated",
+  "type": "effect",
+  "_id": "6FxfJOtvNfItQmCO",
+  "img": "systems/trespasser/assets/icons/states/Defeated.svg",
+  "system": {
+    "description": "<p>You gain this state when you are reduced to 0 hit points and then fail a tenacity check. You don't take damage or regain hit points from states, and you also ignore minor environmental hazards, such as terrain damage.</p><p></p><p>While defeated, you do not roll initiative or take a turn in combat. If you regain hit points from a recovery, you lose this condition, and you can roll initiative and take a turn as normal in the following round.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": false,
+    "statusIcon": "systems/trespasser/assets/icons/states/Defeated.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788358162784,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!6FxfJOtvNfItQmCO"
+}

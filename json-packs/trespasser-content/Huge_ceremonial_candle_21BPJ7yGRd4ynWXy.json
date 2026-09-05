@@ -1,0 +1,50 @@
+{
+  "name": "Huge ceremonial candle",
+  "type": "item",
+  "img": "systems/trespasser/assets/icons/item.webp",
+  "folder": "bmSVYvyBZw44xI1C",
+  "system": {
+    "subType": "light_source",
+    "quantity": 1,
+    "radius": 2,
+    "depletionDie": "d6",
+    "description": "",
+    "price": 0,
+    "slotOccupancy": 1,
+    "equipped": false,
+    "equippable": false,
+    "placement": "hand",
+    "active": false,
+    "isLightFuel": false,
+    "isAmmo": false,
+    "usesFuel": false,
+    "resourceType": "ingredients",
+    "tier": "lesser",
+    "damage": "",
+    "effects": [],
+    "deeds": [],
+    "incantations": [],
+    "talents": [],
+    "features": []
+  },
+  "_id": "21BPJ7yGRd4ynWXy",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!21BPJ7yGRd4ynWXy"
+}

@@ -1,0 +1,37 @@
+{
+  "folder": "BQJ6JR4B09WSPXrF",
+  "name": "Spell Shroud",
+  "type": "talent",
+  "_id": "D4fiqIonA7ExSTRG",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>Take this reaction when any ally in your spell rangesuffers damage from an attack. Spend any amount of focus and reduce the damage taken by Skill Die for each point you spent. If the damage was from a spell, you can reroll any number of the dice one time.</p>",
+    "usable": true,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "reaction"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!D4fiqIonA7ExSTRG"
+}

@@ -1,0 +1,32 @@
+{
+  "folder": "HOEd4pJSqdnr8S4Y",
+  "name": "Determined Accuracy",
+  "type": "feature",
+  "_id": "eNEOs00z64iREDTU",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>The stinging pain of a fresh wound only sharpens your senses. The first time you are bloodied in combat, gain accurate 2.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!eNEOs00z64iREDTU"
+}

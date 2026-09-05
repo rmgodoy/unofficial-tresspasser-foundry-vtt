@@ -1,0 +1,46 @@
+{
+  "folder": "EtoWy6iRAXCIBITx",
+  "name": "Toppled",
+  "type": "effect",
+  "_id": "SihFJEG1cPOzBaXN",
+  "img": "systems/trespasser/assets/icons/states/Toppled.svg",
+  "system": {
+    "description": "<p>You have a -2 penalty to guard against melee attacks, and you move at half speed. If this state has no INTENSITY, you can end it by spending an action to stand up. Otherwise, you must prevail against this state as normal.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "guard",
+    "modifier": "-2",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": true,
+    "statusIcon": "systems/trespasser/assets/icons/states/Toppled.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788358186296,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!SihFJEG1cPOzBaXN"
+}

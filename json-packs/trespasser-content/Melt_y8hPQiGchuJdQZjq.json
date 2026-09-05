@@ -1,0 +1,30 @@
+{
+  "name": "Melt",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation transforms a willing creature into a puddle of living matter for up to <b>10 minutes (1 dungeon action)</b>. The creature retains its senses and ability to move, and it can use its new form to slide beneath doors and through cracks. It can produce a bubble to utter a single word at a time. Each spark doubles the duration or the number of creatures affected.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "y8hPQiGchuJdQZjq",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!y8hPQiGchuJdQZjq"
+}

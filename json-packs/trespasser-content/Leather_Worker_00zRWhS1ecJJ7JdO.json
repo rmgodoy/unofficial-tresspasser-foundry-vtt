@@ -1,0 +1,58 @@
+{
+  "name": "Leather-Worker",
+  "type": "past_life",
+  "img": "systems/trespasser/assets/icons/pesant.webp",
+  "folder": "SAhzglg5xJt7KTn0",
+  "system": {
+    "attributes": {
+      "mighty": 1,
+      "agility": 0,
+      "intellect": 0,
+      "spirit": 0
+    },
+    "skills": {
+      "acrobatics": false,
+      "alchemy": false,
+      "athletics": false,
+      "crafting": true,
+      "folklore": false,
+      "letters": false,
+      "magic": false,
+      "nature": false,
+      "perception": false,
+      "speech": false,
+      "stealth": false,
+      "tinkering": false
+    },
+    "items": [
+      {
+        "uuid": "Item.r7DFCdwfmPDWoQ7S",
+        "name": "Leather gloves",
+        "img": "systems/trespasser/assets/icons/armor.webp",
+        "type": "armor",
+        "quantity": 1
+      }
+    ],
+    "description": ""
+  },
+  "_id": "00zRWhS1ecJJ7JdO",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!00zRWhS1ecJJ7JdO"
+}

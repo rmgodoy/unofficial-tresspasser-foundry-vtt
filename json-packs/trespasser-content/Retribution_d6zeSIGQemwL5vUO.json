@@ -1,0 +1,32 @@
+{
+  "folder": "94i4SA5yeWXnmRcb",
+  "name": "Retribution",
+  "type": "feature",
+  "_id": "d6zeSIGQemwL5vUO",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>When you spend your valor to reduce damage from an attack, you also deal that much damage to the attacker. On a result of 5 or higher, you also push the attacker 1 square and confer toppled.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!d6zeSIGQemwL5vUO"
+}

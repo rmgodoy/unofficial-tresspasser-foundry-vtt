@@ -1,0 +1,32 @@
+{
+  "folder": "BgGKhksixhEmf5Fz",
+  "name": "Threat Assessment",
+  "type": "feature",
+  "_id": "aEEpcKRbLWP8Vdj3",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p> Your study of bloodshed lets you recognize martial accomplishment in others. While watching a creature fight, you can make an INTELLECT | ATHLETICS vs. 10 check to discern its own martial prowess. On a success, you learn one mechanical fact of your choice about the creature, such as its level, hit point total, one of its features, or the basic details of its mighty deed. For each spark, you learn another fact. You can use this ability freely, but only once per enemy statblock.</p>",
+    "type": "action",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!aEEpcKRbLWP8Vdj3"
+}

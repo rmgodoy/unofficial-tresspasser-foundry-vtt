@@ -1,0 +1,30 @@
+{
+  "name": "Gravity Shift",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>With a sweeping gesture of your arms, you alter the direction of gravity within a cubic area up to <b>10 ft.</b> across. The effect lasts for <b>10 minutes (1 dungeon action)</b> and requires great concentration. An object or creature is no longer subject to the effect immediately upon leaving the space. Each spark doubles the duration or the area affected.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "ddYMPDvSXSeiuW32",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!ddYMPDvSXSeiuW32"
+}

@@ -1,0 +1,37 @@
+{
+  "folder": "FTBOSD8BGCJ9y29z",
+  "name": "Evade",
+  "type": "talent",
+  "_id": "ijesbDtrOsqWFv4K",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>When you spark on a guard or resist check against a ranged attacker, you can take a reaction to jump 2. You ignore any base effect from the attack, if any.</p>",
+    "usable": true,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "reaction"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!ijesbDtrOsqWFv4K"
+}

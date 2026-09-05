@@ -1,0 +1,32 @@
+{
+  "folder": "BjC4vRHcWKKk2vKt",
+  "name": "Blood Manipulation",
+  "type": "feature",
+  "_id": "Mc205vJyOoESzjLT",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Owing to your control over the living essence, you can create original effects using yours and other creatures' blood as a basis. By focusing your power, you can detect the heart rate of other creatures, speed or slow your own heart rate, raise or lower your body temperature, or createother blood-related effects at the discretion of the Judge. When you test the limits of your abilities with this feature, the Judge may call for a MIGHT | MAGIC check to determine the efficacy.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Mc205vJyOoESzjLT"
+}

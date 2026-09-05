@@ -1,0 +1,45 @@
+{
+  "folder": "e2r3evndmbuKkexp",
+  "name": "Mislead",
+  "type": "talent",
+  "_id": "h7Zxbc5dppYDkJGJ",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>Confer provoked 2 upon an enemy in sight, choosing an ally within 4 squares of it as the provoker.</p>",
+    "type": "action",
+    "usable": true,
+    "rollDice": "",
+    "focusCost": 1,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [
+      {
+        "uuid": "Item.cS3IgPJRUrTWlvT5",
+        "type": "effect",
+        "name": "Provoked",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 2
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!h7Zxbc5dppYDkJGJ"
+}

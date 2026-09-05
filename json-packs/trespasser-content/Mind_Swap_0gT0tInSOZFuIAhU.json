@@ -1,0 +1,30 @@
+{
+  "name": "Mind Swap",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>You and another willing creature swap bodies for up to <b>30 minutes (3 dungeon actions)</b>. While in another creature's body, you retain all your own skills and abilities, and the other subject has free reign of your body as well. You can also use this to shift your mind into any well-preserved corpse; if you do so, your own body falls into a catatonic state for the duration. Each spark doubles the duration. With seven sparks, the spell is everlasting.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "0gT0tInSOZFuIAhU",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!0gT0tInSOZFuIAhU"
+}

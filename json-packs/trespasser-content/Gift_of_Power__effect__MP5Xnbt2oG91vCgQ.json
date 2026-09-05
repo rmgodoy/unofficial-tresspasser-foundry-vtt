@@ -1,0 +1,54 @@
+{
+  "folder": "wFS6hwdevMkozaGq",
+  "name": "Gift of Power (effect)",
+  "type": "effect",
+  "_id": "MP5Xnbt2oG91vCgQ",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "<p>Their next attack deed this round deals Skill Die extra damage to each target.</p>",
+    "type": "on-trigger",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "damage_dealt",
+    "modifier": "<sd>",
+    "conferredState": "",
+    "when": "on-use-deed",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "round",
+        "value": 1
+      },
+      {
+        "mode": "trigger",
+        "value": 1
+      }
+    ],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": false
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!MP5Xnbt2oG91vCgQ"
+}

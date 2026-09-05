@@ -1,0 +1,96 @@
+{
+  "name": "Sticky Flame",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "attack",
+    "type": "spell",
+    "target": "1 Creature",
+    "accuracyTest": "Resist",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Confer sticky flame 2. While the target is affected, their movement is reduced by INTENSITY, and they take twice that much damage each time they move or are moved.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.0r4Od5ID1NcAkrhC",
+            "type": "effect",
+            "name": "Sticky Flame (speed effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 2
+          },
+          {
+            "uuid": "Item.oUUW7SbStoKnrG8u",
+            "type": "effect",
+            "name": "Sticky Flame (burning effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 2
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "While the target is affected, the INTENSITY increases by +2 at the end of their turn.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "JvAFDleAM8cOlmPC",
+  "effects": [],
+  "folder": "UNuFsGQZBBrUVHwV",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!JvAFDleAM8cOlmPC"
+}

@@ -1,0 +1,37 @@
+{
+  "folder": "ylesecywDbJtTb47",
+  "name": "Advancing Strike",
+  "type": "talent",
+  "_id": "CkoetLy2YNqVkzcQ",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p> If you hit one or more adjacent creatures with your next attack deed, shove one of them 2 squares. If you spent an additional action point, shove 4 instead.</p>",
+    "usable": true,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "action"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!CkoetLy2YNqVkzcQ"
+}

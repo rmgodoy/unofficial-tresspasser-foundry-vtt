@@ -1,0 +1,32 @@
+{
+  "folder": "94i4SA5yeWXnmRcb",
+  "name": "Valorous Aegis",
+  "type": "feature",
+  "_id": "9CiPTlxcB8lvCG9i",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>When you spend your valor to reduce damage, it reduces the damage dealt to each target of the attack, instead of just you or the chosen ally.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!9CiPTlxcB8lvCG9i"
+}

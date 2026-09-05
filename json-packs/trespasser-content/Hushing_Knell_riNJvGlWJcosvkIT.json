@@ -1,0 +1,30 @@
+{
+  "name": "Hushing Knell",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation alters an iron bell to produce silence instead of sound. When tolled at a steady rate, the bell creates a muting sphere around it. Noise within the sphere sounds as if occurring beyond a thick wooden door. Thus, a very loud noise such as a death scream will still produce a muffled sound audible from beyond. You, the caster, may spare your wrist; once the incantation is cast, the bell may be rung by anyone.</p><p>The dimensions of the muting sphere depend on those of the bell: a hand-sized bell creates a sphere in a radius of 20 ft. A cathedral bell could cast silence over an entire city neighborhood.</p><p>The effect persists for approximately <b>10 minutes (1 dungeon action)</b> and then ends suddenly, meaning it is likely the bell will toll loudly once or twice before the ringer can silence it. Each spark either doubles the duration or the diameter of the effect. With three or more sparks, the sphere becomes absolutely silent.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "riNJvGlWJcosvkIT",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!riNJvGlWJcosvkIT"
+}

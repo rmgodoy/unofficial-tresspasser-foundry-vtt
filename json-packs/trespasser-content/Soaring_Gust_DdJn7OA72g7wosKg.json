@@ -1,0 +1,37 @@
+{
+  "folder": "ViiWEBGRFOSZPnnL",
+  "name": "Soaring Gust",
+  "type": "talent",
+  "_id": "DdJn7OA72g7wosKg",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>Use this reaction when an ally in spell range takes the move action. They gain +2 extra movement points, and they can jump this turn instead of moving normally.</p>",
+    "usable": true,
+    "rollDice": "",
+    "focusCost": 1,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "reaction"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!DdJn7OA72g7wosKg"
+}

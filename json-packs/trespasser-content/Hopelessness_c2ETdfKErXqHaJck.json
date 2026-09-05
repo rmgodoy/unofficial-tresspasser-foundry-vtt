@@ -1,0 +1,97 @@
+{
+  "name": "Hopelessness",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "attack",
+    "type": "spell",
+    "target": "Blast 4",
+    "accuracyTest": "Resist",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Deal 1 Skill Die damage. Confer hopelessness 4. Whenever the affected creature attempts a prevail check, it suffers INTENSITY damage.",
+        "damage": "<sd>",
+        "appliedEffects": [
+          {
+            "uuid": "Item.IauZao7YdECfcJaG",
+            "type": "effect",
+            "name": "Hopelessness (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 4
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Confer hopelessness 6 instead.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.IauZao7YdECfcJaG",
+            "type": "effect",
+            "name": "Hopelessness (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 6
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "c2ETdfKErXqHaJck",
+  "effects": [],
+  "folder": "JrwFfUNREdQDQuOx",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!c2ETdfKErXqHaJck"
+}

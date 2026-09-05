@@ -1,0 +1,30 @@
+{
+  "name": "Dwindle",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation causes you or another willing subject to shrink down to the size of a mouse. The effect lasts for <b>10 minutes (1 dungeon action)</b>. Uttering the word of dismissal will immediately end the spell and can be disastrous for subjects who have found their way to a spot too small for their true form. Each spark doubles the duration or allows you to shrink an additional creature.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "sivbqeuKzp7DAIOc",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!sivbqeuKzp7DAIOc"
+}

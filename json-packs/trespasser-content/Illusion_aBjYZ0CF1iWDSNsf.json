@@ -1,0 +1,30 @@
+{
+  "name": "Illusion",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>You can cast this incantation to create an illusionary image at a point in sight. You can depict creatures in movement, stationary objects or anything else you can imagine, but the illusion cannot produce sound in any way. It persists for a time set by you when you cast the spell, up to <b>30 minutes (3 dungeon actions)</b>. Each spark doubles the duration or increases the detail and likeness of the image.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "aBjYZ0CF1iWDSNsf",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!aBjYZ0CF1iWDSNsf"
+}

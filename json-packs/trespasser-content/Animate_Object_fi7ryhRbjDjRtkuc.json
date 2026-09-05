@@ -1,0 +1,30 @@
+{
+  "name": "Animate Object",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation grants temporary life to an object up to the size of a carriage, allowing it to move and obey simple commands. It cannot speak, but it can perform general tasks as well as ones suited to its function: for example, an animated plume could write a note or take dictation.</p><p>This incantation lasts <b>10 minutes (1 dungeon action)</b>, and each spark doubles that duration. With seven sparks, the effect is permanent.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "fi7ryhRbjDjRtkuc",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!fi7ryhRbjDjRtkuc"
+}

@@ -1,0 +1,32 @@
+{
+  "folder": "eLMBfi1QLnmfRBo4",
+  "name": "Invoking the Elements",
+  "type": "feature",
+  "_id": "hN83kko15snwhVdu",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>The six elements are earth, flames, frost, light, shadow, and wind. You learn to harness two of these elements at first level and another at every odd level thereafter, until you have mastered all six at ninth level. You can only invoke the elements that you have learned.</p><p></p><p>You start each combat with one of your elements invoked. Using either elemental strike or elemental shield expends it. At the start of each round, if you have no element invoked, you can invoke a new one that you haven't yet used this encounter.</p><p></p><p>You can instead reinvoke an earlier element, but it comes at the cost of your reserves of strength. The first time you do this, you must spend 2 recovery dice. The second time you do this, you must spend 2 endurance.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!hN83kko15snwhVdu"
+}

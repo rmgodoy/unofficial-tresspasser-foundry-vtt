@@ -1,0 +1,32 @@
+{
+  "folder": "eVF6XAgiSMebaW99",
+  "name": "Gather Power",
+  "type": "feature",
+  "_id": "ATsxfm1NfgSXLFoS",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>If you start the round with an element invoked, you can accumulate it further. When you expend it with elemental strike or elemental shield, you add an extra Skill Die to your roll and you increase the INTENSITY or other numerical effects by +2.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!ATsxfm1NfgSXLFoS"
+}

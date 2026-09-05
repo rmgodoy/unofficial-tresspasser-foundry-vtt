@@ -1,0 +1,30 @@
+{
+  "name": "Illuminate",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Once you have cast this incantation, your hand begins to glow with a flickering light similar to a torch. You can transfer the light to the next object you touch, causing it to glow from within.</p><p>The effect lasts for up to <b>30 minutes (3 dungeon actions)</b>, and each spark increases the duration by another <b>30 minutes (3 dungeon actions)</b>.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "lCByC60iBm8t3QsC",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!lCByC60iBm8t3QsC"
+}

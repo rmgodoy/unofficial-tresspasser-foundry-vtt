@@ -1,0 +1,32 @@
+{
+  "folder": "aPffspBF0kYF5CYH",
+  "name": "Expanded Geometry",
+  "type": "feature",
+  "_id": "bl6FuW0j3svDdt1R",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your forms that target an area increase in size. Paths increase by +2, while blasts and bursts increase by +1.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!bl6FuW0j3svDdt1R"
+}

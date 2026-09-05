@@ -1,0 +1,158 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Battle",
+  "type": "craft",
+  "_id": "QI51HQXKYtyr5pDh",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>You are a pragmatic and effective front-line combatant. You don't need tricks or magic to defeat your enemies; your hard-earned skill with a weapon is enough. </p><p></p><p>All deeds of this craft have the melee keyword, meaning they must be used with a melee weapon like a sword or warhammer. Experts at melee combat can deal heavy damage at close range and make the best use of their weapon's intrinsic effect.</p>",
+    "keyAttribute": "mighty",
+    "deeds": [
+      {
+        "uuid": "Item.PJSkuQv2DCDz1wpY",
+        "name": "Biting Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.HQek8GeZzru4AybB",
+        "name": "Cleave",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.gHwueuidDtuGZGsn",
+        "name": "Demand Attention",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.uRuZ7KfpkUcyFh4A",
+        "name": "Draw Back",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.9mnOH78HfQWf2ooK",
+        "name": "Fearless Advance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.kKZ12FbQdo04NS8s",
+        "name": "Hammering Blow",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.9QJKcteDcKfUpE3a",
+        "name": "Iron Sweep",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.9b3KNsfbPSj2r1z4",
+        "name": "Iron Tempest",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.O4JhxipjVwe1Upjr",
+        "name": "Knock Back",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.gPSYWpPg3Ecf6dVu",
+        "name": "Leaping Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.i8Gwf5TxWHjboYTV",
+        "name": "Maim",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.VEL84J5iM3trwHqm",
+        "name": "Passing Slash",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.wcdFAX9823RFfaUt",
+        "name": "Pommel Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.biJIINvkumlYW22H",
+        "name": "Seek Blood",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.KLfO9Y16E0oyC8qH",
+        "name": "Shared Confidence",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.8Q3E8lCAeTVY8OkE",
+        "name": "Shatter Defenses",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.YawfqIvUz0dXhT5X",
+        "name": "Staggering Smite",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.tuHiZrsg7T3hLGq6",
+        "name": "Topple",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.wEEJIRbptBUxp12O",
+        "name": "Whirlwind Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.eNEOs00z64iREDTU",
+        "name": "Determined Accuracy",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.9irrpfFyrBLgNCpQ",
+        "name": "Pin Down",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!QI51HQXKYtyr5pDh"
+}

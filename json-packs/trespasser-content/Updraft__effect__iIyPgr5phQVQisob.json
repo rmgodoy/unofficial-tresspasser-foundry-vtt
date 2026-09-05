@@ -1,0 +1,50 @@
+{
+  "folder": "zYnQ8lTjoTqCeCKC",
+  "name": "Updraft (effect)",
+  "type": "effect",
+  "_id": "iIyPgr5phQVQisob",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "<p>Remove the affected creature from the map. This state loses 1 INTENSITY at the end of each round. When it ends, the creature returns to the last space it occupied, suffers 3 Skill Die damage, and gains toppled. Creatures it lands on take the same damage and are pushed out of its space by the shortest route.</p>",
+    "type": "on-trigger",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "end-of-round",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "indefinite",
+        "value": null
+      }
+    ],
+    "intensityIncrement": -1,
+    "counterStates": [],
+    "isPrevailable": true
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!iIyPgr5phQVQisob"
+}

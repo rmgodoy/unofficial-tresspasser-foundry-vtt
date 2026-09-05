@@ -1,0 +1,32 @@
+{
+  "folder": "FwKksD5VwARS0pza",
+  "name": "Survivalist",
+  "type": "feature",
+  "_id": "xNiZqAFitYSMGpkH",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your skills with marksmanship aid you in catching your daily kill, and your light feet and sharp eyes make it easier to scout and scavenge. You gain fine rations from hunting instead of crude ones, and you suffer no endurance loss when you fail at any camp action.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!xNiZqAFitYSMGpkH"
+}

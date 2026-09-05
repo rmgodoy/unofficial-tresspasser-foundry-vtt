@@ -1,0 +1,50 @@
+{
+  "name": "Lantern",
+  "type": "item",
+  "img": "systems/trespasser/assets/icons/item.webp",
+  "folder": "D0JtOtdvJg3F3oSM",
+  "system": {
+    "subType": "light_source",
+    "price": 25,
+    "radius": 4,
+    "depletionDie": "d6",
+    "usesFuel": true,
+    "description": "",
+    "quantity": 1,
+    "slotOccupancy": 1,
+    "equipped": false,
+    "equippable": false,
+    "placement": "hand",
+    "active": false,
+    "isLightFuel": false,
+    "isAmmo": false,
+    "resourceType": "ingredients",
+    "tier": "lesser",
+    "damage": "",
+    "effects": [],
+    "deeds": [],
+    "incantations": [],
+    "talents": [],
+    "features": []
+  },
+  "_id": "YQdMxJ0Op6FTN0lm",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!YQdMxJ0Op6FTN0lm"
+}

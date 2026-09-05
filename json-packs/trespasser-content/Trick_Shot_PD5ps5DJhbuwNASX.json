@@ -1,0 +1,89 @@
+{
+  "name": "Trick Shot",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "attack",
+    "type": "missile",
+    "target": "1 Creature",
+    "accuracyTest": "Guard",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Deal 1 Weapon Die damage. Choose one:(Action Point) Sweep 1 and confer toppled.(Action Point) Deal half the damage to another creature within four squares of the target.(Action Point) The target is disarmed of one held item, which lands in an empty square of your choice within four squares of the target. While disarmed, a creature uses d4s instead of its normal damage dice. Creatures with natural weapons are unaffected.",
+        "damage": "<wd>",
+        "appliedEffects": [
+          {
+            "uuid": "Item.SihFJEG1cPOzBaXN",
+            "type": "effect",
+            "name": "Toppled",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 0
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "Choose a second effect.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "PD5ps5DJhbuwNASX",
+  "effects": [],
+  "folder": "OvF6UcehbGZHY6gI",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!PD5ps5DJhbuwNASX"
+}

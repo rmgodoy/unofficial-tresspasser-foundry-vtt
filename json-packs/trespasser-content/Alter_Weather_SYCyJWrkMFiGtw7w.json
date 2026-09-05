@@ -1,0 +1,30 @@
+{
+  "name": "Alter Weather",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Casting this incantation allows you to change the weather in an area up to <b>1 mile</b> across. You may alter the direction of the wind, create or banish cloud cover, or cause light fog or rainfall.</p><p>The change occurs gradually over 10 minutes (1 dungeon action) and persists for <b>1 hour</b> after that. Each spark increases the strength of the weather you conjure or doubles the duration. With seven sparks, you conjure a mighty blizzard or thunderstorm, and it persists for <b>1 week</b>.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "SYCyJWrkMFiGtw7w",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!SYCyJWrkMFiGtw7w"
+}

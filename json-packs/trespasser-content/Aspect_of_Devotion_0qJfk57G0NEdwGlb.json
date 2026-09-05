@@ -1,0 +1,32 @@
+{
+  "folder": "1xMvj2PA04D3xJFH",
+  "name": "Aspect of Devotion",
+  "type": "feature",
+  "_id": "0qJfk57G0NEdwGlb",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>When you take up this calling, you choose a single aspect of your deity that forms the foundation of your faith. Your choice of aspect grants a unique benefit and determines the effect of your Revelation special deed. Aspects are listed on the next page.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!0qJfk57G0NEdwGlb"
+}

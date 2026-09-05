@@ -1,0 +1,30 @@
+{
+  "name": "Speak with Dead",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>To cast this incantation, you must focus on a nearby corpse. As you make whispered inquiries, the corpse will answer in its native tongue. A corpse without an intact mouth cannot speak its reply, but may still be able to answer your questions by tapping the floor or raising fingers to signal <i>yes</i> or <i>no</i>. Allegiance as well as grudges may persist beyond the grave, and the subject may regard you cautiously or require coaxing to share its most intimate knowledge.</p><p>With no sparks, you are limited to two questions. Each spark grants you two more.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "CcYDEJQEj00mOxx4",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!CcYDEJQEj00mOxx4"
+}

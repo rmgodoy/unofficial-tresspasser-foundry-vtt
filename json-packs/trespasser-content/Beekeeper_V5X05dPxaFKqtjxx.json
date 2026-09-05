@@ -1,0 +1,58 @@
+{
+  "name": "Beekeeper",
+  "type": "past_life",
+  "img": "systems/trespasser/assets/icons/pesant.webp",
+  "folder": "jQ4U8ErtXbBCCZjh",
+  "system": {
+    "attributes": {
+      "mighty": 0,
+      "agility": 0,
+      "intellect": 0,
+      "spirit": 1
+    },
+    "skills": {
+      "acrobatics": false,
+      "alchemy": false,
+      "athletics": false,
+      "crafting": false,
+      "folklore": false,
+      "letters": false,
+      "magic": false,
+      "nature": true,
+      "perception": false,
+      "speech": false,
+      "stealth": false,
+      "tinkering": false
+    },
+    "items": [
+      {
+        "uuid": "Item.HTEbSMzLeqeV6gwl",
+        "name": "Queen in a jar",
+        "img": "systems/trespasser/assets/icons/item.webp",
+        "type": "item",
+        "quantity": 1
+      }
+    ],
+    "description": ""
+  },
+  "_id": "V5X05dPxaFKqtjxx",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!V5X05dPxaFKqtjxx"
+}

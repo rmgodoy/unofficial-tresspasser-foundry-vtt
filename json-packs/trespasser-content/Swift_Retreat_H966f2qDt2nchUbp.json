@@ -1,0 +1,32 @@
+{
+  "folder": "X8qsCbcdHMhHpol8",
+  "name": "Swift Retreat",
+  "type": "feature",
+  "_id": "H966f2qDt2nchUbp",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Nimble as you are, you can easily escape a battle that goes south. You gain a +2 bonus on your initiative roll when the party retreats from combat. When you successfully retreat, the endurance loss you suffer is reduced by 1, to a minimum of 1.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!H966f2qDt2nchUbp"
+}

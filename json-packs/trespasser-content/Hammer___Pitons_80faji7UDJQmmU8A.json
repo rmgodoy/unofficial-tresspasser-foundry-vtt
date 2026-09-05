@@ -1,0 +1,50 @@
+{
+  "name": "Hammer & Pitons",
+  "type": "item",
+  "img": "systems/trespasser/assets/icons/item.webp",
+  "folder": "D0JtOtdvJg3F3oSM",
+  "system": {
+    "subType": "tool",
+    "price": 25,
+    "description": "<p>This leather bag contains one hammer and a handful of iron spikes that can be pounded into earth, wood, and soft stone. A set of pitons can be used to scale a sheer surface.</p><p>You can also hammer a piton into the base of a door to block it. A door blocked this way will block human-sized or smaller creatures for a time, though larger creatures can smash through it with ease.</p>",
+    "quantity": 1,
+    "slotOccupancy": 1,
+    "equipped": false,
+    "equippable": false,
+    "placement": "hand",
+    "active": false,
+    "isLightFuel": false,
+    "isAmmo": false,
+    "usesFuel": false,
+    "resourceType": "ingredients",
+    "radius": 0,
+    "depletionDie": "d4",
+    "tier": "lesser",
+    "damage": "",
+    "effects": [],
+    "deeds": [],
+    "incantations": [],
+    "talents": [],
+    "features": []
+  },
+  "_id": "80faji7UDJQmmU8A",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!80faji7UDJQmmU8A"
+}

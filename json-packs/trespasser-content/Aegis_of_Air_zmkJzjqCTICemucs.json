@@ -1,0 +1,105 @@
+{
+  "name": "Aegis of Air",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "mighty",
+    "actionType": "support",
+    "type": "spell",
+    "target": "1 Creature",
+    "accuracyTest": "10",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Confer aegis of air 3. The first time the affected creature would be dealt damage by an attack each round, prevent it. Each time this state prevents damage, it loses one intensity.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.KNd1K7o02uM6BEzy",
+            "type": "effect",
+            "name": "Aegis of Air (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 3
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Confer aegis of air 4 instead.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.KNd1K7o02uM6BEzy",
+            "type": "effect",
+            "name": "Aegis of Air (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 4
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "Confer aegis of air 5 instead.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.KNd1K7o02uM6BEzy",
+            "type": "effect",
+            "name": "Aegis of Air (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 5
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 4,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "zmkJzjqCTICemucs",
+  "effects": [],
+  "folder": "yTBbM4Ws7BEhYAyL",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!zmkJzjqCTICemucs"
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Clay Visage",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Casting this allows you to harmlessly reshape your own face or the face of a willing subject. The putty-like texture is difficult to work with, making it far easier to create an ugly face than a beautiful one.</p><p>The face will remain in its reshaped state for up to <b>30 minutes (3 dungeon actions)</b>, but will also retain its soft quality during this time. Each spark of potential doubles the duration.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "9aDf4L8xNIGhpr9X",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!9aDf4L8xNIGhpr9X"
+}

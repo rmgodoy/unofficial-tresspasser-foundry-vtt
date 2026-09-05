@@ -1,0 +1,39 @@
+{
+  "name": "Quilted Armor",
+  "type": "armor",
+  "img": "systems/trespasser/assets/icons/armor.webp",
+  "folder": "bghEb2L1A8OBEE75",
+  "system": {
+    "placement": "body",
+    "weight": "L",
+    "armorRating": 1,
+    "armorDie": "d4",
+    "price": 50,
+    "depletionDie": "d4",
+    "slotOccupancy": 1,
+    "broken": false,
+    "effects": [],
+    "description": "",
+    "equipped": false
+  },
+  "_id": "pHqXKOOuCCCjDqXN",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!pHqXKOOuCCCjDqXN"
+}

@@ -1,0 +1,51 @@
+{
+  "folder": "Kv0IrtLterUKyUss",
+  "name": "Burning",
+  "type": "effect",
+  "_id": "U8u8iFYvAEaL6Y5Z",
+  "img": "systems/trespasser/assets/icons/states/Burning.svg",
+  "system": {
+    "description": "<p>You suffer 1d6 + INTENSITY damage at the start of your turn. Then increase the intensity by +2. If the die result is ever a 1, this state ends.</p>",
+    "type": "on-trigger",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "-1d6-<Int>",
+    "conferredState": "",
+    "when": "start-of-turn",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "indefinite",
+        "value": null
+      }
+    ],
+    "intensityIncrement": 2,
+    "counterStates": [],
+    "isPrevailable": true,
+    "statusIcon": "systems/trespasser/assets/icons/states/Burning.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788357892243,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!U8u8iFYvAEaL6Y5Z"
+}

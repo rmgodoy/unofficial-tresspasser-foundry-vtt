@@ -1,0 +1,270 @@
+{
+  "folder": "cxjJbihJQKBCxOnZ",
+  "name": "Marauder",
+  "type": "calling",
+  "_id": "bu7vBSdnsggny3Ae",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>A calling for one who would answer to no master.</p><p></p><p>In a failing realm, those who make death their occupation can do quite well for themselves. Whether ex-guards, military deserters, or former sell-swords, many with a smattering of martial skill turn to brigandry, murder, and theft when they find their other prospects failing.</p><p></p><p>This might be your story, or you might just be a person, like so many others, with a talent they didn't ask for. Experience has now revealed something that you cannot mask or suppress: you have a gift for violence, and few can hold back your wrath once it is unleashed, least of all yourself. Though you may not be as well-trained or disciplined as a traditional warrior, your fiery temper and keen instincts make you just as deadly and twice as fearless. Will you struggle to reserve your gift only for those deserving? Or is it deserving enough to simply stand in your path?</p>",
+    "skills": [
+      "acrobatics",
+      "athletics",
+      "crafting",
+      "perception",
+      "stealth",
+      "tinkering"
+    ],
+    "talents": [
+      {
+        "uuid": "Item.68NqCIrTMt5xfxYf",
+        "name": "Brutal Strike",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.r7NcXBE46MudPl8v",
+        "name": "Armored Swiftness",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.FweD3e5Lr4NjKyFP",
+        "name": "Artful Dodger",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.Ud5B4ZmxTRVLuQ6D",
+        "name": "Charge",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.uzUpz3ARRk30NOFt",
+        "name": "Counter Rush",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.uKv96cGlNzk6zAjf",
+        "name": "Desperate Strength",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.AxoG2MClQAArHHli",
+        "name": "Determination",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.nS8TYwFwx6tG6m3b",
+        "name": "Devastate",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.ysCVgLHqOX9ZGl6a",
+        "name": "Into the Fray",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.qqzF3TV1vrNptagF",
+        "name": "Send Flying",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.LGa5atUzftqTL6G9",
+        "name": "Shrug Off",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.BDENQLFBgt0wvswl",
+        "name": "Triumph",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.e4aifNc85iAjGB4n",
+        "name": "Martial Fortitude",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.9Sj2zEVraQg0wp0C",
+        "name": "Bloodlust",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.AvqEZvzHM9ccxsym",
+        "name": "Regain Senses",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.VQYjtfY1ABkJO2UW",
+        "name": "Vandal",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ],
+    "enhancements": [
+      {
+        "uuid": "Item.V3W0LTVV9NeMNgno",
+        "name": "Dauntless Fury",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.2CVLZf27YhNH6UC1",
+        "name": "Enduring Fury",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.rRHQGCj2FoPsIdes",
+        "name": "Relenteless Fury",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.HBA3NJstgrvwhg0L",
+        "name": "Swift Fury",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.3ELg8CHCMzCiMs6M",
+        "name": "Wild Finisher",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ],
+    "progression": [
+      {
+        "level": 0,
+        "xp": 20,
+        "hp": 5,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 0,
+        "callingAbilities": "Past Life",
+        "deedsLight": 0,
+        "deedsHeavy": 0,
+        "deedsMighty": 0
+      },
+      {
+        "level": 1,
+        "xp": 30,
+        "hp": 10,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 2,
+        "callingAbilities": "Calling, 1st Craft",
+        "deedsLight": 2,
+        "deedsHeavy": 1,
+        "deedsMighty": 0
+      },
+      {
+        "level": 2,
+        "xp": 40,
+        "hp": 15,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 3,
+        "callingAbilities": "Talent",
+        "deedsLight": 2,
+        "deedsHeavy": 2,
+        "deedsMighty": 0
+      },
+      {
+        "level": 3,
+        "xp": 50,
+        "hp": 20,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 4,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 2,
+        "deedsHeavy": 2,
+        "deedsMighty": 1
+      },
+      {
+        "level": 4,
+        "xp": 60,
+        "hp": 25,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 5,
+        "callingAbilities": "2nd Craft",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 1
+      },
+      {
+        "level": 5,
+        "xp": 70,
+        "hp": 30,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 6,
+        "callingAbilities": "Talent",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 2
+      },
+      {
+        "level": 6,
+        "xp": 80,
+        "hp": 35,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 7,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 2
+      },
+      {
+        "level": 7,
+        "xp": 90,
+        "hp": 40,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 8,
+        "callingAbilities": "3rd Craft",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 3
+      },
+      {
+        "level": 8,
+        "xp": 100,
+        "hp": 45,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 9,
+        "callingAbilities": "Talent",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 3
+      },
+      {
+        "level": 9,
+        "xp": 0,
+        "hp": 50,
+        "skillBonus": 5,
+        "skillDie": "d12",
+        "attributePoints": 10,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 4
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!bu7vBSdnsggny3Ae"
+}

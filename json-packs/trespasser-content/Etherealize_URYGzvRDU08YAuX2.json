@@ -1,0 +1,30 @@
+{
+  "name": "Etherealize",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>After you cast this incantation, the next object or section of wall you touch no larger than <b>5 ft.</b> shimmers with a pale, ghostly light for one minute. While under this effect, the object occupies no physical space and can be passed through as easily as air, though it still obstructs light and sound as it normally would. Woe to any creature passing through the object's space when the spell expires. Each spark doubles the duration or the number of objects you can affect.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "URYGzvRDU08YAuX2",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!URYGzvRDU08YAuX2"
+}

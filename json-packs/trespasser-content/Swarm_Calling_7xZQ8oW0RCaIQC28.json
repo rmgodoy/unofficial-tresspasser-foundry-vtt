@@ -1,0 +1,30 @@
+{
+  "name": "Swarm Calling",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Bees, beetles, mosquitos, locusts, or flies will appear out of the woodwork, forming a cloud of up to 20 ft. across at a point within sight. The swarm is frightening and irritating, but not directly dangerous, and you do not have direct control over it once it appears. The cloud dissipates naturally over the course of ten minutes. Each spark doubles the size of the swarm.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "7xZQ8oW0RCaIQC28",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!7xZQ8oW0RCaIQC28"
+}

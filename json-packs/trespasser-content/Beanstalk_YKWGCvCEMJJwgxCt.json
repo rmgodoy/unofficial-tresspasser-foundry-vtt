@@ -1,0 +1,30 @@
+{
+  "name": "Beanstalk",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>When you cast this incantation, a large beanstalk sprouts from the ground or floor in front of you and grows in a path you trace with your finger. It can grow upwards against a wall or straight into the air if you so choose. The beanstalk is strong enough to support the weight of a single person at a time and grows to a length of up to <b>50 ft.</b> After <b>30 minutes (3 dungeon actions)</b>, the beanstalk wilts and turns to dust. Each spark doubles its strength and its maximum length.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "YKWGCvCEMJJwgxCt",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!YKWGCvCEMJJwgxCt"
+}

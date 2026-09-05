@@ -1,0 +1,134 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Frost",
+  "type": "craft",
+  "_id": "QtOGHyGhWnBmBNb0",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>Your magic lets you command the element of water in its harshest form, freezing enemies in their tracks and creating clouds of snow and fields of ice. Frost deeds have the spell keyword, meaning they must be performed with a free hand or an implement such as a wand, rod, or staff. Practitioners of frost magic excel at slowing and immobilizing creatures, keeping them at bay to render them useless.</p>",
+    "keyAttribute": "intellect",
+    "deeds": [
+      {
+        "uuid": "Item.bHy3qIKvy3kFdQPG",
+        "name": "Blizzard",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.SgUV22Q1Hi7ichB3",
+        "name": "Bone Chill",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.f3z3vM0rnvc7aJEm",
+        "name": "Crystallize",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.B5EYT09EJA25VVgV",
+        "name": "Freezing Fog",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.tmVDYWtJTpdNiGMy",
+        "name": "Freezing Touch",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.zirQ40wbrPrKUXNe",
+        "name": "Frost Armor",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.lbTaU2OO5exXu3Yx",
+        "name": "Frost Beam",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.8ot8JCPQXYCFxC3y",
+        "name": "Frost Comets",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.vzXxNTYjdesYeIe2",
+        "name": "Hindering Rime",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.OB033nfE1Z3rh6IC",
+        "name": "Ice Floe",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.ymSQzfTCyWi3DUcd",
+        "name": "Ice Prison",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.I0aRd1j2gC4T4u50",
+        "name": "Icicle Swarm",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.hHHe33lmfpNBQ8dF",
+        "name": "Snow Boulder",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.xeCWYwU7IDaRdu2s",
+        "name": "Snowdrift",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.VaXJm5b0tpKrSxj8",
+        "name": "Winter's Breath",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.ag2X3mN0prnhPkzp",
+        "name": "Waterwarp",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.arAkk8Lk4vE74nik",
+        "name": "Water Affinity",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!QtOGHyGhWnBmBNb0"
+}

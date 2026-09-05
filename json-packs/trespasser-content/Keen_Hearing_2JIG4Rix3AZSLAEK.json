@@ -1,0 +1,30 @@
+{
+  "name": "Keen Hearing",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>For better or worse, this incantation increases your sense of hearing for <b>1 minute</b>. You passively hear events happening within <b>500 ft.</b> With no sparks, any intervening material will block the magic. With one spark, you can hear a conversation through a thick wooden door. With three sparks, you can hear a rival's whisper beneath the din of a crowded tavern. With seven sparks, you can hear a snake moving through the forest in heavy rain.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "2JIG4Rix3AZSLAEK",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!2JIG4Rix3AZSLAEK"
+}

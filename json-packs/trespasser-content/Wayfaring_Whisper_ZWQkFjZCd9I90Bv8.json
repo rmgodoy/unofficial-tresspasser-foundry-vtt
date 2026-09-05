@@ -1,0 +1,30 @@
+{
+  "name": "Wayfaring Whisper",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>When you cast this incantation, you must speak aloud up to <b>10 words</b> while holding in mind a specific person. A light breeze will carry the words to that individual's ear, as long as they are within a range of <b>100 miles</b>. The breeze only travels as quickly as a bird in flight, so it may take hours to reach the recipient. Though the likelihood is low, the words can be heard by any creature they happen to pass by, hence the value of whispering. Each spark doubles the speed at which the words travel.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "ZWQkFjZCd9I90Bv8",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!ZWQkFjZCd9I90Bv8"
+}

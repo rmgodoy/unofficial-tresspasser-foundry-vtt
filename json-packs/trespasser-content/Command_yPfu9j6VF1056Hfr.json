@@ -1,0 +1,134 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Command",
+  "type": "craft",
+  "_id": "yPfu9j6VF1056Hfr",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>Your companions look to you for direction on the battlefield. Your strategic mind and powerful presence terrify your enemies, letting you control the battlefield like so many pieces on a chessboard. Most deeds of this craft have the versatile keyword, meaning they can be used with either a melee or missile weapon. Commanders excel in a support role, granting their allies extra movement, recoveries, and even attacks.</p>",
+    "keyAttribute": "spirit",
+    "deeds": [
+      {
+        "uuid": "Item.7vDORRbFPQhyP4hi",
+        "name": "Bolstering Assault",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.Yte3Ap6SFo2dio4b",
+        "name": "Call to Arms",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.UlGN3zcioFSbbIWC",
+        "name": "Commanding Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.PtXZbSTf2et8I10v",
+        "name": "Covering Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.OIvn8iohEpYUrz97",
+        "name": "Decisive Command",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.HzAHwsUoSQlmgdR2",
+        "name": "Distracting Blow",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.0lvavTyH64JCmE6y",
+        "name": "Encourage",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.NJ7tVOvLhRpeIM98",
+        "name": "Exploit Weakness",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.QC2SaqWqlnJh4zQz",
+        "name": "Hold Fast",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.Wwgj4rQQJQ7N2QfW",
+        "name": "Inspiring Blow",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.4JxJ9P823E80I4HQ",
+        "name": "Master Plan",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.z3VCZKOdVnPmfv6h",
+        "name": "Opening Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.gEliS5CqkcLiWKoK",
+        "name": "Press the Attack",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.sh4Ms9UaKRELF0bB",
+        "name": "Reposition",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.FzazBF5aqKcKmu87",
+        "name": "Spirited Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.HaiVmZKxQMekcTMx",
+        "name": "Spirited Words",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.Xo4gjtPrHr5V6x33",
+        "name": "Resolute Will",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!yPfu9j6VF1056Hfr"
+}

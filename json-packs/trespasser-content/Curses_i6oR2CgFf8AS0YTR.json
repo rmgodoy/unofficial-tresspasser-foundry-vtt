@@ -1,0 +1,146 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Curses",
+  "type": "craft",
+  "_id": "i6oR2CgFf8AS0YTR",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>You are a student of curses, dark magic that stains the fabric of reality. Your baleful conjuries inflict little harm directly, but they do allow you to sicken your foes, rob them of strength, and inflict other maladies that speed them along to their graves. Deeds of this craft have the spell keyword, meaning they must be performed with a free hand or a spell weapon like a wand or staff. Practitioners of curse magic can afflict their enemies with a wide array of debilitating states.</p>",
+    "keyAttribute": "intellect",
+    "deeds": [
+      {
+        "uuid": "Item.EQlVlBHOamblqqLJ",
+        "name": "Alter Fate",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.DvDAxLb5O69O1CTN",
+        "name": "Beleaguer",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.aL6q9dEuWMFPYgZ3",
+        "name": "Cloud of Pestilence",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.pXl9m1KWsbIUHc0a",
+        "name": "Enervate",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.vwvvmlpEJCA1Dz5Y",
+        "name": "Enfeeble",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.3NcklurcATdEWZNk",
+        "name": "Flesh Rot",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.c2ETdfKErXqHaJck",
+        "name": "Hopelessness",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.ivcTnbDxTQP57ijH",
+        "name": "Malevolence",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.vYD319XnTAeCQ9yj",
+        "name": "Pain Shroud",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.aUiutFo6rmQzZ9Nx",
+        "name": "Ray of Malady",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.qpTIAHOKzV0v2xhm",
+        "name": "Shiver of Fear",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.7kjOj91tjMBxrBQv",
+        "name": "Spiteful Shroud",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.DRqN9OjhTxq9yQVt",
+        "name": "Spread Affliction",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.vgpzCLk1WSUDiBAr",
+        "name": "Threefold Hex",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.q7W3gQUZfyaZmdgK",
+        "name": "Torment",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.iE0zTE7S4Q7QsURE",
+        "name": "Torpor",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.tlErk5dbAfltcCTf",
+        "name": "Unravel",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.xKuWcBxjoEf4cf1S",
+        "name": "Spiteful Hex",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.7zTBZwBfJJRPN4D6",
+        "name": "Curse Affinity",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!i6oR2CgFf8AS0YTR"
+}

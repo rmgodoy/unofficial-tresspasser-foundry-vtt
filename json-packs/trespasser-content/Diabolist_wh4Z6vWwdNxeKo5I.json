@@ -1,0 +1,260 @@
+{
+  "folder": "cxjJbihJQKBCxOnZ",
+  "name": "Diabolist",
+  "type": "calling",
+  "_id": "wh4Z6vWwdNxeKo5I",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>A calling for one who would gain power at any cost. </p><p></p><p>A menagerie of untold spirits awaits beyond the edges of the visible world. Realms beyond sight or knowing are home to beings that challenge the comprehension of mere mortals. Some of these creatures tirelessly seek entrance, promising great and warping power to any who will grant them ingress.</p><p></p><p>You are a student of magic daring and foolish enough to lay such invitations upon the bargaining table. Let one in, carry it with you on your journey, and you will, without doubt, be rewarded.</p>",
+    "skills": [
+      "alchemy",
+      "folklore",
+      "letters",
+      "magic",
+      "speech",
+      "stealth"
+    ],
+    "talents": [
+      {
+        "uuid": "Item.AN3a6h2kPAD4bZLt",
+        "name": "Aggravate",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.TwQIIq1OAzjyozGX",
+        "name": "Bide Time",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.kb5HKVCkpSyI8HlZ",
+        "name": "Borrow Flesh",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.ULNUfxqIt8VL2dvS",
+        "name": "Deep Knowledge",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.ZiD9bCL7nTAoqEVC",
+        "name": "Desperate Retreat",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.Oufg22tg39lp7nlD",
+        "name": "Diabolic Inversion",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.lG3RahnFysQXCFN8",
+        "name": "Flanker",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.W3RONu1P82m0662W",
+        "name": "Gift of Pain",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.9EEQca3byuC6mbmP",
+        "name": "Gift of Power",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.qHF39CHRV7HowyUx",
+        "name": "Mending Mastery",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.6MhDb1MR7aa9KfRn",
+        "name": "Mending Verse",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.FlF3WLYIrHdOhznn",
+        "name": "Transpose",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.x7w5OGjgU8F63IjW",
+        "name": "Occult Incantations",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.YoWOun2S23rSlqv5",
+        "name": "Demonic Bargain",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.TJG38hfGYDs64LQg",
+        "name": "Summon Demon",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ],
+    "enhancements": [
+      {
+        "uuid": "Item.P6ALpIIFxpB9tJHS",
+        "name": "Demonic Resilience",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.dj3l6dIYAFHnT8No",
+        "name": "Hybridize",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.yl10AXDVknfEMPRS",
+        "name": "Pound of Flesh",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.pMNbBUuskBKS6fbf",
+        "name": "Unfettered Body",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ],
+    "progression": [
+      {
+        "level": 0,
+        "xp": 20,
+        "hp": 5,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 0,
+        "callingAbilities": "Past Life",
+        "deedsLight": 0,
+        "deedsHeavy": 0,
+        "deedsMighty": 0
+      },
+      {
+        "level": 1,
+        "xp": 30,
+        "hp": 10,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 2,
+        "callingAbilities": "Calling, 1st Craft",
+        "deedsLight": 2,
+        "deedsHeavy": 1,
+        "deedsMighty": 0
+      },
+      {
+        "level": 2,
+        "xp": 40,
+        "hp": 15,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 3,
+        "callingAbilities": "Talent",
+        "deedsLight": 2,
+        "deedsHeavy": 2,
+        "deedsMighty": 0
+      },
+      {
+        "level": 3,
+        "xp": 50,
+        "hp": 20,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 4,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 2,
+        "deedsHeavy": 2,
+        "deedsMighty": 1
+      },
+      {
+        "level": 4,
+        "xp": 60,
+        "hp": 25,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 5,
+        "callingAbilities": "2nd Craft",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 1
+      },
+      {
+        "level": 5,
+        "xp": 70,
+        "hp": 30,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 6,
+        "callingAbilities": "Talent",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 2
+      },
+      {
+        "level": 6,
+        "xp": 80,
+        "hp": 35,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 7,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 2
+      },
+      {
+        "level": 7,
+        "xp": 90,
+        "hp": 40,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 8,
+        "callingAbilities": "3rd Craft",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 3
+      },
+      {
+        "level": 8,
+        "xp": 100,
+        "hp": 45,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 9,
+        "callingAbilities": "Talent",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 3
+      },
+      {
+        "level": 9,
+        "xp": 0,
+        "hp": 50,
+        "skillBonus": 5,
+        "skillDie": "d12",
+        "attributePoints": 10,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 4
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!wh4Z6vWwdNxeKo5I"
+}

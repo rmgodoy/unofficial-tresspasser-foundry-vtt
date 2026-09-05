@@ -1,0 +1,30 @@
+{
+  "name": "Ring of Ruby",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This ritual extracts a small amount of blood from a willing subject and creates a glowing ring that may be worn on the finger. The subject suffers a single point of damage when this ritual is cast.</p><p>The ring is magically linked to the lifeblood of the one it was made from: whoever wears it can feel the subject's heartbeat, knowing when it is strong or weak, racing or altogether stopped.</p><p>The ring lasts for <b>1 day (3 travel actions)</b>, after which it crumbles to black powder. Each spark doubles the duration or allows you to create another ring from another subject. With seven sparks, the ring you create will endure for the rest of the subject's life.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "4ra8W4TKZc7FkVZ6",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!4ra8W4TKZc7FkVZ6"
+}

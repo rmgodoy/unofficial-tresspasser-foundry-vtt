@@ -1,0 +1,96 @@
+{
+  "name": "Shatter Defenses",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "mighty",
+    "actionType": "attack",
+    "type": "melee",
+    "target": "1 Creature",
+    "accuracyTest": "Guard",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Deal 1 Weapon Die damage. For the rest of the encounter, the target has -1 penalty to guard and resist.",
+        "damage": "<wd>",
+        "appliedEffects": [
+          {
+            "uuid": "Item.fczAK1yvYCewEH55",
+            "type": "effect",
+            "name": "Penalty Guard",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 1
+          },
+          {
+            "uuid": "Item.1FheuqtvAYlWVt2w",
+            "type": "effect",
+            "name": "Penalty Resist",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 1
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Add 1 Weapon Die damage. It takes a -2 penalty instead.",
+        "damage": "<wd>",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "Add 1 Weapon Die damage. It takes a -3 penalty instead.",
+        "damage": "<wd>",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 4,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "8Q3E8lCAeTVY8OkE",
+  "effects": [],
+  "folder": "yPmtHVfMBArUpIEk",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!8Q3E8lCAeTVY8OkE"
+}

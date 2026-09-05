@@ -1,0 +1,32 @@
+{
+  "folder": "r3zeAZqPqMWoSsmQ",
+  "name": "Cowardly Flight",
+  "type": "feature",
+  "_id": "rR9O613LoLd9hVly",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>When brought to the brink of death, you can save your own hide at the expense of a companion. The first time you are bloodied in combat, you may immediately jump 2. Confer provoked 2 to the creature that harmed you, and choose an ally in sight as the provoking creature.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!rR9O613LoLd9hVly"
+}

@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": "LGUcdutRtnECcBtg",
+  "name": "Others",
+  "color": null,
+  "sorting": "a",
+  "_id": "YfTvEyIrBu2Blp96",
+  "description": "",
+  "sort": 400000,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341956982,
+    "modifiedTime": 1773341956982,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "_key": "!folders!YfTvEyIrBu2Blp96"
+}

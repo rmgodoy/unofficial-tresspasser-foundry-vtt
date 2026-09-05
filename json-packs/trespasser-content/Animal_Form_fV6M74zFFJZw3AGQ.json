@@ -1,0 +1,30 @@
+{
+  "name": "Animal Form",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>You transform into the shape of an animal you have seen before that is no larger than a human. You resemble the animal perfectly and possess its natural abilities - for example, you can swim as a fish or fly as a bird. You cannot speak while transformed, and suffering any damage while in this form dispels the magic. The spell lasts for <b>30 minutes (3 dungeon actions)</b>, and each spark doubles the duration.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "fV6M74zFFJZw3AGQ",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!fV6M74zFFJZw3AGQ"
+}

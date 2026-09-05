@@ -1,0 +1,37 @@
+{
+  "folder": "qL5U8Pmv64ByoTpR",
+  "name": "Shrug Off",
+  "type": "talent",
+  "_id": "LGa5atUzftqTL6G9",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>When you are dealt damage by an attack, you can take this reaction and spend any amount of focus. Roll that many skill dice Skill Die and reduce the damage by the total.</p>",
+    "usable": true,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "reaction"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!LGa5atUzftqTL6G9"
+}

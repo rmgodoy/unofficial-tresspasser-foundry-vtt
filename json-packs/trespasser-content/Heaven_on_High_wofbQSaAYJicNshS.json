@@ -1,0 +1,97 @@
+{
+  "name": "Heaven on High",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "mighty",
+    "actionType": "attack",
+    "type": "innate",
+    "target": "Burst 1",
+    "accuracyTest": "Guard",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "When you attempt this deed, jump 6 before targeting.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Deal 3 Skill Die damage.",
+        "damage": "3<sd>",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Push 2. Confer toppled.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.SihFJEG1cPOzBaXN",
+            "type": "effect",
+            "name": "Toppled",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 0
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "Confer toppled 4 instead.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.SihFJEG1cPOzBaXN",
+            "type": "effect",
+            "name": "Toppled",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 4
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 4,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "wofbQSaAYJicNshS",
+  "effects": [],
+  "folder": "4vByKoIHbkvJO9vb",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!wofbQSaAYJicNshS"
+}

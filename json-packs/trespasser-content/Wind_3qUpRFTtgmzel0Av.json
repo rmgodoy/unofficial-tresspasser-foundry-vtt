@@ -1,0 +1,134 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Wind",
+  "type": "craft",
+  "_id": "3qUpRFTtgmzel0Av",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>Your magic lets you command the element of air, soaring across the battlefield and sending enemies flying. Wind actions have the spell keyword, meaning they require a free hand or an implement such as a wand, rod, or staff. Wind actions have the spell keyword, meaning they require a free hand or an implement such as a wand, rod, or staff. Practitioners of wind magic are unparalleled at battlefield positioning, can push and sweep enemies and grant free movement to allies.</p>",
+    "keyAttribute": "agility",
+    "deeds": [
+      {
+        "uuid": "Item.zmkJzjqCTICemucs",
+        "name": "Aegis of Air",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.ofQ6ieQibVS23bdL",
+        "name": "Air Blast",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.V6ISLNp7QT8K4mIl",
+        "name": "Air Pummel",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.jfWazxc4hEryORAW",
+        "name": "Cyclone",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.j1LpNrXWgLlkE239",
+        "name": "Dancing Weapon",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.ElMpQUUnnDz4iETh",
+        "name": "Grasping Gale",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.bRDwRVstOSJkKpqo",
+        "name": "Scattering Gust",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.COtZBUZvDlt35Cmz",
+        "name": "Steal Breath",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.SIu0Qfo745TboSzk",
+        "name": "Sweeping Winds",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.4g8EbXZf7P0SyFVo",
+        "name": "Swirling Sphere",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.OBw1S9z8IUvB9P3j",
+        "name": "Tailwind",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.DCPHjqZuPh78sYJf",
+        "name": "Updraft",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.1gE2psUtfoXXlfpX",
+        "name": "Vortex",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.mkZ6c0byD68GkK5D",
+        "name": "Wind Funnel",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.Ao9K7LiwIKQHPsJv",
+        "name": "Wings of Wind",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.jY6CTdDZav2X8TqR",
+        "name": "Windwarp",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.5Uh0d3SEFUTlYCiK",
+        "name": "Air Affinity",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!3qUpRFTtgmzel0Av"
+}

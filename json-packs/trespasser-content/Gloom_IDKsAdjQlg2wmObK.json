@@ -1,0 +1,146 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Gloom",
+  "type": "craft",
+  "_id": "IDKsAdjQlg2wmObK",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>Shadow is a growing power in the world. Each day, the sun seems more pallid and distant, impassive toward the gloom that lingers at the edge of its domain. Yet darkness itself is not malevolent, only wicked things emboldened by the shroud it provides. All beings are followed by a shadow of themselves: it is as much truth as it conceals the truth, as much a friend as a stranger, and as much to be loved as to be feared. It is said that those who befriend their shadow are never without a companion.</p><p></p><p>Practitioners of gloom magic have acquainted themselves with this power, releasing their shadows into the world to enshroud foes and shelter allies in veils of darkness. Most deeds of this craft are spells, meaning they require a free hand or a spell weapon to cast them. Practitioners of such magic can envelop the battlefield in veils of shadow debilitate enemies, and teleport allies and themselves.</p>",
+    "keyAttribute": "agility",
+    "deeds": [
+      {
+        "uuid": "Item.LVUSMuHtsvOWHcr5",
+        "name": "Dark Descent",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.uGG8Ie75TsfoGmSO",
+        "name": "Drifting Wraith",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.7FnBwgwnSL1q0K8a",
+        "name": "Gentle Shroud",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.T1bOUX8qFsA9sYJo",
+        "name": "Gloom Veil",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.ln0jk3RP8BKKjOj0",
+        "name": "Hungering Dark",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.m2zb9gqUr9G96tiO",
+        "name": "Lost in Shadow",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.FmBoqmoG2c5tUN3r",
+        "name": "Night's Chill",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.nfgHhunLvGF5D1ij",
+        "name": "Nightfall",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.aA2YuBtY6fhqYHaZ",
+        "name": "Ravenous Grasp",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.QxLurAbJlD9ZpMhq",
+        "name": "Shadow Bolt",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.gmxmYGIQHlRDgk2P",
+        "name": "Shadow Tendrils",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.ZsASGetL9y4e4BDd",
+        "name": "Shadow's Embrace",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.PE8qnTRItatzEnWL",
+        "name": "Spirit Away",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.6VimvALmr6IBXdxX",
+        "name": "Tether Shadow",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.1ARr8yhLHOP14pBH",
+        "name": "Umbral Ally",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.Mtqh8LL79H2cQQD4",
+        "name": "Umbral Aspect",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.e2S2Ep5ek9LaUFSi",
+        "name": "Welcoming Dark",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.9EyTGKTKzJYlyXvw",
+        "name": "Errant Shadow",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.8Y4KE9YBRK9NDgnM",
+        "name": "Shadow Affinity",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!IDKsAdjQlg2wmObK"
+}

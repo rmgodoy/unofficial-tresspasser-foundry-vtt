@@ -1,0 +1,30 @@
+{
+  "name": "Levitate",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>A single object or creature begins floating into the air at your command. During this time, you can send the subject drifting slowly upward or downward. The effect lasts up to <b>10 minutes (1 dungeon action)</b> or for as long as you maintain focus upon the target. When the effect ends, the subject drifts harmlessly to earth. Each spark doubles the duration or the number of creatures or objects affected.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "FTDURVO7cvj2BLVa",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!FTDURVO7cvj2BLVa"
+}

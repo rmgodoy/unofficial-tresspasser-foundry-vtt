@@ -1,0 +1,30 @@
+{
+  "name": "Reminiscence",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation may be used to call a memory from your own mind or that of another subject and weave it into space as an illusion for one minute. The verisimilitude of the illusion depends on how recently the memory was formed and how dearly the subject holds it; the illusion only ever portrays an event as it is remembered, not as it actually happened.</p><p>Large rooms and environments appear hazy at best, but a small roomful of figures and furniture can be produced with moderate detail; the figures could be mistaken for real at a distance but are obviously the work of magic upon close observation. The illusion appears within ten feet of you, but if the memory involves motion, such as a scene of a rider galloping across a battlefield, you may plot a course for the figment to travel. An illusion that is struck or collides with a solid object immediately dissolves into white smoke that may be sweet or acrid, depending on the sentiment of the memory it was called from.</p><p>The effect persists for <b>10 minutes (1 dungeon action)</b>. Each spark increases the duration by this amount and produces slightly more convincing illusions.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "26nS74o9EttZL07t",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!26nS74o9EttZL07t"
+}

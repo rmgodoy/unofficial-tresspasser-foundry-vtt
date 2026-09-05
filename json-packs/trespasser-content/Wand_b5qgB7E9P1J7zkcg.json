@@ -1,0 +1,49 @@
+{
+  "name": "Wand",
+  "type": "weapon",
+  "img": "systems/trespasser/assets/icons/weapon.webp",
+  "folder": "dTEoo2MfxCrvwTUA",
+  "system": {
+    "type": "spell",
+    "range": "10",
+    "weaponDie": "",
+    "depletionDie": "d4",
+    "price": 100,
+    "needsAmmo": false,
+    "properties": {
+      "twoHanded": false,
+      "thrown": false,
+      "fragile": false
+    },
+    "isLightSource": false,
+    "radius": 0,
+    "active": false,
+    "usesFuel": false,
+    "slotOccupancy": 1,
+    "equipped": false,
+    "effects": [],
+    "enhancementEffects": [],
+    "oilEffects": [],
+    "extraDeeds": []
+  },
+  "_id": "b5qgB7E9P1J7zkcg",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!b5qgB7E9P1J7zkcg"
+}

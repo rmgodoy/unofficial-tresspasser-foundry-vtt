@@ -1,0 +1,89 @@
+{
+  "name": "Rapid Fire",
+  "type": "deed",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "heavy",
+    "actionType": "attack",
+    "type": "missile",
+    "target": "1 Creature",
+    "accuracyTest": "Guard",
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Gain rapid fire 3. At the start of your turn, you may choose to spend 1 Action Point to deal 1 Weapon Die damage to an enemy in missile range. If you do, reduce the INTENSITY of this state by 1.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.79A14oKNO69Jju0g",
+            "type": "effect",
+            "name": "Rapid Fire (effect)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 3
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "Deal 2 Weapon Die damage.",
+        "damage": "2<wd>",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "Confer weapon effect.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": true
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    },
+    "focusCost": 2,
+    "focusIncrease": 1,
+    "bonusCost": null,
+    "uses": 0
+  },
+  "_id": "E4Mv7kT31YbtNQ53",
+  "effects": [],
+  "folder": "OvF6UcehbGZHY6gI",
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!E4Mv7kT31YbtNQ53"
+}

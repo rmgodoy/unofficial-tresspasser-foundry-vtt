@@ -1,0 +1,30 @@
+{
+  "name": "Objectify",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>You or a nearby willing creature takes the shape of any mundane object you can think of, such as a hammer or an arrow in a quiver. In this state, the affected creature retains its senses and can speak telepathically to nearby creatures. In their transformed state, they can be used by another creature as a <b>crude tool</b> (d6 depletion die). Each time they are used, they must make a depletion check or revert to their normal form. You can also dismiss the spell with a mental gesture, causing the subject to spring suddenly back to its original shape.</p><p>The spell lasts for <b>10 minutes (one dungeon round)</b>. With each spark, you can affect one additional creature, double the duration, or increase the <b>quality</b> of the tool by one step, to a maximum of <b>superior</b>.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "DOTriauXgTnFtk8v",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!DOTriauXgTnFtk8v"
+}

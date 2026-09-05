@@ -1,0 +1,30 @@
+{
+  "name": "Devour Text",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation allows you to eat a tome to quickly gain the information it contains. A single book or scroll becomes as soft as butter in your hand. The taste depends on the contents of the text. Once you have finished, you have knowledge of the book's contents, and the book is destroyed.</p><p>Each spark improves your powers of retention: with no sparks, it is as if you read the book some time ago, with three, it is as if you just read it over the last few days. With seven sparks, you gain perfect knowledge of the book's contents down to the page numbers.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "Ai51y2At2VVc6nin",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Ai51y2At2VVc6nin"
+}

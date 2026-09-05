@@ -19,6 +19,14 @@
     "styles/haven-tracker.css",
     "styles/event-clocks.css"
   ],
+  "packs": [
+    {
+      "name": "trespasser-content",
+      "label": "Trespasser Content",
+      "type": "Item",
+      "path": "./packs/trespasser-content"
+    }
+  ],
   "languages": [
     {
       "lang": "en",

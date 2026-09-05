@@ -1,0 +1,146 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Radiance",
+  "type": "craft",
+  "_id": "WTPggviOZSSE5alu",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>For countless ages, light has been understood as a benevolent and protective force for its power to banish darkness and the creatures that dwell in it. You are the inheritor of a magical tradition based around these properties, a life-giver and a punisher of shadow and its denizens. Most deeds of the this craft are spells, meaning they require a free hand or a staff or other implement to channel them. Practitioners of radiance magic have the tools to restore and invigorate their allies, render zones of safety and replenishment, and banish darkness with powerful magic delivered from on high.</p>",
+    "keyAttribute": "spirit",
+    "deeds": [
+      {
+        "uuid": "Item.1LD9aYRjxckJzIei",
+        "name": "Admonishment",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.TELiEObndDBADkJZ",
+        "name": "Brilliant Wings",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.DuL1ULZMT6cqhAPy",
+        "name": "Cleansing Flare",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.3ycuqYpCwpq42kK8",
+        "name": "Dawn Sphere",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.7V6xZnNeFuCZc5BD",
+        "name": "Dawn's Vigor",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.hb79SgTYpkHeHZfK",
+        "name": "Daybreak",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.p4zeerwLsx0qExiG",
+        "name": "Dazzling Rays",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.wjMOI5Y2zF2Vihy8",
+        "name": "Effulgent Ray",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.mB5b3kqQgxKbAsVF",
+        "name": "Glare",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.G484nKxworPLKHbd",
+        "name": "Gleaming Aura",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.CYzUbHHexFA1mABT",
+        "name": "Guiding Light",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.62OfsMh7PAAi8kdx",
+        "name": "Illuminate",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.7kRuodYzLLIQQKvI",
+        "name": "Light's Embrace",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.pfoh3cO1kF1eirK5",
+        "name": "Pillar of Light",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.E3XPZ7wMS7qrUoFQ",
+        "name": "Radiant Smite",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.Vlzxp9hbApd2sRYr",
+        "name": "Shining Mote",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.j9hjidcMxpEfSzoj",
+        "name": "Shooting Star",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.WZyRQkWd6DRV59ja",
+        "name": "Shepherd of Radiance",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.CcbofAvbtDAU0XBC",
+        "name": "Light Affinity",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!WTPggviOZSSE5alu"
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Jump",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>When you cast this incantation, one nearby willing creature gains the ability to perform a single, very high jump in the next minute. The subject can jump a vertical distance of twice their speed, or a horizontal distance of three times their speed. They will land gently unless they travel significantly further than this distance (by jumping off a cliff, for example). Each spark doubles the potential distance of the jump or the number of creatures affected.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "ry47R7rMPPLFRQJx",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!ry47R7rMPPLFRQJx"
+}

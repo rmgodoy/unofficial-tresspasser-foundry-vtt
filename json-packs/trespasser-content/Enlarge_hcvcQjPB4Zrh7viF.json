@@ -1,0 +1,30 @@
+{
+  "name": "Enlarge",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>A nearby object no larger than a chair begins to enlarge. It grows up to ten times its size over one minute and remains this size for up to <b>30 minutes (3 dungeon actions)</b>. If it is a hard object, its growth will abate if it meets serious resistance, such as pressing into the walls and ceiling. A fragile object will shatter if its growth is met with this type of resistance.</p><p>For each spark, you can double how large it grows, but each doubling also reduces the magic's duration by half.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "hcvcQjPB4Zrh7viF",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!hcvcQjPB4Zrh7viF"
+}

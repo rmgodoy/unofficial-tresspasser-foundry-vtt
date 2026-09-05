@@ -1,0 +1,32 @@
+{
+  "folder": "s2icBJbOcJYYKUJA",
+  "name": "Summon Demon",
+  "type": "feature",
+  "_id": "TJG38hfGYDs64LQg",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>At the start of any round in combat, you may choose to grant your demon a physical form, summoning it to an empty square of your choice within spell range. It lasts until the end of the encounter or until it is defeated, at which time its corporeal form vanishes in a puff of acrid smoke and its consciousness retreats back into your own. You can only summon your demon once each encounter. You must offer a portion of your living essence to grant it a physical form. While your demon is made flesh, you suffer the following penalties:</p><ul><li><p>You lose half your focus immediately.</p></li><li><p>Whenever you gain focus while your demon is summoned, reduce the amount you gain by half.</p></li><li><p>You lose an action point at the start of each turn.</p></li></ul><p>Your demon has a stat block based on its species- these are listed on the next few pages. While your demon is on the battlefield, you choose its actions and make its rolls. It shares your initiative and always acts in the same phase as you. It has three action points (ïƒ¨ïƒ¨ïƒ¨) on its turn and can take all default actions, but the only deed it can attempt is its listed demonic attack. It has no recovery dice of its own; it uses yours whenever it is granted a recovery.</p><p></p><p>As you gain power, so too does your demon attune with the living world: its hit points are determined by your level, and it adds your SKILL BONUS to its combat values.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!TJG38hfGYDs64LQg"
+}

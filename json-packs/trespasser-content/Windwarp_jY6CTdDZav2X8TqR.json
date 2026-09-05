@@ -1,0 +1,32 @@
+{
+  "folder": "uCzq9Lagik6bLJGr",
+  "name": "Windwarp",
+  "type": "feature",
+  "_id": "jY6CTdDZav2X8TqR",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your study of aeromancy has given you the power to create minor magical effects that interact with the element of air: you can conjure small gusts of wind, cycle toxic air out of an enclosed space, whip up a tiny cyclone on a flat surface, or carry your voice on the breeze to speak at normal volume to a creature one hundred feet away. When you test your abilities with such a feat, the Judge may call for an AGILITY | MAGIC check to determine the efficacy.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!jY6CTdDZav2X8TqR"
+}

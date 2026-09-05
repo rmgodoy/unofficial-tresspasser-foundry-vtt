@@ -1,0 +1,270 @@
+{
+  "folder": "cxjJbihJQKBCxOnZ",
+  "name": "Knight",
+  "type": "calling",
+  "_id": "efmKS7PiRqr2hljI",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>A calling for one who would bring order to a land of chaos.</p><p></p><p>Knighthood once represented honor, courage, and self- sacrifice, and it stood for a bond greater than that of coin or blood. Knights were said to be benevolent and steadfast guardians of the commoners within their demesne. Today, warlords and petty criminals wear the title to satisfy their vanity and justify any number of imperious cruelties. While you may not have the holdings or share the virtues of knights past, you do share their most vital trait: you have an unbreakable determination, and you will not fall without a fight.</p>",
+    "skills": [
+      "athletics",
+      "crafting",
+      "folklore",
+      "letters",
+      "perception",
+      "speech"
+    ],
+    "talents": [
+      {
+        "uuid": "Item.CkoetLy2YNqVkzcQ",
+        "name": "Advancing Strike",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.vvmsKSaHbFlhMw6s",
+        "name": "Armored Swiftness",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.ctIk4zY74y2gh5er",
+        "name": "Armor Mastery",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.AECh0biMYuPY4p7r",
+        "name": "Charge",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.jr0n0827XQzItLxR",
+        "name": "Flanker",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.wSFZ5YBBOQG5hG4K",
+        "name": "Guardian",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.RVj2bgMw747dUAVr",
+        "name": "Satisfaction",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.ynXMffUc3GofiYp5",
+        "name": "Determination",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.9fpBz6uVaJ6c3Hi6",
+        "name": "Into the Fray",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.bPyQU7H4VtG1nvBj",
+        "name": "Provoke",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.lgJ2jBdhGapr6qIs",
+        "name": "Refasten",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.JyuQEdMEBu1fD9NR",
+        "name": "Retaliate",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.HWLlNtPlEz8IRgP9",
+        "name": "Martial Fortitude",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.xJciqdpH02a1KoWH",
+        "name": "Awareness",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.tZUS527PtAW8tlTo",
+        "name": "Pin Down",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.xt7U5WjSEWXqMbMY",
+        "name": "Valor",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ],
+    "enhancements": [
+      {
+        "uuid": "Item.wPD2SSLHvVOeYEag",
+        "name": "Greater Valor",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.0kw4iT1b5v3DJULp",
+        "name": "Perfect Defense",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.YTX91cJ2qthmaAS3",
+        "name": "Repel Treachery",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.d6zeSIGQemwL5vUO",
+        "name": "Retribution",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.9CiPTlxcB8lvCG9i",
+        "name": "Valorous Aegis",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ],
+    "progression": [
+      {
+        "level": 0,
+        "xp": 20,
+        "hp": 5,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 0,
+        "callingAbilities": "Past Life",
+        "deedsLight": 0,
+        "deedsHeavy": 0,
+        "deedsMighty": 0
+      },
+      {
+        "level": 1,
+        "xp": 30,
+        "hp": 10,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 2,
+        "callingAbilities": "Calling, 1st Craft",
+        "deedsLight": 2,
+        "deedsHeavy": 1,
+        "deedsMighty": 0
+      },
+      {
+        "level": 2,
+        "xp": 40,
+        "hp": 15,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 3,
+        "callingAbilities": "Talent",
+        "deedsLight": 2,
+        "deedsHeavy": 2,
+        "deedsMighty": 0
+      },
+      {
+        "level": 3,
+        "xp": 50,
+        "hp": 20,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 4,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 2,
+        "deedsHeavy": 2,
+        "deedsMighty": 1
+      },
+      {
+        "level": 4,
+        "xp": 60,
+        "hp": 25,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 5,
+        "callingAbilities": "2nd Craft",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 1
+      },
+      {
+        "level": 5,
+        "xp": 70,
+        "hp": 30,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 6,
+        "callingAbilities": "Talent",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 2
+      },
+      {
+        "level": 6,
+        "xp": 80,
+        "hp": 35,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 7,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 2
+      },
+      {
+        "level": 7,
+        "xp": 90,
+        "hp": 40,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 8,
+        "callingAbilities": "3rd Craft",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 3
+      },
+      {
+        "level": 8,
+        "xp": 100,
+        "hp": 45,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 9,
+        "callingAbilities": "Talent",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 3
+      },
+      {
+        "level": 9,
+        "xp": 0,
+        "hp": 50,
+        "skillBonus": 5,
+        "skillDie": "d12",
+        "attributePoints": 10,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 4
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!efmKS7PiRqr2hljI"
+}

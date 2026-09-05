@@ -1,0 +1,32 @@
+{
+  "folder": "jUvlU6IpMgVT2Pqw",
+  "name": "Waterwarp",
+  "type": "feature",
+  "_id": "ag2X3mN0prnhPkzp",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your mastery over ice magic allows you to manipulate its base element in fundamental ways. You can cause minor magical effects in water, such as changing the temperature or state of matter of a small quantity, creating a small patch in a rainstorm where rain does not fall, causing a cloud of mist to fill an enclosed space, or instantly straining the moisture out of a wet article of clothing. Whenever you test your abilities with such a feat, the Judge may call for a check of INTELLECT | MAGIC to determine the efficacy.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!ag2X3mN0prnhPkzp"
+}

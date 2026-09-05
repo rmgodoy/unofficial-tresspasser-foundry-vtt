@@ -1,0 +1,305 @@
+{
+  "folder": "cxjJbihJQKBCxOnZ",
+  "name": "Thief",
+  "type": "calling",
+  "_id": "YtQB9KDm3082jbg0",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>A calling for one who would sit atop a mountain of riches.</p><p></p><p>For most in this dismal world, wealth and luxury are unattainable dreams. For those willing to relieve others of their hard-earned possessions, however, those dreams lie just beyond a locked door. Why toil endlessly for what could be gained with a single great act of subterfuge? Coin is no more useful burdening the pockets of the wealthy than it is collecting dust in the vaults of the dead. And once those wealthy misers have perished and been tucked away in their tombs, would not their riches be better off in the warmth of your living hands?</p>",
+    "skills": [
+      "alchemy",
+      "acrobatics",
+      "perception",
+      "speech",
+      "stealth",
+      "tinkering"
+    ],
+    "talents": [
+      {
+        "uuid": "Item.B052u5ni95uI4geL",
+        "name": "Acrobat",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.y4XOHULOu2B7oQWm",
+        "name": "Aggravate",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.EG52NH49SqeCnsSS",
+        "name": "Alacrity",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.6SOlZmhE61yddBeS",
+        "name": "Artful Dodger",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.mDfcQuEFOExVI2fC",
+        "name": "Bide Time",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.EyMeWLUhh9V6CWyL",
+        "name": "Broad Knowledge",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.ZIqZjGD8kPQxwHzV",
+        "name": "Court Danger",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.UZjMnCkJp8SpL0V1",
+        "name": "Deep Knowledge",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.B1nT6fpsAPxKMQ11",
+        "name": "Desperate Agility",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.IN1ztdvczsurnFzL",
+        "name": "Evade",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.wOwEaG8bFAdD8njq",
+        "name": "Flanker",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.StxVWGKSKGIj4T2z",
+        "name": "Flawless Counter",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.iypIzn30IMS1zUHE",
+        "name": "Fleet of Foot",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.wb6MZYXsHWisSDZ1",
+        "name": "Hand Off",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.FcmDyDBqiBQ3LrUY",
+        "name": "Into the Fray",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.h7Zxbc5dppYDkJGJ",
+        "name": "Mislead",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.qmW8TaQC0ZfElo7U",
+        "name": "Piercing Sight",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.RCJNuVhWKtl1eaWR",
+        "name": "Pilfer",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      },
+      {
+        "uuid": "Item.atRvZAB92ohwIDtv",
+        "name": "Sharpshooter",
+        "img": "systems/trespasser/assets/icons/talent.webp"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.XhGAjzYpJ3GDpenq",
+        "name": "Expert Fortitude",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.CyXCvVYTFgAtgYqE",
+        "name": "Thief's Guile",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.d3u8tDxc59bvd6hh",
+        "name": "Elusive",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.tTcibcPduUd3vuOC",
+        "name": "Natural Talent",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ],
+    "enhancements": [
+      {
+        "uuid": "Item.sQIzYuO5QMkdAbo4",
+        "name": "Backstab",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.YBi1OONl3Si5cK9K",
+        "name": "Deep Shadows",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.M2tiPiMUjSWnrqYl",
+        "name": "Chirurgeon",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.5tWEUZIE1V4ifnDr",
+        "name": "Skulk",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.xUPLfEgWKLmkFzea",
+        "name": "Wraithwalk",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ],
+    "progression": [
+      {
+        "level": 0,
+        "xp": 20,
+        "hp": 5,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 0,
+        "callingAbilities": "Past Life",
+        "deedsLight": 0,
+        "deedsHeavy": 0,
+        "deedsMighty": 0
+      },
+      {
+        "level": 1,
+        "xp": 30,
+        "hp": 10,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 2,
+        "callingAbilities": "Calling, 1st Craft",
+        "deedsLight": 2,
+        "deedsHeavy": 1,
+        "deedsMighty": 0
+      },
+      {
+        "level": 2,
+        "xp": 40,
+        "hp": 15,
+        "skillBonus": 2,
+        "skillDie": "d6",
+        "attributePoints": 3,
+        "callingAbilities": "Talent",
+        "deedsLight": 2,
+        "deedsHeavy": 2,
+        "deedsMighty": 0
+      },
+      {
+        "level": 3,
+        "xp": 50,
+        "hp": 20,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 4,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 2,
+        "deedsHeavy": 2,
+        "deedsMighty": 1
+      },
+      {
+        "level": 4,
+        "xp": 60,
+        "hp": 25,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 5,
+        "callingAbilities": "2nd Craft",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 1
+      },
+      {
+        "level": 5,
+        "xp": 70,
+        "hp": 30,
+        "skillBonus": 3,
+        "skillDie": "d8",
+        "attributePoints": 6,
+        "callingAbilities": "Talent",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 2
+      },
+      {
+        "level": 6,
+        "xp": 80,
+        "hp": 35,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 7,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 3,
+        "deedsHeavy": 3,
+        "deedsMighty": 2
+      },
+      {
+        "level": 7,
+        "xp": 90,
+        "hp": 40,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 8,
+        "callingAbilities": "3rd Craft",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 3
+      },
+      {
+        "level": 8,
+        "xp": 100,
+        "hp": 45,
+        "skillBonus": 4,
+        "skillDie": "d10",
+        "attributePoints": 9,
+        "callingAbilities": "Talent",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 3
+      },
+      {
+        "level": 9,
+        "xp": 0,
+        "hp": 50,
+        "skillBonus": 5,
+        "skillDie": "d12",
+        "attributePoints": 10,
+        "callingAbilities": "Enhancement",
+        "deedsLight": 4,
+        "deedsHeavy": 4,
+        "deedsMighty": 4
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!YtQB9KDm3082jbg0"
+}

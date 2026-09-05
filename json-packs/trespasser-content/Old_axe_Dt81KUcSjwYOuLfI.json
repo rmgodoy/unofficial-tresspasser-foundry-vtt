@@ -1,0 +1,49 @@
+{
+  "name": "Old axe",
+  "type": "weapon",
+  "img": "systems/trespasser/assets/icons/weapon.webp",
+  "folder": "bmSVYvyBZw44xI1C",
+  "system": {
+    "type": "melee",
+    "weaponDie": "d6",
+    "depletionDie": "d4",
+    "slotOccupancy": 1,
+    "range": "",
+    "needsAmmo": false,
+    "properties": {
+      "twoHanded": false,
+      "thrown": false,
+      "fragile": false
+    },
+    "isLightSource": false,
+    "radius": 0,
+    "active": false,
+    "usesFuel": false,
+    "price": 0,
+    "equipped": false,
+    "effects": [],
+    "enhancementEffects": [],
+    "oilEffects": [],
+    "extraDeeds": []
+  },
+  "_id": "Dt81KUcSjwYOuLfI",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Dt81KUcSjwYOuLfI"
+}

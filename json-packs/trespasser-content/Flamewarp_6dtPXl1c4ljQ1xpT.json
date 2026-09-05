@@ -1,0 +1,32 @@
+{
+  "folder": "cHwi2gtnLaYlXyQB",
+  "name": "Flamewarp",
+  "type": "feature",
+  "_id": "6dtPXl1c4ljQ1xpT",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your specialization allows you to perform minor magical effects that employ the element of fire at will. You can raise and lower the temperature in an enclosed space, ignite and extinguish small fires nearby, heat and cool small quantities of water, instantly dry wet clothing, create a candle-sized flame in your hand, to name a few possible effects. Whenever you test your abilities with such a feat, the Judge may call for a SPIRIT | MAGIC check to determine the efficacy.</p><p></p><p>Further, when you perform the cook camp activity, increase the quality of rations you create by one step, from crude to fine, or fine to superior.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!6dtPXl1c4ljQ1xpT"
+}

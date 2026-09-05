@@ -1,0 +1,30 @@
+{
+  "name": "Light of Truth",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>When you cast this incantation, you cause a touched light source, such as a torch or lantern, to emanate truth in addition to light. Wherever its light is cast, creatures are unable to lie. This effect lasts for <b>10 minutes (1 dungeon action)</b>, and during that time, the light source rapidly consumes its fuel, invariably dying out at the end of the spell. Each spark increases the duration by <b>10 minutes (1 dungeon action)</b>. With three sparks, written lies glow like embers, revealing themselves as false.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "GBBszDpor8g1q3gM",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!GBBszDpor8g1q3gM"
+}

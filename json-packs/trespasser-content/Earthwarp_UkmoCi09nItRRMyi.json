@@ -1,0 +1,32 @@
+{
+  "folder": "r90d08YveofG2lJv",
+  "name": "Earthwarp",
+  "type": "feature",
+  "_id": "UkmoCi09nItRRMyi",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your specialization allows you to perform minor magical effects that employ the element of earth at will. You can clear the dust from surfaces, make it dance in the air, change the consistency of a small amount of rock or dirt in your hand to mud and vice versa, or shape small quantities of rock into the forms of your choice. When you attempt such a feat, the Judge may call for a MIGHT | MAGIC check to determine the efficacy.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!UkmoCi09nItRRMyi"
+}

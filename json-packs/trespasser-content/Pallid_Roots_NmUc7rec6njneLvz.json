@@ -1,0 +1,30 @@
+{
+  "name": "Pallid Roots",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation may be used to quickly desiccate an expanse of plant life in a <b>close blast 10</b>. Trees will become bare and brittle husks, easily felled, while smaller flora will crumble into mounds of dust to create a clearer and more open space, albeit a grotesque one. In order to perform the ritual, you must stand at the threshold of the intended area and hold aloft a rotten apple or other fruit. It will be turned fresh and juicy by the end of the process, though its taste will be strange. With each spark, you may choose to double the diameter.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "NmUc7rec6njneLvz",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!NmUc7rec6njneLvz"
+}

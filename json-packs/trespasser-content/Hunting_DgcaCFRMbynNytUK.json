@@ -1,0 +1,158 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Hunting",
+  "type": "craft",
+  "_id": "DgcaCFRMbynNytUK",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>You prefer to fight at a distance, using your expertise with missile weapons to take down foes before they ever reach you. All deeds of this craft have the missile keyword, meaning they must be used with a weapon like a bow or throwing axe. Experts of hunting learn deeds to cover their allies and deliver deadly volleys upon their enemies.</p>",
+    "keyAttribute": "agility",
+    "deeds": [
+      {
+        "uuid": "Item.PoIyxpervjWviKRn",
+        "name": "Blinding Shot",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.P3izShqOvvuE10bE",
+        "name": "Covering Fire",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.uLnW3Xr8MshpKLjh",
+        "name": "Driving Impact",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.luz6Yd04O1KOu7w2",
+        "name": "Flaming Shot",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.1J1Krce0jBqGNk1F",
+        "name": "Gut Shot",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.zzMv75uY6PsLaUfP",
+        "name": "Hindering Volley",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.d5ylaWzwaryM6Zgg",
+        "name": "Impaling Rain",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.cz47H6ogslYraOui",
+        "name": "Maiming Shot",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.eaegxk3yOeBNEi75",
+        "name": "Make Distance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.mQC4G8QMjAq1T00d",
+        "name": "Owl Stance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.I98ym0btRtCUB7wS",
+        "name": "Pinnacle Shot",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.wCDEn8u9Xkhs46Kh",
+        "name": "Quick Volley",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.nn21ku19z5uuJqPh",
+        "name": "Rampart Stance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.E4Mv7kT31YbtNQ53",
+        "name": "Rapid Fire",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.kqy3I0iWtTNvIu9C",
+        "name": "Shattering Barrage",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.PlTWNCL5mbbMfMAI",
+        "name": "Spreadfire Retreat",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.JA7EW72eVMNeNKDT",
+        "name": "Takedown Shot",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.PD5ps5DJhbuwNASX",
+        "name": "Trick Shot",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.uqkV5HWY9a9bNzJC",
+        "name": "Wounding Barbs",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.xNiZqAFitYSMGpkH",
+        "name": "Survivalist",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.01tvXD0SRvBinqdz",
+        "name": "Counter Shot",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!DgcaCFRMbynNytUK"
+}

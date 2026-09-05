@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": "6tWy1h13axLUQgSO",
+  "name": "Invoker",
+  "color": null,
+  "sorting": "a",
+  "_id": "ViiWEBGRFOSZPnnL",
+  "description": "",
+  "sort": 300000,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341956982,
+    "modifiedTime": 1773341956982,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "_key": "!folders!ViiWEBGRFOSZPnnL"
+}

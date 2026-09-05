@@ -1,0 +1,45 @@
+{
+  "folder": "LGeJdS4GJlqCm4Z8",
+  "name": "Bide Time",
+  "type": "talent",
+  "_id": "TwQIIq1OAzjyozGX",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>End your turn when you take this action. Next round, you gain an additional action point at the start of your turn.</p>",
+    "usable": true,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [
+      {
+        "uuid": "Item.5QGScoG3FpFgg45q",
+        "type": "effect",
+        "name": "Gain AP",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 1
+      }
+    ],
+    "type": "action"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!TwQIIq1OAzjyozGX"
+}

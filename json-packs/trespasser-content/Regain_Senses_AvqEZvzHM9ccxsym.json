@@ -1,0 +1,32 @@
+{
+  "folder": "xbosWVe5nlqzPxK7",
+  "name": "Regain Senses",
+  "type": "feature",
+  "_id": "AvqEZvzHM9ccxsym",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>It is a challenge to regain your senses in the midst of a reckless fury. At the end of any round, you may try to calm yourself down. Make a prevail check vs. 10 + the number on your bloodlust die.</p><p></p><p>On a success, you end your bloodlust: make a recovery x, where x is the number on your bloodlust die. You then lose your bloodlust die for the rest of the encounter. At the end of a combat, you regain senses automatically, and you can make the recovery if you want. This still counts as a combat recovery, meaning you roll the dice instead of taking the highest value.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!AvqEZvzHM9ccxsym"
+}

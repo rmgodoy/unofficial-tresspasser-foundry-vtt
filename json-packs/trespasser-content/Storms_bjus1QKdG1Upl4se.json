@@ -1,0 +1,146 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Storms",
+  "type": "craft",
+  "_id": "bjus1QKdG1Upl4se",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>Exerting your will over the wild power of nature, you have learned to alter the weather, summoning clouds, rain, and even lightning to harm your foes, and your enemies are left shocked and staggered by your power, while allies are revitalized. Deeds of this craft have the spell keyword, meaning they must be performed with a free hand or an implement like a staff.</p>",
+    "keyAttribute": "agility",
+    "deeds": [
+      {
+        "uuid": "Item.yvIbh8gzUJmHjOuM",
+        "name": "Blinding Flash",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.JDS7tK8VdICRCSpN",
+        "name": "Bouncing Bolt",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.HIe3i27xyuMTEbJq",
+        "name": "Call Lightning",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.gPbpjLOpxuAGpmDY",
+        "name": "Flicker",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.Mj240BEbPs8Um2qY",
+        "name": "Fulminate",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.aXCm5d0i2seOTxbO",
+        "name": "Galvanize",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.dKrudgh7EjoxsWhC",
+        "name": "Intensify",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.rXVImNf42fZlmPz2",
+        "name": "Maelstrom",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.OypGAERmowMi9ZSq",
+        "name": "Ray of Lightning",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.aFOkAOkNq15EtLxr",
+        "name": "Rolling Fog",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.B2PKXy7IURkiAtqN",
+        "name": "Slashing Rain",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.ZLyV1O6vQ29hfoiE",
+        "name": "Sparking Weapons",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.i8nMcXjfJ9rwygHc",
+        "name": "Storm Step",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.fmSDoktkwjc82mjB",
+        "name": "Thunderstrike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.jtfFB4g0XtvuQT2G",
+        "name": "Vital Shock",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.W3l1cQzIgDrCDydt",
+        "name": "Vital Surge",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.n5kcqYXy32U00HiX",
+        "name": "Crackling Arc",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.OpgW5GQ5UNFKINXL",
+        "name": "Bellwether",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.5tSxck0TeAEV7Dgx",
+        "name": "Weather Affinity",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!bjus1QKdG1Upl4se"
+}

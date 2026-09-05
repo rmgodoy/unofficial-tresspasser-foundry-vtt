@@ -1,0 +1,30 @@
+{
+  "name": "Earth Shaping",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation may be used to move earth or stone against its natural inclinations or change its consistency. You could flatten or raise a mound, turn a section of stone wall into sand, carve an earthen stairway into a steep hillside, or open a new entrance to a cave complex. The shaped earth is still beholden to gravity, so this incantation could form a natural earthen bridge but could not allow a boulder to float in the air.</p><p>You can warp a quantity of soft earth that could fit into a <b>10 ft. cube</b>, though the actual matter need not occupy such dimensions, or a quantity of a hard stone that could fit inside a <b>5 ft. cube</b>. Each spark doubles the quantity of earth or stone affected.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "SNDHZC3Y2Ri0M1lG",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!SNDHZC3Y2Ri0M1lG"
+}

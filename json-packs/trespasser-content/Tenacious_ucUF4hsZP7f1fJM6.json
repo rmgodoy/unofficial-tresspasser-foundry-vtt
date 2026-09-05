@@ -1,0 +1,46 @@
+{
+  "folder": "EtoWy6iRAXCIBITx",
+  "name": "Tenacious",
+  "type": "effect",
+  "_id": "ucUF4hsZP7f1fJM6",
+  "img": "systems/trespasser/assets/icons/states/Tenacious.svg",
+  "system": {
+    "description": "<p>You gain this state while you are at 0 hit points, and you lose it if you are defeated or if your hit point total increases above 0. Damage-dealing states are paused while you have this state, and you also ignore minor environmental hazards, such as terrain damage. </p><p></p><p>When you are dealt damage, you must make a tenacity check of MIGHT + SPIRIT vs. 10 + DAMAGE. The first time you fail a tenacity check each encounter, lose 2 endurance.</p><ul><li><p>On a success, you withstand the attack.</p></li><li><p>On a failure, you are defeated and suffer a scar. </p></li><li><p>On a failure with a shadow, you are defeated and suffer an injury.</p></li><li><p>On a failure with two shadows, you die.</p></li></ul>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": false,
+    "statusIcon": "systems/trespasser/assets/icons/states/Tenacious.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788358180711,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!ucUF4hsZP7f1fJM6"
+}

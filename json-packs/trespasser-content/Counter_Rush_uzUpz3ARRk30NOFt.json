@@ -1,0 +1,37 @@
+{
+  "folder": "qL5U8Pmv64ByoTpR",
+  "name": "Counter Rush",
+  "type": "talent",
+  "_id": "uzUpz3ARRk30NOFt",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>When you spark on a guard or resist check against an attacker you aren't engaging, you can take a reaction to move 5 squares toward them. Then, if you are engaging them, you can deal Weapon Die damage to them per spark.</p>",
+    "usable": false,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!uzUpz3ARRk30NOFt"
+}

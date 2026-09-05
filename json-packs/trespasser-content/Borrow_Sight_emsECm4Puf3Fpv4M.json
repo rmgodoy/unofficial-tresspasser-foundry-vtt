@@ -1,0 +1,30 @@
+{
+  "name": "Borrow Sight",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This magic allows you to see through the eyes of any one creature that you got a good look at within the last day, regardless of that creature's current location. The effect lasts up to <b>10 minutes (1 dungeon action)</b>. While looking through a creature's eyes, if you see yet another creature, you can transfer your own perspective into that creature instead. You can perform one such transfer. Each spark doubles the duration and grants you an additional transfer.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "emsECm4Puf3Fpv4M",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!emsECm4Puf3Fpv4M"
+}

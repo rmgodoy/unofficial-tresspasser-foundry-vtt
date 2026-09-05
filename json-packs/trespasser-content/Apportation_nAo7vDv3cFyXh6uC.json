@@ -1,0 +1,30 @@
+{
+  "name": "Apportation",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Casting this incantation allows you to manipulate objects from afar, lifting them into the air and moving them. At base level, you can only make an object drift harmlessly in a straight line. While focusing, this incantation can persist for up to <b>10 minutes (1 dungeon action)</b>. You can never perform an act that you wouldn't be able to do with your own two hands.</p><p>Each spark affords you better control over the object - with one or more, you could remove a single book from a high shelf; with two, you could uncork a bottle and pour it out. With three, you could select a specific key from a keyring, push it into a lock, and turn it.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "nAo7vDv3cFyXh6uC",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!nAo7vDv3cFyXh6uC"
+}

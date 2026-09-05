@@ -1,0 +1,30 @@
+{
+  "name": "Fog Cloud",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Opaque white fog billows forth from a chosen point in sight. The aperture expels a finite amount of fog, enough to fill a confined space or create a cloud <b>50 ft. across</b>. It persists for up to <b>1 hour</b>, and each spark doubles the volume.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "8Im3iGzuOIyyAKlF",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!8Im3iGzuOIyyAKlF"
+}

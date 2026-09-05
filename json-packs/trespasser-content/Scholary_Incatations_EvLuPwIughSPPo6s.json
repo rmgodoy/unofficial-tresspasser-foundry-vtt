@@ -1,0 +1,32 @@
+{
+  "folder": "YvsnqBcVsw6sVVbp",
+  "name": "Scholary Incatations",
+  "type": "feature",
+  "_id": "EvLuPwIughSPPo6s",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>You can perform ritual magic to produce powerful and elaborate magical effects. When you take up this calling, learn 1 + INTELLECT incantations. Whenever you increase your INTELLECT, learn another. You also learn one at each odd level beyond first, to a total of 5 + INTELLECT at ninth level. You learn them randomly from the scholarly magic table in Chapter X: Magic & Rituals.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!EvLuPwIughSPPo6s"
+}

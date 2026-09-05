@@ -1,0 +1,30 @@
+{
+  "name": "Phantom Steed",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation conjures a glowing, ethereal horse. The creature will obey your commands as well as any tame horse. Though it is able to interact with you and other friendly creatures, it is intangible to enemies and untended supplies. After <b>8 hours</b>, the horse fades into nothingness. Each spark increases the duration by 8 hours or creates one additional steed.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "Lmy1BUb8Uj6YtHId",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Lmy1BUb8Uj6YtHId"
+}

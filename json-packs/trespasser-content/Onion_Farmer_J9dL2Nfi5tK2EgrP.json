@@ -1,0 +1,58 @@
+{
+  "name": "Onion Farmer",
+  "type": "past_life",
+  "img": "systems/trespasser/assets/icons/pesant.webp",
+  "folder": "jQ4U8ErtXbBCCZjh",
+  "system": {
+    "attributes": {
+      "mighty": 1,
+      "agility": 0,
+      "intellect": 0,
+      "spirit": 0
+    },
+    "skills": {
+      "acrobatics": false,
+      "alchemy": false,
+      "athletics": true,
+      "crafting": false,
+      "folklore": false,
+      "letters": false,
+      "magic": false,
+      "nature": false,
+      "perception": false,
+      "speech": false,
+      "stealth": false,
+      "tinkering": false
+    },
+    "items": [
+      {
+        "uuid": "Item.TWHIfYsY16CajN6m",
+        "name": "Bag of onions",
+        "img": "systems/trespasser/assets/icons/item.webp",
+        "type": "item",
+        "quantity": 1
+      }
+    ],
+    "description": ""
+  },
+  "_id": "J9dL2Nfi5tK2EgrP",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!J9dL2Nfi5tK2EgrP"
+}

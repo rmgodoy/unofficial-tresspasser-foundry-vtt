@@ -1,0 +1,32 @@
+{
+  "folder": "7AfI2UFVY4FKaIB2",
+  "name": "Ruination",
+  "type": "feature",
+  "_id": "8Z9ruHP1homisGZP",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Instead of granting a recovery to allies, you can choose to deal 2 Skill Die damage to each enemy in the area as the base effect of your Revelation. It is still a support deed.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!8Z9ruHP1homisGZP"
+}

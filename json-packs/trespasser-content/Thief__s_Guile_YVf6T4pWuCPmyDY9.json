@@ -1,0 +1,124 @@
+{
+  "folder": "Vrp4pmKYMTHGkcpr",
+  "name": "Thief 's Guile",
+  "type": "deed",
+  "_id": "YVf6T4pWuCPmyDY9",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "tier": "light",
+    "actionType": "support",
+    "type": "innate",
+    "target": "Personal",
+    "accuracyTest": "10",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": {
+      "start": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "before": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "base": {
+        "description": "Jump 4",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "hit": {
+        "description": "One creature you passed through gains a +2 bonus or -2 penalty to accuracy, guard, or resist for the rest of the round.",
+        "damage": "",
+        "appliedEffects": [
+          {
+            "uuid": "Item.Ih0k24C9SmazUU8h",
+            "type": "effect",
+            "name": "Bonus Accuracy (Thief 's Guile)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 0
+          },
+          {
+            "uuid": "Item.5TVpu3NwOt4ZlgWp",
+            "type": "effect",
+            "name": "Bonus Guard (Thief 's Guile)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 0
+          },
+          {
+            "uuid": "Item.D6vQujLjybd2Dmoj",
+            "type": "effect",
+            "name": "Bonus Resist (Thief 's Guile)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 0
+          },
+          {
+            "uuid": "Item.xHpFwnhO9vxH0I8w",
+            "type": "effect",
+            "name": "Penalty Accuracy (Thief 's Guile)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 0
+          },
+          {
+            "uuid": "Item.pHIjzT6hPShhGNEj",
+            "type": "effect",
+            "name": "Penalty Guard (Thief 's Guile)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 0
+          },
+          {
+            "uuid": "Item.Mlsph9ISYYomLxwV",
+            "type": "effect",
+            "name": "Penalty Resist (Thief 's Guile)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": 0
+          }
+        ],
+        "appliesWeaponEffects": false
+      },
+      "spark": {
+        "description": "For each spark, apply the bonus or penalty to another option above.",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "after": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      },
+      "end": {
+        "description": "",
+        "damage": "",
+        "appliedEffects": [],
+        "appliesWeaponEffects": false
+      }
+    }
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!YVf6T4pWuCPmyDY9"
+}

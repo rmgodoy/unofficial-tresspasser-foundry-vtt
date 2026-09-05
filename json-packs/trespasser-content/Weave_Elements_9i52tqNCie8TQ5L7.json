@@ -1,0 +1,32 @@
+{
+  "folder": "eVF6XAgiSMebaW99",
+  "name": "Weave Elements",
+  "type": "feature",
+  "_id": "9i52tqNCie8TQ5L7",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>You start combat with two elements invoked, and you can have two elements invoked at the same time. You can invoke a new element at the start of the round as long as you do not have two already invoked.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!9i52tqNCie8TQ5L7"
+}

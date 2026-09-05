@@ -1,0 +1,32 @@
+{
+  "folder": "bSRpanFmva0YymEQ",
+  "name": "Onslaught",
+  "type": "feature",
+  "_id": "XYMIB4dXjBaanCGW",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>When the moment is right to press your advantage, you can unleash a barrage of attacks. Make a weapon attack light deed or attempt a maneuver. You can use this ability in addition to the attempt deed action on your turn, exceeding your normal limit of one deed per turn.</p><p></p><p>You can use this ability up to three times in a combat, but successive onslaughts draw upon your reserves of strength. To use this ability a second time, you must spend two recovery dice. To use it a third time, you must spend two points of endurance.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "action"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!XYMIB4dXjBaanCGW"
+}

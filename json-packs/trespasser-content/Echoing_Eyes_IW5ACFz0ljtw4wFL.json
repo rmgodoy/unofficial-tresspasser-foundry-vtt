@@ -1,0 +1,30 @@
+{
+  "name": "Echoing Eyes",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation may be used to gain a sense of the geography of an enclosed environment. In order to attempt this incantation, you must take a position at the open entrance to a structure or other interior space. When the ritual is completed, your eyes cloud over and you send forth your 'sight' in the form a piercing whistle at a frequency too high to be heard by most organisms. The sound reverberates around the interior to a distance of 1,000 ft. and then returns, flooding your mind with an approximation of the space's dimensions and layout.</p><p>The spell can consistently discern solid boundaries to a given space but only provide the vaguest sense of what furniture or inhabitants it might contain. It cannot permeate closed doors, surfaces of water or other obstructions but may let you recognize them as soft spots in an otherwise solid boundary.</p><p>Each spark doubles the distance the eyes may travel and slightly improves the clarity of the vision they provide.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "IW5ACFz0ljtw4wFL",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!IW5ACFz0ljtw4wFL"
+}

@@ -1,0 +1,32 @@
+{
+  "folder": "ADVdKfJVmXtmI8GA",
+  "name": "Greenblood",
+  "type": "feature",
+  "_id": "jQ80tkjugBq42cBc",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>While others treat the wild world as a fearsome adversary, the path you have taken has allowed you to befriend it. You collect an extra ingredient whenever you take the forage camp activity, even on a failure.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!jQ80tkjugBq42cBc"
+}

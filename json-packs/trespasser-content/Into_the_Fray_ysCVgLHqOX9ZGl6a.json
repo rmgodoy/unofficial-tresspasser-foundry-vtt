@@ -1,0 +1,52 @@
+{
+  "folder": "qL5U8Pmv64ByoTpR",
+  "name": "Into the Fray",
+  "type": "talent",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>On the first round of each combat, roll twice for your initiative check and use either result. You also gain an extra action point on your first turn.</p>",
+    "usable": false,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [
+      {
+        "uuid": "Item.Q8VAAFfIMp63RIbJ",
+        "type": "effect",
+        "name": "Bonus AP (Into the Fray)",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 1
+      },
+      {
+        "uuid": "Item.kFPfkPR5e1fCimuo",
+        "type": "effect",
+        "name": "Adv. Initiative (Into the Fray)",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 0
+      }
+    ],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "_id": "ysCVgLHqOX9ZGl6a",
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!ysCVgLHqOX9ZGl6a"
+}

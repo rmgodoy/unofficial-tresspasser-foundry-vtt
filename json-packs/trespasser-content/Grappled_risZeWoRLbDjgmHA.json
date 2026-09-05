@@ -1,0 +1,46 @@
+{
+  "folder": "EtoWy6iRAXCIBITx",
+  "name": "Grappled",
+  "type": "effect",
+  "_id": "risZeWoRLbDjgmHA",
+  "img": "systems/trespasser/assets/icons/states/Grappled.svg",
+  "system": {
+    "description": "<p>You cannot move or be moved from your current space except by teleport. The grappler may move at half speed to drag or shove you along with them. This state ends if they ever stop engaging you.</p><p></p><p>You can use an action ïƒ¨ to make an accuracy check vs. 10 + intensity. On a success, this state ends, and on a spark, you may choose to confer it upon the enemy. When a character confers this state, the INTENSITY is equal to their MIGHT + SKILL BONUS.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": false,
+    "statusIcon": "systems/trespasser/assets/icons/states/Grappled.svg"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-8",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788358167897,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!risZeWoRLbDjgmHA"
+}

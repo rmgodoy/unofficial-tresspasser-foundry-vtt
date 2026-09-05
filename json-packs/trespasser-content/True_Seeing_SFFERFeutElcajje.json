@@ -1,0 +1,30 @@
+{
+  "name": "True Seeing",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Your eyes glow with white light that allows you to see through illusions and spy magically concealed doors and objects. Invisible objects and creatures will shimmer with a telling light. This incantation does not reveal hidden mechanical traps or other non-magical artifice. The effect lasts for <b>1 minute</b>. Each spark improves the clarity of your vision; with one spark, you can only tell whether something is magical or illusory, not what lies behind it. With three or more, you can see beyond it to the true form beneath.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "SFFERFeutElcajje",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!SFFERFeutElcajje"
+}

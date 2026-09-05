@@ -1,0 +1,32 @@
+{
+  "folder": "r90d08YveofG2lJv",
+  "name": "Earth Affinity",
+  "type": "feature",
+  "_id": "bRijzmZmGsdDVOHo",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p> Your study of the element of earth empowers your magic. When you make a casting check for any incantation or ritual that involves reshaping or manipulating earth in some way, gain an extra spark on a success.</p>",
+    "type": "none",
+    "effects": [],
+    "deeds": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!bRijzmZmGsdDVOHo"
+}

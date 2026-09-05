@@ -1,0 +1,30 @@
+{
+  "name": "Mind Reading",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>This incantation allows you to read the thoughts of an intelligent creature within <b>30 ft.</b> of you for <b>10 minutes (1 dungeon action)</b>. Casting this magic occupies your full attention. The subject is able to tell that something discomforting is happening, and may try their best to resist it. Each spark improves the penetrative powers of the magic: with none, you can only detect the surface thoughts of a creature. With three or more, you can plumb the depths of their memory and psyche.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "giJukTNWqnxG7xB0",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!giJukTNWqnxG7xB0"
+}

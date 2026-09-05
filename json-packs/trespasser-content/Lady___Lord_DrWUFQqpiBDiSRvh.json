@@ -1,0 +1,65 @@
+{
+  "name": "Lady / Lord",
+  "type": "past_life",
+  "img": "systems/trespasser/assets/icons/pesant.webp",
+  "folder": "RA3nUVmGfZH0EUDp",
+  "system": {
+    "attributes": {
+      "mighty": 1,
+      "agility": 1,
+      "intellect": 0,
+      "spirit": 1
+    },
+    "skills": {
+      "acrobatics": false,
+      "alchemy": false,
+      "athletics": false,
+      "crafting": false,
+      "folklore": false,
+      "letters": true,
+      "magic": false,
+      "nature": false,
+      "perception": false,
+      "speech": false,
+      "stealth": false,
+      "tinkering": false
+    },
+    "items": [
+      {
+        "uuid": "Item.6wlxMrVVu5D3Ft8x",
+        "name": "Mundane weapon",
+        "img": "systems/trespasser/assets/icons/weapon.webp",
+        "type": "weapon",
+        "quantity": 1
+      },
+      {
+        "uuid": "Item.mMEzFicIvpxoN0gD",
+        "name": "Quilted armor",
+        "img": "systems/trespasser/assets/icons/armor.webp",
+        "type": "armor",
+        "quantity": 1
+      }
+    ],
+    "description": ""
+  },
+  "_id": "DrWUFQqpiBDiSRvh",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!DrWUFQqpiBDiSRvh"
+}

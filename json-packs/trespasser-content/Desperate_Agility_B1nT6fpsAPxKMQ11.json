@@ -1,0 +1,45 @@
+{
+  "folder": "e2r3evndmbuKkexp",
+  "name": "Desperate Agility",
+  "type": "talent",
+  "_id": "B1nT6fpsAPxKMQ11",
+  "img": "systems/trespasser/assets/icons/talent.webp",
+  "system": {
+    "description": "<p>You gain a +2 bonus to tenacity checks. The first time you succeed on a tenacity check each combat, jump up to half your speed and gain guarded 2.</p>",
+    "usable": false,
+    "rollDice": "",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "effects": [
+      {
+        "uuid": "Item.gTnUuRtkUIJPmbYL",
+        "type": "effect",
+        "name": "Bonus Tenacity",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 2
+      }
+    ],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!B1nT6fpsAPxKMQ11"
+}

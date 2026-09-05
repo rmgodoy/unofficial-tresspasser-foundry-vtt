@@ -1,0 +1,30 @@
+{
+  "name": "Amplify Voice",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>After casting this incantation, your voice becomes booming and powerful. Words you shout at full volume will reach the ears of creatures <b>one mile</b> away, though barely. The effect lasts for <b>ten minutes</b> or the next <b>ten words</b> you say, whichever happens first. Each spark doubles either the distance your voice will reach or the number of words you can say.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "QNCiAMgDZlWWbjj7",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!QNCiAMgDZlWWbjj7"
+}

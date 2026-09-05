@@ -1,0 +1,32 @@
+{
+  "folder": "1xMvj2PA04D3xJFH",
+  "name": "Sacred Incantations",
+  "type": "feature",
+  "_id": "nZDMusjv50EXweiv",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>The strength of your faith lends you the power to cast incantations. When you take up this calling, learn INTELLECT + 1 incantations. Whenever your INTELLECT increases at higher level, learn another. You learn them randomly from the sacred magic table.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!nZDMusjv50EXweiv"
+}

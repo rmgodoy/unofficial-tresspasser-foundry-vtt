@@ -1,0 +1,30 @@
+{
+  "name": "Wildspeech",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>You can use this ritual upon a nearby animal to grant it the power of speech for <b>10 minutes (1 dungeon action)</b>. It speaks in one language with which you are familiar, but there is no guarantee that it will have anything useful to say. Each spark doubles the duration. At seven sparks, the spell is everlasting.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "fWVcRTSpszaK7dc9",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!fWVcRTSpszaK7dc9"
+}

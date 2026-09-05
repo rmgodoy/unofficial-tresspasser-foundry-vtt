@@ -1,0 +1,32 @@
+{
+  "folder": "bSRpanFmva0YymEQ",
+  "name": "Instinct",
+  "type": "feature",
+  "_id": "Xbo7nnvZl2ZrYemw",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Your instincts predispose you to a certain approach to battle. When you become a warrior, choose one permanent benefit from the following list. When you retrain at the haven, you may change it.</p><p></p><ul><li><p>Aggression: You gain +2 initiative.</p></li><li><p>Flexibility: You gain +2 prevail.</p></li><li><p>Survival: You gain +2 tenacity.</p></li><li><p>Willpower: You gain +2 resist.</p></li></ul>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!Xbo7nnvZl2ZrYemw"
+}

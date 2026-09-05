@@ -1,0 +1,32 @@
+{
+  "folder": "bn6LwKu0SuJkwfiV",
+  "name": "Twofold Summons",
+  "type": "feature",
+  "_id": "dhgtirtFk1JQyP6H",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>You may choose to grant your demon two bodily forms, summoning each to a different square in spell range. The demon's total hit points are split between the two forms, and each form's demonic attack has a base damage of 1 Skill Die instead of 2.</p>",
+    "effects": [],
+    "deeds": [],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!dhgtirtFk1JQyP6H"
+}

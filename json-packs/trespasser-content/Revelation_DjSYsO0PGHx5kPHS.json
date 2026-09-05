@@ -1,0 +1,40 @@
+{
+  "folder": "1xMvj2PA04D3xJFH",
+  "name": "Revelation",
+  "type": "feature",
+  "_id": "DjSYsO0PGHx5kPHS",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Revealing the strength of your devotion can deliver aid upon allies and ruin upon enemies. You gain the Revelation special deed. It has no focus cost, and on a hit, it confers a special effect based on your aspect of devotion. At the start of each combat encounter, you gain the ability to attempt this deed. Once you do, it is lost until you regain it, as described below.</p><p></p><p>Whenever you take a moment to recover in combat, you issue a divine appeal to your deity to restore you. If your call is answered, you are filled with the power necessary to issue another revelation of your faith. When you attempt the Recover deed, you may spend one spark to regain the use of your revelation.</p>",
+    "effects": [],
+    "deeds": [
+      {
+        "uuid": "Item.2rmzUlnLvCli7LXh",
+        "type": "deed",
+        "name": "Revelation",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "intensity": 1
+      }
+    ],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!DjSYsO0PGHx5kPHS"
+}

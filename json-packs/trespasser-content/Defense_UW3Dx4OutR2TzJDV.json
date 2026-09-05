@@ -1,0 +1,146 @@
+{
+  "folder": "yzGTfsfSWWniXvFp",
+  "name": "Defense",
+  "type": "craft",
+  "_id": "UW3Dx4OutR2TzJDV",
+  "img": "systems/trespasser/assets/icons/calling_craft.webp",
+  "system": {
+    "description": "<p>On the battlefield, you hold one pursuit above all others: keeping yourself and others alive. You stand fast between the enemy and your less resilient companions, their weapons falling before your unbreakable guard like autumn leaves upon the earth. Most deeds of this craft have the melee keyword, meaning they must be used with a melee weapon such as a sword or warhammer. Thanks to their abilities to recover armor dice, combatants who specialize in defense make excellent use of heavy armor.</p>",
+    "keyAttribute": "mighty",
+    "deeds": [
+      {
+        "uuid": "Item.UUcZr1DNHwCzeiNG",
+        "name": "Bolstering Blow",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.T4CzCjJsGINfOyKR",
+        "name": "Cage of Iron",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.BBIuYPS6GdTEtiLk",
+        "name": "Call of Challenge",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.4DG6KDwA9WPXE9B6",
+        "name": "Confront",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.VZFIOEM4ReVM6Lui",
+        "name": "Drive Back",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.LZQyiLFJLXUM6ewt",
+        "name": "Field Triage",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.inT0835fdeGqd4CJ",
+        "name": "Grab Attention",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.uMHbHFrgOPOSb9rI",
+        "name": "Grudge Match",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      },
+      {
+        "uuid": "Item.Q3dKTl9xe5geEqaZ",
+        "name": "Mend Armor",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.8lPxPc7XkqZaDxgJ",
+        "name": "Mountain Stance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.tHWnp8wUro9eXy6d",
+        "name": "Perseverance",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.VDI6MOiMUm4wwbr3",
+        "name": "Pinning Strike",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.ryOSwb8N2v3htWYy",
+        "name": "Provoking Cleave",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.lyMmsqmhmj884WkG",
+        "name": "Shielding Blow",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "light"
+      },
+      {
+        "uuid": "Item.jobon4f8jgz34LjE",
+        "name": "Shielding Step",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.lydEHCobrwVvrATy",
+        "name": "Stand Strong",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Item.FnpsIsCvZ3oczi7Y",
+        "name": "Steel Yourselves",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "mighty"
+      }
+    ],
+    "features": [
+      {
+        "uuid": "Item.f5zrZIPlGp0hN4cl",
+        "name": "Resolute Defense",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      },
+      {
+        "uuid": "Item.o2DKgniOzyU9Dtwp",
+        "name": "Pin Down",
+        "img": "systems/trespasser/assets/icons/feature.webp"
+      }
+    ]
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!UW3Dx4OutR2TzJDV"
+}

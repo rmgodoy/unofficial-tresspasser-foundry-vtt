@@ -1,0 +1,30 @@
+{
+  "name": "Drowse",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>Casting this incantation on a creature in sight causes it to fall asleep. The target is gradually coaxed into a slumber over the course of the ten-minute cast time. If the creature becomes cognizant of the spell during this time, it can attempt to resist the effects. After the drowsing, the target will be fully asleep and unaware of its surroundings, though it can be roused by a loud noise or other disturbance.</p><p>The magical slumber lasts for <b>10 minutes (1 dungeon action)</b>. Each spark doubles the duration or number of creatures affected.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "x0IfoOk05dLg2Jou",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!x0IfoOk05dLg2Jou"
+}

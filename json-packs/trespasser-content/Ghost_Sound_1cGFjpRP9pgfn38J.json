@@ -1,0 +1,30 @@
+{
+  "name": "Ghost Sound",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>You magically produce a phantom noise at a distance of up to <b>500 ft</b>. The sound can be as quiet as a whisper or as loud as a bellowing lion. With no sparks, you can only produce a noise that you yourself could make. With one spark, you can mimic any creature or object you are familiar with. With two, you can make several overlapping sounds, and with three or more you can produce a cacophony of complex noises like the sounds of a battle or that of a crowded marketplace.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "1cGFjpRP9pgfn38J",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!1cGFjpRP9pgfn38J"
+}

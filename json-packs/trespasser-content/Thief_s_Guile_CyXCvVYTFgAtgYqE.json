@@ -1,0 +1,40 @@
+{
+  "folder": "0dA8hEYzgvD7BDQN",
+  "name": "Thief's Guile",
+  "type": "feature",
+  "_id": "CyXCvVYTFgAtgYqE",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>You gain the thief's guile light deed, allowing you to help and hinder others with your cunning and quickness.</p>",
+    "effects": [],
+    "deeds": [
+      {
+        "uuid": "Item.YVf6T4pWuCPmyDY9",
+        "type": "deed",
+        "name": "Thief 's Guile",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "intensity": 0
+      }
+    ],
+    "type": "none"
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!CyXCvVYTFgAtgYqE"
+}

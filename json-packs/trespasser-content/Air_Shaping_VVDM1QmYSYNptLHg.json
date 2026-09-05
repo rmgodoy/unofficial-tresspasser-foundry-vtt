@@ -1,0 +1,30 @@
+{
+  "name": "Air Shaping",
+  "type": "incantation",
+  "img": "systems/trespasser/assets/icons/incantation.webp",
+  "system": {
+    "description": "<p>You can use this incantation to create powerful gusts of wind within a confined space or a gentle breeze over an area up to 100 ft. across. The gusts are strong enough to send light-weight objects soaring, but not strong enough to knock people off their feet.</p><p>While focusing, you can sustain this magic for up to <b>1 minute</b>. Each spark either doubles the strength of the wind or the duration of the effects.</p>",
+    "enduranceCost": 1
+  },
+  "folder": "TdP43qOLD76RQgrJ",
+  "_id": "VVDM1QmYSYNptLHg",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!VVDM1QmYSYNptLHg"
+}

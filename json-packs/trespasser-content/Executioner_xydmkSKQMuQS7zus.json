@@ -1,0 +1,58 @@
+{
+  "name": "Executioner",
+  "type": "past_life",
+  "img": "systems/trespasser/assets/icons/pesant.webp",
+  "folder": "mLsZC4uUnnYoz49u",
+  "system": {
+    "attributes": {
+      "mighty": 1,
+      "agility": 0,
+      "intellect": 0,
+      "spirit": 0
+    },
+    "skills": {
+      "acrobatics": false,
+      "alchemy": false,
+      "athletics": true,
+      "crafting": false,
+      "folklore": false,
+      "letters": false,
+      "magic": false,
+      "nature": false,
+      "perception": false,
+      "speech": false,
+      "stealth": false,
+      "tinkering": false
+    },
+    "items": [
+      {
+        "uuid": "Item.7o5OE3P17o7QSPlx",
+        "name": "Crude greataxe",
+        "img": "systems/trespasser/assets/icons/weapon.webp",
+        "type": "weapon",
+        "quantity": 1
+      }
+    ],
+    "description": ""
+  },
+  "_id": "xydmkSKQMuQS7zus",
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "13.351",
+    "systemId": "trespasser",
+    "systemVersion": "0.0.4-3",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1773341957281,
+    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!xydmkSKQMuQS7zus"
+}
