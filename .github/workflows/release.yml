@@ -7,6 +7,11 @@ on:
         description: 'Release Tag (leave empty to use "v" + system.json version)'
         required: false
         type: string
+      is_beta:
+        description: 'Release as Beta? (appends -beta to ID and rewrites all system/trespasser references)'
+        required: false
+        type: boolean
+        default: false
       draft:
         description: 'Publish as draft?'
         required: false
@@ -40,37 +45,39 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build compendium packs
-        run: npm run pack
-
-      - name: Prepare release metadata
+      - name: Prepare release metadata and rewrite paths
         id: prepare
         run: node .github/scripts/prepare-release.mjs
         env:
           INPUT_TAG_NAME: ${{ github.event.inputs.tag_name }}
+          IS_BETA: ${{ github.event.inputs.is_beta == 'true' }}
+
+      - name: Build compendium packs
+        run: npm run pack
 
       - name: Package system zip
         run: |
-          mkdir -p staging/trespasser
+          PACKAGE_ID="${{ steps.prepare.outputs.id }}"
+          mkdir -p "staging/${PACKAGE_ID}"
 
           # Copy root files
-          cp system.json staging/trespasser/
-          cp trespasser.mjs staging/trespasser/
-          [ -f README.md ] && cp README.md staging/trespasser/
-          [ -f CHANGELOG.md ] && cp CHANGELOG.md staging/trespasser/
-          [ -f glossary.json ] && cp glossary.json staging/trespasser/
+          cp system.json "staging/${PACKAGE_ID}/"
+          cp trespasser.mjs "staging/${PACKAGE_ID}/"
+          [ -f README.md ] && cp README.md "staging/${PACKAGE_ID}/"
+          [ -f CHANGELOG.md ] && cp CHANGELOG.md "staging/${PACKAGE_ID}/"
+          [ -f glossary.json ] && cp glossary.json "staging/${PACKAGE_ID}/"
 
           # Copy directories
-          cp -r module staging/trespasser/
-          cp -r styles staging/trespasser/
-          cp -r templates staging/trespasser/
-          cp -r lang staging/trespasser/
-          cp -r assets staging/trespasser/
-          cp -r packs staging/trespasser/
+          cp -r module "staging/${PACKAGE_ID}/"
+          cp -r styles "staging/${PACKAGE_ID}/"
+          cp -r templates "staging/${PACKAGE_ID}/"
+          cp -r lang "staging/${PACKAGE_ID}/"
+          cp -r assets "staging/${PACKAGE_ID}/"
+          cp -r packs "staging/${PACKAGE_ID}/"
 
-          # Create zip archive containing trespasser/ folder
+          # Create zip archive containing the package folder
           cd staging
-          zip -r ../system.zip trespasser
+          zip -r ../system.zip "${PACKAGE_ID}"
           cd ..
 
       - name: Create GitHub Release
@@ -84,5 +91,5 @@ jobs:
             system.json
             system.zip
           draft: ${{ github.event.inputs.draft == 'true' }}
-          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          prerelease: ${{ github.event.inputs.prerelease == 'true' || github.event.inputs.is_beta == 'true' }}
           token: ${{ secrets.GITHUB_TOKEN }}
