@@ -1,0 +1,88 @@
+name: Release System
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'Release Tag (leave empty to use "v" + system.json version)'
+        required: false
+        type: string
+      draft:
+        description: 'Publish as draft?'
+        required: false
+        type: boolean
+        default: false
+      prerelease:
+        description: 'Mark as pre-release?'
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build compendium packs
+        run: npm run pack
+
+      - name: Prepare release metadata
+        id: prepare
+        run: node .github/scripts/prepare-release.mjs
+        env:
+          INPUT_TAG_NAME: ${{ github.event.inputs.tag_name }}
+
+      - name: Package system zip
+        run: |
+          PACKAGE_ID="${{ steps.prepare.outputs.id }}"
+          mkdir -p "staging/${PACKAGE_ID}"
+
+          # Copy root files
+          cp system.json "staging/${PACKAGE_ID}/"
+          cp trespasser.mjs "staging/${PACKAGE_ID}/"
+          [ -f README.md ] && cp README.md "staging/${PACKAGE_ID}/"
+          [ -f CHANGELOG.md ] && cp CHANGELOG.md "staging/${PACKAGE_ID}/"
+          [ -f glossary.json ] && cp glossary.json "staging/${PACKAGE_ID}/"
+
+          # Copy directories
+          cp -r module "staging/${PACKAGE_ID}/"
+          cp -r styles "staging/${PACKAGE_ID}/"
+          cp -r templates "staging/${PACKAGE_ID}/"
+          cp -r lang "staging/${PACKAGE_ID}/"
+          cp -r assets "staging/${PACKAGE_ID}/"
+          cp -r packs "staging/${PACKAGE_ID}/"
+
+          # Create zip archive containing the package folder
+          cd staging
+          zip -r ../system.zip "${PACKAGE_ID}"
+          cd ..
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.prepare.outputs.tag }}
+          name: ${{ steps.prepare.outputs.tag }}
+          body_path: release_notes.md
+          files: |
+            system.json
+            system.zip
+          draft: ${{ github.event.inputs.draft == 'true' }}
+          prerelease: ${{ github.event.inputs.prerelease == 'true' }}
+          token: ${{ secrets.GITHUB_TOKEN }}
