@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.0] - 2026-08-30
+
+- Re-worked deeds from scratch
+- New UI/UX for target selection and movement
+
+### New Features
+- Added terrains
+
 ## [0.1.5] - 2026-08-30
 
 ### New Features

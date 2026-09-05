@@ -1,8 +1,8 @@
 {
-  "id": "trespasser",
+  "id": "trespasser-beta",
   "title": "Trespasser",
   "description": "A Foundry VTT system for the Trespasser TTRPG by Tundalus.",
-  "version": "0.2.0-10",
+  "version": "0.2.0",
   "compatibility": {
     "minimum": "13",
     "verified": "14"
