@@ -3,16 +3,36 @@
     <div class="hud-content">
         <header>
             <div class="hud-title" title="{{actorName}}">{{actorName}}</div>
-            <div class="ap-indicator" title="{{localize "TRESPASSER.Sheet.Combat.ActionPoints"}}">
-                {{#if isGM}}
-                <button class="gm-ap-btn" data-action="modify-ap" data-delta="-1" title="{{localize "TRESPASSER.HUD.Resource.RemoveAP"}}">-</button>
-                {{/if}}
-                {{#each apDots}}
-                <div class="ap-icon {{#if active}}active{{/if}}" {{#if active}}data-action="spend-ap" role="button" title="{{localize "TRESPASSER.HUD.Resource.SpendAP"}}"{{else}}title="{{localize "TRESPASSER.Sheet.Combat.ActionPoints"}}"{{/if}}></div>
-                {{/each}}
-                {{#if isGM}}
-                <button class="gm-ap-btn" data-action="modify-ap" data-delta="1" title="{{localize "TRESPASSER.HUD.Resource.AddAP"}}">+</button>
-                {{/if}}
+            {{#if hasAvailableFocus}}
+            <div class="hud-focus-indicator" title="{{localize "TRESPASSER.Sheet.Combat.Focus"}}">
+                <span class="focus-label">{{localize "TRESPASSER.Sheet.Combat.Focus"}}:</span>
+                <span class="focus-value">{{availableFocus}}</span>
+            </div>
+            {{/if}}
+            <div class="hud-resources">
+                <div class="ap-indicator" title="{{localize "TRESPASSER.Sheet.Combat.ActionPoints"}}">
+                    {{#if isGM}}
+                    <button class="gm-ap-btn" data-action="modify-ap" data-delta="-1" title="{{localize "TRESPASSER.HUD.Resource.RemoveAP"}}">-</button>
+                    {{/if}}
+                    {{#each apDots}}
+                    <div class="ap-icon {{#if active}}active{{/if}}" {{#if active}}data-action="spend-ap" role="button" title="{{localize "TRESPASSER.HUD.Resource.SpendAP"}}"{{else}}title="{{localize "TRESPASSER.Sheet.Combat.ActionPoints"}}"{{/if}}></div>
+                    {{/each}}
+                    {{#if isGM}}
+                    <button class="gm-ap-btn" data-action="modify-ap" data-delta="1" title="{{localize "TRESPASSER.HUD.Resource.AddAP"}}">+</button>
+                    {{/if}}
+                </div>
+                <div class="mp-indicator" title="{{localize "TRESPASSER.HUD.Movement.Label"}}">
+                    {{#if isGM}}
+                    <button class="gm-mp-btn" data-action="modify-mp" data-delta="-1" title="{{localize "TRESPASSER.HUD.Resource.RemoveMP"}}">-</button>
+                    {{/if}}
+                    <div class="mp-display">
+                        <i class="fas fa-shoe-prints mp-icon"></i>
+                        <span class="mp-value">{{movePointsLeft}} {{localize "TRESPASSER.HUD.Movement.Label"}}</span>
+                    </div>
+                    {{#if isGM}}
+                    <button class="gm-mp-btn" data-action="modify-mp" data-delta="1" title="{{localize "TRESPASSER.HUD.Resource.AddMP"}}">+</button>
+                    {{/if}}
+                </div>
             </div>
         </header>
 

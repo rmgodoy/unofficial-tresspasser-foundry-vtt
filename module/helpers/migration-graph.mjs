@@ -120,7 +120,12 @@ export function migrateToGraph(source) {
       id: rollAccuracyNodeId,
       type: "rollAccuracy",
       phase: "base",
-      params: {},
+      params: {
+        actionType: source.actionType || "attack",
+        abilityType: source.abilityType || "versatile",
+        versus: source.versus || "Guard",
+        branchingMode: "hitThenSpark"
+      },
       x: currentX,
       y: 180
     });

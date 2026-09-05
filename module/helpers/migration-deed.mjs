@@ -22,49 +22,49 @@ export function parseTargetString(str) {
   }
 
   // Melee Burst X or Melee Burst
-  const meleeBurst = s.match(/^melee\s+burst(?:\s+(\d+))?$/i);
+  const meleeBurst = s.match(/^melee\s+burst(?:\s+(\d+))?/i);
   if (meleeBurst) {
     return { targetType: "melee_burst", targetCount: 1, targetSize: parseInt(meleeBurst[1] || "1") };
   }
 
   // Close Blast X
-  const closeBlast = s.match(/^close\s+blast\s+(\d+)$/i);
+  const closeBlast = s.match(/^close\s+blast\s+(\d+)/i);
   if (closeBlast) {
     return { targetType: "close_blast", targetCount: 1, targetSize: parseInt(closeBlast[1]) };
   }
 
   // Close Path X
-  const closePath = s.match(/^close\s+path\s+(\d+)$/i);
+  const closePath = s.match(/^close\s+path\s+(\d+)/i);
   if (closePath) {
     return { targetType: "close_path", targetCount: 1, targetSize: parseInt(closePath[1]) };
   }
 
-  // Blast X
-  const blast = s.match(/^blast\s+(\d+)$/i);
+  // Blast X (including "Blast X in Throw Range")
+  const blast = s.match(/^blast\s+(\d+)/i);
   if (blast) {
     return { targetType: "blast", targetCount: 1, targetSize: parseInt(blast[1]) };
   }
 
   // Burst X
-  const burst = s.match(/^burst\s+(\d+)$/i);
+  const burst = s.match(/^burst\s+(\d+)/i);
   if (burst) {
     return { targetType: "burst", targetCount: 1, targetSize: parseInt(burst[1]) };
   }
 
   // Path X
-  const path = s.match(/^path\s+(\d+)$/i);
+  const path = s.match(/^path\s+(\d+)/i);
   if (path) {
     return { targetType: "path", targetCount: 1, targetSize: parseInt(path[1]) };
   }
 
   // Aura X
-  const aura = s.match(/^aura\s+(\d+)$/i);
+  const aura = s.match(/^aura\s+(\d+)/i);
   if (aura) {
     return { targetType: "aura", targetCount: 1, targetSize: parseInt(aura[1]) };
   }
 
-  // N Creature(s) or N Target(s) or N Enemy/Enemies or N Ally/Allies
-  const countMatch = s.match(/^(\d+)\s*(?:creature|target|enemy|enemies|ally|allies)?/i);
+  // N Creature(s) or N Target(s) or N Enemy/Enemies or N Ally/Allies or N Adjacent Creature(s)
+  const countMatch = s.match(/^(\d+)\s*(?:adjacent\s+)?(?:creature|target|enemy|enemies|ally|allies)/i);
   if (countMatch && countMatch[1]) {
     return { targetType: "creature", targetCount: parseInt(countMatch[1]), targetSize: 1 };
   }
@@ -157,27 +157,52 @@ export function convertOldDeedSystem(source) {
       }
 
       // Applied effects behavior
-      if (Array.isArray(oldPhase.appliedEffects) && oldPhase.appliedEffects.length > 0) {
+      const hasAppliedEffects = Array.isArray(oldPhase.appliedEffects) && oldPhase.appliedEffects.length > 0;
+      const appliesWeaponEffects = !!oldPhase.appliesWeaponEffects;
+      if (hasAppliedEffects || appliesWeaponEffects) {
         behaviors.push({
           id: foundry.utils.randomID(),
           type: "applyEffects",
           params: {
-            effects: oldPhase.appliedEffects,
-            appliesWeaponEffects: !!oldPhase.appliesWeaponEffects
+            effects: hasAppliedEffects ? oldPhase.appliedEffects : [],
+            appliesWeaponEffects
           }
         });
       }
 
       // Forced movement behavior
-      if (oldPhase.forcedMovement?.type) {
+      let fmType = oldPhase.forcedMovement?.type;
+      let fmDist = oldPhase.forcedMovement?.distance || 0;
+      if (!fmType && oldPhase.description) {
+        const fmM = oldPhase.description.match(/(?:^|[.;]\s*)(push|pull|sweep|shove|drag)\s+(\d+)/i);
+        if (fmM) {
+          fmType = fmM[1].toLowerCase();
+          fmDist = parseInt(fmM[2]) || 1;
+        }
+      }
+      if (fmType) {
         behaviors.push({
           id: foundry.utils.randomID(),
           type: "forceMoveTargets",
           params: {
-            type: oldPhase.forcedMovement.type,
-            distance: oldPhase.forcedMovement.distance || 0
+            type: fmType,
+            distance: fmDist
           }
         });
+      }
+
+      // Recovery behavior
+      if (oldPhase.description) {
+        const recM = oldPhase.description.match(/(?:^|[.;]\s*)(?:grant|make)\s+(?:a\s+)?recovery\s+(\d+)/i);
+        if (recM) {
+          behaviors.push({
+            id: foundry.utils.randomID(),
+            type: "grantRecovery",
+            params: {
+              intensity: parseInt(recM[1]) || 1
+            }
+          });
+        }
       }
 
       // Terrain spawn behavior
@@ -266,5 +291,55 @@ export async function migrateWorldDeeds(options = {}) {
 
   await game.settings.set("trespasser", "deedMigrationVersion", CURRENT_MIGRATION_VERSION);
   console.log("Trespasser | Deed Data Model Migration complete.");
+}
+
+/**
+ * Migrate Deeds within a compendium pack to the behavior-driven format.
+ * @param {string} [packId="trespasser.trespasser-content"]
+ * @param {object} [options]
+ * @param {boolean} [options.force=false]
+ * @returns {Promise<number>} Number of migrated deeds
+ */
+export async function migrateCompendiumDeeds(packId = "trespasser.trespasser-content", options = {}) {
+  if (!game.user.isGM) return 0;
+  const pack = game.packs.get(packId);
+  if (!pack || pack.documentName !== "Item") {
+    console.warn(`Trespasser | Compendium pack "${packId}" not found or is not an Item pack.`);
+    return 0;
+  }
+
+  const wasLocked = pack.locked;
+  if (wasLocked) await pack.configure({ locked: false });
+
+  console.log(`Trespasser | Starting Compendium Deed Migration for "${packId}"...`);
+  const documents = await pack.getDocuments();
+  const updates = [];
+
+  for (const item of documents) {
+    if (item.type !== "deed") continue;
+    const rawSystem = foundry.utils.deepClone(item._source?.system || item.toObject().system);
+    const updatedSystem = migrateToGraph(convertOldDeedSystem(rawSystem));
+    if (options.force || JSON.stringify(updatedSystem) !== JSON.stringify(rawSystem)) {
+      updates.push({
+        _id: item.id,
+        system: updatedSystem
+      });
+      console.log(`Trespasser | Migrating compendium deed "${item.name}" (${item.id})`);
+    }
+  }
+
+  if (updates.length > 0) {
+    const chunkSize = 50;
+    for (let i = 0; i < updates.length; i += chunkSize) {
+      const chunk = updates.slice(i, i + chunkSize);
+      await Item.updateDocuments(chunk, { pack: pack.collection });
+    }
+    console.log(`Trespasser | Successfully migrated ${updates.length} deeds in "${packId}".`);
+  } else {
+    console.log(`Trespasser | No deeds in "${packId}" required migration.`);
+  }
+
+  if (wasLocked) await pack.configure({ locked: true });
+  return updates.length;
 }
 

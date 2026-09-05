@@ -47,10 +47,71 @@
     text-overflow: ellipsis;
 }
 
+.trespasser-token-hud .hud-focus-indicator {
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-10);
+    text-transform: uppercase;
+    color: var(--trp-gold-bright);
+    letter-spacing: 0.05em;
+    line-height: 1;
+    margin-top: 2px;
+    background: rgba(201, 168, 76, 0.12);
+    border: 1px solid var(--trp-gold-dim);
+    border-radius: var(--trp-radius-sm);
+    padding: 2px 6px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.trespasser-token-hud .hud-focus-indicator .focus-value {
+    font-weight: bold;
+    color: var(--trp-text-bright);
+}
+
+.trespasser-token-hud .hud-resources {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+    width: 100%;
+}
+
 .trespasser-token-hud .ap-indicator {
     display: flex;
     gap: 2px;
-    margin-top: 4px;
+    align-items: center;
+    justify-content: center;
+}
+
+.trespasser-token-hud .mp-indicator {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+    justify-content: center;
+}
+
+.trespasser-token-hud .mp-display {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-10);
+    color: var(--trp-text-bright);
+    line-height: 1;
+    min-width: 42px;
+    justify-content: center;
+}
+
+.trespasser-token-hud .mp-icon {
+    color: var(--trp-gold);
+    font-size: var(--fs-9);
+}
+
+.trespasser-token-hud .mp-value {
+    font-weight: bold;
+    color: var(--trp-gold);
 }
 
 .trespasser-token-hud .ap-icon {
@@ -502,7 +563,8 @@
     align-items: center;
 }
 
-.trespasser-token-hud .gm-ap-btn {
+.trespasser-token-hud .gm-ap-btn,
+.trespasser-token-hud .gm-mp-btn {
     background: var(--trp-bg-panel);
     border: 1px solid var(--trp-border);
     color: var(--trp-gold);
@@ -519,7 +581,8 @@
     transition: all 0.2s;
 }
 
-.trespasser-token-hud .gm-ap-btn:hover {
+.trespasser-token-hud .gm-ap-btn:hover,
+.trespasser-token-hud .gm-mp-btn:hover {
     background: var(--trp-gold-dim);
     color: var(--trp-bg-dark);
     border-color: var(--trp-gold-bright);

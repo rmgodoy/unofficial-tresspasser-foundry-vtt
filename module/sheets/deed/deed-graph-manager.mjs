@@ -27,6 +27,7 @@ export function mountGraphEditor(sheet, graphContainer, propertiesContainer) {
     zoom: savedState?.zoom ?? 1.0,
     selectedNodeId: savedState?.selectedNodeId ?? null,
     onGraphChange: async (graphData) => {
+      if (!sheet.isEditable) return;
       if (sheet.graphEditor) {
         sheet._graphViewportState = sheet.graphEditor.getViewportState();
       }

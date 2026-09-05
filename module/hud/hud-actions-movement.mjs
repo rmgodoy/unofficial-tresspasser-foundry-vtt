@@ -254,3 +254,39 @@ export async function executeForceMove(hud) {
   hud._activePanel = null;
   hud.render();
 }
+
+/**
+ * Modify MP directly (GM tool).
+ * @param {TrespasserTokenHUD} hud
+ * @param {Event} ev
+ */
+export async function modifyMP(hud, ev) {
+  if (!game.user.isGM) return;
+  const btn = ev.target.closest("[data-delta]");
+  const delta = parseInt(btn.dataset.delta) || 0;
+  const combatant = getCombatant(hud._token);
+  if (!combatant) return;
+
+  const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
+  const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+  const newAllowed = Math.max(movementUsed, movementAllowed + delta);
+  const newRemaining = Math.max(0, newAllowed - movementUsed);
+
+  const updates = {
+    "flags.trespasser.movementAllowed": newAllowed
+  };
+
+  if (newRemaining > 0 && !combatant.getFlag("trespasser", "moveActionTaken")) {
+    updates["flags.trespasser.moveActionTaken"] = true;
+  } else if (newRemaining === 0 && movementUsed === 0) {
+    updates["flags.trespasser.moveActionTaken"] = false;
+  }
+
+  await combatant.update(updates);
+
+  ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.MPModified", { 
+    name: hud._token.name, 
+    mp: newRemaining 
+  }));
+  hud.render();
+}

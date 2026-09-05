@@ -19,11 +19,13 @@ export async function handleDeedSwitchTab(sheet, event, target) {
     // Persist uncommitted changes from current tab before switching
     if (prevTab === "behaviors" && sheet.graphEditor) {
       sheet._graphViewportState = sheet.graphEditor.getViewportState();
-      await sheet.document.update({
-        "system.graph": sheet.graphEditor.getGraph(),
-        "system.graphVersion": 1,
-        "flags.trespasser.graphViewport": sheet._graphViewportState
-      });
+      if (sheet.isEditable) {
+        await sheet.document.update({
+          "system.graph": sheet.graphEditor.getGraph(),
+          "system.graphVersion": 1,
+          "flags.trespasser.graphViewport": sheet._graphViewportState
+        });
+      }
     } else if (sheet.isEditable) {
       await sheet.submit();
     }

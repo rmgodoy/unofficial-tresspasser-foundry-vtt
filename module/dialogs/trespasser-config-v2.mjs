@@ -228,8 +228,9 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     if (!confirm) return;
 
     ui.notifications.info(game.i18n.localize("TRESPASSER.Settings.DeedMigration.Running"));
-    const { migrateWorldDeeds } = await import("../helpers/migration-deed.mjs");
+    const { migrateWorldDeeds, migrateCompendiumDeeds } = await import("../helpers/migration-deed.mjs");
     await migrateWorldDeeds({ force: true });
+    await migrateCompendiumDeeds("trespasser.trespasser-content", { force: true });
     ui.notifications.info(game.i18n.localize("TRESPASSER.Settings.DeedMigration.Success"));
   }
 }

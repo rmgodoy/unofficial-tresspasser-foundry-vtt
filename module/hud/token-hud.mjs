@@ -21,7 +21,8 @@ import {
   undoMove,
   executeVault,
   executeWait,
-  executeForceMove
+  executeForceMove,
+  modifyMP
 } from "./hud-actions-movement.mjs";
 import {
   executeDefend,
@@ -215,6 +216,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         case "execute-wait":            executeWait(this); break;
         case "execute-force-move":      executeForceMove(this); break;
         case "modify-ap":               modifyAP(this, ev); break;
+        case "modify-mp":               modifyMP(this, ev); break;
         case "spend-ap":                onSpendAP(this); break;
       }
     });

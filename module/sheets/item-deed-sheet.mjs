@@ -290,6 +290,7 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
   // ── Form Submission Handler ──────────────────────────────────────────────────
 
   static async #onSubmit(event, form, formData) {
+    if (!this.isEditable) return;
     if (this.graphEditor) {
       this._graphViewportState = this.graphEditor.getViewportState();
       formData.object["flags.trespasser.graphViewport"] = this._graphViewportState;

@@ -73,6 +73,7 @@
         "TargetTypeBlast": "Blast",
         "TargetTypePath": "Path",
         "APModified": "{name} now has {ap} Action Points.",
+        "MPModified": "{name} now has {mp} Movement Points.",
         "MoveActionRequired": "This action requires a Move Action.",
         "MovementLimitExceeded": "Movement limit exceeded.",
         "VaultStraightLine": "Vaulting requires moving in a straight line.",

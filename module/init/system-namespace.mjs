@@ -44,6 +44,8 @@ export function initializeSystemNamespace() {
   game.trespasser.formatDiceIcons = formatDiceIcons;
   game.trespasser.replaceDiceInElement = replaceDiceInElement;
   game.trespasser.openTreasureDialog = (options) => TrespasserTreasureDialog.open(options);
+  game.trespasser.migrateWorldDeeds = (options) => import("../helpers/migration-deed.mjs").then(m => m.migrateWorldDeeds(options));
+  game.trespasser.migrateCompendiumDeeds = (packId, options) => import("../helpers/migration-deed.mjs").then(m => m.migrateCompendiumDeeds(packId, options));
 
   globalThis.trespasser = game.trespasser;
 }

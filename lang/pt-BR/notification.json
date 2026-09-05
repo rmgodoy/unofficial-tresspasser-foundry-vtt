@@ -73,6 +73,7 @@
         "TargetTypeBlast": "Explosão",
         "TargetTypePath": "Caminho",
         "APModified": "{name} agora possui {ap} Pontos de Ação.",
+        "MPModified": "{name} agora possui {mp} Pontos de Movimento.",
         "MoveActionRequired": "Esta ação requer uma Ação de Movimento.",
         "MovementLimitExceeded": "Limite de movimento excedido.",
         "VaultStraightLine": "Saltar requer mover-se em linha reta.",
