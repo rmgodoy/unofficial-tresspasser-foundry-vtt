@@ -83,8 +83,8 @@ export async function executeDefend(hud) {
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeHelp(hud) {
-  const targetId = hud.element.querySelector('[name="help-target"]').value;
-  const attr = hud.element.querySelector('[name="help-attr"]').value;
+  const targetId = hud.element.querySelector('[name="help-target"]')?.value;
+  const attr = hud.element.querySelector('[name="help-attr"]')?.value;
   const costInput = hud.element.querySelector('[name="help-cost"]');
   const cost = costInput ? parseInt(costInput.value) : 1;
 
@@ -92,7 +92,8 @@ export async function executeHelp(hud) {
   if (!combatant) return;
 
   const targetToken = canvas.tokens.get(targetId);
-  if (!targetToken) return;
+  const targetActor = targetToken?.actor;
+  if (!targetActor) return;
 
   const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
   const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
@@ -104,9 +105,54 @@ export async function executeHelp(hud) {
 
   const bonus = cost; 
 
-  await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
-
   const attrLabel = game.i18n.localize(`TRESPASSER.Sheet.Combat.${attr.charAt(0).toUpperCase() + attr.slice(1)}`) || attr;
+  const effectData = {
+    name: `${game.i18n.localize("TRESPASSER.HUD.Action.Help")} (${attrLabel})`,
+    type: "effect",
+    img: "systems/trespasser/assets/icons/effect.webp",
+    system: {
+      targetAttribute: attr,
+      modifier: `+${bonus}`,
+      isCombat: true,
+      isPrevailable: false,
+      type: "on-trigger",
+      duration: "trigger",
+      durationValue: 1,
+      durationOperator: "OR",
+      durationConditions: [
+        { mode: "trigger", value: 1 },
+        { mode: "round", value: 1 }
+      ],
+      when: "use"
+    },
+    flags: {
+      trespasser: {
+        isHelp: true,
+        helperName: hud._token.name
+      }
+    }
+  };
+
+  if (targetActor.isOwner) {
+    await targetActor.createEmbeddedDocuments("Item", [effectData]);
+  } else if (game.users.some(u => u.active && u.isGM)) {
+    const { emitDeedActionAndWait } = await import("../helpers/socket/deed-socket-handler.mjs");
+    await emitDeedActionAndWait("applyEffects", {
+      actorId: targetActor.id,
+      tokenId: targetToken.id,
+      itemDataArray: [effectData]
+    });
+  } else {
+    try {
+      await targetActor.createEmbeddedDocuments("Item", [effectData]);
+    } catch (err) {
+      console.warn("Trespasser | Failed to apply Help effect directly without GM:", err);
+    }
+  }
+
+  await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+  await TrespasserCombat.recordHUDAction(hud._token.actor, "help");
+  ui.notifications.info(game.i18n.format("TRESPASSER.Chat.Action.AppliedHelp", { target: targetToken.name }));
 
   await ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ token: hud._token }),
@@ -115,29 +161,22 @@ export async function executeHelp(hud) {
         <h3 style="margin:0;padding-bottom:4px;border-bottom:1px solid var(--trp-gold-dim);color:var(--trp-gold-bright);">
           ${game.i18n.localize("TRESPASSER.HUD.Action.Help")}
         </h3>
-        <p><strong>${hud._token.name}</strong> gives <strong>Help</strong> to <strong>${targetToken.name}</strong>.</p>
+        <p>${game.i18n.format("TRESPASSER.Chat.Action.HelpMessage", { helper: hud._token.name, target: targetToken.name })}</p>
         
-        <a class="apply-effect-btn apply-help-btn" 
-           data-target-uuid="${targetToken.actor.uuid}"
-           data-target-attribute="${attr}"
-           data-modifier="+${bonus}"
-           data-source-name="${hud._token.name}"
-           title="${game.i18n.localize("TRESPASSER.Chat.Common.Apply")}">
+        <div class="help-effect-display" style="display:flex;align-items:center;padding:6px 8px;background:rgba(255,255,255,0.05);border:1px solid var(--trp-gold-dim);border-radius:var(--trp-radius, 4px);margin:8px 0;">
           <img src="systems/trespasser/assets/icons/effect.webp" style="width:32px;height:32px;border:none;margin-right:12px;" />
           <div style="flex:1;">
             <div style="color:var(--trp-gold-light);font-weight:bold;font-size:var(--fs-16);">+${bonus} ${attrLabel}</div>
-            <div style="font-size:var(--fs-11);color:var(--trp-text-dim);line-height:1.2;">Duration: Next check this round</div>
+            <div style="font-size:var(--fs-11);color:var(--trp-text-dim);line-height:1.2;">${game.i18n.localize("TRESPASSER.Chat.Action.HelpDurationDesc")}</div>
           </div>
-          <i class="fas fa-hand-holding-heart"></i>
-        </a>
+          <i class="fas fa-hand-holding-heart" style="color:var(--trp-gold-bright);font-size:var(--fs-16);"></i>
+        </div>
 
         <p style="font-size:var(--fs-10);margin-top:8px;text-align:right;color:var(--trp-text-dim);border-top:1px solid var(--trp-border);padding-top:4px;">
-          AP Spent: ${cost}
+          ${game.i18n.format("TRESPASSER.Chat.Action.APSpent", { cost })}
         </p>
       </div>`
   });
-
-  await TrespasserCombat.recordHUDAction(hud._token.actor, "help");
 
   hud._activePanel = null;
   hud.render();

@@ -118,7 +118,10 @@
         "RollMessage": "<strong>{name}</strong> rolls <strong>{action}</strong>: {formula} = {total}",
         "DestroyedConsumed": "{name} has been destroyed/consumed.",
         "HelpFrom": "{name} receives Help from {helper}!",
-        "AppliedHelp": "Help applied to {target}."
+        "AppliedHelp": "Help applied to {target}.",
+        "HelpMessage": "<strong>{helper}</strong> gives <strong>Help</strong> to <strong>{target}</strong>.",
+        "HelpDurationDesc": "Duration: Next check this round",
+        "APSpent": "AP Spent: {cost}"
       },
       "Effect": {
         "TriggeredHP": "<strong>{name}</strong> triggered: {value} HP applied.",

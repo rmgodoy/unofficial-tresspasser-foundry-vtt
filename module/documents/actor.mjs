@@ -237,6 +237,12 @@ export class TrespasserActor extends Actor {
         this.updateSource({ "prototypeToken.disposition": CONST.TOKEN_DISPOSITIONS.HOSTILE });
       }
     }
+
+    // Link Character tokens by default on creation
+    const tokenActorLinkProvided = foundry.utils.hasProperty(data, "prototypeToken.actorLink");
+    if (!tokenActorLinkProvided && this.type === "character") {
+      this.updateSource({ "prototypeToken.actorLink": true });
+    }
   }
 
   /** @override */

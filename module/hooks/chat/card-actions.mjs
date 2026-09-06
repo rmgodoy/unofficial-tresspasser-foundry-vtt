@@ -84,7 +84,7 @@ export function bindCardActionListeners(message, html) {
       const effectData = {
         name: game.i18n.format("TRESPASSER.Chat.Action.HelpFrom", { name: targetActor.name, helper: sourceName }),
         type: "effect",
-        img: "system/trespasser/assets/icons/effect.webp",
+        img: "systems/trespasser/assets/icons/effect.webp",
         system: {
           targetAttribute: attr,
           modifier: mod,
@@ -102,7 +102,23 @@ export function bindCardActionListeners(message, html) {
         }
       };
 
-      await targetActor.createEmbeddedDocuments("Item", [effectData]);
+      if (targetActor.isOwner) {
+        await targetActor.createEmbeddedDocuments("Item", [effectData]);
+      } else if (game.users.some(u => u.active && u.isGM)) {
+        const { emitDeedActionAndWait } = await import("../../helpers/socket/deed-socket-handler.mjs");
+        const tokenId = doc?.id || canvas.tokens?.placeables?.find(t => t.actor?.id === targetActor.id)?.id;
+        await emitDeedActionAndWait("applyEffects", {
+          actorId: targetActor.id,
+          tokenId: tokenId,
+          itemDataArray: [effectData]
+        });
+      } else {
+        try {
+          await targetActor.createEmbeddedDocuments("Item", [effectData]);
+        } catch (err) {
+          console.warn("Trespasser | Failed to apply Help effect directly without GM:", err);
+        }
+      }
       ui.notifications.info(game.i18n.format("TRESPASSER.Chat.Action.AppliedHelp", { target: targetActor.name }));
     });
   });

@@ -118,7 +118,10 @@
         "RollMessage": "<strong>{name}</strong> rola <strong>{action}</strong>: {formula} = {total}",
         "DestroyedConsumed": "{name} foi destruído/consumido.",
         "HelpFrom": "{name} recebe Ajuda de {helper}!",
-        "AppliedHelp": "Ajuda aplicada em {target}."
+        "AppliedHelp": "Ajuda aplicada em {target}.",
+        "HelpMessage": "<strong>{helper}</strong> concede <strong>Ajuda</strong> para <strong>{target}</strong>.",
+        "HelpDurationDesc": "Duração: Próximo teste nesta rodada",
+        "APSpent": "PA Gasto: {cost}"
       },
       "Effect": {
         "TriggeredHP": "<strong>{name}</strong> disparou: {value} PV aplicados.",
