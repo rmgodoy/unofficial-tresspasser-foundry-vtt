@@ -4,11 +4,19 @@ import { TRAVEL_CONFIG } from "../config/travel-config.mjs";
 import { COMMON_PLIGHTS } from "../config/plight-config.mjs";
 import { TREASURE_CONFIG } from "../config/treasure-config.mjs";
 import { TrespasserConfigV2 } from "../dialogs/trespasser-config-v2.mjs";
+import { TRESPASSER_STATUS_EFFECTS } from "../config/status-effects.mjs";
 
 /**
  * Configure CONFIG.TRESPASSER constants and system rules.
  */
 export function configureTrespasserRules() {
+  // Configure custom system status effects and defeated condition
+  CONFIG.statusEffects = foundry.utils.deepClone(TRESPASSER_STATUS_EFFECTS);
+  CONFIG.specialStatusEffects = {
+    ...CONFIG.specialStatusEffects,
+    DEFEATED: "defeated"
+  };
+
   CONFIG.TRESPASSER = {
     targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
     depletionDieOptions: {

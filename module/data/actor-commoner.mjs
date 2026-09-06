@@ -181,7 +181,7 @@ export class TrespasserCommonerData extends foundry.abstract.TypeDataModel {
 
     // Passive States / Encumbrance
     this.passiveStates = {
-      bloody: this.health < (this.max_health / 2),
+      bloody: this.health <= (this.max_health / 2),
       encumbered: totalArmor >= 6
     };
 

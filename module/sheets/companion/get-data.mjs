@@ -140,7 +140,7 @@ export async function getCompanionData(sheet, options = {}) {
       key,
       active: key === "engaged" 
         ? isEngaged 
-        : (actor.system.passiveStates?.[key] ?? (key === "bloody" ? actor.system.health < (actor.system.max_health / 2) : false)),
+        : (actor.system.passiveStates?.[key] ?? (key === "bloody" ? actor.system.health <= (actor.system.max_health / 2) : false)),
       icon: cfg.icon,
       label: cfg.label,
       description: cfg.description

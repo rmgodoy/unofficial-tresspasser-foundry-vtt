@@ -2,6 +2,7 @@ import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { syncBoundCompanions } from "../helpers/companion-formula.mjs";
 import { ItemExporter } from "../helpers/item-exporter.mjs";
 import { TrespasserTreasureDialog } from "../dialogs/treasure-dialog.mjs";
+import { refreshTokensForActor } from "../effects/effects-token-sync.mjs";
 
 /**
  * Register Item lifecycle, icon assignment, effect countering, and directory hooks.
@@ -288,5 +289,22 @@ export function registerItemHooks() {
     header.append(treasureBtn);
     header.append(exportBtn);
     header.append(importBtn);
+  });
+
+  // ActiveEffect lifecycle: force canvas token icon refresh when actor effects change.
+  // In Foundry V14, actor.effects changes do NOT automatically trigger token visual updates.
+  Hooks.on("createActiveEffect", (effect, options, userId) => {
+    const actor = effect.parent;
+    if (actor?.documentName === "Actor") refreshTokensForActor(actor);
+  });
+
+  Hooks.on("deleteActiveEffect", (effect, options, userId) => {
+    const actor = effect.parent;
+    if (actor?.documentName === "Actor") refreshTokensForActor(actor);
+  });
+
+  Hooks.on("updateActiveEffect", (effect, changes, options, userId) => {
+    const actor = effect.parent;
+    if (actor?.documentName === "Actor") refreshTokensForActor(actor);
   });
 }

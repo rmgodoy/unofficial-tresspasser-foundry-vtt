@@ -25,11 +25,160 @@ import {
   rollPrevail,
   onItemConsume
 } from "../actor/actor-actions.mjs";
+import { TRESPASSER_STATUS_EFFECTS } from "../config/status-effects.mjs";
 
 /**
  * Custom Actor document class for Trespasser TTRPG.
  */
 export class TrespasserActor extends Actor {
+
+  /** @override */
+  async toggleStatusEffect(statusId, { active, overlay = false } = {}) {
+    const id = typeof statusId === "string" ? statusId : (statusId?.id || statusId?.compendiumId);
+    const status = TRESPASSER_STATUS_EFFECTS.find(s =>
+      s.id === id ||
+      s.compendiumId === id ||
+      s.img === id ||
+      s.id === statusId ||
+      s.compendiumId === statusId
+    );
+    if (!status) {
+      return super.toggleStatusEffect(statusId, { active, overlay });
+    }
+
+    const localizedName = game.i18n.localize(status.name);
+
+    // Check if actor already has an effect item matching this state
+    const existingItem = this.items.find(i =>
+      i.type === "effect" && (
+        i.getFlag("trespasser", "statusEffectId") === status.id ||
+        (status.id === "bloodied" && i.getFlag("trespasser", "isBloodiedState")) ||
+        (status.compendiumId && (
+          i.flags?.core?.sourceId?.endsWith(status.compendiumId) ||
+          i._stats?.compendiumSource === status.compendiumId
+        )) ||
+        (i.system?.statusIcon && i.system.statusIcon === status.img) ||
+        (i.img && i.img === status.img) ||
+        (i.name?.toLowerCase() === status.id.toLowerCase()) ||
+        (localizedName && i.name?.toLowerCase() === localizedName.toLowerCase())
+      )
+    );
+
+    const shouldAdd = active !== undefined ? Boolean(active) : !existingItem;
+
+    if (shouldAdd) {
+      if (existingItem) return existingItem;
+
+      let itemData = null;
+      const pack = game.packs?.get("trespasser.trespasser-content");
+      if (pack && status.compendiumId) {
+        try {
+          const doc = await pack.getDocument(status.compendiumId);
+          if (doc) itemData = doc.toObject();
+        } catch (_) {}
+      }
+
+      if (!itemData) {
+        itemData = {
+          name: localizedName || status.id.capitalize(),
+          type: "effect",
+          img: status.img,
+          system: {
+            description: "",
+            type: "continuous",
+            isCombat: true,
+            isOnlyReminder: false,
+            gmOnly: false,
+            intensity: 0,
+            targetAttribute: "health",
+            modifier: "0",
+            conferredState: "",
+            when: "immediate",
+            duration: "indefinite",
+            durationValue: 0,
+            durationOperator: "OR",
+            durationConditions: [],
+            intensityIncrement: 0,
+            counterStates: [],
+            isPrevailable: true,
+            statusIcon: status.img,
+            syncStatusIcon: false
+          }
+        };
+      } else if (localizedName) {
+        itemData.name = localizedName;
+      }
+
+      delete itemData._id;
+      delete itemData.folder;
+      delete itemData.sort;
+      delete itemData.ownership;
+      delete itemData._key;
+      itemData.flags = itemData.flags || {};
+      itemData.flags.trespasser = itemData.flags.trespasser || {};
+      itemData.flags.trespasser.statusEffectId = status.id;
+      if (status.compendiumId) {
+        itemData.flags.core = itemData.flags.core || {};
+        itemData.flags.core.sourceId = `Compendium.trespasser.trespasser-content.Item.${status.compendiumId}`;
+      }
+      if (status.id === "bloodied") {
+        itemData.flags.trespasser.isBloodiedState = true;
+      }
+
+      const created = await this.createEmbeddedDocuments("Item", [itemData]);
+
+      // Clean up any loose ActiveEffects not tied to an item
+      const legacyAEs = this.effects?.filter(ae => ae.statuses?.has(status.id) && !ae.getFlag("trespasser", "sourceItem")) || [];
+      if (legacyAEs.length > 0) {
+        await this.deleteEmbeddedDocuments("ActiveEffect", legacyAEs.map(e => e.id));
+      }
+
+      if (status.id === "defeated" || status.id === CONFIG.specialStatusEffects?.DEFEATED) {
+        const combatant = game.combat?.combatants?.find(c => c.actorId === this.id || (this.isToken && c.tokenId === this.token?.id));
+        if (combatant && !combatant.defeated) {
+          await combatant.update({ defeated: true });
+        }
+      }
+
+      await TrespasserEffectsHelper._performSyncActorTokenEffects(this);
+
+      if (canvas.tokens?.hud?.rendered) {
+        const hudToken = canvas.tokens.hud.object;
+        if (hudToken?.actor?.id === this.id || (this.isToken && hudToken?.id === this.token?.id)) {
+          canvas.tokens.hud.render(true);
+        }
+      }
+
+      return created[0];
+    } else {
+      if (existingItem) {
+        await this.deleteEmbeddedDocuments("Item", [existingItem.id]);
+
+        // Clean up any remaining ActiveEffects with this status
+        const matchingAEs = this.effects?.filter(ae => ae.statuses?.has(status.id)) || [];
+        if (matchingAEs.length > 0) {
+          await this.deleteEmbeddedDocuments("ActiveEffect", matchingAEs.map(e => e.id));
+        }
+
+        if (status.id === "defeated" || status.id === CONFIG.specialStatusEffects?.DEFEATED) {
+          const combatant = game.combat?.combatants?.find(c => c.actorId === this.id || (this.isToken && c.tokenId === this.token?.id));
+          if (combatant && combatant.defeated) {
+            await combatant.update({ defeated: false });
+          }
+        }
+
+        await TrespasserEffectsHelper._performSyncActorTokenEffects(this);
+
+        if (canvas.tokens?.hud?.rendered) {
+          const hudToken = canvas.tokens.hud.object;
+          if (hudToken?.actor?.id === this.id || (this.isToken && hudToken?.id === this.token?.id)) {
+            canvas.tokens.hud.render(true);
+          }
+        }
+      }
+      return null;
+    }
+  }
 
   /** @override */
   prepareDerivedData() {

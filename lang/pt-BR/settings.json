@@ -130,7 +130,7 @@
         },
         "ShowStatusEffectsOnTokens": {
           "Name": "Mostrar efeitos de status nos tokens",
-          "Hint": "Se ativado, os ícones de efeito de status selecionados dos itens de Efeito serão exibidos como ícones sobrepostos nos tokens ativos."
+          "Hint": "Se ativado, os ícones de efeitos de status de combate selecionados dos itens de Efeito serão exibidos como ícones sobrepostos nos tokens ativos durante encontros de combate."
         },
         "TokenStatusIconScale": {
           "Name": "Escala dos Ícones de Status no Token",

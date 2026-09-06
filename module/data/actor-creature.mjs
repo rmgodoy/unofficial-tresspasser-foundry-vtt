@@ -104,6 +104,6 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
     this.combat.weaponDie = die;
 
     this.passiveStates = {};
-    this.passiveStates.bloody = this.health < (this.max_health / 2);
+    this.passiveStates.bloody = this.health <= (this.max_health / 2);
   }
 }

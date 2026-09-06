@@ -117,8 +117,16 @@ export function registerReadyHooks() {
     // Initial application
     game.trespasser.applySystemSettings();
 
-    // Clean up any stray turn markers on canvas tokens
-    if (canvas.ready && canvas.tokens) {
+    const syncAllCanvasTokens = () => {
+      if (game.user.isGM && game.actors) {
+        for (const actor of game.actors) {
+          if (actor.type === "character" || actor.type === "creature") {
+            TrespasserEffectsHelper.syncActorTokenEffects(actor);
+          }
+        }
+      }
+
+      if (!canvas.ready || !canvas.tokens) return;
       for (const token of canvas.tokens.placeables) {
         if (token.turnMarker) {
           canvas.tokens.turnMarkers?.delete(token);
@@ -127,25 +135,18 @@ export function registerReadyHooks() {
           } catch (_) {}
           token.turnMarker = null;
         }
-      }
-    }
-
-    Hooks.on("canvasReady", () => {
-      if (canvas.tokens) {
-        for (const token of canvas.tokens.placeables) {
-          if (token.turnMarker) {
-            canvas.tokens.turnMarkers?.delete(token);
-            try {
-              token.turnMarker.destroy();
-            } catch (_) {}
-            token.turnMarker = null;
-          }
-          if (token.actor && game.user.isGM) {
-            TrespasserEffectsHelper.syncActorTokenEffects(token.actor);
-          }
+        if (token.actor && game.user.isGM) {
+          TrespasserEffectsHelper.syncActorBloodiedItem(token.actor);
+          TrespasserEffectsHelper.syncActorTokenEffects(token.actor);
         }
       }
-    });
+    };
+
+    // Clean up stray markers and sync token effects on initial world ready
+    syncAllCanvasTokens();
+
+    // Re-sync whenever canvas is ready (scene changes)
+    Hooks.on("canvasReady", syncAllCanvasTokens);
 
     // Apply token status icon scale to active effect status icons on tokens
     const TokenClass = CONFIG.Token?.objectClass || globalThis.Token;
@@ -155,6 +156,9 @@ export function registerReadyHooks() {
         origRefreshEffects.call(this);
 
         if (!this.effects) return;
+
+        const iconScale = game.settings.get("trespasser", "tokenStatusIconScale") ?? 1.0;
+        if (Math.abs(iconScale - 1.0) < 0.01) return;
 
         this.effects.scale.set(1, 1);
 
@@ -174,7 +178,6 @@ export function registerReadyHooks() {
         const N = sprites.length;
         const W = this.w;
         const H = this.h;
-        const iconScale = game.settings.get("trespasser", "tokenStatusIconScale") ?? 1.0;
 
         const baseIconSize = Math.max(14, W * 0.24);
         const targetSize = baseIconSize * iconScale;

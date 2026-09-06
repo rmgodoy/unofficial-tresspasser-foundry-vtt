@@ -40,7 +40,9 @@ export function registerTokenHooks() {
   Hooks.on("preCreateToken", (tokenDoc, updates, options, userId) => {
     const actor = tokenDoc.actor || game.actors.get(updates.actorId || tokenDoc.actorId);
     if (actor) {
-      TrespasserEffectsHelper.syncActorTokenEffects(actor);
+      TrespasserEffectsHelper.syncActorBloodiedItem(actor).then(() => {
+        TrespasserEffectsHelper.syncActorTokenEffects(actor);
+      });
 
       const currentSrc = updates.texture?.src || tokenDoc.texture?.src;
       if (!currentSrc || currentSrc === "icons/svg/mystery-man.svg") {
@@ -60,6 +62,17 @@ export function registerTokenHooks() {
           tokenDoc.updateSource({ disposition: CONST.TOKEN_DISPOSITIONS.HOSTILE });
         }
       }
+    }
+  });
+
+  // Sync token effects when a new token is created on canvas
+  Hooks.on("createToken", (tokenDoc, options, userId) => {
+    if (game.user.id !== userId) return;
+    const actor = tokenDoc.actor;
+    if (actor && game.user.isGM) {
+      TrespasserEffectsHelper.syncActorBloodiedItem(actor).then(() => {
+        TrespasserEffectsHelper.syncActorTokenEffects(actor);
+      });
     }
   });
 
@@ -86,7 +99,7 @@ export function registerTokenHooks() {
     }
 
     const actor = token.actor ?? token.document?.actor;
-    const activeKeys = Object.entries(states).filter(([key, v]) => v && (actor?.type === "character" || key !== "encumbered"));
+    const activeKeys = Object.entries(states).filter(([key, v]) => v && key !== "bloody" && (actor?.type === "character" || key !== "encumbered"));
     if (isEngaged) {
       activeKeys.push(["engaged", true]);
     }

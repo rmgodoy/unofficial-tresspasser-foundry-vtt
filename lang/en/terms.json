@@ -471,6 +471,35 @@
           "Fabulous": "Fabulous"
         }
       }
+    },
+    "States": {
+      "Accurate": "Accurate",
+      "Afflicted": "Afflicted",
+      "Bleeding": "Bleeding",
+      "Blinded": "Blinded",
+      "Bloodied": "Bloodied",
+      "Burning": "Burning",
+      "Defeated": "Defeated",
+      "Fortified": "Fortified",
+      "Frail": "Frail",
+      "Grappled": "Grappled",
+      "Guarded": "Guarded",
+      "Hastened": "Hastened",
+      "Hindered": "Hindered",
+      "Inaccurate": "Inaccurate",
+      "Mending": "Mending",
+      "Provoked": "Provoked",
+      "Shadowy": "Shadowy",
+      "Slow": "Slow",
+      "Staggered": "Staggered",
+      "Strong": "Strong",
+      "Swift": "Swift",
+      "Tenacious": "Tenacious",
+      "Toppled": "Toppled",
+      "Unguarded": "Unguarded",
+      "Weak": "Weak",
+      "Weary": "Weary",
+      "Willful": "Willful"
     }
   }
 }

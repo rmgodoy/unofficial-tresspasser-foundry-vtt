@@ -47,7 +47,11 @@ import {
 
 import {
   syncActorTokenEffects,
-  performSyncActorTokenEffects
+  performSyncActorTokenEffects,
+  syncActorBloodiedItem,
+  getMatchingCustomStatus,
+  refreshTokensForActor,
+  getCombatTrackerEffects
 } from "../effects/effects-token-sync.mjs";
 
 export {
@@ -79,7 +83,11 @@ export {
   applyOilDialog,
   openEffectSheet,
   syncActorTokenEffects,
-  performSyncActorTokenEffects
+  performSyncActorTokenEffects,
+  syncActorBloodiedItem,
+  getMatchingCustomStatus,
+  refreshTokensForActor,
+  getCombatTrackerEffects
 };
 
 export class TrespasserEffectsHelper {
@@ -95,16 +103,16 @@ export class TrespasserEffectsHelper {
     return parseModifier(modifierString, intensity);
   }
 
-  static replacePlaceholders(formula, actor, weaponDie = "d4") {
-    return replacePlaceholders(formula, actor, weaponDie);
+  static replacePlaceholders(description, intensity, effect = null) {
+    return replacePlaceholders(description, intensity, effect);
   }
 
-  static async evaluateModifier(modifierString, intensity, options = {}) {
-    return evaluateModifier(modifierString, intensity, options);
+  static evaluateModifier(modifierString, intensity, actor = null) {
+    return evaluateModifier(modifierString, intensity, actor);
   }
 
-  static async _asyncStringReplace(str, regex, replacer) {
-    return asyncStringReplace(str, regex, replacer);
+  static async asyncStringReplace(str, regex, asyncFn) {
+    return asyncStringReplace(str, regex, asyncFn);
   }
 
   static getActorEffects(actor) {
@@ -119,24 +127,24 @@ export class TrespasserEffectsHelper {
     return getMovementType(actor);
   }
 
-  static getAttributeBonus(actor, attributeKey, includeTiming = null) {
-    return getAttributeBonus(actor, attributeKey, includeTiming);
+  static getAttributeBonus(actor, attribute) {
+    return getAttributeBonus(actor, attribute);
   }
 
-  static async evaluateAttributeBonus(actor, attributeKey, options = {}) {
-    return evaluateAttributeBonus(actor, attributeKey, options);
+  static hasAdvantage(actor, attribute) {
+    return hasAdvantage(actor, attribute);
   }
 
-  static async evaluateDamageBonus(actor, attributeKey, weaponDie = "d4", options = {}) {
-    return evaluateDamageBonus(actor, attributeKey, weaponDie, options);
+  static evaluateAttributeBonus(actor, attribute, rollType = null) {
+    return evaluateAttributeBonus(actor, attribute, rollType);
   }
 
-  static hasAdvantage(actor, attributeKey) {
-    return hasAdvantage(actor, attributeKey);
+  static evaluateDamageBonus(actor, deed = null) {
+    return evaluateDamageBonus(actor, deed);
   }
 
-  static async triggerEffects(actor, timing, options = {}) {
-    return triggerEffects(actor, timing, options);
+  static async triggerEffects(actor, when, options = {}) {
+    return triggerEffects(actor, when, options);
   }
 
   static async triggerImmediate(actor, item) {
@@ -177,5 +185,21 @@ export class TrespasserEffectsHelper {
 
   static async _performSyncActorTokenEffects(actor) {
     return performSyncActorTokenEffects(actor);
+  }
+
+  static async syncActorBloodiedItem(actor) {
+    return syncActorBloodiedItem(actor);
+  }
+
+  static getMatchingCustomStatus(item) {
+    return getMatchingCustomStatus(item);
+  }
+
+  static refreshTokensForActor(actor) {
+    return refreshTokensForActor(actor);
+  }
+
+  static getCombatTrackerEffects(actor) {
+    return getCombatTrackerEffects(actor);
   }
 }

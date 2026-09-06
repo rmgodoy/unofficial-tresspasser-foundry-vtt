@@ -471,6 +471,35 @@
           "Fabulous": "Fabuloso"
         }
       }
+    },
+    "States": {
+      "Accurate": "Preciso",
+      "Afflicted": "Afligido",
+      "Bleeding": "Sangrando",
+      "Blinded": "Cego",
+      "Bloodied": "Ensanguentado",
+      "Burning": "Queimando",
+      "Defeated": "Derrotado",
+      "Fortified": "Fortificado",
+      "Frail": "Frágil",
+      "Grappled": "Agarrado",
+      "Guarded": "Protegido",
+      "Hastened": "Acelerado",
+      "Hindered": "Obstruído",
+      "Inaccurate": "Impreciso",
+      "Mending": "Curando",
+      "Provoked": "Provocado",
+      "Shadowy": "Sombrio",
+      "Slow": "Lento",
+      "Staggered": "Abalado",
+      "Strong": "Forte",
+      "Swift": "Veloz",
+      "Tenacious": "Tenaz",
+      "Toppled": "Derrubado",
+      "Unguarded": "Desprotegido",
+      "Weak": "Fraco",
+      "Weary": "Cansado",
+      "Willful": "Obstinado"
     }
   }
 }

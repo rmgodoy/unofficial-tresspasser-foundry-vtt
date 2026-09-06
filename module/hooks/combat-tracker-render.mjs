@@ -1,3 +1,5 @@
+import { getCombatTrackerEffects } from "../effects/effects-token-sync.mjs";
+
 /**
  * Render custom phased initiative UI in the Combat Tracker.
  * @param {Application} app
@@ -70,39 +72,7 @@ export async function renderPhasedCombatTracker(app, html, data) {
                   + `<div class="ap-display flexrow"><div class="ap-indicator flexrow">${buildIcons(ap, "ap")}</div></div>`;
       }
 
-      const actor = combatant.actor;
-      const effectsList = [];
-      if (actor) {
-        for (const item of actor.items) {
-          if (item.type !== "effect") continue;
-          if (item.system.gmOnly && !game.user.isGM) continue;
-          const icon = (item.system.syncStatusIcon !== false)
-            ? (item.img || item.system.statusIcon)
-            : (item.system.statusIcon || item.img);
-          if (icon) {
-            effectsList.push({
-              id: item.id,
-              name: item.name,
-              icon: icon,
-              intensity: item.system.intensity || 0
-            });
-          }
-        }
-        for (const eff of (actor.effects || [])) {
-          if (eff.disabled || eff.isSuppressed) continue;
-          const sourceItemId = eff.flags?.trespasser?.sourceItem;
-          if (sourceItemId && effectsList.some(e => e.id === sourceItemId)) continue;
-          const icon = eff.img || eff.icon;
-          if (icon && !effectsList.some(e => e.icon === icon)) {
-            effectsList.push({
-              id: eff.id,
-              name: eff.name || eff.label,
-              icon: icon,
-              intensity: 0
-            });
-          }
-        }
-      }
+      const effectsList = getCombatTrackerEffects(combatant.actor);
 
       const effectsHTML = effectsList.length > 0 ? `
         <div class="combatant-effects">

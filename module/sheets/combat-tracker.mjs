@@ -1,4 +1,5 @@
 import { showItemInfoDialog } from "../dialogs/item-info-dialog.mjs";
+import { getCombatTrackerEffects } from "../effects/effects-token-sync.mjs";
 
 /**
  * Custom Combat Tracker for Trespasser TTRPG.
@@ -76,41 +77,8 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
             active: i < turn.ap
         }));
 
-        // Extract active effects for this combatant's actor
-        const actor = combatant.actor;
-        const effectsList = [];
-        if (actor) {
-          for (const item of actor.items) {
-            if (item.type !== "effect") continue;
-            if (item.system.gmOnly && !game.user.isGM) continue;
-            const icon = (item.system.syncStatusIcon !== false)
-              ? (item.img || item.system.statusIcon)
-              : (item.system.statusIcon || item.img);
-            if (icon) {
-              effectsList.push({
-                id: item.id,
-                name: item.name,
-                icon: icon,
-                intensity: item.system.intensity || 0
-              });
-            }
-          }
-          for (const eff of (actor.effects || [])) {
-            if (eff.disabled || eff.isSuppressed) continue;
-            const sourceItemId = eff.flags?.trespasser?.sourceItem;
-            if (sourceItemId && effectsList.some(e => e.id === sourceItemId)) continue;
-            const icon = eff.img || eff.icon;
-            if (icon && !effectsList.some(e => e.icon === icon)) {
-              effectsList.push({
-                id: eff.id,
-                name: eff.name || eff.label,
-                icon: icon,
-                intensity: 0
-              });
-            }
-          }
-        }
-        turn.effects = effectsList;
+        // Extract active combat effects for this combatant's actor
+        turn.effects = getCombatTrackerEffects(combatant.actor);
 
         turn.isActive   = (phaseId === activePhase) && (turn.ap > 0) && !turn.defeated;
         turn.isFinished = turn.ap <= 0 || turn.defeated;

@@ -1,6 +1,7 @@
 import { TrespasserActor } from "../documents/actor.mjs";
 import { syncBoundCompanions } from "../helpers/companion-formula.mjs";
 import { getDefaultCommonerDeedData } from "../helpers/commoner-generator.mjs";
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
  * Register Actor lifecycle, damage animation, and synchronization hooks.
@@ -50,6 +51,10 @@ export function registerActorHooks() {
     }
 
     if (game.user.id !== userId) return;
+
+    if (foundry.utils.hasProperty(updateData, "system.health") || foundry.utils.hasProperty(updateData, "system.max_health")) {
+      await TrespasserEffectsHelper.syncActorBloodiedItem(actor);
+    }
 
     if (updateData.img && actor.isToken && actor.token) {
       if (actor.token.texture?.src !== updateData.img) {

@@ -234,8 +234,8 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     // ── Passive States ──
     this.passiveStates = {};
     
-    // Bloody: health < 50% of max
-    this.passiveStates.bloody = this.health < (this.max_health / 2);
+    // Bloody: health <= 50% of max
+    this.passiveStates.bloody = this.health <= (this.max_health / 2);
     
     // Encumbrance: armor rating (from equipped armor pieces, before effect bonuses) >= 6
     this.passiveStates.encumbered = totalArmor >= 6;

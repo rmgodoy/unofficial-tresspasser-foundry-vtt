@@ -130,7 +130,7 @@
         },
         "ShowStatusEffectsOnTokens": {
           "Name": "Show status effects on tokens",
-          "Hint": "If enabled, selected status effect icons from Effect items will be displayed as overlay icons on active tokens."
+          "Hint": "If enabled, selected combat status effect icons from Effect items will be displayed as overlay icons on active tokens during combat encounters."
         },
         "TokenStatusIconScale": {
           "Name": "Token Status Icon Scale",

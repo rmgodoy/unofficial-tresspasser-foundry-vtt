@@ -172,6 +172,6 @@ export class TrespasserCompanionData extends foundry.abstract.TypeDataModel {
 
     // Passive states
     this.passiveStates = {};
-    this.passiveStates.bloody = this.health < (this.max_health / 2);
+    this.passiveStates.bloody = this.health <= (this.max_health / 2);
   }
 }

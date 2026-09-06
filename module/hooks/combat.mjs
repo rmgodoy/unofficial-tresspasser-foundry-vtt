@@ -11,11 +11,28 @@ export function registerCombatHooks() {
     await renderPhasedCombatTracker(app, html, data);
   });
 
-  // Turn marker update on active phase change
+  // Turn marker update on active phase change and refresh token effects on round advance / phase change / combat start
   Hooks.on("updateCombat", async (combat, changed, options, userId) => {
     if (changed.flags?.trespasser?.activePhase !== undefined) {
       combat.updateTurnMarkers(changed.flags.trespasser.activePhase);
+      for (const c of combat.combatants) {
+        if (c.actor) TrespasserEffectsHelper.syncActorTokenEffects(c.actor);
+      }
     }
+    if (changed.round !== undefined || changed.turn !== undefined || changed.active !== undefined) {
+      for (const c of combat.combatants) {
+        if (c.actor) TrespasserEffectsHelper.syncActorTokenEffects(c.actor);
+      }
+    }
+  });
+
+  // Refresh token effects when combatants are added or removed
+  Hooks.on("createCombatant", (combatant) => {
+    if (combatant.actor) TrespasserEffectsHelper.syncActorTokenEffects(combatant.actor);
+  });
+
+  Hooks.on("deleteCombatant", (combatant) => {
+    if (combatant.actor) TrespasserEffectsHelper.syncActorTokenEffects(combatant.actor);
   });
 
   // Turn marker updates and automatic phase advance on combatant state changes
@@ -67,6 +84,8 @@ export function registerCombatHooks() {
         for (const w of thrownWeapons) {
           await w.update({ "system.isThrown": false });
         }
+
+        TrespasserEffectsHelper.syncActorTokenEffects(c.actor);
       }
     }
   });
