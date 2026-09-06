@@ -25,7 +25,11 @@ import {
   rollPrevail,
   onItemConsume
 } from "../actor/actor-actions.mjs";
-import { TRESPASSER_STATUS_EFFECTS, STATUS_EFFECT_COUNTERS } from "../config/status-effects.mjs";
+import {
+  TRESPASSER_STATUS_EFFECTS,
+  STATUS_EFFECT_COUNTERS,
+  TOGGLE_ONLY_STATUS_EFFECTS
+} from "../config/status-effects.mjs";
 
 /**
  * Custom Actor document class for Trespasser TTRPG.
@@ -51,11 +55,12 @@ export class TrespasserActor extends Actor {
     // Check if actor already has an effect item matching this state
     const existingItem = this.items.find(i =>
       i.type === "effect" && (
+        TrespasserEffectsHelper.getMatchingCustomStatus(i)?.id === status.id ||
         i.getFlag("trespasser", "statusEffectId") === status.id ||
         (status.id === "bloodied" && i.getFlag("trespasser", "isBloodiedState")) ||
         (status.compendiumId && (
-          i.flags?.core?.sourceId?.endsWith(status.compendiumId) ||
-          i._stats?.compendiumSource === status.compendiumId
+          i.flags?.core?.sourceId?.includes(status.compendiumId) ||
+          i._stats?.compendiumSource?.includes(status.compendiumId)
         )) ||
         (i.system?.statusIcon && i.system.statusIcon === status.img) ||
         (i.img && i.img === status.img) ||
@@ -87,6 +92,10 @@ export class TrespasserActor extends Actor {
         type: "effect"
       }] : [];
 
+      const isToggleOnly = TOGGLE_ONLY_STATUS_EFFECTS.has(status.id.toLowerCase());
+      const defaultIntensity = isToggleOnly ? 0 : 1;
+      const initialIntensity = intensity !== undefined ? intensity : defaultIntensity;
+
       if (!itemData) {
         itemData = {
           name: localizedName || status.id.capitalize(),
@@ -96,9 +105,9 @@ export class TrespasserActor extends Actor {
             description: "",
             type: "continuous",
             isCombat: true,
-            isOnlyReminder: false,
+            isOnlyReminder: isToggleOnly,
             gmOnly: false,
-            intensity: intensity !== undefined ? intensity : 1,
+            intensity: initialIntensity,
             targetAttribute: "health",
             modifier: "0",
             conferredState: "",
@@ -109,7 +118,7 @@ export class TrespasserActor extends Actor {
             durationConditions: [],
             intensityIncrement: 0,
             counterStates: fallbackCounterStates,
-            isPrevailable: true,
+            isPrevailable: !isToggleOnly,
             statusIcon: status.img,
             syncStatusIcon: false
           }
@@ -118,9 +127,7 @@ export class TrespasserActor extends Actor {
         if (localizedName) {
           itemData.name = localizedName;
         }
-        if (intensity !== undefined) {
-          itemData.system.intensity = intensity;
-        }
+        itemData.system.intensity = initialIntensity;
         if (!itemData.system.counterStates || itemData.system.counterStates.length === 0) {
           itemData.system.counterStates = fallbackCounterStates;
         }

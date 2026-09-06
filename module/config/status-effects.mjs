@@ -56,6 +56,14 @@ export const STATUS_EFFECT_COUNTERS = {
   willful: "weary"
 };
 
+/** Status effects that don't have intensity and can be directly toggled without a dialog */
+export const TOGGLE_ONLY_STATUS_EFFECTS = new Set([
+  "bloodied",
+  "defeated",
+  "shadowy",
+  "tenacious"
+]);
+
 export const BLOODIED_EFFECT_COMPENDIUM_ID = "4xEKVGCw0Xw71JBR";
 
 export const BLOODIED_EFFECT_DATA = {

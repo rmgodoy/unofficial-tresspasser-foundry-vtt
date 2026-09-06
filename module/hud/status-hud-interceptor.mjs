@@ -1,4 +1,8 @@
-import { TRESPASSER_STATUS_EFFECTS, STATUS_EFFECT_COUNTERS } from "../config/status-effects.mjs";
+import {
+  TRESPASSER_STATUS_EFFECTS,
+  STATUS_EFFECT_COUNTERS,
+  TOGGLE_ONLY_STATUS_EFFECTS
+} from "../config/status-effects.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { StatusIntensityDialog } from "../dialogs/status-intensity-dialog.mjs";
 
@@ -45,11 +49,12 @@ export async function handleStatusEffectToggle(actor, statusId, app = null) {
   const localizedName = game.i18n.localize(status.name);
   const existingItem = actor.items.find(i =>
     i.type === "effect" && (
+      TrespasserEffectsHelper.getMatchingCustomStatus(i)?.id === status.id ||
       i.getFlag("trespasser", "statusEffectId") === status.id ||
       (status.id === "bloodied" && i.getFlag("trespasser", "isBloodiedState")) ||
       (status.compendiumId && (
-        i.flags?.core?.sourceId?.endsWith(status.compendiumId) ||
-        i._stats?.compendiumSource === status.compendiumId
+        i.flags?.core?.sourceId?.includes(status.compendiumId) ||
+        i._stats?.compendiumSource?.includes(status.compendiumId)
       )) ||
       (i.system?.statusIcon && i.system.statusIcon === status.img) ||
       (i.img && i.img === status.img) ||
@@ -58,8 +63,40 @@ export async function handleStatusEffectToggle(actor, statusId, app = null) {
     )
   );
 
-  const isEdit = Boolean(existingItem);
-  const currentIntensity = isEdit ? (existingItem.system?.intensity || 0) : 1;
+  const existingAEs = actor.effects?.filter(ae => ae.statuses?.has(status.id)) || [];
+  const isActive = Boolean(existingItem || existingAEs.length > 0 || actor.statuses?.has(status.id));
+
+  // States without intensity (bloodied, defeated, shadowy, tenacious) can be directly toggled, skipping the dialog
+  if (TOGGLE_ONLY_STATUS_EFFECTS.has(status.id.toLowerCase())) {
+    if (isActive) {
+      if (existingItem) {
+        await actor.deleteEmbeddedDocuments("Item", [existingItem.id]);
+      }
+
+      if (existingAEs.length > 0) {
+        await actor.deleteEmbeddedDocuments("ActiveEffect", existingAEs.map(e => e.id));
+      }
+
+      if (status.id === "defeated" || status.id === CONFIG.specialStatusEffects?.DEFEATED) {
+        const combatant = game.combat?.combatants?.find(c =>
+          c.actorId === actor.id || (actor.isToken && c.tokenId === actor.token?.id)
+        );
+        if (combatant && combatant.defeated) {
+          await combatant.update({ defeated: false });
+        }
+      }
+
+      await TrespasserEffectsHelper._performSyncActorTokenEffects(actor);
+      if (app?.rendered) app.render(true);
+      else if (canvas.tokens?.hud?.rendered) canvas.tokens.hud.render(true);
+    } else {
+      await actor.toggleStatusEffect(status.id, { active: true, intensity: 0 });
+    }
+    return;
+  }
+
+  const isEdit = isActive;
+  const currentIntensity = existingItem ? (existingItem.system?.intensity || 0) : 1;
 
   // Check for active opposing counter state on the actor for informative display
   let counterInfo = null;
@@ -99,7 +136,9 @@ export async function handleStatusEffectToggle(actor, statusId, app = null) {
   if (isEdit) {
     if (newIntensity === 0) {
       // Remove the existing effect
-      await actor.deleteEmbeddedDocuments("Item", [existingItem.id]);
+      if (existingItem) {
+        await actor.deleteEmbeddedDocuments("Item", [existingItem.id]);
+      }
 
       const matchingAEs = actor.effects?.filter(ae => ae.statuses?.has(status.id)) || [];
       if (matchingAEs.length > 0) {
@@ -118,6 +157,9 @@ export async function handleStatusEffectToggle(actor, statusId, app = null) {
       await TrespasserEffectsHelper._performSyncActorTokenEffects(actor);
       if (app?.rendered) app.render(true);
       else if (canvas.tokens?.hud?.rendered) canvas.tokens.hud.render(true);
+    } else if (!existingItem) {
+      // Was active via loose AE, now setting intensity so create proper Item
+      await actor.toggleStatusEffect(status.id, { active: true, intensity: newIntensity });
     } else {
       // Edit existing intensity and resolve any counter states
       let remainingIntensity = newIntensity;
