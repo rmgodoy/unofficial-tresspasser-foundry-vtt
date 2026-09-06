@@ -2,6 +2,7 @@ import { registerChatCommands } from "../helpers/chat-commands.mjs";
 import { TrespasserTokenHUD } from "../hud/token-hud.mjs";
 import { TrespasserSocket } from "../helpers/socket/socket.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { registerStatusHudInterceptor } from "../hud/status-hud-interceptor.mjs";
 
 /**
  * Register the primary ready hook and post-load initializations.
@@ -9,6 +10,9 @@ import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 export function registerReadyHooks() {
   Hooks.once("ready", async () => {
     registerChatCommands();
+
+    // Intercept Token HUD status effect clicks for intensity dialog and counter states
+    registerStatusHudInterceptor();
 
     // Initialize Token Action HUD
     game.trespasser.tokenHUD = new TrespasserTokenHUD();

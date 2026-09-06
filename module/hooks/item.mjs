@@ -18,8 +18,8 @@ export function registerItemHooks() {
       // Check for active opposite lasting state
       const lastingStates = actor.items.filter(i => i.type === "effect" && i.system.isLasting);
       for (const lasting of lastingStates) {
-        const isOpposite = (system.counterStates || []).some(cs => cs.name === lasting.name) ||
-                           (lasting.system.counterStates || []).some(cs => cs.name === item.name);
+        const isOpposite = (system.counterStates || []).some(cs => TrespasserEffectsHelper.isCounterEffectMatch(cs, lasting)) ||
+                           (lasting.system.counterStates || []).some(cs => TrespasserEffectsHelper.isCounterEffectMatch(cs, item));
         if (isOpposite) {
           ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.OppositeLastingActive", {
             newEffect: item.name,
@@ -33,9 +33,8 @@ export function registerItemHooks() {
       const counterStates = system.counterStates || [];
       let wasCountered = false;
       if (counterStates.length > 0) {
-        const counterNames = new Set(counterStates.map(cs => cs.name));
         const existingCounters = actor.items.filter(i => 
-          i.type === "effect" && counterNames.has(i.name)
+          i.type === "effect" && counterStates.some(cs => TrespasserEffectsHelper.isCounterEffectMatch(cs, i))
         );
 
         for (const counter of existingCounters) {

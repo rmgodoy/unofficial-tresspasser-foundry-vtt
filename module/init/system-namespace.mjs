@@ -15,6 +15,7 @@ import { CommonerGenerator } from "../helpers/commoner-generator.mjs";
 import { CanvasInputOverlay } from "../hud/canvas-input-overlay.mjs";
 import { TreasureGenerator } from "../helpers/treasure-generator.mjs";
 import { TrespasserTreasureDialog } from "../dialogs/treasure-dialog.mjs";
+import { StatusIntensityDialog } from "../dialogs/status-intensity-dialog.mjs";
 import { formatDiceIcons, replaceDiceInElement } from "../helpers/dice-icon-helper.mjs";
 
 /**
@@ -40,6 +41,7 @@ export function initializeSystemNamespace() {
   game.trespasser.CanvasInputOverlay = CanvasInputOverlay;
   game.trespasser.TreasureGenerator = TreasureGenerator;
   game.trespasser.TreasureDialog = TrespasserTreasureDialog;
+  game.trespasser.StatusIntensityDialog = StatusIntensityDialog;
   game.trespasser.generateTreasure = (options) => TreasureGenerator.rollTreasure(options);
   game.trespasser.formatDiceIcons = formatDiceIcons;
   game.trespasser.replaceDiceInElement = replaceDiceInElement;

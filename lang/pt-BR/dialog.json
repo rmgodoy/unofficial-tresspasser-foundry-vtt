@@ -311,6 +311,15 @@
           "ParagonRule": "Dobro de PV (2x). Turno extra no final da rodada (imune a atraso, perde 1 PA em vez disso). Prevalecer gratuito no início do turno extra.",
           "TyrantRule": "4x PV. Turno extra no fim da rodada (imune a atraso). Invencível (prevalecer grátis a cada turno). Sem pânico. Ações de Tirano a 50% e 25% PV."
         }
+      },
+      "StatusIntensity": {
+        "Title": "Intensidade do Efeito de Estado",
+        "AddTitle": "Adicionar Estado: {name}",
+        "EditTitle": "Editar Estado: {name}",
+        "Intensity": "Intensidade",
+        "AddHint": "Insira a intensidade para este efeito de estado.",
+        "EditHint": "Defina a intensidade como 0 para remover este efeito de estado.",
+        "CounterWarning": "Contraria {name} (Atual: {intensity}). As intensidades serão subtraídas."
       }
     }
   }

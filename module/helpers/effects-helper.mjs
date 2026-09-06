@@ -50,6 +50,7 @@ import {
   performSyncActorTokenEffects,
   syncActorBloodiedItem,
   getMatchingCustomStatus,
+  isCounterEffectMatch,
   refreshTokensForActor,
   getCombatTrackerEffects
 } from "../effects/effects-token-sync.mjs";
@@ -86,6 +87,7 @@ export {
   performSyncActorTokenEffects,
   syncActorBloodiedItem,
   getMatchingCustomStatus,
+  isCounterEffectMatch,
   refreshTokensForActor,
   getCombatTrackerEffects
 };
@@ -193,6 +195,10 @@ export class TrespasserEffectsHelper {
 
   static getMatchingCustomStatus(item) {
     return getMatchingCustomStatus(item);
+  }
+
+  static isCounterEffectMatch(counterDef, effectItem) {
+    return isCounterEffectMatch(counterDef, effectItem);
   }
 
   static refreshTokensForActor(actor) {

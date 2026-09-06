@@ -25,7 +25,7 @@ import {
   rollPrevail,
   onItemConsume
 } from "../actor/actor-actions.mjs";
-import { TRESPASSER_STATUS_EFFECTS } from "../config/status-effects.mjs";
+import { TRESPASSER_STATUS_EFFECTS, STATUS_EFFECT_COUNTERS } from "../config/status-effects.mjs";
 
 /**
  * Custom Actor document class for Trespasser TTRPG.
@@ -33,7 +33,7 @@ import { TRESPASSER_STATUS_EFFECTS } from "../config/status-effects.mjs";
 export class TrespasserActor extends Actor {
 
   /** @override */
-  async toggleStatusEffect(statusId, { active, overlay = false } = {}) {
+  async toggleStatusEffect(statusId, { active, overlay = false, intensity } = {}) {
     const id = typeof statusId === "string" ? statusId : (statusId?.id || statusId?.compendiumId);
     const status = TRESPASSER_STATUS_EFFECTS.find(s =>
       s.id === id ||
@@ -78,6 +78,15 @@ export class TrespasserActor extends Actor {
         } catch (_) {}
       }
 
+      const counterId = STATUS_EFFECT_COUNTERS[status.id];
+      const counterStatus = counterId ? TRESPASSER_STATUS_EFFECTS.find(s => s.id === counterId) : null;
+      const fallbackCounterStates = counterStatus ? [{
+        uuid: counterStatus.compendiumId ? `Item.${counterStatus.compendiumId}` : "",
+        name: counterStatus.id.capitalize(),
+        img: counterStatus.img,
+        type: "effect"
+      }] : [];
+
       if (!itemData) {
         itemData = {
           name: localizedName || status.id.capitalize(),
@@ -89,7 +98,7 @@ export class TrespasserActor extends Actor {
             isCombat: true,
             isOnlyReminder: false,
             gmOnly: false,
-            intensity: 0,
+            intensity: intensity !== undefined ? intensity : 1,
             targetAttribute: "health",
             modifier: "0",
             conferredState: "",
@@ -99,14 +108,22 @@ export class TrespasserActor extends Actor {
             durationOperator: "OR",
             durationConditions: [],
             intensityIncrement: 0,
-            counterStates: [],
+            counterStates: fallbackCounterStates,
             isPrevailable: true,
             statusIcon: status.img,
             syncStatusIcon: false
           }
         };
-      } else if (localizedName) {
-        itemData.name = localizedName;
+      } else {
+        if (localizedName) {
+          itemData.name = localizedName;
+        }
+        if (intensity !== undefined) {
+          itemData.system.intensity = intensity;
+        }
+        if (!itemData.system.counterStates || itemData.system.counterStates.length === 0) {
+          itemData.system.counterStates = fallbackCounterStates;
+        }
       }
 
       delete itemData._id;

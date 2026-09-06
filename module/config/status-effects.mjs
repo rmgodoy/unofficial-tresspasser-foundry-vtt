@@ -37,6 +37,25 @@ export const TRESPASSER_STATUS_EFFECTS = [
   { id: "willful",    compendiumId: "WxE5WdcyqGe4NcqT", name: "TRESPASSER.States.Willful",    img: "systems/trespasser/assets/icons/states/Willful.svg" }
 ];
 
+export const STATUS_EFFECT_COUNTERS = {
+  accurate: "inaccurate",
+  inaccurate: "accurate",
+  fortified: "frail",
+  frail: "fortified",
+  guarded: "unguarded",
+  unguarded: "guarded",
+  hastened: "hindered",
+  hindered: "hastened",
+  mending: "afflicted",
+  afflicted: "mending",
+  slow: "swift",
+  swift: "slow",
+  strong: "weak",
+  weak: "strong",
+  weary: "willful",
+  willful: "weary"
+};
+
 export const BLOODIED_EFFECT_COMPENDIUM_ID = "4xEKVGCw0Xw71JBR";
 
 export const BLOODIED_EFFECT_DATA = {

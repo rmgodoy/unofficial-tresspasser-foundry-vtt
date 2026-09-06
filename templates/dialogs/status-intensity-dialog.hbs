@@ -1,0 +1,47 @@
+<div class="status-intensity-dialog-content">
+  <div class="status-header">
+    {{#if status.img}}
+      <img class="status-icon" src="{{status.img}}" alt="{{statusName}}" />
+    {{/if}}
+    <span class="status-title">{{statusName}}</span>
+  </div>
+
+  <div class="intensity-field">
+    <label for="status-intensity-input">{{localize "TRESPASSER.Dialog.StatusIntensity.Intensity"}}</label>
+    <div class="input-wrapper">
+      <input
+        id="status-intensity-input"
+        type="number"
+        name="intensity"
+        value="{{intensity}}"
+        min="0"
+        step="1"
+        autofocus
+        onclick="this.select()"
+      />
+    </div>
+    <span class="hint">
+      {{#if isEdit}}
+        {{localize "TRESPASSER.Dialog.StatusIntensity.EditHint"}}
+      {{else}}
+        {{localize "TRESPASSER.Dialog.StatusIntensity.AddHint"}}
+      {{/if}}
+    </span>
+  </div>
+
+  {{#if counterWarningText}}
+    <div class="counter-warning">
+      <i class="fas fa-arrows-split-up-and-left"></i>
+      <span>{{counterWarningText}}</span>
+    </div>
+  {{/if}}
+
+  <footer class="dialog-footer">
+    <button type="button" class="trp-btn confirm" data-action="confirm">
+      <i class="fas fa-check"></i> {{localize "TRESPASSER.Dialog.Common.Confirm"}}
+    </button>
+    <button type="button" class="trp-btn cancel" data-action="cancel">
+      <i class="fas fa-times"></i> {{localize "TRESPASSER.Dialog.Common.Cancel"}}
+    </button>
+  </footer>
+</div>

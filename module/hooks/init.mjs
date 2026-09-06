@@ -9,6 +9,7 @@ import { registerEventClocksHooks } from "../exploration/event-clocks-tracker.mj
 import { preloadHandlebarsTemplates } from "../init/load-templates.mjs";
 import { registerTurnMarkerPatches } from "../canvas/turn-marker-patch.mjs";
 import { configureTrespasserRules, registerSystemSettings } from "../settings/register-settings.mjs";
+import { registerStatusHudInterceptor } from "../hud/status-hud-interceptor.mjs";
 import { registerDocumentModels } from "../init/register-models.mjs";
 import { registerSystemSheets } from "../init/register-sheets.mjs";
 import { registerHandlebarsHelpers } from "../helpers/handlebars-helpers.mjs";
@@ -32,6 +33,9 @@ export function registerInitHooks() {
 
     // Apply Foundry turn marker patches for phased combat
     registerTurnMarkerPatches();
+
+    // Intercept Token HUD status effect clicks for intensity dialog and counter states
+    registerStatusHudInterceptor();
 
     // Configure system rules and game settings
     configureTrespasserRules();

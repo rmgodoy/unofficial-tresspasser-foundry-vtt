@@ -311,6 +311,15 @@
           "ParagonRule": "Double HP (2x). Extra turn at the end of round (immune to delay, loses 1 AP instead). Free prevail check at extra turn start.",
           "TyrantRule": "4x HP. Extra turn at end of round (immune to delay). Invincible (free prevail check every turn). No panic. Special Tyrant Deeds at 50% and 25% HP."
         }
+      },
+      "StatusIntensity": {
+        "Title": "Status Effect Intensity",
+        "AddTitle": "Add Status: {name}",
+        "EditTitle": "Edit Status: {name}",
+        "Intensity": "Intensity",
+        "AddHint": "Enter the intensity for this status effect.",
+        "EditHint": "Set intensity to 0 to remove this status effect.",
+        "CounterWarning": "Counters {name} (Current: {intensity}). Intensities will subtract."
       }
     }
   }

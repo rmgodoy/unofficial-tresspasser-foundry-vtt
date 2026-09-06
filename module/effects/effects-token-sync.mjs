@@ -55,6 +55,43 @@ export function getMatchingCustomStatus(item) {
 }
 
 /**
+ * Checks whether an effect item matches a counter state definition.
+ * Supports exact name, localized name, compendium UUID, sourceId, and statusEffectId.
+ * @param {object|string} counterDef - Counter state definition {uuid, name} or string identifier
+ * @param {Item} effectItem - Actor effect item document
+ * @returns {boolean}
+ */
+export function isCounterEffectMatch(counterDef, effectItem) {
+  if (!effectItem || effectItem.type !== "effect" || !counterDef) return false;
+
+  const csName = (typeof counterDef === "string" ? counterDef : counterDef.name)?.trim().toLowerCase();
+  const csUuid = typeof counterDef === "object" ? counterDef.uuid : null;
+
+  const effName = effectItem.name?.trim().toLowerCase();
+  if (csName && effName === csName) return true;
+
+  if (csUuid) {
+    const rawId = csUuid.replace(/^Item\./, "");
+    if (effectItem.flags?.core?.sourceId?.includes(rawId) ||
+        effectItem._stats?.compendiumSource === csUuid ||
+        effectItem._stats?.compendiumSource === rawId ||
+        effectItem.id === rawId) {
+      return true;
+    }
+  }
+
+  const customStatus = getMatchingCustomStatus(effectItem);
+  if (customStatus) {
+    if (csName && customStatus.id.toLowerCase() === csName) return true;
+    if (csUuid && customStatus.compendiumId && csUuid.includes(customStatus.compendiumId)) return true;
+    const locName = game.i18n?.localize(customStatus.name)?.toLowerCase();
+    if (locName && csName && (locName === csName || csName === customStatus.name?.toLowerCase())) return true;
+  }
+
+  return false;
+}
+
+/**
  * Retrieves the list of active combat effects for an actor formatted for Combat Tracker display.
  * @param {Actor} actor
  * @returns {Array<{id: string, name: string, icon: string, intensity: number}>}
