@@ -199,20 +199,24 @@ export async function triggerEffects(actor, timing, { filterTarget = null } = {}
       const modValue = typeof roll === "number" ? roll : roll.total;
       
       if (eff.target === "health") {
-        const rawHP = actor.system.health + modValue;
-        const newHP = Math.clamp(rawHP, 0, actor.system.max_health);
-        await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
-        
-        if (modValue > 0) {
-          flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthRecovered", { value: modValue })}</p>`;
-        } else if (modValue < 0) {
-          flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
-          if (actor.type === "character" && rawHP < 0) {
-            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: rawHP })}</p>`;
-            flavor += buildTenacityButtonHtml(actor, rawHP);
-          }
+        if (modValue < 0 && (actor.system?.passiveStates?.tenacious || (actor.system?.health ?? 0) <= 0)) {
+          flavor += `<p style="font-style: italic; color: var(--trp-gold, #c49d48);">${game.i18n.format("TRESPASSER.Chat.Trigger.DamagePausedTenacious", { name: eff.name })}</p>`;
         } else {
-          flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.HealthUnaffected")}</p>`;
+          const rawHP = actor.system.health + modValue;
+          const newHP = Math.clamp(rawHP, 0, actor.system.max_health);
+          await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
+          
+          if (modValue > 0) {
+            flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthRecovered", { value: modValue })}</p>`;
+          } else if (modValue < 0) {
+            flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
+            if (actor.type === "character" && rawHP < 0) {
+              flavor += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: rawHP })}</p>`;
+              flavor += buildTenacityButtonHtml(actor, rawHP);
+            }
+          } else {
+            flavor += `<p>${game.i18n.localize("TRESPASSER.Chat.Trigger.HealthUnaffected")}</p>`;
+          }
         }
       } else if (eff.target === "endurance") {
         const newEnd = Math.clamp(actor.system.endurance + modValue, 0, actor.system.max_endurance);

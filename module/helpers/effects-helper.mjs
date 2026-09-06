@@ -49,6 +49,7 @@ import {
   syncActorTokenEffects,
   performSyncActorTokenEffects,
   syncActorBloodiedItem,
+  syncActorTenaciousItem,
   getMatchingCustomStatus,
   isCounterEffectMatch,
   refreshTokensForActor,
@@ -86,6 +87,7 @@ export {
   syncActorTokenEffects,
   performSyncActorTokenEffects,
   syncActorBloodiedItem,
+  syncActorTenaciousItem,
   getMatchingCustomStatus,
   isCounterEffectMatch,
   refreshTokensForActor,
@@ -191,6 +193,10 @@ export class TrespasserEffectsHelper {
 
   static async syncActorBloodiedItem(actor) {
     return syncActorBloodiedItem(actor);
+  }
+
+  static async syncActorTenaciousItem(actor) {
+    return syncActorTenaciousItem(actor);
   }
 
   static getMatchingCustomStatus(item) {

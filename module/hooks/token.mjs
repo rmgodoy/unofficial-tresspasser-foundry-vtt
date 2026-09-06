@@ -40,7 +40,10 @@ export function registerTokenHooks() {
   Hooks.on("preCreateToken", (tokenDoc, updates, options, userId) => {
     const actor = tokenDoc.actor || game.actors.get(updates.actorId || tokenDoc.actorId);
     if (actor) {
-      TrespasserEffectsHelper.syncActorBloodiedItem(actor).then(() => {
+      Promise.all([
+        TrespasserEffectsHelper.syncActorBloodiedItem(actor),
+        TrespasserEffectsHelper.syncActorTenaciousItem(actor)
+      ]).then(() => {
         TrespasserEffectsHelper.syncActorTokenEffects(actor);
       });
 
@@ -70,7 +73,10 @@ export function registerTokenHooks() {
     if (game.user.id !== userId) return;
     const actor = tokenDoc.actor;
     if (actor && game.user.isGM) {
-      TrespasserEffectsHelper.syncActorBloodiedItem(actor).then(() => {
+      Promise.all([
+        TrespasserEffectsHelper.syncActorBloodiedItem(actor),
+        TrespasserEffectsHelper.syncActorTenaciousItem(actor)
+      ]).then(() => {
         TrespasserEffectsHelper.syncActorTokenEffects(actor);
       });
     }
@@ -99,7 +105,7 @@ export function registerTokenHooks() {
     }
 
     const actor = token.actor ?? token.document?.actor;
-    const activeKeys = Object.entries(states).filter(([key, v]) => v && key !== "bloody" && (actor?.type === "character" || key !== "encumbered"));
+    const activeKeys = Object.entries(states).filter(([key, v]) => v && key !== "bloody" && key !== "tenacious" && (actor?.type === "character" || key !== "encumbered"));
     if (isEngaged) {
       activeKeys.push(["engaged", true]);
     }

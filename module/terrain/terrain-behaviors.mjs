@@ -278,6 +278,14 @@ export async function executeBehavior(behavior, actor, terrainRegion, context = 
 
     case "damage": {
       if (!actor) return;
+      if (actor.system?.passiveStates?.tenacious || (actor.type === "character" && (actor.system?.health ?? 0) <= 0)) {
+        await ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({ actor }),
+          flavor: `🌍 ${terrainRegion.name} — ${game.i18n.localize("TRESPASSER.Sheet.Terrain.Fields.TerrainDamage")}`,
+          content: `<div class="trespasser-chat-card"><p style="font-style: italic;">${game.i18n.format("TRESPASSER.Chat.Combat.TerrainDamageIgnoredTenacious", { name: actor.name })}</p></div>`
+        });
+        break;
+      }
       let formula = resolveIntPlaceholder(behavior.damageFormula, terrainRegion);
       const resolveActor = casterActor || actor;
       formula = TrespasserEffectsHelper.replacePlaceholders(formula, resolveActor);

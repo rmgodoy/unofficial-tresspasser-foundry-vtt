@@ -236,6 +236,16 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     
     // Bloody: health <= 50% of max
     this.passiveStates.bloody = this.health <= (this.max_health / 2);
+
+    // Defeated check
+    const isDefeated = Boolean(
+      actor?.statuses?.has("defeated") ||
+      actor?.statuses?.has(CONFIG.specialStatusEffects?.DEFEATED) ||
+      actor?.items?.some(i => i.type === "effect" && (i.getFlag("trespasser", "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated"))
+    );
+
+    // Tenacious: health is 0 (or <= 0) and not defeated
+    this.passiveStates.tenacious = (this.health <= 0) && !isDefeated;
     
     // Encumbrance: armor rating (from equipped armor pieces, before effect bonuses) >= 6
     this.passiveStates.encumbered = totalArmor >= 6;

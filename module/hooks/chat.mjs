@@ -1,6 +1,7 @@
 import { replaceDiceInElement } from "../helpers/dice-icon-helper.mjs";
 import { ReactionsHelper } from "../helpers/reactions-helper.mjs";
 import { registerTenacityChatListeners } from "../helpers/tenacity-helper.mjs";
+import { registerInjuryChatListeners } from "../helpers/injury-table.mjs";
 import { bindCardActionListeners } from "./chat/card-actions.mjs";
 import { bindGroupCheckChatListeners, promptGroupCheckRoll } from "./chat/group-check-chat.mjs";
 import { handleDungeonRollButtonClick } from "../exploration/dungeon-actions.mjs";
@@ -42,6 +43,7 @@ export function registerChatHooks() {
     }
 
     registerTenacityChatListeners(root);
+    registerInjuryChatListeners(root);
     bindCardActionListeners(message, root);
     bindGroupCheckChatListeners(message, root);
 

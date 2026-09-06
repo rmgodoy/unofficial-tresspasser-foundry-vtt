@@ -58,6 +58,7 @@ export class TrespasserActor extends Actor {
         TrespasserEffectsHelper.getMatchingCustomStatus(i)?.id === status.id ||
         i.getFlag("trespasser", "statusEffectId") === status.id ||
         (status.id === "bloodied" && i.getFlag("trespasser", "isBloodiedState")) ||
+        (status.id === "tenacious" && i.getFlag("trespasser", "isTenaciousState")) ||
         (status.compendiumId && (
           i.flags?.core?.sourceId?.includes(status.compendiumId) ||
           i._stats?.compendiumSource?.includes(status.compendiumId)
@@ -148,6 +149,9 @@ export class TrespasserActor extends Actor {
       if (status.id === "bloodied") {
         itemData.flags.trespasser.isBloodiedState = true;
       }
+      if (status.id === "tenacious") {
+        itemData.flags.trespasser.isTenaciousState = true;
+      }
 
       const created = await this.createEmbeddedDocuments("Item", [itemData]);
 
@@ -162,6 +166,7 @@ export class TrespasserActor extends Actor {
         if (combatant && !combatant.defeated) {
           await combatant.update({ defeated: true });
         }
+        await TrespasserEffectsHelper.syncActorTenaciousItem(this);
       }
 
       await TrespasserEffectsHelper._performSyncActorTokenEffects(this);
@@ -189,6 +194,7 @@ export class TrespasserActor extends Actor {
           if (combatant && combatant.defeated) {
             await combatant.update({ defeated: false });
           }
+          await TrespasserEffectsHelper.syncActorTenaciousItem(this);
         }
 
         await TrespasserEffectsHelper._performSyncActorTokenEffects(this);
@@ -263,6 +269,7 @@ export class TrespasserActor extends Actor {
         foundry.utils.setProperty(changed, "system.health", 0);
         if (this.type === "character" && !options.skipBelowZeroChat) {
           options._belowZeroHP = targetHP;
+          options._wasAlreadyZero = (this.system?.health ?? 0) === 0;
         }
       }
     }
@@ -296,10 +303,15 @@ export class TrespasserActor extends Actor {
     if (game.user.id !== userId) return;
 
     if (options._belowZeroHP !== undefined && this.type === "character") {
-      const belowZeroMsg = game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", {
-        name: this.name,
-        hp: options._belowZeroHP
-      });
+      const belowZeroMsg = options._wasAlreadyZero
+        ? game.i18n.format("TRESPASSER.Chat.Combat.DamageWhileTenacious", {
+            name: this.name,
+            damage: Math.abs(options._belowZeroHP)
+          })
+        : game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", {
+            name: this.name,
+            hp: options._belowZeroHP
+          });
       const buttonHtml = buildTenacityButtonHtml(this, options._belowZeroHP);
       ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor: this }),

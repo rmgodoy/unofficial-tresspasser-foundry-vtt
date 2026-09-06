@@ -25,6 +25,10 @@ export function migrateToGraph(source) {
   const nodes = [];
   const connections = [];
 
+  const NODE_WIDTH = 240;
+  const NODE_GAP_X = 80;
+  const STEP_X = NODE_WIDTH + NODE_GAP_X; // 320
+
   // Create mandatory Start root node
   const startNodeId = foundry.utils.randomID();
   nodes.push({
@@ -36,7 +40,7 @@ export function migrateToGraph(source) {
     y: 180
   });
 
-  let currentX = 260;
+  let currentX = 60 + STEP_X;
   let lastMainNodeId = startNodeId;
   let lastMainPort = "out";
 
@@ -104,7 +108,7 @@ export function migrateToGraph(source) {
 
       lastMainNodeId = b.id;
       lastMainPort = "out";
-      currentX += 280;
+      currentX += STEP_X;
     }
   }
 
@@ -139,7 +143,7 @@ export function migrateToGraph(source) {
       type: "flow"
     });
 
-    currentX += 280;
+    currentX += STEP_X;
 
     // Process 'hit' behaviors on onHit branch
     let lastHitId = rollAccuracyNodeId;
@@ -163,7 +167,7 @@ export function migrateToGraph(source) {
 
       lastHitId = b.id;
       lastHitPort = "out";
-      hitX += 280;
+      hitX += STEP_X;
     }
 
     // Process 'spark' behaviors on onSpark branch
@@ -188,10 +192,10 @@ export function migrateToGraph(source) {
 
       lastSparkId = b.id;
       lastSparkPort = "out";
-      sparkX += 280;
+      sparkX += STEP_X;
     }
 
-    currentX = Math.max(hitX, sparkX, currentX + 280);
+    currentX = Math.max(hitX, sparkX, currentX);
     lastMainNodeId = rollAccuracyNodeId;
     lastMainPort = "always";
   }
@@ -219,7 +223,7 @@ export function migrateToGraph(source) {
 
       lastMainNodeId = b.id;
       lastMainPort = "out";
-      currentX += 280;
+      currentX += STEP_X;
     }
   }
 

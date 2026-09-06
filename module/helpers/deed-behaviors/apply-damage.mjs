@@ -174,10 +174,15 @@ export class ApplyDamageBehavior {
 
       let belowZeroHtml = "";
       if (targetActor.type === "character" && rawHP < 0) {
-        const belowZeroMsg = game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", {
-          name: tokenName,
-          hp: rawHP
-        });
+        const belowZeroMsg = hpBefore === 0
+          ? game.i18n.format("TRESPASSER.Chat.Combat.DamageWhileTenacious", {
+              name: tokenName,
+              damage: targetDmg
+            })
+          : game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", {
+              name: tokenName,
+              hp: rawHP
+            });
         const tenacityBtn = buildTenacityButtonHtml(targetActor, rawHP);
         belowZeroHtml = `
           <div class="target-below-zero" style="margin-top: 3px;">

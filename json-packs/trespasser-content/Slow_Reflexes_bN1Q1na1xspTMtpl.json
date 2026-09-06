@@ -1,0 +1,30 @@
+{
+  "name": "Slow Reflexes",
+  "type": "injury",
+  "_id": "bN1Q1na1xspTMtpl",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>You can't take more than one reaction each round.</p>",
+    "injuryClock": 4,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594024,
+    "modifiedTime": 1788704594024,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!bN1Q1na1xspTMtpl"
+}

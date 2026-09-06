@@ -52,6 +52,7 @@ export async function handleStatusEffectToggle(actor, statusId, app = null) {
       TrespasserEffectsHelper.getMatchingCustomStatus(i)?.id === status.id ||
       i.getFlag("trespasser", "statusEffectId") === status.id ||
       (status.id === "bloodied" && i.getFlag("trespasser", "isBloodiedState")) ||
+      (status.id === "tenacious" && i.getFlag("trespasser", "isTenaciousState")) ||
       (status.compendiumId && (
         i.flags?.core?.sourceId?.includes(status.compendiumId) ||
         i._stats?.compendiumSource?.includes(status.compendiumId)

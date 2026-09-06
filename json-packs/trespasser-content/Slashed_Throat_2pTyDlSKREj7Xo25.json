@@ -1,0 +1,30 @@
+{
+  "name": "Slashed Throat",
+  "type": "injury",
+  "_id": "2pTyDlSKREj7Xo25",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>You can only speak at a whisper. You can raise your voice, but doing so deals you 1d6 damage.</p>",
+    "injuryClock": 4,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594025,
+    "modifiedTime": 1788704594025,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!2pTyDlSKREj7Xo25"
+}

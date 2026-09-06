@@ -1,0 +1,30 @@
+{
+  "name": "Major Blood Loss",
+  "type": "injury",
+  "_id": "KsP6iXeprUqjuWQq",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>You lose 1 recovery die for each extra action point you spend on the move action.</p>",
+    "injuryClock": 6,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594016,
+    "modifiedTime": 1788704594016,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!KsP6iXeprUqjuWQq"
+}

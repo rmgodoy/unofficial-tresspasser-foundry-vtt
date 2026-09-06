@@ -16,5 +16,11 @@ export const PASSIVE_STATES = {
     label: "TRESPASSER.State.Engaged.Name",
     description: "TRESPASSER.State.Engaged.Description",
     tint: "#c9a84c"
+  },
+  tenacious: {
+    icon: "systems/trespasser/assets/icons/states/Tenacious.svg",
+    label: "TRESPASSER.State.Tenacious.Name",
+    description: "TRESPASSER.State.Tenacious.Description",
+    tint: "#fce365"
   }
 };

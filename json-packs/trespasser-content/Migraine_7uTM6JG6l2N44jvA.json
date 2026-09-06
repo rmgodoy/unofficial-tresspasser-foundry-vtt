@@ -1,0 +1,30 @@
+{
+  "name": "Migraine",
+  "type": "injury",
+  "_id": "7uTM6JG6l2N44jvA",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>You start combat encounters with zero focus.</p>",
+    "injuryClock": 6,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594028,
+    "modifiedTime": 1788704594028,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!7uTM6JG6l2N44jvA"
+}

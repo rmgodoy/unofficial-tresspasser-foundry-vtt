@@ -1,0 +1,30 @@
+{
+  "name": "Broken Ribs",
+  "type": "injury",
+  "_id": "pH7NQ9G6tlLYun9k",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>You suffer a -2 penalty to guard checks.</p>",
+    "injuryClock": 6,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594023,
+    "modifiedTime": 1788704594023,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!pH7NQ9G6tlLYun9k"
+}

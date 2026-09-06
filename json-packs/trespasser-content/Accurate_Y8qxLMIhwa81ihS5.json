@@ -24,7 +24,7 @@
       {
         "uuid": "Item.yZCy3pwbhrRK45sq",
         "name": "Inaccurate",
-        "img": "systems/trespasser/assets/icons/effect.webp",
+        "img": "systems/trespasser/assets/icons/states/Inaccurate.svg",
         "type": "effect"
       }
     ],

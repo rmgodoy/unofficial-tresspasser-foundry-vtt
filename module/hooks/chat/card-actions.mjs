@@ -162,7 +162,9 @@ export function bindCardActionListeners(message, html) {
 
         let buttonHtml = "";
         if (actor.type === "character" && rawNewHP < 0) {
-          const belowZeroMsg = game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: rawNewHP });
+          const belowZeroMsg = currentHP === 0
+            ? game.i18n.format("TRESPASSER.Chat.Combat.DamageWhileTenacious", { name: actor.name, damage: finalDamage })
+            : game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: rawNewHP });
           chatMsg += `<p class="miss-text">${belowZeroMsg}</p>`;
           buttonHtml = buildTenacityButtonHtml(actor, rawNewHP);
         }

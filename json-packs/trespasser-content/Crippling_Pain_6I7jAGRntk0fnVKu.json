@@ -1,0 +1,30 @@
+{
+  "name": "Crippling Pain",
+  "type": "injury",
+  "_id": "6I7jAGRntk0fnVKu",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>At the start of each of your turns in combat, roll a d6. On a 1 or 2, you are overcome by pain and lose 1 action point.</p>",
+    "injuryClock": 4,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594021,
+    "modifiedTime": 1788704594021,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!6I7jAGRntk0fnVKu"
+}

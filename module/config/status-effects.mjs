@@ -97,3 +97,38 @@ export const BLOODIED_EFFECT_DATA = {
     }
   }
 };
+
+export const TENACIOUS_EFFECT_COMPENDIUM_ID = "ucUF4hsZP7f1fJM6";
+
+export const TENACIOUS_EFFECT_DATA = {
+  name: "Tenacious",
+  type: "effect",
+  img: "systems/trespasser/assets/icons/states/Tenacious.svg",
+  system: {
+    description: "<p>You gain this state while you are at 0 hit points, and you lose it if you are defeated or if your hit point total increases above 0. Damage-dealing states are paused while you have this state, and you also ignore minor environmental hazards, such as terrain damage.</p>",
+    type: "continuous",
+    isCombat: true,
+    isOnlyReminder: true,
+    gmOnly: false,
+    intensity: 0,
+    targetAttribute: "health",
+    modifier: "0",
+    conferredState: "",
+    when: "immediate",
+    duration: "indefinite",
+    durationValue: 0,
+    durationOperator: "OR",
+    durationConditions: [],
+    intensityIncrement: 0,
+    counterStates: [],
+    isPrevailable: false,
+    statusIcon: "systems/trespasser/assets/icons/states/Tenacious.svg",
+    syncStatusIcon: false
+  },
+  flags: {
+    trespasser: {
+      isTenaciousState: true,
+      statusEffectId: "tenacious"
+    }
+  }
+};

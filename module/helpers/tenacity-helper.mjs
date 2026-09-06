@@ -77,6 +77,8 @@ export async function promptTenacityRoll(actorId, cd) {
   let outcomeTitle = "";
   let outcomeDesc = "";
   let outcomeClass = "";
+  let injuryButtonHtml = "";
+  let enduranceLossHtml = "";
 
   if (diff >= 0) {
     sparks = Math.floor(diff / 5) + (isNat20 ? 1 : 0);
@@ -89,15 +91,40 @@ export async function promptTenacityRoll(actorId, cd) {
     shadows = Math.floor(Math.abs(diff) / 5) + (isNat1 ? 1 : 0);
     outcomeClass = "miss-text";
 
+    // 1. Encounter-level endurance loss on first failure
+    const hasFailedThisEncounter = Boolean(actor.getFlag("trespasser", "failedTenacityThisEncounter"));
+    if (!hasFailedThisEncounter) {
+      await actor.setFlag("trespasser", "failedTenacityThisEncounter", true);
+      const currentEnd = actor.system.endurance ?? 0;
+      const newEnd = Math.max(0, currentEnd - 2);
+      await actor.update({ "system.endurance": newEnd });
+      enduranceLossHtml = `<p class="miss-text" style="font-size:var(--fs-12); font-weight:bold; margin-top:4px;">${game.i18n.localize("TRESPASSER.Chat.Combat.LostTwoEndurance") || "Lost 2 Endurance (first defeat/failure this encounter)."}</p>`;
+    }
+
+    // 2. Failure consequences
     if (shadows === 0) {
       outcomeTitle = game.i18n.localize("TRESPASSER.Chat.Combat.TenacityScarTitle");
       outcomeDesc = game.i18n.localize("TRESPASSER.Chat.Combat.TenacityScarDesc");
+      await actor.toggleStatusEffect("defeated", { active: true });
+      await actor.toggleStatusEffect("toppled", { active: true });
     } else if (shadows === 1) {
       outcomeTitle = game.i18n.localize("TRESPASSER.Chat.Combat.TenacityInjuryTitle");
-      outcomeDesc = game.i18n.localize("TRESPASSER.Chat.Combat.TenacityInjuryDesc");
+      const injuryCount = actor.items.filter(i => i.type === "injury").length;
+      if (injuryCount >= 3) {
+        outcomeTitle = game.i18n.localize("TRESPASSER.Chat.Combat.TenacityDeathTitle");
+        outcomeDesc = game.i18n.localize("TRESPASSER.Chat.Combat.TenacityThreeInjuriesDeathDesc") || "• Already has 3 injuries and would gain another: <strong>dies instead</strong>.";
+        await actor.toggleStatusEffect("defeated", { active: true, overlay: true });
+      } else {
+        outcomeDesc = game.i18n.localize("TRESPASSER.Chat.Combat.TenacityInjuryDesc");
+        await actor.toggleStatusEffect("defeated", { active: true });
+        await actor.toggleStatusEffect("toppled", { active: true });
+        const { buildInjuryButtonHtml } = await import("./injury-table.mjs");
+        injuryButtonHtml = buildInjuryButtonHtml(actor);
+      }
     } else {
       outcomeTitle = game.i18n.localize("TRESPASSER.Chat.Combat.TenacityDeathTitle");
       outcomeDesc = game.i18n.localize("TRESPASSER.Chat.Combat.TenacityDeathDesc");
+      await actor.toggleStatusEffect("defeated", { active: true, overlay: true });
     }
   }
 
@@ -117,7 +144,9 @@ export async function promptTenacityRoll(actorId, cd) {
       <p><strong>${game.i18n.localize("TRESPASSER.Chat.Common.RollTotal")}</strong> ${roll.total} (${game.i18n.format("TRESPASSER.Chat.Check.VsCD", { cd: finalCD })})</p>
       <p class="${outcomeClass}" style="margin-top: 6px;"><strong>${outcomeTitle}</strong></p>
       <p style="font-size:var(--fs-12);color:var(--trp-text-dim);line-height:1.4;">${outcomeDesc}</p>
+      ${enduranceLossHtml}
       ${metricsHtml}
+      ${injuryButtonHtml}
     </div>`;
 
   await roll.toMessage({

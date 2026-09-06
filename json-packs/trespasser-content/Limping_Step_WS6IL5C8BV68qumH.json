@@ -1,0 +1,30 @@
+{
+  "name": "Limping Step",
+  "type": "injury",
+  "_id": "WS6IL5C8BV68qumH",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>Your speed is set to 4/+2.</p>",
+    "injuryClock": 4,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594010,
+    "modifiedTime": 1788704594010,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!WS6IL5C8BV68qumH"
+}

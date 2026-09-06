@@ -77,7 +77,7 @@ export function parseTargetString(str) {
  * @param {object} source - Raw system data object of a Deed item
  * @returns {object} Updated system data object
  */
-export function convertOldDeedSystem(source) {
+export function convertOldDeedSystem(source, options = {}) {
   const src = foundry.utils.deepClone(source || {});
 
   // 1. Rename ability type (type -> abilityType)
@@ -160,11 +160,17 @@ export function convertOldDeedSystem(source) {
       const hasAppliedEffects = Array.isArray(oldPhase.appliedEffects) && oldPhase.appliedEffects.length > 0;
       const appliesWeaponEffects = !!oldPhase.appliesWeaponEffects;
       if (hasAppliedEffects || appliesWeaponEffects) {
+        const effectsList = hasAppliedEffects ? foundry.utils.deepClone(oldPhase.appliedEffects) : [];
+        if (options.effectMap) {
+          for (const eff of effectsList) {
+            updateEffectReference(eff, options.effectMap);
+          }
+        }
         behaviors.push({
           id: foundry.utils.randomID(),
           type: "applyEffects",
           params: {
-            effects: hasAppliedEffects ? oldPhase.appliedEffects : [],
+            effects: effectsList,
             appliesWeaponEffects
           }
         });
@@ -240,7 +246,107 @@ export function convertOldDeedSystem(source) {
   // 5. Migrate to Graph format if not already done
   migrateToGraph(src);
 
+  // 6. Resolve effect reference images if effectMap provided
+  if (options.effectMap) {
+    updateEffectReferencesInSystem(src, options.effectMap);
+  }
+
   return src;
+}
+
+/**
+ * Update an effect reference object with its canonical image from effectMap.
+ * @param {object} ref - Reference object { uuid, name, img, ... }
+ * @param {Map<string, string>} effectMap - Map of ID/UUID/name to effect img
+ * @returns {boolean} Whether the ref was updated
+ */
+export function updateEffectReference(ref, effectMap) {
+  if (!ref || typeof ref !== "object" || !effectMap) return false;
+
+  let targetImg = null;
+  if (ref.uuid) {
+    if (effectMap.has(ref.uuid)) {
+      targetImg = effectMap.get(ref.uuid);
+    } else {
+      const match = ref.uuid.match(/(?:Item\.)?([a-zA-Z0-9]{16})/);
+      if (match && effectMap.has(match[1])) {
+        targetImg = effectMap.get(match[1]);
+      }
+    }
+  }
+  if (!targetImg && (ref._id || ref.id)) {
+    targetImg = effectMap.get(ref._id || ref.id);
+  }
+  if (!targetImg && ref.name && typeof ref.name === "string") {
+    targetImg = effectMap.get(ref.name.trim().toLowerCase());
+  }
+
+  if (targetImg && targetImg !== ref.img) {
+    const isTargetNonDefault = !targetImg.endsWith("effect.webp") && !targetImg.endsWith("effects.webp");
+    const isRefDefault = !ref.img || ref.img.endsWith("effect.webp") || ref.img.endsWith("effects.webp") || ref.img === "icons/svg/aura.svg";
+    if (isTargetNonDefault && isRefDefault) {
+      ref.img = targetImg;
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
+ * Updates all effect references inside a system data object.
+ * Checks graph nodes, phases, appliedEffects, effects, enhancementEffects, oilEffects, counterStates, etc.
+ * @param {object} system - Item system object
+ * @param {Map<string, string>} effectMap - Map of effect identifiers to their image
+ * @returns {boolean} Whether any change was made
+ */
+export function updateEffectReferencesInSystem(system, effectMap) {
+  if (!system || typeof system !== "object" || !effectMap) return false;
+  let modified = false;
+
+  // 1. Graph nodes (applyEffects)
+  if (Array.isArray(system.graph?.nodes)) {
+    for (const node of system.graph.nodes) {
+      if (Array.isArray(node.params?.effects)) {
+        for (const eff of node.params.effects) {
+          if (updateEffectReference(eff, effectMap)) modified = true;
+        }
+      }
+    }
+  }
+
+  // 2. Phases & legacyPhases
+  for (const phaseContainer of [system.phases, system.legacyPhases, system.effects]) {
+    if (!phaseContainer || typeof phaseContainer !== "object") continue;
+    for (const phase of Object.values(phaseContainer)) {
+      if (!phase || typeof phase !== "object") continue;
+      if (Array.isArray(phase.appliedEffects)) {
+        for (const eff of phase.appliedEffects) {
+          if (updateEffectReference(eff, effectMap)) modified = true;
+        }
+      }
+      if (Array.isArray(phase.behaviors)) {
+        for (const b of phase.behaviors) {
+          if (Array.isArray(b.params?.effects)) {
+            for (const eff of b.params.effects) {
+              if (updateEffectReference(eff, effectMap)) modified = true;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  // 3. Other known effect arrays (weapons, items, counterStates, etc.)
+  const arrayProps = ["effects", "enhancementEffects", "oilEffects", "counterStates", "linkedEffects"];
+  for (const prop of arrayProps) {
+    if (Array.isArray(system[prop])) {
+      for (const eff of system[prop]) {
+        if (updateEffectReference(eff, effectMap)) modified = true;
+      }
+    }
+  }
+
+  return modified;
 }
 
 /**
@@ -258,11 +364,21 @@ export async function migrateWorldDeeds(options = {}) {
 
   console.log("Trespasser | Starting Deed Data Model Migration to Behavior-Driven format...");
 
+  // Build effectMap from available world items
+  const effectMap = new Map();
+  for (const it of (game.items || [])) {
+    if (it.type === "effect" && it.img && !it.img.endsWith("effect.webp") && !it.img.endsWith("effects.webp")) {
+      effectMap.set(it.id, it.img);
+      effectMap.set(`Item.${it.id}`, it.img);
+      effectMap.set(it.name.trim().toLowerCase(), it.img);
+    }
+  }
+
   // 1. Migrate Sidebar items
   for (const item of game.items) {
     if (item.type !== "deed") continue;
     const rawSystem = foundry.utils.deepClone(item._source?.system || item.toObject().system);
-    const updatedSystem = migrateToGraph(convertOldDeedSystem(rawSystem));
+    const updatedSystem = migrateToGraph(convertOldDeedSystem(rawSystem, { effectMap }));
     if (JSON.stringify(updatedSystem) !== JSON.stringify(rawSystem)) {
       await item.update({ system: updatedSystem });
       console.log(`Trespasser | Migrated sidebar deed "${item.name}" (${item.id})`);
@@ -275,7 +391,7 @@ export async function migrateWorldDeeds(options = {}) {
     for (const item of actor.items) {
       if (item.type !== "deed") continue;
       const rawSystem = foundry.utils.deepClone(item._source?.system || item.toObject().system);
-      const updatedSystem = migrateToGraph(convertOldDeedSystem(rawSystem));
+      const updatedSystem = migrateToGraph(convertOldDeedSystem(rawSystem, { effectMap }));
       if (JSON.stringify(updatedSystem) !== JSON.stringify(rawSystem)) {
         deedUpdates.push({
           _id: item.id,
@@ -315,10 +431,19 @@ export async function migrateCompendiumDeeds(packId = "trespasser.trespasser-con
   const documents = await pack.getDocuments();
   const updates = [];
 
+  const effectMap = new Map();
+  for (const doc of documents) {
+    if (doc.type === "effect" && doc.img && !doc.img.endsWith("effect.webp") && !doc.img.endsWith("effects.webp")) {
+      effectMap.set(doc.id, doc.img);
+      effectMap.set(`Item.${doc.id}`, doc.img);
+      effectMap.set(doc.name.trim().toLowerCase(), doc.img);
+    }
+  }
+
   for (const item of documents) {
     if (item.type !== "deed") continue;
     const rawSystem = foundry.utils.deepClone(item._source?.system || item.toObject().system);
-    const updatedSystem = migrateToGraph(convertOldDeedSystem(rawSystem));
+    const updatedSystem = migrateToGraph(convertOldDeedSystem(rawSystem, { effectMap }));
     if (options.force || JSON.stringify(updatedSystem) !== JSON.stringify(rawSystem)) {
       updates.push({
         _id: item.id,

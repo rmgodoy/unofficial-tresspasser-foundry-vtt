@@ -1,0 +1,30 @@
+{
+  "name": "Dazed",
+  "type": "injury",
+  "_id": "Xkbc556fvporFJHv",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>The Judge adds a shadow to all INTELLECT checks you make outside of combat.</p>",
+    "injuryClock": 4,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594027,
+    "modifiedTime": 1788704594027,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!Xkbc556fvporFJHv"
+}

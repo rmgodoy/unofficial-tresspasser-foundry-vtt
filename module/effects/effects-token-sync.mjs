@@ -1,13 +1,16 @@
 import {
   TRESPASSER_STATUS_EFFECTS,
   BLOODIED_EFFECT_COMPENDIUM_ID,
-  BLOODIED_EFFECT_DATA
+  BLOODIED_EFFECT_DATA,
+  TENACIOUS_EFFECT_COMPENDIUM_ID,
+  TENACIOUS_EFFECT_DATA
 } from "../config/status-effects.mjs";
 
 const _syncTimers = new Map();
 const _inFlightSyncs = new Set();
 const _pendingReSyncs = new Set();
 const _bloodiedSyncLocks = new Set();
+const _tenaciousSyncLocks = new Set();
 
 /**
  * Resolves whether an actor's item represents one of the 27 custom Trespasser states.
@@ -25,6 +28,10 @@ export function getMatchingCustomStatus(item) {
 
   if (item.getFlag("trespasser", "isBloodiedState") || item.name === "Bloodied") {
     return TRESPASSER_STATUS_EFFECTS.find(s => s.id === "bloodied");
+  }
+
+  if (item.getFlag("trespasser", "isTenaciousState") || item.name === "Tenacious") {
+    return TRESPASSER_STATUS_EFFECTS.find(s => s.id === "tenacious");
   }
 
   const sourceId = item.flags?.core?.sourceId || item._stats?.compendiumSource;
@@ -182,6 +189,55 @@ export async function syncActorBloodiedItem(actor) {
     console.error(`Trespasser | Failed to sync bloodied item for actor ${actor.name}:`, err);
   } finally {
     _bloodiedSyncLocks.delete(actorKey);
+  }
+}
+
+/**
+ * Synchronizes the compendium Tenacious effect item on the actor based on tenacious passive state.
+ * Creates the effect item if tenacious is true, removes it if tenacious is false.
+ * @param {Actor} actor
+ */
+export async function syncActorTenaciousItem(actor) {
+  if (!actor || actor.type !== "character") return;
+  const health = actor.system?.health;
+  if (health === undefined) return;
+
+  const actorKey = actor.uuid || actor.id;
+  if (!actorKey || _tenaciousSyncLocks.has(actorKey)) return;
+  _tenaciousSyncLocks.add(actorKey);
+
+  try {
+    const isTenacious = Boolean(actor.system?.passiveStates?.tenacious ?? false);
+    const tenaciousItem = actor.items.find(i =>
+      i.type === "effect" && (i.getFlag("trespasser", "isTenaciousState") === true || i.name === "Tenacious")
+    );
+
+    if (isTenacious && !tenaciousItem) {
+      let itemData = null;
+      const pack = game.packs?.get("trespasser.trespasser-content");
+      if (pack) {
+        try {
+          const doc = await pack.getDocument(TENACIOUS_EFFECT_COMPENDIUM_ID);
+          if (doc) itemData = doc.toObject();
+        } catch (_) {}
+      }
+      if (!itemData) {
+        itemData = foundry.utils.deepClone(TENACIOUS_EFFECT_DATA);
+      }
+      delete itemData._id;
+      itemData.flags = itemData.flags || {};
+      itemData.flags.trespasser = itemData.flags.trespasser || {};
+      itemData.flags.trespasser.isTenaciousState = true;
+      itemData.flags.trespasser.statusEffectId = "tenacious";
+
+      await actor.createEmbeddedDocuments("Item", [itemData]);
+    } else if (!isTenacious && tenaciousItem && tenaciousItem.getFlag("trespasser", "isTenaciousState")) {
+      await actor.deleteEmbeddedDocuments("Item", [tenaciousItem.id]);
+    }
+  } catch (err) {
+    console.error(`Trespasser | Failed to sync tenacious item for actor ${actor.name}:`, err);
+  } finally {
+    _tenaciousSyncLocks.delete(actorKey);
   }
 }
 

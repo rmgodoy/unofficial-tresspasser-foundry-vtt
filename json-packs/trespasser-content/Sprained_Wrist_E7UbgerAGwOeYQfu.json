@@ -1,0 +1,30 @@
+{
+  "name": "Sprained Wrist",
+  "type": "injury",
+  "_id": "E7UbgerAGwOeYQfu",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>You suffer a -2 penalty to guard checks.</p>",
+    "injuryClock": 4,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594006,
+    "modifiedTime": 1788704594006,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!E7UbgerAGwOeYQfu"
+}

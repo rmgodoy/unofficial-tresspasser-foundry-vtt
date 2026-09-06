@@ -1,0 +1,30 @@
+{
+  "name": "Muscle Spasms",
+  "type": "injury",
+  "_id": "wbSwIoynTsQMeB7b",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>Your skill die is reduced by one size, to a minimum of d4.</p>",
+    "injuryClock": 6,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594019,
+    "modifiedTime": 1788704594019,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!wbSwIoynTsQMeB7b"
+}

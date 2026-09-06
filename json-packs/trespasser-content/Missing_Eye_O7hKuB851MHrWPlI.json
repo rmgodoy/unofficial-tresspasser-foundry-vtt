@@ -1,0 +1,30 @@
+{
+  "name": "Missing Eye",
+  "type": "injury",
+  "_id": "O7hKuB851MHrWPlI",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>Weapon ranges are reduced by half for all missile and spell weapons you wield, as are the benefits of take aim. Permanent.</p>",
+    "injuryClock": 0,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594026,
+    "modifiedTime": 1788704594026,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!O7hKuB851MHrWPlI"
+}

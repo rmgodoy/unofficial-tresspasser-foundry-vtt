@@ -85,6 +85,10 @@ export function registerCombatHooks() {
           await w.update({ "system.isThrown": false });
         }
 
+        if (c.actor.getFlag("trespasser", "failedTenacityThisEncounter")) {
+          await c.actor.unsetFlag("trespasser", "failedTenacityThisEncounter");
+        }
+
         TrespasserEffectsHelper.syncActorTokenEffects(c.actor);
       }
     }

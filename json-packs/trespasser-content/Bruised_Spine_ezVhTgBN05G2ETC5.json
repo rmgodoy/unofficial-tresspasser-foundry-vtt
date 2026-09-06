@@ -1,0 +1,30 @@
+{
+  "name": "Bruised Spine",
+  "type": "injury",
+  "_id": "ezVhTgBN05G2ETC5",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>Your inventory size is reduced by half. You cannot move while your pack is overfull.</p>",
+    "injuryClock": 4,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594022,
+    "modifiedTime": 1788704594022,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!ezVhTgBN05G2ETC5"
+}

@@ -65,7 +65,21 @@ export async function applyHealing(actor, amount, options = {}) {
   const maxHealth = actor.system.max_health ?? actor.system.hp?.max ?? currentHealth;
   const newHealth = Math.clamp(currentHealth + healNum, 0, maxHealth);
 
+  const wasDefeated = Boolean(
+    actor.statuses?.has("defeated") ||
+    actor.statuses?.has(CONFIG.specialStatusEffects?.DEFEATED) ||
+    actor.items?.some(i => i.type === "effect" && (i.getFlag("trespasser", "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated"))
+  );
+
   await actor.update({ "system.health": newHealth });
+
+  if (wasDefeated && newHealth > 0 && actor.type === "character") {
+    await actor.toggleStatusEffect("defeated", { active: false });
+    ChatMessage.create({
+      speaker: ChatMessage.getSpeaker({ actor }),
+      content: `<div class="trespasser-chat-card"><p class="hit-text"><strong>${actor.name}</strong> ${game.i18n.localize("TRESPASSER.Chat.Combat.RecoveredFromDefeat")}</p></div>`
+    });
+  }
 
   await TrespasserEffectsHelper.triggerEffects(actor, "heal-received");
 

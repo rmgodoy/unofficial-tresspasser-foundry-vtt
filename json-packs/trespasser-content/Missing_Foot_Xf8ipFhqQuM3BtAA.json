@@ -1,0 +1,30 @@
+{
+  "name": "Missing Foot",
+  "type": "injury",
+  "_id": "Xf8ipFhqQuM3BtAA",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>Your speed is reduced to 4/+1. Permanent.</p>",
+    "injuryClock": 0,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594012,
+    "modifiedTime": 1788704594012,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!Xf8ipFhqQuM3BtAA"
+}

@@ -1,0 +1,30 @@
+{
+  "name": "Nicked Artery",
+  "type": "injury",
+  "_id": "7VqVdNMd2VSiMCix",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>You suffer 1d6 damage for each extra action point you spend on the move action.</p>",
+    "injuryClock": 4,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594014,
+    "modifiedTime": 1788704594014,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!7VqVdNMd2VSiMCix"
+}

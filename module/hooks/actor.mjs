@@ -54,6 +54,7 @@ export function registerActorHooks() {
 
     if (foundry.utils.hasProperty(updateData, "system.health") || foundry.utils.hasProperty(updateData, "system.max_health")) {
       await TrespasserEffectsHelper.syncActorBloodiedItem(actor);
+      await TrespasserEffectsHelper.syncActorTenaciousItem(actor);
     }
 
     if (updateData.img && actor.isToken && actor.token) {

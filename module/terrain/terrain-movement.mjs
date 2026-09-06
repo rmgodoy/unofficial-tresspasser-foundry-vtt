@@ -212,7 +212,8 @@ export async function calculateBatchedMovement(tokenDoc, segments) {
     }
 
     let totalDamage = 0;
-    if (terrainDamageMap.size > 0) {
+    const isTenacious = Boolean(actor.system?.passiveStates?.tenacious || (actor.type === "character" && (actor.system?.health ?? 0) <= 0));
+    if (terrainDamageMap.size > 0 && !isTenacious) {
       for (const [, data] of terrainDamageMap) {
         totalDamage += data.damage;
       }

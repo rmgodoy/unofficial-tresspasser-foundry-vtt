@@ -1,0 +1,30 @@
+{
+  "name": "Punctured Lung",
+  "type": "injury",
+  "_id": "dNxeQB15nY2AZtCL",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>You only gain two action points each turn during combat.</p>",
+    "injuryClock": 6,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594020,
+    "modifiedTime": 1788704594020,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!dNxeQB15nY2AZtCL"
+}

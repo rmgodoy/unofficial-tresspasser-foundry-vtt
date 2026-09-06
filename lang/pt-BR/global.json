@@ -12,6 +12,24 @@
       "Engaged": {
         "Name": "Engajado",
         "Description": "Um inimigo hostil está ao alcance corpo a corpo. -2 de Acurácia com ataques de projétil e magia."
+      },
+      "Tenacious": {
+        "Name": "Tenaz",
+        "Description": "Pontos de vida estão em zero e o personagem não está derrotado. Estados de dano são pausados e dano ambiental menor é ignorado."
+      }
+    },
+    "Injuries": {
+      "Permanent": "Permanente",
+      "Clock": "Relógio de Ferimento",
+      "Location": {
+        "Arms": "Braços",
+        "Legs": "Pernas",
+        "Guts": "Vísceras",
+        "Heart": "Coração",
+        "Lungs": "Pulmões",
+        "Body": "Corpo",
+        "Head": "Cabeça",
+        "Brain": "Cérebro"
       }
     },
     "Plight": {

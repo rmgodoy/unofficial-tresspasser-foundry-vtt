@@ -12,6 +12,24 @@
       "Engaged": {
         "Name": "Engaged",
         "Description": "A hostile enemy is within melee reach. -2 Accuracy with missile and spell attacks."
+      },
+      "Tenacious": {
+        "Name": "Tenacious",
+        "Description": "Health is at zero and character is not defeated. Damage-dealing states are paused and minor environmental harm is ignored."
+      }
+    },
+    "Injuries": {
+      "Permanent": "Permanent",
+      "Clock": "Injury Clock",
+      "Location": {
+        "Arms": "Arms",
+        "Legs": "Legs",
+        "Guts": "Guts",
+        "Heart": "Heart",
+        "Lungs": "Lungs",
+        "Body": "Body",
+        "Head": "Head",
+        "Brain": "Brain"
       }
     },
     "Plight": {

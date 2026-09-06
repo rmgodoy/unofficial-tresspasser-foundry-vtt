@@ -1,0 +1,30 @@
+{
+  "name": "Broken Arm",
+  "type": "injury",
+  "_id": "9ONs9p2f1TOtt8bF",
+  "img": "systems/trespasser/assets/icons/injury.webp",
+  "system": {
+    "description": "<p>You lose the use of one hand. Your inventory size is reduced by 2 slots.</p>",
+    "injuryClock": 6,
+    "currentClock": 0,
+    "effects": []
+  },
+  "effects": [],
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0",
+    "createdTime": 1788704594009,
+    "modifiedTime": 1788704594009,
+    "lastModifiedBy": "antigravity"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!9ONs9p2f1TOtt8bF"
+}
