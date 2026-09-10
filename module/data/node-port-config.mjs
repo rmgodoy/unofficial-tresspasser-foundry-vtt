@@ -18,7 +18,9 @@ export const FLOW_CONDITION_PORTS = [
   "onHit",
   "onMiss",
   "onSpark",
-  "always"
+  "always",
+  "onTrue",
+  "onFalse"
 ];
 
 export const REF_PORT_KEYS = [
@@ -51,12 +53,12 @@ export const NODE_PORT_CONFIG = {
     refInputs: ["areaRef"]
   },
   selectArea: {
-    inputs: ["in"],
+    inputs: [],
     outputs: ["out"],
     refInputs: []
   },
   roll: {
-    inputs: ["in"],
+    inputs: [],
     outputs: ["out"],
     refInputs: ["rollRef"]
   },
@@ -109,6 +111,11 @@ export const NODE_PORT_CONFIG = {
     inputs: ["in"],
     outputs: ["out"],
     refInputs: []
+  },
+  condition: {
+    inputs: ["in"],
+    outputs: ["onTrue", "onFalse"],
+    refInputs: ["rollRef", "areaRef"]
   }
 };
 

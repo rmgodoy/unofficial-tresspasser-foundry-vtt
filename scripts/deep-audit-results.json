@@ -1,0 +1,18 @@
+[
+  {
+    "deed": "Curtain of Flames",
+    "file": "Curtain_of_Flames_8yLpaoIh3swpSENN.json",
+    "type": "Self-Damage Misattribution",
+    "nodeType": "applyDamage",
+    "description": "Deed text specifies self-damage (\"take 2 Skill Die damage\"), but graph lacks 'selectTarget (self)' before applyDamage. Currently damage applies to target area/tokens.",
+    "fix": "Add 'selectTarget (self)' node before applyDamage so the caster takes the damage instead of the targets."
+  },
+  {
+    "deed": "Shadow Tendrils",
+    "file": "Shadow_Tendrils_gmxmYGIQHlRDgk2P.json",
+    "type": "Self-Damage Misattribution",
+    "nodeType": "applyDamage",
+    "description": "Deed text specifies self-damage (\"suffer 1 Skill Die damage\"), but graph lacks 'selectTarget (self)' before applyDamage. Currently damage applies to target area/tokens.",
+    "fix": "Add 'selectTarget (self)' node before applyDamage so the caster takes the damage instead of the targets."
+  }
+]

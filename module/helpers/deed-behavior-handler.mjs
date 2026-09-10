@@ -14,6 +14,7 @@ import { MoveSourceBehavior } from "./deed-behaviors/move-source.mjs";
 import { ForceMoveTargetsBehavior } from "./deed-behaviors/force-move-targets.mjs";
 import { ClearTargetsBehavior } from "./deed-behaviors/clear-targets.mjs";
 import { ExecuteDeedBehavior } from "./deed-behaviors/execute-deed.mjs";
+import { ConditionBehavior } from "./deed-behaviors/condition.mjs";
 
 /**
  * DeedBehaviorHandler — Dispatcher executing actual game logic for all deed behavior types.
@@ -52,6 +53,7 @@ export class DeedBehaviorHandler {
         case "forceMoveTargets": return ForceMoveTargetsBehavior.execute(behavior, context, actor, item, phaseKey);
         case "clearTargets":     return ClearTargetsBehavior.execute(context);
         case "executeDeed":      return ExecuteDeedBehavior.execute(behavior, context, actor);
+        case "condition":        return ConditionBehavior.execute(behavior, context, actor, item, phaseKey);
       }
     });
   }

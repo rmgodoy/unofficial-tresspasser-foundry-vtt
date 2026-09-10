@@ -296,6 +296,8 @@
 .port-row-onMiss .port-label  { color: var(--trp-red, #ff5252); font-weight: 600; }
 .port-row-onSpark .port-label { color: var(--graph-phase-spark); font-weight: 600; }
 .port-row-always .port-label  { color: #8bc34a; font-weight: 600; }
+.port-row-onTrue .port-label  { color: #66bb6a; font-weight: 600; }
+.port-row-onFalse .port-label { color: #ef5350; font-weight: 600; }
 .port-row-ref .port-label     { color: #4fc3f7; }
 
 .port-ref-badge {
@@ -335,6 +337,8 @@
 .graph-port.port-onMiss  { border-color: var(--trp-red, #ff5252); }
 .graph-port.port-onSpark { border-color: var(--graph-phase-spark); }
 .graph-port.port-always  { border-color: #8bc34a; }
+.graph-port.port-onTrue  { border-color: #66bb6a; }
+.graph-port.port-onFalse { border-color: #ef5350; }
 
 .graph-port.port-ref {
   border-color: #4fc3f7;

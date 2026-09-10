@@ -57,13 +57,17 @@ export class ApplyEffectsBehavior {
   static async execute(behavior, context, actor, item, phaseKey = "") {
     const params = behavior.params || {};
     const rawEffects = params.effects || [];
-    const effects = Array.isArray(rawEffects) ? rawEffects : Object.values(rawEffects);
-
-    const validTargets = DeedBehaviorUtils.getValidTargets(context, phaseKey);
+    let validTargets = [];
+    if (params.targetScope === "self" || params.targetScope === "source") {
+      const sourceToken = context.sourceToken || DeedBehaviorUtils.findToken(actor);
+      validTargets = sourceToken ? [sourceToken] : (actor ? [actor] : []);
+    } else {
+      validTargets = DeedBehaviorUtils.getValidTargets(context, phaseKey);
+    }
     if (validTargets.length === 0) return true;
 
     // 1. Gather all base effect items from behavior params
-    const effectList = [];
+    let effectList = [];
     for (const eff of effects) {
       if (!eff) continue;
       const effectItem = await resolveItem(eff, { type: "effect" });
@@ -74,6 +78,40 @@ export class ApplyEffectsBehavior {
         baseIntensity: this._parseIntensity(eff.intensity, effectItem.system?.intensity ?? 0),
         source: "deed"
       });
+    }
+
+    // Modal choice resolution (choose_one)
+    if (params.choiceMode === "choose_one" && effectList.length > 1) {
+      if (!context.modalChoices) context.modalChoices = new Map();
+      const choiceKey = params.choiceKey || behavior.id;
+      let chosenUuid = context.modalChoices.get(choiceKey);
+
+      if (!chosenUuid && typeof foundry?.applications?.api?.DialogV2?.wait === "function") {
+        const buttons = effectList.map(eff => ({
+          action: eff.uuid,
+          label: `${eff.item.name} (${eff.baseIntensity})`,
+          default: eff === effectList[0],
+          callback: () => eff.uuid
+        }));
+
+        try {
+          chosenUuid = await foundry.applications.api.DialogV2.wait({
+            window: { title: game.i18n.localize("TRESPASSER.Sheet.Deed.Choice.Title") || "Choose Effect" },
+            content: `<p>${game.i18n.localize("TRESPASSER.Sheet.Deed.Choice.Prompt") || "Choose one state to apply:"}</p>`,
+            buttons,
+            rejectClose: false
+          });
+        } catch {
+          chosenUuid = effectList[0]?.uuid;
+        }
+      }
+
+      if (chosenUuid) {
+        context.modalChoices.set(choiceKey, chosenUuid);
+        effectList = effectList.filter(e => e.uuid === chosenUuid);
+      } else {
+        effectList = [effectList[0]];
+      }
     }
 
     // 2. Gather weapon effects if appliesWeaponEffects is true

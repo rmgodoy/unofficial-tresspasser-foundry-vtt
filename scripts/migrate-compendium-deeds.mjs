@@ -139,7 +139,7 @@ async function run() {
 
       if (!isAlreadyMigrated) {
         const rawSystem = json.system || {};
-        const updatedSystem = migrateToGraph(convertOldDeedSystem(rawSystem, { effectMap }));
+        const updatedSystem = migrateToGraph(convertOldDeedSystem(rawSystem, { effectMap, name: json.name }));
         updateEffectReferencesInSystem(updatedSystem, effectMap);
         json.system = updatedSystem;
         migratedCount++;

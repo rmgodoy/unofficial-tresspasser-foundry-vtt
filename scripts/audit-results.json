@@ -1,0 +1,1136 @@
+[
+  {
+    "deed": "Air Blast",
+    "file": "Air_Blast_ofQ6ieQibVS23bdL.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (27b4722839d67c7e) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Beleaguer",
+    "file": "Beleaguer_DvDAxLb5O69O1CTN.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (bd3df22d871d0452) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Black Powder Bomb",
+    "file": "Black_Powder_Bomb_smwyKo7D0EHmaiYe.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (3da67442df197d5d) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Black Powder Trap",
+    "file": "Black_Powder_Trap_u2lUPAQZO7m5Q9vX.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Blazing Cloud",
+    "file": "Blazing_Cloud_EcS2C6UWfTRKUwcu.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (13a874d832930814) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Blinding Escape",
+    "file": "Blinding_Escape_lE7EfYYXeOCX9CoI.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (37303e5e2cb5382a) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Blinding Flash",
+    "file": "Blinding_Flash_yvIbh8gzUJmHjOuM.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (f535c7495a450c60) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Blinding Powder",
+    "file": "Blinding_Powder_Lk5MJYzWzk4RRArz.json",
+    "category": "Missing 'Both Instead' Spark Behavior",
+    "severity": "Major",
+    "detail": "Spark text specifies 'Confer both instead', but spark phase has no applyEffects node."
+  },
+  {
+    "deed": "Blizzard",
+    "file": "Blizzard_bHy3qIKvy3kFdQPG.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (48ad269b0641845c) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Blood Gift",
+    "file": "Blood_Gift_x0cPrlN8LKfonY25.json",
+    "category": "Self-Damage Misattributed to Targets",
+    "severity": "Critical",
+    "detail": "Deed specifies damage to yourself, but targets Burst 6 without 'selectTarget (self)' before applyDamage."
+  },
+  {
+    "deed": "Blood Gift",
+    "file": "Blood_Gift_x0cPrlN8LKfonY25.json",
+    "category": "Missing Heal/Recovery Behavior",
+    "severity": "Critical",
+    "detail": "Text specifies restoring/regaining hit points, but graph has no 'healTarget' or 'grantRecovery' node."
+  },
+  {
+    "deed": "Blood Gift",
+    "file": "Blood_Gift_x0cPrlN8LKfonY25.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (812116aa96f843ee) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Blood Gift",
+    "file": "Blood_Gift_x0cPrlN8LKfonY25.json",
+    "category": "Reference Node in Flow (roll)",
+    "severity": "Architecture",
+    "detail": "roll node (476ba8ae8f36af97) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Blood Mist",
+    "file": "Blood_Mist_l8OcTRiKbMOkaFfB.json",
+    "category": "Missing Heal/Recovery Behavior",
+    "severity": "Critical",
+    "detail": "Text specifies restoring/regaining hit points, but graph has no 'healTarget' or 'grantRecovery' node."
+  },
+  {
+    "deed": "Blood Mist",
+    "file": "Blood_Mist_l8OcTRiKbMOkaFfB.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (bdd39b1ad5efa775) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Blood Mist",
+    "file": "Blood_Mist_l8OcTRiKbMOkaFfB.json",
+    "category": "Missing Disposition Filter in AoE",
+    "severity": "Major",
+    "detail": "Deed text specifies targeting only enemies or allies in area, but selectTarget lacks disposition filter."
+  },
+  {
+    "deed": "Bone Chill",
+    "file": "Bone_Chill_SgUV22Q1Hi7ichB3.json",
+    "category": "Missing 'Both Instead' Spark Behavior",
+    "severity": "Major",
+    "detail": "Spark text specifies 'Confer both instead', but spark phase has no applyEffects node."
+  },
+  {
+    "deed": "Bottled Smoke",
+    "file": "Bottled_Smoke_DTbklCadAlgRLxbF.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (49fe7eec9fc39cf6) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Bounce Back",
+    "file": "Bounce_Back_5v5q0wdLLtH2Hkc4.json",
+    "category": "Reference Node in Flow (roll)",
+    "severity": "Architecture",
+    "detail": "roll node (56dc3d0e828ed7a2) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Bull Stance",
+    "file": "Bull_Stance_YAUElIlGm5hcczPY.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (bf834b906ee7bc09) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Call of Challenge",
+    "file": "Call_of_Challenge_BBIuYPS6GdTEtiLk.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (c12ea8208ac6924c) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Call to Arms",
+    "file": "Call_to_Arms_Yte3Ap6SFo2dio4b.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (ae33842826b95311) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Cinder Sweep",
+    "file": "Cinder_Sweep_j868EKYogYhmok5R.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (26edda51642a1ef4) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Cinder Sweep",
+    "file": "Cinder_Sweep_j868EKYogYhmok5R.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Cleansing Flare",
+    "file": "Cleansing_Flare_DuL1ULZMT6cqhAPy.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (bbe0b6e216962267) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Cloud of Pestilence",
+    "file": "Cloud_of_Pestilence_aL6q9dEuWMFPYgZ3.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (431e2ebac06efd66) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Crackling Arc",
+    "file": "Crackling_Arc_n5kcqYXy32U00HiX.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (c7f477bff5fd5933) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Crackling Arc",
+    "file": "Crackling_Arc_n5kcqYXy32U00HiX.json",
+    "category": "Missing Disposition Filter in AoE",
+    "severity": "Major",
+    "detail": "Deed text specifies targeting only enemies or allies in area, but selectTarget lacks disposition filter."
+  },
+  {
+    "deed": "Crackling Arc",
+    "file": "Crackling_Arc_n5kcqYXy32U00HiX.json",
+    "category": "Missing Movement Behavior",
+    "severity": "Minor",
+    "detail": "Deed mentions shift/move/teleport, but lacks moveSource or forceMoveTargets node."
+  },
+  {
+    "deed": "Crimson Lash",
+    "file": "Crimson_Lash_QXNOGcGEUI9ncKdn.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (4c5b825e1707e01d) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Cry Havoc",
+    "file": "Cry_Havoc_3nWRVPy6QArH2A13.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (a0b71513888b622b) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Cry Terror",
+    "file": "Cry_Terror_e1ic5Ha03LHRW76P.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (66f33549649a3d23) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Curtain of Flames",
+    "file": "Curtain_of_Flames_8yLpaoIh3swpSENN.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (817136433567f026) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Cyclone",
+    "file": "Cyclone_jfWazxc4hEryORAW.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (9233c29afc405aa9) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Dancing Dust",
+    "file": "Dancing_Dust_FvRj4Kl1Pgj00Eht.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (06bd437e8fd9f14c) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Dawn Sphere",
+    "file": "Dawn_Sphere_3ycuqYpCwpq42kK8.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (12dbaf44ddc06624) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Daybreak",
+    "file": "Daybreak_hb79SgTYpkHeHZfK.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (889c644246b7933d) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Daybreak",
+    "file": "Daybreak_hb79SgTYpkHeHZfK.json",
+    "category": "Missing Disposition Filter in AoE",
+    "severity": "Major",
+    "detail": "Deed text specifies targeting only enemies or allies in area, but selectTarget lacks disposition filter."
+  },
+  {
+    "deed": "Deconstruct",
+    "file": "Deconstruct_sYESfPNDyO8QSL9V.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Dehydrate",
+    "file": "Dehydrate_AvSA8cRLrym13GI2.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (399ff25fc109dff4) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Dizzying Dance",
+    "file": "Dizzying_Dance_OZ7MjPbSDnl7dwzY.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (e7b29b0a29ec89f7) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Dragon Breath",
+    "file": "Dragon_Breath_wRkdMhNtnX9zdrj2.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (fc35c5430d63249b) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Drifting Wraith",
+    "file": "Drifting_Wraith_uGG8Ie75TsfoGmSO.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (89b01ad915c98024) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Earthquake",
+    "file": "Earthquake_24asKDcJiPsc9P8n.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (62006bd8a3c6c087) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Effulgent Ray",
+    "file": "Effulgent_Ray_wjMOI5Y2zF2Vihy8.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (dc697b3d0eb602f8) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Encourage",
+    "file": "Encourage_0lvavTyH64JCmE6y.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (0b7c36d40df87c55) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Encourage",
+    "file": "Encourage_0lvavTyH64JCmE6y.json",
+    "category": "Missing 'Both Instead' Spark Behavior",
+    "severity": "Major",
+    "detail": "Spark text specifies 'Confer both instead', but spark phase has no applyEffects node."
+  },
+  {
+    "deed": "Enervate",
+    "file": "Enervate_pXl9m1KWsbIUHc0a.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (e53eeca63246fa4c) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Exsanguinate",
+    "file": "Exsanguinate_J2a89Exa6fwlJRTn.json",
+    "category": "Missing Heal/Recovery Behavior",
+    "severity": "Critical",
+    "detail": "Text specifies restoring/regaining hit points, but graph has no 'healTarget' or 'grantRecovery' node."
+  },
+  {
+    "deed": "Faltering Flurry",
+    "file": "Faltering_Flurry_7WOFv0XIqToYQt0Q.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (6593e4956fa48ade) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Fireball",
+    "file": "Fireball_NWqN2rJmuoaVfmTe.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (7fa71dba18304e7a) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Flicker",
+    "file": "Flicker_gPbpjLOpxuAGpmDY.json",
+    "category": "Missing Movement Behavior",
+    "severity": "Minor",
+    "detail": "Deed mentions shift/move/teleport, but lacks moveSource or forceMoveTargets node."
+  },
+  {
+    "deed": "Freezing Fog",
+    "file": "Freezing_Fog_B5EYT09EJA25VVgV.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (050e113a411d3f85) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Fulminate",
+    "file": "Fulminate_Mj240BEbPs8Um2qY.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (ea5ee0377faf2283) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Fulminate",
+    "file": "Fulminate_Mj240BEbPs8Um2qY.json",
+    "category": "Missing Disposition Filter in AoE",
+    "severity": "Major",
+    "detail": "Deed text specifies targeting only enemies or allies in area, but selectTarget lacks disposition filter."
+  },
+  {
+    "deed": "Gleaming Treasure",
+    "file": "Gleaming_Treasure_j8udQEhbfEncrFqH.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (adf08332b03bbdb8) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Gloom Veil",
+    "file": "Gloom_Veil_T1bOUX8qFsA9sYJo.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (e9fabb72519086a1) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Gravel Blast",
+    "file": "Gravel_Blast_DzV6fZd3RpqNZSrq.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (86753fbc457935ac) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Gravel Blast",
+    "file": "Gravel_Blast_DzV6fZd3RpqNZSrq.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Haze of Dreams",
+    "file": "Haze_of_Dreams_0QZ0nKfktCzUaTqL.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (0875e641586dfcab) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Heaven on High",
+    "file": "Heaven_on_High_wofbQSaAYJicNshS.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (cca371e0709c8015) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Hindering Volley",
+    "file": "Hindering_Volley_zzMv75uY6PsLaUfP.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (7043bfdfd73eb0ac) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Hold Fast",
+    "file": "Hold_Fast_QC2SaqWqlnJh4zQz.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (4d4fa0ae3e49bf02) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Hopelessness",
+    "file": "Hopelessness_c2ETdfKErXqHaJck.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (6facc87a65167333) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Hungering Dark",
+    "file": "Hungering_Dark_ln0jk3RP8BKKjOj0.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (1c445ec24c52c40c) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Hurl Object",
+    "file": "Hurl_Object_w6o7jMwpnmImO97w.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Ice Floe",
+    "file": "Ice_Floe_OB033nfE1Z3rh6IC.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (7ab7f1fa442ee9e7) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Ice Floe",
+    "file": "Ice_Floe_OB033nfE1Z3rh6IC.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Illusory Terrain",
+    "file": "Illusory_Terrain_KJZXw1QaBWrFcbOz.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (c17f837d8b229c4e) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Impaling Rain",
+    "file": "Impaling_Rain_d5ylaWzwaryM6Zgg.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (0b0f87f1efc5e931) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Impelling Word",
+    "file": "Impelling_Word_iWayU5ZATfw1FQMG.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (a3d07f3335879301) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Inferno",
+    "file": "Inferno_qswSx2fVTYGEXBaU.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (ee6e93e97b6e1311) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Iron Sweep",
+    "file": "Iron_Sweep_9QJKcteDcKfUpE3a.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (796c12f75641bb53) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Iron Tempest",
+    "file": "Iron_Tempest_9b3KNsfbPSj2r1z4.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (3e504bc879640303) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Kick Up Dust",
+    "file": "Kick_Up_Dust_mi0PpOLfAQ4oWobo.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (0b958479a5462c37) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Kick Up Dust",
+    "file": "Kick_Up_Dust_mi0PpOLfAQ4oWobo.json",
+    "category": "Missing 'Both Instead' Spark Behavior",
+    "severity": "Major",
+    "detail": "Spark text specifies 'Confer both instead', but spark phase has no applyEffects node."
+  },
+  {
+    "deed": "Lashing Growth",
+    "file": "Lashing_Growth_i7izrDbxXzcUnrKr.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Leaping Flames",
+    "file": "Leaping_Flames_u5RQwmkbRz96Xz8y.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (6a622bf8dd820d1c) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Leaping Flames",
+    "file": "Leaping_Flames_u5RQwmkbRz96Xz8y.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Leech",
+    "file": "Leech_6cO6KhYVEC70k3lx.json",
+    "category": "Missing Heal/Recovery Behavior",
+    "severity": "Critical",
+    "detail": "Text specifies restoring/regaining hit points, but graph has no 'healTarget' or 'grantRecovery' node."
+  },
+  {
+    "deed": "Lost in Shadow",
+    "file": "Lost_in_Shadow_m2zb9gqUr9G96tiO.json",
+    "category": "Missing Movement Behavior",
+    "severity": "Minor",
+    "detail": "Deed mentions shift/move/teleport, but lacks moveSource or forceMoveTargets node."
+  },
+  {
+    "deed": "Maddening Mirth",
+    "file": "Maddening_Mirth_zDI2O2mLKqMD52iv.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (d46a3a3883f452cf) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Maelstrom",
+    "file": "Maelstrom_rXVImNf42fZlmPz2.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (704875678b704bdb) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Malevolence",
+    "file": "Malevolence_ivcTnbDxTQP57ijH.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (955fbea52faf3f20) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Mass Wounds",
+    "file": "Mass_Wounds_fgHWOie8Th5y18gY.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (cf5334a1d10ed643) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Master Plan",
+    "file": "Master_Plan_4JxJ9P823E80I4HQ.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (78fa7572e1f2350b) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Master Plan",
+    "file": "Master_Plan_4JxJ9P823E80I4HQ.json",
+    "category": "Missing Disposition Filter in AoE",
+    "severity": "Major",
+    "detail": "Deed text specifies targeting only enemies or allies in area, but selectTarget lacks disposition filter."
+  },
+  {
+    "deed": "Mirror Cage",
+    "file": "Mirror_Cage_yuMRCN4R9yKRWAsd.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (6bb1489088f97b65) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Mudslide",
+    "file": "Mudslide_pchgdoUfp8PJqO3o.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (14dd645f6d9b30b6) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Nightfall",
+    "file": "Nightfall_nfgHhunLvGF5D1ij.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (e190f539068ac3e7) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Nightshade Dust",
+    "file": "Nightshade_Dust_Ndhu2Jcg3GIEdYqd.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (f2454bfa637eda11) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Night's Chill",
+    "file": "Night_s_Chill_FmBoqmoG2c5tUN3r.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (749886617cba5bf2) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Nimble Steps",
+    "file": "Nimble_Steps_lG3eKcZq96VQrU62.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (82f0b2b771861bf7) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "One Thousand Cuts",
+    "file": "One_Thousand_Cuts_r2LnOgLKjQTLWiL0.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (fe768341f1c90ede) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Press the Attack",
+    "file": "Press_the_Attack_gEliS5CqkcLiWKoK.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (870ea8b091db3a0c) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Provoking Cleave",
+    "file": "Provoking_Cleave_ryOSwb8N2v3htWYy.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (7ffc6563aa9733a6) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Purify Thoughts",
+    "file": "Purify_Thoughts_hzErAFU3xAjst6ll.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (a9239b352fc764b8) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Quick Volley",
+    "file": "Quick_Volley_wCDEn8u9Xkhs46Kh.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (351b1d6b9564518d) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Raise Hell",
+    "file": "Raise_Hell_lBDBDBw3CIn38L50.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (650ffc39ceaef4a2) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Rending Cleave",
+    "file": "Rending_Cleave_699UwEseVv7q6Ewf.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (68d28a234189c382) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Repelling Kick",
+    "file": "Repelling_Kick_jOqRENSk9HvBBC4u.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (90d40a1d4f2e721e) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Blood)",
+    "file": "Revelation__Blood__rVJj2HQEfx2kHSzv.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (a608a47b1ccefbe5) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Craft)",
+    "file": "Revelation__Craft__uWwGVpqhhlhsOeo0.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (1dd286df48eef1a5) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Death)",
+    "file": "Revelation__Death__rFcwMh5RJKqb7cbw.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (3f0b639ccf2c7c35) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Deceit)",
+    "file": "Revelation__Deceit__1hv4jNcb4laxHSMs.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (781ffaf2cedf6261) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Earth)",
+    "file": "Revelation__Earth__gZ86NoHXmJFQmPgS.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (ba5f0564754d874f) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Fortune)",
+    "file": "Revelation__Fortune__twktLzueeOfxxYvk.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (570e83b2e05d8784) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Infrno)",
+    "file": "Revelation__Infrno__HRzAPs4FnJxNtqVo.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (58de311129502774) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Letters)",
+    "file": "Revelation__Letters__QiVWGbfqs0Z09zSm.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (4f3a888cd6106041) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Life)",
+    "file": "Revelation__Life__d3CCEjz9mATMup9R.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (e9a24e191736b155) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Magic)",
+    "file": "Revelation__Magic__CsBGbtV4t9BGbqXY.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (97c90a3ae7d1bb57) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Moon)",
+    "file": "Revelation__Moon__XwmwYQx4rF4q4wHv.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (7697a2996279428c) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Nature)",
+    "file": "Revelation__Nature__lQIywBMs7JhQj1Q3.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (e3ed2d33e403e581) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Nature)",
+    "file": "Revelation__Nature__lQIywBMs7JhQj1Q3.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Revelation (Pestilence)",
+    "file": "Revelation__Pestilence__mgX6Zj3IbDvLqxjT.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (be7065585b4e2cb8) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Ruin)",
+    "file": "Revelation__Ruin__ZXkbzUtkelq1TZ0T.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (b8df588936eac199) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Sea)",
+    "file": "Revelation__Sea__ggXTtPyxrzqiJeKr.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (2f307c4b4ae8c051) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Storms)",
+    "file": "Revelation__Storms__DLFIqjH1fhTWzApK.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (2b35440298b4b605) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Sun)",
+    "file": "Revelation__Sun__F7PJIfkNO6JNVSgH.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (194201a879ac015f) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Time)",
+    "file": "Revelation__Time__Z46j6yrg1DCsM6yX.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (bc16eca2e04437ff) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (War)",
+    "file": "Revelation__War__36yFZrPJooU3LwI4.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (934704cb95d77032) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Revelation (Winter)",
+    "file": "Revelation__Winter__os4X9tku6uy10qWd.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (cedcb7246d1e362d) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Rolling Fog",
+    "file": "Rolling_Fog_aFOkAOkNq15EtLxr.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (1bb26e0e0a6998c9) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Run Cold",
+    "file": "Run_Cold_uHFk2TYUyi0Emoy3.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (289ee6b1373d37fa) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Sandstorm",
+    "file": "Sandstorm_pFNcJwCEw5wLlwuM.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (dead19002fcb6a13) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Scalding Blast",
+    "file": "Scalding_Blast_sqNXcKKqNu4bhDzJ.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (f46a7ef52e27ce2e) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Scattering Gust",
+    "file": "Scattering_Gust_bRDwRVstOSJkKpqo.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (606ac5c8da904867) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Scatter the Ranks",
+    "file": "Scatter_the_Ranks_9JOMOBNIFZAPD0RK.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (39cc8ae392f7d559) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Shadow Tendrils",
+    "file": "Shadow_Tendrils_gmxmYGIQHlRDgk2P.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (d33d8da7b4aeb631) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Shared Confidence",
+    "file": "Shared_Confidence_KLfO9Y16E0oyC8qH.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (b80602f7e70c8ff0) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Shining Mote",
+    "file": "Shining_Mote_Vlzxp9hbApd2sRYr.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (817770070e7f0210) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Shockwave",
+    "file": "Shockwave_whL8Wu6cvCYbxehO.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (6c9762f814cdb303) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Shooting Star",
+    "file": "Shooting_Star_j9hjidcMxpEfSzoj.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (943f80326288557a) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Slashing Rain",
+    "file": "Slashing_Rain_B2PKXy7IURkiAtqN.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (520d481776973ba5) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Snowdrift",
+    "file": "Snowdrift_xeCWYwU7IDaRdu2s.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (4e73103ef10f0108) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Snowdrift",
+    "file": "Snowdrift_xeCWYwU7IDaRdu2s.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Sparking Weapons",
+    "file": "Sparking_Weapons_ZLyV1O6vQ29hfoiE.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (5895bcc59954a302) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Spectral Slash",
+    "file": "Spectral_Slash_5wLIwZ08lyz4XCfg.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (1ac6f86c3e77085e) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Spirit Away",
+    "file": "Spirit_Away_PE8qnTRItatzEnWL.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (4a9b1da51867e55a) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Spreadfire Retreat",
+    "file": "Spreadfire_Retreat_PlTWNCL5mbbMfMAI.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (db43b939ea146fd7) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Springtide",
+    "file": "Springtide_hsR3xqvOjjH0T94l.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (53ceadcf317918fa) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Stand Strong",
+    "file": "Stand_Strong_lydEHCobrwVvrATy.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (252b67c0a4fa0827) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Steel Yourselves",
+    "file": "Steel_Yourselves_FnpsIsCvZ3oczi7Y.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (75ae8fc95f7c0537) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Steel Yourselves",
+    "file": "Steel_Yourselves_FnpsIsCvZ3oczi7Y.json",
+    "category": "Missing Disposition Filter in AoE",
+    "severity": "Major",
+    "detail": "Deed text specifies targeting only enemies or allies in area, but selectTarget lacks disposition filter."
+  },
+  {
+    "deed": "Stinging Swarm",
+    "file": "Stinging_Swarm_702zjADs6shEwVbb.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (fcd9f270c49a9c12) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Stone Strike",
+    "file": "Stone_Strike_NXqhPkXqWgjAarUE.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Storm Step",
+    "file": "Storm_Step_i8nMcXjfJ9rwygHc.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (9e36eb4be2a3b791) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Sudden Demolition",
+    "file": "Sudden_Demolition_FvmHnSZD5RnZ60bS.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (7bebc60d8da74694) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Sweeping Winds",
+    "file": "Sweeping_Winds_SIu0Qfo745TboSzk.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (ed38334032f30b2d) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Swelter",
+    "file": "Swelter_yU0w1yuUJCp6M8V2.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (14c5dafeeb277997) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Swirling Sphere",
+    "file": "Swirling_Sphere_4g8EbXZf7P0SyFVo.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (3065d135eb436c86) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Torpor",
+    "file": "Torpor_iE0zTE7S4Q7QsURE.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (cd81ff63db38fe03) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Twisting Briars",
+    "file": "Twisting_Briars_qrc3r708Id0gwccG.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (234aba94834445da) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Twisting Roots",
+    "file": "Twisting_Roots_rw20ADhLRmCA1wU4.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Vexing Babble",
+    "file": "Vexing_Babble_1Q2hDsMBt3FyQ1Kl.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (f3d3076841cef2fd) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Vortex",
+    "file": "Vortex_1gE2psUtfoXXlfpX.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (c17fbe1a6cbf8f62) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Wall of Stone",
+    "file": "Wall_of_Stone_WWbF9Xaf6A5FgRLO.json",
+    "category": "Missing Terrain Spawn",
+    "severity": "Major",
+    "detail": "Deed text specifies creating terrain/field/trap, but no spawnTerrain node exists in graph."
+  },
+  {
+    "deed": "Welcoming Dark",
+    "file": "Welcoming_Dark_e2S2Ep5ek9LaUFSi.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (e0faa83f6eba8eed) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Whirlwind Strike",
+    "file": "Whirlwind_Strike_wEEJIRbptBUxp12O.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (cd72e963700a5bdd) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Wind Funnel",
+    "file": "Wind_Funnel_mkZ6c0byD68GkK5D.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (142bfcbc97fb3f17) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Wings of Wind",
+    "file": "Wings_of_Wind_Ao9K7LiwIKQHPsJv.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (3d4917fba5236ffe) has incoming flow connection; should be floating reference-only node."
+  },
+  {
+    "deed": "Winter's Breath",
+    "file": "Winter_s_Breath_VaXJm5b0tpKrSxj8.json",
+    "category": "Reference Node in Flow (selectArea)",
+    "severity": "Architecture",
+    "detail": "selectArea node (1dcf70f6a90b93c5) has incoming flow connection; should be floating reference-only node."
+  }
+]

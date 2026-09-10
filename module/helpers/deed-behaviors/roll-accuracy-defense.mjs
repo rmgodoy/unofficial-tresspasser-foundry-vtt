@@ -187,10 +187,11 @@ export async function executeCreatureDefenseRoll({
   }
 
   const onHitResult = branchingMode === "hitOrSpark" ? (anyHit && !applySparkPhase) : anyHit;
+  const onMissResult = context.accuracyResults?.length > 0 ? context.accuracyResults.some(r => !r.isHit) : !anyHit;
   return {
     conditions: {
       onHit: onHitResult,
-      onMiss: !anyHit,
+      onMiss: onMissResult,
       onSpark: applySparkPhase,
       always: true
     }

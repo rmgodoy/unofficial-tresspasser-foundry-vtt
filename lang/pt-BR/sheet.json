@@ -380,6 +380,8 @@
             "OnMiss": "Erro",
             "OnSpark": "Centelha",
             "Always": "Sempre",
+            "OnTrue": "Verdadeiro",
+            "OnFalse": "Falso",
             "Roll": "Rolagem",
             "Area": "Área",
             "Terrain": "Terreno",

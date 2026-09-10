@@ -50,6 +50,12 @@ export function getConnectionStyle(connection) {
   } else if (sourcePort === "always") {
     stroke = "#8bc34a"; // Greenish for Always
     conditionClass = "port-always";
+  } else if (sourcePort === "onTrue") {
+    stroke = "#66bb6a"; // Light green for True
+    conditionClass = "port-true";
+  } else if (sourcePort === "onFalse") {
+    stroke = "#ef5350"; // Light red for False
+    conditionClass = "port-false";
   }
 
   return {

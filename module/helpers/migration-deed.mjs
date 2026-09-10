@@ -79,6 +79,7 @@ export function parseTargetString(str) {
  */
 export function convertOldDeedSystem(source, options = {}) {
   const src = foundry.utils.deepClone(source || {});
+  if (options.name && !src.name) src.name = options.name;
 
   // 1. Rename ability type (type -> abilityType)
   if (src.type && src.type !== "deed") {
@@ -180,7 +181,7 @@ export function convertOldDeedSystem(source, options = {}) {
       let fmType = oldPhase.forcedMovement?.type;
       let fmDist = oldPhase.forcedMovement?.distance || 0;
       if (!fmType && oldPhase.description) {
-        const fmM = oldPhase.description.match(/(?:^|[.;]\s*)(push|pull|sweep|shove|drag)\s+(\d+)/i);
+        const fmM = oldPhase.description.match(/\b(push|pull|sweep|shove|drag)\s+(\d+)\b/i);
         if (fmM) {
           fmType = fmM[1].toLowerCase();
           fmDist = parseInt(fmM[2]) || 1;
@@ -190,23 +191,43 @@ export function convertOldDeedSystem(source, options = {}) {
         behaviors.push({
           id: foundry.utils.randomID(),
           type: "forceMoveTargets",
-          params: {
-            type: fmType,
-            distance: fmDist
-          }
+          params: { type: fmType, distance: fmDist }
         });
+      }
+
+      // Source movement behavior
+      if (oldPhase.description) {
+        const smM = oldPhase.description.match(/\b(shift|teleport)\s+(\d+)\b/i);
+        if (smM) {
+          behaviors.push({
+            id: foundry.utils.randomID(),
+            type: "moveSource",
+            params: { movementType: smM[1].toLowerCase(), distance: parseInt(smM[2]) || 1 }
+          });
+        }
+      }
+
+      // Healing behavior
+      if (oldPhase.description) {
+        const healM = /\brestore\s+(?:that\s+many\s+)?hit\s+points\b/i.test(oldPhase.description) ||
+          /\bregain\s+hit\s+points\b/i.test(oldPhase.description);
+        if (healM && !behaviors.some(b => b.type === "healTarget")) {
+          behaviors.push({
+            id: foundry.utils.randomID(),
+            type: "healTarget",
+            params: { distribute: /\bdivided\s+as\s+you\s+choose\b/i.test(oldPhase.description) }
+          });
+        }
       }
 
       // Recovery behavior
       if (oldPhase.description) {
-        const recM = oldPhase.description.match(/(?:^|[.;]\s*)(?:grant|make)\s+(?:a\s+)?recovery\s+(\d+)/i);
+        const recM = oldPhase.description.match(/\b(?:grant|make)\s+(?:a\s+)?recovery\s+(\d+)\b/i);
         if (recM) {
           behaviors.push({
             id: foundry.utils.randomID(),
             type: "grantRecovery",
-            params: {
-              intensity: parseInt(recM[1]) || 1
-            }
+            params: { intensity: parseInt(recM[1]) || 1 }
           });
         }
       }

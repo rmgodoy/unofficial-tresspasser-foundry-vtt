@@ -380,6 +380,8 @@
             "OnMiss": "Miss",
             "OnSpark": "Spark",
             "Always": "Always",
+            "OnTrue": "True",
+            "OnFalse": "False",
             "Roll": "Roll",
             "Area": "Area",
             "Terrain": "Terrain",

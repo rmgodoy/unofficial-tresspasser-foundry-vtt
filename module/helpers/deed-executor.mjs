@@ -262,9 +262,32 @@ export class DeedExecutor {
           let branchPhase = effectivePhase;
           if (conn.sourcePort === "onHit") branchPhase = "hit";
           else if (conn.sourcePort === "onSpark") branchPhase = "spark";
-          else if (conn.sourcePort === "onMiss") branchPhase = "after";
+          else if (conn.sourcePort === "onMiss") branchPhase = "base";
 
           const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, branchPhase);
+          if (cancelled) return true;
+        }
+      }
+    } else if (node.type === "condition") {
+      const condResult = result || { passed: false, matchedTokens: [], unmatchedTokens: [] };
+      const origTargets = this.context.targets ? [...this.context.targets] : [];
+      for (const conn of outgoing) {
+        if (conn.sourcePort === "onTrue" && condResult.passed) {
+          if (condResult.matchedTokens && condResult.matchedTokens.length > 0) {
+            this.context.targets = [...condResult.matchedTokens];
+          }
+          const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, effectivePhase);
+          this.context.targets = origTargets;
+          if (cancelled) return true;
+        } else if (conn.sourcePort === "onFalse" && (!condResult.passed || (condResult.unmatchedTokens && condResult.unmatchedTokens.length > 0))) {
+          if (condResult.unmatchedTokens && condResult.unmatchedTokens.length > 0) {
+            this.context.targets = [...condResult.unmatchedTokens];
+          }
+          const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, effectivePhase);
+          this.context.targets = origTargets;
+          if (cancelled) return true;
+        } else if (conn.sourcePort === "out" || conn.sourcePort === "always") {
+          const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, effectivePhase);
           if (cancelled) return true;
         }
       }

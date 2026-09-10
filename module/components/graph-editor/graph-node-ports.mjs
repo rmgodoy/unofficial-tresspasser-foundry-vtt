@@ -39,6 +39,12 @@ export function createPortRow(nodeId, direction, portName, portType, portElement
   } else if (portName === "always") {
     portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Always") || "Always";
     tooltip = portLabel;
+  } else if (portName === "onTrue") {
+    portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.OnTrue") || "True";
+    tooltip = portLabel;
+  } else if (portName === "onFalse") {
+    portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.OnFalse") || "False";
+    tooltip = portLabel;
   } else if (portName === "rollRef") {
     portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Roll") || "Roll";
     tooltip = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.RollRef") || "Roll Reference";
