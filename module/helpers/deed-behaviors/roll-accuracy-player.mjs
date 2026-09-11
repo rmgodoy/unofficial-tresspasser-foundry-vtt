@@ -242,6 +242,7 @@ export async function executePlayerAccuracyRoll({
       onHit: onHitResult,
       onMiss: onMissResult,
       onSpark: applySparkPhase,
+      out: true,
       always: true
     }
   };

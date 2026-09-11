@@ -1,5 +1,6 @@
 import { formatAreaSummary } from "./graph-node.mjs";
 import { resolveItem } from "../../helpers/item-resolver.mjs";
+import { getSourceOptions } from "../../data/node-port-config.mjs";
 
 /**
  * Resolves context data and renders the behavior parameters template.
@@ -32,14 +33,18 @@ export async function renderBehaviorParamsHtml({ node, nodeIndex, sheet, editor,
   const refRollId = findRef("rollRef", p.rollBehaviorId);
   const refAreaId = findRef("areaRef", p.areaBehaviorId);
   const refTerrainId = findRef("terrainRef", p.terrainBehaviorId);
+  const refSourceId = findRef("source", p.sourceBehaviorId);
   const refRollNode = getNode(refRollId);
   const refRollExpr = refRollNode?.params?.expression?.trim() || "";
   const refAreaSummary = formatAreaSummary(getNode(refAreaId));
   const refTerrainName = getNode(refTerrainId)?.params?.terrainName || "";
+  const refSourceNode = getNode(refSourceId);
 
   const hasRefRoll = Boolean(refRollId && refRollNode);
   const hasRefArea = Boolean(refAreaId && getNode(refAreaId));
   const hasRefTerrain = Boolean(refTerrainId && getNode(refTerrainId));
+  const hasRefSource = Boolean(refSourceId && refSourceNode);
+
   node.params = node.params || {};
   if (hasRefArea) {
     node.params.areaBehaviorId = refAreaId;
@@ -48,6 +53,23 @@ export async function renderBehaviorParamsHtml({ node, nodeIndex, sheet, editor,
   }
   if (hasRefRoll) node.params.rollBehaviorId = refRollId;
   if (hasRefTerrain) node.params.terrainBehaviorId = refTerrainId;
+  if (hasRefSource) node.params.sourceBehaviorId = refSourceId;
+
+  let switchOptions = [];
+  if (node.type === "switch" && refSourceNode) {
+    const rawOptions = getSourceOptions(refSourceNode);
+    switchOptions = rawOptions.map(opt => {
+      const conn = conns.find(c => c.targetId === node.id && c.targetPort === opt.id);
+      const connectedNode = conn ? getNode(conn.sourceId) : null;
+      return {
+        id: opt.id,
+        label: opt.label,
+        connectedId: connectedNode?.id || null,
+        connectedType: connectedNode?.type || null,
+        connectedShortId: connectedNode?.id ? connectedNode.id.slice(0, 6) : null
+      };
+    });
+  }
 
   let terrainHasLinkedEffect = false;
   if (node.type === "spawnTerrain" && node.params?.terrainUuid) {
@@ -71,6 +93,8 @@ export async function renderBehaviorParamsHtml({ node, nodeIndex, sheet, editor,
     refRollId, refRollIdShort: refRollId ? refRollId.slice(0, 6) : "", refRollExpr, hasRefRoll,
     refAreaId, refAreaIdShort: refAreaId ? refAreaId.slice(0, 6) : "", refAreaSummary, hasRefArea,
     refTerrainId, refTerrainIdShort: refTerrainId ? refTerrainId.slice(0, 6) : "", refTerrainName, hasRefTerrain,
+    refSourceId, refSourceIdShort: refSourceId ? refSourceId.slice(0, 6) : "", refSourceNodeType: refSourceNode?.type || "", hasRefSource,
+    switchOptions,
     terrainHasLinkedEffect
   });
 }

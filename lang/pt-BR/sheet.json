@@ -334,7 +334,9 @@
             "moveSource": "Mover Ator de Origem",
             "forceMoveTargets": "Forçar Movimento dos Alvos",
             "clearTargets": "Limpar Alvos",
-            "executeDeed": "Executar Habilidade Auxiliar"
+            "executeDeed": "Executar Habilidade Auxiliar",
+            "condition": "Condição",
+            "switch": "Comutador"
           }
         },
         "Tabs": {
@@ -357,6 +359,8 @@
           "InvalidAreaRef": "A referência de área requer um nó de Área ou AoE.",
           "InvalidRollRef": "A referência de rolagem requer um nó de Rolagem, Dano ou Cura.",
           "InvalidTerrainRef": "A referência de terreno requer um nó de Gerar Terreno.",
+          "InvalidSourceRef": "A Origem requer a porta de Resultado de um nó de Rolar Precisão ou Condição.",
+          "InvalidResultDrop": "A porta Resultado só pode ser conectada à entrada Origem de um nó Comutador.",
           "ShortcutsTitle": "Atalhos & Controles",
           "ShortcutPan": "Arrastar: Arraste a tela vazia",
           "ShortcutZoom": "Zoom: Roda do mouse",
@@ -390,6 +394,10 @@
             "AreaRef": "Referência de Área",
             "TerrainRef": "Referência de Terreno",
             "TargetRef": "Referência de Alvo",
+            "Result": "Resultado",
+            "ResultRef": "Referência de Resultado",
+            "Source": "Origem",
+            "SourceRef": "Referência de Origem",
             "ReferencedRollTooltip": "Da rolagem #{id}: {formula}",
             "ReferencedAreaTooltip": "Da área #{id}: {summary}",
             "ReferencedTerrainTooltip": "Do terreno #{id}: {name}",
@@ -467,6 +475,11 @@
           "HitOrSparkTag": "Acerto/Centelha",
           "RollAccuracyHint": "Executa a verificação de acurácia. Os atributos usam os valores padrão dos Detalhes da habilidade, mas podem ser substituídos abaixo. Ramifica em Acerto, Erro, Centelha ou Sempre.",
           "StartHint": "Ponto de entrada para execução da habilidade. Segue a conexão de fluxo de Saída.",
+          "SwitchHint": "Alterna entre ramos de entrada dinâmicos com base no resultado do nó de origem conectado, encaminhando o nó vencedor para a saída.",
+          "SwitchSourceNode": "Nó de Origem Conectado",
+          "SwitchNoSource": "Conecte a porta Resultado de um nó de Rolar Precisão ou Condição à entrada Origem para gerar as entradas dos ramos.",
+          "SwitchBranches": "Ramos de Opções",
+          "SwitchBranchEmpty": "Nenhum nó conectado a este ramo",
           "ClearEffect": "Remover Efeito",
           "ClearTerrain": "Remover Terreno",
           "ClearDeed": "Remover Habilidade",

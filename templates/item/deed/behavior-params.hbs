@@ -17,6 +17,12 @@
         <i class="fas fa-link"></i> #{{refTerrainIdShort}} {{#if refTerrainName}}({{refTerrainName}}){{/if}}
       </span>
     </div>
+  {{else if hasRefSource}}
+    <div class="ref-chip-header">
+      <span class="ref-chip" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedSource' id=refSourceId}}">
+        <i class="fas fa-link"></i> #{{refSourceIdShort}} ({{refSourceNodeType}})
+      </span>
+    </div>
   {{/if}}
 
   {{#if (eq type "start")}}
@@ -490,6 +496,53 @@
           <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropDeed"}}
         {{/if}}
       </div>
+    </div>
+  {{/if}}
+
+  {{#if (eq type "switch")}}
+    <div class="behavior-hint-box">
+      <p class="hint-title"><i class="fas fa-shuffle"></i> {{localize "TRESPASSER.Sheet.Deed.Behavior.Type.switch"}}</p>
+      <p class="hint-text">{{localize "TRESPASSER.Sheet.Deed.Params.SwitchHint"}}</p>
+    </div>
+
+    <input type="hidden" name="system.graph.nodes.{{index}}.params.sourceBehaviorId" value="{{params.sourceBehaviorId}}"/>
+
+    <div class="param-row-grid">
+      <div class="field-row" style="grid-column: 1 / -1;">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.SwitchSourceNode"}}</label>
+        {{#if hasRefSource}}
+          <div class="ref-chip" style="display:inline-flex; align-items:center; gap:6px;">
+            <i class="fas fa-link"></i>
+            <span>#{{refSourceIdShort}} ({{refSourceNodeType}})</span>
+          </div>
+        {{else}}
+          <span class="hint-text" style="color:var(--trp-text-dim, #a09070);">
+            <i class="fas fa-exclamation-triangle"></i> {{localize "TRESPASSER.Sheet.Deed.Params.SwitchNoSource"}}
+          </span>
+        {{/if}}
+      </div>
+
+      {{#if switchOptions.length}}
+        <div class="field-row" style="grid-column: 1 / -1;">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.SwitchBranches"}}</label>
+          <div class="switch-branches-list" style="display:flex; flex-direction:column; gap:4px; width:100%;">
+            {{#each switchOptions as |opt|}}
+              <div class="switch-branch-item" style="display:flex; align-items:center; justify-content:space-between; padding:4px 8px; background:rgba(0,0,0,0.2); border-radius:2px; font-size:var(--fs-11);">
+                <span class="branch-label" style="font-weight:600; color:var(--trp-gold, #c9a84c);">{{opt.label}}</span>
+                {{#if opt.connectedId}}
+                  <span class="branch-connected" style="color:var(--trp-text-bright, #fff);">
+                    <i class="fas fa-arrow-right" style="font-size:var(--fs-9); opacity:0.6;"></i> #{{opt.connectedShortId}} ({{opt.connectedType}})
+                  </span>
+                {{else}}
+                  <span class="branch-unconnected" style="color:var(--trp-text-muted, #776655); font-style:italic;">
+                    {{localize "TRESPASSER.Sheet.Deed.Params.SwitchBranchEmpty"}}
+                  </span>
+                {{/if}}
+              </div>
+            {{/each}}
+          </div>
+        </div>
+      {{/if}}
     </div>
   {{/if}}
 </div>

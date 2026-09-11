@@ -38,7 +38,7 @@ export const BEHAVIOR_CATEGORIES = [
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Flow",
     icon: "fa-code-branch",
-    types: ["clearTargets", "executeDeed"]
+    types: ["condition", "switch", "clearTargets", "executeDeed"]
   }
 ];
 

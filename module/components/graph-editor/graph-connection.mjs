@@ -29,7 +29,10 @@ export function calculateBezierPath(x1, y1, x2, y2) {
  * @returns {{ className: string, stroke: string, isDashed: boolean }}
  */
 export function getConnectionStyle(connection) {
-  const isRef = connection.type === "reference" || (connection.targetPort && connection.targetPort.endsWith("Ref"));
+  const isRef = connection.type === "reference"
+    || (connection.targetPort && connection.targetPort.endsWith("Ref"))
+    || connection.targetPort === "source"
+    || connection.sourcePort === "result";
   const sourcePort = connection.sourcePort || "out";
 
   let stroke = "#ddd0aa"; // Default light text color

@@ -380,7 +380,7 @@ export function migrateToGraph(source) {
 
     currentX = Math.max(hitX, sparkX, missX, currentX);
     lastMainNodeId = rollAccuracyNodeId;
-    lastMainPort = "always";
+    lastMainPort = "out";
   }
 
   // 3. Process post-accuracy phases: after, end

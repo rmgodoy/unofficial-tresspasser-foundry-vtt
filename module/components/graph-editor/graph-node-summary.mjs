@@ -133,6 +133,17 @@ export function getNodeSummary(node, getIncomingReference) {
       const effLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Effects") || "effects";
       return params.effects?.length ? `<span class="summary-tag">${params.effects.length} ${effLabel}</span>` : `<span class="summary-muted">—</span>`;
     }
+    case "condition": {
+      const condType = params.conditionType || "hasState";
+      return `<span class="summary-tag">${condType}</span>`;
+    }
+    case "switch": {
+      const ref = getIncomingReference?.("source");
+      if (ref?.sourceId) {
+        return `<span class="summary-tag">switch &larr; <span class="summary-ref-val">#${ref.sourceId.slice(0, 6)}</span></span>`;
+      }
+      return `<span class="summary-muted">no source</span>`;
+    }
     default:
       return "";
   }

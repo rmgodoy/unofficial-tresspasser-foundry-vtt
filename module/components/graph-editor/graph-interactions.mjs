@@ -165,24 +165,37 @@ export function startNoodleDrag(editor, e, portEl) {
       // Validate reference port compatibility
       if (targetPortName === "areaRef") {
         const srcNode = editor.nodeMap.get(nodeId);
-        const isAreaProvider = srcNode && (srcNode.data.type === "selectArea" || (srcNode.data.type === "selectTarget" && srcNode.data.params?.targetMode === "aoe"));
+        const isAreaProvider = srcNode && (srcNode.data.type === "selectArea" || (srcNode.data.type === "selectTarget" && srcNode.data.params?.targetMode === "aoe") || srcNode.data.type === "switch");
         if (!isAreaProvider) {
           ui.notifications?.warn(game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.InvalidAreaRef") || "Area reference requires an Area or AoE node.");
           return;
         }
       } else if (targetPortName === "rollRef") {
         const srcNode = editor.nodeMap.get(nodeId);
-        const isRollProvider = srcNode && ["roll", "applyDamage", "healTarget", "grantRecovery"].includes(srcNode.data.type);
+        const isRollProvider = srcNode && (["roll", "applyDamage", "healTarget", "grantRecovery"].includes(srcNode.data.type) || srcNode.data.type === "switch");
         if (!isRollProvider) {
           ui.notifications?.warn(game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.InvalidRollRef") || "Roll reference requires a Roll, Damage, or Heal node.");
           return;
         }
       } else if (targetPortName === "terrainRef") {
         const srcNode = editor.nodeMap.get(nodeId);
-        if (srcNode?.data?.type !== "spawnTerrain") {
+        if (srcNode?.data?.type !== "spawnTerrain" && srcNode?.data?.type !== "switch") {
           ui.notifications?.warn(game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.InvalidTerrainRef") || "Terrain reference requires a Spawn Terrain node.");
           return;
         }
+      } else if (targetPortName === "source") {
+        const srcNode = editor.nodeMap.get(nodeId);
+        const isSourceProvider = srcNode && ["rollAccuracy", "condition"].includes(srcNode.data.type) && portName === "result";
+        if (!isSourceProvider) {
+          ui.notifications?.warn(game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.InvalidSourceRef") || "Source requires the Result port of a Roll Accuracy or Condition node.");
+          return;
+        }
+      }
+
+      // Validate that result port can only be connected to source
+      if (portName === "result" && targetPortName !== "source") {
+        ui.notifications?.warn(game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.InvalidResultDrop") || "Result port can only be connected to a Switch node's Source input.");
+        return;
       }
 
       // Ensure flow connects to flow and ref connects to ref
@@ -220,6 +233,11 @@ export function applyReferenceConnection(editor, sourceId, targetId, targetPort)
     }
   } else if (targetPort === "terrainRef") {
     targetNode.data.params.terrainBehaviorId = sourceId;
+  } else if (targetPort === "source") {
+    targetNode.data.params.sourceBehaviorId = sourceId;
+    if (typeof targetNode.rebuildPorts === "function") {
+      targetNode.rebuildPorts();
+    }
   }
 
   targetNode.updateSummary();
@@ -250,6 +268,19 @@ export function removeReferenceConnection(editor, targetId, targetPort) {
     }
   } else if (targetPort === "terrainRef") {
     targetNode.data.params.terrainBehaviorId = "";
+  } else if (targetPort === "source") {
+    targetNode.data.params.sourceBehaviorId = "";
+    if (typeof targetNode.rebuildPorts === "function") {
+      targetNode.rebuildPorts();
+    }
+    // Prune any connections attached to removed option ports on switch
+    const validInputs = new Set(["in"]);
+    editor.connections = editor.connections.filter(c => {
+      if (c.targetId === targetId && !validInputs.has(c.targetPort)) {
+        return false;
+      }
+      return true;
+    });
   }
 
   targetNode.updateSummary();
@@ -301,6 +332,11 @@ export function applyNodeDefaults(nodeData, type, deedSys = {}) {
   } else if (type === "forceMoveTargets") {
     nodeData.params.type ??= "push";
     nodeData.params.distance ??= 1;
+  } else if (type === "condition") {
+    nodeData.params.targetScope ??= "targets";
+    nodeData.params.conditionType ??= "hasState";
+  } else if (type === "switch") {
+    nodeData.params.sourceBehaviorId ??= "";
   }
 }
 

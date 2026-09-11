@@ -23,7 +23,9 @@ export const BEHAVIOR_ICONS = {
   moveSource: "fa-person-running",
   forceMoveTargets: "fa-arrows-turn-right",
   clearTargets: "fa-xmark",
-  executeDeed: "fa-bolt"
+  executeDeed: "fa-bolt",
+  condition: "fa-code-branch",
+  switch: "fa-shuffle"
 };
 
 export class GraphNode {
@@ -46,7 +48,8 @@ export class GraphNode {
    */
   render() {
     const node = this.data;
-    const config = getNodePortConfig(node.type);
+    const graph = this.options.editor?.getGraph?.() || null;
+    const config = getNodePortConfig(node, graph);
 
     const el = document.createElement("div");
     el.className = `graph-node node-${node.type} phase-border-${node.phase || "base"}`;
@@ -98,12 +101,16 @@ export class GraphNode {
       <div class="node-id-badge" title="ID: ${node.id}">#${node.id.slice(0, 6)}</div>
     `;
 
-    // Right ports column (Outputs: flow)
+    // Right ports column (Outputs: flow and reference)
     const rightPorts = document.createElement("div");
     rightPorts.className = "graph-ports-column graph-ports-right";
 
     for (const outPort of config.outputs) {
       const portRow = this._createPortRow("out", outPort, "flow");
+      rightPorts.appendChild(portRow);
+    }
+    for (const refOutPort of (config.refOutputs || [])) {
+      const portRow = this._createPortRow("out", refOutPort, "reference");
       rightPorts.appendChild(portRow);
     }
 
@@ -117,6 +124,43 @@ export class GraphNode {
     this.element = el;
     this.updatePortBadges();
     return el;
+  }
+
+  /**
+   * Rebuilds left and right port columns dynamically without discarding element or state.
+   */
+  rebuildPorts() {
+    if (!this.element) return;
+    const node = this.data;
+    const graph = this.options.editor?.getGraph?.() || null;
+    const config = getNodePortConfig(node, graph);
+
+    this.portElements.clear();
+
+    const leftPorts = this.element.querySelector(".graph-ports-left");
+    if (leftPorts) {
+      leftPorts.innerHTML = "";
+      for (const inPort of config.inputs) {
+        leftPorts.appendChild(this._createPortRow("in", inPort, "flow"));
+      }
+      for (const refPort of config.refInputs) {
+        leftPorts.appendChild(this._createPortRow("in", refPort, "reference"));
+      }
+    }
+
+    const rightPorts = this.element.querySelector(".graph-ports-right");
+    if (rightPorts) {
+      rightPorts.innerHTML = "";
+      for (const outPort of config.outputs) {
+        rightPorts.appendChild(this._createPortRow("out", outPort, "flow"));
+      }
+      for (const refOutPort of (config.refOutputs || [])) {
+        rightPorts.appendChild(this._createPortRow("out", refOutPort, "reference"));
+      }
+    }
+
+    this.updateSummary();
+    this.updatePortBadges();
   }
 
   /**
@@ -232,6 +276,7 @@ export class GraphNode {
       if (portName === "rollRef") sourceId = p.rollBehaviorId;
       else if (portName === "areaRef") sourceId = p.areaBehaviorId;
       else if (portName === "terrainRef") sourceId = p.terrainBehaviorId;
+      else if (portName === "source") sourceId = p.sourceBehaviorId;
     }
     if (!sourceId) return null;
 

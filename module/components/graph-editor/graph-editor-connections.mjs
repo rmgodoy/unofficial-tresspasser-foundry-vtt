@@ -33,7 +33,7 @@ export function renderAllConnections(editor) {
 export function addGraphConnection(editor, sourceId, sourcePort, targetId, targetPort, type = "flow") {
   if (sourceId === targetId) return;
 
-  if (type === "reference" || targetPort.endsWith("Ref")) {
+  if (type === "reference" || targetPort.endsWith("Ref") || targetPort === "source" || sourcePort === "result") {
     const oldIdx = editor.connections.findIndex(c => c.targetId === targetId && c.targetPort === targetPort);
     if (oldIdx !== -1) {
       const old = editor.connections.splice(oldIdx, 1)[0];
@@ -53,7 +53,7 @@ export function addGraphConnection(editor, sourceId, sourcePort, targetId, targe
     if (targetNode && targetNode.data.type !== "start" && (!targetNode.data.phase || targetNode.data.phase === "base")) {
       targetNode.setPhase("inherit");
     }
-  } else if (type === "reference" || targetPort.endsWith("Ref")) {
+  } else if (type === "reference" || targetPort.endsWith("Ref") || targetPort === "source" || sourcePort === "result") {
     applyReferenceConnection(editor, sourceId, targetId, targetPort);
   }
   editor._renderConnections();

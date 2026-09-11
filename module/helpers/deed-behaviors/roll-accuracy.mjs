@@ -92,6 +92,7 @@ export class RollAccuracyBehavior {
           onHit: false,
           onMiss: true,
           onSpark: false,
+          out: true,
           always: true
         }
       };

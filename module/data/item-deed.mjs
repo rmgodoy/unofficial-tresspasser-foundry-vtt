@@ -21,7 +21,8 @@ export const BEHAVIOR_TYPES = [
   "forceMoveTargets",
   "clearTargets",
   "executeDeed",
-  "condition"
+  "condition",
+  "switch"
 ];
 
 export class TrespasserDeedData extends foundry.abstract.TypeDataModel {

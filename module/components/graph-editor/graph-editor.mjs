@@ -117,6 +117,7 @@ export class GraphEditor {
     this.nodesLayer.innerHTML = "";
     this.nodeMap.clear();
     this._rawNodesData = nodesData;
+    this.connections = foundry.utils.deepClone(connectionsData || []);
 
     for (const data of nodesData) {
       const node = new GraphNode(data, { editor: this });
@@ -124,7 +125,15 @@ export class GraphEditor {
       this.nodesLayer.appendChild(node.element);
     }
 
-    this.connections = (connectionsData || []).filter(c => {
+    // Rebuild dynamic ports for switch nodes now that all nodes and connections exist
+    for (const node of this.nodeMap.values()) {
+      if (node.data.type === "switch") {
+        node.rebuildPorts();
+      }
+    }
+    this._rawNodesData = null;
+
+    this.connections = this.connections.filter(c => {
       const src = this.nodeMap.get(c.sourceId), tgt = this.nodeMap.get(c.targetId);
       return src?.portElements.has(`out:${c.sourcePort}`) && tgt?.portElements.has(`in:${c.targetPort}`);
     });
@@ -139,9 +148,13 @@ export class GraphEditor {
 
   /** Returns current graph data. */
   getGraph() {
+    const rawNodes = this._rawNodesData || [];
+    const nodes = (rawNodes.length > 0 && this.nodeMap.size < rawNodes.length)
+      ? foundry.utils.deepClone(rawNodes)
+      : Array.from(this.nodeMap.values()).map(n => foundry.utils.deepClone(n.data));
     return {
-      nodes: Array.from(this.nodeMap.values()).map(n => foundry.utils.deepClone(n.data)),
-      connections: foundry.utils.deepClone(this.connections)
+      nodes,
+      connections: foundry.utils.deepClone(this.connections || [])
     };
   }
 
@@ -236,7 +249,8 @@ export class GraphEditor {
         this.connections.some(c => c.sourceId === nodeId && c.targetId === id) ||
         other.data.params?.rollBehaviorId === nodeId ||
         other.data.params?.areaBehaviorId === nodeId ||
-        other.data.params?.terrainBehaviorId === nodeId
+        other.data.params?.terrainBehaviorId === nodeId ||
+        other.data.params?.sourceBehaviorId === nodeId
       )) {
         other.updateSummary();
       }

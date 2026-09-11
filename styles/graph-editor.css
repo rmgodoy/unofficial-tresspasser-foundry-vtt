@@ -298,7 +298,9 @@
 .port-row-always .port-label  { color: #8bc34a; font-weight: 600; }
 .port-row-onTrue .port-label  { color: #66bb6a; font-weight: 600; }
 .port-row-onFalse .port-label { color: #ef5350; font-weight: 600; }
-.port-row-ref .port-label     { color: #4fc3f7; }
+.port-row-ref .port-label,
+.port-row-result .port-label,
+.port-row-source .port-label  { color: #4fc3f7; }
 
 .port-ref-badge {
   font-size: var(--fs-9);
@@ -340,7 +342,9 @@
 .graph-port.port-onTrue  { border-color: #66bb6a; }
 .graph-port.port-onFalse { border-color: #ef5350; }
 
-.graph-port.port-ref {
+.graph-port.port-ref,
+.graph-port.port-result,
+.graph-port.port-source {
   border-color: #4fc3f7;
   border-radius: 2px; /* Square for reference ports */
 }

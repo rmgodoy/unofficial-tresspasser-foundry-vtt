@@ -334,7 +334,9 @@
             "moveSource": "Move Source Actor",
             "forceMoveTargets": "Force Move Targets",
             "clearTargets": "Clear Targets",
-            "executeDeed": "Execute Auxiliary Deed"
+            "executeDeed": "Execute Auxiliary Deed",
+            "condition": "Condition",
+            "switch": "Switch"
           }
         },
         "Tabs": {
@@ -357,6 +359,8 @@
           "InvalidAreaRef": "Area reference requires an Area or AoE node.",
           "InvalidRollRef": "Roll reference requires a Roll, Damage, or Heal node.",
           "InvalidTerrainRef": "Terrain reference requires a Spawn Terrain node.",
+          "InvalidSourceRef": "Source requires the Result port of a Roll Accuracy or Condition node.",
+          "InvalidResultDrop": "Result port can only be connected to a Switch node's Source input.",
           "ShortcutsTitle": "Shortcuts & Controls",
           "ShortcutPan": "Pan: Drag empty canvas",
           "ShortcutZoom": "Zoom: Mouse wheel",
@@ -390,6 +394,10 @@
             "AreaRef": "Area Reference",
             "TerrainRef": "Terrain Reference",
             "TargetRef": "Target Reference",
+            "Result": "Result",
+            "ResultRef": "Result Reference",
+            "Source": "Source",
+            "SourceRef": "Source Reference",
             "ReferencedRollTooltip": "From roll #{id}: {formula}",
             "ReferencedAreaTooltip": "From area #{id}: {summary}",
             "ReferencedTerrainTooltip": "From terrain #{id}: {name}",
@@ -467,6 +475,11 @@
           "HitOrSparkTag": "Hit/Spark",
           "RollAccuracyHint": "Executes the accuracy check. Attributes default to the deed's Details, but can be overridden below. Branches on Hit, Miss, Spark, or Always.",
           "StartHint": "Root entry point for deed execution. Follows the Out flow connection.",
+          "SwitchHint": "Switches between dynamic input branches based on the result from the connected source node, forwarding the winning node to the output.",
+          "SwitchSourceNode": "Connected Source Node",
+          "SwitchNoSource": "Connect the Result port of a Roll Accuracy or Condition node to the Source input to generate branch inputs.",
+          "SwitchBranches": "Option Branches",
+          "SwitchBranchEmpty": "No node connected to this branch",
           "ClearEffect": "Remove Effect",
           "ClearTerrain": "Remove Terrain",
           "ClearDeed": "Remove Deed",

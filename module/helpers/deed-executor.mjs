@@ -1,4 +1,5 @@
 import { DeedBehaviorHandler } from "./deed-behavior-handler.mjs";
+import { SwitchBehavior } from "./deed-behaviors/switch.mjs";
 import { migrateToGraph } from "./migration-graph.mjs";
 import {
   validateResources,
@@ -143,6 +144,7 @@ export class DeedExecutor {
     this._nodesById = new Map(graph.nodes.map(n => [n.id, n]));
     this._outgoingFlow = new Map();
     this._incomingRefs = new Map();
+    this._allConnections = graph.connections || [];
 
     for (const conn of graph.connections || []) {
       if (conn.type === "reference") {
@@ -185,6 +187,10 @@ export class DeedExecutor {
     if (this._executedNodes.has(node.id) || node._alreadyExecuted) return true;
     if (targetPort === "rollRef" && this.context.evaluatedRolls?.has(node.id)) return true;
     if (targetPort === "areaRef" && this.context.areas?.has(node.id)) return true;
+    if (targetPort === "result") {
+      if (node.type === "rollAccuracy" && this.context.accuracyResolved) return true;
+      if (node.type === "condition" && this.context.conditionResults?.has(node.id)) return true;
+    }
     return false;
   }
 
@@ -200,10 +206,24 @@ export class DeedExecutor {
   async _resolveReferences(node, visited) {
     const refConnections = this._getIncomingReferenceConnections(node.id);
     for (const refConn of refConnections) {
-      const refNode = this._getNode(refConn.sourceId);
+      let refNode = this._getNode(refConn.sourceId);
       if (!refNode) continue;
 
-      if (!this._isResolved(refNode, refConn.targetPort)) {
+      if (refNode.type === "switch") {
+        const { branchSourceNode } = await SwitchBehavior.resolveWinningBranch(refNode, this.context, this);
+        if (branchSourceNode) {
+          if (!this._isResolved(branchSourceNode, refConn.targetPort)) {
+            await this._executeReferenceNode(branchSourceNode, visited);
+          }
+          if (this.context.evaluatedRolls?.has(branchSourceNode.id)) {
+            this.context.evaluatedRolls.set(refNode.id, this.context.evaluatedRolls.get(branchSourceNode.id));
+          }
+          if (this.context.areas?.has(branchSourceNode.id)) {
+            this.context.areas.set(refNode.id, this.context.areas.get(branchSourceNode.id));
+          }
+          refNode = branchSourceNode;
+        }
+      } else if (!this._isResolved(refNode, refConn.targetPort)) {
         await this._executeReferenceNode(refNode, visited);
       }
 
@@ -250,7 +270,7 @@ export class DeedExecutor {
     const outgoing = this._getOutgoingConnections(nodeId);
     if (node.type === "rollAccuracy") {
       const branchingMode = node.params?.branchingMode || "hitThenSpark";
-      const portPriority = { onHit: 1, onSpark: 2, onMiss: 3, always: 4, out: 5 };
+      const portPriority = { onHit: 1, onSpark: 2, onMiss: 3, out: 4, always: 5 };
       const sortedOutgoing = [...outgoing].sort((a, b) => {
         const pA = portPriority[a.sourcePort] ?? 99;
         const pB = portPriority[b.sourcePort] ?? 99;
@@ -290,6 +310,16 @@ export class DeedExecutor {
           const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, effectivePhase);
           if (cancelled) return true;
         }
+      }
+    } else if (node.type === "switch") {
+      const { branchSourceNode } = await SwitchBehavior.resolveWinningBranch(node, this.context, this);
+      if (branchSourceNode && !this._isResolved(branchSourceNode)) {
+        const cancelled = await this._traverseNode(branchSourceNode.id, visited, "in", effectivePhase);
+        if (cancelled) return true;
+      }
+      for (const conn of outgoing) {
+        const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, effectivePhase);
+        if (cancelled) return true;
       }
     } else {
       for (const conn of outgoing) {

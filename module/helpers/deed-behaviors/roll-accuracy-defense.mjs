@@ -193,6 +193,7 @@ export async function executeCreatureDefenseRoll({
       onHit: onHitResult,
       onMiss: onMissResult,
       onSpark: applySparkPhase,
+      out: true,
       always: true
     }
   };

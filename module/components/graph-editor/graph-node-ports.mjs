@@ -57,6 +57,12 @@ export function createPortRow(nodeId, direction, portName, portType, portElement
   } else if (portName === "targetRef") {
     portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Target") || "Target";
     tooltip = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.TargetRef") || "Target Reference";
+  } else if (portName === "result") {
+    portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Result") || "Result";
+    tooltip = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.ResultRef") || "Result Reference";
+  } else if (portName === "source") {
+    portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Source") || "Source";
+    tooltip = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.SourceRef") || "Source Reference";
   }
 
   pinEl.setAttribute("title", tooltip);
