@@ -230,6 +230,8 @@ export function applyReferenceConnection(editor, sourceId, targetId, targetPort)
       targetNode.data.params.destinationMode = "selectedArea";
     } else if (targetNode.data.type === "spawnTerrain") {
       targetNode.data.params.placement = "selected_area";
+    } else if (targetNode.data.type === "selectTarget") {
+      targetNode.data.params.targetMode = "area";
     }
   } else if (targetPort === "terrainRef") {
     targetNode.data.params.terrainBehaviorId = sourceId;
@@ -265,6 +267,8 @@ export function removeReferenceConnection(editor, targetId, targetPort) {
       targetNode.data.params.destinationMode = "distance";
     } else if (targetNode.data.type === "spawnTerrain" && targetNode.data.params.placement === "selected_area") {
       targetNode.data.params.placement = "on_target";
+    } else if (targetNode.data.type === "selectTarget" && targetNode.data.params.targetMode === "area") {
+      targetNode.data.params.targetMode = "creatures";
     }
   } else if (targetPort === "terrainRef") {
     targetNode.data.params.terrainBehaviorId = "";
