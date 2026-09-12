@@ -31,7 +31,8 @@ import {
   checkCounterEligibility,
   validateWeaponCompatibility,
   getMaxRangeSq,
-  validateRange
+  validateRange,
+  isTokenDefeated
 } from "../targeting/targeting-validation.mjs";
 
 export {
@@ -57,7 +58,8 @@ export {
   checkCounterEligibility,
   validateWeaponCompatibility,
   getMaxRangeSq,
-  validateRange
+  validateRange,
+  isTokenDefeated
 };
 
 export class TargetingHelper {
@@ -163,5 +165,9 @@ export class TargetingHelper {
 
   static validateRange(targets, sourceToken, deed, activeWeapons) {
     return validateRange(targets, sourceToken, deed, activeWeapons);
+  }
+
+  static isTokenDefeated(token) {
+    return isTokenDefeated(token);
   }
 }

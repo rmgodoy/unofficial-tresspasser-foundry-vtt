@@ -1,6 +1,7 @@
 import { RangeHelper } from "../helpers/range-helper.mjs";
 import { getActiveWeapons } from "../sheets/character/handlers-combat.mjs";
 import { matchesDisposition, getTokenOccupiedSquares, getMinSquareDistance } from "./targeting-geometry.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Validate manually selected targets for "creature" type deeds.
@@ -60,6 +61,27 @@ export function getWeaponRangeInSquares(weapons, gridDist) {
 }
 
 /**
+ * Check if a token or its actor is in a defeated or dead state.
+ * Tenacious actors (health <= 0) who are not marked defeated are still active in combat.
+ * @param {Token} tok
+ * @returns {boolean}
+ */
+export function isTokenDefeated(tok) {
+  if (!tok) return false;
+  if (tok.document?.defeated || tok.combatant?.defeated) return true;
+  const actor = tok.actor;
+  if (!actor) return false;
+  if (actor.statuses?.has("defeated") || actor.statuses?.has("dead") || actor.statuses?.has(CONFIG.specialStatusEffects?.DEFEATED)) {
+    return true;
+  }
+  return actor.items?.some(i => i.type === "effect" && (
+    i.getFlag(SYSTEM_ID, "statusEffectId") === "defeated" ||
+    i.getFlag("trespasser", "statusEffectId") === "defeated" ||
+    i.name?.toLowerCase() === "defeated"
+  )) ?? false;
+}
+
+/**
  * Check if a token is engaged — any hostile token within melee/engagement range.
  * Creatures use their engagement_range attribute (defaults to 1).
  * Characters/commoners engage if they have an equipped melee weapon within reach.
@@ -68,15 +90,15 @@ export function getWeaponRangeInSquares(weapons, gridDist) {
  */
 export function isEngaged(token) {
   if (!token || !canvas?.grid) return false;
+  if (isTokenDefeated(token)) return false;
   const gridPx = canvas.grid.size || 100;
 
   for (const other of (canvas.tokens?.placeables || [])) {
     if (other.id === token.id) continue;
     // Enemy check based on token hostility / disposition
     if (!matchesDisposition(other, "enemy", token)) continue;
-    // Skip defeated / dead tokens
-    if (other.actor && other.actor.system?.health <= 0) continue;
-    if (other.document?.defeated || other.actor?.statuses?.has("dead")) continue;
+    // Skip defeated / dead tokens (tenacious actors with health <= 0 who are not defeated still engage)
+    if (isTokenDefeated(other)) continue;
 
     let engageSquares = 1;
     const otherActor = other.actor;
@@ -168,6 +190,9 @@ export function isExemptFromEngagement(deed, targets, sourceToken) {
  */
 export function checkCounterEligibility(defenderToken, attackerToken) {
   if (!defenderToken?.actor || !attackerToken || !canvas?.grid) {
+    return { canCounter: false, weapon: null, weaponDie: "d6" };
+  }
+  if (isTokenDefeated(defenderToken) || isTokenDefeated(attackerToken)) {
     return { canCounter: false, weapon: null, weaponDie: "d6" };
   }
 

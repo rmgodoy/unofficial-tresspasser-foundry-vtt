@@ -1,4 +1,5 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 /**
  * ConditionBehavior
@@ -92,10 +93,15 @@ export class ConditionBehavior {
         return !this._checkHasState(candActor, params.stateId || params.stateName || params.stateUuid, params.minIntensity);
 
       case "hpStatus": {
-        const hp = candActor.system?.hp?.value ?? 0;
-        const maxHp = candActor.system?.hp?.max ?? 1;
+        const hp = candActor.system?.health ?? candActor.system?.hp?.value ?? 0;
+        const maxHp = candActor.system?.max_health ?? candActor.system?.hp?.max ?? 1;
         const status = params.hpStatus || "bloodied";
-        if (status === "defeated") return hp <= 0;
+        if (status === "defeated") {
+          return candActor.statuses?.has("defeated") ||
+                 candActor.statuses?.has("dead") ||
+                 candActor.statuses?.has(CONFIG.specialStatusEffects?.DEFEATED) ||
+                 (candActor.items?.some(i => i.type === "effect" && (i.getFlag(SYSTEM_ID, "statusEffectId") === "defeated" || i.getFlag("trespasser", "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated")) ?? false);
+        }
         if (status === "bloodied") return hp <= Math.floor(maxHp / 2);
         if (status === "fullHp") return hp >= maxHp;
         if (status === "staggered") {
