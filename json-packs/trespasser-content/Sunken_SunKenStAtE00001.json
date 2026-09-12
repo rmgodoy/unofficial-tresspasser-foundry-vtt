@@ -1,0 +1,55 @@
+{
+  "folder": "EtoWy6iRAXCIBITx",
+  "name": "Sunken",
+  "type": "effect",
+  "_id": "SunKenStAtE00001",
+  "img": "systems/trespasser/assets/icons/states/Sunken.svg",
+  "system": {
+    "description": "<p>A sunken creature is either swimming underwater or tunneling just beneath the earth. The INTENSITY of this state represents how deep it, so it is usually referred to as depth.</p><p>A sunken creature is protected by the substance it travels in, reducing all damage it takes by half. It can move through other creatures and obstacles and ignores difficult terrain, terrain damage, fields, and other effects on the surface.</p><p>After damaging a sunken creature, a character can use prevail to try to force it out of the water. On a success, the creature is pulled to the surface, losing this state and gaining toppled.</p><p>When a character drags, pulls, or sweeps a sunken creature, they can choose to remove depth equal to the squares of the forced movement. If this reduces the creature's depth to zero, the creature is wrenched to the surface and gains toppled.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 1,
+    "targetAttribute": "elevation",
+    "modifier": "-<Int>",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [
+      {
+        "uuid": "Item.AirBorneStAt0001",
+        "name": "Airborne",
+        "img": "systems/trespasser/assets/icons/states/Airborne.svg",
+        "type": "effect"
+      }
+    ],
+    "isPrevailable": true,
+    "statusIcon": "systems/trespasser/assets/icons/states/Sunken.svg"
+  },
+  "effects": [],
+  "flags": {
+    "trespasser": {
+      "statusEffectId": "sunken"
+    }
+  },
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1773400000000,
+    "modifiedTime": 1773400000000
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!SunKenStAtE00001"
+}

@@ -135,7 +135,7 @@ export class TrespasserCompanionData extends foundry.abstract.TypeDataModel {
     this.skill_die = evaluateDieFormula(dieFormula, ctx);
 
     // 3. Effect bonuses
-    const trackedKeys = ["speed", "speed_bonus", "initiative", "accuracy", "guard", "resist", "prevail", "health", "max_health", "damage"];
+    const trackedKeys = ["speed", "speed_bonus", "initiative", "accuracy", "guard", "resist", "prevail", "health", "max_health", "damage", "elevation"];
     for (const key of trackedKeys) {
       this.bonuses[key] = TrespasserEffectsHelper.getAttributeBonus(actor, key);
     }

@@ -81,7 +81,7 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
     // const st     = this.states;
 
     const allTrackedKeys = [
-      "speed", "guard", "resist", "initiative", "accuracy", "health", "max_health", "damage", "prevail"
+      "speed", "guard", "resist", "initiative", "accuracy", "health", "max_health", "damage", "prevail", "elevation"
     ]; 
 
     for (const key of allTrackedKeys) {

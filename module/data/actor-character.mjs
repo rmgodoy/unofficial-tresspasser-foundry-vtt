@@ -191,7 +191,7 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     const allTrackedKeys = [
       "mighty", "agility", "intellect", "spirit",
       "initiative", "accuracy", "guard", "resist", "prevail", "tenacity", "speed",
-      "speed_bonus", "armor", "health", "max_health", "endurance", "max_endurance", "damage", "focus"
+      "speed_bonus", "armor", "health", "max_health", "endurance", "max_endurance", "damage", "focus", "elevation"
     ];
     for (const key of allTrackedKeys) {
       this.bonuses[key] = TrespasserEffectsHelper.getAttributeBonus(actor, key);

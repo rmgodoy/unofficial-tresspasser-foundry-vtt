@@ -55,7 +55,8 @@ import {
   getMatchingCustomStatus,
   isCounterEffectMatch,
   refreshTokensForActor,
-  getCombatTrackerEffects
+  getCombatTrackerEffects,
+  syncActorTokenElevation
 } from "../effects/effects-token-sync.mjs";
 
 import { isSpecialState } from "../config/status-effects.mjs";
@@ -98,6 +99,7 @@ export {
   isCounterEffectMatch,
   refreshTokensForActor,
   getCombatTrackerEffects,
+  syncActorTokenElevation,
   isSpecialState
 };
 
@@ -192,6 +194,10 @@ export class TrespasserEffectsHelper {
 
   static async syncActorTokenEffects(actor) {
     return syncActorTokenEffects(actor);
+  }
+
+  static async syncActorTokenElevation(actor) {
+    return syncActorTokenElevation(actor);
   }
 
   static async _performSyncActorTokenEffects(actor) {

@@ -11,6 +11,7 @@ import {
 } from "../config/status-effects.mjs";
 import { TargetingHelper } from "../helpers/targeting-helper.mjs";
 import { SYSTEM_ID } from "../system-id.mjs";
+import { syncActorTokenElevation } from "./effects-elevation-sync.mjs";
 
 const _syncTimers = new Map();
 const _inFlightSyncs = new Set();
@@ -395,6 +396,9 @@ export async function performSyncActorTokenEffects(actor) {
     await actor.createEmbeddedDocuments("ActiveEffect", effectsToCreate);
   }
 
+  // Synchronize token elevation from active elevation effect modifiers
+  await syncActorTokenElevation(actor);
+
   // Force all canvas tokens linked to this actor to redraw their effect icons.
   // In Foundry V14, ActiveEffect changes don't automatically trigger token visual refresh.
   refreshTokensForActor(actor);
@@ -475,3 +479,5 @@ export async function syncActorTokenEffects(actor) {
     _syncTimers.set(actorKey, timer);
   });
 }
+
+export { syncActorTokenElevation };

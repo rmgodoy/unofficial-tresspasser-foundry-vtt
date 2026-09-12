@@ -28,7 +28,9 @@ import {
 import {
   TRESPASSER_STATUS_EFFECTS,
   STATUS_EFFECT_COUNTERS,
-  TOGGLE_ONLY_STATUS_EFFECTS
+  TOGGLE_ONLY_STATUS_EFFECTS,
+  AIRBORNE_EFFECT_DATA,
+  SUNKEN_EFFECT_DATA
 } from "../config/status-effects.mjs";
 import { SYSTEM_ID } from "../system-id.mjs";
 
@@ -99,6 +101,14 @@ export class TrespasserActor extends Actor {
       const isToggleOnly = TOGGLE_ONLY_STATUS_EFFECTS.has(status.id.toLowerCase());
       const defaultIntensity = isToggleOnly ? 0 : 1;
       const initialIntensity = intensity !== undefined ? intensity : defaultIntensity;
+
+      if (!itemData) {
+        if (status.id === "airborne") {
+          itemData = foundry.utils.deepClone(AIRBORNE_EFFECT_DATA);
+        } else if (status.id === "sunken") {
+          itemData = foundry.utils.deepClone(SUNKEN_EFFECT_DATA);
+        }
+      }
 
       if (!itemData) {
         itemData = {

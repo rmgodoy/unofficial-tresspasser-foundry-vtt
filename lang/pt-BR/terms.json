@@ -39,6 +39,7 @@
         "Agility": "Agilidade",
         "Intellect": "Intelecto",
         "Spirit": "Espírito",
+        "Elevation": "Elevação",
         "Singular": "Atributo",
         "Plural": "Atributos"
       },
@@ -475,6 +476,7 @@
     "States": {
       "Accurate": "Preciso",
       "Afflicted": "Afligido",
+      "Airborne": "No Ar",
       "Bleeding": "Sangrando",
       "Blinded": "Cego",
       "Bloodied": "Ensanguentado",
@@ -495,6 +497,7 @@
       "Slow": "Lento",
       "Staggered": "Abalado",
       "Strong": "Forte",
+      "Sunken": "Submerso",
       "Swift": "Veloz",
       "Tenacious": "Tenaz",
       "Toppled": "Derrubado",

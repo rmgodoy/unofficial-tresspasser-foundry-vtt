@@ -104,5 +104,6 @@ export const TARGET_ATTRIBUTES = {
   "heal_given": "TRESPASSER.App.System.Trigger.HealGiven",
   "heal_received": "TRESPASSER.App.System.Trigger.HealReceived",
   "endurance": "TRESPASSER.Sheet.Header.Endurance",
-  "max_endurance": "TRESPASSER.Sheet.Header.Endurance"
+  "max_endurance": "TRESPASSER.Sheet.Header.Endurance",
+  "elevation": "TRESPASSER.Terms.Attribute.Elevation"
 };

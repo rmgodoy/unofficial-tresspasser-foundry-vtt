@@ -39,6 +39,7 @@
         "Agility": "Agility",
         "Intellect": "Intellect",
         "Spirit": "Spirit",
+        "Elevation": "Elevation",
         "Singular": "Attribute",
         "Plural": "Attributes"
       },
@@ -475,6 +476,7 @@
     "States": {
       "Accurate": "Accurate",
       "Afflicted": "Afflicted",
+      "Airborne": "Airborne",
       "Bleeding": "Bleeding",
       "Blinded": "Blinded",
       "Bloodied": "Bloodied",
@@ -495,6 +497,7 @@
       "Slow": "Slow",
       "Staggered": "Staggered",
       "Strong": "Strong",
+      "Sunken": "Sunken",
       "Swift": "Swift",
       "Tenacious": "Tenacious",
       "Toppled": "Toppled",

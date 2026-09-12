@@ -1,0 +1,55 @@
+{
+  "folder": "EtoWy6iRAXCIBITx",
+  "name": "Airborne",
+  "type": "effect",
+  "_id": "AirBorneStAt0001",
+  "img": "systems/trespasser/assets/icons/states/Airborne.svg",
+  "system": {
+    "description": "<p>An airborne creature is flying or floating above the ground. The INTENSITY of this state refers to the creature's altitude in squares, so it is usually referred to as height.</p><p>At airborne 2 or higher, an airborne creature cannot be targeted by melee attacks unless they involve a jump. An airborne creature can always be targeted by missile or spell attacks that target a single creature.</p><p>A blast or burst can target an airborne creature, but only if its area is equal or greater than the creature's height. For example, a blast 4 would target a creature with airborne 4, but not a creature with airborne 5.</p><p>After damaging an airborne creature, a character can use prevail to try to knock it out of the sky. On a success, the creature falls to earth, suffering normal falling damage of 1d6 damage per 2 height lost. A flying creature grounded in this way also gains toppled. A hovering creature does not.</p><p>When a character drags, pulls, or sweeps an airborne creature, they can choose to remove height equal to the squares of the forced movement. If this reduces the creature's height to zero, the creature is dragged to the earth and gains toppled.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 1,
+    "targetAttribute": "elevation",
+    "modifier": "<Int>",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [
+      {
+        "uuid": "Item.SunKenStAtE00001",
+        "name": "Sunken",
+        "img": "systems/trespasser/assets/icons/states/Sunken.svg",
+        "type": "effect"
+      }
+    ],
+    "isPrevailable": true,
+    "statusIcon": "systems/trespasser/assets/icons/states/Airborne.svg"
+  },
+  "effects": [],
+  "flags": {
+    "trespasser": {
+      "statusEffectId": "airborne"
+    }
+  },
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1773400000000,
+    "modifiedTime": 1773400000000
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!AirBorneStAt0001"
+}

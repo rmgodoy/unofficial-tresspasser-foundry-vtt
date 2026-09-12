@@ -224,7 +224,7 @@ export function getAttributeBonus(actor, attributeKey, includeTiming = null) {
     if (eff.type === "on-trigger" && eff.when && eff.when !== "immediate" && eff.when !== includeTiming) continue;
     
     const resolvedMod = replacePlaceholders(eff.modifier.toString(), actor);
-    const modStr = resolvedMod.replace("+", "").trim();
+    const modStr = resolvedMod.replace(/\s+/g, "").replace("+", "").trim();
     const value = parseFloat(modStr);
     if (!isNaN(value)) {
       total += value;

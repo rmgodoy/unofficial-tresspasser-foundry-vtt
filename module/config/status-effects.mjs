@@ -15,6 +15,8 @@ export const TRESPASSER_STATUS_EFFECTS = [
   { id: "toppled",    compendiumId: "SihFJEG1cPOzBaXN", name: "TRESPASSER.States.Toppled",    img: "systems/trespasser/assets/icons/states/Toppled.svg" },
   { id: "shadowy",    compendiumId: "D3tj8ogo4Uygc7Sg", name: "TRESPASSER.States.Shadowy",    img: "systems/trespasser/assets/icons/states/Shadowy.svg" },
   { id: "tenacious",  compendiumId: "ucUF4hsZP7f1fJM6", name: "TRESPASSER.States.Tenacious",  img: "systems/trespasser/assets/icons/states/Tenacious.svg" },
+  { id: "airborne",   compendiumId: "AirBorneStAt0001", name: "TRESPASSER.States.Airborne",   img: "systems/trespasser/assets/icons/states/Airborne.svg" },
+  { id: "sunken",     compendiumId: "SunKenStAtE00001", name: "TRESPASSER.States.Sunken",     img: "systems/trespasser/assets/icons/states/Sunken.svg" },
 
   // Common states
   { id: "accurate",   compendiumId: "Y8qxLMIhwa81ihS5", name: "TRESPASSER.States.Accurate",   img: "systems/trespasser/assets/icons/states/Accurate.svg" },
@@ -56,7 +58,9 @@ export const STATUS_EFFECT_COUNTERS = {
   strong: "weak",
   weak: "strong",
   weary: "willful",
-  willful: "weary"
+  willful: "weary",
+  airborne: "sunken",
+  sunken: "airborne"
 };
 
 /** Status effects that don't have intensity and can be directly toggled without a dialog */
@@ -208,6 +212,88 @@ export const ENCUMBERED_EFFECT_DATA = {
   }
 };
 
+export const AIRBORNE_EFFECT_COMPENDIUM_ID = "AirBorneStAt0001";
+
+export const AIRBORNE_EFFECT_DATA = {
+  name: "Airborne",
+  type: "effect",
+  img: "systems/trespasser/assets/icons/states/Airborne.svg",
+  system: {
+    description: "<p>An airborne creature is flying or floating above the ground. The INTENSITY of this state refers to the creature's altitude in squares, so it is usually referred to as height.</p><p>At airborne 2 or higher, an airborne creature cannot be targeted by melee attacks unless they involve a jump. An airborne creature can always be targeted by missile or spell attacks that target a single creature.</p><p>A blast or burst can target an airborne creature, but only if its area is equal or greater than the creature's height. For example, a blast 4 would target a creature with airborne 4, but not a creature with airborne 5.</p><p>After damaging an airborne creature, a character can use prevail to try to knock it out of the sky. On a success, the creature falls to earth, suffering normal falling damage of 1d6 damage per 2 height lost. A flying creature grounded in this way also gains toppled. A hovering creature does not.</p><p>When a character drags, pulls, or sweeps an airborne creature, they can choose to remove height equal to the squares of the forced movement. If this reduces the creature's height to zero, the creature is dragged to the earth and gains toppled.</p>",
+    type: "continuous",
+    isCombat: true,
+    isOnlyReminder: false,
+    gmOnly: false,
+    intensity: 1,
+    targetAttribute: "elevation",
+    modifier: "<Int>",
+    conferredState: "",
+    when: "immediate",
+    duration: "indefinite",
+    durationValue: 0,
+    durationOperator: "OR",
+    durationConditions: [],
+    intensityIncrement: 0,
+    counterStates: [
+      {
+        uuid: "Item.SunKenStAtE00001",
+        name: "Sunken",
+        img: "systems/trespasser/assets/icons/states/Sunken.svg",
+        type: "effect"
+      }
+    ],
+    isPrevailable: true,
+    statusIcon: "systems/trespasser/assets/icons/states/Airborne.svg",
+    syncStatusIcon: false
+  },
+  flags: {
+    [SYSTEM_ID]: {
+      statusEffectId: "airborne"
+    }
+  }
+};
+
+export const SUNKEN_EFFECT_COMPENDIUM_ID = "SunKenStAtE00001";
+
+export const SUNKEN_EFFECT_DATA = {
+  name: "Sunken",
+  type: "effect",
+  img: "systems/trespasser/assets/icons/states/Sunken.svg",
+  system: {
+    description: "<p>A sunken creature is either swimming underwater or tunneling just beneath the earth. The INTENSITY of this state represents how deep it, so it is usually referred to as depth.</p><p>A sunken creature is protected by the substance it travels in, reducing all damage it takes by half. It can move through other creatures and obstacles and ignores difficult terrain, terrain damage, fields, and other effects on the surface.</p><p>After damaging a sunken creature, a character can use prevail to try to force it out of the water. On a success, the creature is pulled to the surface, losing this state and gaining toppled.</p><p>When a character drags, pulls, or sweeps a sunken creature, they can choose to remove depth equal to the squares of the forced movement. If this reduces the creature's depth to zero, the creature is wrenched to the surface and gains toppled.</p>",
+    type: "continuous",
+    isCombat: true,
+    isOnlyReminder: false,
+    gmOnly: false,
+    intensity: 1,
+    targetAttribute: "elevation",
+    modifier: "-<Int>",
+    conferredState: "",
+    when: "immediate",
+    duration: "indefinite",
+    durationValue: 0,
+    durationOperator: "OR",
+    durationConditions: [],
+    intensityIncrement: 0,
+    counterStates: [
+      {
+        uuid: "Item.AirBorneStAt0001",
+        name: "Airborne",
+        img: "systems/trespasser/assets/icons/states/Airborne.svg",
+        type: "effect"
+      }
+    ],
+    isPrevailable: true,
+    statusIcon: "systems/trespasser/assets/icons/states/Sunken.svg",
+    syncStatusIcon: false
+  },
+  flags: {
+    [SYSTEM_ID]: {
+      statusEffectId: "sunken"
+    }
+  }
+};
+
 export const SPECIAL_STATUS_EFFECT_IDS = new Set([
   "defeated",
   "bloodied",
@@ -216,7 +302,9 @@ export const SPECIAL_STATUS_EFFECT_IDS = new Set([
   "grappled",
   "toppled",
   "shadowy",
-  "tenacious"
+  "tenacious",
+  "airborne",
+  "sunken"
 ]);
 
 export const SPECIAL_STATUS_COMPENDIUM_IDS = new Set([
@@ -227,7 +315,9 @@ export const SPECIAL_STATUS_COMPENDIUM_IDS = new Set([
   "risZeWoRLbDjgmHA",
   "SihFJEG1cPOzBaXN",
   "D3tj8ogo4Uygc7Sg",
-  "ucUF4hsZP7f1fJM6"
+  "ucUF4hsZP7f1fJM6",
+  "AirBorneStAt0001",
+  "SunKenStAtE00001"
 ]);
 
 export const SPECIAL_STATES_FOLDER_ID = "EtoWy6iRAXCIBITx";
