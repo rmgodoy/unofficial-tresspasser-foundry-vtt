@@ -202,9 +202,7 @@ export function prepareHudContext(hud) {
   const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
   const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
   const movePointsLeft = movementAllowed - movementUsed;
-  const baseSpeed = hud._token.actor?.system.combat?.speed ?? 5;
-  const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(hud._token.actor, "speed");
-  const speed = baseSpeed + bonusSpeed;
+  const speed = Math.max(0, hud._token.actor?.system.combat?.speed ?? 5);
   const focus = hud._token.actor?.system.combat?.focus ?? 0;
   const vaultRange = getVaultRange(hud._token);
 

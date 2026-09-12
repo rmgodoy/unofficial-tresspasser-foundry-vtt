@@ -1,4 +1,3 @@
-import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../documents/combat.mjs";
 import { MovementOverlay }         from "../canvas/movement-overlay.mjs";
 import { ForcedMovementHelper }    from "../helpers/forced-movement-helper.mjs";
@@ -43,9 +42,7 @@ export function updateMovementOverlayForPanel(hud, panelId, panelNowOpen) {
     if (panelNowOpen && restrictMovement && hud._token) {
       const combatant = getCombatant(hud._token);
       const availableAP = combatant?.getFlag("trespasser", "actionPoints") ?? 3;
-      const baseSpeed = hud._token.actor?.system.combat?.speed ?? 5;
-      const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(hud._token.actor, "speed");
-      const speed = baseSpeed + bonusSpeed;
+      const speed = Math.max(0, hud._token.actor?.system.combat?.speed ?? 5);
       const vaultRange = getVaultRange(hud._token);
       MovementOverlay.showInformativeOverlay(hud._token, speed, vaultRange, availableAP);
     } else {
@@ -77,9 +74,7 @@ export async function executeMove(hud) {
     return;
   }
 
-  const baseSpeed = hud._token.actor?.system.combat?.speed ?? 5;
-  const bonusSpeed = TrespasserEffectsHelper.getAttributeBonus(hud._token.actor, "speed");
-  const speed = baseSpeed + bonusSpeed;
+  const speed = Math.max(0, hud._token.actor?.system.combat?.speed ?? 5);
   const dist = speed + (cost - 1) * getVaultRange(hud._token);
 
   await combatant.update({

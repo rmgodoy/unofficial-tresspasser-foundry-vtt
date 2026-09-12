@@ -88,14 +88,13 @@ export class TrespasserCreatureData extends foundry.abstract.TypeDataModel {
       this.bonuses[key] = TrespasserEffectsHelper.getAttributeBonus(actor, key);
     }
 
-    // Creature stats stay as pure base values.
-    // Summing for display is handled by get-data.mjs or simple helper logic.
-    this.combat.guard = this.guard;
-    this.combat.resist = this.resist;
-    this.combat.initiative = this.initiative;
-    this.combat.accuracy = this.accuracy; 
-    this.combat.speed = this.speed;
-    this.combat.prevail = this.prevail;
+    // Derived combat stats (including effect bonuses)
+    this.combat.guard = this.guard + (this.bonuses.guard || 0);
+    this.combat.resist = this.resist + (this.bonuses.resist || 0);
+    this.combat.initiative = this.initiative + (this.bonuses.initiative || 0);
+    this.combat.accuracy = this.accuracy + (this.bonuses.accuracy || 0); 
+    this.combat.speed = Math.max(0, this.speed + (this.bonuses.speed || 0));
+    this.combat.prevail = this.prevail + (this.bonuses.prevail || 0);
     this.combat.engagement_range = (this.engagement_range !== undefined && this.engagement_range !== null) ? this.engagement_range : 1;
     const die = this.damage_die || "d6";
     this.combat.damage_die = die;
