@@ -2,13 +2,36 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.2.0] - 2026-08-30
+## [0.2.0] - 2026-08-30 - BETA
 
-- Re-worked deeds from scratch
-- New UI/UX for target selection and movement
+- Re-worked deeds from scratch so now it uses a graph nodes approach to have a more generic, expandable and capable model to automate deeds.
+- New UI/UX for target selection.
+- Added Movement Points to Move action which is separated from native Foundry movement history.
+- Better UX for restric movement mode.
+- Added terrains.
+- Added forced movement.
+- Embbeded Compendium into the system. No need to import the items anymore.
+- Replace all icons from common and special states with [games-icon.net](https://game-icons.net/) icons.
+- Replaced native Foundry status effects with common and special states from rule book.
+- Token HUD to manually manage states directly from the token.
+- Combat tracker shows states and their instensity in each combatant.
+- Added automatic states based on rules:
+  - Bloodied
+  - Tenacious
+  - Encumbered
+  - Engaged
+- Added special movement states: Airborne and Sunken.
+- Added automation to engagement rules that automatically applies the panalties.
+- Added injuries to Compendium (no effect automation, only description and clock size).
+- Refactor all files to a max of 500 LOC.
+- A lot more fixes and small changes that I don't remember.
 
-### New Features
-- Added terrains
+### What's missing
+
+- Full deed creation in compedium. All old ones are broken and need to be manually curated to their functioning state again.
+- Full review of Compendium content. I found somethings that are not RAW and needs to be reviewed.
+- A simplified configuration for deeds, since the graph node system can be overwellming.
+
 
 ## [0.1.5] - 2026-08-30
 

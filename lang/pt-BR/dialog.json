@@ -8,6 +8,7 @@
         "Save": "Salvar",
         "Ok": "Ok",
         "Apply": "Aplicar",
+        "Remove": "Remover",
         "SearchPlaceholder": "Buscar…"
       },
       "Combat": {
@@ -318,7 +319,7 @@
         "EditTitle": "Editar Estado: {name}",
         "Intensity": "Intensidade",
         "AddHint": "Insira a intensidade para este efeito de estado.",
-        "EditHint": "Defina a intensidade como 0 para remover este efeito de estado.",
+        "EditHint": "Ajuste a intensidade, ou clique em Remover para excluir este efeito de estado.",
         "CounterWarning": "Contraria {name} (Atual: {intensity}). As intensidades serão subtraídas."
       }
     }

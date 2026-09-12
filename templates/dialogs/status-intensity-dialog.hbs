@@ -8,17 +8,29 @@
 
   <div class="intensity-field">
     <label for="status-intensity-input">{{localize "TRESPASSER.Dialog.StatusIntensity.Intensity"}}</label>
-    <div class="input-wrapper">
-      <input
-        id="status-intensity-input"
-        type="number"
-        name="intensity"
-        value="{{intensity}}"
-        min="0"
-        step="1"
-        autofocus
-        onclick="this.select()"
-      />
+    <div class="input-row">
+      <div class="input-wrapper">
+        <input
+          id="status-intensity-input"
+          type="number"
+          name="intensity"
+          value="{{intensity}}"
+          min="0"
+          step="1"
+          autofocus
+          onclick="this.select()"
+        />
+      </div>
+      {{#if isEdit}}
+        <button
+          type="button"
+          class="delete-status-btn"
+          data-action="remove"
+          title="{{localize 'TRESPASSER.Dialog.Common.Remove'}}"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      {{/if}}
     </div>
     <span class="hint">
       {{#if isEdit}}
@@ -38,10 +50,10 @@
 
   <footer class="dialog-footer">
     <button type="button" class="trp-btn confirm" data-action="confirm">
-      <i class="fas fa-check"></i> {{localize "TRESPASSER.Dialog.Common.Confirm"}}
+      <i class="fas fa-check"></i> <span>{{localize "TRESPASSER.Dialog.Common.Confirm"}}</span>
     </button>
     <button type="button" class="trp-btn cancel" data-action="cancel">
-      <i class="fas fa-times"></i> {{localize "TRESPASSER.Dialog.Common.Cancel"}}
+      <i class="fas fa-times"></i> <span>{{localize "TRESPASSER.Dialog.Common.Cancel"}}</span>
     </button>
   </footer>
 </div>

@@ -100,7 +100,7 @@ export async function handleStatusEffectToggle(actor, statusId, app = null) {
   }
 
   const isEdit = isActive;
-  const currentIntensity = existingItem ? (existingItem.system?.intensity || 0) : 1;
+  const currentIntensity = existingItem ? (existingItem.system?.intensity ?? 0) : 0;
 
   // Check for active opposing counter state on the actor for informative display
   let counterInfo = null;
@@ -135,38 +135,44 @@ export async function handleStatusEffectToggle(actor, statusId, app = null) {
     return;
   }
 
-  const newIntensity = Math.max(0, parseInt(result.intensity, 10) || 0);
+  if (result.remove) {
+    // Explicit removal requested via Remove button
+    if (existingItem) {
+      await actor.deleteEmbeddedDocuments("Item", [existingItem.id]);
+    }
+
+    const matchingAEs = actor.effects?.filter(ae => ae.statuses?.has(status.id)) || [];
+    if (matchingAEs.length > 0) {
+      await actor.deleteEmbeddedDocuments("ActiveEffect", matchingAEs.map(e => e.id));
+    }
+
+    if (status.id === "defeated" || status.id === CONFIG.specialStatusEffects?.DEFEATED) {
+      const combatant = game.combat?.combatants?.find(c =>
+        c.actorId === actor.id || (actor.isToken && c.tokenId === actor.token?.id)
+      );
+      if (combatant && combatant.defeated) {
+        await combatant.update({ defeated: false });
+      }
+      await TrespasserEffectsHelper.syncActorTenaciousItem(actor);
+    }
+
+    await TrespasserEffectsHelper._performSyncActorTokenEffects(actor);
+    if (app?.rendered) app.render(true);
+    else if (canvas.tokens?.hud?.rendered) canvas.tokens.hud.render(true);
+    return;
+  }
+
+  const parsed = parseInt(result.intensity, 10);
+  const newIntensity = isNaN(parsed) ? 0 : Math.max(0, parsed);
 
   if (isEdit) {
-    if (newIntensity === 0) {
-      // Remove the existing effect
-      if (existingItem) {
-        await actor.deleteEmbeddedDocuments("Item", [existingItem.id]);
-      }
-
-      const matchingAEs = actor.effects?.filter(ae => ae.statuses?.has(status.id)) || [];
-      if (matchingAEs.length > 0) {
-        await actor.deleteEmbeddedDocuments("ActiveEffect", matchingAEs.map(e => e.id));
-      }
-
-      if (status.id === "defeated" || status.id === CONFIG.specialStatusEffects?.DEFEATED) {
-        const combatant = game.combat?.combatants?.find(c =>
-          c.actorId === actor.id || (actor.isToken && c.tokenId === actor.token?.id)
-        );
-        if (combatant && combatant.defeated) {
-          await combatant.update({ defeated: false });
-        }
-      }
-
-      await TrespasserEffectsHelper._performSyncActorTokenEffects(actor);
-      if (app?.rendered) app.render(true);
-      else if (canvas.tokens?.hud?.rendered) canvas.tokens.hud.render(true);
-    } else if (!existingItem) {
+    if (!existingItem) {
       // Was active via loose AE, now setting intensity so create proper Item
       await actor.toggleStatusEffect(status.id, { active: true, intensity: newIntensity });
     } else {
       // Edit existing intensity and resolve any counter states
       let remainingIntensity = newIntensity;
+      let wasCountered = false;
       const counterStates = existingItem.system?.counterStates || [];
 
       if (counterStates.length > 0) {
@@ -175,6 +181,7 @@ export async function handleStatusEffectToggle(actor, statusId, app = null) {
         );
 
         for (const counter of existingCounters) {
+          wasCountered = true;
           if (remainingIntensity <= 0) break;
           const counterIntensity = counter.system.intensity || 0;
 
@@ -188,7 +195,7 @@ export async function handleStatusEffectToggle(actor, statusId, app = null) {
         }
       }
 
-      if (remainingIntensity <= 0) {
+      if (wasCountered && remainingIntensity <= 0) {
         // Counter state completely negated this effect
         await actor.deleteEmbeddedDocuments("Item", [existingItem.id]);
       } else {
@@ -200,12 +207,7 @@ export async function handleStatusEffectToggle(actor, statusId, app = null) {
       else if (canvas.tokens?.hud?.rendered) canvas.tokens.hud.render(true);
     }
   } else {
-    // Adding new effect
-    if (newIntensity === 0) {
-      return;
-    }
-
-    // Add the effect with specified intensity; preCreateItem handles counter state resolution
+    // Adding new effect (supports intensity 0; preCreateItem handles counter state resolution)
     await actor.toggleStatusEffect(status.id, { active: true, intensity: newIntensity });
   }
 }

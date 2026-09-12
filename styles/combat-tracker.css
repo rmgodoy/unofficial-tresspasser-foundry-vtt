@@ -154,7 +154,7 @@
   position: absolute;
   bottom: -3px;
   right: -3px;
-  font-size: var(--fs-8);
+  font-size: var(--fs-12);
   font-weight: 700;
   background: var(--trp-bg-header);
   color: var(--trp-gold-bright);

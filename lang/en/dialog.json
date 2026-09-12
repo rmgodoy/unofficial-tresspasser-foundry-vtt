@@ -8,6 +8,7 @@
         "Save": "Save",
         "Ok": "Ok",
         "Apply": "Apply",
+        "Remove": "Remove",
         "SearchPlaceholder": "Search…"
       },
       "Combat": {
@@ -318,7 +319,7 @@
         "EditTitle": "Edit Status: {name}",
         "Intensity": "Intensity",
         "AddHint": "Enter the intensity for this status effect.",
-        "EditHint": "Set intensity to 0 to remove this status effect.",
+        "EditHint": "Adjust intensity, or click Remove to delete this status effect.",
         "CounterWarning": "Counters {name} (Current: {intensity}). Intensities will subtract."
       }
     }

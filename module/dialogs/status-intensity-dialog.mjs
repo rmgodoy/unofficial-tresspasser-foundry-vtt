@@ -9,7 +9,7 @@ export class StatusIntensityDialog extends HandlebarsApplicationMixin(Applicatio
   constructor(options = {}) {
     super(options);
     this.status = options.status || {};
-    this.currentIntensity = options.currentIntensity ?? (options.isEdit ? 0 : 1);
+    this.currentIntensity = options.currentIntensity ?? 0;
     this.isEdit = Boolean(options.isEdit);
     this.counterInfo = options.counterInfo || null;
     this.resolve = null;
@@ -26,6 +26,7 @@ export class StatusIntensityDialog extends HandlebarsApplicationMixin(Applicatio
     },
     actions: {
       confirm: StatusIntensityDialog.#onConfirmAction,
+      remove: StatusIntensityDialog.#onRemoveAction,
       cancel: StatusIntensityDialog.#onCancelAction
     },
     form: {
@@ -44,12 +45,12 @@ export class StatusIntensityDialog extends HandlebarsApplicationMixin(Applicatio
    * Helper to open the dialog and wait for user input.
    * @param {object} options
    * @param {object} options.status - The status effect definition object from TRESPASSER_STATUS_EFFECTS
-   * @param {number} [options.currentIntensity] - Current intensity (if editing) or default
+   * @param {number} [options.currentIntensity=0] - Current intensity (if editing) or default (0)
    * @param {boolean} [options.isEdit=false] - Whether this is an edit of an existing effect
    * @param {object|null} [options.counterInfo=null] - Optional info about opposing counter state on the actor
-   * @returns {Promise<{intensity: number}|null>} Result with intensity, or null if cancelled
+   * @returns {Promise<{intensity: number}|{remove: true}|null>} Result with intensity or remove flag, or null if cancelled
    */
-  static async wait({ status, currentIntensity = 1, isEdit = false, counterInfo = null } = {}) {
+  static async wait({ status, currentIntensity = 0, isEdit = false, counterInfo = null } = {}) {
     return new Promise((resolve) => {
       const statusName = game.i18n.localize(status.name) || status.id;
       const titleKey = isEdit
@@ -62,6 +63,7 @@ export class StatusIntensityDialog extends HandlebarsApplicationMixin(Applicatio
         currentIntensity,
         isEdit,
         counterInfo,
+        position: { width: 320 },
         window: { title }
       });
 
@@ -137,6 +139,15 @@ export class StatusIntensityDialog extends HandlebarsApplicationMixin(Applicatio
 
     if (this.resolve) {
       this.resolve({ intensity });
+      this.resolve = null;
+    }
+    this.close();
+  }
+
+  static async #onRemoveAction(event, target) {
+    event.preventDefault();
+    if (this.resolve) {
+      this.resolve({ remove: true });
       this.resolve = null;
     }
     this.close();
