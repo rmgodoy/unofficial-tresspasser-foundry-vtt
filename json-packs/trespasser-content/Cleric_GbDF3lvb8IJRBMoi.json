@@ -113,7 +113,7 @@
     "progression": [
       {
         "level": 0,
-        "xp": 20,
+        "xp": 0,
         "hp": 5,
         "skillBonus": 2,
         "skillDie": "d6",
@@ -125,7 +125,7 @@
       },
       {
         "level": 1,
-        "xp": 30,
+        "xp": 20,
         "hp": 10,
         "skillBonus": 2,
         "skillDie": "d6",
@@ -137,7 +137,7 @@
       },
       {
         "level": 2,
-        "xp": 40,
+        "xp": 30,
         "hp": 15,
         "skillBonus": 2,
         "skillDie": "d6",
@@ -149,7 +149,7 @@
       },
       {
         "level": 3,
-        "xp": 50,
+        "xp": 40,
         "hp": 20,
         "skillBonus": 3,
         "skillDie": "d8",
@@ -161,7 +161,7 @@
       },
       {
         "level": 4,
-        "xp": 60,
+        "xp": 50,
         "hp": 25,
         "skillBonus": 3,
         "skillDie": "d8",
@@ -173,7 +173,7 @@
       },
       {
         "level": 5,
-        "xp": 70,
+        "xp": 60,
         "hp": 30,
         "skillBonus": 3,
         "skillDie": "d8",
@@ -185,19 +185,19 @@
       },
       {
         "level": 6,
-        "xp": 80,
+        "xp": 70,
         "hp": 35,
         "skillBonus": 4,
         "skillDie": "d10",
         "attributePoints": 7,
         "callingAbilities": "Enhancement",
-        "deedsLight": 3,
+        "deedsLight": 4,
         "deedsHeavy": 3,
         "deedsMighty": 2
       },
       {
         "level": 7,
-        "xp": 90,
+        "xp": 80,
         "hp": 40,
         "skillBonus": 4,
         "skillDie": "d10",
@@ -209,13 +209,13 @@
       },
       {
         "level": 8,
-        "xp": 100,
+        "xp": 90,
         "hp": 45,
         "skillBonus": 4,
         "skillDie": "d10",
         "attributePoints": 9,
         "callingAbilities": "Talent",
-        "deedsLight": 4,
+        "deedsLight": 5,
         "deedsHeavy": 4,
         "deedsMighty": 3
       },
@@ -227,7 +227,7 @@
         "skillDie": "d12",
         "attributePoints": 10,
         "callingAbilities": "Enhancement",
-        "deedsLight": 4,
+        "deedsLight": 5,
         "deedsHeavy": 4,
         "deedsMighty": 4
       }

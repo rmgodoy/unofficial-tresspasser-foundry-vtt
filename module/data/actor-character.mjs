@@ -24,7 +24,7 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
 
       // Progression
       xp:               new fields.NumberField({ required: true, integer: true, initial: 0, min: 0 }),
-      xp_to_next_level: new fields.NumberField({ required: true, integer: true, initial: 10, min: 0 }),
+      xp_to_next_level: new fields.NumberField({ required: true, integer: true, initial: 0, min: 0 }),
       skill:            new fields.NumberField({ required: true, integer: true, initial: 2, min: 0 }),
       skill_die:        new fields.StringField({ initial: "d6" }),
       key_attribute:    new fields.StringField({ initial: "mighty", choices: ["mighty", "agility", "intellect", "spirit"] }),
@@ -183,7 +183,7 @@ export class TrespasserCharacterData extends foundry.abstract.TypeDataModel {
     const currentTableData = progression[Math.min(level, progression.length - 1)];
 
     // 1. Progression Advancement (Needs to happen before bonuses if effects use <sb>)
-    this.xp_to_next_level = currentTableData.xp || (level * 10);
+    this.xp_to_next_level = currentTableData?.xp ?? (level >= 9 || level === 0 ? 0 : (level + 1) * 10);
     this.skill = currentTableData.skillBonus || (2 + Math.floor(level / 3));
     this.skill_die = currentTableData.skillDie || "d6";
 
