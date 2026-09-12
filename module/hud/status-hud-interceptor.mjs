@@ -5,6 +5,7 @@ import {
 } from "../config/status-effects.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { StatusIntensityDialog } from "../dialogs/status-intensity-dialog.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Finds a matching status effect definition from TRESPASSER_STATUS_EFFECTS.
@@ -53,6 +54,7 @@ export async function handleStatusEffectToggle(actor, statusId, app = null) {
       i.getFlag("trespasser", "statusEffectId") === status.id ||
       (status.id === "bloodied" && i.getFlag("trespasser", "isBloodiedState")) ||
       (status.id === "tenacious" && i.getFlag("trespasser", "isTenaciousState")) ||
+      (status.id === "engaged" && i.getFlag(SYSTEM_ID, "isEngagedState")) ||
       (status.compendiumId && (
         i.flags?.core?.sourceId?.includes(status.compendiumId) ||
         i._stats?.compendiumSource?.includes(status.compendiumId)

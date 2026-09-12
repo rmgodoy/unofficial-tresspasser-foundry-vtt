@@ -1,0 +1,51 @@
+{
+  "folder": "EtoWy6iRAXCIBITx",
+  "name": "Engaged",
+  "type": "effect",
+  "_id": "EnGagedStAte0001",
+  "img": "systems/trespasser/assets/icons/states/Engaged.svg",
+  "system": {
+    "description": "<p>An engaged creature suffers -2 accuracy with missile and spell deeds, unless the deed targets an adjacent creature, a burst, close blast, or close path.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": false,
+    "statusIcon": "systems/trespasser/assets/icons/states/Engaged.svg"
+  },
+  "effects": [],
+  "flags": {
+    "trespasser": {
+      "isEngagedState": true,
+      "statusEffectId": "engaged"
+    }
+  },
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788358180711,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!EnGagedStAte0001"
+}

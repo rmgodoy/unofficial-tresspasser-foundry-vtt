@@ -6,6 +6,8 @@ import { TargetingHelper } from "./targeting-helper.mjs";
 import { RangeHelper } from "./range-helper.mjs";
 import { getEffectiveDeedAttributes } from "./deed-behaviors/roll-accuracy.mjs";
 import { getActiveWeapons } from "../sheets/character/handlers-combat.mjs";
+import { TrespasserEffectsHelper } from "./effects-helper.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 export class EngagementHelper {
   /**
@@ -31,6 +33,15 @@ export class EngagementHelper {
    * @returns {boolean}
    */
   static isActorEngaged(actor) {
+    if (!actor) return false;
+    const hasEngagedEffect = actor.items?.some(i =>
+      i.type === "effect" && (
+        i.getFlag(SYSTEM_ID, "isEngagedState") === true ||
+        i.getFlag(SYSTEM_ID, "statusEffectId") === "engaged" ||
+        i.name?.toLowerCase() === "engaged"
+      )
+    );
+    if (hasEngagedEffect) return true;
     const token = this.getActorToken(actor);
     return token ? TargetingHelper.isEngaged(token) : false;
   }
@@ -166,8 +177,23 @@ export class EngagementHelper {
    * Debounced function to refresh all tokens and open actor sheets
    * when token positions or combat state change.
    */
-  static refreshAllEngagement = foundry.utils.debounce(() => {
+  static refreshAllEngagement = foundry.utils.debounce(async () => {
     if (!canvas?.ready || !canvas.tokens?.placeables) return;
+
+    // Synchronize engaged effect items for actors on canvas
+    if (game.user?.isGM) {
+      const seenActors = new Set();
+      const syncPromises = [];
+      for (const token of canvas.tokens.placeables) {
+        const actor = token.actor;
+        const actorKey = actor?.uuid || actor?.id;
+        if (actor && actorKey && !seenActors.has(actorKey)) {
+          seenActors.add(actorKey);
+          syncPromises.push(TrespasserEffectsHelper.syncActorEngagedItem(actor));
+        }
+      }
+      await Promise.allSettled(syncPromises);
+    }
 
     // Refresh token visual states
     for (const token of canvas.tokens.placeables) {

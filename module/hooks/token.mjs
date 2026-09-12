@@ -42,7 +42,8 @@ export function registerTokenHooks() {
     if (actor) {
       Promise.all([
         TrespasserEffectsHelper.syncActorBloodiedItem(actor),
-        TrespasserEffectsHelper.syncActorTenaciousItem(actor)
+        TrespasserEffectsHelper.syncActorTenaciousItem(actor),
+        TrespasserEffectsHelper.syncActorEngagedItem(actor)
       ]).then(() => {
         TrespasserEffectsHelper.syncActorTokenEffects(actor);
       });
@@ -75,7 +76,8 @@ export function registerTokenHooks() {
     if (actor && game.user.isGM) {
       Promise.all([
         TrespasserEffectsHelper.syncActorBloodiedItem(actor),
-        TrespasserEffectsHelper.syncActorTenaciousItem(actor)
+        TrespasserEffectsHelper.syncActorTenaciousItem(actor),
+        TrespasserEffectsHelper.syncActorEngagedItem(actor)
       ]).then(() => {
         TrespasserEffectsHelper.syncActorTokenEffects(actor);
       });
@@ -105,10 +107,7 @@ export function registerTokenHooks() {
     }
 
     const actor = token.actor ?? token.document?.actor;
-    const activeKeys = Object.entries(states).filter(([key, v]) => v && key !== "bloody" && key !== "tenacious" && (actor?.type === "character" || key !== "encumbered"));
-    if (isEngaged) {
-      activeKeys.push(["engaged", true]);
-    }
+    const activeKeys = Object.entries(states).filter(([key, v]) => v && key !== "bloody" && key !== "tenacious" && key !== "engaged" && (actor?.type === "character" || key !== "encumbered"));
     if (activeKeys.length === 0) return;
 
     const iconScale = game.settings.get("trespasser", "tokenStatusIconScale") ?? 1.0;

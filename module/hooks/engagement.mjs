@@ -1,4 +1,5 @@
 import { EngagementHelper } from "../helpers/engagement-helper.mjs";
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
  * Register tactical engagement synchronization hooks.
@@ -12,7 +13,15 @@ export function registerEngagementHooks() {
   });
 
   Hooks.on("createToken", () => EngagementHelper.refreshAllEngagement());
-  Hooks.on("deleteToken", () => EngagementHelper.refreshAllEngagement());
+  Hooks.on("deleteToken", (tokenDoc) => {
+    if (game.user?.isGM && tokenDoc.actor) {
+      const remaining = tokenDoc.actor.getActiveTokens?.(false, false) || [];
+      if (remaining.length <= 1) {
+        TrespasserEffectsHelper.syncActorEngagedItem(tokenDoc.actor, false);
+      }
+    }
+    EngagementHelper.refreshAllEngagement();
+  });
 
   Hooks.on("updateActor", (actor, changed) => {
     if (changed.system?.health !== undefined || changed.system?.equipment !== undefined ||

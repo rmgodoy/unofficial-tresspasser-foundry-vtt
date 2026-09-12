@@ -3,11 +3,13 @@
  * Defines the custom status effect palette (CONFIG.statusEffects)
  * and the default compendium Bloodied effect data.
  */
+import { SYSTEM_ID } from "../system-id.mjs";
 
 export const TRESPASSER_STATUS_EFFECTS = [
   // Special states
   { id: "defeated",   compendiumId: "6FxfJOtvNfItQmCO", name: "TRESPASSER.States.Defeated",   img: "systems/trespasser/assets/icons/states/Defeated.svg" },
   { id: "bloodied",   compendiumId: "4xEKVGCw0Xw71JBR", name: "TRESPASSER.States.Bloodied",   img: "systems/trespasser/assets/icons/states/Bloodied.svg" },
+  { id: "engaged",    compendiumId: "EnGagedStAte0001", name: "TRESPASSER.States.Engaged",    img: "systems/trespasser/assets/icons/states/Engaged.svg" },
   { id: "grappled",   compendiumId: "risZeWoRLbDjgmHA", name: "TRESPASSER.States.Grappled",   img: "systems/trespasser/assets/icons/states/Grappled.svg" },
   { id: "toppled",    compendiumId: "SihFJEG1cPOzBaXN", name: "TRESPASSER.States.Toppled",    img: "systems/trespasser/assets/icons/states/Toppled.svg" },
   { id: "shadowy",    compendiumId: "D3tj8ogo4Uygc7Sg", name: "TRESPASSER.States.Shadowy",    img: "systems/trespasser/assets/icons/states/Shadowy.svg" },
@@ -60,6 +62,7 @@ export const STATUS_EFFECT_COUNTERS = {
 export const TOGGLE_ONLY_STATUS_EFFECTS = new Set([
   "bloodied",
   "defeated",
+  "engaged",
   "shadowy",
   "tenacious"
 ]);
@@ -129,6 +132,41 @@ export const TENACIOUS_EFFECT_DATA = {
     trespasser: {
       isTenaciousState: true,
       statusEffectId: "tenacious"
+    }
+  }
+};
+
+export const ENGAGED_EFFECT_COMPENDIUM_ID = "EnGagedStAte0001";
+
+export const ENGAGED_EFFECT_DATA = {
+  name: "Engaged",
+  type: "effect",
+  img: "systems/trespasser/assets/icons/states/Engaged.svg",
+  system: {
+    description: "<p>An engaged creature suffers -2 accuracy with missile and spell deeds, unless the deed targets an adjacent creature, a burst, close blast, or close path.</p>",
+    type: "continuous",
+    isCombat: true,
+    isOnlyReminder: true,
+    gmOnly: false,
+    intensity: 0,
+    targetAttribute: "health",
+    modifier: "0",
+    conferredState: "",
+    when: "immediate",
+    duration: "indefinite",
+    durationValue: 0,
+    durationOperator: "OR",
+    durationConditions: [],
+    intensityIncrement: 0,
+    counterStates: [],
+    isPrevailable: false,
+    statusIcon: "systems/trespasser/assets/icons/states/Engaged.svg",
+    syncStatusIcon: false
+  },
+  flags: {
+    [SYSTEM_ID]: {
+      isEngagedState: true,
+      statusEffectId: "engaged"
     }
   }
 };

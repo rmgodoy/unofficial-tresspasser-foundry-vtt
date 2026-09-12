@@ -30,6 +30,7 @@ import {
   STATUS_EFFECT_COUNTERS,
   TOGGLE_ONLY_STATUS_EFFECTS
 } from "../config/status-effects.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Custom Actor document class for Trespasser TTRPG.
@@ -59,6 +60,7 @@ export class TrespasserActor extends Actor {
         i.getFlag("trespasser", "statusEffectId") === status.id ||
         (status.id === "bloodied" && i.getFlag("trespasser", "isBloodiedState")) ||
         (status.id === "tenacious" && i.getFlag("trespasser", "isTenaciousState")) ||
+        (status.id === "engaged" && i.getFlag(SYSTEM_ID, "isEngagedState")) ||
         (status.compendiumId && (
           i.flags?.core?.sourceId?.includes(status.compendiumId) ||
           i._stats?.compendiumSource?.includes(status.compendiumId)
@@ -140,17 +142,20 @@ export class TrespasserActor extends Actor {
       delete itemData.ownership;
       delete itemData._key;
       itemData.flags = itemData.flags || {};
-      itemData.flags.trespasser = itemData.flags.trespasser || {};
-      itemData.flags.trespasser.statusEffectId = status.id;
+      itemData.flags[SYSTEM_ID] = itemData.flags[SYSTEM_ID] || {};
+      itemData.flags[SYSTEM_ID].statusEffectId = status.id;
       if (status.compendiumId) {
         itemData.flags.core = itemData.flags.core || {};
-        itemData.flags.core.sourceId = `Compendium.trespasser.trespasser-content.Item.${status.compendiumId}`;
+        itemData.flags.core.sourceId = `Compendium.${SYSTEM_ID}.trespasser-content.Item.${status.compendiumId}`;
       }
       if (status.id === "bloodied") {
-        itemData.flags.trespasser.isBloodiedState = true;
+        itemData.flags[SYSTEM_ID].isBloodiedState = true;
       }
       if (status.id === "tenacious") {
-        itemData.flags.trespasser.isTenaciousState = true;
+        itemData.flags[SYSTEM_ID].isTenaciousState = true;
+      }
+      if (status.id === "engaged") {
+        itemData.flags[SYSTEM_ID].isEngagedState = true;
       }
 
       const created = await this.createEmbeddedDocuments("Item", [itemData]);

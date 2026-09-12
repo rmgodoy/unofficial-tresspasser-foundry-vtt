@@ -12,7 +12,7 @@ export const PASSIVE_STATES = {
     tint: "#ffa726"
   },
   engaged: {
-    icon: "systems/trespasser/assets/icons/state-engaged.svg",
+    icon: "systems/trespasser/assets/icons/states/Engaged.svg",
     label: "TRESPASSER.State.Engaged.Name",
     description: "TRESPASSER.State.Engaged.Description",
     tint: "#c9a84c"

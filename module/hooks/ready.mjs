@@ -142,6 +142,7 @@ export function registerReadyHooks() {
         if (token.actor && game.user.isGM) {
           TrespasserEffectsHelper.syncActorBloodiedItem(token.actor);
           TrespasserEffectsHelper.syncActorTenaciousItem(token.actor);
+          TrespasserEffectsHelper.syncActorEngagedItem(token.actor);
           TrespasserEffectsHelper.syncActorTokenEffects(token.actor);
         }
       }

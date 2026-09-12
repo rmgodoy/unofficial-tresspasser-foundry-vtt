@@ -3,8 +3,11 @@ import {
   BLOODIED_EFFECT_COMPENDIUM_ID,
   BLOODIED_EFFECT_DATA,
   TENACIOUS_EFFECT_COMPENDIUM_ID,
-  TENACIOUS_EFFECT_DATA
+  TENACIOUS_EFFECT_DATA,
+  ENGAGED_EFFECT_COMPENDIUM_ID,
+  ENGAGED_EFFECT_DATA
 } from "../config/status-effects.mjs";
+import { TargetingHelper } from "../helpers/targeting-helper.mjs";
 import { SYSTEM_ID } from "../system-id.mjs";
 
 const _syncTimers = new Map();
@@ -12,6 +15,7 @@ const _inFlightSyncs = new Set();
 const _pendingReSyncs = new Set();
 const _bloodiedSyncLocks = new Set();
 const _tenaciousSyncLocks = new Set();
+const _engagedSyncLocks = new Set();
 
 /**
  * Resolves whether an actor's item represents one of the 27 custom Trespasser states.
@@ -33,6 +37,10 @@ export function getMatchingCustomStatus(item) {
 
   if (item.getFlag(SYSTEM_ID, "isTenaciousState") || item.name === "Tenacious") {
     return TRESPASSER_STATUS_EFFECTS.find(s => s.id === "tenacious") || null;
+  }
+
+  if (item.getFlag(SYSTEM_ID, "isEngagedState") || item.name === "Engaged") {
+    return TRESPASSER_STATUS_EFFECTS.find(s => s.id === "engaged") || null;
   }
 
   const sourceId = item.flags?.core?.sourceId || item._stats?.compendiumSource;
@@ -239,6 +247,53 @@ export async function syncActorTenaciousItem(actor) {
     console.error(`Trespasser | Failed to sync tenacious item for actor ${actor.name}:`, err);
   } finally {
     _tenaciousSyncLocks.delete(actorKey);
+  }
+}
+
+/**
+ * Synchronizes the compendium Engaged effect item on the actor based on tactical engagement.
+ * @param {Actor} actor
+ * @param {boolean} [engagedOverride]
+ */
+export async function syncActorEngagedItem(actor, engagedOverride) {
+  if (!actor) return;
+  const actorKey = actor.uuid || actor.id;
+  if (!actorKey || _engagedSyncLocks.has(actorKey)) return;
+  _engagedSyncLocks.add(actorKey);
+
+  try {
+    const token = actor.token?.object || actor.getActiveTokens?.(false, false)?.[0] || actor.getActiveTokens?.()[0] || canvas.tokens?.placeables?.find(t => t.actor?.id === actor.id || t.document?.actorId === actor.id) || null;
+    const isEngaged = engagedOverride !== undefined
+      ? Boolean(engagedOverride)
+      : (token ? TargetingHelper.isEngaged(token) : false);
+
+    const engagedItem = actor.items.find(i =>
+      i.type === "effect" && (i.getFlag(SYSTEM_ID, "isEngagedState") === true || i.name === "Engaged")
+    );
+
+    if (isEngaged && !engagedItem) {
+      let itemData = null;
+      const pack = game.packs?.get(`${SYSTEM_ID}.trespasser-content`);
+      if (pack) {
+        try {
+          const doc = await pack.getDocument(ENGAGED_EFFECT_COMPENDIUM_ID);
+          if (doc) itemData = doc.toObject();
+        } catch (_) {}
+      }
+      if (!itemData) itemData = foundry.utils.deepClone(ENGAGED_EFFECT_DATA);
+      delete itemData._id;
+      itemData.flags = itemData.flags || {};
+      itemData.flags[SYSTEM_ID] = itemData.flags[SYSTEM_ID] || {};
+      itemData.flags[SYSTEM_ID].isEngagedState = true;
+      itemData.flags[SYSTEM_ID].statusEffectId = "engaged";
+      await actor.createEmbeddedDocuments("Item", [itemData]);
+    } else if (!isEngaged && engagedItem && engagedItem.getFlag(SYSTEM_ID, "isEngagedState")) {
+      await actor.deleteEmbeddedDocuments("Item", [engagedItem.id]);
+    }
+  } catch (err) {
+    console.error(`Trespasser | Failed to sync engaged item for actor ${actor.name}:`, err);
+  } finally {
+    _engagedSyncLocks.delete(actorKey);
   }
 }
 
