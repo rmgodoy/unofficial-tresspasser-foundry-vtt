@@ -59,6 +59,15 @@ export async function handleDeedActionRequest(payload, senderId) {
       case "forceMoveTokens":
         result = await _handleForceMoveTokens(data);
         break;
+      case "updateChatMessage":
+        result = await _handleUpdateChatMessage(data);
+        break;
+      case "deleteChatMessage":
+        result = await _handleDeleteChatMessage(data);
+        break;
+      case "setCombatantFlag":
+        result = await _handleSetCombatantFlag(data);
+        break;
     }
   } catch (err) {
     console.error(`Trespasser | Deed Action failed for ${action}`, err);
@@ -231,4 +240,32 @@ async function _handleForceMoveTokens(data) {
   }
   
   return true;
+}
+
+async function _handleUpdateChatMessage(data) {
+  const msg = game.messages.get(data.messageId);
+  if (msg) {
+    await msg.update(data.updateData);
+    return true;
+  }
+  return false;
+}
+
+async function _handleDeleteChatMessage(data) {
+  const msg = game.messages.get(data.messageId);
+  if (msg) {
+    await msg.delete();
+    return true;
+  }
+  return false;
+}
+
+async function _handleSetCombatantFlag(data) {
+  const combat = game.combat;
+  const combatant = combat?.combatants?.get(data.combatantId);
+  if (combatant) {
+    await combatant.setFlag(data.scope || "trespasser", data.key, data.value);
+    return true;
+  }
+  return false;
 }

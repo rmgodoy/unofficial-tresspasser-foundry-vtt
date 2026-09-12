@@ -168,8 +168,10 @@ export async function executeCreatureDefenseRoll({
 
   // Post accuracy result in chat immediately before spark dialog
   context.accuracyCardPosted = true;
-  if (context.executor) {
-    await context.executor._postPhaseCard(phaseKey, context.executor.system?.phases?.[phaseKey], true);
+  if (context.executor?.chat) {
+    await context.executor.chat.postOrUpdatePhaseCard(phaseKey);
+  } else if (context.executor) {
+    await context.executor._postPhaseCard(phaseKey);
   }
 
   let sparkChoices = null;

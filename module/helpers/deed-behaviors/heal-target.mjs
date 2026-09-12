@@ -64,8 +64,10 @@ export class HealTargetBehavior {
       `);
 
       // Post preliminary roll immediately to chat so all players can see what was rolled
-      if (context.executor) {
-        await context.executor._postPhaseCard(phaseKey, context.executor.phases?.[phaseKey], true);
+      if (context.executor?.chat) {
+        await context.executor.chat.postOrUpdatePhaseCard(phaseKey);
+      } else if (context.executor) {
+        await context.executor._postPhaseCard(phaseKey);
       }
 
       distributedHealingMap = await askDistributionDialog({
@@ -80,8 +82,10 @@ export class HealTargetBehavior {
         const rollIdx = context.currentPhaseOutputs.rolls.indexOf(baseRoll);
         if (rollIdx >= 0) context.currentPhaseOutputs.rolls.splice(rollIdx, 1);
 
-        if (context.executor) {
-          await context.executor._postPhaseCard(phaseKey, context.executor.phases?.[phaseKey], true);
+        if (context.executor?.chat) {
+          await context.executor.chat.postOrUpdatePhaseCard(phaseKey);
+        } else if (context.executor) {
+          await context.executor._postPhaseCard(phaseKey);
         }
         return false; // Execution cancelled by user
       }

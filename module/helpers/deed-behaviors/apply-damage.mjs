@@ -112,8 +112,10 @@ export class ApplyDamageBehavior {
       `);
 
       // Post preliminary roll immediately to chat so all players can see what was rolled
-      if (context.executor) {
-        await context.executor._postPhaseCard(phaseKey, context.executor.phases?.[phaseKey], true);
+      if (context.executor?.chat) {
+        await context.executor.chat.postOrUpdatePhaseCard(phaseKey);
+      } else if (context.executor) {
+        await context.executor._postPhaseCard(phaseKey);
       }
 
       distributedDamageMap = await askDistributionDialog({
@@ -128,8 +130,10 @@ export class ApplyDamageBehavior {
         const rollIdx = context.currentPhaseOutputs.rolls.indexOf(combinedRoll);
         if (rollIdx >= 0) context.currentPhaseOutputs.rolls.splice(rollIdx, 1);
 
-        if (context.executor) {
-          await context.executor._postPhaseCard(phaseKey, context.executor.phases?.[phaseKey], true);
+        if (context.executor?.chat) {
+          await context.executor.chat.postOrUpdatePhaseCard(phaseKey);
+        } else if (context.executor) {
+          await context.executor._postPhaseCard(phaseKey);
         }
         return false; // Execution cancelled by user
       }

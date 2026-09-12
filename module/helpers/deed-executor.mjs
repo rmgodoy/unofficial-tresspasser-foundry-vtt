@@ -7,6 +7,7 @@ import {
   handleThrownWeapons
 } from "./deed-executor/deed-executor-resources.mjs";
 import {
+  DeedChatHelper,
   hasOutputsToPost,
   postPhaseCard,
   postAllPhaseCards
@@ -16,6 +17,7 @@ export {
   validateResources,
   commitResourceUsage,
   handleThrownWeapons,
+  DeedChatHelper,
   hasOutputsToPost,
   postPhaseCard,
   postAllPhaseCards
@@ -65,6 +67,7 @@ export class DeedExecutor {
       apBonus: 0
     };
 
+    this.chat = new DeedChatHelper(this);
     this._currentPhaseKey = null;
     this._activePhases = new Set();
     this._phaseOutputs = new Map();
@@ -87,15 +90,15 @@ export class DeedExecutor {
   }
 
   async _postAllPhaseCards() {
-    return postAllPhaseCards(this);
+    return this.chat.postAllPhaseCards();
   }
 
   _hasOutputsToPost(phaseKey) {
-    return hasOutputsToPost(this, phaseKey);
+    return this.chat.hasOutputsToPost(phaseKey);
   }
 
-  async _postPhaseCard(phaseKey, phase, outputs = null) {
-    return postPhaseCard(this, phaseKey, phase, outputs);
+  async _postPhaseCard(phaseKey, phase = null, outputs = null) {
+    return this.chat.postOrUpdatePhaseCard(phaseKey, phase, outputs);
   }
 
   /**
@@ -118,6 +121,7 @@ export class DeedExecutor {
 
     this._activePhases.clear();
     this._phaseOutputs.clear();
+    this.chat.reset();
 
     const visited = new Set();
     const cancelled = await this._traverseNode(startNode.id, visited, null, "start");
@@ -126,6 +130,8 @@ export class DeedExecutor {
       await this._handleThrownWeapons();
       await this._postAllPhaseCards();
       await this._commitResourceUsage();
+    } else {
+      await this.chat.cleanupCancelled();
     }
 
     this.context.targets = [];
@@ -201,6 +207,7 @@ export class DeedExecutor {
     await this._executeBehavior(refNode, refNode.phase || "base");
     refNode._alreadyExecuted = true;
     this._executedNodes.add(refNode.id);
+    await this.chat.onBehaviorExecuted(refNode.phase || "base", refNode);
   }
 
   async _resolveReferences(node, visited) {
@@ -262,6 +269,7 @@ export class DeedExecutor {
       const result = await this._executeBehavior(node, effectivePhase);
       this._executedNodes.add(node.id);
       node._alreadyExecuted = true;
+      await this.chat.onBehaviorExecuted(effectivePhase, node);
       if (result === false) return true;
     } else if (this.system.phases?.start?.description?.trim() && !this.system.phases?.start?.skipPhase) {
       await this._switchPhase("start");
@@ -343,5 +351,6 @@ export class DeedExecutor {
       this._phaseOutputs.set(newPhaseKey, { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" });
     }
     this.context.currentPhaseOutputs = this._phaseOutputs.get(newPhaseKey);
+    await this.chat.onPhaseSwitched(newPhaseKey);
   }
 }

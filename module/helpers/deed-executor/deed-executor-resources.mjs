@@ -75,7 +75,18 @@ export async function commitResourceUsage(executor) {
 
   if (combatant && executor.context.apSpent > 0) {
     const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - executor.context.apSpent));
+    const newAP = Math.max(0, availableAP - executor.context.apSpent);
+    if (combatant.canUserModify(game.user, "update")) {
+      await combatant.setFlag("trespasser", "actionPoints", newAP);
+    } else {
+      const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
+      await emitDeedActionAndWait("setCombatantFlag", {
+        combatantId: combatant.id,
+        scope: "trespasser",
+        key: "actionPoints",
+        value: newAP
+      });
+    }
   }
 
   if (executor.context.totalFocusCost > 0) {
