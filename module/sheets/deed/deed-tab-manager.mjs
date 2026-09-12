@@ -8,10 +8,12 @@ import { SYSTEM_ID } from "../../system-id.mjs";
 /**
  * Handles tab change operations and layout sizing for the deed sheet.
  * @param {object} sheet - TrespasserDeedSheet instance
- * @param {PointerEvent} event
+ * @param {PointerEvent|Event} event
+ * @param {HTMLElement} [target]
  */
-export async function onTabChange(sheet, event) {
-  const tab = event.currentTarget.dataset.tab;
+export async function handleDeedSwitchTab(sheet, event, target) {
+  event?.preventDefault?.();
+  const tab = target?.dataset?.tab || event?.currentTarget?.dataset?.tab;
   if (tab && sheet.constructor.TABS[tab]) {
     const prevTab = sheet.tabGroups.primary;
     if (tab === prevTab) return;
@@ -57,3 +59,5 @@ export async function onTabChange(sheet, event) {
     sheet.render();
   }
 }
+
+export { handleDeedSwitchTab as onTabChange };
