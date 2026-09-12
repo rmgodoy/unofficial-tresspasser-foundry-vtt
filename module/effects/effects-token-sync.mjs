@@ -247,7 +247,7 @@ export async function syncActorTenaciousItem(actor) {
  */
 export async function syncActorEngagedItem(actor, engagedOverride) {
   if (!actor) return;
-  const token = actor.token?.object || actor.getActiveTokens?.(false, false)?.[0] || actor.getActiveTokens?.()[0] || canvas.tokens?.placeables?.find(t => t.actor?.id === actor.id || t.document?.actorId === actor.id) || null;
+  const token = actor.token?.object || (actor.getActiveTokens?.(true, false)?.[0]) || null;
   const isActive = engagedOverride !== undefined ? Boolean(engagedOverride) : (token ? TargetingHelper.isEngaged(token) : false);
   return _syncSpecialStateItem(actor, {
     lockSet: _engagedSyncLocks,
@@ -414,7 +414,7 @@ export function refreshTokensForActor(actor) {
   for (const tokenObj of canvas.tokens.placeables) {
     const matches = actor.isToken
       ? (tokenObj.id === (actor.token?.id || actor.id))
-      : (tokenObj.document.actorId === actor.id || tokenObj.actor?.id === actor.id);
+      : (tokenObj.document.actorLink && (tokenObj.document.actorId === actor.id || tokenObj.actor?.id === actor.id));
     if (!matches) continue;
 
     if (tokenObj.renderFlags) {
@@ -429,7 +429,7 @@ export function refreshTokensForActor(actor) {
     const hudToken = canvas.tokens.hud.object;
     const matchesHud = actor.isToken
       ? (hudToken?.id === (actor.token?.id || actor.id))
-      : (hudToken?.actor?.id === actor.id);
+      : (hudToken?.document?.actorLink && hudToken?.actor?.id === actor.id);
     if (matchesHud) {
       canvas.tokens.hud.render(true);
     }

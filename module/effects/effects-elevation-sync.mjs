@@ -20,11 +20,10 @@ export async function syncActorTokenElevation(actor) {
 
   // Retrieve active token documents on the current scene
   let tokens = [];
-  if (typeof actor.getActiveTokens === "function") {
-    tokens = actor.getActiveTokens(false, true) || [];
-  }
-  if (tokens.length === 0 && actor.token) {
+  if (actor.isToken && actor.token) {
     tokens = [actor.token];
+  } else if (typeof actor.getActiveTokens === "function") {
+    tokens = actor.getActiveTokens(true, true) || [];
   }
 
   for (const tokenDoc of tokens) {
