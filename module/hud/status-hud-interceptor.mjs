@@ -251,8 +251,38 @@ export function registerStatusHudInterceptor() {
   document.addEventListener("click", onHudEffectTriggered, { capture: true });
   document.addEventListener("contextmenu", onHudEffectTriggered, { capture: true });
 
-  // Also hook into renderTokenHUD for direct jQuery event handling
+  // Also hook into renderTokenHUD for ordering and direct jQuery event handling
   Hooks.on("renderTokenHUD", (app, html, data) => {
+    const root = html instanceof HTMLElement ? html : (html?.[0] || (typeof $ !== "undefined" ? $(html)[0] : null));
+    if (root) {
+      const palette = root.querySelector(".status-effects");
+      if (palette) {
+        const controls = Array.from(palette.querySelectorAll(".effect-control"));
+        const orderMap = new Map();
+        TRESPASSER_STATUS_EFFECTS.forEach((s, idx) => {
+          const ord = s.order ?? (idx + 1);
+          if (s.id) orderMap.set(s.id.toLowerCase(), ord);
+          if (s.img) {
+            orderMap.set(s.img.toLowerCase(), ord);
+            const fileName = s.img.split("/").pop()?.toLowerCase();
+            if (fileName) orderMap.set(fileName, ord);
+          }
+        });
+
+        controls.sort((a, b) => {
+          const idA = (a.dataset.statusId || a.getAttribute("src")?.split("/").pop()?.split("?")[0] || "").toLowerCase();
+          const idB = (b.dataset.statusId || b.getAttribute("src")?.split("/").pop()?.split("?")[0] || "").toLowerCase();
+          const orderA = orderMap.get(idA) ?? 999;
+          const orderB = orderMap.get(idB) ?? 999;
+          return orderA - orderB;
+        });
+
+        for (const ctrl of controls) {
+          palette.appendChild(ctrl);
+        }
+      }
+    }
+
     if (typeof $ !== "undefined" && html) {
       const $hud = $(html);
       $hud.find(".status-effects").off("click.trespasser contextmenu.trespasser");

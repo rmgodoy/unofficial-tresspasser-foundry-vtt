@@ -14,7 +14,7 @@ export function registerItemHooks() {
     const actor = item.parent;
     if (actor && item.type === "effect") {
       const system = item.system;
-      let intensityToApply = system.intensity || 0;
+      let intensityToApply = Math.round(Number(system.intensity) || 0);
 
       // Check for active opposite lasting state
       const lastingStates = actor.items.filter(i => i.type === "effect" && i.system.isLasting);
@@ -41,13 +41,13 @@ export function registerItemHooks() {
         for (const counter of existingCounters) {
           wasCountered = true;
           if (intensityToApply <= 0) break;
-          const counterIntensity = counter.system.intensity || 0;
+          const counterIntensity = Math.round(Number(counter.system.intensity) || 0);
 
           if (counterIntensity > intensityToApply) {
-            counter.update({ "system.intensity": counterIntensity - intensityToApply });
+            counter.update({ "system.intensity": Math.round(counterIntensity - intensityToApply) });
             intensityToApply = 0;
           } else {
-            intensityToApply -= counterIntensity;
+            intensityToApply = Math.round(intensityToApply - counterIntensity);
             counter.delete();
           }
         }
@@ -62,8 +62,8 @@ export function registerItemHooks() {
         (!!i.system.isLasting) === (!!system.isLasting)
       );
       if (existing) {
-        const currentIntensity = existing.system.intensity || 0;
-        const newIntensity = currentIntensity + intensityToApply;
+        const currentIntensity = Math.round(Number(existing.system.intensity) || 0);
+        const newIntensity = Math.round(currentIntensity + intensityToApply);
         existing.update({ "system.intensity": newIntensity });
         ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Item.EffectMerged", {
           effect: item.name, target: actor.name, intensity: newIntensity
@@ -76,7 +76,7 @@ export function registerItemHooks() {
       }
 
       if (intensityToApply !== system.intensity) {
-        item.updateSource({ "system.intensity": intensityToApply });
+        item.updateSource({ "system.intensity": Math.round(intensityToApply) });
       }
     }
 

@@ -225,12 +225,12 @@ export function getAttributeBonus(actor, attributeKey, includeTiming = null) {
     
     const resolvedMod = replacePlaceholders(eff.modifier.toString(), actor);
     const modStr = resolvedMod.replace(/\s+/g, "").replace("+", "").trim();
-    const value = parseFloat(modStr);
+    const value = attributeKey === "elevation" ? parseInt(modStr, 10) : parseFloat(modStr);
     if (!isNaN(value)) {
       total += value;
     }
   }
-  return total;
+  return attributeKey === "elevation" ? Math.round(total) : total;
 }
 
 /**

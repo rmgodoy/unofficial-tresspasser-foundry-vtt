@@ -100,7 +100,7 @@ export class TrespasserActor extends Actor {
 
       const isToggleOnly = TOGGLE_ONLY_STATUS_EFFECTS.has(status.id.toLowerCase());
       const defaultIntensity = isToggleOnly ? 0 : 1;
-      const initialIntensity = intensity !== undefined ? intensity : defaultIntensity;
+      const initialIntensity = Math.round(Number(intensity !== undefined ? intensity : defaultIntensity) || 0);
 
       if (!itemData) {
         if (status.id === "airborne") {

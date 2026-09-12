@@ -6,40 +6,42 @@
 import { SYSTEM_ID } from "../system-id.mjs";
 
 export const TRESPASSER_STATUS_EFFECTS = [
-  // Special states
-  { id: "defeated",   compendiumId: "6FxfJOtvNfItQmCO", name: "TRESPASSER.States.Defeated",   img: "systems/trespasser/assets/icons/states/Defeated.svg" },
-  { id: "bloodied",   compendiumId: "4xEKVGCw0Xw71JBR", name: "TRESPASSER.States.Bloodied",   img: "systems/trespasser/assets/icons/states/Bloodied.svg" },
-  { id: "encumbered", compendiumId: "EnCumbEredSt0001", name: "TRESPASSER.States.Encumbered", img: "systems/trespasser/assets/icons/states/Encumbered.svg" },
-  { id: "engaged",    compendiumId: "EnGagedStAte0001", name: "TRESPASSER.States.Engaged",    img: "systems/trespasser/assets/icons/states/Engaged.svg" },
-  { id: "grappled",   compendiumId: "risZeWoRLbDjgmHA", name: "TRESPASSER.States.Grappled",   img: "systems/trespasser/assets/icons/states/Grappled.svg" },
-  { id: "toppled",    compendiumId: "SihFJEG1cPOzBaXN", name: "TRESPASSER.States.Toppled",    img: "systems/trespasser/assets/icons/states/Toppled.svg" },
-  { id: "shadowy",    compendiumId: "D3tj8ogo4Uygc7Sg", name: "TRESPASSER.States.Shadowy",    img: "systems/trespasser/assets/icons/states/Shadowy.svg" },
-  { id: "tenacious",  compendiumId: "ucUF4hsZP7f1fJM6", name: "TRESPASSER.States.Tenacious",  img: "systems/trespasser/assets/icons/states/Tenacious.svg" },
-  { id: "airborne",   compendiumId: "AirBorneStAt0001", name: "TRESPASSER.States.Airborne",   img: "systems/trespasser/assets/icons/states/Airborne.svg" },
-  { id: "sunken",     compendiumId: "SunKenStAtE00001", name: "TRESPASSER.States.Sunken",     img: "systems/trespasser/assets/icons/states/Sunken.svg" },
+  // Counter states: paired as [good, bad], alphabetical by good effect
+  { id: "accurate",   order: 1,  compendiumId: "Y8qxLMIhwa81ihS5", name: "TRESPASSER.States.Accurate",   img: "systems/trespasser/assets/icons/states/Accurate.svg" },
+  { id: "inaccurate", order: 2,  compendiumId: "yZCy3pwbhrRK45sq", name: "TRESPASSER.States.Inaccurate", img: "systems/trespasser/assets/icons/states/Inaccurate.svg" },
+  { id: "fortified",  order: 3,  compendiumId: "dQEHNFfCf5zzM0Eg", name: "TRESPASSER.States.Fortified",  img: "systems/trespasser/assets/icons/states/Fortified.svg" },
+  { id: "frail",      order: 4,  compendiumId: "v6OzCfu9c4fY1a5B", name: "TRESPASSER.States.Frail",      img: "systems/trespasser/assets/icons/states/Frail.svg" },
+  { id: "guarded",    order: 5,  compendiumId: "Fbykaw07D8rIHtx9", name: "TRESPASSER.States.Guarded",    img: "systems/trespasser/assets/icons/states/Guarded.svg" },
+  { id: "unguarded",  order: 6,  compendiumId: "9R5Y8QGjEbVctHlA", name: "TRESPASSER.States.Unguarded",  img: "systems/trespasser/assets/icons/states/Unguarded.svg" },
+  { id: "hastened",   order: 7,  compendiumId: "twIp2TFpB6FoLyDs", name: "TRESPASSER.States.Hastened",   img: "systems/trespasser/assets/icons/states/Hastened.svg" },
+  { id: "hindered",   order: 8,  compendiumId: "zeSukJfflKejuW1v", name: "TRESPASSER.States.Hindered",   img: "systems/trespasser/assets/icons/states/Hindered.svg" },
+  { id: "mending",    order: 9,  compendiumId: "jPiOdkHwll8Lf7Rq", name: "TRESPASSER.States.Mending",    img: "systems/trespasser/assets/icons/states/Mending.svg" },
+  { id: "afflicted",  order: 10, compendiumId: "xClBUuzde7pga8Z5", name: "TRESPASSER.States.Afflicted",  img: "systems/trespasser/assets/icons/states/Afflicted.svg" },
+  { id: "strong",     order: 11, compendiumId: "WuMgBh4aN4u2lNCh", name: "TRESPASSER.States.Strong",     img: "systems/trespasser/assets/icons/states/Strong.svg" },
+  { id: "weak",       order: 12, compendiumId: "dIW1YCC9Gr4kt04x", name: "TRESPASSER.States.Weak",       img: "systems/trespasser/assets/icons/states/Weak.svg" },
+  { id: "swift",      order: 13, compendiumId: "dmwz0WoiIC4G7yTI", name: "TRESPASSER.States.Swift",      img: "systems/trespasser/assets/icons/states/Swift.svg" },
+  { id: "slow",       order: 14, compendiumId: "N6VXYqohqJrPqDCw", name: "TRESPASSER.States.Slow",       img: "systems/trespasser/assets/icons/states/Slow.svg" },
+  { id: "willful",    order: 15, compendiumId: "WxE5WdcyqGe4NcqT", name: "TRESPASSER.States.Willful",    img: "systems/trespasser/assets/icons/states/Willful.svg" },
+  { id: "weary",      order: 16, compendiumId: "QdTFOleqJtLyflOr", name: "TRESPASSER.States.Weary",      img: "systems/trespasser/assets/icons/states/Weary.svg" },
 
-  // Common states
-  { id: "accurate",   compendiumId: "Y8qxLMIhwa81ihS5", name: "TRESPASSER.States.Accurate",   img: "systems/trespasser/assets/icons/states/Accurate.svg" },
-  { id: "afflicted",  compendiumId: "xClBUuzde7pga8Z5", name: "TRESPASSER.States.Afflicted",  img: "systems/trespasser/assets/icons/states/Afflicted.svg" },
-  { id: "bleeding",   compendiumId: "dMCSC3lbB5v70qwR", name: "TRESPASSER.States.Bleeding",   img: "systems/trespasser/assets/icons/states/Bleeding.svg" },
-  { id: "blinded",    compendiumId: "3XIlIe8gk06H8yiy", name: "TRESPASSER.States.Blinded",    img: "systems/trespasser/assets/icons/states/Blinded.svg" },
-  { id: "burning",    compendiumId: "U8u8iFYvAEaL6Y5Z", name: "TRESPASSER.States.Burning",    img: "systems/trespasser/assets/icons/states/Burning.svg" },
-  { id: "fortified",  compendiumId: "dQEHNFfCf5zzM0Eg", name: "TRESPASSER.States.Fortified",  img: "systems/trespasser/assets/icons/states/Fortified.svg" },
-  { id: "frail",      compendiumId: "v6OzCfu9c4fY1a5B", name: "TRESPASSER.States.Frail",      img: "systems/trespasser/assets/icons/states/Frail.svg" },
-  { id: "guarded",    compendiumId: "Fbykaw07D8rIHtx9", name: "TRESPASSER.States.Guarded",    img: "systems/trespasser/assets/icons/states/Guarded.svg" },
-  { id: "hastened",   compendiumId: "twIp2TFpB6FoLyDs", name: "TRESPASSER.States.Hastened",   img: "systems/trespasser/assets/icons/states/Hastened.svg" },
-  { id: "hindered",   compendiumId: "zeSukJfflKejuW1v", name: "TRESPASSER.States.Hindered",   img: "systems/trespasser/assets/icons/states/Hindered.svg" },
-  { id: "inaccurate", compendiumId: "yZCy3pwbhrRK45sq", name: "TRESPASSER.States.Inaccurate", img: "systems/trespasser/assets/icons/states/Inaccurate.svg" },
-  { id: "mending",    compendiumId: "jPiOdkHwll8Lf7Rq", name: "TRESPASSER.States.Mending",    img: "systems/trespasser/assets/icons/states/Mending.svg" },
-  { id: "provoked",   compendiumId: "cS3IgPJRUrTWlvT5", name: "TRESPASSER.States.Provoked",   img: "systems/trespasser/assets/icons/states/Provoked.svg" },
-  { id: "slow",       compendiumId: "N6VXYqohqJrPqDCw", name: "TRESPASSER.States.Slow",       img: "systems/trespasser/assets/icons/states/Slow.svg" },
-  { id: "staggered",  compendiumId: "0Xcj6qnixaYuy98u", name: "TRESPASSER.States.Staggered",  img: "systems/trespasser/assets/icons/states/Staggered.svg" },
-  { id: "strong",     compendiumId: "WuMgBh4aN4u2lNCh", name: "TRESPASSER.States.Strong",     img: "systems/trespasser/assets/icons/states/Strong.svg" },
-  { id: "swift",      compendiumId: "dmwz0WoiIC4G7yTI", name: "TRESPASSER.States.Swift",      img: "systems/trespasser/assets/icons/states/Swift.svg" },
-  { id: "unguarded",  compendiumId: "9R5Y8QGjEbVctHlA", name: "TRESPASSER.States.Unguarded",  img: "systems/trespasser/assets/icons/states/Unguarded.svg" },
-  { id: "weak",       compendiumId: "dIW1YCC9Gr4kt04x", name: "TRESPASSER.States.Weak",       img: "systems/trespasser/assets/icons/states/Weak.svg" },
-  { id: "weary",      compendiumId: "QdTFOleqJtLyflOr", name: "TRESPASSER.States.Weary",      img: "systems/trespasser/assets/icons/states/Weary.svg" },
-  { id: "willful",    compendiumId: "WxE5WdcyqGe4NcqT", name: "TRESPASSER.States.Willful",    img: "systems/trespasser/assets/icons/states/Willful.svg" }
+  // Common states without counter (alphabetical)
+  { id: "bleeding",   order: 17, compendiumId: "dMCSC3lbB5v70qwR", name: "TRESPASSER.States.Bleeding",   img: "systems/trespasser/assets/icons/states/Bleeding.svg" },
+  { id: "blinded",    order: 18, compendiumId: "3XIlIe8gk06H8yiy", name: "TRESPASSER.States.Blinded",    img: "systems/trespasser/assets/icons/states/Blinded.svg" },
+  { id: "burning",    order: 19, compendiumId: "U8u8iFYvAEaL6Y5Z", name: "TRESPASSER.States.Burning",    img: "systems/trespasser/assets/icons/states/Burning.svg" },
+  { id: "provoked",   order: 20, compendiumId: "cS3IgPJRUrTWlvT5", name: "TRESPASSER.States.Provoked",   img: "systems/trespasser/assets/icons/states/Provoked.svg" },
+  { id: "staggered",  order: 21, compendiumId: "0Xcj6qnixaYuy98u", name: "TRESPASSER.States.Staggered",  img: "systems/trespasser/assets/icons/states/Staggered.svg" },
+
+  // Special states: with counter first, then the last ones without counter
+  { id: "airborne",   order: 22, compendiumId: "AirBorneStAt0001", name: "TRESPASSER.States.Airborne",   img: "systems/trespasser/assets/icons/states/Airborne.svg" },
+  { id: "sunken",     order: 23, compendiumId: "SunKenStAtE00001", name: "TRESPASSER.States.Sunken",     img: "systems/trespasser/assets/icons/states/Sunken.svg" },
+  { id: "bloodied",   order: 24, compendiumId: "4xEKVGCw0Xw71JBR", name: "TRESPASSER.States.Bloodied",   img: "systems/trespasser/assets/icons/states/Bloodied.svg" },
+  { id: "defeated",   order: 25, compendiumId: "6FxfJOtvNfItQmCO", name: "TRESPASSER.States.Defeated",   img: "systems/trespasser/assets/icons/states/Defeated.svg" },
+  { id: "encumbered", order: 26, compendiumId: "EnCumbEredSt0001", name: "TRESPASSER.States.Encumbered", img: "systems/trespasser/assets/icons/states/Encumbered.svg" },
+  { id: "engaged",    order: 27, compendiumId: "EnGagedStAte0001", name: "TRESPASSER.States.Engaged",    img: "systems/trespasser/assets/icons/states/Engaged.svg" },
+  { id: "grappled",   order: 28, compendiumId: "risZeWoRLbDjgmHA", name: "TRESPASSER.States.Grappled",   img: "systems/trespasser/assets/icons/states/Grappled.svg" },
+  { id: "shadowy",    order: 29, compendiumId: "D3tj8ogo4Uygc7Sg", name: "TRESPASSER.States.Shadowy",    img: "systems/trespasser/assets/icons/states/Shadowy.svg" },
+  { id: "tenacious",  order: 30, compendiumId: "ucUF4hsZP7f1fJM6", name: "TRESPASSER.States.Tenacious",  img: "systems/trespasser/assets/icons/states/Tenacious.svg" },
+  { id: "toppled",    order: 31, compendiumId: "SihFJEG1cPOzBaXN", name: "TRESPASSER.States.Toppled",    img: "systems/trespasser/assets/icons/states/Toppled.svg" }
 ];
 
 export const STATUS_EFFECT_COUNTERS = {

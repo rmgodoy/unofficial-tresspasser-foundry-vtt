@@ -19,7 +19,7 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
       isCombat: new fields.BooleanField({ initial: false }),
       isOnlyReminder: new fields.BooleanField({ initial: false }),
       gmOnly: new fields.BooleanField({ initial: false }),
-      intensity: new fields.NumberField({ initial: 0 }),
+      intensity: new fields.NumberField({ initial: 0, integer: true }),
       targetAttribute: new fields.StringField({
         initial: "health",
         choices: TrespasserEffectsHelper.TARGET_ATTRIBUTES
@@ -36,7 +36,7 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
         initial: "indefinite",
         choices: Object.values(TrespasserEffectsHelper.DURATION_MODES)
       }),
-      durationValue: new fields.NumberField({ initial: 0 }),
+      durationValue: new fields.NumberField({ initial: 0, integer: true }),
       // --- Compound duration (new) ---
       durationOperator: new fields.StringField({
         initial: "OR",
@@ -46,7 +46,7 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
         new fields.ObjectField(),
         { initial: [] }
       ),
-      intensityIncrement: new fields.NumberField({ initial: 0 }),
+      intensityIncrement: new fields.NumberField({ initial: 0, integer: true }),
       counterStates: new fields.ArrayField(new fields.ObjectField(), { initial: [] }),
       isPrevailable: new fields.BooleanField({ initial: true }),
       isLasting: new fields.BooleanField({ initial: false }),

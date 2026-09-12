@@ -15,8 +15,8 @@ export async function syncActorTokenElevation(actor) {
   if (!actor) return;
   if (!actor.isOwner && !game.user?.isGM) return;
 
-  // Calculate the total elevation modifier from all active effects
-  const effectElevation = getAttributeBonus(actor, "elevation");
+  // Calculate the total elevation modifier from all active effects as an integer
+  const effectElevation = Math.round(Number(getAttributeBonus(actor, "elevation")) || 0);
 
   // Retrieve active token documents on the current scene
   let tokens = [];
@@ -35,10 +35,10 @@ export async function syncActorTokenElevation(actor) {
       : (tokenDoc.isOwner || game.user?.isGM);
     if (!canModify) continue;
 
-    const currentEffectElevation = Number(tokenDoc.getFlag(SYSTEM_ID, "effectElevation") ?? 0);
-    const currentElevation = Number(tokenDoc.elevation ?? 0);
+    const currentEffectElevation = Math.round(Number(tokenDoc.getFlag(SYSTEM_ID, "effectElevation") ?? 0));
+    const currentElevation = Math.round(Number(tokenDoc.elevation ?? 0));
     const baseElevation = currentElevation - currentEffectElevation;
-    const targetElevation = baseElevation + effectElevation;
+    const targetElevation = Math.round(baseElevation + effectElevation);
 
     if (currentElevation !== targetElevation || currentEffectElevation !== effectElevation) {
       await tokenDoc.update({
