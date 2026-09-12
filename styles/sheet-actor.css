@@ -33,6 +33,7 @@
   cursor: pointer;
   box-shadow: 0 0 10px var(--trp-shadow-dark);
   transition: filter 0.15s ease, border-color 0.15s ease;
+  display: block;
 }
 
 .sheet-header .profile-img:hover,
@@ -46,35 +47,58 @@
 .actor-avatar-wrapper {
   position: relative;
   display: inline-block;
+  line-height: 0;
 }
 
 .passive-states-overlay {
   position: absolute;
-  top: 4px;
-  right: 4px;
+  top: 3px;
+  right: 3px;
+  bottom: 3px;
   display: flex;
   flex-direction: column;
+  flex-wrap: wrap-reverse;
+  align-content: flex-start;
   gap: 2px;
   z-index: 10;
   pointer-events: auto;
+  max-height: calc(100% - 6px);
 }
 
 .passive-state-icon {
-  width: 24px;
-  height: 24px;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 4px;
+  width: 18px;
+  height: 18px;
+  box-sizing: border-box;
+  background: rgba(0, 0, 0, 0.75);
+  border-radius: 3px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: help;
   border: 1px solid var(--trp-border-light);
+  font-size: var(--fs-10);
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  transition: transform 0.15s ease, background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.passive-state-icon:hover {
+  transform: scale(1.18);
+  background: rgba(0, 0, 0, 0.95);
+  border-color: var(--trp-gold);
+  z-index: 12;
 }
 
 .passive-state-icon img {
-  width: 18px;
-  height: 18px;
+  width: 12px;
+  height: 12px;
   border: none;
+  object-fit: contain;
+}
+
+.passive-state-icon.plight-overlay-icon i {
+  font-size: var(--fs-9);
+  line-height: 1;
 }
 
 .rest-btn {
