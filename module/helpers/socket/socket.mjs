@@ -34,13 +34,16 @@ import {
   handleGrantRecoveryRequest,
   handleGrantRecoveryResponse
 } from "./grant-recovery-handler.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 /**
  * Helper class for handling custom socket events in the Trespasser system.
  * This class coordinates various specialized handlers organized by context.
  */
 export class TrespasserSocket {
-  static IDENTIFIER = "system.trespasser";
+  static get IDENTIFIER() {
+    return `system.${SYSTEM_ID}`;
+  }
 
   /**
    * Initialize socket listeners.

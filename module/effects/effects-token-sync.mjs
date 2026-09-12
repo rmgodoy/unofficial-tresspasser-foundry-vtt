@@ -5,6 +5,7 @@ import {
   TENACIOUS_EFFECT_COMPENDIUM_ID,
   TENACIOUS_EFFECT_DATA
 } from "../config/status-effects.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 const _syncTimers = new Map();
 const _inFlightSyncs = new Set();
@@ -20,18 +21,18 @@ const _tenaciousSyncLocks = new Set();
 export function getMatchingCustomStatus(item) {
   if (!item || item.type !== "effect") return null;
 
-  const flagId = item.getFlag("trespasser", "statusEffectId");
+  const flagId = item.getFlag(SYSTEM_ID, "statusEffectId");
   if (flagId) {
     const found = TRESPASSER_STATUS_EFFECTS.find(s => s.id === flagId);
     if (found) return found;
   }
 
-  if (item.getFlag("trespasser", "isBloodiedState") || item.name === "Bloodied") {
-    return TRESPASSER_STATUS_EFFECTS.find(s => s.id === "bloodied");
+  if (item.getFlag(SYSTEM_ID, "isBloodiedState") || item.name === "Bloodied") {
+    return TRESPASSER_STATUS_EFFECTS.find(s => s.id === "bloodied") || null;
   }
 
-  if (item.getFlag("trespasser", "isTenaciousState") || item.name === "Tenacious") {
-    return TRESPASSER_STATUS_EFFECTS.find(s => s.id === "tenacious");
+  if (item.getFlag(SYSTEM_ID, "isTenaciousState") || item.name === "Tenacious") {
+    return TRESPASSER_STATUS_EFFECTS.find(s => s.id === "tenacious") || null;
   }
 
   const sourceId = item.flags?.core?.sourceId || item._stats?.compendiumSource;
@@ -127,7 +128,7 @@ export function getCombatTrackerEffects(actor) {
   // 2. Standalone ActiveEffects explicitly enabled for token/tracker display (showIcon === 2)
   for (const eff of (actor.effects || [])) {
     if (eff.disabled || eff.isSuppressed || eff.showIcon !== 2) continue;
-    const sourceItemId = eff.getFlag("trespasser", "sourceItem");
+    const sourceItemId = eff.getFlag(SYSTEM_ID, "sourceItem");
     if (sourceItemId && effectsList.some(e => e.id === sourceItemId)) continue;
     const icon = eff.img || eff.icon;
     if (icon && !effectsList.some(e => e.icon === icon)) {
@@ -135,7 +136,7 @@ export function getCombatTrackerEffects(actor) {
         id: eff.id,
         name: eff.name,
         icon,
-        intensity: eff.getFlag("trespasser", "intensity") || 0
+        intensity: eff.getFlag(SYSTEM_ID, "intensity") || 0
       });
     }
   }
@@ -161,12 +162,12 @@ export async function syncActorBloodiedItem(actor) {
   try {
     const isBloodied = Boolean(actor.system?.passiveStates?.bloody ?? (health <= (maxHealth / 2)));
     const bloodiedItem = actor.items.find(i =>
-      i.type === "effect" && (i.getFlag("trespasser", "isBloodiedState") === true || i.name === "Bloodied")
+      i.type === "effect" && (i.getFlag(SYSTEM_ID, "isBloodiedState") === true || i.name === "Bloodied")
     );
 
     if (isBloodied && !bloodiedItem) {
       let itemData = null;
-      const pack = game.packs?.get("trespasser.trespasser-content");
+      const pack = game.packs?.get(`${SYSTEM_ID}.trespasser-content`);
       if (pack) {
         try {
           const doc = await pack.getDocument(BLOODIED_EFFECT_COMPENDIUM_ID);
@@ -178,11 +179,11 @@ export async function syncActorBloodiedItem(actor) {
       }
       delete itemData._id;
       itemData.flags = itemData.flags || {};
-      itemData.flags.trespasser = itemData.flags.trespasser || {};
-      itemData.flags.trespasser.isBloodiedState = true;
+      itemData.flags[SYSTEM_ID] = itemData.flags[SYSTEM_ID] || {};
+      itemData.flags[SYSTEM_ID].isBloodiedState = true;
 
       await actor.createEmbeddedDocuments("Item", [itemData]);
-    } else if (!isBloodied && bloodiedItem && bloodiedItem.getFlag("trespasser", "isBloodiedState")) {
+    } else if (!isBloodied && bloodiedItem && bloodiedItem.getFlag(SYSTEM_ID, "isBloodiedState")) {
       await actor.deleteEmbeddedDocuments("Item", [bloodiedItem.id]);
     }
   } catch (err) {
@@ -209,12 +210,12 @@ export async function syncActorTenaciousItem(actor) {
   try {
     const isTenacious = Boolean(actor.system?.passiveStates?.tenacious ?? false);
     const tenaciousItem = actor.items.find(i =>
-      i.type === "effect" && (i.getFlag("trespasser", "isTenaciousState") === true || i.name === "Tenacious")
+      i.type === "effect" && (i.getFlag(SYSTEM_ID, "isTenaciousState") === true || i.name === "Tenacious")
     );
 
     if (isTenacious && !tenaciousItem) {
       let itemData = null;
-      const pack = game.packs?.get("trespasser.trespasser-content");
+      const pack = game.packs?.get(`${SYSTEM_ID}.trespasser-content`);
       if (pack) {
         try {
           const doc = await pack.getDocument(TENACIOUS_EFFECT_COMPENDIUM_ID);
@@ -226,12 +227,12 @@ export async function syncActorTenaciousItem(actor) {
       }
       delete itemData._id;
       itemData.flags = itemData.flags || {};
-      itemData.flags.trespasser = itemData.flags.trespasser || {};
-      itemData.flags.trespasser.isTenaciousState = true;
-      itemData.flags.trespasser.statusEffectId = "tenacious";
+      itemData.flags[SYSTEM_ID] = itemData.flags[SYSTEM_ID] || {};
+      itemData.flags[SYSTEM_ID].isTenaciousState = true;
+      itemData.flags[SYSTEM_ID].statusEffectId = "tenacious";
 
       await actor.createEmbeddedDocuments("Item", [itemData]);
-    } else if (!isTenacious && tenaciousItem && tenaciousItem.getFlag("trespasser", "isTenaciousState")) {
+    } else if (!isTenacious && tenaciousItem && tenaciousItem.getFlag(SYSTEM_ID, "isTenaciousState")) {
       await actor.deleteEmbeddedDocuments("Item", [tenaciousItem.id]);
     }
   } catch (err) {
@@ -250,7 +251,7 @@ export async function performSyncActorTokenEffects(actor) {
   if (!actor) return;
   if (!actor.isOwner && !game.user.isGM) return;
 
-  const showEffects = game.settings.get("trespasser", "showStatusEffectsOnTokens") ?? true;
+  const showEffects = game.settings.get(SYSTEM_ID, "showStatusEffectsOnTokens") ?? true;
 
   // Gather all effect items on the actor that have an icon
   const effectItems = actor.items.filter(i => {
@@ -260,7 +261,7 @@ export async function performSyncActorTokenEffects(actor) {
   });
 
   // Get all existing ActiveEffects on the actor that were created by our sync (have our sourceItem flag)
-  const existingActiveEffects = actor.effects ? actor.effects.filter(ae => ae.getFlag("trespasser", "sourceItem")) : [];
+  const existingActiveEffects = actor.effects ? actor.effects.filter(ae => ae.getFlag(SYSTEM_ID, "sourceItem")) : [];
 
   const itemsToKeep = new Set();
   const effectsToDelete = [];
@@ -270,7 +271,7 @@ export async function performSyncActorTokenEffects(actor) {
   // Group existing ActiveEffects by sourceItem to easily detect and clean up duplicates
   const aesBySource = new Map();
   for (const ae of existingActiveEffects) {
-    const srcId = ae.getFlag("trespasser", "sourceItem");
+    const srcId = ae.getFlag(SYSTEM_ID, "sourceItem");
     if (!aesBySource.has(srcId)) aesBySource.set(srcId, []);
     aesBySource.get(srcId).push(ae);
   }
@@ -298,7 +299,7 @@ export async function performSyncActorTokenEffects(actor) {
       const img = se.img || se.icon || se.src;
       return img === statusIconPath;
     });
-    const statusId = matchingStatus?.id || item.getFlag("trespasser", "statusEffectId") || item.id;
+    const statusId = matchingStatus?.id || item.getFlag(SYSTEM_ID, "statusEffectId") || item.id;
     // Leverage showIcon: 2 for combat effects meant for token display, 0 for hidden/non-combat
     const shouldShow = Boolean(showEffects && item.system?.isCombat && (!item.system?.gmOnly || game.user.isGM));
     const showIcon = shouldShow ? 2 : 0;
@@ -310,7 +311,7 @@ export async function performSyncActorTokenEffects(actor) {
       statuses: [statusId],
       showIcon,
       flags: {
-        trespasser: {
+        [SYSTEM_ID]: {
           sourceItem: item.id,
           intensity: item.system?.intensity || 0
         }
@@ -330,7 +331,7 @@ export async function performSyncActorTokenEffects(actor) {
           icon: effectData.img,
           statuses: [statusId],
           showIcon,
-          "flags.trespasser.intensity": effectData.flags.trespasser.intensity
+          [`flags.${SYSTEM_ID}.intensity`]: effectData.flags[SYSTEM_ID].intensity
         });
       }
     } else {

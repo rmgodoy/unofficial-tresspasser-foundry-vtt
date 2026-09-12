@@ -55,22 +55,83 @@ if (isBeta) {
     return count;
   }
 
-  const replacements = [
+  const pathReplacements = [
     [`systems/${baseId}/`, `systems/${betaId}/`],
     [`system/${baseId}/`, `systems/${betaId}/`],
   ];
 
+  const packReplacements = [
+    ...pathReplacements,
+    [`"systemId": "${baseId}"`, `"systemId": "${betaId}"`],
+    [`"system": "${baseId}"`, `"system": "${betaId}"`],
+    [`Compendium.${baseId}.`, `Compendium.${betaId}.`],
+  ];
+
+  const jsReplacements = [
+    ...pathReplacements,
+    // SYSTEM_ID constant in system-id.mjs
+    [`SYSTEM_ID = "${baseId}"`, `SYSTEM_ID = "${betaId}"`],
+    [`SYSTEM_ID = '${baseId}'`, `SYSTEM_ID = '${betaId}'`],
+
+    // Sockets
+    [`"system.${baseId}"`, `"system.${betaId}"`],
+    [`'system.${baseId}'`, `'system.${betaId}'`],
+
+    // Compendiums
+    [`"${baseId}.trespasser-content"`, `"${betaId}.trespasser-content"`],
+    [`'${baseId}.trespasser-content'`, `'${betaId}.trespasser-content'`],
+    [`Compendium.${baseId}.`, `Compendium.${betaId}.`],
+
+    // Flag scopes (get, set, unset)
+    [`getFlag("${baseId}",`, `getFlag("${betaId}",`],
+    [`getFlag('${baseId}',`, `getFlag('${betaId}',`],
+    [`setFlag("${baseId}",`, `setFlag("${betaId}",`],
+    [`setFlag('${baseId}',`, `setFlag('${betaId}',`],
+    [`unsetFlag("${baseId}",`, `unsetFlag("${betaId}",`],
+    [`unsetFlag('${baseId}',`, `unsetFlag('${betaId}',`],
+    [`data.scope || "${baseId}"`, `data.scope || "${betaId}"`],
+    [`data.scope || '${baseId}'`, `data.scope || '${betaId}'`],
+
+    // Settings
+    [`game.settings.register("${baseId}",`, `game.settings.register("${betaId}",`],
+    [`game.settings.register('${baseId}',`, `game.settings.register('${betaId}',`],
+    [`game.settings.registerMenu("${baseId}",`, `game.settings.registerMenu("${betaId}",`],
+    [`game.settings.registerMenu('${baseId}',`, `game.settings.registerMenu('${betaId}',`],
+    [`game.settings.get("${baseId}",`, `game.settings.get("${betaId}",`],
+    [`game.settings.get('${baseId}',`, `game.settings.get('${betaId}',`],
+    [`game.settings.set("${baseId}",`, `game.settings.set("${betaId}",`],
+    [`game.settings.set('${baseId}',`, `game.settings.set('${betaId}',`],
+
+    // Sheet registration
+    [`registerSheet("${baseId}",`, `registerSheet("${betaId}",`],
+    [`registerSheet('${baseId}',`, `registerSheet('${betaId}',`],
+
+    // Flag update paths in update({...}) objects
+    [`"flags.${baseId}.`, `"flags.${betaId}.`],
+    [`'flags.${baseId}.`, `'flags.${betaId}.`],
+    [`"flags.${baseId}"`, `"flags.${betaId}"`],
+    [`'flags.${baseId}'`, `'flags.${betaId}'`],
+
+    // Flag object properties
+    [`.flags?.${baseId}`, `.flags?.["${betaId}"]`],
+    [`.flags.${baseId}`, `.flags?.["${betaId}"]`],
+    [`flags: { ${baseId}:`, `flags: { "${betaId}":`],
+    [`flags: { "${baseId}":`, `flags: { "${betaId}":`],
+    [`effectData.flags.${baseId} =`, `effectData.flags["${betaId}"] =`],
+    [`effectData.flags.${baseId} ||`, `effectData.flags["${betaId}"] ||`],
+  ];
+
   let totalModified = 0;
-  totalModified += replaceInDir('json-packs', replacements, ['.json']);
-  totalModified += replaceInDir('module', replacements, ['.js', '.mjs']);
-  totalModified += replaceInDir('templates', replacements, ['.hbs', '.html']);
-  totalModified += replaceInDir('styles', replacements, ['.css']);
+  totalModified += replaceInDir('json-packs', packReplacements, ['.json']);
+  totalModified += replaceInDir('module', jsReplacements, ['.js', '.mjs']);
+  totalModified += replaceInDir('templates', pathReplacements, ['.hbs', '.html']);
+  totalModified += replaceInDir('styles', pathReplacements, ['.css']);
   if (fs.existsSync('trespasser.mjs')) {
-    if (replaceInFile('trespasser.mjs', replacements)) {
+    if (replaceInFile('trespasser.mjs', jsReplacements)) {
       totalModified++;
     }
   }
-  console.log(`Updated paths in ${totalModified} files from systems/${baseId}/ to systems/${betaId}/`);
+  console.log(`Updated paths and system references in ${totalModified} files for beta release (${betaId})`);
 } else {
   console.log(`Standard release mode. System ID: ${system.id}`);
 }

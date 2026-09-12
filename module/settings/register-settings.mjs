@@ -5,6 +5,7 @@ import { COMMON_PLIGHTS } from "../config/plight-config.mjs";
 import { TREASURE_CONFIG } from "../config/treasure-config.mjs";
 import { TrespasserConfigV2 } from "../dialogs/trespasser-config-v2.mjs";
 import { TRESPASSER_STATUS_EFFECTS } from "../config/status-effects.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Configure CONFIG.TRESPASSER constants and system rules.
@@ -44,7 +45,7 @@ export function configureTrespasserRules() {
  * Register all world and client game settings.
  */
 export function registerSystemSettings() {
-  game.settings.register("trespasser", "activePartyId", {
+  game.settings.register(SYSTEM_ID, "activePartyId", {
     name: "Active Party ID",
     scope: "world",
     config: false,
@@ -63,7 +64,7 @@ export function registerSystemSettings() {
     }
   });
 
-  game.settings.register("trespasser", "showInitiativeInChat", {
+  game.settings.register(SYSTEM_ID, "showInitiativeInChat", {
     name: "TRESPASSER.Settings.Mechanics.InitiativeChat.Name",
     hint: "TRESPASSER.Settings.Mechanics.InitiativeChat.Hint",
     scope: "world",
@@ -72,7 +73,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "restrictMovementAction", {
+  game.settings.register(SYSTEM_ID, "restrictMovementAction", {
     name: "TRESPASSER.Settings.Mechanics.RestrictMovementAction.Name",
     hint: "TRESPASSER.Settings.Mechanics.RestrictMovementAction.Hint",
     scope: "world",
@@ -81,7 +82,7 @@ export function registerSystemSettings() {
     default: false
   });
 
-  game.settings.register("trespasser", "applyEncumbranceRules", {
+  game.settings.register(SYSTEM_ID, "applyEncumbranceRules", {
     name: "TRESPASSER.Settings.Mechanics.ApplyEncumbranceRules.Name",
     hint: "TRESPASSER.Settings.Mechanics.ApplyEncumbranceRules.Hint",
     scope: "world",
@@ -90,7 +91,7 @@ export function registerSystemSettings() {
     default: true
   });
   
-  game.settings.register("trespasser", "enableRetreatDialog", {
+  game.settings.register(SYSTEM_ID, "enableRetreatDialog", {
     name: "TRESPASSER.Settings.Exploration.EnableRetreatDialog.Name",
     hint: "TRESPASSER.Settings.Exploration.EnableRetreatDialog.Hint",
     scope: "world",
@@ -99,7 +100,7 @@ export function registerSystemSettings() {
     default: false
   });
 
-  game.settings.register("trespasser", "showCreatureDamageRolls", {
+  game.settings.register(SYSTEM_ID, "showCreatureDamageRolls", {
     name: "TRESPASSER.Settings.Mechanics.ShowCreatureDamageRolls.Name",
     hint: "TRESPASSER.Settings.Mechanics.ShowCreatureDamageRolls.Hint",
     scope: "world",
@@ -108,7 +109,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "hideCreatureDamageRolls", {
+  game.settings.register(SYSTEM_ID, "hideCreatureDamageRolls", {
     name: "TRESPASSER.Settings.Mechanics.HideCreatureDamageRolls.Name",
     hint: "TRESPASSER.Settings.Mechanics.HideCreatureDamageRolls.Hint",
     scope: "world",
@@ -117,7 +118,7 @@ export function registerSystemSettings() {
     default: false
   });
 
-  game.settings.register("trespasser", "showPerilInChat", {
+  game.settings.register(SYSTEM_ID, "showPerilInChat", {
     name: "TRESPASSER.Settings.Exploration.ShowPerilInChat.Name",
     hint: "TRESPASSER.Settings.Exploration.ShowPerilInChat.Hint",
     scope: "world",
@@ -126,7 +127,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "autoEndCombatOnRetreat", {
+  game.settings.register(SYSTEM_ID, "autoEndCombatOnRetreat", {
     name: "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Name",
     hint: "TRESPASSER.Settings.Exploration.AutoEndCombatOnRetreat.Hint",
     scope: "world",
@@ -135,7 +136,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "automateTravelTracker", {
+  game.settings.register(SYSTEM_ID, "automateTravelTracker", {
     name: "TRESPASSER.Settings.Exploration.AutomateTravelTracker.Name",
     hint: "TRESPASSER.Settings.Exploration.AutomateTravelTracker.Hint",
     scope: "world",
@@ -144,7 +145,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "restrictHUDActions", {
+  game.settings.register(SYSTEM_ID, "restrictHUDActions", {
     name: "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Name",
     hint: "TRESPASSER.Settings.Mechanics.RestrictHUDActions.Hint",
     scope: "world",
@@ -153,7 +154,7 @@ export function registerSystemSettings() {
     default: false
   });
 
-  game.settings.register("trespasser", "restrictAPFocusUsage", {
+  game.settings.register(SYSTEM_ID, "restrictAPFocusUsage", {
     name: "TRESPASSER.Settings.Mechanics.RestrictAPFocusUsage.Name",
     hint: "TRESPASSER.Settings.Mechanics.RestrictAPFocusUsage.Hint",
     scope: "world",
@@ -162,7 +163,7 @@ export function registerSystemSettings() {
     default: false
   });
 
-  game.settings.register("trespasser", "enableGroupCheckSelection", {
+  game.settings.register(SYSTEM_ID, "enableGroupCheckSelection", {
     name: "TRESPASSER.Settings.Exploration.EnableGroupCheckSelection.Name",
     hint: "TRESPASSER.Settings.Exploration.EnableGroupCheckSelection.Hint",
     scope: "world",
@@ -171,7 +172,7 @@ export function registerSystemSettings() {
     default: false
   });
 
-  game.settings.register("trespasser", "groupCheckFullParty", {
+  game.settings.register(SYSTEM_ID, "groupCheckFullParty", {
     name: "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Name",
     hint: "TRESPASSER.Settings.Exploration.GroupCheckFullParty.Hint",
     scope: "world",
@@ -180,7 +181,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "allowAllPlayersHavenEdit", {
+  game.settings.register(SYSTEM_ID, "allowAllPlayersHavenEdit", {
     name: "TRESPASSER.Settings.Exploration.AllowAllPlayersHavenEdit.Name",
     hint: "TRESPASSER.Settings.Exploration.AllowAllPlayersHavenEdit.Hint",
     scope: "world",
@@ -189,7 +190,7 @@ export function registerSystemSettings() {
     default: false
   });
 
-  game.settings.register("trespasser", "restrictHavenEditToLeader", {
+  game.settings.register(SYSTEM_ID, "restrictHavenEditToLeader", {
     name: "TRESPASSER.Settings.Exploration.RestrictHavenEditToLeader.Name",
     hint: "TRESPASSER.Settings.Exploration.RestrictHavenEditToLeader.Hint",
     scope: "world",
@@ -198,7 +199,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "enforceHavenBuildingLimits", {
+  game.settings.register(SYSTEM_ID, "enforceHavenBuildingLimits", {
     name: "TRESPASSER.Settings.Exploration.EnforceHavenBuildingLimits.Name",
     hint: "TRESPASSER.Settings.Exploration.EnforceHavenBuildingLimits.Hint",
     scope: "world",
@@ -207,7 +208,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "bypassHavenBuildingLimits", {
+  game.settings.register(SYSTEM_ID, "bypassHavenBuildingLimits", {
     name: "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Name",
     hint: "TRESPASSER.Settings.Exploration.BypassHavenBuildingLimits.Hint",
     scope: "world",
@@ -216,7 +217,7 @@ export function registerSystemSettings() {
     default: false
   });
 
-  game.settings.register("trespasser", "enforceAttackRange", {
+  game.settings.register(SYSTEM_ID, "enforceAttackRange", {
     name: "TRESPASSER.Settings.Mechanics.EnforceAttackRange.Name",
     hint: "TRESPASSER.Settings.Mechanics.EnforceAttackRange.Hint",
     scope: "world",
@@ -225,7 +226,7 @@ export function registerSystemSettings() {
     default: false
   });
 
-  game.settings.register("trespasser", "disregardRangeOnAttack", {
+  game.settings.register(SYSTEM_ID, "disregardRangeOnAttack", {
     name: "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Name",
     hint: "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Hint",
     scope: "world",
@@ -234,7 +235,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "confirmItemTransfer", {
+  game.settings.register(SYSTEM_ID, "confirmItemTransfer", {
     name: "TRESPASSER.Settings.Mechanics.ConfirmItemTransfer.Name",
     hint: "TRESPASSER.Settings.Mechanics.ConfirmItemTransfer.Hint",
     scope: "client",
@@ -243,7 +244,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "allowOutOfTurnMovement", {
+  game.settings.register(SYSTEM_ID, "allowOutOfTurnMovement", {
     name: "TRESPASSER.Settings.Mechanics.AllowOutOfTurnMovement.Name",
     hint: "TRESPASSER.Settings.Mechanics.AllowOutOfTurnMovement.Hint",
     scope: "world",
@@ -252,7 +253,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "playerFacingInitiative", {
+  game.settings.register(SYSTEM_ID, "playerFacingInitiative", {
     name: "TRESPASSER.Settings.Mechanics.PlayerFacingInitiative.Name",
     hint: "TRESPASSER.Settings.Mechanics.PlayerFacingInitiative.Hint",
     scope: "world",
@@ -261,7 +262,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "clockSize", {
+  game.settings.register(SYSTEM_ID, "clockSize", {
     name: "TRESPASSER.Settings.Visuals.ClockSize.Name",
     hint: "TRESPASSER.Settings.Visuals.ClockSize.Hint",
     scope: "client",
@@ -270,7 +271,7 @@ export function registerSystemSettings() {
     default: 50
   });
 
-  game.settings.register("trespasser", "fontSizeBase", {
+  game.settings.register(SYSTEM_ID, "fontSizeBase", {
     name: "TRESPASSER.Settings.Visuals.FontSizeBase.Name",
     hint: "TRESPASSER.Settings.Visuals.FontSizeBase.Hint",
     scope: "client",
@@ -279,7 +280,7 @@ export function registerSystemSettings() {
     default: 14
   });
 
-  game.settings.register("trespasser", "showStatusEffectsOnTokens", {
+  game.settings.register(SYSTEM_ID, "showStatusEffectsOnTokens", {
     name: "TRESPASSER.Settings.Visuals.ShowStatusEffectsOnTokens.Name",
     hint: "TRESPASSER.Settings.Visuals.ShowStatusEffectsOnTokens.Hint",
     scope: "world",
@@ -288,7 +289,7 @@ export function registerSystemSettings() {
     default: true
   });
 
-  game.settings.register("trespasser", "tokenStatusIconScale", {
+  game.settings.register(SYSTEM_ID, "tokenStatusIconScale", {
     name: "TRESPASSER.Settings.Visuals.TokenStatusIconScale.Name",
     hint: "TRESPASSER.Settings.Visuals.TokenStatusIconScale.Hint",
     scope: "client",
@@ -340,7 +341,7 @@ export function registerSystemSettings() {
   ];
 
   for (const color of colorSettings) {
-    game.settings.register("trespasser", color.key, {
+    game.settings.register(SYSTEM_ID, color.key, {
       name: `TRESPASSER.Settings.Colors.${color.key}.Name`,
       scope: "client",
       config: false,
@@ -349,7 +350,7 @@ export function registerSystemSettings() {
     });
   }
 
-  game.settings.register("trespasser", "eventClocks", {
+  game.settings.register(SYSTEM_ID, "eventClocks", {
     name: "TRESPASSER.App.EventClocks.Title",
     scope: "world",
     config: false,
@@ -357,14 +358,14 @@ export function registerSystemSettings() {
     default: "[]"
   });
 
-  game.settings.register("trespasser", "deedMigrationVersion", {
+  game.settings.register(SYSTEM_ID, "deedMigrationVersion", {
     scope: "world",
     config: false,
     type: Number,
     default: 0
   });
 
-  game.settings.registerMenu("trespasser", "systemConfig", {
+  game.settings.registerMenu(SYSTEM_ID, "systemConfig", {
     name: "TRESPASSER.Settings.Title",
     label: "TRESPASSER.Settings.ButtonLabel",
     hint: "TRESPASSER.Settings.Hint",

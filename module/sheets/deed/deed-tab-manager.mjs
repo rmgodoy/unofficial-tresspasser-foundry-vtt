@@ -3,15 +3,15 @@
  * Tab switching and auto-resizing controller for TrespasserDeedSheet.
  */
 
+import { SYSTEM_ID } from "../../system-id.mjs";
+
 /**
- * Handles switching tabs with auto-resizing and uncommitted state persistence.
+ * Handles tab change operations and layout sizing for the deed sheet.
  * @param {object} sheet - TrespasserDeedSheet instance
- * @param {Event} event
- * @param {HTMLElement} target
+ * @param {PointerEvent} event
  */
-export async function handleDeedSwitchTab(sheet, event, target) {
-  event.preventDefault();
-  const tab = target.dataset.tab;
+export async function onTabChange(sheet, event) {
+  const tab = event.currentTarget.dataset.tab;
   if (tab && sheet.constructor.TABS[tab]) {
     const prevTab = sheet.tabGroups.primary;
     if (tab === prevTab) return;
@@ -23,7 +23,7 @@ export async function handleDeedSwitchTab(sheet, event, target) {
         await sheet.document.update({
           "system.graph": sheet.graphEditor.getGraph(),
           "system.graphVersion": 1,
-          "flags.trespasser.graphViewport": sheet._graphViewportState
+          [`flags.${SYSTEM_ID}.graphViewport`]: sheet._graphViewportState
         });
       }
     } else if (sheet.isEditable) {

@@ -3,6 +3,7 @@ import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { DEFAULT_PARAMS } from "../data/deed-default-params.mjs";
 import { mountGraphEditor, unmountGraphEditor } from "./deed/deed-graph-manager.mjs";
 import { handleDeedSwitchTab } from "./deed/deed-tab-manager.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 export { DEFAULT_PARAMS };
 
@@ -293,7 +294,7 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
     if (!this.isEditable) return;
     if (this.graphEditor) {
       this._graphViewportState = this.graphEditor.getViewportState();
-      formData.object["flags.trespasser.graphViewport"] = this._graphViewportState;
+      formData.object[`flags.${SYSTEM_ID}.graphViewport`] = this._graphViewportState;
 
       // Remove any raw node keys from formData.object so they don't corrupt the graph
       for (const key of Object.keys(formData.object)) {

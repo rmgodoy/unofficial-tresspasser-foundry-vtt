@@ -17,12 +17,15 @@ import { TreasureGenerator } from "../helpers/treasure-generator.mjs";
 import { TrespasserTreasureDialog } from "../dialogs/treasure-dialog.mjs";
 import { StatusIntensityDialog } from "../dialogs/status-intensity-dialog.mjs";
 import { formatDiceIcons, replaceDiceInElement } from "../helpers/dice-icon-helper.mjs";
+import { SYSTEM_ID, getSystemId } from "../system-id.mjs";
 
 /**
  * Expose system utilities, helpers, and dialogs to game.trespasser and globalThis.trespasser.
  */
 export function initializeSystemNamespace() {
   game.trespasser = game.trespasser || {};
+  game.trespasser.SYSTEM_ID = SYSTEM_ID;
+  game.trespasser.getSystemId = getSystemId;
   game.trespasser.ItemExporter = ItemExporter;
   game.trespasser.Config = TrespasserConfigV2;
   game.trespasser.EventClocks = EventClocksTracker;

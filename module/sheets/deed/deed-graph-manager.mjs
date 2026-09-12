@@ -1,6 +1,7 @@
 import { createDefaultDeedGraph } from "../../data/item-deed.mjs";
 import { GraphEditor } from "../../components/graph-editor/graph-editor.mjs";
 import { GraphPropertiesPanel } from "../../components/graph-editor/graph-properties-panel.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 /**
  * Mounts or re-mounts the GraphEditor and GraphPropertiesPanel on a deed sheet.
@@ -18,7 +19,7 @@ export function mountGraphEditor(sheet, graphContainer, propertiesContainer) {
     sheet.graphEditor.destroy();
   }
 
-  const savedState = sheet._graphViewportState || sheet.document.getFlag("trespasser", "graphViewport");
+  const savedState = sheet._graphViewportState || sheet.document.getFlag(SYSTEM_ID, "graphViewport");
 
   sheet.graphEditor = new GraphEditor(graphContainer, {
     readOnly: !sheet.isEditable,
@@ -34,7 +35,7 @@ export function mountGraphEditor(sheet, graphContainer, propertiesContainer) {
       await sheet.document.update({
         "system.graph": graphData,
         "system.graphVersion": 1,
-        "flags.trespasser.graphViewport": sheet._graphViewportState
+        [`flags.${SYSTEM_ID}.graphViewport`]: sheet._graphViewportState
       });
     },
     onViewportChange: (viewportState) => {
