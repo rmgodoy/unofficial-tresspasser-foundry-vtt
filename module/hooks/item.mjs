@@ -71,7 +71,7 @@ export function registerItemHooks() {
         return false;
       }
 
-      if (game.combat) {
+      if (game.combat && !TrespasserEffectsHelper.isSpecialState(item)) {
         item.updateSource({ [`flags.${SYSTEM_ID}.acquiredDuringCombat`]: true });
       }
 

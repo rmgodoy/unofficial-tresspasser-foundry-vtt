@@ -58,6 +58,8 @@ import {
   getCombatTrackerEffects
 } from "../effects/effects-token-sync.mjs";
 
+import { isSpecialState } from "../config/status-effects.mjs";
+
 export {
   TRIGGER_WHEN,
   TRIGGER_LABELS,
@@ -95,7 +97,8 @@ export {
   getMatchingCustomStatus,
   isCounterEffectMatch,
   refreshTokensForActor,
-  getCombatTrackerEffects
+  getCombatTrackerEffects,
+  isSpecialState
 };
 
 export class TrespasserEffectsHelper {
@@ -225,5 +228,9 @@ export class TrespasserEffectsHelper {
 
   static getCombatTrackerEffects(actor) {
     return getCombatTrackerEffects(actor);
+  }
+
+  static isSpecialState(item) {
+    return isSpecialState(item);
   }
 }

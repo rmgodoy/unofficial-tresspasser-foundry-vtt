@@ -207,3 +207,65 @@ export const ENCUMBERED_EFFECT_DATA = {
     }
   }
 };
+
+export const SPECIAL_STATUS_EFFECT_IDS = new Set([
+  "defeated",
+  "bloodied",
+  "encumbered",
+  "engaged",
+  "grappled",
+  "toppled",
+  "shadowy",
+  "tenacious"
+]);
+
+export const SPECIAL_STATUS_COMPENDIUM_IDS = new Set([
+  "6FxfJOtvNfItQmCO",
+  "4xEKVGCw0Xw71JBR",
+  "EnCumbEredSt0001",
+  "EnGagedStAte0001",
+  "risZeWoRLbDjgmHA",
+  "SihFJEG1cPOzBaXN",
+  "D3tj8ogo4Uygc7Sg",
+  "ucUF4hsZP7f1fJM6"
+]);
+
+export const SPECIAL_STATES_FOLDER_ID = "EtoWy6iRAXCIBITx";
+
+/**
+ * Check if an effect item represents a persistent special state (Bloodied, Tenacious, Engaged, Encumbered, etc.)
+ * that must not be deleted at the end of combat.
+ * @param {Item} item
+ * @returns {boolean}
+ */
+export function isSpecialState(item) {
+  if (!item || (item.type !== "effect" && item.type !== "state")) return false;
+
+  const flags = item.flags?.[SYSTEM_ID] || item.flags?.trespasser || {};
+  if (flags.isBloodiedState || flags.isTenaciousState || flags.isEngagedState || flags.isEncumberedState) {
+    return true;
+  }
+  if (flags.statusEffectId && SPECIAL_STATUS_EFFECT_IDS.has(flags.statusEffectId)) {
+    return true;
+  }
+
+  const sourceId = item.flags?.core?.sourceId || item._stats?.compendiumSource || "";
+  for (const compId of SPECIAL_STATUS_COMPENDIUM_IDS) {
+    if (sourceId.includes(compId)) return true;
+  }
+
+  if (SPECIAL_STATUS_COMPENDIUM_IDS.has(item._id) || SPECIAL_STATUS_COMPENDIUM_IDS.has(item.id)) {
+    return true;
+  }
+
+  if (item.folder?.id === SPECIAL_STATES_FOLDER_ID || item.folder === SPECIAL_STATES_FOLDER_ID) {
+    return true;
+  }
+
+  const name = item.name?.toLowerCase()?.trim();
+  if (name && SPECIAL_STATUS_EFFECT_IDS.has(name)) {
+    return true;
+  }
+
+  return false;
+}

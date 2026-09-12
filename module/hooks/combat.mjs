@@ -1,6 +1,7 @@
 import { renderPhasedCombatTracker } from "./combat-tracker-render.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { DurationHelper } from "../helpers/duration-helper.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Register combat lifecycle hooks and combat tracker rendering.
@@ -13,8 +14,9 @@ export function registerCombatHooks() {
 
   // Turn marker update on active phase change and refresh token effects on round advance / phase change / combat start
   Hooks.on("updateCombat", async (combat, changed, options, userId) => {
-    if (changed.flags?.trespasser?.activePhase !== undefined) {
-      combat.updateTurnMarkers(changed.flags.trespasser.activePhase);
+    const activePhase = changed.flags?.[SYSTEM_ID]?.activePhase ?? changed.flags?.trespasser?.activePhase;
+    if (activePhase !== undefined) {
+      combat.updateTurnMarkers(activePhase);
       for (const c of combat.combatants) {
         if (c.actor) TrespasserEffectsHelper.syncActorTokenEffects(c.actor);
       }
@@ -39,10 +41,10 @@ export function registerCombatHooks() {
   Hooks.on("updateCombatant", (combatant, changed, options, userId) => {
     if (!game.combat) return;
     const isDefeatedChanged = changed.defeated !== undefined;
-    const isAPChanged = changed.flags?.trespasser?.actionPoints !== undefined;
+    const isAPChanged = (changed.flags?.[SYSTEM_ID]?.actionPoints !== undefined) || (changed.flags?.trespasser?.actionPoints !== undefined);
     const isInitiativeChanged = changed.initiative !== undefined;
     if (isDefeatedChanged || isAPChanged || isInitiativeChanged) {
-      const activePhase = game.combat.getFlag("trespasser", "activePhase");
+      const activePhase = game.combat.getFlag(SYSTEM_ID, "activePhase") ?? game.combat.getFlag("trespasser", "activePhase");
       game.combat.updateTurnMarkers(activePhase);
     }
 
@@ -59,18 +61,22 @@ export function registerCombatHooks() {
       if (c.actor) {
         await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");
 
-        // Remove combat states that were acquired during combat
+        // Remove combat states that were acquired during combat (excluding persistent special states)
         const acquiredInCombat = c.actor.items.filter(i => {
           if (i.type !== "effect") return false;
-          return i.getFlag("trespasser", "acquiredDuringCombat") === true && i.system.isCombat && !i.system.isLasting;
+          if (TrespasserEffectsHelper.isSpecialState(i)) return false;
+          const wasAcquired = i.getFlag(SYSTEM_ID, "acquiredDuringCombat") === true ||
+                              i.getFlag("trespasser", "acquiredDuringCombat") === true;
+          return wasAcquired && i.system.isCombat && !i.system.isLasting;
         });
         for (const eff of acquiredInCombat) {
           await eff.delete();
         }
         
-        // Remove effects where combat-end triggers expiry
+        // Remove effects where combat-end triggers expiry (excluding persistent special states)
         const toRemove = c.actor.items.filter(i => {
           if (i.type !== "effect") return false;
+          if (TrespasserEffectsHelper.isSpecialState(i)) return false;
           return DurationHelper.shouldExpire(i) || i.system.duration === "combat";
         });
         for (const eff of toRemove) {
@@ -85,9 +91,16 @@ export function registerCombatHooks() {
           await w.update({ "system.isThrown": false });
         }
 
-        if (c.actor.getFlag("trespasser", "failedTenacityThisEncounter")) {
+        if (c.actor.getFlag(SYSTEM_ID, "failedTenacityThisEncounter") || c.actor.getFlag("trespasser", "failedTenacityThisEncounter")) {
+          await c.actor.unsetFlag(SYSTEM_ID, "failedTenacityThisEncounter");
           await c.actor.unsetFlag("trespasser", "failedTenacityThisEncounter");
         }
+
+        // Re-evaluate and synchronize persistent passive states
+        await TrespasserEffectsHelper.syncActorBloodiedItem(c.actor);
+        await TrespasserEffectsHelper.syncActorTenaciousItem(c.actor);
+        await TrespasserEffectsHelper.syncActorEncumberedItem(c.actor);
+        await TrespasserEffectsHelper.syncActorEngagedItem(c.actor);
 
         TrespasserEffectsHelper.syncActorTokenEffects(c.actor);
       }
@@ -114,7 +127,7 @@ export function registerCombatHooks() {
 
     for (const comp of boundCompanions) {
       if (comp.initiative !== changes.initiative) {
-        await comp.update({ initiative: changes.initiative, "flags.trespasser.initiativePending": false });
+        await comp.update({ initiative: changes.initiative, [`flags.${SYSTEM_ID}.initiativePending`]: false });
       }
     }
   });
@@ -135,7 +148,8 @@ export function registerCombatHooks() {
 
     const charCombatant = combat.combatants.find(c => c.actorId === boundCharId && !c.defeated);
     if (charCombatant?.initiative != null && combatant.initiative !== charCombatant.initiative) {
-      await combatant.update({ initiative: charCombatant.initiative, "flags.trespasser.initiativePending": false });
+      await combatant.update({ initiative: charCombatant.initiative, [`flags.${SYSTEM_ID}.initiativePending`]: false });
     }
   });
 }
+
