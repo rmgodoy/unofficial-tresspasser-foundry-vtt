@@ -1,14 +1,24 @@
-<div class="trespasser-clock" data-id="{{id}}">
+<div class="trespasser-clock" {{#if id}}data-id="{{id}}"{{/if}}>
   <div class="clock-svg-wrapper" title="{{current}} / {{max}}">
-    <svg class="clock-svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+    <svg class="clock-svg{{#if svgClass}} {{svgClass}}{{/if}}" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
       <circle cx="50" cy="50" r="44" fill="var(--trp-bg-panel)" stroke="var(--trp-border-light)" stroke-width="1.5"/>
       {{#each segments as |seg i|}}
         <path class="clock-segment {{#if seg.filled}}filled{{/if}}" 
               data-index="{{i}}" 
               d="{{seg.path}}" 
-              data-action="{{../action}}" />
+              {{#if ../action}}data-action="{{../action}}"{{/if}} />
       {{/each}}
-      <text x="50" y="55" class="clock-label-num">{{current}}</text>
+      {{#if showMax}}
+        <g class="clock-label-group clock-label-stacked" pointer-events="none">
+          <text x="50" y="35" class="clock-label-num" dominant-baseline="central" text-anchor="middle" pointer-events="none">{{current}}</text>
+          <line x1="36" y1="50" x2="64" y2="50" class="clock-label-divider" stroke="var(--trp-border-light)" stroke-width="1.5" pointer-events="none"/>
+          <text x="50" y="65" class="clock-label-total" dominant-baseline="central" text-anchor="middle" pointer-events="none">{{max}}</text>
+        </g>
+      {{else}}
+        <g class="clock-label-group clock-label-single" pointer-events="none">
+          <text x="50" y="50" class="clock-label-num" dominant-baseline="central" text-anchor="middle" pointer-events="none">{{current}}</text>
+        </g>
+      {{/if}}
     </svg>
   </div>
 </div>

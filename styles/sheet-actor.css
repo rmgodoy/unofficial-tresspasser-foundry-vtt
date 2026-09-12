@@ -653,39 +653,80 @@
 }
 
 /* Filled segment — injury context override */
-.char-injuries .clock-segment.filled {
+.char-injuries .clock-segment.filled,
+.injury-sheet .clock-segment.filled {
   fill: var(--trp-red-dim);
   stroke: var(--trp-red);
 }
 
-.char-injuries .clock-segment:hover {
+.char-injuries .clock-segment:hover,
+.injury-sheet .clock-segment:hover {
   fill: var(--trp-red-overlay);
   stroke: var(--trp-red);
 }
 
-.char-injuries .clock-segment.filled:hover {
+.char-injuries .clock-segment.filled:hover,
+.injury-sheet .clock-segment.filled:hover {
   fill: var(--trp-red-overlay);
   stroke: var(--trp-red);
 }
 
-/* Clock centre text */
+/* ─── Clock Centre Labels ─── */
+.clock-label-group {
+  pointer-events: none;
+  user-select: none;
+}
+
 .clock-label-num {
   font-family: var(--trp-font-header);
-  font-size: var(--fs-22);
   font-weight: 700;
   fill: var(--trp-text-bright);
   text-anchor: middle;
-  dominant-baseline: middle;
+  dominant-baseline: central;
   pointer-events: none;
 }
 
 .clock-label-total {
   font-family: var(--trp-font-header);
-  font-size: var(--fs-18);
+  font-weight: 600;
   fill: var(--trp-text-dim);
   text-anchor: middle;
-  dominant-baseline: middle;
+  dominant-baseline: central;
   pointer-events: none;
+}
+
+.clock-label-divider {
+  stroke: var(--trp-border-light);
+  stroke-width: 1.5;
+  pointer-events: none;
+}
+
+/* Stacked mode (fraction: current above divider, total below) */
+.clock-label-stacked .clock-label-num {
+  font-size: var(--fs-16);
+}
+
+.clock-label-stacked .clock-label-total {
+  font-size: var(--fs-13);
+}
+
+/* Single mode (only current number) */
+.clock-label-single .clock-label-num,
+:not(.clock-label-stacked) > .clock-label-num {
+  font-size: var(--fs-22);
+}
+
+/* Mini clock overrides (character sheet cards) */
+.injury-clock-widget .clock-label-stacked .clock-label-num {
+  font-size: var(--fs-12);
+}
+
+.injury-clock-widget .clock-label-stacked .clock-label-total {
+  font-size: var(--fs-9);
+}
+
+.injury-clock-widget .clock-label-single .clock-label-num {
+  font-size: var(--fs-16);
 }
 
 /* ─── Injury Item Sheet (used for clock visualization) ─── */
@@ -697,7 +738,15 @@
   padding: 10px 0;
 }
 
-.injury-sheet .injury-clock-svg {
+.injury-sheet .trespasser-clock,
+.injury-sheet .clock-svg-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.injury-sheet .injury-clock-svg,
+.injury-sheet .clock-svg {
   width: 140px;
   height: 140px;
   display: block;

@@ -57,6 +57,8 @@
         "LostTwoEndurance": "Lost 2 Endurance (first failure this encounter).",
         "RollInjuryTable": "Roll Injury Table (1d8, 1d4)",
         "InjuryRollResultTitle": "{name} - Grievous Injury",
+        "InjuryRolled": "Injury Rolled",
+        "InjuryAddedToActor": "{item} added to {actor}.",
         "RollFormula": "Roll",
         "NoTenacityNeeded": "{name} has above 0 HP and does not need to roll Tenacity.",
         "Staggered": "Staggered",

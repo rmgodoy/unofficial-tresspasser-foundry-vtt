@@ -57,6 +57,8 @@
         "LostTwoEndurance": "Perdeu 2 de Vigor (primeira derrota/falha neste combate).",
         "RollInjuryTable": "Rolar Tabela de Ferimentos (1d8, 1d4)",
         "InjuryRollResultTitle": "{name} - Ferimento Grave",
+        "InjuryRolled": "Ferimento Rolado",
+        "InjuryAddedToActor": "{item} adicionado a {actor}.",
         "RollFormula": "Rolagem",
         "NoTenacityNeeded": "{name} tem mais de 0 PV e não precisa rolar Tenacidade.",
         "Staggered": "Abalado",
