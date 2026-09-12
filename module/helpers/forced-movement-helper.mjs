@@ -4,6 +4,7 @@
  */
 
 import { MovementHelper } from "./movement-helper.mjs";
+import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 import { showTargetOrderPanel } from "../movement/target-ordering-panel.mjs";
 import {
   testNativeWallCollision,
@@ -86,6 +87,12 @@ export class ForcedMovementHelper {
           if (ownsTarget && ownsSource) {
             if (result.path && result.path.length > 0) {
               await this.animateTokenAlongPath(movingToken, result.movingPath, otherToken, result.compoundPath);
+              if (movingToken?.actor) {
+                await TrespasserEffectsHelper.triggerEffects(movingToken.actor, "on-move");
+              }
+              if (otherToken?.actor) {
+                await TrespasserEffectsHelper.triggerEffects(otherToken.actor, "on-move");
+              }
             }
             await this.postCollisionDamage(targetToken, result.collisions, result.totalDamage);
           } else {

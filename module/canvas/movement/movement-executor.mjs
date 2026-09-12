@@ -94,7 +94,7 @@ export async function executeTokenMovement(host) {
                 if (isFirst && totalCost > 0) {
                     await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
                 }
-                for (let i = 0; i < totalCost; i++) {
+                if (totalCost > 0) {
                     await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
                 }
             }

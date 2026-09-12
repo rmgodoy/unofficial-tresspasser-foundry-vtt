@@ -202,6 +202,13 @@ async function _handleForceMoveTokens(data) {
       await canvas.scene.updateEmbeddedDocuments("Token", updates, { trespasserForcedMovement: true });
       await new Promise(resolve => setTimeout(resolve, 300));
     }
+    const { TrespasserEffectsHelper } = await import("../effects-helper.mjs");
+    if (movingToken?.actor) {
+      await TrespasserEffectsHelper.triggerEffects(movingToken.actor, "on-move");
+    }
+    if (otherToken?.actor) {
+      await TrespasserEffectsHelper.triggerEffects(otherToken.actor, "on-move");
+    }
   }
 
   if (targetToken && collisions?.length > 0 && totalDamage > 0) {

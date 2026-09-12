@@ -249,7 +249,7 @@ export class VaultMovementMode {
                 if (isFirst && moveDist > 0) {
                     await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
                 }
-                for (let i = 0; i < moveDist; i++) {
+                if (moveDist > 0) {
                     await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
                 }
             }

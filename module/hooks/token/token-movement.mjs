@@ -163,7 +163,7 @@ export function registerTokenMovementHooks() {
           await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
         }
 
-        for (let i = 0; i < dist; i++) {
+        if (dist > 0) {
           await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
         }
       }
