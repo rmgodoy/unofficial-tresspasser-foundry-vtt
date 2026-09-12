@@ -174,28 +174,53 @@ export class EngagementHelper {
   }
 
   /**
-   * Debounced function to refresh all tokens and open actor sheets
+   * Debounced function to refresh tokens and open actor sheets
    * when token positions or combat state change.
    */
   static refreshAllEngagement = foundry.utils.debounce(async () => {
     if (!canvas?.ready || !canvas.tokens?.placeables) return;
 
-    // Synchronize engaged effect items for actors on canvas
-    if (game.user?.isGM) {
-      const seenActors = new Set();
-      const syncPromises = [];
-      for (const token of canvas.tokens.placeables) {
-        const actor = token.actor;
-        const actorKey = actor?.uuid || actor?.id;
-        if (actor && actorKey && !seenActors.has(actorKey)) {
-          seenActors.add(actorKey);
-          syncPromises.push(TrespasserEffectsHelper.syncActorEngagedItem(actor));
+    // Track which actors had their engagement status change
+    const changedActorKeys = new Set();
+    const seenActors = new Map();
+
+    for (const token of canvas.tokens.placeables) {
+      const actor = token.actor;
+      if (!actor) continue;
+      const actorKey = actor.uuid || actor.id;
+      if (!seenActors.has(actorKey)) {
+        seenActors.set(actorKey, actor);
+      }
+    }
+
+    // Determine current engagement for canvas actors and detect state changes
+    for (const [actorKey, actor] of seenActors.entries()) {
+      const currentEngaged = EngagementHelper.isActorEngaged(actor);
+      if (actor._trespasserEngagedState === undefined) {
+        actor._trespasserEngagedState = currentEngaged;
+        if (currentEngaged) {
+          changedActorKeys.add(actorKey);
+          if (actor.id) changedActorKeys.add(actor.id);
+          if (actor.uuid) changedActorKeys.add(actor.uuid);
         }
+      } else if (actor._trespasserEngagedState !== currentEngaged) {
+        actor._trespasserEngagedState = currentEngaged;
+        changedActorKeys.add(actorKey);
+        if (actor.id) changedActorKeys.add(actor.id);
+        if (actor.uuid) changedActorKeys.add(actor.uuid);
+      }
+    }
+
+    // Synchronize engaged effect items for actors on canvas (GM only)
+    if (game.user?.isGM) {
+      const syncPromises = [];
+      for (const actor of seenActors.values()) {
+        syncPromises.push(TrespasserEffectsHelper.syncActorEngagedItem(actor));
       }
       await Promise.allSettled(syncPromises);
     }
 
-    // Refresh token visual states
+    // Refresh token visual states on canvas
     for (const token of canvas.tokens.placeables) {
       if (token.renderFlags) {
         token.renderFlags.set({ refreshEffects: true });
@@ -204,63 +229,84 @@ export class EngagementHelper {
       }
     }
 
-    // Re-render open actor sheets so deed cards reflect current engagement
-    const seenSheets = new Set();
-    const addSheet = (sheet) => {
-      if (sheet && sheet.rendered && !seenSheets.has(sheet)) {
-        seenSheets.add(sheet);
-      }
-    };
-
-    // 1. Check ApplicationV2 instances (Foundry V12+ / V14)
-    if (foundry.applications?.instances) {
-      for (const app of foundry.applications.instances.values()) {
-        const isActorSheet = Boolean(app.actor || app.document?.documentName === "Actor");
-        if (isActorSheet) addSheet(app);
-      }
-    }
-
-    // 2. Check legacy ApplicationV1 windows
-    for (const win of Object.values(ui.windows || {})) {
-      if (win.actor || win.document?.documentName === "Actor") {
-        addSheet(win);
-      }
-    }
-
-    // 3. Directly check open sheets of canvas tokens
-    for (const token of canvas.tokens.placeables) {
-      if (token.actor?.sheet) {
-        addSheet(token.actor.sheet);
-      }
-    }
-
-    // 4. Check game.actors for any open sheets
-    for (const actor of (game.actors || [])) {
-      if (actor.sheet) {
-        addSheet(actor.sheet);
-      }
-    }
-
-    // Force re-render all unique open actor sheets
-    for (const sheet of seenSheets) {
-      try {
-        if (sheet.isAppV2 || sheet.constructor?.PARTS || sheet.options?.parts) {
-          sheet.render({ force: true });
-        } else {
-          sheet.render(true, { force: true });
+    // Re-render open actor sheets ONLY for actors whose engagement state changed
+    if (changedActorKeys.size > 0) {
+      const seenSheets = new Set();
+      const addSheetIfRelevant = (sheet) => {
+        if (!sheet || !sheet.rendered || seenSheets.has(sheet)) return;
+        const sheetActor = sheet.actor || sheet.document;
+        if (!sheetActor || (sheetActor.documentName && sheetActor.documentName !== "Actor")) return;
+        const keyMatch = (sheetActor.id && changedActorKeys.has(sheetActor.id)) ||
+                         (sheetActor.uuid && changedActorKeys.has(sheetActor.uuid));
+        if (keyMatch) {
+          seenSheets.add(sheet);
         }
-      } catch (err) {
+      };
+
+      // 1. Check ApplicationV2 instances (Foundry V12+ / V14)
+      if (foundry.applications?.instances) {
+        for (const app of foundry.applications.instances.values()) {
+          addSheetIfRelevant(app);
+        }
+      }
+
+      // 2. Check legacy ApplicationV1 windows
+      for (const win of Object.values(ui.windows || {})) {
+        addSheetIfRelevant(win);
+      }
+
+      // 3. Directly check open sheets of canvas tokens whose actors changed
+      for (const token of canvas.tokens.placeables) {
+        if (token.actor?.sheet) {
+          addSheetIfRelevant(token.actor.sheet);
+        }
+      }
+
+      // Safely re-render open sheets of changed actors without stealing focus or unminimizing
+      for (const sheet of seenSheets) {
         try {
-          sheet.render(true);
-        } catch (e) {
-          console.warn("Trespasser | Failed to force re-render actor sheet:", e);
+          // If sheet is minimized, do not unminimize or re-render now.
+          // Flag for refresh when maximized.
+          if (sheet.minimized || sheet._minimized) {
+            sheet._trespasserNeedsEngagementRefresh = true;
+            continue;
+          }
+
+          // If the user is actively typing in this sheet, defer re-rendering until blur
+          const activeEl = document.activeElement;
+          const isFocusedInSheet = activeEl && sheet.element?.contains(activeEl) &&
+            (["INPUT", "TEXTAREA", "SELECT"].includes(activeEl.tagName) || activeEl.isContentEditable);
+
+          if (isFocusedInSheet) {
+            const onBlur = () => {
+              activeEl.removeEventListener("blur", onBlur);
+              if (sheet.rendered && !sheet.minimized && !sheet._minimized) {
+                try {
+                  sheet.render();
+                } catch (e) {
+                  console.warn("Trespasser | Failed to render deferred actor sheet:", e);
+                }
+              }
+            };
+            activeEl.addEventListener("blur", onBlur, { once: true });
+            continue;
+          }
+
+          // Safely render without force: true to avoid unminimizing or raising window depth
+          if (sheet.isAppV2 || sheet.constructor?.PARTS || sheet.options?.parts) {
+            sheet.render();
+          } else {
+            sheet.render(false);
+          }
+        } catch (err) {
+          console.warn("Trespasser | Failed to safely re-render actor sheet:", err);
         }
       }
     }
 
-    // 5. Re-render Token HUD if active
+    // 5. Re-render Token HUD if active (without force: true)
     if (game.trespasser?.tokenHUD?.rendered) {
-      game.trespasser.tokenHUD.render({ force: true });
+      game.trespasser.tokenHUD.render();
     }
   }, 50);
 }
