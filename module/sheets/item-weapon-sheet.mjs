@@ -238,6 +238,9 @@ export class TrespasserWeaponSheet extends TrespasserItemSheet {
   }
 
   static async #onSubmit(event, form, formData) {
+    if (Array.isArray(formData.object["system.thrownRange"])) {
+      formData.object["system.thrownRange"] = formData.object["system.thrownRange"][0] ?? "";
+    }
     await this.document.update(formData.object);
   }
 
