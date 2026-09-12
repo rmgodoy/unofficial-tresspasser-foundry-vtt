@@ -1,0 +1,51 @@
+{
+  "folder": "EtoWy6iRAXCIBITx",
+  "name": "Encumbered",
+  "type": "effect",
+  "_id": "EnCumbEredSt0001",
+  "img": "systems/trespasser/assets/icons/states/Encumbered.svg",
+  "system": {
+    "description": "<p>Your Armor Rating is 6 or higher. Agility is not added to Guard checks, and Speed Bonus is limited to +2.</p>",
+    "type": "continuous",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": false,
+    "statusIcon": "systems/trespasser/assets/icons/states/Encumbered.svg"
+  },
+  "effects": [],
+  "flags": {
+    "trespasser": {
+      "isEncumberedState": true,
+      "statusEffectId": "encumbered"
+    }
+  },
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1773341957281,
+    "modifiedTime": 1788358180711,
+    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+  },
+  "ownership": {
+    "default": 0,
+    "1IEGHQVcG6gLQyba": 3
+  },
+  "sort": 0,
+  "_key": "!items!EnCumbEredSt0001"
+}

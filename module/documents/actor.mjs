@@ -57,10 +57,11 @@ export class TrespasserActor extends Actor {
     const existingItem = this.items.find(i =>
       i.type === "effect" && (
         TrespasserEffectsHelper.getMatchingCustomStatus(i)?.id === status.id ||
-        i.getFlag("trespasser", "statusEffectId") === status.id ||
-        (status.id === "bloodied" && i.getFlag("trespasser", "isBloodiedState")) ||
-        (status.id === "tenacious" && i.getFlag("trespasser", "isTenaciousState")) ||
+        i.getFlag(SYSTEM_ID, "statusEffectId") === status.id ||
+        (status.id === "bloodied" && i.getFlag(SYSTEM_ID, "isBloodiedState")) ||
+        (status.id === "tenacious" && i.getFlag(SYSTEM_ID, "isTenaciousState")) ||
         (status.id === "engaged" && i.getFlag(SYSTEM_ID, "isEngagedState")) ||
+        (status.id === "encumbered" && i.getFlag(SYSTEM_ID, "isEncumberedState")) ||
         (status.compendiumId && (
           i.flags?.core?.sourceId?.includes(status.compendiumId) ||
           i._stats?.compendiumSource?.includes(status.compendiumId)
@@ -157,11 +158,14 @@ export class TrespasserActor extends Actor {
       if (status.id === "engaged") {
         itemData.flags[SYSTEM_ID].isEngagedState = true;
       }
+      if (status.id === "encumbered") {
+        itemData.flags[SYSTEM_ID].isEncumberedState = true;
+      }
 
       const created = await this.createEmbeddedDocuments("Item", [itemData]);
 
       // Clean up any loose ActiveEffects not tied to an item
-      const legacyAEs = this.effects?.filter(ae => ae.statuses?.has(status.id) && !ae.getFlag("trespasser", "sourceItem")) || [];
+      const legacyAEs = this.effects?.filter(ae => ae.statuses?.has(status.id) && !ae.getFlag(SYSTEM_ID, "sourceItem")) || [];
       if (legacyAEs.length > 0) {
         await this.deleteEmbeddedDocuments("ActiveEffect", legacyAEs.map(e => e.id));
       }

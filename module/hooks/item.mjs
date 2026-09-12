@@ -3,6 +3,7 @@ import { syncBoundCompanions } from "../helpers/companion-formula.mjs";
 import { ItemExporter } from "../helpers/item-exporter.mjs";
 import { TrespasserTreasureDialog } from "../dialogs/treasure-dialog.mjs";
 import { refreshTokensForActor } from "../effects/effects-token-sync.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Register Item lifecycle, icon assignment, effect countering, and directory hooks.
@@ -71,7 +72,7 @@ export function registerItemHooks() {
       }
 
       if (game.combat) {
-        item.updateSource({ "flags.trespasser.acquiredDuringCombat": true });
+        item.updateSource({ [`flags.${SYSTEM_ID}.acquiredDuringCombat`]: true });
       }
 
       if (intensityToApply !== system.intensity) {
@@ -142,6 +143,9 @@ export function registerItemHooks() {
     if (item.parent?.documentName === "Actor" && item.type === "effect") {
       TrespasserEffectsHelper.syncActorTokenEffects(item.parent);
     }
+    if (item.parent && item.type === "armor") {
+      await TrespasserEffectsHelper.syncActorEncumberedItem(item.parent);
+    }
 
     const actor = item.parent;
     if (!actor || actor.constructor.name !== "TrespasserActor") return;
@@ -180,10 +184,13 @@ export function registerItemHooks() {
     if (item.parent?.documentName === "Actor" && item.type === "effect") {
       TrespasserEffectsHelper.syncActorTokenEffects(item.parent);
       if (delta.system?.intensity !== undefined || foundry.utils.hasProperty(delta, "system.intensity")) {
-        if (game.trespasser?.TerrainHelper) {
-          await game.trespasser.TerrainHelper.onEffectIntensityUpdated(item, delta);
+        if (game[SYSTEM_ID]?.TerrainHelper || game.trespasser?.TerrainHelper) {
+          await (game[SYSTEM_ID]?.TerrainHelper || game.trespasser?.TerrainHelper).onEffectIntensityUpdated(item, delta);
         }
       }
+    }
+    if (item.parent && item.type === "armor") {
+      await TrespasserEffectsHelper.syncActorEncumberedItem(item.parent);
     }
 
     const actor = item.parent;
@@ -224,6 +231,9 @@ export function registerItemHooks() {
     if (item.parent?.documentName === "Actor" && item.type === "effect") {
       TrespasserEffectsHelper.syncActorTokenEffects(item.parent);
     }
+    if (item.parent && item.type === "armor") {
+      await TrespasserEffectsHelper.syncActorEncumberedItem(item.parent);
+    }
 
     const actor = item.parent;
     if (!actor || actor.constructor.name !== "TrespasserActor") return;
@@ -241,7 +251,7 @@ export function registerItemHooks() {
       if (sys.effects?.length > 0) await actor._removeLinkedItems(sys.effects, item.id);
     } else if (item.type === "injury") {
       const toRemove = actor.items.filter(
-        i => (i.type === "effect") && i.flags?.trespasser?.injuryId === item.id
+        i => (i.type === "effect") && i.flags?.[SYSTEM_ID]?.injuryId === item.id
       );
       for (const eff of toRemove) {
         await eff.delete();

@@ -1,12 +1,12 @@
 export const PASSIVE_STATES = {
   bloody: {
-    icon: "systems/trespasser/assets/icons/state-bloody.svg",
+    icon: "systems/trespasser/assets/icons/states/Bloodied.svg",
     label: "TRESPASSER.State.Bloody.Name",
     description: "TRESPASSER.State.Bloody.Description",
     tint: "#ff5252"
   },
   encumbered: {
-    icon: "systems/trespasser/assets/icons/state-encumbered.svg",
+    icon: "systems/trespasser/assets/icons/states/Encumbered.svg",
     label: "TRESPASSER.State.Encumbered.Name",
     description: "TRESPASSER.State.Encumbered.Description",
     tint: "#ffa726"

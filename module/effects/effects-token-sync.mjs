@@ -5,7 +5,9 @@ import {
   TENACIOUS_EFFECT_COMPENDIUM_ID,
   TENACIOUS_EFFECT_DATA,
   ENGAGED_EFFECT_COMPENDIUM_ID,
-  ENGAGED_EFFECT_DATA
+  ENGAGED_EFFECT_DATA,
+  ENCUMBERED_EFFECT_COMPENDIUM_ID,
+  ENCUMBERED_EFFECT_DATA
 } from "../config/status-effects.mjs";
 import { TargetingHelper } from "../helpers/targeting-helper.mjs";
 import { SYSTEM_ID } from "../system-id.mjs";
@@ -16,6 +18,7 @@ const _pendingReSyncs = new Set();
 const _bloodiedSyncLocks = new Set();
 const _tenaciousSyncLocks = new Set();
 const _engagedSyncLocks = new Set();
+const _encumberedSyncLocks = new Set();
 
 /**
  * Resolves whether an actor's item represents one of the 27 custom Trespasser states.
@@ -41,6 +44,10 @@ export function getMatchingCustomStatus(item) {
 
   if (item.getFlag(SYSTEM_ID, "isEngagedState") || item.name === "Engaged") {
     return TRESPASSER_STATUS_EFFECTS.find(s => s.id === "engaged") || null;
+  }
+
+  if (item.getFlag(SYSTEM_ID, "isEncumberedState") || item.name === "Encumbered") {
+    return TRESPASSER_STATUS_EFFECTS.find(s => s.id === "encumbered") || null;
   }
 
   const sourceId = item.flags?.core?.sourceId || item._stats?.compendiumSource;
@@ -153,8 +160,48 @@ export function getCombatTrackerEffects(actor) {
 }
 
 /**
+ * Helper to synchronize an automated passive or special state effect item on an actor.
+ * @private
+ */
+async function _syncSpecialStateItem(actor, { lockSet, isActive, flagName, statusEffectId, effectName, compendiumId, fallbackData }) {
+  if (!actor) return;
+  const actorKey = actor.uuid || actor.id;
+  if (!actorKey || lockSet.has(actorKey)) return;
+  lockSet.add(actorKey);
+
+  try {
+    const existingItem = actor.items.find(i =>
+      i.type === "effect" && (i.getFlag(SYSTEM_ID, flagName) === true || i.name === effectName)
+    );
+
+    if (isActive && !existingItem) {
+      let itemData = null;
+      const pack = game.packs?.get(`${SYSTEM_ID}.trespasser-content`);
+      if (pack && compendiumId) {
+        try {
+          const doc = await pack.getDocument(compendiumId);
+          if (doc) itemData = doc.toObject();
+        } catch (_) {}
+      }
+      if (!itemData) itemData = foundry.utils.deepClone(fallbackData);
+      delete itemData._id;
+      itemData.flags = itemData.flags || {};
+      itemData.flags[SYSTEM_ID] = itemData.flags[SYSTEM_ID] || {};
+      itemData.flags[SYSTEM_ID][flagName] = true;
+      itemData.flags[SYSTEM_ID].statusEffectId = statusEffectId;
+      await actor.createEmbeddedDocuments("Item", [itemData]);
+    } else if (!isActive && existingItem && existingItem.getFlag(SYSTEM_ID, flagName)) {
+      await actor.deleteEmbeddedDocuments("Item", [existingItem.id]);
+    }
+  } catch (err) {
+    console.error(`Trespasser | Failed to sync ${effectName.toLowerCase()} item for actor ${actor.name}:`, err);
+  } finally {
+    lockSet.delete(actorKey);
+  }
+}
+
+/**
  * Synchronizes the compendium Bloodied effect item on the actor based on current health.
- * Creates the effect item if HP <= max_health / 2, removes it if HP > max_health / 2.
  * @param {Actor} actor
  */
 export async function syncActorBloodiedItem(actor) {
@@ -162,92 +209,34 @@ export async function syncActorBloodiedItem(actor) {
   const health = actor.system?.health;
   const maxHealth = actor.system?.max_health;
   if (health === undefined || maxHealth === undefined || maxHealth <= 0) return;
-
-  const actorKey = actor.uuid || actor.id;
-  if (!actorKey || _bloodiedSyncLocks.has(actorKey)) return;
-  _bloodiedSyncLocks.add(actorKey);
-
-  try {
-    const isBloodied = Boolean(actor.system?.passiveStates?.bloody ?? (health <= (maxHealth / 2)));
-    const bloodiedItem = actor.items.find(i =>
-      i.type === "effect" && (i.getFlag(SYSTEM_ID, "isBloodiedState") === true || i.name === "Bloodied")
-    );
-
-    if (isBloodied && !bloodiedItem) {
-      let itemData = null;
-      const pack = game.packs?.get(`${SYSTEM_ID}.trespasser-content`);
-      if (pack) {
-        try {
-          const doc = await pack.getDocument(BLOODIED_EFFECT_COMPENDIUM_ID);
-          if (doc) itemData = doc.toObject();
-        } catch (_) {}
-      }
-      if (!itemData) {
-        itemData = foundry.utils.deepClone(BLOODIED_EFFECT_DATA);
-      }
-      delete itemData._id;
-      itemData.flags = itemData.flags || {};
-      itemData.flags[SYSTEM_ID] = itemData.flags[SYSTEM_ID] || {};
-      itemData.flags[SYSTEM_ID].isBloodiedState = true;
-
-      await actor.createEmbeddedDocuments("Item", [itemData]);
-    } else if (!isBloodied && bloodiedItem && bloodiedItem.getFlag(SYSTEM_ID, "isBloodiedState")) {
-      await actor.deleteEmbeddedDocuments("Item", [bloodiedItem.id]);
-    }
-  } catch (err) {
-    console.error(`Trespasser | Failed to sync bloodied item for actor ${actor.name}:`, err);
-  } finally {
-    _bloodiedSyncLocks.delete(actorKey);
-  }
+  const isActive = Boolean(actor.system?.passiveStates?.bloody ?? (health <= (maxHealth / 2)));
+  return _syncSpecialStateItem(actor, {
+    lockSet: _bloodiedSyncLocks,
+    isActive,
+    flagName: "isBloodiedState",
+    statusEffectId: "bloodied",
+    effectName: "Bloodied",
+    compendiumId: BLOODIED_EFFECT_COMPENDIUM_ID,
+    fallbackData: BLOODIED_EFFECT_DATA
+  });
 }
 
 /**
  * Synchronizes the compendium Tenacious effect item on the actor based on tenacious passive state.
- * Creates the effect item if tenacious is true, removes it if tenacious is false.
  * @param {Actor} actor
  */
 export async function syncActorTenaciousItem(actor) {
-  if (!actor || actor.type !== "character") return;
-  const health = actor.system?.health;
-  if (health === undefined) return;
-
-  const actorKey = actor.uuid || actor.id;
-  if (!actorKey || _tenaciousSyncLocks.has(actorKey)) return;
-  _tenaciousSyncLocks.add(actorKey);
-
-  try {
-    const isTenacious = Boolean(actor.system?.passiveStates?.tenacious ?? false);
-    const tenaciousItem = actor.items.find(i =>
-      i.type === "effect" && (i.getFlag(SYSTEM_ID, "isTenaciousState") === true || i.name === "Tenacious")
-    );
-
-    if (isTenacious && !tenaciousItem) {
-      let itemData = null;
-      const pack = game.packs?.get(`${SYSTEM_ID}.trespasser-content`);
-      if (pack) {
-        try {
-          const doc = await pack.getDocument(TENACIOUS_EFFECT_COMPENDIUM_ID);
-          if (doc) itemData = doc.toObject();
-        } catch (_) {}
-      }
-      if (!itemData) {
-        itemData = foundry.utils.deepClone(TENACIOUS_EFFECT_DATA);
-      }
-      delete itemData._id;
-      itemData.flags = itemData.flags || {};
-      itemData.flags[SYSTEM_ID] = itemData.flags[SYSTEM_ID] || {};
-      itemData.flags[SYSTEM_ID].isTenaciousState = true;
-      itemData.flags[SYSTEM_ID].statusEffectId = "tenacious";
-
-      await actor.createEmbeddedDocuments("Item", [itemData]);
-    } else if (!isTenacious && tenaciousItem && tenaciousItem.getFlag(SYSTEM_ID, "isTenaciousState")) {
-      await actor.deleteEmbeddedDocuments("Item", [tenaciousItem.id]);
-    }
-  } catch (err) {
-    console.error(`Trespasser | Failed to sync tenacious item for actor ${actor.name}:`, err);
-  } finally {
-    _tenaciousSyncLocks.delete(actorKey);
-  }
+  if (!actor || actor.type !== "character" || actor.system?.health === undefined) return;
+  const isActive = Boolean(actor.system?.passiveStates?.tenacious ?? false);
+  return _syncSpecialStateItem(actor, {
+    lockSet: _tenaciousSyncLocks,
+    isActive,
+    flagName: "isTenaciousState",
+    statusEffectId: "tenacious",
+    effectName: "Tenacious",
+    compendiumId: TENACIOUS_EFFECT_COMPENDIUM_ID,
+    fallbackData: TENACIOUS_EFFECT_DATA
+  });
 }
 
 /**
@@ -257,44 +246,36 @@ export async function syncActorTenaciousItem(actor) {
  */
 export async function syncActorEngagedItem(actor, engagedOverride) {
   if (!actor) return;
-  const actorKey = actor.uuid || actor.id;
-  if (!actorKey || _engagedSyncLocks.has(actorKey)) return;
-  _engagedSyncLocks.add(actorKey);
+  const token = actor.token?.object || actor.getActiveTokens?.(false, false)?.[0] || actor.getActiveTokens?.()[0] || canvas.tokens?.placeables?.find(t => t.actor?.id === actor.id || t.document?.actorId === actor.id) || null;
+  const isActive = engagedOverride !== undefined ? Boolean(engagedOverride) : (token ? TargetingHelper.isEngaged(token) : false);
+  return _syncSpecialStateItem(actor, {
+    lockSet: _engagedSyncLocks,
+    isActive,
+    flagName: "isEngagedState",
+    statusEffectId: "engaged",
+    effectName: "Engaged",
+    compendiumId: ENGAGED_EFFECT_COMPENDIUM_ID,
+    fallbackData: ENGAGED_EFFECT_DATA
+  });
+}
 
-  try {
-    const token = actor.token?.object || actor.getActiveTokens?.(false, false)?.[0] || actor.getActiveTokens?.()[0] || canvas.tokens?.placeables?.find(t => t.actor?.id === actor.id || t.document?.actorId === actor.id) || null;
-    const isEngaged = engagedOverride !== undefined
-      ? Boolean(engagedOverride)
-      : (token ? TargetingHelper.isEngaged(token) : false);
-
-    const engagedItem = actor.items.find(i =>
-      i.type === "effect" && (i.getFlag(SYSTEM_ID, "isEngagedState") === true || i.name === "Engaged")
-    );
-
-    if (isEngaged && !engagedItem) {
-      let itemData = null;
-      const pack = game.packs?.get(`${SYSTEM_ID}.trespasser-content`);
-      if (pack) {
-        try {
-          const doc = await pack.getDocument(ENGAGED_EFFECT_COMPENDIUM_ID);
-          if (doc) itemData = doc.toObject();
-        } catch (_) {}
-      }
-      if (!itemData) itemData = foundry.utils.deepClone(ENGAGED_EFFECT_DATA);
-      delete itemData._id;
-      itemData.flags = itemData.flags || {};
-      itemData.flags[SYSTEM_ID] = itemData.flags[SYSTEM_ID] || {};
-      itemData.flags[SYSTEM_ID].isEngagedState = true;
-      itemData.flags[SYSTEM_ID].statusEffectId = "engaged";
-      await actor.createEmbeddedDocuments("Item", [itemData]);
-    } else if (!isEngaged && engagedItem && engagedItem.getFlag(SYSTEM_ID, "isEngagedState")) {
-      await actor.deleteEmbeddedDocuments("Item", [engagedItem.id]);
-    }
-  } catch (err) {
-    console.error(`Trespasser | Failed to sync engaged item for actor ${actor.name}:`, err);
-  } finally {
-    _engagedSyncLocks.delete(actorKey);
-  }
+/**
+ * Synchronizes the compendium Encumbered effect item on the actor based on encumbered passive state.
+ * @param {Actor} actor
+ * @param {boolean} [encumberedOverride]
+ */
+export async function syncActorEncumberedItem(actor, encumberedOverride) {
+  if (!actor || (actor.type !== "character" && actor.type !== "commoner")) return;
+  const isActive = encumberedOverride !== undefined ? Boolean(encumberedOverride) : Boolean(actor.system?.passiveStates?.encumbered ?? false);
+  return _syncSpecialStateItem(actor, {
+    lockSet: _encumberedSyncLocks,
+    isActive,
+    flagName: "isEncumberedState",
+    statusEffectId: "encumbered",
+    effectName: "Encumbered",
+    compendiumId: ENCUMBERED_EFFECT_COMPENDIUM_ID,
+    fallbackData: ENCUMBERED_EFFECT_DATA
+  });
 }
 
 /**

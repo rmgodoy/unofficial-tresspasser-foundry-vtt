@@ -3,6 +3,7 @@ import { TrespasserTokenHUD } from "../hud/token-hud.mjs";
 import { TrespasserSocket } from "../helpers/socket/socket.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { registerStatusHudInterceptor } from "../hud/status-hud-interceptor.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Register the primary ready hook and post-load initializations.
@@ -24,30 +25,30 @@ export function registerReadyHooks() {
     if (game.user.isGM) {
       try {
         const worldStorage = game.settings.storage.get("world");
-        if (worldStorage?.getItem("trespasser.disregardRangeOnAttack") !== undefined &&
-            worldStorage?.getItem("trespasser.enforceAttackRange") === undefined) {
-          const oldVal = game.settings.get("trespasser", "disregardRangeOnAttack");
-          await game.settings.set("trespasser", "enforceAttackRange", !oldVal);
+        if (worldStorage?.getItem(`${SYSTEM_ID}.disregardRangeOnAttack`) !== undefined &&
+            worldStorage?.getItem(`${SYSTEM_ID}.enforceAttackRange`) === undefined) {
+          const oldVal = game.settings.get(SYSTEM_ID, "disregardRangeOnAttack");
+          await game.settings.set(SYSTEM_ID, "enforceAttackRange", !oldVal);
         }
-        if (worldStorage?.getItem("trespasser.bypassHavenBuildingLimits") !== undefined &&
-            worldStorage?.getItem("trespasser.enforceHavenBuildingLimits") === undefined) {
-          const oldVal = game.settings.get("trespasser", "bypassHavenBuildingLimits");
-          await game.settings.set("trespasser", "enforceHavenBuildingLimits", !oldVal);
+        if (worldStorage?.getItem(`${SYSTEM_ID}.bypassHavenBuildingLimits`) !== undefined &&
+            worldStorage?.getItem(`${SYSTEM_ID}.enforceHavenBuildingLimits`) === undefined) {
+          const oldVal = game.settings.get(SYSTEM_ID, "bypassHavenBuildingLimits");
+          await game.settings.set(SYSTEM_ID, "enforceHavenBuildingLimits", !oldVal);
         }
-        if (worldStorage?.getItem("trespasser.hideCreatureDamageRolls") !== undefined &&
-            worldStorage?.getItem("trespasser.showCreatureDamageRolls") === undefined) {
-          const oldVal = game.settings.get("trespasser", "hideCreatureDamageRolls");
-          await game.settings.set("trespasser", "showCreatureDamageRolls", !oldVal);
+        if (worldStorage?.getItem(`${SYSTEM_ID}.hideCreatureDamageRolls`) !== undefined &&
+            worldStorage?.getItem(`${SYSTEM_ID}.showCreatureDamageRolls`) === undefined) {
+          const oldVal = game.settings.get(SYSTEM_ID, "hideCreatureDamageRolls");
+          await game.settings.set(SYSTEM_ID, "showCreatureDamageRolls", !oldVal);
         }
-        if (worldStorage?.getItem("trespasser.groupCheckFullParty") !== undefined &&
-            worldStorage?.getItem("trespasser.enableGroupCheckSelection") === undefined) {
-          const oldVal = game.settings.get("trespasser", "groupCheckFullParty");
-          await game.settings.set("trespasser", "enableGroupCheckSelection", !oldVal);
+        if (worldStorage?.getItem(`${SYSTEM_ID}.groupCheckFullParty`) !== undefined &&
+            worldStorage?.getItem(`${SYSTEM_ID}.enableGroupCheckSelection`) === undefined) {
+          const oldVal = game.settings.get(SYSTEM_ID, "groupCheckFullParty");
+          await game.settings.set(SYSTEM_ID, "enableGroupCheckSelection", !oldVal);
         }
-        if (worldStorage?.getItem("trespasser.restrictHavenEditToLeader") !== undefined &&
-            worldStorage?.getItem("trespasser.allowAllPlayersHavenEdit") === undefined) {
-          const oldVal = game.settings.get("trespasser", "restrictHavenEditToLeader");
-          await game.settings.set("trespasser", "allowAllPlayersHavenEdit", !oldVal);
+        if (worldStorage?.getItem(`${SYSTEM_ID}.restrictHavenEditToLeader`) !== undefined &&
+            worldStorage?.getItem(`${SYSTEM_ID}.allowAllPlayersHavenEdit`) === undefined) {
+          const oldVal = game.settings.get(SYSTEM_ID, "restrictHavenEditToLeader");
+          await game.settings.set(SYSTEM_ID, "allowAllPlayersHavenEdit", !oldVal);
         }
       } catch (err) {
         console.warn("Trespasser | Settings migration check encountered an issue:", err);
@@ -55,11 +56,11 @@ export function registerReadyHooks() {
     }
 
     // Function to apply settings to CSS variables
-    game.trespasser.applySystemSettings = () => {
-      const clockSize = game.settings.get("trespasser", "clockSize") || 50;
+    const applySystemSettings = () => {
+      const clockSize = game.settings.get(SYSTEM_ID, "clockSize") || 50;
       document.documentElement.style.setProperty('--trp-clock-size', `${clockSize}px`);
 
-      const fontSize = game.settings.get("trespasser", "fontSizeBase") || 16;
+      const fontSize = game.settings.get(SYSTEM_ID, "fontSizeBase") || 16;
       document.documentElement.style.setProperty('--trp-font-size-base', `${fontSize}px`);
 
       // Apply colors
@@ -97,7 +98,7 @@ export function registerReadyHooks() {
       ];
 
       for (const c of colors) {
-        const val = game.settings.get("trespasser", c.key);
+        const val = game.settings.get(SYSTEM_ID, c.key);
         document.documentElement.style.setProperty(c.var, val);
         
         if (c.key === "colorShadowGold") {
@@ -118,8 +119,11 @@ export function registerReadyHooks() {
       }
     };
 
+    game.trespasser.applySystemSettings = applySystemSettings;
+    if (game[SYSTEM_ID]) game[SYSTEM_ID].applySystemSettings = applySystemSettings;
+
     // Initial application
-    game.trespasser.applySystemSettings();
+    applySystemSettings();
 
     const syncAllCanvasTokens = () => {
       if (game.user.isGM && game.actors) {
@@ -143,6 +147,7 @@ export function registerReadyHooks() {
           TrespasserEffectsHelper.syncActorBloodiedItem(token.actor);
           TrespasserEffectsHelper.syncActorTenaciousItem(token.actor);
           TrespasserEffectsHelper.syncActorEngagedItem(token.actor);
+          TrespasserEffectsHelper.syncActorEncumberedItem(token.actor);
           TrespasserEffectsHelper.syncActorTokenEffects(token.actor);
         }
       }
@@ -163,7 +168,7 @@ export function registerReadyHooks() {
 
         if (!this.effects) return;
 
-        const iconScale = game.settings.get("trespasser", "tokenStatusIconScale") ?? 1.0;
+        const iconScale = game.settings.get(SYSTEM_ID, "tokenStatusIconScale") ?? 1.0;
         if (Math.abs(iconScale - 1.0) < 0.01) return;
 
         this.effects.scale.set(1, 1);

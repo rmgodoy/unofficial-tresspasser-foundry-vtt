@@ -3,6 +3,7 @@ import { TargetingHelper } from "../helpers/targeting-helper.mjs";
 import { EngagementHelper } from "../helpers/engagement-helper.mjs";
 import { PASSIVE_STATES } from "../config/state-config.mjs";
 import { registerTokenMovementHooks } from "./token/token-movement.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 let _lastValidControlledTokens = [];
 
@@ -43,7 +44,8 @@ export function registerTokenHooks() {
       Promise.all([
         TrespasserEffectsHelper.syncActorBloodiedItem(actor),
         TrespasserEffectsHelper.syncActorTenaciousItem(actor),
-        TrespasserEffectsHelper.syncActorEngagedItem(actor)
+        TrespasserEffectsHelper.syncActorEngagedItem(actor),
+        TrespasserEffectsHelper.syncActorEncumberedItem(actor)
       ]).then(() => {
         TrespasserEffectsHelper.syncActorTokenEffects(actor);
       });
@@ -77,7 +79,8 @@ export function registerTokenHooks() {
       Promise.all([
         TrespasserEffectsHelper.syncActorBloodiedItem(actor),
         TrespasserEffectsHelper.syncActorTenaciousItem(actor),
-        TrespasserEffectsHelper.syncActorEngagedItem(actor)
+        TrespasserEffectsHelper.syncActorEngagedItem(actor),
+        TrespasserEffectsHelper.syncActorEncumberedItem(actor)
       ]).then(() => {
         TrespasserEffectsHelper.syncActorTokenEffects(actor);
       });
@@ -107,10 +110,10 @@ export function registerTokenHooks() {
     }
 
     const actor = token.actor ?? token.document?.actor;
-    const activeKeys = Object.entries(states).filter(([key, v]) => v && key !== "bloody" && key !== "tenacious" && key !== "engaged" && (actor?.type === "character" || key !== "encumbered"));
+    const activeKeys = Object.entries(states).filter(([key, v]) => v && key !== "bloody" && key !== "tenacious" && key !== "engaged" && key !== "encumbered");
     if (activeKeys.length === 0) return;
 
-    const iconScale = game.settings.get("trespasser", "tokenStatusIconScale") ?? 1.0;
+    const iconScale = game.settings.get(SYSTEM_ID, "tokenStatusIconScale") ?? 1.0;
     const padding = 2;
     const count = activeKeys.length;
     const baseSize = Math.max(14, Math.round(token.w * 0.22));
