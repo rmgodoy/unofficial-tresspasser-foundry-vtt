@@ -7,6 +7,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateFoundryId, sanitizeFileName } from "./effect-builder.mjs";
 import { handleValidateDeedGraph } from "./deed-validator.mjs";
+import { resolveItemInfo, registerRecentItem, invalidateCompendiumCache } from "./compendium-search.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -59,9 +60,9 @@ function buildNode(type, phase, params, x, y) {
 /**
  * Compiles declarative deed specifications into a complete Behavior Graph.
  * @param {object} spec - High-level deed definition
- * @returns {object} { nodes, connections, phases }
+ * @returns {Promise<object>} { nodes, connections, phases }
  */
-function compileDeclarativeGraph(spec) {
+async function compileDeclarativeGraph(spec) {
   const nodes = [];
   const connections = [];
 
@@ -129,7 +130,7 @@ function compileDeclarativeGraph(spec) {
   }
 
   // 3. Helper to insert an action node
-  const appendActionNode = (action, phaseKey, x, y, incomingId, incomingPort) => {
+  const appendActionNode = async (action, phaseKey, x, y, incomingId, incomingPort) => {
     const nodeParams = { ...(action.params || action) };
     delete nodeParams.type;
 
@@ -139,6 +140,25 @@ function compileDeclarativeGraph(spec) {
         nodeParams.placement = "selected_area";
         nodeParams.areaBehaviorId = createdAreaId;
       }
+      if (!nodeParams.terrainImg || !nodeParams.terrainImg.trim() || !nodeParams.terrainUuid) {
+        const info = await resolveItemInfo(nodeParams.terrainUuid, nodeParams.terrainName, "terrain");
+        if (!nodeParams.terrainImg || !nodeParams.terrainImg.trim()) nodeParams.terrainImg = info.img;
+        if (!nodeParams.terrainUuid) nodeParams.terrainUuid = info.uuid;
+        if (!nodeParams.terrainName) nodeParams.terrainName = info.name;
+      }
+    }
+
+    // Automatically resolve missing or empty effect icons and UUIDs
+    if (action.type === "applyEffects" && Array.isArray(nodeParams.effects)) {
+      nodeParams.effects = await Promise.all(nodeParams.effects.map(async (eff) => {
+        const info = await resolveItemInfo(eff.uuid, eff.name, "effect");
+        return {
+          uuid: eff.uuid || info.uuid,
+          name: eff.name || info.name,
+          img: eff.img || info.img,
+          intensity: eff.intensity !== undefined ? eff.intensity : 1
+        };
+      }));
     }
 
     const node = buildNode(action.type, phaseKey, nodeParams, x, y);
@@ -157,7 +177,7 @@ function compileDeclarativeGraph(spec) {
   // 4. Base Phase Actions (Main Flow before Accuracy)
   const baseActions = spec.phases?.base?.actions || [];
   for (const act of baseActions) {
-    const node = appendActionNode(act, "base", currentX, 180, lastMainId, lastMainPort);
+    const node = await appendActionNode(act, "base", currentX, 180, lastMainId, lastMainPort);
     lastMainId = node.id;
     lastMainPort = "out";
     currentX += STEP_X;
@@ -186,7 +206,7 @@ function compileDeclarativeGraph(spec) {
     let lastHitPort = "onHit";
     let hitX = currentX;
     for (const act of hitActions) {
-      const node = appendActionNode(act, "hit", hitX, 80, lastHitId, lastHitPort);
+      const node = await appendActionNode(act, "hit", hitX, 80, lastHitId, lastHitPort);
       lastHitId = node.id;
       lastHitPort = "out";
       hitX += STEP_X;
@@ -197,7 +217,7 @@ function compileDeclarativeGraph(spec) {
     let lastSparkPort = "onSpark";
     let sparkX = currentX;
     for (const act of sparkActions) {
-      const node = appendActionNode(act, "spark", sparkX, 280, lastSparkId, lastSparkPort);
+      const node = await appendActionNode(act, "spark", sparkX, 280, lastSparkId, lastSparkPort);
       lastSparkId = node.id;
       lastSparkPort = "out";
       sparkX += STEP_X;
@@ -208,7 +228,7 @@ function compileDeclarativeGraph(spec) {
     let lastMissPort = "onMiss";
     let missX = currentX;
     for (const act of missActions) {
-      const node = appendActionNode(act, "base", missX, 380, lastMissId, lastMissPort);
+      const node = await appendActionNode(act, "base", missX, 380, lastMissId, lastMissPort);
       lastMissId = node.id;
       lastMissPort = "out";
       missX += STEP_X;
@@ -239,7 +259,32 @@ export async function handleCreateDeed(params = {}) {
       connections: Array.isArray(params.graph.connections) ? params.graph.connections : []
     };
   } else {
-    graphData = compileDeclarativeGraph(params);
+    graphData = await compileDeclarativeGraph(params);
+  }
+
+  // Ensure all nodes in graph have valid resolved artwork and UUIDs
+  if (Array.isArray(graphData.nodes)) {
+    for (const node of graphData.nodes) {
+      if (node.type === "applyEffects" && Array.isArray(node.params?.effects)) {
+        for (const eff of node.params.effects) {
+          if (!eff.img || !eff.img.trim() || !eff.uuid) {
+            const info = await resolveItemInfo(eff.uuid, eff.name, "effect");
+            if (!eff.img || !eff.img.trim()) eff.img = info.img;
+            if (!eff.uuid) eff.uuid = info.uuid;
+            if (!eff.name) eff.name = info.name;
+          }
+        }
+      }
+      if (node.type === "spawnTerrain") {
+        node.params = node.params || {};
+        if (!node.params.terrainImg || !node.params.terrainImg.trim() || !node.params.terrainUuid) {
+          const info = await resolveItemInfo(node.params.terrainUuid, node.params.terrainName, "terrain");
+          if (!node.params.terrainImg || !node.params.terrainImg.trim()) node.params.terrainImg = info.img;
+          if (!node.params.terrainUuid) node.params.terrainUuid = info.uuid;
+          if (!node.params.terrainName) node.params.terrainName = info.name;
+        }
+      }
+    }
   }
 
   const phaseMeta = (desc = "") => ({ description: desc || "", skipPhase: false });
@@ -299,12 +344,15 @@ export async function handleCreateDeed(params = {}) {
   // Run automated graph validation
   const validation = handleValidateDeedGraph(deedDoc);
 
+  registerRecentItem(deedDoc);
+
   let savedFile = null;
   if (params.saveToPack) {
     const fileName = `${sanitizeFileName(name)}_${id}.json`;
     const filePath = path.join(PACKS_DIR, fileName);
     await fs.writeFile(filePath, JSON.stringify(deedDoc, null, 2), "utf-8");
     savedFile = filePath;
+    invalidateCompendiumCache();
   }
 
   return {

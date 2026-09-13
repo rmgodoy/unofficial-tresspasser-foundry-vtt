@@ -119,6 +119,28 @@ async function runTests() {
     if (!parsedEffect.uuid || parsedEffect.name !== "Test Frostbite") {
       throw new Error("create_effect output validation failed.");
     }
+    if (parsedEffect.item.system.isCombat !== true) {
+      throw new Error("create_effect failed: isCombat should default to true.");
+    }
+
+    // 4b. Create Reminder Only Effect (modifier = 0)
+    console.log("-> Testing reminder-only auto-detection (modifier: '0')...");
+    const reminderRes = await sendRequest("tools/call", {
+      name: "create_effect",
+      arguments: {
+        name: "Test Narrative Reminder",
+        modifier: "0",
+        when: "start-of-turn",
+        saveToPack: false
+      }
+    });
+    const parsedReminder = JSON.parse(reminderRes.content[0].text);
+    if (parsedReminder.item.system.isOnlyReminder !== true) {
+      throw new Error("create_effect failed: isOnlyReminder should default to true when modifier is 0.");
+    }
+    if (parsedReminder.item.system.isCombat !== true) {
+      throw new Error("create_effect failed: isCombat should default to true.");
+    }
 
     // 5. Create Terrain
     console.log("\n[TEST 5] Testing 'create_terrain'...");
@@ -195,7 +217,6 @@ async function runTests() {
                     intensity: 2
                   },
                   {
-                    uuid: parsedEffect.uuid,
                     name: "Test Frostbite",
                     intensity: 1
                   }
@@ -212,6 +233,17 @@ async function runTests() {
     console.log("-> Automated Validation Summary:", parsedDeed.validation?.summary);
     if (!parsedDeed.validation?.valid) {
       throw new Error(`Generated deed failed validation: ${JSON.stringify(parsedDeed.validation?.errors)}`);
+    }
+
+    const applyEffNode = parsedDeed.item.system.graph.nodes.find(n => n.type === "applyEffects");
+    for (const eff of applyEffNode.params.effects) {
+      console.log(`-> Resolved effect image & uuid for '${eff.name}':`, eff.img, eff.uuid);
+      if (!eff.img || !eff.img.trim()) {
+        throw new Error(`Effect '${eff.name}' has missing img in applyEffects node.`);
+      }
+      if (!eff.uuid || !eff.uuid.trim()) {
+        throw new Error(`Effect '${eff.name}' has missing uuid in applyEffects node.`);
+      }
     }
 
     // 7. Validate Deed Graph tool explicitly

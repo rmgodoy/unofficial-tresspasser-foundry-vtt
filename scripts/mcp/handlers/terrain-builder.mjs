@@ -6,6 +6,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateFoundryId, sanitizeFileName } from "./effect-builder.mjs";
+import { registerRecentItem, invalidateCompendiumCache } from "./compendium-search.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -145,12 +146,15 @@ export async function handleCreateTerrain(params = {}) {
     _key: `!items!${id}`
   };
 
+  registerRecentItem(terrainDoc);
+
   let savedFile = null;
   if (params.saveToPack) {
     const fileName = `${sanitizeFileName(name)}_${id}.json`;
     const filePath = path.join(PACKS_DIR, fileName);
     await fs.writeFile(filePath, JSON.stringify(terrainDoc, null, 2), "utf-8");
     savedFile = filePath;
+    invalidateCompendiumCache();
   }
 
   return {

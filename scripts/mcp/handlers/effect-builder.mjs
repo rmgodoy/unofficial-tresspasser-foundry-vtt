@@ -6,6 +6,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
 import { fileURLToPath } from "node:url";
+import { registerRecentItem, invalidateCompendiumCache } from "./compendium-search.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -57,7 +58,7 @@ export async function handleCreateEffect(params = {}) {
     throw new Error("Missing required field 'name' for Effect creation.");
   }
 
-  const id = generateFoundryId();
+  const id = params.id?.trim() || generateFoundryId();
   const name = params.name.trim();
 
   // Validate or fallback target attribute
@@ -72,6 +73,13 @@ export async function handleCreateEffect(params = {}) {
     triggerWhen = "continuous";
   }
 
+  // Detect whether effect has automated mechanical stat modification
+  const modStr = String(params.modifier ?? "0").trim();
+  const hasAutomation = Boolean(
+    (modStr !== "0" && modStr !== "") ||
+    (params.conferredState && String(params.conferredState).trim() !== "")
+  );
+
   const now = Date.now();
   const effectDoc = {
     name,
@@ -81,8 +89,8 @@ export async function handleCreateEffect(params = {}) {
       description: params.description || "",
       type: ["on-trigger", "continuous", "movement"].includes(params.type) ? params.type : "continuous",
       movementType: ["walk", "teleport", "jump"].includes(params.movementType) ? params.movementType : "walk",
-      isCombat: Boolean(params.isCombat),
-      isOnlyReminder: Boolean(params.isOnlyReminder),
+      isCombat: params.isCombat !== false,
+      isOnlyReminder: params.isOnlyReminder !== undefined ? Boolean(params.isOnlyReminder) : !hasAutomation,
       gmOnly: Boolean(params.gmOnly),
       intensity: Number(params.intensity ?? 0),
       targetAttribute: targetAttr,
@@ -122,12 +130,15 @@ export async function handleCreateEffect(params = {}) {
     _key: `!items!${id}`
   };
 
+  registerRecentItem(effectDoc);
+
   let savedFile = null;
   if (params.saveToPack) {
     const fileName = `${sanitizeFileName(name)}_${id}.json`;
     const filePath = path.join(PACKS_DIR, fileName);
     await fs.writeFile(filePath, JSON.stringify(effectDoc, null, 2), "utf-8");
     savedFile = filePath;
+    invalidateCompendiumCache();
   }
 
   return {

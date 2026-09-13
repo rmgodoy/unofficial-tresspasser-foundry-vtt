@@ -88,6 +88,14 @@ export const TOOLS_DEFINITIONS = [
         durationValue: { type: "number", description: "Numeric duration value if duration is round/trigger." },
         intensity: { type: "number", description: "Base intensity level (default: 0)." },
         intensityIncrement: { type: "number", description: "Intensity change per round or trigger." },
+        isCombat: {
+          type: "boolean",
+          description: "Whether this effect is active and evaluated in combat. Defaults to true (all effects conferred by deeds are combat effects)."
+        },
+        isOnlyReminder: {
+          type: "boolean",
+          description: "Whether this effect has no automated stat modification and should display its description in chat when triggered as a reminder. Defaults to true when modifier is '0' or empty."
+        },
         isPrevailable: { type: "boolean", description: "Whether the target can make a Prevail test to clear the effect (default: true)." },
         isLasting: { type: "boolean", description: "Whether the effect persists across scenes/rests (default: false)." },
         statusIcon: { type: "string", description: "Icon image path for token HUD status effect." },

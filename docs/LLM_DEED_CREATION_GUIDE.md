@@ -107,6 +107,13 @@ When `targeting.mode` is set to `"aoe"`, choose from:
 - `close_path`: Straight line shooting directly outward from caster.
 - `aura`: Mobile zone remaining centered on caster.
 
+### Effect Automation & Reminder Rules
+- **Combat Scope (`isCombat: true`)**: All effects conferred or gained in combat by deeds must be marked as `isCombat: true` (default).
+- **Reminder vs. Automated (`isOnlyReminder`)**:
+  - If the effect has **no automated stat modification** (e.g., `modifier: "0"` or narrative triggers like *"must attempt a light attack deed against the nearest creature"*), set `isOnlyReminder: true` (default when modifier is `"0"`). This ensures the effect triggers and displays its descriptive card in chat at the designated trigger point (e.g., `start-of-turn`).
+  - If the effect has mechanical automation (e.g. modifies guard, resist, hp, speed with `+<Int>`, `-2`, `+1d6`), `isOnlyReminder` should be `false`.
+- **Artwork & Icons**: When referencing effects in `applyEffects` or terrains in `spawnTerrain`, the compiler automatically resolves missing `img` fields using the compendium's canonical SVG/image artwork.
+
 ---
 
 ## 4. End-to-End Example
