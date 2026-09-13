@@ -1,0 +1,48 @@
+{
+  "name": "Berserk",
+  "type": "effect",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "<p>On its turn, the affected creature must attempt a light attack deed against the nearest creature before doing anything else, moving if needed. Then this state loses 1 INTENSITY.</p>",
+    "type": "on-trigger",
+    "movementType": "walk",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 1,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "start-of-turn",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": -1,
+    "counterStates": [],
+    "isPrevailable": true,
+    "isLasting": false,
+    "statusIcon": "",
+    "syncStatusIcon": true
+  },
+  "_id": "21f17f7c4c17d7fe",
+  "effects": [],
+  "folder": null,
+  "flags": {},
+  "_stats": {
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null,
+    "coreVersion": "14",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1789272827272,
+    "modifiedTime": 1789272827272,
+    "lastModifiedBy": "mcp-generator"
+  },
+  "ownership": {
+    "default": 0
+  },
+  "sort": 0,
+  "_key": "!items!21f17f7c4c17d7fe"
+}

@@ -153,8 +153,8 @@ export function detectSelfDamage(phases, fullText = "") {
     return raw.includes("<sd>") ? raw : `${raw}<sd>`;
   };
 
-  const selfDmgExpr = normalizeDmg(baseMatch) || "2<sd>";
-  const hitDmgExpr = normalizeDmg(hitMatch) || "3<sd>";
+  const selfDmgExpr = normalizeDmg(baseMatch) || "<sd>";
+  const hitDmgExpr = normalizeDmg(hitMatch) || "2<sd>";
   const hasAreaHealing = /\brestore\s+that\s+many\s+hit\s+points.*?(?:other\s+creatures|area)\b/i.test(combined);
 
   return { isSelfDamage: true, selfDmgExpr, hitDmgExpr, hasAreaHealing };
@@ -219,7 +219,7 @@ export function detectMissingHeal(phases, fullText = "") {
   }
 
   // Half damage healing
-  if (/\bregain\s+hit\s+points\s+equal\s+to\s+half\s+(?:the\s+)?damage\b/i.test(allText)) {
+  if (/\b(?:regain|restore)\s+hit\s+points\s+equal\s+to\s+half\s+(?:the\s+)?damage\b/i.test(allText)) {
     return { shouldHeal: true, expression: "/ 2", targetScope: "target", distribute: false };
   }
 

@@ -24,10 +24,11 @@ export function tryBuildSpecialDeedGraph(source, options = {}) {
 /**
  * Builds the graph for Blood Gift:
  * - Floating selectArea (Burst 6) at y: 40 (reference only)
- * - Floating roll (2<sd>) at y: 40 (reference only)
+ * - Floating roll (<sd>) at y: 40 (reference only, base/miss)
+ * - Floating roll (2<sd>) at y: 40 (reference only, hit)
  * - Main flow: start -> selectTarget (self) -> rollAccuracy (support vs 10)
- * - On Hit: applyDamage (3<sd> to self) -> selectTarget (area, other creatures) -> healTarget (3<sd>, distributed)
- * - On Miss: applyDamage (2<sd> to self, via rollRef) -> selectTarget (area, other creatures) -> healTarget (via rollRef, distributed)
+ * - On Hit: applyDamage (2<sd> to self via rollHitRef) -> selectTarget (area, other creatures) -> healTarget (via rollHitRef, distributed)
+ * - On Miss: applyDamage (<sd> to self via rollRef) -> selectTarget (area, other creatures) -> healTarget (via rollRef, distributed)
  */
 function buildBloodGiftGraph(source, options = {}) {
   const nodes = [];
@@ -36,6 +37,7 @@ function buildBloodGiftGraph(source, options = {}) {
   const startId = foundry.utils.randomID();
   const areaId = foundry.utils.randomID();
   const rollId = foundry.utils.randomID();
+  const rollHitId = foundry.utils.randomID();
   const selfTargetId = foundry.utils.randomID();
   const accuracyId = foundry.utils.randomID();
 
@@ -76,10 +78,22 @@ function buildBloodGiftGraph(source, options = {}) {
     type: "roll",
     phase: "base",
     params: {
-      expression: "2<sd>",
+      expression: "<sd>",
       usePowerSparks: true
     },
     x: 700,
+    y: 40
+  });
+
+  nodes.push({
+    id: rollHitId,
+    type: "roll",
+    phase: "hit",
+    params: {
+      expression: "2<sd>",
+      usePowerSparks: true
+    },
+    x: 1020,
     y: 40
   });
 
@@ -128,13 +142,13 @@ function buildBloodGiftGraph(source, options = {}) {
     type: "flow"
   });
 
-  // 4. Hit Branch (y: 80): Self Damage 3<sd> -> Area Targets (other creatures) -> Heal 3<sd>
+  // 4. Hit Branch (y: 80): Self Damage 2<sd> (shared roll) -> Area Targets (other creatures) -> Heal (shared roll)
   nodes.push({
     id: hitDmgId,
     type: "applyDamage",
     phase: "hit",
     params: {
-      expression: "3<sd>"
+      rollBehaviorId: rollHitId
     },
     x: 1020,
     y: 80
@@ -158,7 +172,7 @@ function buildBloodGiftGraph(source, options = {}) {
     type: "healTarget",
     phase: "hit",
     params: {
-      expression: "3<sd>",
+      rollBehaviorId: rollHitId,
       distribute: true
     },
     x: 1660,
@@ -191,7 +205,7 @@ function buildBloodGiftGraph(source, options = {}) {
     type: "flow"
   });
 
-  // 5. Miss / Base Branch (y: 380): Self Damage 2<sd> (shared roll) -> Area Targets (other creatures) -> Heal (shared roll)
+  // 5. Miss / Base Branch (y: 380): Self Damage <sd> (shared roll) -> Area Targets (other creatures) -> Heal (shared roll)
   nodes.push({
     id: missDmgId,
     type: "applyDamage",
@@ -269,6 +283,22 @@ function buildBloodGiftGraph(source, options = {}) {
     sourcePort: "out",
     targetId: missAreaTargetId,
     targetPort: "areaRef",
+    type: "reference"
+  });
+  connections.push({
+    id: foundry.utils.randomID(),
+    sourceId: rollHitId,
+    sourcePort: "out",
+    targetId: hitDmgId,
+    targetPort: "rollRef",
+    type: "reference"
+  });
+  connections.push({
+    id: foundry.utils.randomID(),
+    sourceId: rollHitId,
+    sourcePort: "out",
+    targetId: hitHealId,
+    targetPort: "rollRef",
     type: "reference"
   });
   connections.push({

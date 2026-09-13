@@ -5,84 +5,162 @@
   "system": {
     "tier": "heavy",
     "actionType": "attack",
-    "type": "spell",
-    "target": "1 Creature",
-    "accuracyTest": "Resist",
-    "effects": {
+    "abilityType": "spell",
+    "versus": "Resist",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "description": "<p>A dark spell that sets the victim's blood aflame, driving them into a violent frenzy.</p>",
+    "phases": {
       "start": {
         "description": "",
-        "damage": "",
-        "appliedEffects": [],
-        "appliesWeaponEffects": false
+        "skipPhase": false
       },
       "before": {
         "description": "",
-        "damage": "",
-        "appliedEffects": [],
-        "appliesWeaponEffects": false
+        "skipPhase": false
       },
       "base": {
         "description": "Deal 2 Skill Die damage.",
-        "damage": "2<sd>",
-        "appliedEffects": [],
-        "appliesWeaponEffects": false
+        "skipPhase": false
       },
       "hit": {
         "description": "Confer berserk 1. On its turn, the affected creature must attempt a light attack deed against the nearest creature before doing anything else, moving if needed. Then this state loses 1 INTENSITY.",
-        "damage": "",
-        "appliedEffects": [
-          {
-            "uuid": "Item.kAl83C5DxwHVtwY4",
-            "type": "effect",
-            "name": "Berserker (effect)",
-            "img": "systems/trespasser/assets/icons/effect.webp",
-            "intensity": 1
-          }
-        ],
-        "appliesWeaponEffects": false
+        "skipPhase": false
       },
       "spark": {
         "description": "",
-        "damage": "",
-        "appliedEffects": [],
-        "appliesWeaponEffects": false
+        "skipPhase": false
       },
       "after": {
         "description": "",
-        "damage": "",
-        "appliedEffects": [],
-        "appliesWeaponEffects": false
+        "skipPhase": false
       },
       "end": {
         "description": "",
-        "damage": "",
-        "appliedEffects": [],
-        "appliesWeaponEffects": false
+        "skipPhase": false
       }
     },
-    "focusCost": 2,
-    "focusIncrease": 1,
-    "bonusCost": null,
-    "uses": 0
+    "graph": {
+      "nodes": [
+        {
+          "id": "220149e781de9348",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "34b4db7b7b852a11",
+          "type": "selectTarget",
+          "phase": "base",
+          "params": {
+            "targetMode": "creatures",
+            "targetCount": 1,
+            "disposition": "any",
+            "ignoreSelf": true
+          },
+          "x": 380,
+          "y": 180
+        },
+        {
+          "id": "a033ebb506c6a180",
+          "type": "applyDamage",
+          "phase": "base",
+          "params": {
+            "expression": "2<sd>"
+          },
+          "x": 700,
+          "y": 180
+        },
+        {
+          "id": "a75b5055de09fdbd",
+          "type": "rollAccuracy",
+          "phase": "base",
+          "params": {
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Resist",
+            "branchingMode": "hitThenSpark"
+          },
+          "x": 1020,
+          "y": 180
+        },
+        {
+          "id": "6c78d8bcdac27834",
+          "type": "applyEffects",
+          "phase": "hit",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.21f17f7c4c17d7fe",
+                "name": "Berserk",
+                "img": "systems/trespasser/assets/icons/effect.webp",
+                "intensity": 1
+              }
+            ]
+          },
+          "x": 1340,
+          "y": 80
+        }
+      ],
+      "connections": [
+        {
+          "id": "ef6baf0994d8101b",
+          "sourceId": "220149e781de9348",
+          "sourcePort": "out",
+          "targetId": "34b4db7b7b852a11",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "5f61e0cd53335e38",
+          "sourceId": "34b4db7b7b852a11",
+          "sourcePort": "out",
+          "targetId": "a033ebb506c6a180",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "01e67648c87b75e3",
+          "sourceId": "a033ebb506c6a180",
+          "sourcePort": "out",
+          "targetId": "a75b5055de09fdbd",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "bf30dcf36fac3329",
+          "sourceId": "a75b5055de09fdbd",
+          "sourcePort": "onHit",
+          "targetId": "6c78d8bcdac27834",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1
   },
   "_id": "tfLkodj6AzQcRCRN",
   "effects": [],
-  "folder": "ZNRMLc90LE8fC8eb",
+  "folder": null,
   "flags": {},
   "_stats": {
     "compendiumSource": null,
     "duplicateSource": null,
     "exportSource": null,
-    "coreVersion": "13.351",
+    "coreVersion": "14",
     "systemId": "trespasser",
-    "systemVersion": "0.0.4-3",
-    "createdTime": 1773341957281,
-    "modifiedTime": 1773341957281,
-    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1789272894365,
+    "modifiedTime": 1789272894365,
+    "lastModifiedBy": "mcp-generator"
   },
   "ownership": {
-    "default": 0,
-    "1IEGHQVcG6gLQyba": 3
+    "default": 0
   },
   "sort": 0,
   "_key": "!items!tfLkodj6AzQcRCRN"
