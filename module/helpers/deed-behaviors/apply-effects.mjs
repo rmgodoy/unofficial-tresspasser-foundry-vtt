@@ -68,7 +68,7 @@ export class ApplyEffectsBehavior {
 
     // 1. Gather all base effect items from behavior params
     let effectList = [];
-    for (const eff of effects) {
+    for (const eff of rawEffects) {
       if (!eff) continue;
       const effectItem = await resolveItem(eff, { type: "effect" });
       if (!effectItem) continue;
