@@ -6,7 +6,7 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { generateFoundryId, sanitizeFileName } from "./effect-builder.mjs";
-import { registerRecentItem, invalidateCompendiumCache } from "./compendium-search.mjs";
+import { resolveItemInfo, registerRecentItem, invalidateCompendiumCache } from "./compendium-search.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -25,47 +25,63 @@ export const VALID_TERRAIN_ACTIONS = [
 ];
 
 /**
- * Normalizes terrain behaviors array ensuring proper schema structure.
+ * Normalizes terrain behaviors array ensuring proper schema structure and resolved effect info.
  * @param {Array<object>} behaviors
- * @returns {Array<object>}
+ * @returns {Promise<Array<object>>}
  */
-function normalizeBehaviors(behaviors) {
+async function normalizeBehaviors(behaviors) {
   if (!Array.isArray(behaviors)) return [];
 
-  return behaviors.map(b => ({
-    trigger: VALID_TERRAIN_TRIGGERS.includes(b.trigger) ? b.trigger : "onEnter",
-    action: VALID_TERRAIN_ACTIONS.includes(b.action) ? b.action : "applyEffect",
-    effects: Array.isArray(b.effects) ? b.effects.map(e => ({
-      uuid: e.uuid || "",
-      name: e.name || "",
-      img: e.img || "",
-      intensity: String(e.intensity ?? "1")
-    })) : [],
-    effectUuid: b.effectUuid || b.effects?.[0]?.uuid || "",
-    effectName: b.effectName || b.effects?.[0]?.name || "",
-    effectImg: b.effectImg || b.effects?.[0]?.img || "",
-    effectIntensity: String(b.effectIntensity ?? b.effects?.[0]?.intensity ?? "1"),
-    forcedMovementType: b.forcedMovementType || "",
-    forcedMovementDistance: String(b.forcedMovementDistance ?? "0"),
-    forcedMovementDirection: b.forcedMovementDirection || "away_from_origin",
-    damageFormula: b.damageFormula || "",
-    script: b.script || "",
-    onlyOnFirstEntry: b.onlyOnFirstEntry !== false
+  return Promise.all(behaviors.map(async b => {
+    const rawEffects = Array.isArray(b.effects) && b.effects.length > 0
+      ? b.effects
+      : (b.effectUuid ? [{ uuid: b.effectUuid, name: b.effectName, img: b.effectImg, intensity: b.effectIntensity }] : []);
+
+    const resolvedEffects = await Promise.all(rawEffects.map(async e => {
+      const info = await resolveItemInfo(e.uuid, e.name, "effect");
+      return {
+        uuid: info.uuid || e.uuid || "",
+        name: e.name || info.name || "",
+        img: e.img || info.img || "systems/trespasser/assets/icons/effect.webp",
+        intensity: String(e.intensity ?? "1")
+      };
+    }));
+
+    const firstEff = resolvedEffects[0] || {};
+
+    return {
+      trigger: VALID_TERRAIN_TRIGGERS.includes(b.trigger) ? b.trigger : "onEnter",
+      action: VALID_TERRAIN_ACTIONS.includes(b.action) ? b.action : "applyEffect",
+      effects: resolvedEffects,
+      effectUuid: b.effectUuid || firstEff.uuid || "",
+      effectName: b.effectName || firstEff.name || "",
+      effectImg: b.effectImg || firstEff.img || "",
+      effectIntensity: String(b.effectIntensity ?? firstEff.intensity ?? "1"),
+      forcedMovementType: b.forcedMovementType || "",
+      forcedMovementDistance: String(b.forcedMovementDistance ?? "0"),
+      forcedMovementDirection: b.forcedMovementDirection || "away_from_origin",
+      damageFormula: b.damageFormula || "",
+      script: b.script || "",
+      onlyOnFirstEntry: b.onlyOnFirstEntry !== false
+    };
   }));
 }
 
 /**
- * Normalizes linked effects array ensuring schema compatibility.
+ * Normalizes linked effects array ensuring schema compatibility and resolved effect info.
  * @param {Array<object>} linkedEffects
- * @returns {Array<object>}
+ * @returns {Promise<Array<object>>}
  */
-function normalizeLinkedEffects(linkedEffects) {
+async function normalizeLinkedEffects(linkedEffects) {
   if (!Array.isArray(linkedEffects)) return [];
-  return linkedEffects.map(le => ({
-    uuid: le.uuid || "",
-    name: le.name || "",
-    img: le.img || "",
-    intensity: String(le.intensity ?? "1")
+  return Promise.all(linkedEffects.map(async le => {
+    const info = await resolveItemInfo(le.uuid, le.name, "effect");
+    return {
+      uuid: info.uuid || le.uuid || "",
+      name: le.name || info.name || "",
+      img: le.img || info.img || "systems/trespasser/assets/icons/effect.webp",
+      intensity: String(le.intensity ?? "1")
+    };
   }));
 }
 
@@ -87,8 +103,8 @@ export async function handleCreateTerrain(params = {}) {
     category = "difficult_terrain";
   }
 
-  const behaviors = normalizeBehaviors(params.behaviors);
-  const linkedEffects = normalizeLinkedEffects(params.linkedEffects);
+  const behaviors = await normalizeBehaviors(params.behaviors);
+  const linkedEffects = await normalizeLinkedEffects(params.linkedEffects);
 
   const now = Date.now();
   const terrainDoc = {

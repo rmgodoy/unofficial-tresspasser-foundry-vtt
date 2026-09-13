@@ -105,7 +105,7 @@ export const TOOLS_DEFINITIONS = [
   },
   {
     name: "create_terrain",
-    description: "Create a valid Trespasser Terrain item document for Foundry V14 with triggers, dynamic linked effects, and zone behaviors.",
+    description: "Create a valid Trespasser Terrain item document for Foundry V14. IMPORTANT: linkedEffects are granted to the CASTER automatically upon terrain placement (tracking duration/intensity). In-zone behaviors.effects are applied automatically to CREATURES in the zone. Never conflate the two.",
     inputSchema: {
       type: "object",
       required: ["name"],
@@ -140,6 +140,7 @@ export const TOOLS_DEFINITIONS = [
               damageFormula: { type: "string", description: "Formula e.g. '<sd>', '2<sd>', '<Int>', '2d6'." },
               effects: {
                 type: "array",
+                description: "Effects applied automatically by the terrain region to CREATURES entering or inside the zone (e.g. 'whileInside', 'onEnter'). Evaluates dynamic '<Int>' from the caster's linked effect. Never apply these via a deed 'applyEffects' node to avoid doubling the effect on targets.",
                 items: {
                   type: "object",
                   properties: {
@@ -158,7 +159,7 @@ export const TOOLS_DEFINITIONS = [
         },
         linkedEffects: {
           type: "array",
-          description: "Effects on caster that determine <Int> and delete this terrain when prevailed.",
+          description: "Controlling/sustaining effects on the CASTER that govern this terrain's existence and dynamic <Int> scaling. Automatically granted to the caster upon terrain placement. When prevailed/cleared, the terrain auto-deletes. Do NOT put effects applied to creatures inside here.",
           items: {
             type: "object",
             properties: {
@@ -175,7 +176,7 @@ export const TOOLS_DEFINITIONS = [
   },
   {
     name: "create_deed",
-    description: "Compile and build a complete Behavior-Driven Deed for Trespasser in Foundry V14. Automatically generates visual graph layout coordinates (x, y) and wires condition ports (onHit, onSpark, onMiss, reference lines).",
+    description: "Compile and build a complete Behavior-Driven Deed for Trespasser in Foundry V14. Automatically generates visual graph layout coordinates (x, y) and wires condition ports. CRITICAL: When using 'spawnTerrain', do NOT add redundant 'applyEffects' nodes for the terrain's linked effect (granted automatically to caster) or in-zone effects (granted automatically to creatures in zone by the terrain region).",
     inputSchema: {
       type: "object",
       required: ["name"],
