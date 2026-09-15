@@ -68,6 +68,14 @@
             </div>
 
             <div class="form-group">
+                <label>{{localize "TRESPASSER.Settings.Mechanics.EnforceHandEquipLimits.Name"}}</label>
+                <div class="form-fields">
+                    <input type="checkbox" name="enforceHandEquipLimits" {{checked settings.enforceHandEquipLimits}}>
+                </div>
+                <p class="notes">{{localize "TRESPASSER.Settings.Mechanics.EnforceHandEquipLimits.Hint"}}</p>
+            </div>
+
+            <div class="form-group">
                 <label>{{localize "TRESPASSER.Settings.Mechanics.AllowOutOfTurnMovement.Name"}}</label>
                 <div class="form-fields">
                     <input type="checkbox" name="allowOutOfTurnMovement" {{checked settings.allowOutOfTurnMovement}}>

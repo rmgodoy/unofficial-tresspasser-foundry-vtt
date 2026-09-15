@@ -33,9 +33,7 @@ export function validateTargets(targets, deed, sourceToken = null) {
  * @returns {boolean}
  */
 export function hasFreeHand(actor) {
-  const mainHandId = actor.system?.equipment?.main_hand;
-  const offHandId = actor.system?.equipment?.off_hand;
-  return !mainHandId || !offHandId;
+  return RangeHelper.hasFreeHand(actor);
 }
 
 /**

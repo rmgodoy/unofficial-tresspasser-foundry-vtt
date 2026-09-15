@@ -63,6 +63,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
       allowAllPlayersHavenEdit: game.settings.get("trespasser", "allowAllPlayersHavenEdit"),
       enforceHavenBuildingLimits: game.settings.get("trespasser", "enforceHavenBuildingLimits"),
       enforceAttackRange: game.settings.get("trespasser", "enforceAttackRange"),
+      enforceHandEquipLimits: game.settings.get("trespasser", "enforceHandEquipLimits"),
       allowOutOfTurnMovement: game.settings.get("trespasser", "allowOutOfTurnMovement"),
       showCreatureDamageRolls: game.settings.get("trespasser", "showCreatureDamageRolls"),
       playerFacingInitiative: game.settings.get("trespasser", "playerFacingInitiative"),
@@ -190,7 +191,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     const settingsToReset = [
         "showInitiativeInChat", "applyEncumbranceRules", "restrictMovementAction", "restrictHUDActions", 
         "restrictAPFocusUsage", "enableGroupCheckSelection", "allowAllPlayersHavenEdit",
-        "enforceHavenBuildingLimits", "enforceAttackRange", "allowOutOfTurnMovement", "playerFacingInitiative", 
+        "enforceHavenBuildingLimits", "enforceAttackRange", "enforceHandEquipLimits", "allowOutOfTurnMovement", "playerFacingInitiative", 
         "showCreatureDamageRolls", "enableRetreatDialog", "showPerilInChat", "autoEndCombatOnRetreat", "confirmItemTransfer",
         "automateTravelTracker",
         "clockSize", "fontSizeBase", "showStatusEffectsOnTokens", "tokenStatusIconScale",

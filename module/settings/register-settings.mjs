@@ -226,6 +226,15 @@ export function registerSystemSettings() {
     default: false
   });
 
+  game.settings.register(SYSTEM_ID, "enforceHandEquipLimits", {
+    name: "TRESPASSER.Settings.Mechanics.EnforceHandEquipLimits.Name",
+    hint: "TRESPASSER.Settings.Mechanics.EnforceHandEquipLimits.Hint",
+    scope: "world",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
   game.settings.register(SYSTEM_ID, "disregardRangeOnAttack", {
     name: "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Name",
     hint: "TRESPASSER.Settings.Mechanics.DisregardRangeOnAttack.Hint",

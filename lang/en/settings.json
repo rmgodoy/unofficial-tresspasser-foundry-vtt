@@ -52,6 +52,10 @@
           "Name": "Enforce Attack Range",
           "Hint": "When enabled, attacking out-of-range targets is prohibited. When disabled, attacking out-of-range targets displays a warning but proceeds."
         },
+        "EnforceHandEquipLimits": {
+          "Name": "Enforce Hand Equip Limits",
+          "Hint": "When enabled, equipping two-handed weapons requires both hands to be free, and equipping more weapons than free hands is prohibited. When disabled, the system displays a warning but allows equipping."
+        },
         "DisregardRangeOnAttack": {
           "Name": "Disregard Range on Attack",
           "Hint": "When enabled, attacking out-of-range targets will show a warning but still allow the attack to proceed."

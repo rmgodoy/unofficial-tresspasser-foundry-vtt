@@ -24,8 +24,6 @@ export async function emitDeedActionAndWait(action, data) {
  */
 export async function handleDeedActionRequest(payload, senderId) {
   const { action, requestId, data } = payload;
-  console.warn('Here');
-  console.warn(payload);
   
   // Only the active GM should process this request to avoid duplication.
   const activeGMs = game.users.filter(u => u.active && u.isGM);

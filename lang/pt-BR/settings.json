@@ -52,6 +52,10 @@
           "Name": "Aplicar Alcance de Ataque",
           "Hint": "Quando ativado, atacar alvos fora de alcance é proibido. Quando desativado, atacar alvos fora de alcance exibe um aviso, mas permite que o ataque prossiga."
         },
+        "EnforceHandEquipLimits": {
+          "Name": "Aplicar Limites de Empunhadura",
+          "Hint": "Quando ativado, equipar armas de duas mãos exige ambas as mãos livres e equipar armas além das mãos disponíveis é proibido. Quando desativado, o sistema exibe um aviso mas permite equipar."
+        },
         "DisregardRangeOnAttack": {
           "Name": "Desconsiderar Alcance no Ataque",
           "Hint": "Quando ativado, atacar alvos fora de alcance mostrará um aviso, mas ainda permitirá que o ataque prossiga."

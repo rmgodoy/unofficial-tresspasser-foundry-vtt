@@ -44,23 +44,53 @@ export async function equipItem(actor, itemId) {
   // 1. Placement Check (Hands vs discrete slots)
   if (placement === "hand") {
     const is2H = item.type === "weapon" ? !!item.system.properties?.twoHanded : (item.system.slotOccupancy >= 2);
-    
+    const enforceLimits = game.settings.get("trespasser", "enforceHandEquipLimits") ?? true;
+
+    const mainOccupant = equipment.main_hand ? actor.items.get(equipment.main_hand) : null;
+    const offOccupant = equipment.off_hand ? actor.items.get(equipment.off_hand) : null;
+
+    const mainOccupied = !!equipment.main_hand && !!mainOccupant;
+    const offOccupied = !!equipment.off_hand && !!offOccupant;
+    const has2HEquipped = (mainOccupant?.type === "weapon" && mainOccupant?.system.properties?.twoHanded)
+      || (offOccupant?.type === "weapon" && offOccupant?.system.properties?.twoHanded)
+      || (equipment.main_hand && equipment.main_hand === equipment.off_hand);
+
     if (is2H) {
-      // Must have both hands free
-      if (equipment.main_hand || equipment.off_hand || equipment.shield) {
-        ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Inventory.TwoHandedEquip") || "Both hands must be free to equip a two-handed weapon.");
-        return;
+      if (mainOccupied || offOccupied || has2HEquipped) {
+        if (enforceLimits) {
+          ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Inventory.TwoHandedEquip") || "Both hands must be free to equip a two-handed weapon.");
+          return;
+        } else {
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Inventory.TwoHandedEquipWarning") || "Both hands should be free for a Two-Handed weapon, but equipped anyway.");
+          if (!offOccupied || equipment.main_hand === equipment.off_hand) {
+            handKeys = ["main_hand", "off_hand"];
+          } else {
+            handKeys = ["main_hand"];
+          }
+        }
+      } else {
+        handKeys = ["main_hand", "off_hand"];
       }
-      handKeys = ["main_hand", "off_hand"];
     } else {
       // One-handed: Prefer Main Hand
-      if (!equipment.main_hand) {
+      if (!mainOccupied && !has2HEquipped) {
         handKeys = ["main_hand"];
-      } else if (!equipment.off_hand && !equipment.shield) {
+      } else if (!offOccupied && !has2HEquipped) {
         handKeys = ["off_hand"];
       } else {
-        ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Inventory.HandsFull") || "Both hands are full!");
-        return;
+        if (enforceLimits) {
+          ui.notifications.error(game.i18n.localize("TRESPASSER.Notification.Inventory.HandsFull") || "Both hands are full!");
+          return;
+        } else {
+          ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Inventory.HandsFullWarning") || "Both hands are occupied, but equipped anyway.");
+          if (mainOccupied && (!offOccupied || equipment.main_hand === equipment.off_hand)) {
+            handKeys = ["off_hand"];
+          } else if (!mainOccupied) {
+            handKeys = ["main_hand"];
+          } else {
+            handKeys = ["off_hand"];
+          }
+        }
       }
     }
   } else {
@@ -103,7 +133,7 @@ export async function equipItem(actor, itemId) {
   const actorUpdates = {};
   if (placement === "hand") {
     for (const key of handKeys) {
-      actorUpdates[`system.equipment.${key}`] = (key === handKeys[0]) ? item.id : "";
+      actorUpdates[`system.equipment.${key}`] = item.id;
     }
   } else {
     actorUpdates[`system.equipment.${placement}`] = item.id;
@@ -125,6 +155,28 @@ export async function equipItem(actor, itemId) {
     }
     if (handKeys.includes("off_hand") && actor.system.combat?.equipment_snapshot?.off_hand) {
       actorUpdates[`system.combat.equipment_snapshot.off_hand`] = { die: item.system.weaponDie, effect: effectsStr, used: false };
+    }
+  }
+
+  // Automatically update weaponMode when hand loadout changes
+  if (placement === "hand" && actor.system.combat?.weaponMode !== undefined) {
+    const nextMainId = actorUpdates["system.equipment.main_hand"] !== undefined
+      ? actorUpdates["system.equipment.main_hand"]
+      : actor.system.equipment?.main_hand;
+
+    const nextOffId = actorUpdates["system.equipment.off_hand"] !== undefined
+      ? actorUpdates["system.equipment.off_hand"]
+      : actor.system.equipment?.off_hand;
+
+    const mainWeapon = nextMainId ? actor.items.get(nextMainId) : null;
+    const offWeapon = nextOffId ? actor.items.get(nextOffId) : null;
+
+    if (mainWeapon?.type === "weapon" && offWeapon?.type === "weapon" && mainWeapon.id !== offWeapon.id) {
+      actorUpdates["system.combat.weaponMode"] = "dual";
+    } else if (offWeapon?.type === "weapon" && !mainWeapon) {
+      actorUpdates["system.combat.weaponMode"] = "off";
+    } else {
+      actorUpdates["system.combat.weaponMode"] = "main";
     }
   }
 
@@ -234,6 +286,27 @@ export async function unequipItem(actor, itemId) {
       }
     }
 
+    if (actor.system.combat?.weaponMode !== undefined) {
+      const nextMainId = updates[`system.equipment.main_hand`] !== undefined
+        ? updates[`system.equipment.main_hand`]
+        : mainHandId;
+
+      const nextOffId = updates[`system.equipment.off_hand`] !== undefined
+        ? updates[`system.equipment.off_hand`]
+        : offHandId;
+
+      const mainWeapon = nextMainId ? actor.items.get(nextMainId) : null;
+      const offWeapon = nextOffId ? actor.items.get(nextOffId) : null;
+
+      if (mainWeapon?.type === "weapon" && offWeapon?.type === "weapon" && mainWeapon.id !== offWeapon.id) {
+        updates["system.combat.weaponMode"] = "dual";
+      } else if (offWeapon?.type === "weapon" && !mainWeapon) {
+        updates["system.combat.weaponMode"] = "off";
+      } else {
+        updates["system.combat.weaponMode"] = "main";
+      }
+    }
+
     await actor.update(updates);
   } else if (item.type === "item" && item.system.equippable) {
     const updates = {};
@@ -241,7 +314,6 @@ export async function unequipItem(actor, itemId) {
     for (const [slot, id] of Object.entries(equipment)) {
       if (id === itemId) {
         updates[`system.equipment.${slot}`] = "";
-        break;
       }
     }
 

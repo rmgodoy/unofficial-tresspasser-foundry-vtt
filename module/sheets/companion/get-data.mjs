@@ -86,7 +86,7 @@ export async function getCompanionData(sheet, options = {}) {
   const eq = actor.system.equipment ?? {};
   const mainHandItem = eq.main_hand ? actor.items.get(eq.main_hand) : null;
   const offHandItem  = eq.off_hand ? actor.items.get(eq.off_hand) : null;
-  const isTwoHanded  = mainHandItem?.type === "weapon" ? !!mainHandItem.system.properties?.twoHanded : false;
+  const isTwoHanded  = (mainHandItem?.type === "weapon" && !!mainHandItem.system.properties?.twoHanded) && (!offHandItem || offHandItem.id === mainHandItem.id);
 
   context.equippedMainHand = mainHandItem;
   context.equippedOffHand  = offHandItem;
