@@ -126,6 +126,16 @@ export async function evaluateAttributeBonus(actor, attributeKey, { toMessage = 
   return total;
 }
 
+function _normalizeDamageAttribute(attr) {
+  if (!attr) return "";
+  const s = String(attr).toLowerCase().replace(/-/g, "_").trim();
+  if (s === "damage_dealt" || s === "damage_given" || s === "dmg_dealt" || s === "dmg_given") return "damage_dealt";
+  if (s === "damage_received" || s === "dmg_received") return "damage_received";
+  if (s === "heal_given") return "heal_given";
+  if (s === "heal_received") return "heal_received";
+  return s;
+}
+
 /**
  * Evaluates all modifiers for a damage attribute key (damage_dealt / damage_received).
  * @param {Actor}  actor
@@ -138,10 +148,13 @@ export async function evaluateDamageBonus(actor, attributeKey, weaponDie = "d4",
   if (!actor) return 0;
   const effects = getActorEffects(actor);
   const allEffects = [...effects.combat, ...effects.nonCombat];
+  const targetNorm = _normalizeDamageAttribute(attributeKey);
 
   let total = 0;
   for (const eff of allEffects) {
-    if (eff.target !== attributeKey) continue;
+    if (eff.isOnlyReminder) continue;
+    const effTargetNorm = _normalizeDamageAttribute(eff.target);
+    if (effTargetNorm !== targetNorm) continue;
     if (eff.type === "active" && eff.when && eff.when !== "immediate" && eff.when !== "continuous") continue;
 
     const value = await evaluateModifier(
@@ -151,13 +164,15 @@ export async function evaluateDamageBonus(actor, attributeKey, weaponDie = "d4",
     );
     total += value;
 
-    const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "triggers");
-    if (shouldExpire) {
-      if (eff.item?.type === "effect" || eff.item?.type === "state") {
-        await eff.item.delete();
+    if (eff.item && !eff.synthetic) {
+      const { shouldExpire, updatedConditions } = DurationHelper.processEvent(eff.item, "triggers");
+      if (shouldExpire) {
+        if (eff.item?.type === "effect" || eff.item?.type === "state") {
+          await eff.item.delete();
+        }
+      } else if (eff.item?.type === "effect" || eff.item?.type === "state") {
+        await eff.item.update({ "system.durationConditions": updatedConditions });
       }
-    } else {
-      await eff.item.update({ "system.durationConditions": updatedConditions });
     }
   }
   return total;

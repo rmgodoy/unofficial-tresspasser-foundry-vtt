@@ -152,8 +152,8 @@ export class TrespasserEffectsHelper {
     return evaluateAttributeBonus(actor, attribute, rollType);
   }
 
-  static evaluateDamageBonus(actor, deed = null) {
-    return evaluateDamageBonus(actor, deed);
+  static evaluateDamageBonus(actor, attributeKey, weaponDie = "d4", options = {}) {
+    return evaluateDamageBonus(actor, attributeKey, weaponDie, options);
   }
 
   static async triggerEffects(actor, when, options = {}) {

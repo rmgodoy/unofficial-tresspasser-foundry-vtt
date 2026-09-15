@@ -127,33 +127,41 @@ export class DeedBehaviorUtils {
    * Helper to replace <sd> (Skill Die), <wd> (Weapon Die), and <sb> (Skill Bonus) placeholders in roll formulas.
    * @param {string} expr - e.g. "2d6 + 1<sd> + <wd>"
    * @param {Actor} [actor]
+  /**
+   * Retrieves the weapon or base damage die string for an actor.
+   * @param {Actor} [actor]
+   * @returns {string}
+   */
+  static getActorWeaponDie(actor) {
+    if (!actor) return "d4";
+    if (actor.type === "creature") {
+      return actor.system?.combat?.weapon_die 
+        ?? actor.system?.combat?.damage_die 
+        ?? actor.system?.weapon_die 
+        ?? actor.system?.damage_die 
+        ?? "d6";
+    }
+    const weapons = actor.items?.filter(i => i.type === "weapon" && (i.system?.equipped || i.system?.isEquipped)) ?? [];
+    const primaryWeapon = weapons[0] || actor.items?.find(i => i.type === "weapon");
+    if (primaryWeapon?.system?.damage) {
+      return primaryWeapon.system.damage.trim();
+    } else if (primaryWeapon?.system?.die) {
+      return primaryWeapon.system.die.trim();
+    } else if (primaryWeapon?.system?.weaponDie) {
+      return primaryWeapon.system.weaponDie.trim();
+    }
+    return "d4";
+  }
+
+  /**
+   * Resolves formula placeholders such as <sd> and <wd> dynamically based on actor.
+   * @param {string} expr
+   * @param {Actor} [actor]
    * @returns {string}
    */
   static resolveFormulaPlaceholders(expr, actor) {
     if (!expr) return "";
-
-    let weaponDie = "d4";
-    if (actor) {
-      if (actor.type === "creature") {
-        weaponDie = actor.system?.combat?.weapon_die 
-          ?? actor.system?.combat?.damage_die 
-          ?? actor.system?.weapon_die 
-          ?? actor.system?.damage_die 
-          ?? "d6";
-      } else {
-        // Find equipped weapon item
-        const weapons = actor.items?.filter(i => i.type === "weapon" && (i.system?.equipped || i.system?.isEquipped)) ?? [];
-        const primaryWeapon = weapons[0] || actor.items?.find(i => i.type === "weapon");
-        if (primaryWeapon?.system?.damage) {
-          weaponDie = primaryWeapon.system.damage.trim();
-        } else if (primaryWeapon?.system?.die) {
-          weaponDie = primaryWeapon.system.die.trim();
-        } else if (primaryWeapon?.system?.weaponDie) {
-          weaponDie = primaryWeapon.system.weaponDie.trim();
-        }
-      }
-    }
-
+    const weaponDie = this.getActorWeaponDie(actor);
     return TrespasserEffectsHelper.replacePlaceholders(expr, actor, weaponDie);
   }
 

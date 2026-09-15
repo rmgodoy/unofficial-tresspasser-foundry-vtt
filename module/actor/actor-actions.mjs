@@ -47,6 +47,13 @@ export async function applyDamage(actor, amount, options = {}) {
 
   await actor.update({ "system.health": rawHealth }, options);
 
+  await TrespasserEffectsHelper.triggerEffects(actor, "damage-received");
+
+  const sourceActor = options.sourceActor || (options.sourceActorId ? game.actors.get(options.sourceActorId) : null);
+  if (sourceActor) {
+    await TrespasserEffectsHelper.triggerEffects(sourceActor, "damage-dealt");
+  }
+
   return newHealth;
 }
 
