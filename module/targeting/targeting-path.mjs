@@ -1,6 +1,8 @@
 import { CanvasInputSession } from "../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs";
-import { isAdjacentToCasterToken, getTokenOccupiedSquares, getMinSquareDistance } from "./targeting-geometry.mjs";
+import { isAdjacentToCasterToken, getTokenOccupiedSquares, getMinSquareDistance, getTokensInSquares } from "./targeting-geometry.mjs";
+import { DeedIntentResolver } from "./deed-intent-resolver.mjs";
+import { TargetPreviewHUD } from "../hud/target-preview-hud.mjs";
 
 /**
  * Interactive path placement. Click any reachable square to draw the
@@ -11,9 +13,10 @@ import { isAdjacentToCasterToken, getTokenOccupiedSquares, getMinSquareDistance 
  * @param {number} gridPx
  * @param {boolean} close
  * @param {number|null} [maxRangeSq=null]
+ * @param {object} [options={}]
  * @returns {Promise<{squares: Array<{x:number, y:number}>, templateDoc: null}|null>}
  */
-export async function placePath(token, maxSquares, gridPx, close, maxRangeSq = null) {
+export async function placePath(token, maxSquares, gridPx, close, maxRangeSq = null, options = {}) {
   return new Promise(async (resolve) => {
     const squares = [];
     const highlights = [];
@@ -95,6 +98,25 @@ export async function placePath(token, maxSquares, gridPx, close, maxRangeSq = n
         CanvasSelectionRenderer.drawCandidateSquares(gfx, candidates, gridPx, { hoveredSquare });
       }
 
+      // 3. Draw token target overlays and update TargetPreviewHUD
+      if (squares.length > 0 && options.item) {
+        const tokensInArea = getTokensInSquares(squares, gridPx);
+        if (tokensInArea.length > 0) {
+          const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(tokensInArea, token, options.item, options);
+          TargetPreviewHUD.update(Array.from(outcomeMap.values()));
+          for (const t of tokensInArea) {
+            const outcome = outcomeMap.get(t.id || t.document?.id);
+            if (outcome && outcome.role !== "unaffected" && outcome.hasAnyOutcome) {
+              CanvasSelectionRenderer.drawTokenTargetOverlay(gfx, t, outcome.style, gridPx);
+            }
+          }
+        } else {
+          TargetPreviewHUD.clear();
+        }
+      } else {
+        TargetPreviewHUD.clear();
+      }
+
       layer.addChild(gfx);
       highlights.push(gfx);
     };
@@ -104,6 +126,7 @@ export async function placePath(token, maxSquares, gridPx, close, maxRangeSq = n
       highlights.length = 0;
       for (const gfx of candidateHighlights) { layer.removeChild(gfx); gfx.destroy(); }
       candidateHighlights.length = 0;
+      TargetPreviewHUD.clear();
     };
 
     const updateOverlayState = () => {

@@ -3,6 +3,8 @@ import { CanvasInputSession } from "../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs";
 import { RangeHelper } from "../helpers/range-helper.mjs";
 import { getTokensInSquares } from "./targeting-geometry.mjs";
+import { DeedIntentResolver } from "./deed-intent-resolver.mjs";
+import { TargetPreviewHUD } from "../hud/target-preview-hud.mjs";
 
 /**
  * Get the melee reach in grid squares for a melee_burst deed.
@@ -118,6 +120,20 @@ export async function placeBurst(token, size, gridPx, isMelee = false, isAura = 
 
       const gfx = new PIXI.Graphics();
       CanvasSelectionRenderer.drawPlacedOrigin(gfx, squares, gridPx);
+
+      if (targets.length > 0 && options.item) {
+        const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(targets, token, options.item, options);
+        TargetPreviewHUD.update(Array.from(outcomeMap.values()));
+        for (const t of targets) {
+          const outcome = outcomeMap.get(t.id || t.document?.id);
+          if (outcome && outcome.role !== "unaffected" && outcome.hasAnyOutcome) {
+            CanvasSelectionRenderer.drawTokenTargetOverlay(gfx, t, outcome.style, gridPx);
+          }
+        }
+      } else {
+        TargetPreviewHUD.clear();
+      }
+
       layer.addChild(gfx);
       highlights.push(gfx);
     };
@@ -125,6 +141,7 @@ export async function placeBurst(token, size, gridPx, isMelee = false, isAura = 
     const cleanup = () => {
       for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
       highlights.length = 0;
+      TargetPreviewHUD.clear();
     };
 
     drawPreview();

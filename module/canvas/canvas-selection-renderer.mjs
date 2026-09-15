@@ -272,4 +272,62 @@ export class CanvasSelectionRenderer {
     this.drawDottedLine(graphics, maxX, maxY, minX, maxY, { color, alpha, width, dash, gap });
     this.drawDottedLine(graphics, minX, maxY, minX, minY, { color, alpha, width, dash, gap });
   }
+
+  /**
+   * Draw a target indicator overlay directly over a token.
+   * Renders on canvas.interface so it sits crisp above the token art.
+   * @param {PIXI.Graphics} graphics
+   * @param {Token|TokenDocument} token
+   * @param {object} [styleConfig]
+   * @param {number} [styleConfig.color=0xFF4444]
+   * @param {number} [styleConfig.fillAlpha=0.25]
+   * @param {number} [styleConfig.lineWidth=2]
+   * @param {number} [styleConfig.lineAlpha=0.95]
+   * @param {boolean} [styleConfig.dashed=false]
+   * @param {number} gridPx
+   */
+  static drawTokenTargetOverlay(graphics, token, styleConfig = {}, gridPx = 100) {
+    if (!graphics || !token) return;
+    const doc = token.document ?? token;
+    const tW = (doc.width ?? 1) * gridPx;
+    const tH = (doc.height ?? 1) * gridPx;
+    const x = doc.x;
+    const y = doc.y;
+    const cx = x + tW / 2;
+    const cy = y + tH / 2;
+    const radius = Math.min(tW, tH) / 2;
+
+    const color = styleConfig.color ?? 0xFF4444;
+    const fillAlpha = styleConfig.fillAlpha ?? 0.25;
+    const lineWidth = styleConfig.lineWidth ?? 2;
+    const lineAlpha = styleConfig.lineAlpha ?? 0.95;
+    const isDashed = Boolean(styleConfig.dashed);
+
+    // 1. Soft circular tint over the token
+    if (fillAlpha > 0) {
+      graphics.beginFill(color, fillAlpha);
+      graphics.drawCircle(cx, cy, radius);
+      graphics.endFill();
+    }
+
+    // 2. Token circular outline / ring
+    if (!isDashed) {
+      graphics.lineStyle(lineWidth, color, lineAlpha);
+      graphics.drawCircle(cx, cy, radius);
+    } else {
+      // Dashed hazard outline on square boundary
+      const dash = 6;
+      const gap = 4;
+      this.drawDottedLine(graphics, x, y, x + tW, y, { color, alpha: lineAlpha, width: lineWidth, dash, gap });
+      this.drawDottedLine(graphics, x + tW, y, x + tW, y + tH, { color, alpha: lineAlpha, width: lineWidth, dash, gap });
+      this.drawDottedLine(graphics, x + tW, y + tH, x, y + tH, { color, alpha: lineAlpha, width: lineWidth, dash, gap });
+      this.drawDottedLine(graphics, x, y + tH, x, y, { color, alpha: lineAlpha, width: lineWidth, dash, gap });
+    }
+
+    // 3. Crisp footprint border (matching the grid alignment in token area selection)
+    if (!isDashed) {
+      graphics.lineStyle(1, color, lineAlpha * 0.75);
+      graphics.drawRect(x, y, tW, tH);
+    }
+  }
 }

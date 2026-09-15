@@ -2,6 +2,8 @@ import { TargetingHelper } from "../targeting-helper.mjs";
 import { CanvasInputSession } from "../../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../../canvas/canvas-selection-renderer.mjs";
 import { RangeHelper } from "../range-helper.mjs";
+import { DeedIntentResolver } from "../../targeting/deed-intent-resolver.mjs";
+import { TargetPreviewHUD } from "../../hud/target-preview-hud.mjs";
 
 /**
  * Interactive token selection session via CanvasInputSession.
@@ -67,36 +69,41 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
       CanvasSelectionRenderer.drawRangePerimeter(session.graphics, sourceToken, maxRangeSq, gridPx, { originOverride: origin });
     }
 
-    // 2. Draw candidate token outlines in green (if not yet selected)
+    // 2. Resolve outcomes for candidates and selected targets
+    const allRelevantTokens = [...selectedTargets, ...(candidateTokens || [])];
+    const outcomeMap = item
+      ? DeedIntentResolver.resolveTargetsOutcome(allRelevantTokens, sourceToken, item, { actor, params })
+      : new Map();
+
+    if (allRelevantTokens.length > 0) {
+      TargetPreviewHUD.update(Array.from(outcomeMap.values()));
+    } else {
+      TargetPreviewHUD.clear();
+    }
+
+    // 3. Draw candidate token outlines (if not yet selected)
     if (candidateTokens) {
       for (const cToken of candidateTokens) {
         if (selectedTargets.some(t => t.id === cToken.id)) continue;
-        const tW = cToken.document.width ?? 1;
-        const tH = cToken.document.height ?? 1;
-        const cSq = [];
-        for (let tx = 0; tx < tW; tx++) {
-          for (let ty = 0; ty < tH; ty++) {
-            cSq.push({ x: cToken.document.x + tx * gridPx, y: cToken.document.y + ty * gridPx });
-          }
-        }
-        CanvasSelectionRenderer.drawCandidateSquares(session.graphics, cSq, gridPx, { hoveredSquare: null });
+        const outcome = outcomeMap.get(cToken.id || cToken.document?.id);
+        if (outcome && (!outcome.hasAnyOutcome || outcome.role === "unaffected")) continue;
+        const style = outcome?.style
+          ? { ...outcome.style, fillAlpha: 0.12, lineAlpha: 0.5 }
+          : { color: 0x00FF00, fillAlpha: 0.15, lineWidth: 2, lineAlpha: 0.6 };
+        CanvasSelectionRenderer.drawTokenTargetOverlay(session.graphics, cToken, style, gridPx);
       }
     }
 
-    // 3. Draw gold highlight boxes over already selected targets
+    // 4. Draw highlight overlays over already selected targets
     for (const targetToken of selectedTargets) {
-      const tW = targetToken.document.width ?? 1;
-      const tH = targetToken.document.height ?? 1;
-      const tSq = [];
-      for (let tx = 0; tx < tW; tx++) {
-        for (let ty = 0; ty < tH; ty++) {
-          tSq.push({ x: targetToken.document.x + tx * gridPx, y: targetToken.document.y + ty * gridPx });
-        }
-      }
-      CanvasSelectionRenderer.drawPlacedOrigin(session.graphics, tSq, gridPx);
+      const outcome = outcomeMap.get(targetToken.id || targetToken.document?.id);
+      const style = outcome?.style
+        ? { ...outcome.style, fillAlpha: 0.35, lineWidth: 3, lineAlpha: 1.0 }
+        : { color: 0xFFD700, fillAlpha: 0.45, lineWidth: 3, lineAlpha: 0.9 };
+      CanvasSelectionRenderer.drawTokenTargetOverlay(session.graphics, targetToken, style, gridPx);
     }
 
-    // 4. Draw green candidate highlight box over hovered square
+    // 5. Draw green candidate highlight box over hovered square
     if (hoveredSq) {
       CanvasSelectionRenderer.drawCandidateSquares(session.graphics, [hoveredSq], gridPx, { hoveredSquare: hoveredSq });
     }
@@ -221,9 +228,11 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
       }
     },
     onConfirm: () => {
+      TargetPreviewHUD.clear();
       return selectedTargets;
     },
     onCancel: () => {
+      TargetPreviewHUD.clear();
       return null;
     }
   });

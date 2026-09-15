@@ -125,6 +125,19 @@
         "NativeConfigShort": "Region",
         "TerrainConfig": "Open Terrain Configuration",
         "TerrainConfigShort": "Terrain"
+      },
+      "Target": {
+        "EnemyTarget": "Enemy Target",
+        "FriendlyFire": "Friendly Fire!",
+        "AllyTarget": "Ally",
+        "EnemyBeneficial": "Enemy (Benefiting)",
+        "Self": "Self",
+        "Neutral": "Neutral",
+        "Unaffected": "Unaffected",
+        "Anyway": "Anyway",
+        "OnHit": "On Hit",
+        "OnSpark": "On Spark",
+        "OnMiss": "On Miss"
       }
     }
   }

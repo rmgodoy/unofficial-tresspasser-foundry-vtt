@@ -31,8 +31,11 @@ export class SwitchBehavior {
     }
 
     // 2. Ensure source node has been executed / evaluated
-    if (!executor._isResolved(sourceNode, "result") && !sourceNode._alreadyExecuted) {
-      await executor._executeReferenceNode(sourceNode, new Set());
+    if (!executor._isResolved(sourceNode, "result")) {
+      const ok = await executor._executeReferenceNode(sourceNode, new Set());
+      if (ok === false) {
+        return { winningOption: null, branchConn: null, branchSourceNode: null };
+      }
     }
 
     // 3. Determine winning option based on source node type

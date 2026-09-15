@@ -125,6 +125,19 @@
         "NativeConfigShort": "Região",
         "TerrainConfig": "Abrir Configuração do Terreno",
         "TerrainConfigShort": "Terreno"
+      },
+      "Target": {
+        "EnemyTarget": "Alvo Inimigo",
+        "FriendlyFire": "Fogo Amigo!",
+        "AllyTarget": "Aliado",
+        "EnemyBeneficial": "Inimigo (Beneficiado)",
+        "Self": "Próprio",
+        "Neutral": "Neutro",
+        "Unaffected": "Não Afetado",
+        "Anyway": "De Qualquer Forma",
+        "OnHit": "No Acerto",
+        "OnSpark": "Na Centelha",
+        "OnMiss": "No Erro"
       }
     }
   }

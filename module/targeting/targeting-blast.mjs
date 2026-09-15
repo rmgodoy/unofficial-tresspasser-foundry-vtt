@@ -1,6 +1,8 @@
 import { CanvasInputSession } from "../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs";
-import { isBlastAdjacentToToken, getTokenOccupiedSquares, getMinSquareDistance } from "./targeting-geometry.mjs";
+import { isBlastAdjacentToToken, getTokenOccupiedSquares, getMinSquareDistance, getTokensInSquares } from "./targeting-geometry.mjs";
+import { DeedIntentResolver } from "./deed-intent-resolver.mjs";
+import { TargetPreviewHUD } from "../hud/target-preview-hud.mjs";
 
 /**
  * Interactive N×N blast placement. A highlighted grid overlay follows the
@@ -10,9 +12,10 @@ import { isBlastAdjacentToToken, getTokenOccupiedSquares, getMinSquareDistance }
  * @param {number} gridPx      Pixels per grid square
  * @param {boolean|null} close If true, blast must be adjacent to caster
  * @param {number|null} maxRangeSq Max range in squares
+ * @param {object} [options={}] Placement options and deed context
  * @returns {Promise<{squares: Array<{x:number, y:number}>, templateDoc: null}|null>}
  */
-export async function placeBlast(token, size, gridPx, close, maxRangeSq = null) {
+export async function placeBlast(token, size, gridPx, close, maxRangeSq = null, options = {}) {
   return new Promise(async (resolve) => {
     const layer = canvas.interface;
     let selectedOrigin = null;
@@ -24,6 +27,7 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null) 
       for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
       highlights.length = 0;
       currentSquares = [];
+      let hoverSquares = [];
 
       const gfx = new PIXI.Graphics();
 
@@ -47,7 +51,6 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null) 
       if (hoveredOrigin) {
         const isSame = selectedOrigin && hoveredOrigin.x === selectedOrigin.x && hoveredOrigin.y === selectedOrigin.y;
         if (!isSame) {
-          const hoverSquares = [];
           for (let dx = 0; dx < size; dx++) {
             for (let dy = 0; dy < size; dy++) {
               hoverSquares.push({ x: hoveredOrigin.x + dx * gridPx, y: hoveredOrigin.y + dy * gridPx });
@@ -57,6 +60,26 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null) 
         }
       }
 
+      // 3. Tokens preview overlay and TargetPreviewHUD
+      const activeSquares = selectedOrigin ? currentSquares : hoverSquares;
+      if (activeSquares && activeSquares.length > 0 && options.item) {
+        const tokensInArea = getTokensInSquares(activeSquares, gridPx);
+        if (tokensInArea.length > 0) {
+          const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(tokensInArea, token, options.item, options);
+          TargetPreviewHUD.update(Array.from(outcomeMap.values()));
+          for (const t of tokensInArea) {
+            const outcome = outcomeMap.get(t.id || t.document?.id);
+            if (outcome && outcome.role !== "unaffected" && outcome.hasAnyOutcome) {
+              CanvasSelectionRenderer.drawTokenTargetOverlay(gfx, t, outcome.style, gridPx);
+            }
+          }
+        } else {
+          TargetPreviewHUD.clear();
+        }
+      } else {
+        TargetPreviewHUD.clear();
+      }
+
       layer.addChild(gfx);
       highlights.push(gfx);
     };
@@ -64,6 +87,7 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null) 
     const cleanup = () => {
       for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
       highlights.length = 0;
+      TargetPreviewHUD.clear();
     };
 
     const title = close 

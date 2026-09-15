@@ -115,6 +115,10 @@ export class DeedExecutor {
     }
     if (!graph?.nodes?.length) return;
 
+    for (const node of graph.nodes || []) {
+      delete node._alreadyExecuted;
+    }
+
     this._buildAdjacencyList(graph);
     const startNode = graph.nodes.find(n => n.type === "start") || graph.nodes[0];
     if (!startNode) return;
@@ -123,22 +127,27 @@ export class DeedExecutor {
     this._phaseOutputs.clear();
     this.chat.reset();
 
-    const visited = new Set();
-    const cancelled = await this._traverseNode(startNode.id, visited, null, "start");
+    try {
+      const visited = new Set();
+      const cancelled = await this._traverseNode(startNode.id, visited, null, "start");
 
-    if (!cancelled) {
-      await this._handleThrownWeapons();
-      await this._postAllPhaseCards();
-      await this._commitResourceUsage();
-    } else {
-      await this.chat.cleanupCancelled();
+      if (!cancelled) {
+        await this._handleThrownWeapons();
+        await this._postAllPhaseCards();
+        await this._commitResourceUsage();
+      } else {
+        await this.chat.cleanupCancelled();
+      }
+    } finally {
+      for (const node of graph.nodes || []) {
+        delete node._alreadyExecuted;
+      }
+      this.context.targets = [];
+      if (game.user?.targets?.size > 0) {
+        await game.user.updateTokenTargets([]);
+      }
+      DeedBehaviorHandler.clearAreaHighlight(this.context);
     }
-
-    this.context.targets = [];
-    if (game.user?.targets?.size > 0) {
-      await game.user.updateTokenTargets([]);
-    }
-    DeedBehaviorHandler.clearAreaHighlight(this.context);
   }
 
   /**
@@ -190,7 +199,7 @@ export class DeedExecutor {
 
   _isResolved(node, targetPort) {
     if (!node) return true;
-    if (this._executedNodes.has(node.id) || node._alreadyExecuted) return true;
+    if (this._executedNodes.has(node.id)) return true;
     if (targetPort === "rollRef" && this.context.evaluatedRolls?.has(node.id)) return true;
     if (targetPort === "areaRef" && this.context.areas?.has(node.id)) return true;
     if (targetPort === "result") {
@@ -201,13 +210,15 @@ export class DeedExecutor {
   }
 
   async _executeReferenceNode(refNode, visited) {
-    if (visited.has(refNode.id) || this._isResolved(refNode)) return;
+    if (visited.has(refNode.id) || this._isResolved(refNode)) return true;
     visited.add(refNode.id);
-    await this._resolveReferences(refNode, visited);
-    await this._executeBehavior(refNode, refNode.phase || "base");
-    refNode._alreadyExecuted = true;
+    const resolved = await this._resolveReferences(refNode, visited);
+    if (resolved === false) return false;
+    const result = await this._executeBehavior(refNode, refNode.phase || "base");
+    if (result === false) return false;
     this._executedNodes.add(refNode.id);
     await this.chat.onBehaviorExecuted(refNode.phase || "base", refNode);
+    return true;
   }
 
   async _resolveReferences(node, visited) {
@@ -220,7 +231,8 @@ export class DeedExecutor {
         const { branchSourceNode } = await SwitchBehavior.resolveWinningBranch(refNode, this.context, this);
         if (branchSourceNode) {
           if (!this._isResolved(branchSourceNode, refConn.targetPort)) {
-            await this._executeReferenceNode(branchSourceNode, visited);
+            const success = await this._executeReferenceNode(branchSourceNode, visited);
+            if (success === false) return false;
           }
           if (this.context.evaluatedRolls?.has(branchSourceNode.id)) {
             this.context.evaluatedRolls.set(refNode.id, this.context.evaluatedRolls.get(branchSourceNode.id));
@@ -231,7 +243,8 @@ export class DeedExecutor {
           refNode = branchSourceNode;
         }
       } else if (!this._isResolved(refNode, refConn.targetPort)) {
-        await this._executeReferenceNode(refNode, visited);
+        const success = await this._executeReferenceNode(refNode, visited);
+        if (success === false) return false;
       }
 
       node.params = node.params || {};
@@ -243,6 +256,7 @@ export class DeedExecutor {
         node.params.terrainBehaviorId = refNode.id;
       }
     }
+    return true;
   }
 
   async _traverseNode(nodeId, visited, incomingPort = null, incomingPhase = null) {
@@ -256,7 +270,8 @@ export class DeedExecutor {
       this.context.currentBranch = incomingPort;
     }
 
-    await this._resolveReferences(node, visited);
+    const refsResolved = await this._resolveReferences(node, visited);
+    if (refsResolved === false) return true;
 
     let effectivePhase = node.phase;
     if (!effectivePhase || effectivePhase === "inherit") {
@@ -267,10 +282,9 @@ export class DeedExecutor {
       await this._switchPhase(effectivePhase);
 
       const result = await this._executeBehavior(node, effectivePhase);
-      this._executedNodes.add(node.id);
-      node._alreadyExecuted = true;
-      await this.chat.onBehaviorExecuted(effectivePhase, node);
       if (result === false) return true;
+      this._executedNodes.add(node.id);
+      await this.chat.onBehaviorExecuted(effectivePhase, node);
     } else if (this.system.phases?.start?.description?.trim() && !this.system.phases?.start?.skipPhase) {
       await this._switchPhase("start");
     }

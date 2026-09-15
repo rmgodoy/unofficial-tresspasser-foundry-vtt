@@ -1,0 +1,42 @@
+<div class="trespasser-target-preview-container">
+  {{#each targets as |t|}}
+    <div class="target-outcome-card role-{{t.role}}" id="target-pill-{{t.tokenId}}" data-token-id="{{t.tokenId}}" style="--role-color: {{t.style.cssVar}};">
+      <div class="target-card-header">
+        <span class="role-icon" style="color: {{t.style.cssVar}};" title="{{t.label}}">
+          <i class="{{t.style.icon}}"></i>
+        </span>
+        <span class="target-name" title="{{t.tokenName}}">{{t.tokenName}}</span>
+      </div>
+
+      <div class="target-card-body">
+        {{#if (or t.anyway.damage.length t.anyway.healing.length t.anyway.effects.length)}}
+          <div class="outcome-chip anyway-chip" title="{{localize 'TRESPASSER.HUD.Target.Anyway'}}">
+            <i class="fa-solid fa-bolt chip-icon" style="color: var(--trp-gold-bright, #e8c96b);"></i>
+            <span class="chip-val">{{{t.anyway.html}}}</span>
+          </div>
+        {{/if}}
+
+        {{#if (or t.onHit.damage.length t.onHit.healing.length t.onHit.effects.length)}}
+          <div class="outcome-chip on-hit-chip" title="{{localize 'TRESPASSER.HUD.Target.OnHit'}}">
+            <i class="fa-solid fa-crosshairs chip-icon" style="color: var(--trp-red, #ff5252);"></i>
+            <span class="chip-val">{{{t.onHit.html}}}</span>
+          </div>
+        {{/if}}
+
+        {{#if (or t.onSpark.damage.length t.onSpark.healing.length t.onSpark.effects.length)}}
+          <div class="outcome-chip on-spark-chip" title="{{localize 'TRESPASSER.HUD.Target.OnSpark'}}">
+            <i class="fa-solid fa-sparkles chip-icon" style="color: var(--trp-spark, #4fc3f7);"></i>
+            <span class="chip-val">{{{t.onSpark.html}}}</span>
+          </div>
+        {{/if}}
+
+        {{#if (or t.onMiss.damage.length t.onMiss.healing.length t.onMiss.effects.length)}}
+          <div class="outcome-chip on-miss-chip" title="{{localize 'TRESPASSER.HUD.Target.OnMiss'}}">
+            <i class="fa-solid fa-shield-slash chip-icon" style="color: var(--trp-text-dim, #a09070);"></i>
+            <span class="chip-val">{{{t.onMiss.html}}}</span>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+  {{/each}}
+</div>

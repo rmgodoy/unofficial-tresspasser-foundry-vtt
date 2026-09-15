@@ -85,16 +85,18 @@ export class TargetingHelper {
     const maxRangeSq = RangeHelper.getDeedRange(token, effectiveDeed, actor, { notify: true });
     const isClose = effectiveDeed.close === true || type === "close_blast" || type === "close_path";
 
+    const placementOpts = { ...options, item: options.item, actor, deed: effectiveDeed };
+
     switch (type) {
       case "blast":
-        return placeBlast(token, size, gridPx, isClose, maxRangeSq);
+        return placeBlast(token, size, gridPx, isClose, maxRangeSq, placementOpts);
 
       case "close_blast":
-        return placeBlast(token, size, gridPx, true, 1);
+        return placeBlast(token, size, gridPx, true, 1, placementOpts);
 
       case "burst":
       case "aura": {
-        const result = await placeBurst(token, size, gridPx, false, type === "aura", options);
+        const result = await placeBurst(token, size, gridPx, false, type === "aura", placementOpts);
         if (!result) return null;
         let templateDoc = null;
         // Aura persists visually using a token-attached Region emanation
@@ -105,14 +107,14 @@ export class TargetingHelper {
       }
 
       case "melee_burst": {
-        return placeBurst(token, 0, gridPx, true, false, options);
+        return placeBurst(token, 0, gridPx, true, false, placementOpts);
       }
 
       case "path":
-        return placePath(token, size, gridPx, isClose, maxRangeSq);
+        return placePath(token, size, gridPx, isClose, maxRangeSq, placementOpts);
 
       case "close_path":
-        return placePath(token, size, gridPx, true, 1);
+        return placePath(token, size, gridPx, true, 1, placementOpts);
 
       default:
         return null;
