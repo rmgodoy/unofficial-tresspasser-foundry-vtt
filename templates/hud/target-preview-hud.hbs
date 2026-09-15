@@ -1,6 +1,6 @@
-<div class="trespasser-target-preview-container">
+<div class="trespasser-target-preview-container {{#if isSpectator}}is-spectator{{/if}}">
   {{#each targets as |t|}}
-    <div class="target-outcome-card role-{{t.role}}" id="target-pill-{{t.tokenId}}" data-token-id="{{t.tokenId}}" style="--role-color: {{t.style.cssVar}};">
+    <div class="target-outcome-card role-{{t.role}} {{#if ../isSpectator}}is-spectator{{/if}}" id="target-pill-{{t.tokenId}}" data-token-id="{{t.tokenId}}" style="--role-color: {{t.style.cssVar}};">
       <div class="target-card-header">
         <span class="role-icon" style="color: {{t.style.cssVar}};" title="{{t.label}}">
           <i class="{{t.style.icon}}"></i>

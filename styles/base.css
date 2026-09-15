@@ -479,4 +479,24 @@ body.game .app input[type="checkbox"] {
   color: var(--trp-spark);
 }
 
+/* ─── Spectator Target Preview HUD (Monochrome Gray Tone) ─── */
+.target-outcome-card.is-spectator,
+.target-preview-hud-layer.is-spectator .target-outcome-card {
+  filter: grayscale(100%) brightness(0.9);
+  background: rgba(30, 30, 30, 0.90);
+  border-color: #777777 !important;
+  opacity: 0.88;
+}
 
+.target-outcome-card.is-spectator .role-icon,
+.target-outcome-card.is-spectator .chip-icon {
+  color: #aaaaaa !important;
+}
+
+.target-outcome-card.is-spectator .target-name,
+.target-outcome-card.is-spectator .chip-val,
+.target-outcome-card.is-spectator .outcome-dmg,
+.target-outcome-card.is-spectator .outcome-heal,
+.target-outcome-card.is-spectator .outcome-eff {
+  color: #cccccc !important;
+}

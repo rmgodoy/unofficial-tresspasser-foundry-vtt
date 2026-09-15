@@ -5,6 +5,7 @@ import { RangeHelper } from "../helpers/range-helper.mjs";
 import { getTokensInSquares } from "./targeting-geometry.mjs";
 import { DeedIntentResolver } from "./deed-intent-resolver.mjs";
 import { TargetPreviewHUD } from "../hud/target-preview-hud.mjs";
+import { TargetingPreviewSyncer } from "./targeting-preview-syncer.mjs";
 
 /**
  * Get the melee reach in grid squares for a melee_burst deed.
@@ -121,18 +122,30 @@ export async function placeBurst(token, size, gridPx, isMelee = false, isAura = 
       const gfx = new PIXI.Graphics();
       CanvasSelectionRenderer.drawPlacedOrigin(gfx, squares, gridPx);
 
+      const affectedOverlays = [];
+      let targetOutcomes = [];
+
       if (targets.length > 0 && options.item) {
         const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(targets, token, options.item, options);
-        TargetPreviewHUD.update(Array.from(outcomeMap.values()));
+        targetOutcomes = Array.from(outcomeMap.values());
+        TargetPreviewHUD.update(targetOutcomes);
         for (const t of targets) {
           const outcome = outcomeMap.get(t.id || t.document?.id);
           if (outcome && outcome.role !== "unaffected" && outcome.hasAnyOutcome) {
             CanvasSelectionRenderer.drawTokenTargetOverlay(gfx, t, outcome.style, gridPx);
+            affectedOverlays.push({ tokenId: t.id || t.document?.id, style: outcome.style });
           }
         }
       } else {
         TargetPreviewHUD.clear();
       }
+
+      // Broadcast preview to other clients (spectator mode)
+      TargetingPreviewSyncer.sync({
+        placedSquares: squares,
+        targetTokens: affectedOverlays,
+        targetOutcomes
+      }, { immediate: true });
 
       layer.addChild(gfx);
       highlights.push(gfx);
@@ -142,6 +155,7 @@ export async function placeBurst(token, size, gridPx, isMelee = false, isAura = 
       for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
       highlights.length = 0;
       TargetPreviewHUD.clear();
+      TargetingPreviewSyncer.clear();
     };
 
     drawPreview();

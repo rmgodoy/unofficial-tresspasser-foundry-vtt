@@ -179,6 +179,8 @@ export function buildBehaviorContext(region) {
  * @param {string} terrainName
  */
 export async function applyEffect(actor, eff, terrainName) {
+  if (!actor) return;
+  if (!actor.isOwner && !game.user.isGM) return;
   const sourceEffect = await resolveItem(eff, { type: "effect" });
   if (!sourceEffect) return;
 
@@ -208,6 +210,7 @@ export async function applyEffect(actor, eff, terrainName) {
  * @param {object} [context]
  */
 export async function executeBehavior(behavior, actor, terrainRegion, context = {}) {
+  if (actor && !actor.isOwner && !game.user.isGM) return;
   const { casterActor } = context;
 
   switch (behavior.action) {

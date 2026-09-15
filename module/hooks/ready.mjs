@@ -3,6 +3,7 @@ import { TrespasserTokenHUD } from "../hud/token-hud.mjs";
 import { TrespasserSocket } from "../helpers/socket/socket.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { registerStatusHudInterceptor } from "../hud/status-hud-interceptor.mjs";
+import { TargetingPreviewSyncer } from "../targeting/targeting-preview-syncer.mjs";
 import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
@@ -20,6 +21,9 @@ export function registerReadyHooks() {
 
     // Initialize Sockets
     TrespasserSocket.init();
+
+    // Initialize Real-Time Targeting Preview Syncer
+    TargetingPreviewSyncer.init();
 
     // Migrate legacy settings with inverted logic to positive settings
     if (game.user.isGM) {

@@ -1,4 +1,5 @@
 import { CanvasInputOverlay } from "../hud/canvas-input-overlay.mjs";
+import { TargetingPreviewSyncer } from "../targeting/targeting-preview-syncer.mjs";
 
 /**
  * Manages an interactive canvas input session (selecting target, AoE, movement, forced movement, etc.).
@@ -174,6 +175,9 @@ export class CanvasInputSession {
       this.overlay.close();
       this.overlay = null;
     }
+
+    // Clear remote targeting previews on other clients
+    TargetingPreviewSyncer.clear();
   }
 
   /**

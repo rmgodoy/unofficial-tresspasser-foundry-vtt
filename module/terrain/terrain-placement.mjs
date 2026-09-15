@@ -4,6 +4,7 @@ import { getRegionColor, executeBehavior, buildBehaviorContext, evaluateIntensit
 import { isPointInRegion } from "./terrain-geometry.mjs";
 import { editTerrainRegion } from "./terrain-editor.mjs";
 import { resolveItem } from "../helpers/item-resolver.mjs";
+import { TargetingPreviewSyncer } from "../targeting/targeting-preview-syncer.mjs";
 
 export { editTerrainRegion };
 
@@ -202,9 +203,11 @@ export async function spawnTerrainFromDeed(terrainItem, spawnConfig, sourceToken
       highlights.length = 0;
 
       const gfx = new PIXI.Graphics();
+      let placedSquares = null;
+      let hoverSquares = [];
 
       if (selectedPos) {
-        const placedSquares = [];
+        placedSquares = [];
         for (let dx = 0; dx < wSq; dx++) {
           for (let dy = 0; dy < hSq; dy++) {
             placedSquares.push({ x: selectedPos.x + dx * gridSize, y: selectedPos.y + dy * gridSize });
@@ -216,7 +219,6 @@ export async function spawnTerrainFromDeed(terrainItem, spawnConfig, sourceToken
       if (hoveredPos) {
         const isSame = selectedPos && hoveredPos.x === selectedPos.x && hoveredPos.y === selectedPos.y;
         if (!isSame) {
-          const hoverSquares = [];
           for (let dx = 0; dx < wSq; dx++) {
             for (let dy = 0; dy < hSq; dy++) {
               hoverSquares.push({ x: hoveredPos.x + dx * gridSize, y: hoveredPos.y + dy * gridSize });
@@ -226,6 +228,12 @@ export async function spawnTerrainFromDeed(terrainItem, spawnConfig, sourceToken
         }
       }
 
+      // Broadcast preview to other clients (spectator mode)
+      TargetingPreviewSyncer.sync({
+        placedSquares: placedSquares && placedSquares.length > 0 ? placedSquares : null,
+        candidateSquares: hoverSquares.length > 0 ? hoverSquares : null
+      });
+
       layer.addChild(gfx);
       highlights.push(gfx);
     };
@@ -233,6 +241,7 @@ export async function spawnTerrainFromDeed(terrainItem, spawnConfig, sourceToken
     const cleanup = () => {
       for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
       highlights.length = 0;
+      TargetingPreviewSyncer.clear();
     };
 
     const title = game.i18n.format("TRESPASSER.Notification.Combat.PlaceTerrain", { name: terrainItem.name });

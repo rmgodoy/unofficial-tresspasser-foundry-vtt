@@ -71,6 +71,7 @@ export async function handleSlipperyCheck(tokenDoc, actor, region) {
  */
 export async function transformObstacleToRubble(region) {
   if (!region || !canvas.scene) return;
+  if (!game.user.isGM) return;
   const terrainData = region.flags?.trespasser?.terrain;
   if (!terrainData || terrainData.system.category !== "obstacle") return;
   

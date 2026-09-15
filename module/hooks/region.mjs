@@ -6,6 +6,7 @@ import "../helpers/region-sync-helper.mjs";
 export function registerRegionHooks() {
   Hooks.on("regionBehaviorTokenEnter", async (behavior, region, token) => {
     const tokenDoc = token.document ?? token;
+    if (!tokenDoc.isOwner && !game.user.isGM) return;
     if (globalThis._trespasserUndoSet?.has(tokenDoc.id)) return;
     if (game.trespasser?.TerrainHelper) {
       await game.trespasser.TerrainHelper.onTokenEnterTerrain(tokenDoc, region);
@@ -14,6 +15,7 @@ export function registerRegionHooks() {
 
   Hooks.on("regionBehaviorTokenExit", async (behavior, region, token) => {
     const tokenDoc = token.document ?? token;
+    if (!tokenDoc.isOwner && !game.user.isGM) return;
     if (globalThis._trespasserUndoSet?.has(tokenDoc.id)) return;
     if (game.trespasser?.TerrainHelper) {
       await game.trespasser.TerrainHelper.onTokenExitTerrain(tokenDoc, region);

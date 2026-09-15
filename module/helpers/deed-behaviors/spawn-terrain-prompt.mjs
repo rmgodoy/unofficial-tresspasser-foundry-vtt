@@ -2,6 +2,7 @@ import { TargetingHelper } from "../targeting-helper.mjs";
 import { CanvasInputSession } from "../../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../../canvas/canvas-selection-renderer.mjs";
 import { RangeHelper } from "../range-helper.mjs";
+import { TargetingPreviewSyncer } from "../../targeting/targeting-preview-syncer.mjs";
 
 /**
  * Prompts the user to select the terrain placement on the canvas using CanvasInputSession.
@@ -33,13 +34,15 @@ export async function promptCanvasPlacement(terrainItem, sourceToken, deedItem) 
     highlights.length = 0;
 
     const gfx = new PIXI.Graphics();
+    let placedSquares = null;
+    let hoverSquares = [];
 
     if (sourceToken && range > 0) {
       CanvasSelectionRenderer.drawRangePerimeter(gfx, sourceToken, range, gridSize);
     }
 
     if (selectedPos) {
-      const placedSquares = [];
+      placedSquares = [];
       for (let dx = 0; dx < wSq; dx++) {
         for (let dy = 0; dy < hSq; dy++) {
           placedSquares.push({ x: selectedPos.x + dx * gridSize, y: selectedPos.y + dy * gridSize });
@@ -51,7 +54,6 @@ export async function promptCanvasPlacement(terrainItem, sourceToken, deedItem) 
     if (hoveredPos) {
       const isSame = selectedPos && hoveredPos.x === selectedPos.x && hoveredPos.y === selectedPos.y;
       if (!isSame) {
-        const hoverSquares = [];
         for (let dx = 0; dx < wSq; dx++) {
           for (let dy = 0; dy < hSq; dy++) {
             hoverSquares.push({ x: hoveredPos.x + dx * gridSize, y: hoveredPos.y + dy * gridSize });
@@ -60,6 +62,16 @@ export async function promptCanvasPlacement(terrainItem, sourceToken, deedItem) 
         CanvasSelectionRenderer.drawCandidateSquares(gfx, hoverSquares, gridSize);
       }
     }
+
+    // Broadcast preview to other clients (spectator mode)
+    TargetingPreviewSyncer.sync({
+      rangePerimeter: (sourceToken && range > 0) ? {
+        tokenId: sourceToken?.id,
+        rangeSq: range
+      } : null,
+      placedSquares: placedSquares && placedSquares.length > 0 ? placedSquares : null,
+      candidateSquares: hoverSquares.length > 0 ? hoverSquares : null
+    });
 
     layer.addChild(gfx);
     highlights.push(gfx);
@@ -71,6 +83,7 @@ export async function promptCanvasPlacement(terrainItem, sourceToken, deedItem) 
       gfx.destroy();
     }
     highlights.length = 0;
+    TargetingPreviewSyncer.clear();
   };
 
   const title = game.i18n.format("TRESPASSER.Notification.Combat.PlaceTerrain", { name: terrainItem.name })

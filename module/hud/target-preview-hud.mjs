@@ -6,8 +6,11 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications?.api 
  * Built using ApplicationsV2.
  */
 export class TargetPreviewHUD extends (HandlebarsApplicationMixin ? HandlebarsApplicationMixin(ApplicationV2) : class {}) {
-  /** @type {TargetPreviewHUD|null} Singleton active preview HUD */
+  /** @type {TargetPreviewHUD|null} Singleton active preview HUD for local caster */
   static activeHUD = null;
+
+  /** @type {TargetPreviewHUD|null} Singleton active preview HUD for spectators */
+  static spectatorHUD = null;
 
   static DEFAULT_OPTIONS = {
     id: "trespasser-target-preview-hud",
@@ -34,13 +37,14 @@ export class TargetPreviewHUD extends (HandlebarsApplicationMixin ? HandlebarsAp
 
   constructor(options = {}) {
     super(options);
+    this.isSpectator = Boolean(options.isSpectator);
     /** @type {Array<object>} List of TokenDeedOutcomePreview */
     this.targets = [];
     this._onCanvasPanBound = this._repositionAllPills.bind(this);
   }
 
   /**
-   * Show or update the TargetPreviewHUD with a list of target outcomes.
+   * Show or update the TargetPreviewHUD with a list of target outcomes for the active caster.
    * @param {Array<object>} targetOutcomes
    */
   static async update(targetOutcomes = []) {
@@ -61,11 +65,45 @@ export class TargetPreviewHUD extends (HandlebarsApplicationMixin ? HandlebarsAp
   }
 
   /**
-   * Hide and clear active preview HUD.
+   * Hide and clear active preview HUD for the local caster.
    */
   static clear() {
     if (this.activeHUD) {
       this.activeHUD.clear();
+    }
+  }
+
+  /**
+   * Show or update the spectator TargetPreviewHUD for remote targeting.
+   * @param {Array<object>} targetOutcomes
+   */
+  static async updateSpectator(targetOutcomes = []) {
+    const validOutcomes = (targetOutcomes || []).filter(t => t.role !== "unaffected" && t.hasAnyOutcome);
+    if (!validOutcomes || validOutcomes.length === 0) {
+      if (this.spectatorHUD) {
+        this.spectatorHUD.clear();
+      }
+      return;
+    }
+
+    if (!this.spectatorHUD) {
+      this.spectatorHUD = new TargetPreviewHUD({
+        id: "trespasser-spectator-preview-hud",
+        classes: ["trespasser", "target-preview-hud-layer", "is-spectator"],
+        isSpectator: true
+      });
+      await this.spectatorHUD.render(true);
+    }
+
+    this.spectatorHUD.setTargets(validOutcomes);
+  }
+
+  /**
+   * Hide and clear spectator preview HUD.
+   */
+  static clearSpectator() {
+    if (this.spectatorHUD) {
+      this.spectatorHUD.clear();
     }
   }
 
@@ -84,7 +122,8 @@ export class TargetPreviewHUD extends (HandlebarsApplicationMixin ? HandlebarsAp
   /** @override */
   async _prepareContext() {
     return {
-      targets: this.targets
+      targets: this.targets,
+      isSpectator: this.isSpectator
     };
   }
 

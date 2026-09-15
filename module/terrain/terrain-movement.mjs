@@ -61,6 +61,7 @@ export async function processQueuedMovements() {
  * @param {Array<{oldX, oldY, newX, newY, isJump}>} segments 
  */
 export async function calculateBatchedMovement(tokenDoc, segments) {
+  if (!tokenDoc.isOwner && !game.user.isGM) return;
   const scene = tokenDoc.parent || canvas.scene;
   if (!scene) return;
 
@@ -260,6 +261,7 @@ export async function onTokenEnterTerrain(token, region) {
   if (!terrainData) return;
 
   const tokenDoc = token.document ?? token;
+  if (!tokenDoc.isOwner && !game.user.isGM) return;
   if (globalThis._trespasserUndoSet?.has(tokenDoc.id)) return;
   const actor = tokenDoc.actor;
   if (!actor) return;
@@ -310,6 +312,7 @@ export async function onTokenExitTerrain(token, region) {
   if (!terrainData) return;
 
   const tokenDoc = token.document ?? token;
+  if (!tokenDoc.isOwner && !game.user.isGM) return;
   if (globalThis._trespasserUndoSet?.has(tokenDoc.id)) return;
   const actor = tokenDoc.actor;
   if (!actor) return;
@@ -347,6 +350,7 @@ export async function onTokenExitTerrain(token, region) {
  */
 export async function onTokenStartTurnInTerrain(tokenDoc, region) {
   if (!tokenDoc || !region) return;
+  if (!tokenDoc.isOwner && !game.user.isGM) return;
   const terrainData = region.flags?.trespasser?.terrain;
   if (!terrainData) return;
 

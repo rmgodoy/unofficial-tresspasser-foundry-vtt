@@ -34,6 +34,7 @@ import {
   handleGrantRecoveryRequest,
   handleGrantRecoveryResponse
 } from "./grant-recovery-handler.mjs";
+import { TargetingPreviewSyncer } from "../../targeting/targeting-preview-syncer.mjs";
 import { SYSTEM_ID } from "../../system-id.mjs";
 
 /**
@@ -112,6 +113,10 @@ export class TrespasserSocket {
         return handleGrantRecoveryRequest(data, senderId);
       case "GRANT_RECOVERY_RESPONSE":
         return handleGrantRecoveryResponse(data);
+      case "TARGETING_PREVIEW_UPDATE":
+        return TargetingPreviewSyncer.handleRemoteUpdate(data, senderId);
+      case "TARGETING_PREVIEW_CLEAR":
+        return TargetingPreviewSyncer.handleRemoteClear(data, senderId);
       default:
         // Ignore unknown types
         break;

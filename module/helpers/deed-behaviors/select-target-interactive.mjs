@@ -4,6 +4,7 @@ import { CanvasSelectionRenderer } from "../../canvas/canvas-selection-renderer.
 import { RangeHelper } from "../range-helper.mjs";
 import { DeedIntentResolver } from "../../targeting/deed-intent-resolver.mjs";
 import { TargetPreviewHUD } from "../../hud/target-preview-hud.mjs";
+import { TargetingPreviewSyncer } from "../../targeting/targeting-preview-syncer.mjs";
 
 /**
  * Interactive token selection session via CanvasInputSession.
@@ -107,6 +108,38 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     if (hoveredSq) {
       CanvasSelectionRenderer.drawCandidateSquares(session.graphics, [hoveredSq], gridPx, { hoveredSquare: hoveredSq });
     }
+
+    // 6. Broadcast real-time preview to other clients (spectator mode)
+    const candidateOverlays = candidateTokens ? candidateTokens.filter(t => !selectedTargets.some(st => st.id === t.id)).map(cToken => {
+      const outcome = outcomeMap.get(cToken.id || cToken.document?.id);
+      if (outcome && (!outcome.hasAnyOutcome || outcome.role === "unaffected")) return null;
+      const style = outcome?.style
+        ? { ...outcome.style, fillAlpha: 0.12, lineAlpha: 0.5 }
+        : { color: 0x00FF00, fillAlpha: 0.15, lineWidth: 2, lineAlpha: 0.6 };
+      return { tokenId: cToken.id || cToken.document?.id, style };
+    }).filter(Boolean) : [];
+
+    const selectedOverlays = selectedTargets.map(targetToken => {
+      const outcome = outcomeMap.get(targetToken.id || targetToken.document?.id);
+      const style = outcome?.style
+        ? { ...outcome.style, fillAlpha: 0.35, lineWidth: 3, lineAlpha: 1.0 }
+        : { color: 0xFFD700, fillAlpha: 0.45, lineWidth: 3, lineAlpha: 0.9 };
+      return { tokenId: targetToken.id || targetToken.document?.id, style };
+    });
+
+    TargetingPreviewSyncer.sync({
+      rangePerimeter: (!isAreaMode && maxRangeSq && maxRangeSq > 0) ? {
+        tokenId: sourceToken?.id,
+        rangeSq: maxRangeSq,
+        originOverride: origin
+      } : null,
+      placedSquares: isAreaMode ? areaSquares : null,
+      placedOptions: isAreaMode ? { color: 0x55AAFF, fillAlpha: 0.12, lineWeight: 1 } : null,
+      candidateSquares: hoveredSq ? [hoveredSq] : null,
+      hoveredSquare: hoveredSq,
+      targetTokens: [...candidateOverlays, ...selectedOverlays],
+      targetOutcomes: allRelevantTokens.length > 0 ? Array.from(outcomeMap.values()) : []
+    });
   };
 
   return CanvasInputSession.start({
@@ -229,10 +262,12 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     },
     onConfirm: () => {
       TargetPreviewHUD.clear();
+      TargetingPreviewSyncer.clear();
       return selectedTargets;
     },
     onCancel: () => {
       TargetPreviewHUD.clear();
+      TargetingPreviewSyncer.clear();
       return null;
     }
   });

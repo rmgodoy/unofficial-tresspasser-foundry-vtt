@@ -3,6 +3,7 @@ import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs
 import { isBlastAdjacentToToken, getTokenOccupiedSquares, getMinSquareDistance, getTokensInSquares } from "./targeting-geometry.mjs";
 import { DeedIntentResolver } from "./deed-intent-resolver.mjs";
 import { TargetPreviewHUD } from "../hud/target-preview-hud.mjs";
+import { TargetingPreviewSyncer } from "./targeting-preview-syncer.mjs";
 
 /**
  * Interactive N×N blast placement. A highlighted grid overlay follows the
@@ -62,15 +63,20 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null, 
 
       // 3. Tokens preview overlay and TargetPreviewHUD
       const activeSquares = selectedOrigin ? currentSquares : hoverSquares;
+      const affectedOverlays = [];
+      let targetOutcomes = [];
+
       if (activeSquares && activeSquares.length > 0 && options.item) {
         const tokensInArea = getTokensInSquares(activeSquares, gridPx);
         if (tokensInArea.length > 0) {
           const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(tokensInArea, token, options.item, options);
-          TargetPreviewHUD.update(Array.from(outcomeMap.values()));
+          targetOutcomes = Array.from(outcomeMap.values());
+          TargetPreviewHUD.update(targetOutcomes);
           for (const t of tokensInArea) {
             const outcome = outcomeMap.get(t.id || t.document?.id);
             if (outcome && outcome.role !== "unaffected" && outcome.hasAnyOutcome) {
               CanvasSelectionRenderer.drawTokenTargetOverlay(gfx, t, outcome.style, gridPx);
+              affectedOverlays.push({ tokenId: t.id || t.document?.id, style: outcome.style });
             }
           }
         } else {
@@ -80,6 +86,19 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null, 
         TargetPreviewHUD.clear();
       }
 
+      // 4. Broadcast preview to other clients (spectator mode)
+      TargetingPreviewSyncer.sync({
+        rangePerimeter: (effectiveRange !== null && effectiveRange !== undefined && effectiveRange > 0) ? {
+          tokenId: token?.id,
+          rangeSq: effectiveRange,
+          originOverride: options.originOverride || null
+        } : null,
+        placedSquares: selectedOrigin ? currentSquares : null,
+        candidateSquares: hoverSquares.length > 0 ? hoverSquares : null,
+        targetTokens: affectedOverlays,
+        targetOutcomes
+      });
+
       layer.addChild(gfx);
       highlights.push(gfx);
     };
@@ -88,6 +107,7 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null, 
       for (const gfx of highlights) { layer.removeChild(gfx); gfx.destroy(); }
       highlights.length = 0;
       TargetPreviewHUD.clear();
+      TargetingPreviewSyncer.clear();
     };
 
     const title = close 
