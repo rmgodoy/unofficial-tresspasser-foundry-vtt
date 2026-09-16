@@ -83,43 +83,45 @@ export async function placeTerrainOnCanvas(terrainItem, dropPosition, options = 
     ? sys.linkedEffects
     : (sys?.linkedEffect?.uuid ? [sys.linkedEffect] : []);
 
-  if (options.casterActorId && linkedList.length > 0) {
+  if (options.casterActorId && linkedList.length > 0 && !options.skipLinkedEffectGrant) {
     const casterActor = game.actors?.get(options.casterActorId);
     if (casterActor) {
       for (const linkedItem of linkedList) {
         const linkedUuid = linkedItem.uuid;
         if (!linkedUuid) continue;
-        const hasLinked = casterActor.items.some(i =>
-          i.type === "effect" && (
-            i.flags?.trespasser?.sourceEffectUuid === linkedUuid ||
-            i.flags?.trespasser?.linkedSource === linkedUuid ||
-            i.uuid === linkedUuid ||
-            (linkedItem.name && i.name === linkedItem.name)
-          )
-        );
-        if (!hasLinked) {
-          const sourceEff = await resolveItem(linkedItem, { type: "effect" });
-          if (sourceEff) {
-            const effData = sourceEff.toObject();
-            delete effData._id;
-            if (options.intensity !== undefined && options.intensity !== null && !isNaN(Number(options.intensity))) {
-              effData.system.intensity = Number(options.intensity);
-            } else if (linkedItem.intensity) {
-              effData.system.intensity = evaluateIntensityValue(linkedItem.intensity, 1);
+        const sourceEff = await resolveItem(linkedItem, { type: "effect" });
+        if (sourceEff) {
+          const effData = sourceEff.toObject();
+          delete effData._id;
+          if (options.intensity !== undefined && options.intensity !== null && !isNaN(Number(options.intensity))) {
+            effData.system.intensity = Number(options.intensity);
+          } else if (linkedItem.intensity) {
+            effData.system.intensity = evaluateIntensityValue(linkedItem.intensity, 1);
+          }
+          effData.flags = foundry.utils.mergeObject(effData.flags || {}, {
+            trespasser: {
+              sourceEffectUuid: sourceEff.uuid,
+              linkedSource: sourceEff.uuid
             }
-            effData.flags = foundry.utils.mergeObject(effData.flags || {}, {
-              trespasser: {
-                sourceEffectUuid: sourceEff.uuid,
-                linkedSource: sourceEff.uuid
-              }
-            });
-            if (casterActor.isOwner || game.user.isGM) {
-              const [created] = await casterActor.createEmbeddedDocuments("Item", [effData]);
-              if (created && !options.linkedEffectId) options.linkedEffectId = created.id;
+          });
+          if (casterActor.isOwner || game.user.isGM) {
+            const [created] = await casterActor.createEmbeddedDocuments("Item", [effData]);
+            const targetDoc = created || casterActor.items.find(i =>
+              i.type === "effect" && (
+                i.flags?.trespasser?.sourceEffectUuid === sourceEff.uuid ||
+                i.flags?.trespasser?.linkedSource === sourceEff.uuid ||
+                i.uuid === sourceEff.uuid ||
+                i.name === sourceEff.name
+              )
+            );
+            if (targetDoc && !options.linkedEffectId) {
+              options.linkedEffectId = targetDoc.id;
+              options.linkedEffectUuid = targetDoc.uuid;
             }
           }
         }
       }
+      options.skipLinkedEffectGrant = true;
     }
   }
 

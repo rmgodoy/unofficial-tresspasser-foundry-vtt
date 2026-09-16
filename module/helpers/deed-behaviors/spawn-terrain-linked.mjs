@@ -22,61 +22,51 @@ export async function ensureCasterLinkedEffect(terrainItem, actor, options, fina
     const linkedUuid = linkedItem.uuid;
     if (!linkedUuid && !linkedItem.name) continue;
 
-    const existing = actor.items.find(i => {
-      if (i.type !== "effect") return false;
-      if (linkedUuid && (i.flags?.trespasser?.sourceEffectUuid === linkedUuid || i.flags?.trespasser?.linkedSource === linkedUuid || i.uuid === linkedUuid || i.id === linkedUuid)) return true;
-      if (linkedItem.name && (clean(i.name) === clean(linkedItem.name) || clean(i.name).includes(clean(linkedItem.name)) || clean(linkedItem.name).includes(clean(i.name)))) return true;
-      return false;
+    const sourceEffect = linkedUuid ? await resolveItem(linkedItem, { type: "effect" }) : null;
+    if (!sourceEffect) continue;
+
+    const effectData = sourceEffect.toObject();
+    delete effectData._id;
+    effectData.system = effectData.system || {};
+    effectData.system.intensity = finalIntensity;
+    effectData.flags = foundry.utils.mergeObject(effectData.flags || {}, {
+      trespasser: {
+        sourceEffectUuid: sourceEffect.uuid,
+        linkedSource: sourceEffect.uuid
+      }
     });
 
-    let linkedDocId = existing?.id || null;
+    let linkedDocId = null;
 
-    if (existing) {
-      if (!options.linkedEffectId) options.linkedEffectId = existing.id;
-      if (!options.linkedEffectUuid) options.linkedEffectUuid = existing.uuid;
-      if (existing.system?.intensity !== finalIntensity) {
-        if (actor.isOwner) {
-          await existing.update({ "system.intensity": finalIntensity });
-        } else {
-          const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
-          await emitDeedActionAndWait("applyEffects", {
-            actorId: actor.id,
-            itemDataArray: [{ _id: existing.id, "system.intensity": finalIntensity }]
-          });
-        }
+    if (actor.isOwner) {
+      const [created] = await actor.createEmbeddedDocuments("Item", [effectData]);
+      const targetDoc = created || actor.items.find(i =>
+        i.type === "effect" && (
+          (linkedUuid && (i.flags?.trespasser?.sourceEffectUuid === linkedUuid || i.flags?.trespasser?.linkedSource === linkedUuid || i.uuid === linkedUuid || i.id === linkedUuid)) ||
+          (clean(i.name) === clean(sourceEffect.name) || clean(i.name).includes(clean(sourceEffect.name)) || clean(sourceEffect.name).includes(clean(i.name)))
+        )
+      );
+      if (targetDoc) {
+        linkedDocId = targetDoc.id;
+        if (!options.linkedEffectId) options.linkedEffectId = targetDoc.id;
+        if (!options.linkedEffectUuid) options.linkedEffectUuid = targetDoc.uuid;
       }
     } else {
-      const sourceEffect = linkedUuid ? await resolveItem(linkedItem, { type: "effect" }) : null;
-      if (!sourceEffect) continue;
-
-      const effectData = sourceEffect.toObject();
-      delete effectData._id;
-      effectData.system = effectData.system || {};
-      effectData.system.intensity = finalIntensity;
-      effectData.flags = foundry.utils.mergeObject(effectData.flags || {}, {
-        trespasser: {
-          sourceEffectUuid: sourceEffect.uuid,
-          linkedSource: sourceEffect.uuid
-        }
+      const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
+      const res = await emitDeedActionAndWait("applyEffects", {
+        actorId: actor.id,
+        itemDataArray: [effectData]
       });
-
-      if (actor.isOwner) {
-        const [created] = await actor.createEmbeddedDocuments("Item", [effectData]);
-        if (created) {
-          linkedDocId = created.id;
-          if (!options.linkedEffectId) options.linkedEffectId = created.id;
-          if (!options.linkedEffectUuid) options.linkedEffectUuid = created.uuid;
-        }
-      } else {
-        const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
-        const res = await emitDeedActionAndWait("applyEffects", {
-          actorId: actor.id,
-          itemDataArray: [effectData]
-        });
-        if (Array.isArray(res) && res[0]) {
-          linkedDocId = res[0];
-          options.linkedEffectId = res[0];
-        }
+      const targetDoc = (Array.isArray(res) && res[0] ? actor.items.get(res[0]) : null) || actor.items.find(i =>
+        i.type === "effect" && (
+          (linkedUuid && (i.flags?.trespasser?.sourceEffectUuid === linkedUuid || i.flags?.trespasser?.linkedSource === linkedUuid || i.uuid === linkedUuid || i.id === linkedUuid)) ||
+          (clean(i.name) === clean(sourceEffect.name) || clean(i.name).includes(clean(sourceEffect.name)) || clean(sourceEffect.name).includes(clean(i.name)))
+        )
+      );
+      if (targetDoc) {
+        linkedDocId = targetDoc.id;
+        if (!options.linkedEffectId) options.linkedEffectId = targetDoc.id;
+        if (!options.linkedEffectUuid) options.linkedEffectUuid = targetDoc.uuid;
       }
     }
 
@@ -95,4 +85,5 @@ export async function ensureCasterLinkedEffect(terrainItem, actor, options, fina
       img: terrainItem.img || "icons/svg/mountain.svg"
     });
   }
+  options.skipLinkedEffectGrant = true;
 }

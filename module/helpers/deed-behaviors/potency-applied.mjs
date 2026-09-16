@@ -18,6 +18,7 @@ export async function updateAlreadyApplied(context) {
     if (record.type === "terrain") {
       const bonus = context.potencyAllocations?.terrainBonuses?.get(record.nodeId) || 0;
       if (bonus > (record.addedPotency || 0)) {
+        const potencyDiff = bonus - (record.addedPotency || 0);
         const newIntensity = record.baseIntensity + bonus;
         record.addedPotency = bonus;
         record.finalIntensity = newIntensity;
@@ -35,14 +36,16 @@ export async function updateAlreadyApplied(context) {
           );
         }
 
-        if (doc && doc.system?.intensity !== newIntensity) {
+        if (doc) {
+          const currentDocIntensity = Math.round(Number(doc.system?.intensity) || 0);
+          const newDocIntensity = currentDocIntensity + potencyDiff;
           if (actor.isOwner) {
-            await doc.update({ "system.intensity": newIntensity });
+            await doc.update({ "system.intensity": newDocIntensity });
           } else {
             const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
             await emitDeedActionAndWait("applyEffects", {
               actorId: actor.id,
-              itemDataArray: [{ _id: doc.id, "system.intensity": newIntensity }]
+              itemDataArray: [{ _id: doc.id, "system.intensity": newDocIntensity }]
             });
           }
         }
@@ -76,6 +79,7 @@ export async function updateAlreadyApplied(context) {
       const bonus = context.potencyAllocations?.effectBonuses?.get(`${record.targetId}_${record.uuid}`) ??
                     context.potencyAllocations?.effectBonuses?.get(`global_${record.uuid}`) ?? 0;
       if (bonus > (record.addedPotency || 0)) {
+        const potencyDiff = bonus - (record.addedPotency || 0);
         const newIntensity = record.baseIntensity + bonus;
         record.addedPotency = bonus;
         record.finalIntensity = newIntensity;
@@ -90,14 +94,16 @@ export async function updateAlreadyApplied(context) {
             )
           );
         }
-        if (doc && doc.system?.intensity !== newIntensity) {
+        if (doc) {
+          const currentDocIntensity = Math.round(Number(doc.system?.intensity) || 0);
+          const newDocIntensity = currentDocIntensity + potencyDiff;
           if (actor.isOwner) {
-            await doc.update({ "system.intensity": newIntensity });
+            await doc.update({ "system.intensity": newDocIntensity });
           } else {
             const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
             await emitDeedActionAndWait("applyEffects", {
               actorId: actor.id,
-              itemDataArray: [{ _id: doc.id, "system.intensity": newIntensity }]
+              itemDataArray: [{ _id: doc.id, "system.intensity": newDocIntensity }]
             });
           }
         }

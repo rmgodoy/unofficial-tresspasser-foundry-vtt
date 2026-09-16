@@ -88,7 +88,7 @@ export function getLinkedIntensity(terrainRegion) {
     const iClean = clean(i.name);
     if (linkedName) {
       const lClean = clean(linkedName);
-      if (iClean === lClean || (lClean.length > 3 && (iClean.includes(lClean) || lClean.includes(effClean)))) return true;
+      if (iClean === lClean || (lClean.length > 3 && (iClean.includes(lClean) || lClean.includes(iClean)))) return true;
     }
 
     if (terrainSys?.linkedEffects?.length > 0) {
