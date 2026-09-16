@@ -117,7 +117,9 @@
         "Undo": "Desfazer Último Passo",
         "UndoLabel": "Desfazer",
         "Cancel": "Cancelar Ação",
-        "CancelLabel": "Cancelar"
+        "CancelLabel": "Cancelar",
+        "JumpLabel": "Salto",
+        "JumpToggleTip": "Alternar Ataque com Salto para esta ação"
       },
       "Region": {
         "DefaultTitle": "Região",

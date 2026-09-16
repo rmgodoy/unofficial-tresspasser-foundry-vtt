@@ -73,6 +73,7 @@ export class CanvasInputSession {
       document.addEventListener("keydown", this._onKeyDownBound);
 
       // Create overlay AppV2 window
+      this.isJump = this.config.isJump ?? false;
       this.overlay = new CanvasInputOverlay({
         session: this,
         title: this.config.title || "",
@@ -82,7 +83,9 @@ export class CanvasInputSession {
         canConfirm: this.config.canConfirm ?? false,
         showUndo: this.config.showUndo ?? false,
         canUndo: this.config.canUndo ?? false,
-        showCancel: this.config.showCancel ?? true
+        showCancel: this.config.showCancel ?? true,
+        showJumpToggle: this.config.showJumpToggle ?? false,
+        isJump: this.isJump
       });
 
       await this.overlay.render(true);
@@ -96,6 +99,17 @@ export class CanvasInputSession {
   updateOverlay(newState = {}) {
     if (this.overlay) {
       this.overlay.updateState(newState);
+    }
+  }
+
+  /**
+   * Set jump state from HUD toggle.
+   * @param {boolean} isJump
+   */
+  setJump(isJump) {
+    this.isJump = isJump;
+    if (typeof this.config.onToggleJump === "function") {
+      this.config.onToggleJump(isJump, this);
     }
   }
 

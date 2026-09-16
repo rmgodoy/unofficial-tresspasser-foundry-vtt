@@ -96,7 +96,9 @@
         "PlaceTerrain": "Posicionar {name}: clique para posicionar.",
         "TerrainPlacementCancelled": "Posicionamento do terreno cancelado.",
         "NoAreaSelected": "Nenhuma área selecionada encontrada para posicionar o terreno.",
-        "InvalidJump": "Destino de salto inválido."
+        "InvalidJump": "Destino de salto inválido.",
+        "AirborneRequiresJump": "{name} está no ar ({height} de altura) e não pode ser alvo de ataques corpo a corpo sem um salto.",
+        "AirborneTooHigh": "{name} está no ar ({height} de altura) além do alcance desta área (área {aoeSize})."
       },
       "Dungeon": {
         "NeedsDungeon": "Esta sala deve estar em uma Masmorra para adicionar conexões.",

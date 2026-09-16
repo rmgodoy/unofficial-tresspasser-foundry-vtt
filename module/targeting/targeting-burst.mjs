@@ -110,7 +110,10 @@ export async function placeBurst(token, size, gridPx, isMelee = false, isAura = 
     const actor = token.actor;
     const reach = isMelee ? getMeleeReach(actor) : size;
     const squares = computeBurstSquares(token, reach, gridPx, options.originOverride);
-    const targets = getTokensInSquares(squares, gridPx);
+    const targets = getTokensInSquares(squares, gridPx, {
+      aoeSize: isMelee ? 0 : size,
+      aoeType: isMelee ? "melee_burst" : (isAura ? "aura" : "burst")
+    });
 
     const highlights = [];
     const layer = canvas.interface;

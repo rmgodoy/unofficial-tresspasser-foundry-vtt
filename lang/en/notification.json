@@ -96,7 +96,9 @@
         "PlaceTerrain": "Place {name}: click to place.",
         "TerrainPlacementCancelled": "Terrain placement cancelled.",
         "NoAreaSelected": "No selected area found for terrain placement.",
-        "InvalidJump": "Invalid jump destination."
+        "InvalidJump": "Invalid jump destination.",
+        "AirborneRequiresJump": "{name} is airborne ({height} height) and cannot be targeted by melee attacks without a jump.",
+        "AirborneTooHigh": "{name} is airborne ({height} height) beyond this area's reach (area {aoeSize})."
       },
       "Dungeon": {
         "NeedsDungeon": "This room must be in a Dungeon to add connections.",

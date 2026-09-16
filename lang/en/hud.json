@@ -117,7 +117,9 @@
         "Undo": "Undo Last Step",
         "UndoLabel": "Undo",
         "Cancel": "Cancel Action",
-        "CancelLabel": "Cancel"
+        "CancelLabel": "Cancel",
+        "JumpLabel": "Jump",
+        "JumpToggleTip": "Toggle Jump Attack for this action"
       },
       "Region": {
         "DefaultTitle": "Region",

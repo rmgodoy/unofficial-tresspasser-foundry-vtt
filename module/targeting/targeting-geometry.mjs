@@ -1,6 +1,7 @@
 /**
  * Targeting geometry and spatial calculation utilities.
  */
+import { RangeHelper } from "../helpers/range-helper.mjs";
 
 /**
  * Check if a token matches the required disposition filter.
@@ -170,10 +171,22 @@ export function isAdjacentToCasterToken(sq, tokenObj, gridPx) {
  * @param {Token|TokenDocument|Actor} [options.sourceToken]
  * @returns {Token[]}
  */
-export function getTokensInSquares(squares, gridPx, { excludeTokenId, disposition, sourceToken } = {}) {
+export function getTokensInSquares(squares, gridPx, { excludeTokenId, disposition, sourceToken, aoeSize, aoeType, checkAirborne = true } = {}) {
   return canvas.tokens.placeables.filter(t => {
     if (excludeTokenId && t.id === excludeTokenId) return false;
     if (disposition && !matchesDisposition(t, disposition, sourceToken)) return false;
+
+    // Airborne height filter for AoE templates
+    if (checkAirborne && (aoeSize !== undefined || aoeType !== undefined)) {
+      const height = RangeHelper.getAirborneHeight(t);
+      if (height > 0) {
+        let effSize = aoeSize;
+        if (effSize === undefined) {
+          effSize = (aoeType === "melee_burst") ? 0 : 1;
+        }
+        if (Number(effSize) < height) return false;
+      }
+    }
     
     const tX = t.document.x;
     const tY = t.document.y;

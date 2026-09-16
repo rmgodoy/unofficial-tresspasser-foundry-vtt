@@ -207,8 +207,17 @@ export function checkCounterEligibility(defenderToken, attackerToken) {
     const creatureDie = defenderToken.actor.system?.combat?.damage_die
       ?? defenderToken.actor.system?.damage_die
       ?? "d6";
+    const attackerHeight = RangeHelper.getAirborneHeight(attackerToken);
+    if (attackerHeight >= 2 && engageRange < attackerHeight) {
+      return { canCounter: false, weapon: null, weaponDie: creatureDie };
+    }
     if (distSquares > engageRange + 0.1) return { canCounter: false, weapon: null, weaponDie: creatureDie };
     return { canCounter: true, weapon: null, weaponDie: creatureDie };
+  }
+
+  const attackerHeight = RangeHelper.getAirborneHeight(attackerToken);
+  if (attackerHeight >= 2) {
+    return { canCounter: false, weapon: null, weaponDie: "d6" };
   }
 
   const meleeWeapon = defenderToken.actor.items.find(i =>
@@ -325,8 +334,34 @@ export function validateRange(targets, sourceToken, deed, activeWeapons) {
 
   const sourceSquares = getTokenOccupiedSquares(sourceToken, gridPx);
 
-  // Check each target using Chebyshev edge-to-edge distance calculation
+  // Check each target using Chebyshev edge-to-edge distance calculation and airborne rules
   for (const t of targets) {
+    const airborneCheck = RangeHelper.canTargetAirborne(sourceToken, t, deed, {
+      actor: sourceToken?.actor,
+      isJump: deed.isJumpAttack ?? deed.isJump ?? false
+    });
+    if (!airborneCheck.valid) {
+      if (airborneCheck.reason === "airborne_requires_jump") {
+        return {
+          valid: false,
+          message: game.i18n.format("TRESPASSER.Notification.Combat.AirborneRequiresJump", {
+            name: t.name,
+            height: airborneCheck.height
+          })
+        };
+      }
+      if (airborneCheck.reason === "airborne_too_high") {
+        return {
+          valid: false,
+          message: game.i18n.format("TRESPASSER.Notification.Combat.AirborneTooHigh", {
+            name: t.name,
+            height: airborneCheck.height,
+            aoeSize: airborneCheck.aoeSize
+          })
+        };
+      }
+    }
+
     const targetSquares = getTokenOccupiedSquares(t, gridPx);
     const distSq = getMinSquareDistance(sourceSquares, targetSquares, gridPx);
 

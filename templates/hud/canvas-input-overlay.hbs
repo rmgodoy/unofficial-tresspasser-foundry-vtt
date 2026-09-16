@@ -23,6 +23,13 @@
           <i class="fas fa-times"></i> <span>{{localize 'TRESPASSER.HUD.CanvasOverlay.CancelLabel'}}</span>
         </button>
       {{/if}}
+      {{#if showJumpToggle}}
+        <button type="button" class="overlay-btn btn-jump-toggle {{#if isJump}}active{{/if}}" data-action="toggleJump" title="{{localize 'TRESPASSER.HUD.CanvasOverlay.JumpToggleTip'}}">
+          <i class="fas {{#if isJump}}fa-check-square{{else}}fa-square{{/if}}"></i>
+          <i class="fas fa-person-running"></i>
+          <span>{{localize 'TRESPASSER.HUD.CanvasOverlay.JumpLabel'}}</span>
+        </button>
+      {{/if}}
     </div>
     <div class="actions-right">
       {{#if showConfirm}}

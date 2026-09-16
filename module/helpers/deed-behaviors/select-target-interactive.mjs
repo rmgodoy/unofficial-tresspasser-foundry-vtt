@@ -24,6 +24,7 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
   const maxRangeSq = isAreaMode ? null : RangeHelper.getDeedRange(sourceToken, item, actor, { notify: true });
   const origin = originOverride || params.originOverride || (sourceToken ? { x: sourceToken.document?.x ?? sourceToken.x, y: sourceToken.document?.y ?? sourceToken.y } : null);
   let hoveredSquare = null;
+  let isJump = params.isJump ?? RangeHelper.deedInvolvesJump(item, actor);
 
   // If candidate tokens exist and count <= maxCount, pre-populate selection for convenience
   const selectedTargets = (candidateTokens && candidateTokens.length <= maxCount)
@@ -73,7 +74,7 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     // 2. Resolve outcomes for candidates and selected targets
     const allRelevantTokens = [...selectedTargets, ...(candidateTokens || [])];
     const outcomeMap = item
-      ? DeedIntentResolver.resolveTargetsOutcome(allRelevantTokens, sourceToken, item, { actor, params })
+      ? DeedIntentResolver.resolveTargetsOutcome(allRelevantTokens, sourceToken, item, { actor, params: { ...params, isJump } })
       : new Map();
 
     if (allRelevantTokens.length > 0) {
@@ -151,6 +152,12 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     showUndo: false,
     canUndo: false,
     showCancel: true,
+    showJumpToggle: true,
+    isJump,
+    onToggleJump: (newIsJump, session) => {
+      isJump = newIsJump;
+      redrawHighlights(session, hoveredSquare);
+    },
     onPointerMove: (ev, session) => {
       let lastCanvasPos;
       if (typeof ev.getLocalPosition === "function") {
@@ -193,6 +200,22 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
           if (idx >= 0) {
             selectedTargets.splice(idx, 1);
           } else {
+            const airborneCheck = RangeHelper.canTargetAirborne(sourceToken, hitToken, item, { actor, params, isJump });
+            if (!airborneCheck.valid) {
+              if (airborneCheck.reason === "airborne_requires_jump") {
+                ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.AirborneRequiresJump", {
+                  name: hitToken.name,
+                  height: airborneCheck.height
+                }));
+              } else if (airborneCheck.reason === "airborne_too_high") {
+                ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.AirborneTooHigh", {
+                  name: hitToken.name,
+                  height: airborneCheck.height,
+                  aoeSize: airborneCheck.aoeSize
+                }));
+              }
+              return;
+            }
             if (selectedTargets.length < maxCount) {
               selectedTargets.push(hitToken);
             } else {
@@ -227,6 +250,22 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
           if (idx >= 0) {
             selectedTargets.splice(idx, 1);
           } else {
+            const airborneCheck = RangeHelper.canTargetAirborne(sourceToken, hitToken, item, { actor, params, isJump });
+            if (!airborneCheck.valid) {
+              if (airborneCheck.reason === "airborne_requires_jump") {
+                ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.AirborneRequiresJump", {
+                  name: hitToken.name,
+                  height: airborneCheck.height
+                }));
+              } else if (airborneCheck.reason === "airborne_too_high") {
+                ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.AirborneTooHigh", {
+                  name: hitToken.name,
+                  height: airborneCheck.height,
+                  aoeSize: airborneCheck.aoeSize
+                }));
+              }
+              return;
+            }
             if (maxRangeSq !== null && maxRangeSq !== undefined && !RangeHelper.isWithinRange(sourceToken, hitToken, maxRangeSq, { originOverride: origin })) {
               const dist = RangeHelper.measureDistanceSquares(sourceToken, hitToken, { originOverride: origin });
               ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
@@ -263,6 +302,7 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     onConfirm: () => {
       TargetPreviewHUD.clear();
       TargetingPreviewSyncer.clear();
+      selectedTargets._isJump = isJump;
       return selectedTargets;
     },
     onCancel: () => {

@@ -3,6 +3,7 @@ import { formatDiceIcons } from "../helpers/dice-icon-helper.mjs";
 import { matchesDisposition } from "./targeting-geometry.mjs";
 import { migrateToGraph } from "../helpers/migration-graph.mjs";
 import { getActorEffects } from "../effects/effects-aggregate.mjs";
+import { RangeHelper } from "../helpers/range-helper.mjs";
 
 /**
  * DeedIntentResolver — Pure, non-destructive static analyzer for Deed behavior graphs.
@@ -67,6 +68,28 @@ export class DeedIntentResolver {
       onSpark:{ damage: [], healing: [], effects: [] },
       onMiss: { damage: [], healing: [], effects: [] }
     };
+
+    // Check airborne targeting validity
+    const isJump = context?.params?.isJump ?? context?.isJump ?? false;
+    const airborneCheck = RangeHelper.canTargetAirborne(casterToken, targetToken, deedItem, {
+      actor: context?.actor,
+      params: context?.params,
+      isJump,
+      aoeSize: context?.aoeSize,
+      aoeType: context?.aoeType
+    });
+
+    if (!airborneCheck.valid) {
+      return {
+        tokenId: targetToken.id || targetToken.document?.id,
+        tokenName: targetToken.name || targetToken.document?.name || "Target",
+        role: "unaffected",
+        intent: "neutral",
+        hasAnyOutcome: false,
+        outcomes,
+        style: { color: 0x888888, fillAlpha: 0.05, lineWidth: 1, lineAlpha: 0.3 }
+      };
+    }
 
     // Index outgoing flow connections: sourceId -> Array<{ targetId, sourcePort, targetPort }>
     const outgoing = new Map();

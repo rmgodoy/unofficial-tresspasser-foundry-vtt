@@ -1,5 +1,7 @@
 import { getEffectiveDeedAttributes } from "./deed-behaviors/roll-accuracy.mjs";
 import { getActiveWeapons } from "../sheets/character/handlers-combat.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
+import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 
 /**
  * RangeHelper — Modular deed range evaluation and distance measurement.
@@ -80,19 +82,7 @@ export class RangeHelper {
           }
           baseRange = 0;
         } else {
-          let maxRange = 0;
-          for (const w of missileWeapons) {
-            if (w.system?.properties?.thrown) {
-              maxRange = Math.max(maxRange, this.getWeaponThrownRange(w, gridDist));
-            } else {
-              const raw = String(w.system?.range ?? "").trim();
-              const num = parseInt(raw);
-              if (!isNaN(num) && num > 0) {
-                const r = /ft|feet/i.test(raw) ? Math.round(num / gridDist) : num;
-                maxRange = Math.max(maxRange, r);
-              }
-            }
-          }
+          const maxRange = this.getWeaponRangeInSquares(missileWeapons, gridDist);
           if (maxRange > 0) {
             baseRange = maxRange;
           } else {
@@ -210,39 +200,25 @@ export class RangeHelper {
     const tokenDoc = sourceToken?.document ?? sourceToken;
     const tokenId = tokenDoc?.id ?? sourceToken?.id;
 
-    // 1. Check combatant flag if combat is active
     let combatant = null;
     if (game.combat) {
-      if (tokenId) {
-        combatant = game.combat.combatants.find(c => c.tokenId === tokenId);
-      }
-      if (!combatant && actorDoc) {
-        combatant = game.combat.combatants.find(c => c.actorId === actorDoc.id);
-      }
+      if (tokenId) combatant = game.combat.combatants.find(c => c.tokenId === tokenId);
+      if (!combatant && actorDoc) combatant = game.combat.combatants.find(c => c.actorId === actorDoc.id);
     }
+    const bonus = combatant?.getFlag("trespasser", "aimRangeBonus") ?? actorDoc?.getFlag("trespasser", "aimRangeBonus");
+    return (bonus && Number.isFinite(Number(bonus)) && Number(bonus) > 0) ? Number(bonus) : 0;
+  }
 
-    if (combatant) {
-      const b = combatant.getFlag("trespasser", "aimRangeBonus");
-      if (b !== undefined && b !== null && Number.isFinite(Number(b)) && Number(b) > 0) {
-        return Number(b);
-      }
-    }
-
-    // 2. Check actor flag
-    if (actorDoc) {
-      const b = actorDoc.getFlag("trespasser", "aimRangeBonus");
-      if (b !== undefined && b !== null && Number.isFinite(Number(b)) && Number(b) > 0) {
-        return Number(b);
-      }
-    }
-
-    return 0;
+  static _parseDistance(raw, gridDist = 5, fallback = 0) {
+    if (!raw) return fallback;
+    const str = String(raw).trim();
+    const num = parseInt(str);
+    if (isNaN(num) || num <= 0) return fallback;
+    return /ft|feet/i.test(str) ? Math.max(1, Math.round(num / gridDist)) : num;
   }
 
   /**
    * Get the melee reach in grid squares for a single weapon.
-   * Prioritizes system.meleeRange, falling back to system.range only if NOT thrown.
-   * Defaults to 1 square.
    * @param {Item} weapon
    * @param {number} [gridDist=5]
    * @returns {number}
@@ -254,13 +230,7 @@ export class RangeHelper {
     if (!raw && !sys.properties?.thrown && sys.type === "melee") {
       raw = String(sys.range ?? "").trim();
     }
-    if (!raw) return 1;
-    const num = parseInt(raw);
-    if (isNaN(num) || num <= 0) return 1;
-    if (/ft|feet/i.test(raw)) {
-      return Math.max(1, Math.round(num / gridDist));
-    }
-    return Math.max(1, num);
+    return this._parseDistance(raw, gridDist, 1);
   }
 
   /**
@@ -273,23 +243,13 @@ export class RangeHelper {
     if (!weapon?.system?.properties?.thrown) return 0;
     const sys = weapon.system;
     let raw = String(sys.thrownRange ?? "").trim();
-    if (!raw && sys.type !== "melee") {
-      raw = String(sys.range ?? "").trim();
-    } else if (!raw && sys.range && sys.range !== "1" && sys.range !== sys.meleeRange) {
-      raw = String(sys.range).trim();
-    }
-    if (!raw) return 4;
-    const num = parseInt(raw);
-    if (isNaN(num) || num <= 0) return 4;
-    if (/ft|feet/i.test(raw)) {
-      return Math.max(1, Math.round(num / gridDist));
-    }
-    return Math.max(1, num);
+    if (!raw && sys.type !== "melee") raw = String(sys.range ?? "").trim();
+    else if (!raw && sys.range && sys.range !== "1" && sys.range !== sys.meleeRange) raw = String(sys.range).trim();
+    return this._parseDistance(raw, gridDist, 4);
   }
 
   /**
    * Parse max range in grid squares from a collection of weapons.
-   * Handles formats like "5", "10 squares", "30 ft", "6 sq", etc.
    * @param {Item[]} weapons
    * @param {number} [gridDist=5]
    * @returns {number}
@@ -302,15 +262,7 @@ export class RangeHelper {
         best = Math.max(best, this.getWeaponThrownRange(w, gridDist));
         continue;
       }
-      const raw = String(w.system?.range ?? "").trim();
-      if (!raw) continue;
-      const num = parseInt(raw);
-      if (isNaN(num) || num <= 0) continue;
-      if (/ft|feet/i.test(raw)) {
-        best = Math.max(best, Math.round(num / gridDist));
-      } else {
-        best = Math.max(best, num);
-      }
+      best = Math.max(best, this._parseDistance(w.system?.range, gridDist, 0));
     }
     return best;
   }
@@ -379,5 +331,154 @@ export class RangeHelper {
 
     const dist = this.measureDistanceSquares(sourceToken, target, options);
     return dist <= maxRangeSq;
+  }
+
+  /**
+   * Determine the airborne altitude / height in grid squares for a token or actor.
+   * Returns 0 if the creature is not airborne.
+   * @param {Token|TokenDocument|Actor} tokenOrActor
+   * @returns {number}
+   */
+  static getAirborneHeight(tokenOrActor) {
+    if (!tokenOrActor) return 0;
+    const actor = tokenOrActor.actor || (tokenOrActor instanceof Actor ? tokenOrActor : null);
+    const tokenDoc = tokenOrActor.document || (tokenOrActor instanceof TokenDocument ? tokenOrActor : (tokenOrActor.x !== undefined ? tokenOrActor : null));
+
+    // 1. Check active airborne effect item on the actor
+    if (actor?.items) {
+      const airborneEffect = actor.items.find(i =>
+        i.type === "effect" && (
+          i.getFlag(SYSTEM_ID, "statusEffectId") === "airborne" ||
+          i.getFlag("trespasser", "statusEffectId") === "airborne" ||
+          i.name?.toLowerCase() === "airborne"
+        )
+      );
+      if (airborneEffect) {
+        const intensity = Number(airborneEffect.system?.intensity);
+        if (Number.isFinite(intensity) && intensity > 0) return Math.round(intensity);
+        const elev = Number(tokenDoc?.elevation);
+        if (Number.isFinite(elev) && elev > 0) return Math.round(elev);
+        return 1;
+      }
+    }
+
+    // 2. Check actor statuses Set
+    if (actor?.statuses?.has("airborne")) {
+      const elev = Number(tokenDoc?.elevation);
+      return (Number.isFinite(elev) && elev > 0) ? Math.round(elev) : 1;
+    }
+
+    return 0;
+  }
+
+  /**
+   * Check if a token or actor has the airborne state.
+   * @param {Token|TokenDocument|Actor} tokenOrActor
+   * @returns {boolean}
+   */
+  static isAirborne(tokenOrActor) {
+    return this.getAirborneHeight(tokenOrActor) > 0;
+  }
+
+  /**
+   * Check if a deed or actor action involves a jump.
+   * @param {Item|object} itemOrDeed
+   * @param {Actor} [actor]
+   * @returns {boolean}
+   */
+  static deedInvolvesJump(itemOrDeed, actor = null) {
+    const actorDoc = actor || itemOrDeed?.actor;
+    if (actorDoc && TrespasserEffectsHelper.getMovementType(actorDoc) === "jump") {
+      return true;
+    }
+    if (!itemOrDeed) return false;
+    const deedSys = itemOrDeed.system ?? itemOrDeed;
+    if (deedSys.movementType === "jump") return true;
+
+    const graph = deedSys.graph;
+    if (graph?.nodes) {
+      return graph.nodes.some(n =>
+        (n.type === "moveSource" || n.type === "move") &&
+        (n.params?.movementType === "jump" || n.params?.movementAction === "jump" || n.params?.destinationMode === "jump")
+      );
+    }
+    return false;
+  }
+
+  /**
+   * Validate whether an airborne target can be targeted by a deed according to Trespasser rules:
+   * 1. At airborne 2+, melee attacks cannot target unless they involve a jump.
+   * 2. Missile / spell attacks targeting a single/individual creature can always target.
+   * 3. Blast or burst AoEs can only target if area/size >= creature height.
+   *
+   * @param {Token|TokenDocument} sourceToken
+   * @param {Token|TokenDocument|Actor} targetToken
+   * @param {Item|object} itemOrDeed
+   * @param {object} [options={}]
+   * @param {boolean} [options.isJump] - Explicit jump toggle (e.g. from HUD or dialog)
+   * @param {number} [options.aoeSize] - Specific AoE size override
+   * @param {string} [options.aoeType] - Specific AoE type override
+   * @param {Actor} [options.actor] - Caster actor
+   * @returns {{ valid: boolean, reason?: string, height?: number, aoeSize?: number }}
+   */
+  static canTargetAirborne(sourceToken, targetToken, itemOrDeed, options = {}) {
+    const targetHeight = this.getAirborneHeight(targetToken);
+    if (targetHeight <= 0) return { valid: true };
+
+    const actorDoc = options.actor || sourceToken?.actor || itemOrDeed?.actor;
+    const deedSys = itemOrDeed?.system ?? itemOrDeed ?? {};
+    const { abilityType } = itemOrDeed ? getEffectiveDeedAttributes(itemOrDeed) : { abilityType: "melee" };
+
+    const targetType = options.aoeType || deedSys.targetType || deedSys.aoeType;
+    const isAoE = ["blast", "close_blast", "burst", "melee_burst", "aura", "path", "close_path"].includes(targetType);
+
+    // Rule 3: Blast or burst AoEs
+    if (isAoE) {
+      let aoeSize;
+      if (options.aoeSize !== undefined && options.aoeSize !== null) {
+        aoeSize = Number(options.aoeSize);
+      } else if (targetType === "melee_burst") {
+        aoeSize = 0;
+      } else if (targetType === "path" || targetType === "close_path") {
+        aoeSize = 1;
+      } else {
+        aoeSize = Number(deedSys.targetSize ?? deedSys.aoeSize ?? 1);
+      }
+
+      if (aoeSize < targetHeight) {
+        return { valid: false, reason: "airborne_too_high", height: targetHeight, aoeSize };
+      }
+      return { valid: true };
+    }
+
+    // Rule 2: Missile or Spell attacks targeting individual creatures can always target
+    if (abilityType === "missile" || abilityType === "spell" || abilityType === "innate" || abilityType === "tool") {
+      return { valid: true };
+    }
+
+    // Rule 1: Melee / Unarmed / Versatile attacks
+    const isJump = options.isJump === true || this.deedInvolvesJump(itemOrDeed, actorDoc);
+
+    if (abilityType === "melee" || abilityType === "unarmed") {
+      if (targetHeight >= 2 && !isJump) {
+        return { valid: false, reason: "airborne_requires_jump", height: targetHeight };
+      }
+      return { valid: true };
+    }
+
+    if (abilityType === "versatile") {
+      const activeWeapons = getActiveWeapons(actorDoc);
+      const hasMissile = activeWeapons.some(w => !w.system?.isThrown && (w.system?.type === "missile" || w.system?.type === "spell" || w.system?.properties?.thrown));
+      if (!hasMissile && targetHeight >= 2 && !isJump) {
+        return { valid: false, reason: "airborne_requires_jump", height: targetHeight };
+      }
+      return { valid: true };
+    }
+
+    if (targetHeight >= 2 && !isJump) {
+      return { valid: false, reason: "airborne_requires_jump", height: targetHeight };
+    }
+
+    return { valid: true };
   }
 }

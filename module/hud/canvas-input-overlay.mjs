@@ -16,7 +16,9 @@ export class CanvasInputOverlay extends (HandlebarsApplicationMixin ? Handlebars
       canConfirm: options.canConfirm ?? false,
       showUndo: options.showUndo ?? false,
       canUndo: options.canUndo ?? false,
-      showCancel: options.showCancel ?? true
+      showCancel: options.showCancel ?? true,
+      showJumpToggle: options.showJumpToggle ?? false,
+      isJump: options.isJump ?? false
     };
   }
 
@@ -38,7 +40,8 @@ export class CanvasInputOverlay extends (HandlebarsApplicationMixin ? Handlebars
     actions: {
       confirm: CanvasInputOverlay.#onConfirm,
       undo: CanvasInputOverlay.#onUndo,
-      cancel: CanvasInputOverlay.#onCancel
+      cancel: CanvasInputOverlay.#onCancel,
+      toggleJump: CanvasInputOverlay.#onToggleJump
     }
   };
 
@@ -77,5 +80,12 @@ export class CanvasInputOverlay extends (HandlebarsApplicationMixin ? Handlebars
   static #onCancel(event, target) {
     event.preventDefault();
     if (this.session) this.session.cancel();
+  }
+
+  static #onToggleJump(event, target) {
+    event.preventDefault();
+    this.overlayData.isJump = !this.overlayData.isJump;
+    if (this.session) this.session.setJump(this.overlayData.isJump);
+    this.render(false);
   }
 }

@@ -104,6 +104,7 @@
 .overlay-actions .actions-left {
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .overlay-btn {
@@ -169,4 +170,22 @@
 .overlay-btn.btn-cancel:hover {
   background: var(--trp-red, #ff5252);
   box-shadow: 0 0 8px rgba(255, 82, 82, 0.5);
+}
+
+.overlay-btn.btn-jump-toggle {
+  background: var(--trp-bg-input, #2e2a24);
+  color: var(--trp-text, #ddd0aa);
+  border-color: var(--trp-border, #4a3f2f);
+}
+
+.overlay-btn.btn-jump-toggle:hover {
+  background: var(--trp-bg-select, #3a3228);
+  color: var(--trp-text-bright, #f5eccc);
+}
+
+.overlay-btn.btn-jump-toggle.active {
+  background: var(--trp-gold-dim, #7a6326);
+  color: var(--trp-text-bright, #f5eccc);
+  border-color: var(--trp-gold, #c9a84c);
+  box-shadow: 0 0 8px rgba(201, 168, 76, 0.4);
 }

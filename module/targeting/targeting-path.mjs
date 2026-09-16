@@ -104,7 +104,10 @@ export async function placePath(token, maxSquares, gridPx, close, maxRangeSq = n
       let targetOutcomes = [];
 
       if (squares.length > 0 && options.item) {
-        const tokensInArea = getTokensInSquares(squares, gridPx);
+        const tokensInArea = getTokensInSquares(squares, gridPx, {
+          aoeSize: 1,
+          aoeType: close ? "close_path" : "path"
+        });
         if (tokensInArea.length > 0) {
           const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(tokensInArea, token, options.item, options);
           targetOutcomes = Array.from(outcomeMap.values());

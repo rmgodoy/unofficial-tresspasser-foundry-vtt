@@ -47,6 +47,10 @@ export class SelectTargetBehavior {
         return false;
       }
 
+      if (resultTargets._isJump !== undefined) {
+        context.isJumpAttack = resultTargets._isJump;
+      }
+
       context.targets = resultTargets;
       ui.notifications.info(`Targeted ${resultTargets.length} token(s).`);
       return true;
@@ -95,7 +99,9 @@ export class SelectTargetBehavior {
       const tokensInAoE = TargetingHelper.getTokensInSquares(result.squares, gridPx, {
         disposition: params.disposition,
         sourceToken: token,
-        excludeTokenId: params.ignoreSelf ? token?.id : null
+        excludeTokenId: params.ignoreSelf ? token?.id : null,
+        aoeSize,
+        aoeType
       });
 
       if (!params.chooseCreatures) {
@@ -179,7 +185,9 @@ export class SelectTargetBehavior {
       const selectedTargets = TargetingHelper.getTokensInSquares(evalSquares, gridPx, {
         disposition: params.disposition,
         sourceToken: sourceToken,
-        excludeTokenId: params.ignoreSelf ? sourceToken?.id : null
+        excludeTokenId: params.ignoreSelf ? sourceToken?.id : null,
+        aoeSize: targetArea.size ?? 1,
+        aoeType: targetArea.type ?? "blast"
       });
 
       if (!params.chooseCreatures) {
