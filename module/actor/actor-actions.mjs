@@ -1,6 +1,7 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { messageVisibility } from "../helpers/compat.mjs";
+import { isSunken } from "../helpers/elevation-helper.mjs";
 
 /**
  * Roll a skill check against one of the core attributes.
@@ -31,13 +32,19 @@ export async function rollSkillCheck(actor, attribute) {
 
 /**
  * Apply damage to this actor, updating system.health and handling options.
+ * If actor is sunken, incoming damage is reduced by half.
  * @param {Actor} actor
  * @param {number} amount
  * @param {object} [options]
  * @returns {Promise<number>} New health value
  */
 export async function applyDamage(actor, amount, options = {}) {
-  const damageNum = Math.max(0, Number(amount) || 0);
+  let damageNum = Math.max(0, Number(amount) || 0);
+  if (damageNum <= 0) return actor.system.health;
+
+  if (isSunken(actor) && !options.isPreHalved) {
+    damageNum = Math.floor(damageNum / 2);
+  }
   if (damageNum <= 0) return actor.system.health;
 
   const currentHealth = actor.system.health ?? actor.system.hp?.value ?? actor.system.hp ?? 0;

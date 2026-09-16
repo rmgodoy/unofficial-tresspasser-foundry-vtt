@@ -1,5 +1,5 @@
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
-import { TERRAIN_COLORS } from "./terrain-behaviors.mjs";
+import { TERRAIN_COLORS } from "./terrain-constants.mjs";
 
 /**
  * Handle slippery terrain check for a token.
@@ -92,4 +92,102 @@ export async function transformObstacleToRubble(region) {
   };
 
   await canvas.scene.updateEmbeddedDocuments("Region", [updates]);
+}
+
+/**
+ * Post a single combined chat message summarizing terrain damage and effects.
+ * @param {TokenDocument} tokenDoc
+ * @param {Actor} actor
+ * @param {Map} terrainDamageMap
+ * @param {Map} groupedEffects
+ */
+export async function postMovementSummary(tokenDoc, actor, terrainDamageMap, groupedEffects) {
+  const lines = [];
+
+  for (const [, data] of terrainDamageMap) {
+    lines.push(`<li><span style="color:var(--trp-red, #c44);">⚡ ${data.damage} ${game.i18n.localize("TRESPASSER.Sheet.Terrain.Fields.TerrainDamage")}</span> — ${data.name}</li>`);
+  }
+
+  for (const [, data] of groupedEffects) {
+    const img = data.eff.img ? `<img src="${data.eff.img}" width="16" height="16" style="border:none; vertical-align:middle; margin-right:4px;">` : "";
+    const terrains = [...data.terrainNames].join(", ");
+    lines.push(`<li>${img}<strong>${data.eff.name}</strong> (${data.totalIntensity}) — ${terrains}</li>`);
+  }
+
+  const content = `<ul style="list-style:none; padding:0; margin:0;">${lines.join("")}</ul>`;
+
+  await ChatMessage.create({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    content,
+    flavor: `🌍 ${game.i18n.format("TRESPASSER.Notification.Terrain.MovementSummary", { name: tokenDoc.name })}`
+  });
+}
+
+/**
+ * Applies grouped effects, terrain damage, chat notifications, and slippery checks.
+ * @param {TokenDocument} tokenDoc
+ * @param {Actor} actor
+ * @param {Map} terrainDamageMap
+ * @param {Array} effectsToApply
+ * @param {RegionDocument|null} slipperyCheckRegion
+ */
+export async function applyTerrainDamageAndEffects(tokenDoc, actor, terrainDamageMap, effectsToApply, slipperyCheckRegion) {
+  const groupedEffects = new Map();
+  for (const { eff, terrainName } of effectsToApply) {
+    const effInt = (eff.intensity !== undefined && eff.intensity !== null && !isNaN(Number(eff.intensity))) ? Number(eff.intensity) : 0;
+    if (groupedEffects.has(eff.uuid)) {
+      const existing = groupedEffects.get(eff.uuid);
+      existing.totalIntensity += effInt;
+      existing.terrainNames.add(terrainName);
+    } else {
+      groupedEffects.set(eff.uuid, {
+        eff,
+        totalIntensity: effInt,
+        terrainNames: new Set([terrainName])
+      });
+    }
+  }
+
+  if (terrainDamageMap.size > 0 || groupedEffects.size > 0 || slipperyCheckRegion) {
+    const tokenPlaceable = tokenDoc.object || canvas.tokens?.get(tokenDoc.id);
+    if (tokenPlaceable) {
+      if (tokenPlaceable.animationContexts?.size > 0) {
+        const promises = Array.from(tokenPlaceable.animationContexts.values()).map(ctx => ctx.promise);
+        await Promise.allSettled(promises);
+      } else if (tokenPlaceable._animation) {
+        await tokenPlaceable._animation;
+      }
+    }
+
+    for (const [uuid, data] of groupedEffects) {
+      const sourceEffect = await (await import("../helpers/item-resolver.mjs")).resolveItem({ uuid, name: data.name }, { type: "effect" });
+      if (!sourceEffect) continue;
+      const effectData = sourceEffect.toObject();
+      effectData.system.intensity = data.totalIntensity;
+      delete effectData._id;
+      await Item.createDocuments([effectData], { parent: actor });
+    }
+
+    let totalDamage = 0;
+    const isTenacious = Boolean(actor.system?.passiveStates?.tenacious || (actor.type === "character" && (actor.system?.health ?? 0) <= 0));
+    if (terrainDamageMap.size > 0 && !isTenacious) {
+      for (const [, data] of terrainDamageMap) {
+        totalDamage += data.damage;
+      }
+      if (typeof actor.applyDamage === "function") {
+        await actor.applyDamage(totalDamage);
+      } else {
+        const newHp = Math.max(0, (actor.system.health ?? 0) - totalDamage);
+        await actor.update({ "system.health": newHp });
+      }
+    }
+
+    if (terrainDamageMap.size > 0 || groupedEffects.size > 0) {
+      await postMovementSummary(tokenDoc, actor, terrainDamageMap, groupedEffects);
+    }
+
+    if (slipperyCheckRegion) {
+      await handleSlipperyCheck(tokenDoc, actor, slipperyCheckRegion);
+    }
+  }
 }

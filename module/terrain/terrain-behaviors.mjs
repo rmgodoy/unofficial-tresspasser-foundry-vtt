@@ -2,17 +2,10 @@ import { ForcedMovementHelper } from "../helpers/forced-movement-helper.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { handleSlipperyCheck, transformObstacleToRubble } from "./terrain-hazard.mjs";
 import { resolveItem } from "../helpers/item-resolver.mjs";
+import { isSunken } from "../helpers/elevation-helper.mjs";
+import { TERRAIN_COLORS } from "./terrain-constants.mjs";
 
-export { handleSlipperyCheck, transformObstacleToRubble };
-
-export const TERRAIN_COLORS = {
-  difficult_terrain: "#8B4513", 
-  obstacle: "#696969",        
-  wall: "#000000",            
-  field: "#228B22",           
-  light_cloud: "#D3D3D3",     
-  heavy_cloud: "#708090"      
-};
+export { handleSlipperyCheck, transformObstacleToRubble, TERRAIN_COLORS };
 
 /**
  * Get the display color for a terrain item or data, falling back to category default.
@@ -281,6 +274,14 @@ export async function executeBehavior(behavior, actor, terrainRegion, context = 
 
     case "damage": {
       if (!actor) return;
+      if (isSunken(actor)) {
+        await ChatMessage.create({
+          speaker: ChatMessage.getSpeaker({ actor }),
+          flavor: `🌍 ${terrainRegion.name} — ${game.i18n.localize("TRESPASSER.Sheet.Terrain.Fields.TerrainDamage")}`,
+          content: `<div class="trespasser-chat-card"><p style="font-style: italic;">${game.i18n.format("TRESPASSER.Chat.Combat.TerrainDamageIgnoredSunken", { name: actor.name })}</p></div>`
+        });
+        break;
+      }
       if (actor.system?.passiveStates?.tenacious || (actor.type === "character" && (actor.system?.health ?? 0) <= 0)) {
         await ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor }),

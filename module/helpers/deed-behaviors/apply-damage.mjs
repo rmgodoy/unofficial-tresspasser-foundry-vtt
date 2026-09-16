@@ -2,6 +2,7 @@ import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 import { askDistributionDialog } from "../../dialogs/distribution-dialog.mjs";
 import { buildTenacityButtonHtml } from "../tenacity-helper.mjs";
 import { TrespasserEffectsHelper } from "../effects-helper.mjs";
+import { isSunken } from "../elevation-helper.mjs";
 
 export class ApplyDamageBehavior {
   /**
@@ -160,7 +161,12 @@ export class ApplyDamageBehavior {
       const targetWeaponDie = DeedBehaviorUtils.getActorWeaponDie(targetActor);
       const damageReceivedBonus = await TrespasserEffectsHelper.evaluateDamageBonus(targetActor, "damage_received", targetWeaponDie, { toMessage: false });
       const totalBonus = damageDealtBonus + damageReceivedBonus;
-      const targetDmg = Math.max(0, rolledTargetDmg + totalBonus);
+      let targetDmg = Math.max(0, rolledTargetDmg + totalBonus);
+
+      const isTargetSunken = isSunken(targetActor);
+      if (isTargetSunken) {
+        targetDmg = Math.floor(targetDmg / 2);
+      }
 
       const hpBefore = targetActor.system.health ?? 0;
       const rawHP = hpBefore - targetDmg;
@@ -170,20 +176,23 @@ export class ApplyDamageBehavior {
       );
 
       if (targetActor.isOwner) {
-        await targetActor.applyDamage(targetDmg, { skipBelowZeroChat: true, sourceActor: actor });
+        await targetActor.applyDamage(targetDmg, { skipBelowZeroChat: true, sourceActor: actor, isPreHalved: true });
       } else {
         const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
         await emitDeedActionAndWait("applyDamage", { 
           actorId: targetActor.id, 
           tokenId: targetToken.id, 
           damage: targetDmg,
-          options: { skipBelowZeroChat: true, sourceActorId: actor?.id }
+          options: { skipBelowZeroChat: true, sourceActorId: actor?.id, isPreHalved: true }
         });
       }
 
       const powerBonusLabel = targetPowerCount > 0 ? ` <span style="font-size: var(--fs-10); color:#e8c96b;">(+${targetPowerDmg} Power)</span>` : "";
       const modBonusLabel = totalBonus !== 0
         ? ` <span style="font-size: var(--fs-10); color:${totalBonus > 0 ? '#ff7979' : '#55efc4'};">(${totalBonus > 0 ? `+${totalBonus}` : totalBonus} ${game.i18n.localize("TRESPASSER.Sheet.Common.Mod") || "Mod"})</span>`
+        : "";
+      const sunkenLabel = isTargetSunken
+        ? ` <span style="font-size: var(--fs-10); color:#74b9ff; font-weight:bold;">(${game.i18n.localize("TRESPASSER.States.Sunken") || "Sunken"}: ½)</span>`
         : "";
 
       const blockBtnHtml = canBlock ? `<button type="button" class="trespasser-reaction-btn block-reaction-btn" data-action="block-reaction" data-target-id="${targetActor.id}" data-token-id="${targetToken.id}" data-damage="${targetDmg}" data-hp-before="${hpBefore}" title="${game.i18n.localize("TRESPASSER.Chat.Combat.BlockReaction")}">🛡️ ${game.i18n.localize("TRESPASSER.Chat.Combat.Block")}</button>` : "";
@@ -210,7 +219,7 @@ export class ApplyDamageBehavior {
       targetDamageLines.push(`
         <div class="target-damage-row" style="border-top:1px dotted var(--trp-border-light, #5c4f3a); margin-top:4px; padding-top:3px;">
           <div style="display:flex; justify-content:space-between; align-items:center; font-size: var(--fs-12);">
-            <span><strong>${tokenName}</strong>${powerBonusLabel}${modBonusLabel}</span>
+            <span><strong>${tokenName}</strong>${powerBonusLabel}${modBonusLabel}${sunkenLabel}</span>
             <div style="display:flex; align-items:center; gap:8px;">
               <span style="color:#ff5252; font-weight:bold;">⚡ ${targetDmg} ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Dano"}</span>
               ${blockBtnHtml}
@@ -220,6 +229,7 @@ export class ApplyDamageBehavior {
         </div>
       `);
     }
+
 
     const finalRollEntryHtml = `
       <div class="damage-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">

@@ -1,3 +1,5 @@
+import { isSunken } from "../../helpers/elevation-helper.mjs";
+
 /**
  * Calculates distances, paths, collision checks, and valid squares for movement.
  */
@@ -17,6 +19,8 @@ export class MovementPathfinder {
 
         const gridX = Math.floor(startX / sizeX);
         const gridY = Math.floor(startY / sizeY);
+
+        const isMovingTokenSunken = isSunken(token);
 
         const queue = [{ gx: gridX, gy: gridY, dist: 0, pathLen: 0, turns: 0, dir: null }];
         const visited = new Map();
@@ -68,17 +72,19 @@ export class MovementPathfinder {
                     for (const r of regions) {
                         const sys = r.flags?.trespasser?.terrain?.system;
                         const cat = sys?.category;
-                        if (cat === "wall" || cat === "obstacle") {
+                        if (cat === "wall" || (cat === "obstacle" && !isMovingTokenSunken)) {
                             wallCollision = true;
                             break;
                         }
-                        if (cat === "difficult_terrain") stepCost += 1;
-                        else if (cat === "field" && sys?.extraMovementCost > 0) stepCost += sys.extraMovementCost;
+                        if (!isMovingTokenSunken) {
+                            if (cat === "difficult_terrain") stepCost += 1;
+                            else if (cat === "field" && sys?.extraMovementCost > 0) stepCost += sys.extraMovementCost;
+                        }
                     }
                 }
                 if (wallCollision) continue;
 
-                if (token) {
+                if (token && !isMovingTokenSunken) {
                     const tokens = canvas.scene.tokens.filter(t => t.id !== token.id && !t.hidden);
                     for (const t of tokens) {
                         const tw = (t.width || 1) * sizeX;

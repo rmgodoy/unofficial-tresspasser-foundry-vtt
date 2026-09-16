@@ -39,11 +39,26 @@ export async function syncActorTokenElevation(actor) {
     const baseElevation = currentElevation - currentEffectElevation;
     const targetElevation = Math.round(baseElevation + effectElevation);
 
+    const wasSunken = currentEffectElevation < 0;
+    const isNowSunken = effectElevation < 0;
+
     if (currentElevation !== targetElevation || currentEffectElevation !== effectElevation) {
       await tokenDoc.update({
         elevation: targetElevation,
         [`flags.${SYSTEM_ID}.effectElevation`]: effectElevation
       });
     }
+
+    // When creature surfaces, trigger onEnter behaviors and whileInside effects for containing terrain regions
+    if (wasSunken && !isNowSunken) {
+      const terrainHelper = game[SYSTEM_ID]?.TerrainHelper || game.trespasser?.TerrainHelper;
+      if (terrainHelper?.onTokenSurfaced) {
+        await terrainHelper.onTokenSurfaced(tokenDoc);
+      } else {
+        const { onTokenSurfaced } = await import("../terrain/terrain-movement.mjs");
+        await onTokenSurfaced(tokenDoc);
+      }
+    }
   }
 }
+

@@ -59,6 +59,8 @@
         "Plural": "Perícias"
       },
       "DC": "CD",
+      "Sunken": "Submerso",
+      "Airborne": "No Ar",
       "ItemType": {
         "Weapon": "Arma",
         "Armor": "Armadura",

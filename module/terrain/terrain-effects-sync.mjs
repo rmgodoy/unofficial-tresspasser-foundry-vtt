@@ -1,6 +1,7 @@
 import { getTerrainRegionsContainingToken } from "./terrain-geometry.mjs";
 import { resolveIntPlaceholder, evaluateIntensityValue } from "./terrain-behaviors.mjs";
 import { resolveItem } from "../helpers/item-resolver.mjs";
+import { isSunken } from "../helpers/elevation-helper.mjs";
 
 const _syncWhileInsideLocks = new Set();
 const _pendingWhileInsideSync = new Set();
@@ -144,7 +145,8 @@ export async function syncWhileInsideEffectsForToken(tokenDoc) {
   _syncWhileInsideLocks.add(lockKey);
 
   try {
-    const containingRegions = getTerrainRegionsContainingToken(tokenDoc);
+    const isTokenSunken = isSunken(tokenDoc);
+    const containingRegions = isTokenSunken ? [] : getTerrainRegionsContainingToken(tokenDoc);
     const desiredEffects = [];
 
     for (const region of containingRegions) {

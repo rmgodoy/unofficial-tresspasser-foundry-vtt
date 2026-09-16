@@ -6,6 +6,9 @@
           <i class="{{t.style.icon}}"></i>
         </span>
         <span class="target-name" title="{{t.tokenName}}">{{t.tokenName}}</span>
+        {{#if t.isSunken}}
+          <span class="sunken-pill-badge" style="font-size: var(--fs-9); background: rgba(116, 185, 255, 0.25); color: #74b9ff; border: 1px solid rgba(116, 185, 255, 0.4); border-radius: 3px; padding: 1px 4px; margin-left: 4px; white-space: nowrap; flex-shrink: 0;" title="{{localize 'TRESPASSER.States.Sunken'}}">{{localize 'TRESPASSER.States.Sunken'}} (½)</span>
+        {{/if}}
       </div>
 
       <div class="target-card-body">

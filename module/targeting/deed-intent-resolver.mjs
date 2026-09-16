@@ -181,6 +181,8 @@ export class DeedIntentResolver {
       classification = TargetClassifier.classifyToken(null, casterToken, {});
     }
 
+    const targetIsSunken = RangeHelper.isSunken(targetActor);
+
     return {
       tokenId: targetToken.id || targetToken.document?.id,
       tokenName: targetToken.name || targetToken.document?.name || "Target",
@@ -189,29 +191,30 @@ export class DeedIntentResolver {
       label: classification.label,
       intent,
       hasAnyOutcome,
+      isSunken: targetIsSunken,
       anyway: {
         damage: outcomes.anyway.damage,
         healing: outcomes.anyway.healing,
         effects: outcomes.anyway.effects,
-        html: this._formatSectionHtml(outcomes.anyway)
+        html: this._formatSectionHtml(outcomes.anyway, targetIsSunken)
       },
       onHit: {
         damage: outcomes.onHit.damage,
         healing: outcomes.onHit.healing,
         effects: outcomes.onHit.effects,
-        html: this._formatSectionHtml(outcomes.onHit)
+        html: this._formatSectionHtml(outcomes.onHit, targetIsSunken)
       },
       onSpark: {
         damage: outcomes.onSpark.damage,
         healing: outcomes.onSpark.healing,
         effects: outcomes.onSpark.effects,
-        html: this._formatSectionHtml(outcomes.onSpark)
+        html: this._formatSectionHtml(outcomes.onSpark, targetIsSunken)
       },
       onMiss: {
         damage: outcomes.onMiss.damage,
         healing: outcomes.onMiss.healing,
         effects: outcomes.onMiss.effects,
-        html: this._formatSectionHtml(outcomes.onMiss)
+        html: this._formatSectionHtml(outcomes.onMiss, targetIsSunken)
       },
       modifiers: {
         casterDamage: casterDamageMods,
@@ -316,11 +319,14 @@ export class DeedIntentResolver {
     }
   }
 
-  static _formatSectionHtml(section) {
+  static _formatSectionHtml(section, isTargetSunken = false) {
     const parts = [];
     if (section.damage.length > 0) {
       const dmgStr = section.damage.join(" + ");
-      parts.push(`<span class="outcome-dmg">${formatDiceIcons(dmgStr)}</span>`);
+      const sunkenTag = isTargetSunken
+        ? `<span class="outcome-sunken" style="font-size: var(--fs-10); color: #74b9ff; margin-left: 2px;">(½)</span>`
+        : "";
+      parts.push(`<span class="outcome-dmg">${formatDiceIcons(dmgStr)}${sunkenTag}</span>`);
     }
     if (section.healing.length > 0) {
       const healStr = section.healing.join(" + ");

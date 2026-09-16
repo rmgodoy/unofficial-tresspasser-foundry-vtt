@@ -53,6 +53,7 @@
         "DroppedBelowZero": "{name} dropped to {hp} HP (clipped to 0).",
         "DamageWhileTenacious": "{name} took {damage} damage while Tenacious (at 0 HP).",
         "TerrainDamageIgnoredTenacious": "{name} ignores terrain damage while Tenacious.",
+        "TerrainDamageIgnoredSunken": "{name} ignores terrain damage while Sunken.",
         "RecoveredFromDefeat": "has recovered above 0 HP and is no longer defeated! They can roll initiative and take a turn in the following round.",
         "LostTwoEndurance": "Lost 2 Endurance (first failure this encounter).",
         "RollInjuryTable": "Roll Injury Table (1d8, 1d4)",

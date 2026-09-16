@@ -5,8 +5,8 @@ import {
   getTerrainAtSquare,
   getGridPath
 } from "../terrain/terrain-geometry.mjs";
+import { TERRAIN_COLORS } from "../terrain/terrain-constants.mjs";
 import {
-  TERRAIN_COLORS,
   getRegionColor,
   evaluateIntensityValue,
   resolveIntPlaceholder,
@@ -38,12 +38,19 @@ import {
   onTokenEnterTerrain,
   onTokenExitTerrain,
   onTokenStartTurnInTerrain,
-  postMovementSummary
+  postMovementSummary,
+  onTokenSurfaced,
+  handleActorSurfaced
 } from "../terrain/terrain-movement.mjs";
 
 export class TerrainHelper {
-  static TERRAIN_COLORS = TERRAIN_COLORS;
-  static _movementQueues = movementQueues;
+  static get TERRAIN_COLORS() {
+    return TERRAIN_COLORS;
+  }
+
+  static get _movementQueues() {
+    return movementQueues;
+  }
 
   static getRegionColor(terrainItemOrData) {
     return getRegionColor(terrainItemOrData);
@@ -75,6 +82,14 @@ export class TerrainHelper {
 
   static async onTokenStartTurnInTerrain(tokenDoc, region) {
     return onTokenStartTurnInTerrain(tokenDoc, region);
+  }
+
+  static async onTokenSurfaced(tokenDoc) {
+    return onTokenSurfaced(tokenDoc);
+  }
+
+  static async handleActorSurfaced(actor) {
+    return handleActorSurfaced(actor);
   }
 
   static isTokenInRegion(tokenDoc, region, gridSize = 100) {

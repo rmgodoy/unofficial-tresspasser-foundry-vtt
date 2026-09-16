@@ -1,4 +1,5 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { TERRAIN_COLORS } from "../terrain/terrain-constants.mjs";
 import {
   handleDropBehaviorEffect,
   handleDropLinkedEffect,
@@ -100,7 +101,7 @@ export class TrespasserTerrainSheet extends api.HandlebarsApplicationMixin(sheet
     context.tabs = this._getTabs();
 
     const cat = item.system.category;
-    context.displayRegionColor = item.system.regionColor || (game.trespasser?.TerrainHelper?.TERRAIN_COLORS?.[cat] || "#8B4513");
+    context.displayRegionColor = item.system.regionColor || TERRAIN_COLORS[cat] || "#8B4513";
 
     context.config = {
       categories: {

@@ -2,6 +2,23 @@ import { getEffectiveDeedAttributes } from "./deed-behaviors/roll-accuracy.mjs";
 import { getActiveWeapons } from "../sheets/character/handlers-combat.mjs";
 import { SYSTEM_ID } from "../system-id.mjs";
 import { TrespasserEffectsHelper } from "./effects-helper.mjs";
+import {
+  getAirborneHeight,
+  isAirborne,
+  getSunkenDepth,
+  isSunken,
+  deedInvolvesJump,
+  canTargetAirborne
+} from "./elevation-helper.mjs";
+
+export {
+  getAirborneHeight,
+  isAirborne,
+  getSunkenDepth,
+  isSunken,
+  deedInvolvesJump,
+  canTargetAirborne
+};
 
 /**
  * RangeHelper — Modular deed range evaluation and distance measurement.
@@ -340,35 +357,7 @@ export class RangeHelper {
    * @returns {number}
    */
   static getAirborneHeight(tokenOrActor) {
-    if (!tokenOrActor) return 0;
-    const actor = tokenOrActor.actor || (tokenOrActor instanceof Actor ? tokenOrActor : null);
-    const tokenDoc = tokenOrActor.document || (tokenOrActor instanceof TokenDocument ? tokenOrActor : (tokenOrActor.x !== undefined ? tokenOrActor : null));
-
-    // 1. Check active airborne effect item on the actor
-    if (actor?.items) {
-      const airborneEffect = actor.items.find(i =>
-        i.type === "effect" && (
-          i.getFlag(SYSTEM_ID, "statusEffectId") === "airborne" ||
-          i.getFlag("trespasser", "statusEffectId") === "airborne" ||
-          i.name?.toLowerCase() === "airborne"
-        )
-      );
-      if (airborneEffect) {
-        const intensity = Number(airborneEffect.system?.intensity);
-        if (Number.isFinite(intensity) && intensity > 0) return Math.round(intensity);
-        const elev = Number(tokenDoc?.elevation);
-        if (Number.isFinite(elev) && elev > 0) return Math.round(elev);
-        return 1;
-      }
-    }
-
-    // 2. Check actor statuses Set
-    if (actor?.statuses?.has("airborne")) {
-      const elev = Number(tokenDoc?.elevation);
-      return (Number.isFinite(elev) && elev > 0) ? Math.round(elev) : 1;
-    }
-
-    return 0;
+    return getAirborneHeight(tokenOrActor);
   }
 
   /**
@@ -377,7 +366,26 @@ export class RangeHelper {
    * @returns {boolean}
    */
   static isAirborne(tokenOrActor) {
-    return this.getAirborneHeight(tokenOrActor) > 0;
+    return isAirborne(tokenOrActor);
+  }
+
+  /**
+   * Determine the sunken depth in grid squares for a token or actor.
+   * Returns 0 if the creature is not sunken.
+   * @param {Token|TokenDocument|Actor} tokenOrActor
+   * @returns {number}
+   */
+  static getSunkenDepth(tokenOrActor) {
+    return getSunkenDepth(tokenOrActor);
+  }
+
+  /**
+   * Check if a token or actor has the sunken state.
+   * @param {Token|TokenDocument|Actor} tokenOrActor
+   * @returns {boolean}
+   */
+  static isSunken(tokenOrActor) {
+    return isSunken(tokenOrActor);
   }
 
   /**
@@ -387,98 +395,19 @@ export class RangeHelper {
    * @returns {boolean}
    */
   static deedInvolvesJump(itemOrDeed, actor = null) {
-    const actorDoc = actor || itemOrDeed?.actor;
-    if (actorDoc && TrespasserEffectsHelper.getMovementType(actorDoc) === "jump") {
-      return true;
-    }
-    if (!itemOrDeed) return false;
-    const deedSys = itemOrDeed.system ?? itemOrDeed;
-    if (deedSys.movementType === "jump") return true;
-
-    const graph = deedSys.graph;
-    if (graph?.nodes) {
-      return graph.nodes.some(n =>
-        (n.type === "moveSource" || n.type === "move") &&
-        (n.params?.movementType === "jump" || n.params?.movementAction === "jump" || n.params?.destinationMode === "jump")
-      );
-    }
-    return false;
+    return deedInvolvesJump(itemOrDeed, actor);
   }
 
   /**
-   * Validate whether an airborne target can be targeted by a deed according to Trespasser rules:
-   * 1. At airborne 2+, melee attacks cannot target unless they involve a jump.
-   * 2. Missile / spell attacks targeting a single/individual creature can always target.
-   * 3. Blast or burst AoEs can only target if area/size >= creature height.
-   *
+   * Validate whether an airborne target can be targeted by a deed according to Trespasser rules.
    * @param {Token|TokenDocument} sourceToken
    * @param {Token|TokenDocument|Actor} targetToken
    * @param {Item|object} itemOrDeed
    * @param {object} [options={}]
-   * @param {boolean} [options.isJump] - Explicit jump toggle (e.g. from HUD or dialog)
-   * @param {number} [options.aoeSize] - Specific AoE size override
-   * @param {string} [options.aoeType] - Specific AoE type override
-   * @param {Actor} [options.actor] - Caster actor
    * @returns {{ valid: boolean, reason?: string, height?: number, aoeSize?: number }}
    */
   static canTargetAirborne(sourceToken, targetToken, itemOrDeed, options = {}) {
-    const targetHeight = this.getAirborneHeight(targetToken);
-    if (targetHeight <= 0) return { valid: true };
-
-    const actorDoc = options.actor || sourceToken?.actor || itemOrDeed?.actor;
-    const deedSys = itemOrDeed?.system ?? itemOrDeed ?? {};
-    const { abilityType } = itemOrDeed ? getEffectiveDeedAttributes(itemOrDeed) : { abilityType: "melee" };
-
-    const targetType = options.aoeType || deedSys.targetType || deedSys.aoeType;
-    const isAoE = ["blast", "close_blast", "burst", "melee_burst", "aura", "path", "close_path"].includes(targetType);
-
-    // Rule 3: Blast or burst AoEs
-    if (isAoE) {
-      let aoeSize;
-      if (options.aoeSize !== undefined && options.aoeSize !== null) {
-        aoeSize = Number(options.aoeSize);
-      } else if (targetType === "melee_burst") {
-        aoeSize = 0;
-      } else if (targetType === "path" || targetType === "close_path") {
-        aoeSize = 1;
-      } else {
-        aoeSize = Number(deedSys.targetSize ?? deedSys.aoeSize ?? 1);
-      }
-
-      if (aoeSize < targetHeight) {
-        return { valid: false, reason: "airborne_too_high", height: targetHeight, aoeSize };
-      }
-      return { valid: true };
-    }
-
-    // Rule 2: Missile or Spell attacks targeting individual creatures can always target
-    if (abilityType === "missile" || abilityType === "spell" || abilityType === "innate" || abilityType === "tool") {
-      return { valid: true };
-    }
-
-    // Rule 1: Melee / Unarmed / Versatile attacks
-    const isJump = options.isJump === true || this.deedInvolvesJump(itemOrDeed, actorDoc);
-
-    if (abilityType === "melee" || abilityType === "unarmed") {
-      if (targetHeight >= 2 && !isJump) {
-        return { valid: false, reason: "airborne_requires_jump", height: targetHeight };
-      }
-      return { valid: true };
-    }
-
-    if (abilityType === "versatile") {
-      const activeWeapons = getActiveWeapons(actorDoc);
-      const hasMissile = activeWeapons.some(w => !w.system?.isThrown && (w.system?.type === "missile" || w.system?.type === "spell" || w.system?.properties?.thrown));
-      if (!hasMissile && targetHeight >= 2 && !isJump) {
-        return { valid: false, reason: "airborne_requires_jump", height: targetHeight };
-      }
-      return { valid: true };
-    }
-
-    if (targetHeight >= 2 && !isJump) {
-      return { valid: false, reason: "airborne_requires_jump", height: targetHeight };
-    }
-
-    return { valid: true };
+    return canTargetAirborne(sourceToken, targetToken, itemOrDeed, options);
   }
 }
+

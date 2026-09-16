@@ -53,6 +53,7 @@
         "DroppedBelowZero": "{name} caiu para {hp} PV (ajustado para 0).",
         "DamageWhileTenacious": "{name} sofreu {damage} de dano enquanto Tenaz (em 0 PV).",
         "TerrainDamageIgnoredTenacious": "{name} ignora o dano de terreno enquanto Tenaz.",
+        "TerrainDamageIgnoredSunken": "{name} ignora o dano de terreno enquanto Submerso.",
         "RecoveredFromDefeat": "recuperou acima de 0 PV e não está mais derrotado! Pode rolar iniciativa e agir na rodada seguinte.",
         "LostTwoEndurance": "Perdeu 2 de Vigor (primeira derrota/falha neste combate).",
         "RollInjuryTable": "Rolar Tabela de Ferimentos (1d8, 1d4)",

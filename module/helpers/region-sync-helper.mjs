@@ -153,15 +153,28 @@ Hooks.on("canvasPan", () => {
 
 // --- Token Movement & Region Synchronization ---
 
-// Capture old position before token update so we can trace the movement path
+// Capture old position and elevation before token update so we can trace the movement path and detect surfacing
 Hooks.on("preUpdateToken", (tokenDocument, changes, options, userId) => {
   if (changes.x !== undefined || changes.y !== undefined) {
     options._trespasserOldPos = { x: tokenDocument.x, y: tokenDocument.y };
+  }
+  if (changes.elevation !== undefined) {
+    options._trespasserOldElevation = tokenDocument.elevation;
   }
 });
 
 Hooks.on("updateToken", async (tokenDocument, changes, options, userId) => {
   if (game.user.id !== userId) return;
+
+  // If token elevation changed from sunken (negative) to surfaced (>= 0), trigger surfacing logic
+  if (changes.elevation !== undefined && options._trespasserOldElevation !== undefined) {
+    const wasSunken = options._trespasserOldElevation < 0;
+    const isNowSunken = (changes.elevation ?? tokenDocument.elevation) < 0;
+    if (wasSunken && !isNowSunken) {
+      await TerrainHelper.onTokenSurfaced(tokenDocument);
+    }
+  }
+
   if (changes.x === undefined && changes.y === undefined) return;
 
   // Immediately synchronize whileInside effects for the token at its new position

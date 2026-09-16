@@ -59,6 +59,8 @@
         "Plural": "Skills"
       },
       "DC": "DC",
+      "Sunken": "Sunken",
+      "Airborne": "Airborne",
       "ItemType": {
         "Weapon": "Weapon",
         "Armor": "Armor",
