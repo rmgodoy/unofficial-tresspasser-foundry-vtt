@@ -132,7 +132,12 @@ export async function placeBurst(token, size, gridPx, isMelee = false, isAura = 
 
       if (targets.length > 0 && options.item) {
         if (showInfo) {
-          const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(targets, token, options.item, options);
+          const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(targets, token, options.item, {
+            ...options,
+            activeNodeId: options.activeNodeId || null,
+            runtimeContext: options.runtimeContext || null,
+            areaSquares: squares
+          });
           targetOutcomes = Array.from(outcomeMap.values());
           TargetPreviewHUD.update(targetOutcomes);
           for (const t of targets) {

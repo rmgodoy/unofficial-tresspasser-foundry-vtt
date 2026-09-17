@@ -39,7 +39,9 @@ export class SelectTargetBehavior {
         params,
         item,
         actor,
-        originOverride: context.sourcePosition || null
+        originOverride: context.sourcePosition || null,
+        activeNodeId: behavior.id,
+        runtimeContext: context
       });
 
       if (!resultTargets || resultTargets.length === 0) {
@@ -74,7 +76,9 @@ export class SelectTargetBehavior {
       const activeWeapons = getActiveWeapons(actor);
       const result = await TargetingHelper.placeTemplate(actor, token, deedData, activeWeapons, {
         item,
-        originOverride: context.sourcePosition || null
+        originOverride: context.sourcePosition || null,
+        activeNodeId: behavior.id,
+        runtimeContext: context
       });
       if (!result || !result.squares) {
         ui.notifications.info("AoE template placement cancelled.");
@@ -131,7 +135,9 @@ export class SelectTargetBehavior {
         areaSquares: result.squares,
         item,
         actor,
-        originOverride: context.sourcePosition || null
+        originOverride: context.sourcePosition || null,
+        activeNodeId: behavior.id,
+        runtimeContext: context
       });
 
       if (resultTargets === null) {
@@ -217,7 +223,9 @@ export class SelectTargetBehavior {
         areaSquares: evalSquares,
         item,
         actor,
-        originOverride: context.sourcePosition || null
+        originOverride: context.sourcePosition || null,
+        activeNodeId: behavior.id,
+        runtimeContext: context
       });
 
       if (resultTargets === null) {

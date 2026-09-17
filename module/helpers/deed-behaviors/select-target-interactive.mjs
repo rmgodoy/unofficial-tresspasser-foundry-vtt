@@ -17,9 +17,11 @@ import { TargetingPreviewSyncer } from "../../targeting/targeting-preview-syncer
  * @param {Array<{x:number, y:number}>} [options.areaSquares] - Optional area squares for visual boundary overlay
  * @param {Item} [options.item] - Deed item
  * @param {Actor} [options.actor] - Source actor
+ * @param {string|null} [options.activeNodeId] - ID of the active targeting node in the graph
+ * @param {object|null} [options.runtimeContext] - Runtime execution context from DeedExecutor
  * @returns {Promise<Token[]|null>}
  */
-export async function selectTokensInteractive({ candidateTokens = null, maxCount = 1, sourceToken, params = {}, areaSquares = null, item = null, actor = null, originOverride = null }) {
+export async function selectTokensInteractive({ candidateTokens = null, maxCount = 1, sourceToken, params = {}, areaSquares = null, item = null, actor = null, originOverride = null, activeNodeId = null, runtimeContext = null }) {
   const isAreaMode = Array.isArray(areaSquares) && areaSquares.length > 0;
   const gridPx = canvas.grid.size;
   const maxRangeSq = isAreaMode ? null : RangeHelper.getDeedRange(sourceToken, item, actor, { notify: true });
@@ -76,7 +78,14 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
     const allRelevantTokens = [...selectedTargets, ...(candidateTokens || [])];
     const outcomeMap = (showInfo && item)
-      ? DeedIntentResolver.resolveTargetsOutcome(allRelevantTokens, sourceToken, item, { actor, params: { ...params, isJump }, selectedTargets })
+      ? DeedIntentResolver.resolveTargetsOutcome(allRelevantTokens, sourceToken, item, {
+          actor,
+          params: { ...params, isJump },
+          selectedTargets,
+          activeNodeId,
+          runtimeContext,
+          areaSquares: isAreaMode ? areaSquares : null
+        })
       : new Map();
 
     if (showInfo && allRelevantTokens.length > 0) {

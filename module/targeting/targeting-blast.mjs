@@ -72,7 +72,12 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null, 
         const tokensInArea = getTokensInSquares(activeSquares, gridPx, { aoeSize: size, aoeType: close ? "close_blast" : "blast" });
         if (tokensInArea.length > 0) {
           if (showInfo) {
-            const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(tokensInArea, token, options.item, options);
+            const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(tokensInArea, token, options.item, {
+              ...options,
+              activeNodeId: options.activeNodeId || null,
+              runtimeContext: options.runtimeContext || null,
+              areaSquares: activeSquares
+            });
             targetOutcomes = Array.from(outcomeMap.values());
             TargetPreviewHUD.update(targetOutcomes);
             for (const t of tokensInArea) {

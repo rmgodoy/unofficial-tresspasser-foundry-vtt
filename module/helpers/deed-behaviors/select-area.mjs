@@ -35,7 +35,12 @@ export class SelectAreaBehavior {
           range: item?.system?.range ?? null
         };
         const activeWeapons = getActiveWeapons(actor);
-        const result = await TargetingHelper.placeTemplate(actor, token, deedData, activeWeapons, { item });
+        const result = await TargetingHelper.placeTemplate(actor, token, deedData, activeWeapons, {
+          item,
+          activeNodeId: behavior.id,
+          runtimeContext: context,
+          originOverride: context.sourcePosition || null
+        });
 
         if (!result || !result.squares || result.squares.length === 0) {
           break;
@@ -77,7 +82,12 @@ export class SelectAreaBehavior {
         range: item?.system?.range ?? null
       };
       const activeWeapons = getActiveWeapons(actor);
-      const result = await TargetingHelper.placeTemplate(actor, token, deedData, activeWeapons, { item });
+      const result = await TargetingHelper.placeTemplate(actor, token, deedData, activeWeapons, {
+        item,
+        activeNodeId: behavior.id,
+        runtimeContext: context,
+        originOverride: context.sourcePosition || null
+      });
       if (!result || !result.squares || result.squares.length === 0) {
         ui.notifications.info("AoE area selection cancelled.");
         return false;

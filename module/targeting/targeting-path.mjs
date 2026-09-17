@@ -112,7 +112,12 @@ export async function placePath(token, maxSquares, gridPx, close, maxRangeSq = n
         });
         if (tokensInArea.length > 0) {
           if (showInfo) {
-            const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(tokensInArea, token, options.item, options);
+            const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(tokensInArea, token, options.item, {
+              ...options,
+              activeNodeId: options.activeNodeId || null,
+              runtimeContext: options.runtimeContext || null,
+              areaSquares: squares
+            });
             targetOutcomes = Array.from(outcomeMap.values());
             TargetPreviewHUD.update(targetOutcomes);
             for (const t of tokensInArea) {

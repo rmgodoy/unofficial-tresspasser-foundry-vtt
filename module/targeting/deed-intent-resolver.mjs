@@ -1,17 +1,32 @@
 import { TargetClassifier } from "./target-classifier.mjs";
-import { DeedBehaviorUtils } from "../helpers/deed-behaviors/deed-behavior-utils.mjs";
-import { formatEffectBadge } from "../helpers/effect-badge-helper.mjs";
-import { matchesDisposition } from "./targeting-geometry.mjs";
+import { DeedIntentFormula } from "./deed-intent-formula.mjs";
 import { migrateToGraph } from "../helpers/migration-graph.mjs";
-import { getActorEffects, getActorRelevantModifiers, combineModifierFormulas } from "../effects/effects-aggregate.mjs";
+import { getActorRelevantModifiers, combineModifierFormulas } from "../effects/effects-aggregate.mjs";
 import { RangeHelper } from "../helpers/range-helper.mjs";
 
 /**
- * DeedIntentResolver — Pure, non-destructive static analyzer for Deed behavior graphs.
+ * DeedIntentResolver — Pure, non-destructive analyzer for Deed behavior graphs.
  * Evaluates what damage, healing, or effects each token will receive "Anyway" (base/always/miss)
- * vs "On Hit" vs "On Spark", preserving authored formulas and rendering icons.
+ * vs "On Hit" vs "On Spark", supporting multi-stage target scoping and runtime evaluated rolls.
  */
 export class DeedIntentResolver {
+
+  /**
+   * Determine if a behavior node is an interactive target selection prompt.
+   * @param {object} node
+   * @returns {boolean}
+   */
+  static isInteractiveTargetNode(node) {
+    if (!node) return false;
+    if (node.type === "selectArea") return true;
+    if (node.type === "selectTarget") {
+      const p = node.params || {};
+      const mode = p.targetMode || "creatures";
+      if (mode === "creatures") return true;
+      if ((mode === "aoe" || mode === "area") && p.chooseCreatures) return true;
+    }
+    return false;
+  }
 
   /**
    * Resolve outcome previews for a list of tokens given a caster and deed.
@@ -80,11 +95,11 @@ export class DeedIntentResolver {
    * @param {Token|TokenDocument} targetToken
    * @param {Token|TokenDocument} casterToken
    * @param {Item} deedItem
-   * @param {object} context - Indexed graph data
+   * @param {object} context - Indexed graph data and options
    * @returns {object} TokenDeedOutcomePreview
    */
   static resolveSingleTokenOutcome(targetToken, casterToken, deedItem, context) {
-    const { nodes = [], connections = [], nodesById = new Map(), isExplicitTarget = true } = context;
+    const { nodes = [], connections = [], nodesById = new Map(), isExplicitTarget = true, activeNodeId = null, runtimeContext = null } = context;
     const targetId = targetToken?.id || targetToken?.document?.id || null;
     const casterId = casterToken?.id || casterToken?.document?.id || null;
     const isSelf = Boolean(targetId && casterId && targetId === casterId);
@@ -140,17 +155,33 @@ export class DeedIntentResolver {
       onMiss:  []
     };
 
-    // 1. Walk branches from start
-    const startNode = nodes.find(n => n.type === "start") || nodes[0];
-    if (startNode) {
+    // 1. Stage-Aware Traversal: Start from activeNodeId if provided, else from start node
+    if (activeNodeId && nodesById.has(activeNodeId)) {
+      const activeNode = nodesById.get(activeNodeId);
+      let initialFilter = null;
+      if (activeNode.type === "selectTarget") {
+        const p = activeNode.params || {};
+        initialFilter = {
+          targetMode: p.targetMode || "creatures",
+          disposition: p.disposition || "any",
+          ignoreSelf: Boolean(p.ignoreSelf)
+        };
+      }
+      const initialBranch = "anyway";
       const visited = new Set();
-      this._walkBranch(startNode.id, "anyway", outgoing, incomingRefs, nodesById, targetToken, casterToken, isSelf, isExplicitTarget, branchActions, visited, null);
+      this._walkBranch(activeNode.id, initialBranch, outgoing, incomingRefs, nodesById, targetToken, casterToken, isSelf, isExplicitTarget, branchActions, visited, initialFilter, activeNode.id, runtimeContext);
+    } else {
+      const startNode = nodes.find(n => n.type === "start") || nodes[0];
+      if (startNode) {
+        const visited = new Set();
+        this._walkBranch(startNode.id, "anyway", outgoing, incomingRefs, nodesById, targetToken, casterToken, isSelf, isExplicitTarget, branchActions, visited, null, null, runtimeContext);
+      }
     }
 
     // Fallback if no flow connections exist
     const hasFlowConnections = connections.some(c => c.type !== "reference" && (!c.targetPort || c.targetPort === "in" || c.targetPort === "out"));
     if (!hasFlowConnections && !branchActions.anyway.length && !branchActions.onHit.length && !branchActions.onSpark.length) {
-      this._fallbackExtractBehaviors(nodes, isSelf, branchActions, targetToken, casterToken);
+      this._fallbackExtractBehaviors(nodes, isSelf, branchActions, targetToken, casterToken, runtimeContext);
     }
 
     // 2. Resolve Hit vs Spark branching and deduplicate shared nodes
@@ -217,10 +248,10 @@ export class DeedIntentResolver {
       intent,
       hasAnyOutcome,
       isSunken: targetIsSunken,
-      anyway:  { ...outcomes.anyway,  html: this._formatSectionHtml(outcomes.anyway, targetIsSunken, casterActor) },
-      onHit:   { ...outcomes.onHit,   html: this._formatSectionHtml(outcomes.onHit, targetIsSunken, casterActor) },
-      onSpark: { ...outcomes.onSpark, html: this._formatSectionHtml(outcomes.onSpark, targetIsSunken, casterActor) },
-      onMiss:  { ...outcomes.onMiss,  html: this._formatSectionHtml(outcomes.onMiss, targetIsSunken, casterActor) },
+      anyway:  { ...outcomes.anyway,  html: DeedIntentFormula.formatSectionHtml(outcomes.anyway, targetIsSunken, casterActor) },
+      onHit:   { ...outcomes.onHit,   html: DeedIntentFormula.formatSectionHtml(outcomes.onHit, targetIsSunken, casterActor) },
+      onSpark: { ...outcomes.onSpark, html: DeedIntentFormula.formatSectionHtml(outcomes.onSpark, targetIsSunken, casterActor) },
+      onMiss:  { ...outcomes.onMiss,  html: DeedIntentFormula.formatSectionHtml(outcomes.onMiss, targetIsSunken, casterActor) },
       modifiers: {
         casterDamage: casterDamageMods,
         targetDamage: targetDamageMods,
@@ -230,7 +261,7 @@ export class DeedIntentResolver {
     };
   }
 
-  static _walkBranch(nodeId, currentBranch, outgoing, incomingRefs, nodesById, targetToken, casterToken, isSelf, isExplicitTarget, branchActions, visited, activeFilter = null) {
+  static _walkBranch(nodeId, currentBranch, outgoing, incomingRefs, nodesById, targetToken, casterToken, isSelf, isExplicitTarget, branchActions, visited, activeFilter = null, activeNodeId = null, runtimeContext = null) {
     const visitKey = `${nodeId}:${currentBranch}`;
     if (visited.has(visitKey)) return;
     visited.add(visitKey);
@@ -250,7 +281,7 @@ export class DeedIntentResolver {
 
     // Evaluate action nodes
     if (node.type === "applyDamage" || node.type === "healTarget" || node.type === "applyEffects" || node.type === "grantRecovery") {
-      const appliesToThisToken = this._doesNodeApplyToToken(node, isSelf, targetToken, casterToken, currentFilter, isExplicitTarget);
+      const appliesToThisToken = DeedIntentFormula.doesNodeApplyToToken(node, isSelf, targetToken, casterToken, currentFilter, isExplicitTarget);
       if (appliesToThisToken) {
         const p = node.params || {};
         let refId = p.rollBehaviorId?.trim();
@@ -260,12 +291,12 @@ export class DeedIntentResolver {
         }
 
         const refNode = refId ? nodesById.get(refId) : null;
-        const isAccuracySwitch = refNode && refNode.type === "switch";
+        const isAccuracySwitch = refNode && refNode.type === "switch" && !runtimeContext?.evaluatedRolls?.has(refId);
 
         if (isAccuracySwitch && currentBranch === "anyway") {
-          const hitExpr = this._resolveNodeFormula(node, nodesById, incomingRefs, "onHit");
-          const sparkExpr = this._resolveNodeFormula(node, nodesById, incomingRefs, "onSpark");
-          const missExpr = this._resolveNodeFormula(node, nodesById, incomingRefs, "onMiss");
+          const hitExpr = DeedIntentFormula.resolveNodeFormula(node, nodesById, incomingRefs, "onHit", runtimeContext);
+          const sparkExpr = DeedIntentFormula.resolveNodeFormula(node, nodesById, incomingRefs, "onSpark", runtimeContext);
+          const missExpr = DeedIntentFormula.resolveNodeFormula(node, nodesById, incomingRefs, "onMiss", runtimeContext);
 
           const cat = (node.type === "applyDamage") ? "damage" : "healing";
           if (hitExpr) branchActions.onHit.push({ nodeId: node.id, type: node.type, category: cat, value: hitExpr, node });
@@ -274,16 +305,16 @@ export class DeedIntentResolver {
         } else {
           const dest = branchActions[currentBranch] || branchActions.anyway;
           if (node.type === "applyDamage") {
-            const expr = this._resolveNodeFormula(node, nodesById, incomingRefs, currentBranch);
+            const expr = DeedIntentFormula.resolveNodeFormula(node, nodesById, incomingRefs, currentBranch, runtimeContext);
             if (expr) dest.push({ nodeId: node.id, type: "applyDamage", category: "damage", value: expr, node });
           } else if (node.type === "healTarget") {
-            const expr = this._resolveNodeFormula(node, nodesById, incomingRefs, currentBranch);
+            const expr = DeedIntentFormula.resolveNodeFormula(node, nodesById, incomingRefs, currentBranch, runtimeContext);
             if (expr) dest.push({ nodeId: node.id, type: "healTarget", category: "healing", value: expr, node });
           } else if (node.type === "grantRecovery") {
             const intensity = parseInt(node.params?.intensity) || 1;
             dest.push({ nodeId: node.id, type: "grantRecovery", category: "healing", value: `${intensity}<sd>`, node });
           } else if (node.type === "applyEffects") {
-            const effList = this._extractNodeEffects(node);
+            const effList = DeedIntentFormula.extractNodeEffects(node);
             for (const eff of effList) {
               dest.push({ nodeId: node.id, type: "applyEffects", category: "effects", value: eff, node });
             }
@@ -294,6 +325,16 @@ export class DeedIntentResolver {
 
     const outConns = outgoing.get(nodeId) || [];
     for (const conn of outConns) {
+      const childNode = nodesById.get(conn.targetId);
+      if (!childNode) continue;
+
+      // Scope Boundary: If activeNodeId is set, do not traverse past a different interactive targeting node or clearTargets
+      if (activeNodeId && childNode.id !== activeNodeId) {
+        if (this.isInteractiveTargetNode(childNode) || childNode.type === "clearTargets") {
+          continue;
+        }
+      }
+
       let nextBranch = currentBranch;
       if (node.type === "rollAccuracy") {
         if (conn.sourcePort === "onHit") nextBranch = "onHit";
@@ -301,12 +342,11 @@ export class DeedIntentResolver {
         else if (conn.sourcePort === "onMiss") nextBranch = "onMiss";
         else if (conn.sourcePort === "always" || conn.sourcePort === "out") nextBranch = "anyway";
       }
-      this._walkBranch(conn.targetId, nextBranch, outgoing, incomingRefs, nodesById, targetToken, casterToken, isSelf, isExplicitTarget, branchActions, visited, currentFilter);
+      this._walkBranch(conn.targetId, nextBranch, outgoing, incomingRefs, nodesById, targetToken, casterToken, isSelf, isExplicitTarget, branchActions, visited, currentFilter, activeNodeId, runtimeContext);
     }
   }
 
   static _distributeActionsToOutcomes(branchActions, outcomes, branchingMode) {
-    // 1. Anyway & On Miss actions
     for (const act of branchActions.anyway) {
       if (act.category === "damage") outcomes.anyway.damage.push(act.value);
       else if (act.category === "healing") outcomes.anyway.healing.push(act.value);
@@ -319,7 +359,6 @@ export class DeedIntentResolver {
       else if (act.category === "effects") outcomes.onMiss.effects.push(act.value);
     }
 
-    // 2. On Hit actions
     const hitDamageValues = new Set();
     const hitEffectKeys = new Set();
     const hitHealingValues = new Set();
@@ -331,24 +370,18 @@ export class DeedIntentResolver {
         hitHealingValues.add(act.value);
         outcomes.onHit.healing.push(act.value);
       } else if (act.category === "effects") {
-        const effKey = typeof act.value === "string"
-          ? act.value.toLowerCase()
-          : `${(act.value?.name || "").toLowerCase()}:${act.value?.intensity || 0}`;
+        const effKey = typeof act.value === "string" ? act.value.toLowerCase() : `${(act.value?.name || "").toLowerCase()}:${act.value?.intensity || 0}`;
         hitEffectKeys.add(effKey);
         outcomes.onHit.effects.push(act.value);
       }
     }
 
-    // 3. On Spark actions
     for (const act of branchActions.onSpark) {
       if (branchingMode === "hitOrSpark") {
-        // Deduplicate identical shared base actions in hitOrSpark
         if (act.category === "damage" && hitDamageValues.has(act.value)) continue;
         if (act.category === "healing" && hitHealingValues.has(act.value)) continue;
         if (act.category === "effects") {
-          const effKey = typeof act.value === "string"
-            ? act.value.toLowerCase()
-            : `${(act.value?.name || "").toLowerCase()}:${act.value?.intensity || 0}`;
+          const effKey = typeof act.value === "string" ? act.value.toLowerCase() : `${(act.value?.name || "").toLowerCase()}:${act.value?.intensity || 0}`;
           if (hitEffectKeys.has(effKey)) continue;
         }
       }
@@ -358,125 +391,19 @@ export class DeedIntentResolver {
     }
   }
 
-  static _doesNodeApplyToToken(node, isSelf, targetToken, casterToken, activeFilter, isExplicitTarget = true) {
-    const p = node.params || {};
-    const targetScope = p.targetScope || p.target || "";
-    const isExplicitSelfAction = targetScope === "self" || targetScope === "source" 
-      || activeFilter?.targetMode === "self" || activeFilter?.targetMode === "personal";
-
-    // When evaluating caster token who was NOT explicitly targeted/in AoE,
-    // only actions explicitly targeted at self should apply.
-    if (isSelf && !isExplicitTarget) {
-      return Boolean(isExplicitSelfAction);
-    }
-
-    if (!isSelf) {
-      if (isExplicitSelfAction) return false;
-      if (activeFilter?.disposition && activeFilter.disposition !== "any") {
-        if (!matchesDisposition(targetToken, activeFilter.disposition, casterToken)) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    // isSelf && isExplicitTarget
-    if (activeFilter?.ignoreSelf) return false;
-    if (activeFilter?.disposition && activeFilter.disposition !== "any") {
-      if (!matchesDisposition(targetToken, activeFilter.disposition, casterToken)) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  static _resolveNodeFormula(node, nodesById, incomingRefs = new Map(), currentBranch = "anyway") {
-    const p = node.params || {};
-    let raw = p.expression?.trim() || "";
-
-    let refId = p.rollBehaviorId?.trim();
-    if (!refId && incomingRefs.has(node.id)) {
-      const refConn = incomingRefs.get(node.id).find(c => c.targetPort === "rollRef");
-      if (refConn) refId = refConn.sourceId;
-    }
-
-    if (refId && nodesById.has(refId)) {
-      let refNode = nodesById.get(refId);
-
-      if (refNode.type === "switch") {
-        const switchRefs = incomingRefs.get(refNode.id) || [];
-        let candidatePorts = currentBranch === "onSpark" ? ["onSpark", "onHit", "always", "in"]
-          : currentBranch === "onHit" ? ["onHit", "always", "in"]
-          : currentBranch === "onMiss" ? ["onMiss", "always", "in"]
-          : ["always", "onHit", "in", "onMiss", "onSpark"];
-
-        let branchSourceId = candidatePorts.map(port => switchRefs.find(c => c.targetPort === port)?.sourceId).find(Boolean)
-          || switchRefs.find(c => c.targetPort !== "source")?.sourceId;
-
-        if (branchSourceId && nodesById.has(branchSourceId)) refNode = nodesById.get(branchSourceId);
-      }
-
-      const refExpr = refNode?.params?.expression?.trim() || "";
-      if (refExpr) {
-        if (!raw) raw = refExpr;
-        else if (raw.startsWith("/")) raw = `½ ${refExpr}`;
-        else if (raw.startsWith("*")) raw = `2× ${refExpr}`;
-        else if (raw.startsWith("+") || raw.startsWith("-")) raw = `${refExpr} ${raw}`;
-      }
-    }
-    return raw;
-  }
-
-  static _extractNodeEffects(node) {
-    const p = node.params || {};
-    if (Array.isArray(p.effects) && p.effects.length > 0) {
-      return p.effects.filter(e => e && (e.name || e.uuid)).map(e => ({
-        name: e.name || "Effect",
-        intensity: parseInt(e.intensity) || 0,
-        img: e.img || null,
-        uuid: e.uuid || null
-      }));
-    }
-    if (p.effectName) {
-      return [{ name: p.effectName, intensity: parseInt(p.intensity) || 0, img: p.img || null }];
-    }
-    return [];
-  }
-
-  static _fallbackExtractBehaviors(nodes, isSelf, branchActions, targetToken, casterToken) {
+  static _fallbackExtractBehaviors(nodes, isSelf, branchActions, targetToken, casterToken, runtimeContext = null) {
     for (const n of nodes) {
-      if (!this._doesNodeApplyToToken(n, isSelf, targetToken, casterToken, null)) continue;
+      if (!DeedIntentFormula.doesNodeApplyToToken(n, isSelf, targetToken, casterToken, null)) continue;
       const phase = n.phase || "base";
       const targetBranch = phase === "hit" ? "onHit" : phase === "spark" ? "onSpark" : phase === "miss" ? "onMiss" : "anyway";
       const dest = branchActions[targetBranch] || branchActions.anyway;
-      const expr = n.params?.expression?.trim();
+      const expr = DeedIntentFormula.resolveNodeFormula(n, new Map(nodes.map(node => [node.id, node])), new Map(), targetBranch, runtimeContext) || n.params?.expression?.trim();
 
       if (n.type === "applyDamage" && expr) dest.push({ nodeId: n.id, type: "applyDamage", category: "damage", value: expr, node: n });
       else if (n.type === "healTarget" && expr) dest.push({ nodeId: n.id, type: "healTarget", category: "healing", value: expr, node: n });
       else if (n.type === "applyEffects") {
-        for (const eff of this._extractNodeEffects(n)) dest.push({ nodeId: n.id, type: "applyEffects", category: "effects", value: eff, node: n });
+        for (const eff of DeedIntentFormula.extractNodeEffects(n)) dest.push({ nodeId: n.id, type: "applyEffects", category: "effects", value: eff, node: n });
       }
     }
-  }
-
-  static _formatSectionHtml(section, isTargetSunken = false, casterActor = null) {
-    const parts = [];
-    if (section.damage?.length > 0) {
-      let raw = section.damage.join(" + ");
-      let res = (DeedBehaviorUtils.resolveFormulaPlaceholders(raw, casterActor) || raw).trim();
-      if (res.startsWith("-") || res.startsWith("+")) res = res.slice(1).trim();
-      const sunkenTag = isTargetSunken ? `<span class="outcome-sunken" style="font-size: var(--fs-10); color: #74b9ff; margin-left: 2px;">(½)</span>` : "";
-      parts.push(`<span class="outcome-dmg">-${res}${sunkenTag} <i class="fa-solid fa-heart"></i></span>`);
-    }
-    if (section.healing?.length > 0) {
-      let raw = section.healing.join(" + ");
-      let res = (DeedBehaviorUtils.resolveFormulaPlaceholders(raw, casterActor) || raw).trim();
-      if (res.startsWith("+") || res.startsWith("-")) res = res.slice(1).trim();
-      parts.push(`<span class="outcome-heal">+${res} <i class="fa-solid fa-heart"></i></span>`);
-    }
-    if (section.effects?.length > 0) {
-      parts.push(`<span class="outcome-eff-list">${section.effects.map(eff => formatEffectBadge(eff)).join("")}</span>`);
-    }
-    return parts.join(" ");
   }
 }
