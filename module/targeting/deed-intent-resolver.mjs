@@ -301,7 +301,7 @@ export class DeedIntentResolver {
           const cat = (node.type === "applyDamage") ? "damage" : "healing";
           if (hitExpr) branchActions.onHit.push({ nodeId: node.id, type: node.type, category: cat, value: hitExpr, node });
           if (sparkExpr && sparkExpr !== hitExpr) branchActions.onSpark.push({ nodeId: node.id, type: node.type, category: cat, value: sparkExpr, node });
-          if (missExpr) branchActions.onMiss.push({ nodeId: node.id, type: node.type, category: cat, value: missExpr, node });
+          if (missExpr) branchActions.anyway.push({ nodeId: node.id, type: node.type, category: cat, value: missExpr, node });
         } else {
           const dest = branchActions[currentBranch] || branchActions.anyway;
           if (node.type === "applyDamage") {

@@ -174,18 +174,27 @@ const bgAlly = bloodGiftOutcomes.get("ally1");
 console.log("Blood Gift (Caster):", {
   role: bgCaster?.role,
   intent: bgCaster?.intent,
-  damage: bgCaster?.anyway?.damage || bgCaster?.onHit?.damage,
-  healing: bgCaster?.anyway?.healing
+  anywayDamage: bgCaster?.anyway?.damage,
+  onHitDamage: bgCaster?.onHit?.damage,
+  onMissDamage: bgCaster?.onMiss?.damage
 });
 console.log("Blood Gift (Ally):", {
   role: bgAlly?.role,
   intent: bgAlly?.intent,
-  damage: bgAlly?.anyway?.damage,
-  healing: bgAlly?.anyway?.healing || bgAlly?.onHit?.healing
+  anywayHealing: bgAlly?.anyway?.healing,
+  onHitHealing: bgAlly?.onHit?.healing,
+  onMissHealing: bgAlly?.onMiss?.healing
 });
 
-if (bgCaster?.intent === "harmful" && bgAlly?.intent === "beneficial") {
-  console.log("✅ Blood Gift: Caster suffers damage, Ally receives healing simultaneously!");
+if (
+  bgCaster?.anyway?.damage.includes("1<sd>") &&
+  bgCaster?.onHit?.damage.includes("2<sd>") &&
+  bgCaster?.onMiss?.damage.length === 0 &&
+  bgAlly?.anyway?.healing.includes("1<sd>") &&
+  bgAlly?.onHit?.healing.includes("2<sd>") &&
+  bgAlly?.onMiss?.healing.length === 0
+) {
+  console.log("✅ Blood Gift: Caster (1<sd> Base, 2<sd> Hit) and Ally (+1<sd> Base, +2<sd> Hit) resolved without onMiss!");
 } else {
   console.error("❌ Blood Gift FAILED");
   process.exit(1);
