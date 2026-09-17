@@ -68,72 +68,34 @@ export class TrespasserRollDialog extends foundry.applications.api.HandlebarsApp
       };
     });
 
+    let initialBonusTotal = 0;
+    for (const b of context.bonuses) {
+      if (b.isAccordion) {
+        if (b.hasChildren) {
+          for (const c of b.children) {
+            if (c.checked) initialBonusTotal += c.value;
+          }
+        } else if (b.checked) {
+          initialBonusTotal += b.value;
+        }
+      } else {
+        if (b.checked) {
+          initialBonusTotal += b.value;
+        }
+      }
+    }
+    const initialModifier = this.data.modifier || 0;
+    const initialTotal = initialBonusTotal + initialModifier;
+    context.initialBonusFormatted = initialTotal >= 0 ? `+ ${initialTotal}` : `- ${Math.abs(initialTotal)}`;
+
     return context;
   }
 
-  /** @override */
-  _onRender(context, options) {
-    super._onRender(context, options);
-
-    // Attach real-time recalculation on child checkboxes
-    const childCheckboxes = this.element.querySelectorAll(".bonus-child-checkbox");
-    childCheckboxes.forEach(cb => {
-      cb.addEventListener("change", (e) => {
-        const row = e.target.closest(".bonus-child-row");
-        if (row) {
-          row.classList.toggle("is-unchecked", !e.target.checked);
-        }
-
-        const group = e.target.closest(".bonus-accordion-group");
-        if (group) {
-          const checkedChildren = group.querySelectorAll(".bonus-child-checkbox:checked");
-          let sum = 0;
-          checkedChildren.forEach(c => {
-            sum += parseFloat(c.dataset.value) || 0;
-          });
-          const totalEl = group.querySelector(".accordion-total");
-          if (totalEl) {
-            totalEl.textContent = (sum >= 0 ? `+${sum}` : `${sum}`);
-          }
-        }
-      });
-    });
-
-    // Attach change listener on standard bonus checkboxes
-    const standardCheckboxes = this.element.querySelectorAll(".bonus-checkbox");
-    standardCheckboxes.forEach(cb => {
-      cb.addEventListener("change", (e) => {
-        const row = e.target.closest(".standard-bonus-row");
-        if (row) {
-          row.classList.toggle("is-unchecked", !e.target.checked);
-        }
-      });
-    });
-  }
-
   /**
-   * Action handler to toggle accordion expanded/collapsed state.
+   * Evaluates the current state of bonuses, checkboxes, and modifiers in the dialog.
+   * @returns {object} Calculated totals and bonus breakdown
    */
-  static #onToggleAccordion(event, target) {
-    event.preventDefault();
-    const group = target.closest(".bonus-accordion-group");
-    if (!group) return;
-
-    const content = group.querySelector(".bonus-accordion-content");
-    if (!content) return;
-
-    const isCollapsed = content.classList.contains("collapsed");
-    content.classList.toggle("collapsed", !isCollapsed);
-    group.classList.toggle("expanded", isCollapsed);
-  }
-
-  static async #onRoll(event, target) {
-    event.preventDefault();
-    const modifier = parseInt(this.element.querySelector('input[name="modifier"]')?.value) || 0;
-    const cdElement = this.element.querySelector('input[name="cd"]');
-    const parsedCd = cdElement ? parseInt(cdElement.value) : null;
-    const cd = (parsedCd !== null && !isNaN(parsedCd)) ? parsedCd : 10;
-
+  _calculateCurrentBonuses() {
     let activeBonusTotal = 0;
     const activeBonuses = [];
     const disabledBonuses = [];
@@ -188,7 +150,110 @@ export class TrespasserRollDialog extends foundry.applications.api.HandlebarsApp
       }
     });
 
+    const modifier = parseInt(this.element.querySelector('input[name="modifier"]')?.value) || 0;
     const totalBonus = activeBonusTotal + modifier;
+
+    return {
+      activeBonusTotal,
+      totalBonus,
+      modifier,
+      activeBonuses,
+      disabledBonuses,
+      disabledEffectIds
+    };
+  }
+
+  /**
+   * Recalculates and updates the dynamic bonus display in the header.
+   */
+  _updateHeaderBonus() {
+    const { totalBonus } = this._calculateCurrentBonuses();
+    const bonusEl = this.element.querySelector(".dynamic-bonus");
+    if (bonusEl) {
+      bonusEl.textContent = totalBonus >= 0 ? `+ ${totalBonus}` : `- ${Math.abs(totalBonus)}`;
+    }
+  }
+
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Attach real-time recalculation on child checkboxes
+    const childCheckboxes = this.element.querySelectorAll(".bonus-child-checkbox");
+    childCheckboxes.forEach(cb => {
+      cb.addEventListener("change", (e) => {
+        const row = e.target.closest(".bonus-child-row");
+        if (row) {
+          row.classList.toggle("is-unchecked", !e.target.checked);
+        }
+
+        const group = e.target.closest(".bonus-accordion-group");
+        if (group) {
+          const checkedChildren = group.querySelectorAll(".bonus-child-checkbox:checked");
+          let sum = 0;
+          checkedChildren.forEach(c => {
+            sum += parseFloat(c.dataset.value) || 0;
+          });
+          const totalEl = group.querySelector(".accordion-total");
+          if (totalEl) {
+            totalEl.textContent = (sum >= 0 ? `+${sum}` : `${sum}`);
+          }
+        }
+
+        this._updateHeaderBonus();
+      });
+    });
+
+    // Attach change listener on standard bonus checkboxes
+    const standardCheckboxes = this.element.querySelectorAll(".bonus-checkbox");
+    standardCheckboxes.forEach(cb => {
+      cb.addEventListener("change", (e) => {
+        const row = e.target.closest(".standard-bonus-row");
+        if (row) {
+          row.classList.toggle("is-unchecked", !e.target.checked);
+        }
+        this._updateHeaderBonus();
+      });
+    });
+
+    // Attach listener on modifier input
+    const modifierInput = this.element.querySelector('input[name="modifier"]');
+    if (modifierInput) {
+      modifierInput.addEventListener("input", () => this._updateHeaderBonus());
+      modifierInput.addEventListener("change", () => this._updateHeaderBonus());
+    }
+  }
+
+  /**
+   * Action handler to toggle accordion expanded/collapsed state.
+   */
+  static #onToggleAccordion(event, target) {
+    event.preventDefault();
+    const group = target.closest(".bonus-accordion-group");
+    if (!group) return;
+
+    const content = group.querySelector(".bonus-accordion-content");
+    if (!content) return;
+
+    const isCollapsed = content.classList.contains("collapsed");
+    content.classList.toggle("collapsed", !isCollapsed);
+    group.classList.toggle("expanded", isCollapsed);
+  }
+
+  static async #onRoll(event, target) {
+    event.preventDefault();
+    const cdElement = this.element.querySelector('input[name="cd"]');
+    const parsedCd = cdElement ? parseInt(cdElement.value) : null;
+    const cd = (parsedCd !== null && !isNaN(parsedCd)) ? parsedCd : 10;
+
+    const {
+      activeBonusTotal,
+      totalBonus,
+      modifier,
+      activeBonuses,
+      disabledBonuses,
+      disabledEffectIds
+    } = this._calculateCurrentBonuses();
 
     this.resolve({
       modifier,

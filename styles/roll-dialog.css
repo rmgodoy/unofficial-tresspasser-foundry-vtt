@@ -36,10 +36,21 @@
 }
 
 .roll-dialog-content .dice-preview .formula {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
     font-family: var(--trp-font-header);
     font-size: var(--fs-18);
     color: var(--trp-text-bright);
     letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.roll-dialog-content .dice-preview .formula .dynamic-bonus {
+    color: var(--trp-text-bright);
+    font-family: inherit;
+    font-size: inherit;
 }
 
 .roll-dialog-content label {

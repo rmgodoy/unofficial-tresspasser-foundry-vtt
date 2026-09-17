@@ -1,7 +1,10 @@
 <div class="roll-dialog-content">
     <div class="dice-preview">
         <i class="fas fa-dice-d20"></i>
-        <div class="formula">{{{formatDice dice}}}</div>
+        <div class="formula">
+            <span class="dice-formula">{{{formatDice dice}}}</span>
+            <span class="dynamic-bonus">{{initialBonusFormatted}}</span>
+        </div>
     </div>
 
     <div class="bonus-details">
