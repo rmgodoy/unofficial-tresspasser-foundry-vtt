@@ -68,41 +68,130 @@
 
 .target-card-body {
   display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  gap: 4px;
-  align-items: center;
+  flex-direction: column;
+  gap: 2px;
+  align-items: stretch;
 }
 
 .outcome-chip {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   font-size: var(--fs-10);
   white-space: nowrap;
+  padding: 1px 4px;
+  border-radius: var(--trp-radius-sm);
+  background: rgba(0, 0, 0, 0.40);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  line-height: 1.2;
+  box-sizing: border-box;
+  width: 100%;
 }
 
-.outcome-chip .chip-icon {
-  font-size: var(--fs-8);
-  opacity: 0.85;
+.chip-phase-icon {
+  font-size: var(--fs-9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.outcome-chip.on-hit-chip .chip-phase-icon {
+  color: var(--trp-text, #ddd0aa);
+}
+
+.outcome-chip.on-spark-chip .chip-phase-icon {
+  color: var(--trp-spark, #4fc3f7);
+}
+
+.outcome-chip.on-miss-chip .chip-phase-icon {
+  color: var(--trp-text-dim, #a09070);
+}
+
+.chip-divider {
+  display: inline-block;
+  width: 1px;
+  height: 9px;
+  background: rgba(255, 255, 255, 0.18);
+  margin: 0 1px;
+  flex-shrink: 0;
 }
 
 .outcome-chip .chip-val {
   font-size: var(--fs-10);
   font-weight: 600;
   color: var(--trp-text-bright);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .outcome-dmg {
   color: var(--trp-red);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .outcome-heal {
   color: var(--trp-green-bright);
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 
 .outcome-eff {
   color: var(--trp-spark);
+}
+
+.outcome-eff-list {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: middle;
+}
+
+.target-preview-effect-badge {
+  position: relative;
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  min-height: 16px;
+  max-width: 16px;
+  max-height: 16px;
+  border-radius: var(--trp-radius-sm);
+  background: var(--trp-bg-dark);
+  border: 1px solid var(--trp-border);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+.target-preview-effect-icon {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+  border: none !important;
+  border-radius: 1px;
+}
+
+.target-preview-effect-intensity {
+  position: absolute;
+  bottom: -3px;
+  right: -3px;
+  font-size: var(--fs-9);
+  font-weight: 700;
+  background: var(--trp-bg-header);
+  color: var(--trp-gold-bright);
+  border: 1px solid var(--trp-border);
+  border-radius: 50%;
+  width: 9px;
+  height: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
 }
 
 /* ─── Spectator Target Preview HUD (Monochrome Gray Tone) ─── */
@@ -115,7 +204,8 @@
 }
 
 .target-outcome-card.is-spectator .role-icon,
-.target-outcome-card.is-spectator .chip-icon {
+.target-outcome-card.is-spectator .chip-icon,
+.target-outcome-card.is-spectator .chip-phase-icon {
   color: #aaaaaa !important;
 }
 

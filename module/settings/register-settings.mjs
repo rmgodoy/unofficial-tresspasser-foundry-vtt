@@ -315,6 +315,15 @@ export function registerSystemSettings() {
     }
   });
 
+  game.settings.register(SYSTEM_ID, "showTargetPreviewInfo", {
+    name: "TRESPASSER.Settings.Visuals.ShowTargetPreviewInfo.Name",
+    hint: "TRESPASSER.Settings.Visuals.ShowTargetPreviewInfo.Hint",
+    scope: "client",
+    config: false,
+    type: Boolean,
+    default: true
+  });
+
   // Color Theme Settings
   const colorSettings = [
     { key: "colorBgDark", default: "#1a1714" },

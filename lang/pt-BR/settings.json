@@ -139,6 +139,10 @@
         "TokenStatusIconScale": {
           "Name": "Escala dos Ícones de Status no Token",
           "Hint": "Multiplicador de escala para ícones de efeitos de status e estados renderizados nos tokens (padrão: 1.0)."
+        },
+        "ShowTargetPreviewInfo": {
+          "Name": "Mostrar Informações de Pré-visualização de Alvo",
+          "Hint": "Se ativado, passar o mouse ou selecionar tokens exibe pré-visualizações detalhadas de resultados (dano, cura, efeitos, cores de disposição). Se desativado, apenas uma borda uniforme é exibida nos tokens alvejados, desconsiderando a disposição."
         }
       },
       "Colors": {

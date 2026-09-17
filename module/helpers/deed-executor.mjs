@@ -306,7 +306,8 @@ export class DeedExecutor {
           else if (conn.sourcePort === "onSpark") branchPhase = "spark";
           else if (conn.sourcePort === "onMiss") branchPhase = "base";
 
-          const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, branchPhase);
+          const branchVisited = new Set(visited);
+          const cancelled = await this._traverseNode(conn.targetId, branchVisited, conn.sourcePort, branchPhase);
           if (cancelled) return true;
         }
       }

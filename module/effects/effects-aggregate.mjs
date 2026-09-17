@@ -289,3 +289,74 @@ export function hasAdvantage(actor, attributeKey) {
   const effects = getAttributeEffects(actor, attributeKey, "use");
   return effects.some(eff => eff.isAdv);
 }
+
+/**
+ * Normalizes target attribute string for damage and healing modifiers.
+ * @param {string} target
+ * @returns {string}
+ */
+export function normalizeTargetAttribute(target) {
+  if (!target) return "";
+  const s = String(target).toLowerCase().replace(/-/g, "_").trim();
+  if (s === "damage_dealt" || s === "damage_given" || s === "dmg_dealt" || s === "dmg_given") return "damage_given";
+  if (s === "damage_received" || s === "dmg_received") return "damage_received";
+  if (s === "heal_given") return "heal_given";
+  if (s === "heal_received") return "heal_received";
+  return s;
+}
+
+/**
+ * Retrieve raw string modifiers for an actor matching a targetType (e.g. "damage_given", "damage_received").
+ * @param {Actor} actor
+ * @param {string} targetType
+ * @returns {string[]}
+ */
+export function getActorRelevantModifiers(actor, targetType) {
+  if (!actor) return [];
+  let allEffects = [];
+  try {
+    const { combat = [], nonCombat = [] } = getActorEffects(actor) || {};
+    allEffects = [...combat, ...nonCombat];
+  } catch (err) {
+    console.warn("Trespasser | Failed to getActorEffects for outcome preview", err);
+  }
+
+  const modifiers = [];
+  for (const eff of allEffects) {
+    if (eff.isOnlyReminder) continue;
+    const normTarget = normalizeTargetAttribute(eff.target);
+    if (normTarget === targetType) {
+      const mod = eff.modifier ? String(eff.modifier).trim() : "";
+      if (mod && mod !== "0") {
+        modifiers.push(mod);
+      }
+    }
+  }
+  return modifiers;
+}
+
+/**
+ * Appends modifiers cleanly to a list of base formula expressions.
+ * @param {string[]} baseList
+ * @param {string[]} modifierList
+ * @returns {string[]}
+ */
+export function combineModifierFormulas(baseList, modifierList) {
+  if (!baseList || baseList.length === 0) return [];
+  if (!modifierList || modifierList.length === 0) return [...baseList];
+
+  let result = baseList.join(" + ").trim();
+  for (const mod of modifierList) {
+    const cleanMod = String(mod).trim();
+    if (!cleanMod || cleanMod === "0") continue;
+    if (cleanMod.startsWith("+")) {
+      result += ` + ${cleanMod.substring(1).trim()}`;
+    } else if (cleanMod.startsWith("-")) {
+      result += ` - ${cleanMod.substring(1).trim()}`;
+    } else {
+      result += ` + ${cleanMod}`;
+    }
+  }
+  return [result];
+}
+

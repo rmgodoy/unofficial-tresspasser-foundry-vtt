@@ -139,7 +139,8 @@
         "Anyway": "De Qualquer Forma",
         "OnHit": "No Acerto",
         "OnSpark": "Na Centelha",
-        "OnMiss": "No Erro"
+        "OnMiss": "No Erro",
+        "GenericTarget": "Alvo"
       }
     }
   }

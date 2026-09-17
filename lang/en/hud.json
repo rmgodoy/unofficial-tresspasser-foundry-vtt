@@ -139,7 +139,8 @@
         "Anyway": "Anyway",
         "OnHit": "On Hit",
         "OnSpark": "On Spark",
-        "OnMiss": "On Miss"
+        "OnMiss": "On Miss",
+        "GenericTarget": "Target"
       }
     }
   }

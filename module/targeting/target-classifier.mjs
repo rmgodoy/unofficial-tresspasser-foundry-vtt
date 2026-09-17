@@ -16,6 +16,19 @@ export class TargetClassifier {
     UNAFFECTED:     "unaffected"
   };
 
+  /** Generic uniform target overlay style used when preview outcome details are disabled */
+  static GENERIC_TARGET_STYLE = {
+    color: 0xFF3333,
+    cssVar: "var(--trp-red, #ff5252)",
+    labelKey: "TRESPASSER.HUD.Target.GenericTarget",
+    defaultLabel: "Target",
+    icon: "fa-solid fa-crosshairs",
+    fillAlpha: 0.10,
+    lineWidth: 3.5,
+    lineAlpha: 1.0,
+    dashed: false
+  };
+
   static ROLE_STYLES = {
     [TargetClassifier.ROLES.HOSTILE_TARGET]: {
       color: 0xFF4444,
@@ -112,7 +125,9 @@ export class TargetClassifier {
       return { role: this.ROLES.UNAFFECTED, style, label: style.defaultLabel };
     }
 
-    const isSelf = casterToken && (targetToken.id === casterToken.id || targetToken.document?.id === casterToken.document?.id);
+    const targetId = targetToken?.id || targetToken?.document?.id || null;
+    const casterId = casterToken?.id || casterToken?.document?.id || null;
+    const isSelf = Boolean(targetId && casterId && targetId === casterId);
 
     // 1. Check self bypass
     if (isSelf) {

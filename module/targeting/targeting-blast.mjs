@@ -3,6 +3,7 @@ import { CanvasSelectionRenderer } from "../canvas/canvas-selection-renderer.mjs
 import { isBlastAdjacentToToken, getTokenOccupiedSquares, getMinSquareDistance, getTokensInSquares } from "./targeting-geometry.mjs";
 import { DeedIntentResolver } from "./deed-intent-resolver.mjs";
 import { TargetPreviewHUD } from "../hud/target-preview-hud.mjs";
+import { TargetClassifier } from "./target-classifier.mjs";
 import { TargetingPreviewSyncer } from "./targeting-preview-syncer.mjs";
 
 /**
@@ -65,18 +66,28 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null, 
       const activeSquares = selectedOrigin ? currentSquares : hoverSquares;
       const affectedOverlays = [];
       let targetOutcomes = [];
+      const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
 
       if (activeSquares && activeSquares.length > 0 && options.item) {
         const tokensInArea = getTokensInSquares(activeSquares, gridPx, { aoeSize: size, aoeType: close ? "close_blast" : "blast" });
         if (tokensInArea.length > 0) {
-          const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(tokensInArea, token, options.item, options);
-          targetOutcomes = Array.from(outcomeMap.values());
-          TargetPreviewHUD.update(targetOutcomes);
-          for (const t of tokensInArea) {
-            const outcome = outcomeMap.get(t.id || t.document?.id);
-            if (outcome && outcome.role !== "unaffected" && outcome.hasAnyOutcome) {
-              CanvasSelectionRenderer.drawTokenTargetOverlay(gfx, t, outcome.style, gridPx);
-              affectedOverlays.push({ tokenId: t.id || t.document?.id, style: outcome.style });
+          if (showInfo) {
+            const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(tokensInArea, token, options.item, options);
+            targetOutcomes = Array.from(outcomeMap.values());
+            TargetPreviewHUD.update(targetOutcomes);
+            for (const t of tokensInArea) {
+              const outcome = outcomeMap.get(t.id || t.document?.id);
+              if (outcome && outcome.role !== "unaffected" && outcome.hasAnyOutcome) {
+                CanvasSelectionRenderer.drawTokenTargetOverlay(gfx, t, outcome.style, gridPx);
+                affectedOverlays.push({ tokenId: t.id || t.document?.id, style: outcome.style });
+              }
+            }
+          } else {
+            TargetPreviewHUD.clear();
+            const genericStyle = TargetClassifier.GENERIC_TARGET_STYLE;
+            for (const t of tokensInArea) {
+              CanvasSelectionRenderer.drawTokenTargetOverlay(gfx, t, genericStyle, gridPx);
+              affectedOverlays.push({ tokenId: t.id || t.document?.id, style: genericStyle });
             }
           }
         } else {

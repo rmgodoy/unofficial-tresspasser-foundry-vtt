@@ -48,6 +48,14 @@ export class TargetPreviewHUD extends (HandlebarsApplicationMixin ? HandlebarsAp
    * @param {Array<object>} targetOutcomes
    */
   static async update(targetOutcomes = []) {
+    const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
+    if (!showInfo) {
+      if (this.activeHUD) {
+        this.activeHUD.clear();
+      }
+      return;
+    }
+
     const validOutcomes = (targetOutcomes || []).filter(t => t.role !== "unaffected" && t.hasAnyOutcome);
     if (!validOutcomes || validOutcomes.length === 0) {
       if (this.activeHUD) {
@@ -78,6 +86,14 @@ export class TargetPreviewHUD extends (HandlebarsApplicationMixin ? HandlebarsAp
    * @param {Array<object>} targetOutcomes
    */
   static async updateSpectator(targetOutcomes = []) {
+    const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
+    if (!showInfo) {
+      if (this.spectatorHUD) {
+        this.spectatorHUD.clear();
+      }
+      return;
+    }
+
     const validOutcomes = (targetOutcomes || []).filter(t => t.role !== "unaffected" && t.hasAnyOutcome);
     if (!validOutcomes || validOutcomes.length === 0) {
       if (this.spectatorHUD) {
@@ -108,7 +124,12 @@ export class TargetPreviewHUD extends (HandlebarsApplicationMixin ? HandlebarsAp
   }
 
   setTargets(targets) {
-    this.targets = targets.filter(t => t.role !== "unaffected" && t.hasAnyOutcome);
+    const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
+    if (!showInfo) {
+      this.targets = [];
+    } else {
+      this.targets = targets.filter(t => t.role !== "unaffected" && t.hasAnyOutcome);
+    }
     this.render(false);
   }
 

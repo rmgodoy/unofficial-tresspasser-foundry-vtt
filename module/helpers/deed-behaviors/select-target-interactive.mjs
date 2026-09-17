@@ -3,6 +3,7 @@ import { CanvasInputSession } from "../../canvas/canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../../canvas/canvas-selection-renderer.mjs";
 import { RangeHelper } from "../range-helper.mjs";
 import { DeedIntentResolver } from "../../targeting/deed-intent-resolver.mjs";
+import { TargetClassifier } from "../../targeting/target-classifier.mjs";
 import { TargetPreviewHUD } from "../../hud/target-preview-hud.mjs";
 import { TargetingPreviewSyncer } from "../../targeting/targeting-preview-syncer.mjs";
 
@@ -72,12 +73,13 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     }
 
     // 2. Resolve outcomes for candidates and selected targets
+    const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
     const allRelevantTokens = [...selectedTargets, ...(candidateTokens || [])];
-    const outcomeMap = item
+    const outcomeMap = (showInfo && item)
       ? DeedIntentResolver.resolveTargetsOutcome(allRelevantTokens, sourceToken, item, { actor, params: { ...params, isJump }, selectedTargets })
       : new Map();
 
-    if (allRelevantTokens.length > 0) {
+    if (showInfo && allRelevantTokens.length > 0) {
       TargetPreviewHUD.update(Array.from(outcomeMap.values()));
     } else {
       TargetPreviewHUD.clear();
@@ -88,8 +90,8 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
       for (const cToken of candidateTokens) {
         if (selectedTargets.some(t => t.id === cToken.id)) continue;
         const outcome = outcomeMap.get(cToken.id || cToken.document?.id);
-        if (outcome && (!outcome.hasAnyOutcome || outcome.role === "unaffected")) continue;
-        const style = outcome?.style
+        if (showInfo && outcome && (!outcome.hasAnyOutcome || outcome.role === "unaffected")) continue;
+        const style = (showInfo && outcome?.style)
           ? { ...outcome.style, fillAlpha: 0.12, lineAlpha: 0.5 }
           : { color: 0x00FF00, fillAlpha: 0.15, lineWidth: 2, lineAlpha: 0.6 };
         CanvasSelectionRenderer.drawTokenTargetOverlay(session.graphics, cToken, style, gridPx);
@@ -99,9 +101,9 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     // 4. Draw highlight overlays over already selected targets
     for (const targetToken of selectedTargets) {
       const outcome = outcomeMap.get(targetToken.id || targetToken.document?.id);
-      const style = outcome?.style
-        ? { ...outcome.style, fillAlpha: 0.35, lineWidth: 3, lineAlpha: 1.0 }
-        : { color: 0xFFD700, fillAlpha: 0.45, lineWidth: 3, lineAlpha: 0.9 };
+      const style = (showInfo && outcome?.style)
+        ? { ...outcome.style, fillAlpha: 0.35, lineWidth: 3.5, lineAlpha: 1.0 }
+        : TargetClassifier.GENERIC_TARGET_STYLE;
       CanvasSelectionRenderer.drawTokenTargetOverlay(session.graphics, targetToken, style, gridPx);
     }
 
@@ -113,8 +115,8 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     // 6. Broadcast real-time preview to other clients (spectator mode)
     const candidateOverlays = candidateTokens ? candidateTokens.filter(t => !selectedTargets.some(st => st.id === t.id)).map(cToken => {
       const outcome = outcomeMap.get(cToken.id || cToken.document?.id);
-      if (outcome && (!outcome.hasAnyOutcome || outcome.role === "unaffected")) return null;
-      const style = outcome?.style
+      if (showInfo && outcome && (!outcome.hasAnyOutcome || outcome.role === "unaffected")) return null;
+      const style = (showInfo && outcome?.style)
         ? { ...outcome.style, fillAlpha: 0.12, lineAlpha: 0.5 }
         : { color: 0x00FF00, fillAlpha: 0.15, lineWidth: 2, lineAlpha: 0.6 };
       return { tokenId: cToken.id || cToken.document?.id, style };
@@ -122,9 +124,9 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
 
     const selectedOverlays = selectedTargets.map(targetToken => {
       const outcome = outcomeMap.get(targetToken.id || targetToken.document?.id);
-      const style = outcome?.style
-        ? { ...outcome.style, fillAlpha: 0.35, lineWidth: 3, lineAlpha: 1.0 }
-        : { color: 0xFFD700, fillAlpha: 0.45, lineWidth: 3, lineAlpha: 0.9 };
+      const style = (showInfo && outcome?.style)
+        ? { ...outcome.style, fillAlpha: 0.35, lineWidth: 3.5, lineAlpha: 1.0 }
+        : TargetClassifier.GENERIC_TARGET_STYLE;
       return { tokenId: targetToken.id || targetToken.document?.id, style };
     });
 

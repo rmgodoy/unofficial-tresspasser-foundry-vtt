@@ -5,6 +5,7 @@ import { RangeHelper } from "../helpers/range-helper.mjs";
 import { getTokensInSquares } from "./targeting-geometry.mjs";
 import { DeedIntentResolver } from "./deed-intent-resolver.mjs";
 import { TargetPreviewHUD } from "../hud/target-preview-hud.mjs";
+import { TargetClassifier } from "./target-classifier.mjs";
 import { TargetingPreviewSyncer } from "./targeting-preview-syncer.mjs";
 
 /**
@@ -127,16 +128,26 @@ export async function placeBurst(token, size, gridPx, isMelee = false, isAura = 
 
       const affectedOverlays = [];
       let targetOutcomes = [];
+      const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
 
       if (targets.length > 0 && options.item) {
-        const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(targets, token, options.item, options);
-        targetOutcomes = Array.from(outcomeMap.values());
-        TargetPreviewHUD.update(targetOutcomes);
-        for (const t of targets) {
-          const outcome = outcomeMap.get(t.id || t.document?.id);
-          if (outcome && outcome.role !== "unaffected" && outcome.hasAnyOutcome) {
-            CanvasSelectionRenderer.drawTokenTargetOverlay(gfx, t, outcome.style, gridPx);
-            affectedOverlays.push({ tokenId: t.id || t.document?.id, style: outcome.style });
+        if (showInfo) {
+          const outcomeMap = DeedIntentResolver.resolveTargetsOutcome(targets, token, options.item, options);
+          targetOutcomes = Array.from(outcomeMap.values());
+          TargetPreviewHUD.update(targetOutcomes);
+          for (const t of targets) {
+            const outcome = outcomeMap.get(t.id || t.document?.id);
+            if (outcome && outcome.role !== "unaffected" && outcome.hasAnyOutcome) {
+              CanvasSelectionRenderer.drawTokenTargetOverlay(gfx, t, outcome.style, gridPx);
+              affectedOverlays.push({ tokenId: t.id || t.document?.id, style: outcome.style });
+            }
+          }
+        } else {
+          TargetPreviewHUD.clear();
+          const genericStyle = TargetClassifier.GENERIC_TARGET_STYLE;
+          for (const t of targets) {
+            CanvasSelectionRenderer.drawTokenTargetOverlay(gfx, t, genericStyle, gridPx);
+            affectedOverlays.push({ tokenId: t.id || t.document?.id, style: genericStyle });
           }
         }
       } else {

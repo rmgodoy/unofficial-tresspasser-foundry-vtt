@@ -139,6 +139,10 @@
         "TokenStatusIconScale": {
           "Name": "Token Status Icon Scale",
           "Hint": "Scale multiplier for status effect and state icons rendered on tokens (default: 1.0)."
+        },
+        "ShowTargetPreviewInfo": {
+          "Name": "Show Target Preview Information",
+          "Hint": "If enabled, hovering or targeting tokens displays detailed outcome previews (damage, healing, effects, disposition colors). If disabled, only a uniform border overlay is shown on targeted tokens, disregarding disposition."
         }
       },
       "Colors": {
