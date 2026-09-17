@@ -53,12 +53,28 @@ export async function executeCreatureDefenseRoll({
     const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
     if (!targetActor) continue;
 
-    const statKey = versus.toLowerCase(); // "guard" or "resist"
+    const allyOverride = behavior.params?.allyOverride || {};
+    const isOverrideEnabled = Boolean(allyOverride.enabled);
+    const isSelf = targetToken ? (creatureToken && (targetToken.id === creatureToken.id || targetToken === creatureToken)) : (targetActor && actor && targetActor.id === actor.id);
+    const isAlly = targetToken ? (TargetingHelper.matchesDisposition(targetToken, "ally", creatureToken) || (actor?.type === targetActor?.type)) : (actor?.type === targetActor?.type);
+    const isSelfOrAlly = isSelf || isAlly;
+
+    let targetIsAttack = true;
+    let targetVersus = versus;
+    if (isOverrideEnabled && isSelfOrAlly) {
+      targetIsAttack = (allyOverride.actionType || "support") !== "support";
+      targetVersus = allyOverride.versus || "10";
+    }
+
+    const statKey = targetVersus.toLowerCase(); // "guard" or "resist"
     const tokenName = DeedBehaviorUtils.getTokenDisplayName(targetToken);
     let defTotal = 10;
     let diceResult = 10;
 
-    if (targetActor.type === "creature") {
+    if (!targetIsAttack || targetVersus === "10" || !targetVersus) {
+      defTotal = 10;
+      diceResult = 10;
+    } else if (targetActor.type === "creature") {
       // NPC vs NPC: compare creature DC vs target creature stat directly
       const totalDef = targetActor.system?.combat?.[statKey] ?? 10;
       const defEffBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");

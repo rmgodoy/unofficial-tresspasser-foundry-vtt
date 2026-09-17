@@ -18,6 +18,7 @@ export const BEHAVIOR_ICONS = {
   healTarget: "fa-heart",
   grantRecovery: "fa-shield-halved",
   applyEffects: "fa-wand-magic-sparkles",
+  modifyEffects: "fa-repeat",
   spawnTerrain: "fa-mountain",
   moveTerrain: "fa-arrows-up-down-left-right",
   moveSource: "fa-person-running",
@@ -277,6 +278,7 @@ export class GraphNode {
       else if (portName === "areaRef") sourceId = p.areaBehaviorId;
       else if (portName === "terrainRef") sourceId = p.terrainBehaviorId;
       else if (portName === "source") sourceId = p.sourceBehaviorId;
+      else if (portName === "effectRef") sourceId = p.referencedNodeId;
     }
     if (!sourceId) return null;
 
@@ -295,7 +297,12 @@ export class GraphNode {
    */
   updatePortBadges() {
     if (!this.element) return;
-    const refRows = this.element.querySelectorAll(".port-row-ref");
+    // Clean up any extraneous badges on output ports
+    const rightBadges = this.element.querySelectorAll(".graph-ports-right .port-ref-badge");
+    for (const b of rightBadges) b.remove();
+
+    // Only display incoming reference badges on input ports
+    const refRows = this.element.querySelectorAll(".graph-ports-left .port-row-ref");
     for (const row of refRows) {
       const pin = row.querySelector(".graph-port");
       const portName = pin?.dataset.portName;

@@ -45,6 +45,9 @@ export async function handleDeedActionRequest(payload, senderId) {
       case "applyEffects":
         result = await _handleApplyEffects(data);
         break;
+      case "modifyEffects":
+        result = await _handleModifyEffects(data);
+        break;
       case "spawnTerrain":
         result = await _handleSpawnTerrain(data);
         break;
@@ -273,4 +276,43 @@ async function _handleSetCombatantFlag(data) {
     return true;
   }
   return false;
+}
+
+async function _handleModifyEffects(data) {
+  const actor = game.actors.get(data.actorId);
+  if (!actor) return null;
+
+  const { operation, deleteItemId, createItemData, itemId, updates } = data;
+
+  if (operation === "invert") {
+    if (deleteItemId) {
+      const existing = actor.items.get(deleteItemId);
+      if (existing) await existing.delete();
+    }
+    if (createItemData) {
+      const created = await actor.createEmbeddedDocuments("Item", [createItemData]);
+      return { createdId: created[0]?.id || null };
+    }
+    return true;
+  }
+
+  if (operation === "update" && itemId && updates) {
+    const item = actor.items.get(itemId);
+    if (item) {
+      await item.update(updates);
+      return true;
+    }
+    return false;
+  }
+
+  if (operation === "delete" && itemId) {
+    const item = actor.items.get(itemId);
+    if (item) {
+      await item.delete();
+      return true;
+    }
+    return false;
+  }
+
+  return true;
 }

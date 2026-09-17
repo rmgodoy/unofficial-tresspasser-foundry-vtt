@@ -15,6 +15,7 @@ export const BEHAVIOR_TYPES = [
   "healTarget",
   "grantRecovery",
   "applyEffects",
+  "modifyEffects",
   "spawnTerrain",
   "moveTerrain",
   "moveSource",

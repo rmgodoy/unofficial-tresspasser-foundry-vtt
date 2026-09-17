@@ -41,6 +41,9 @@ export function getNodeSummary(node, getIncomingReference) {
         const vsLabel = params.versus === "10" ? "10" : (game.i18n.localize(`TRESPASSER.Sheet.Combat.${params.versus}`) || params.versus);
         parts.push(`vs ${vsLabel}`);
       }
+      if (params.allyOverride?.enabled) {
+        parts.push(game.i18n.localize("TRESPASSER.Sheet.Deed.Params.AllyOverrideTag") || "Ally: Support vs 10");
+      }
       if (params.branchingMode === "hitOrSpark") {
         parts.push(game.i18n.localize("TRESPASSER.Sheet.Deed.Params.HitOrSparkTag") || "Hit/Spark");
       }
@@ -132,6 +135,13 @@ export function getNodeSummary(node, getIncomingReference) {
     case "applyEffects": {
       const effLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Effects") || "effects";
       return params.effects?.length ? `<span class="summary-tag">${params.effects.length} ${effLabel}</span>` : `<span class="summary-muted">—</span>`;
+    }
+    case "modifyEffects": {
+      const op = params.operation || "invert";
+      const opLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Params.ModifyOp.${op}`) || op;
+      const filter = params.effectFilter || "hasOpposite";
+      const deltaStr = (op === "increase" || op === "decrease") ? ` ${op === "increase" ? "+" : "-"}${params.intensityDelta ?? 1}` : "";
+      return `<span class="summary-tag">${opLabel}${deltaStr} (${filter})</span>`;
     }
     case "condition": {
       const condType = params.conditionType || "hasState";

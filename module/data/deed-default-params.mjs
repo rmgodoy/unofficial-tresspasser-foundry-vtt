@@ -23,7 +23,17 @@ export const DEFAULT_PARAMS = {
     rollBehaviorId: "",
     usePowerSparks: false
   },
-  rollAccuracy: { actionType: "attack", abilityType: "innate", versus: "Guard", branchingMode: "hitThenSpark" },
+  rollAccuracy: {
+    actionType: "attack",
+    abilityType: "innate",
+    versus: "Guard",
+    branchingMode: "hitThenSpark",
+    allyOverride: {
+      enabled: false,
+      actionType: "support",
+      versus: "10"
+    }
+  },
   applyDamage: {
     expression: "",
     rollBehaviorId: "",
@@ -34,6 +44,15 @@ export const DEFAULT_PARAMS = {
   applyEffects: {
     effects: [],
     appliesWeaponEffects: false
+  },
+  modifyEffects: {
+    operation: "invert",
+    effectFilter: "hasOpposite",
+    specificStateId: "",
+    choiceMode: "choose_one",
+    intensityDelta: 1,
+    referencedNodeId: "",
+    targetScope: "targets"
   },
   spawnTerrain: {
     terrainUuid: "",

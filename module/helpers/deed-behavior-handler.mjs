@@ -8,6 +8,7 @@ import { ApplyDamageBehavior } from "./deed-behaviors/apply-damage.mjs";
 import { HealTargetBehavior } from "./deed-behaviors/heal-target.mjs";
 import { GrantRecoveryBehavior } from "./deed-behaviors/grant-recovery.mjs";
 import { ApplyEffectsBehavior } from "./deed-behaviors/apply-effects.mjs";
+import { ModifyEffectsBehavior } from "./deed-behaviors/modify-effects.mjs";
 import { SpawnTerrainBehavior } from "./deed-behaviors/spawn-terrain.mjs";
 import { MoveTerrainBehavior } from "./deed-behaviors/move-terrain.mjs";
 import { MoveSourceBehavior } from "./deed-behaviors/move-source.mjs";
@@ -48,6 +49,7 @@ export class DeedBehaviorHandler {
         case "grantRecovery":
         case "grantRecoveryToTarget": return GrantRecoveryBehavior.execute(behavior, context, actor, item, phaseKey);
         case "applyEffects":     return ApplyEffectsBehavior.execute(behavior, context, actor, item, phaseKey);
+        case "modifyEffects":    return ModifyEffectsBehavior.execute(behavior, context, actor, item, phaseKey);
         case "spawnTerrain":     return SpawnTerrainBehavior.execute(behavior, context, actor, item, phaseKey);
         case "moveTerrain":      return MoveTerrainBehavior.execute(behavior, context, item);
         case "moveSource":       return MoveSourceBehavior.execute(behavior, context, actor);

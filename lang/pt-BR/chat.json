@@ -144,6 +144,15 @@
         "IntensityUpdated": "Atualizou intensidade de {effect} para {intensity} (+{potency} Potência).",
         "FromSource": " (de {source})"
       },
+      "ModifyEffect": {
+        "Inverted": "Alterou {oldEffect} de {target} para {newEffect} (Intensidade {intensity}).",
+        "Increased": "Aumentou intensidade de {effect} em {target} em +{delta} (agora Intensidade {newIntensity}).",
+        "Decreased": "Diminuiu intensidade de {effect} em {target} em -{delta} (agora Intensidade {newIntensity}).",
+        "RemovedByReduction": "Reduziu a intensidade de {effect} em {target} a 0 e o removeu.",
+        "Removed": "Removeu {effect} de {target}.",
+        "SetIntensity": "Definiu a intensidade de {effect} em {target} para {intensity}.",
+        "NoEligibleStates": "Nenhum estado elegível encontrado em {target} para modificar."
+      },
       "Terrain": {
         "Spawned": "Terreno \"{terrain}\" criado no tabuleiro.",
         "SpawnedWithIntensity": "Terreno \"{terrain}\" criado no tabuleiro com intensidade {intensity}.",

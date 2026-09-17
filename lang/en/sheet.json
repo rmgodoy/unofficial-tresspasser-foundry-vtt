@@ -330,6 +330,7 @@
             "grantRecovery": "Grant Recovery to Target",
             "grantRecoveryToTarget": "Grant Recovery to Target",
             "applyEffects": "Apply Effects to Target",
+            "modifyEffects": "Modify Target Effects",
             "spawnTerrain": "Spawn Terrain",
             "moveTerrain": "Move Terrain",
             "moveSource": "Move Source Actor",
@@ -399,6 +400,8 @@
             "ResultRef": "Result Reference",
             "Source": "Source",
             "SourceRef": "Source Reference",
+            "Effect": "Effect",
+            "EffectRef": "Effect Reference",
             "ReferencedRollTooltip": "From roll #{id}: {formula}",
             "ReferencedAreaTooltip": "From area #{id}: {summary}",
             "ReferencedTerrainTooltip": "From terrain #{id}: {name}",
@@ -474,6 +477,40 @@
           "BranchingModeHitThenSpark": "Execute Hit and then Spark (Default)",
           "BranchingModeHitOrSpark": "Execute Hit or Spark",
           "HitOrSparkTag": "Hit/Spark",
+          "AllyOverride": "Treat Ally / Self as Support vs 10",
+          "AllyActionType": "Ally Action Type",
+          "AllyVersus": "Ally Versus",
+          "AllyOverrideTag": "Ally: Support vs 10",
+          "ModifyEffectsHint": "Modifies active effects/states on targets, such as inverting to opposite state, increasing/decreasing intensity, or removing.",
+          "Operation": "Operation",
+          "EffectFilter": "Effect Filter",
+          "SpecificState": "Specific State ID",
+          "SpecificStatePlaceholder": "e.g. compendium-id or status-id",
+          "ChoiceMode": "Choice Mode",
+          "TargetScope": "Target Scope",
+          "IntensityDelta": "Intensity Delta / Value",
+          "ModifyOp": {
+            "invert": "Invert (Opposite State)",
+            "increase": "Increase Intensity",
+            "decrease": "Decrease Intensity",
+            "remove": "Remove State",
+            "setIntensity": "Set Intensity"
+          },
+          "EffectFilterChoices": {
+            "hasOpposite": "States with Opposite",
+            "all": "All Active States",
+            "referenced": "Referenced State",
+            "specific": "Specific State"
+          },
+          "ChoiceModeChoices": {
+            "choose_one": "Choose One State",
+            "choose_multiple": "Choose Multiple (Dialog)",
+            "all_matching": "All Matching States"
+          },
+          "TargetScopeChoices": {
+            "targets": "Targets",
+            "self": "Self (Caster)"
+          },
           "RollAccuracyHint": "Executes the accuracy check. Attributes default to the deed's Details, but can be overridden below. Branches on Hit, Miss, Spark, or Always.",
           "StartHint": "Root entry point for deed execution. Follows the Out flow connection.",
           "SwitchHint": "Switches between dynamic input branches based on the result from the connected source node, forwarding the winning node to the output.",

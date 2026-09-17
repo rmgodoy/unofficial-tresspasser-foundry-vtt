@@ -63,6 +63,9 @@ export function createPortRow(nodeId, direction, portName, portType, portElement
   } else if (portName === "source") {
     portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Source") || "Source";
     tooltip = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.SourceRef") || "Source Reference";
+  } else if (portName === "effectRef") {
+    portLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Effect") || "Effect";
+    tooltip = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.EffectRef") || "Effect Reference";
   }
 
   pinEl.setAttribute("title", tooltip);

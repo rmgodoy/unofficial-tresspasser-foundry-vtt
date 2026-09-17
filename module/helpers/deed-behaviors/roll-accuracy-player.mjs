@@ -106,20 +106,43 @@ export async function executePlayerAccuracyRoll({
   let maxSparks = 0;
   const results = [];
 
+  const baseVersusLabel = (versus === "Guard" || versus === "Resist")
+    ? (game.i18n.localize(`TRESPASSER.Sheet.Combat.${versus}`) || versus)
+    : (game.i18n.localize("TRESPASSER.Terms.DC") || "CD");
+
   for (const targetToken of actualTargets) {
     const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
     const tokenName = targetToken ? DeedBehaviorUtils.getTokenDisplayName(targetToken) : null;
     let dc = 10;
+    let targetVersusLabel = baseVersusLabel;
 
-    // Support deeds automatically have DC 10
-    if (!isAttack || versus === "10" || !versus) {
+    // Check ally/self override
+    const allyOverride = behavior.params?.allyOverride || {};
+    const isOverrideEnabled = Boolean(allyOverride.enabled);
+    const isSelf = targetToken ? (sourceToken && (targetToken.id === sourceToken.id || targetToken === sourceToken)) : (targetActor && actor && targetActor.id === actor.id);
+    const isAlly = targetToken ? (TargetingHelper.matchesDisposition(targetToken, "ally", sourceToken) || (actor?.type === "character" && targetActor?.type === "character")) : (actor?.type === "character" && targetActor?.type === "character");
+    const isSelfOrAlly = isSelf || isAlly;
+
+    let targetIsAttack = isAttack;
+    let targetVersus = versus;
+
+    if (isOverrideEnabled && isSelfOrAlly) {
+      targetIsAttack = (allyOverride.actionType || "support") !== "support";
+      targetVersus = allyOverride.versus || "10";
+    }
+
+    if (!targetIsAttack || targetVersus === "10" || !targetVersus) {
       dc = 10;
+      targetVersusLabel = (isOverrideEnabled && isSelfOrAlly && isAttack)
+        ? `${game.i18n.localize("TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Support") || "Support"} 10`
+        : (game.i18n.localize("TRESPASSER.Terms.DC") || "CD");
     } else if (targetActor) {
-      const statKey = versus.toLowerCase(); // "guard" or "resist"
+      const statKey = targetVersus.toLowerCase(); // "guard" or "resist"
       const totalDef = targetActor.system?.combat?.[statKey] ?? 10;
       const effBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");
       const targetCD = totalDef + effBonus;
       dc = targetActor.type === "character" ? targetCD + 10 : targetCD;
+      targetVersusLabel = game.i18n.localize(`TRESPASSER.Sheet.Combat.${targetVersus}`) || targetVersus;
     }
 
     let isHit = rollTotal >= dc;
@@ -150,7 +173,9 @@ export async function executePlayerAccuracyRoll({
       sparks,
       shadows,
       rollTotal,
-      dc
+      dc,
+      targetVersusLabel,
+      isAllyOverride: isOverrideEnabled && isSelfOrAlly
     });
   }
 
@@ -162,18 +187,12 @@ export async function executePlayerAccuracyRoll({
 
   const rollHtml = await accRoll.render();
 
-  let versusLabel;
-  if (versus === "Guard" || versus === "Resist") {
-    versusLabel = game.i18n.localize(`TRESPASSER.Sheet.Combat.${versus}`) || versus;
-  } else {
-    versusLabel = game.i18n.localize("TRESPASSER.Terms.DC") || "CD";
-  }
-
   let resultsHtml = "";
   for (const res of results) {
+    const currentVersusLabel = res.targetVersusLabel || baseVersusLabel;
     const headerText = res.tokenName
-      ? `<strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs ${versusLabel}: ${res.dc})</span></strong>`
-      : `<span style="font-size: var(--fs-11);color:var(--trp-text-dim, #a09070); font-weight: bold;">(Roll: ${res.rollTotal} vs ${versusLabel}: ${res.dc})</span>`;
+      ? `<strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs ${currentVersusLabel}: ${res.dc})</span></strong>`
+      : `<span style="font-size: var(--fs-11);color:var(--trp-text-dim, #a09070); font-weight: bold;">(Roll: ${res.rollTotal} vs ${currentVersusLabel}: ${res.dc})</span>`;
 
     const hitLabel = res.isHit
       ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!")

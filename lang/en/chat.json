@@ -144,6 +144,15 @@
         "IntensityUpdated": "Updated {effect} intensity to {intensity} (+{potency} Potency).",
         "FromSource": " (from {source})"
       },
+      "ModifyEffect": {
+        "Inverted": "Changed {target}'s {oldEffect} to {newEffect} (Intensity {intensity}).",
+        "Increased": "Increased {target}'s {effect} intensity by +{delta} (now Intensity {newIntensity}).",
+        "Decreased": "Decreased {target}'s {effect} intensity by -{delta} (now Intensity {newIntensity}).",
+        "RemovedByReduction": "Reduced {target}'s {effect} to 0 intensity and removed it.",
+        "Removed": "Removed {effect} from {target}.",
+        "SetIntensity": "Set {target}'s {effect} intensity to {intensity}.",
+        "NoEligibleStates": "No eligible states found on {target} to modify."
+      },
       "Terrain": {
         "Spawned": "Spawned terrain \"{terrain}\" on canvas.",
         "SpawnedWithIntensity": "Spawned terrain \"{terrain}\" on canvas with intensity {intensity}.",

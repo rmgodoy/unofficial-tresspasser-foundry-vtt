@@ -34,16 +34,19 @@ export async function renderBehaviorParamsHtml({ node, nodeIndex, sheet, editor,
   const refAreaId = findRef("areaRef", p.areaBehaviorId);
   const refTerrainId = findRef("terrainRef", p.terrainBehaviorId);
   const refSourceId = findRef("source", p.sourceBehaviorId);
+  const refEffectId = findRef("effectRef", p.referencedNodeId);
   const refRollNode = getNode(refRollId);
   const refRollExpr = refRollNode?.params?.expression?.trim() || "";
   const refAreaSummary = formatAreaSummary(getNode(refAreaId));
   const refTerrainName = getNode(refTerrainId)?.params?.terrainName || "";
   const refSourceNode = getNode(refSourceId);
+  const refEffectNode = getNode(refEffectId);
 
   const hasRefRoll = Boolean(refRollId && refRollNode);
   const hasRefArea = Boolean(refAreaId && getNode(refAreaId));
   const hasRefTerrain = Boolean(refTerrainId && getNode(refTerrainId));
   const hasRefSource = Boolean(refSourceId && refSourceNode);
+  const hasRefEffect = Boolean(refEffectId && refEffectNode);
 
   node.params = node.params || {};
   if (hasRefArea) {
@@ -55,6 +58,10 @@ export async function renderBehaviorParamsHtml({ node, nodeIndex, sheet, editor,
   if (hasRefRoll) node.params.rollBehaviorId = refRollId;
   if (hasRefTerrain) node.params.terrainBehaviorId = refTerrainId;
   if (hasRefSource) node.params.sourceBehaviorId = refSourceId;
+  if (hasRefEffect) {
+    node.params.referencedNodeId = refEffectId;
+    if (node.type === "modifyEffects") node.params.effectFilter = "referenced";
+  }
 
   let switchOptions = [];
   if (node.type === "switch" && refSourceNode) {
@@ -95,6 +102,7 @@ export async function renderBehaviorParamsHtml({ node, nodeIndex, sheet, editor,
     refAreaId, refAreaIdShort: refAreaId ? refAreaId.slice(0, 6) : "", refAreaSummary, hasRefArea,
     refTerrainId, refTerrainIdShort: refTerrainId ? refTerrainId.slice(0, 6) : "", refTerrainName, hasRefTerrain,
     refSourceId, refSourceIdShort: refSourceId ? refSourceId.slice(0, 6) : "", refSourceNodeType: refSourceNode?.type || "", hasRefSource,
+    refEffectId, refEffectIdShort: refEffectId ? refEffectId.slice(0, 6) : "", hasRefEffect,
     switchOptions,
     terrainHasLinkedEffect
   });

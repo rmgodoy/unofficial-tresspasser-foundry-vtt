@@ -28,6 +28,7 @@ export const REF_PORT_KEYS = [
   "areaRef",
   "terrainRef",
   "targetRef",
+  "effectRef",
   "result",
   "source"
 ];
@@ -93,6 +94,12 @@ export const NODE_PORT_CONFIG = {
     outputs: ["out"],
     refInputs: [],
     refOutputs: []
+  },
+  modifyEffects: {
+    inputs: ["in"],
+    outputs: ["out"],
+    refInputs: ["effectRef"],
+    refOutputs: ["effectRef"]
   },
   spawnTerrain: {
     inputs: ["in"],

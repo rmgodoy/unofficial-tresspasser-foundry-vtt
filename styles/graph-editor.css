@@ -248,6 +248,7 @@
   flex-direction: column;
   gap: 8px;
   z-index: 5;
+  flex-shrink: 0;
 }
 
 .graph-ports-left {
@@ -352,18 +353,22 @@
 /* Node Center Content */
 .graph-node-content {
   flex: 1;
-  padding: 0 8px;
+  min-width: 0;
+  padding: 0 6px;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   gap: 4px;
+  overflow: hidden;
 }
 
 .node-summary {
   font-size: var(--fs-11);
   color: var(--trp-text, #ddd0aa);
   text-align: center;
+  word-break: break-word;
+  max-width: 100%;
 }
 
 .node-summary .summary-tag {

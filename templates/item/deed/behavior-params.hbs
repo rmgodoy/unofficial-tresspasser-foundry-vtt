@@ -23,6 +23,12 @@
         <i class="fas fa-link"></i> #{{refSourceIdShort}} ({{refSourceNodeType}})
       </span>
     </div>
+  {{else if hasRefEffect}}
+    <div class="ref-chip-header">
+      <span class="ref-chip" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedSource' id=refEffectId}}">
+        <i class="fas fa-link"></i> #{{refEffectIdShort}}
+      </span>
+    </div>
   {{/if}}
 
   {{#if (eq type "start")}}
@@ -81,6 +87,38 @@
         </select>
       </div>
     </div>
+
+    <div class="behavior-checkboxes-row" style="margin-top: 6px;">
+      <div class="field-row checkbox-row">
+        <input type="checkbox"
+               name="system.graph.nodes.{{index}}.params.allyOverride.enabled"
+               {{#if params.allyOverride.enabled}}checked{{/if}}
+               id="deed-ally-override-{{id}}"/>
+        <label for="deed-ally-override-{{id}}">
+          {{localize "TRESPASSER.Sheet.Deed.Params.AllyOverride"}}
+        </label>
+      </div>
+    </div>
+
+    {{#if params.allyOverride.enabled}}
+      <div class="param-row-grid" style="margin-top: 4px; padding: 6px; background: rgba(0,0,0,0.2); border-radius: 4px;">
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.AllyActionType"}}</label>
+          <select name="system.graph.nodes.{{index}}.params.allyOverride.actionType">
+            <option value="support" {{#if (or (eq params.allyOverride.actionType "support") (not params.allyOverride.actionType))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Support"}}</option>
+            <option value="attack" {{#if (eq params.allyOverride.actionType "attack")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Attack"}}</option>
+          </select>
+        </div>
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.AllyVersus"}}</label>
+          <select name="system.graph.nodes.{{index}}.params.allyOverride.versus">
+            <option value="10" {{#if (or (eq params.allyOverride.versus "10") (not params.allyOverride.versus))}}selected{{/if}}>10</option>
+            <option value="Guard" {{#if (eq params.allyOverride.versus "Guard")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Guard"}}</option>
+            <option value="Resist" {{#if (eq params.allyOverride.versus "Resist")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Combat.Resist"}}</option>
+          </select>
+        </div>
+      </div>
+    {{/if}}
   {{/if}}
 
   {{#if (eq type "selectTarget")}}
@@ -358,6 +396,76 @@
           {{/each}}
         </div>
       {{/if}}
+    </div>
+  {{/if}}
+
+  {{#if (eq type "modifyEffects")}}
+    <div class="behavior-hint-box">
+      <p class="hint-title"><i class="fas fa-repeat"></i> {{localize "TRESPASSER.Sheet.Deed.Behavior.Type.modifyEffects"}}</p>
+      <p class="hint-text">{{localize "TRESPASSER.Sheet.Deed.Params.ModifyEffectsHint"}}</p>
+    </div>
+
+    {{#if hasRefEffect}}
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.referencedNodeId" value="{{params.referencedNodeId}}"/>
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.effectFilter" value="referenced"/>
+    {{/if}}
+
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.Operation"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.operation">
+          <option value="invert" {{#if (or (eq params.operation "invert") (not params.operation))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ModifyOp.invert"}}</option>
+          <option value="increase" {{#if (eq params.operation "increase")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ModifyOp.increase"}}</option>
+          <option value="decrease" {{#if (eq params.operation "decrease")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ModifyOp.decrease"}}</option>
+          <option value="remove" {{#if (eq params.operation "remove")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ModifyOp.remove"}}</option>
+          <option value="setIntensity" {{#if (eq params.operation "setIntensity")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ModifyOp.setIntensity"}}</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.EffectFilter"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.effectFilter" {{#if hasRefEffect}}disabled class="is-ref-locked" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ControlledByReference'}}"{{/if}}>
+          <option value="hasOpposite" {{#if (and (or (eq params.effectFilter "hasOpposite") (not params.effectFilter)) (not hasRefEffect))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.EffectFilterChoices.hasOpposite"}}</option>
+          <option value="all" {{#if (and (eq params.effectFilter "all") (not hasRefEffect))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.EffectFilterChoices.all"}}</option>
+          <option value="referenced" {{#if (or (eq params.effectFilter "referenced") hasRefEffect)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.EffectFilterChoices.referenced"}}</option>
+          <option value="specific" {{#if (and (eq params.effectFilter "specific") (not hasRefEffect))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.EffectFilterChoices.specific"}}</option>
+        </select>
+      </div>
+
+      {{#if (and (eq params.effectFilter "specific") (not hasRefEffect))}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.SpecificState"}}</label>
+          <input type="text" name="system.graph.nodes.{{index}}.params.specificStateId"
+                 value="{{params.specificStateId}}"
+                 placeholder="{{localize 'TRESPASSER.Sheet.Deed.Params.SpecificStatePlaceholder'}}"/>
+        </div>
+      {{/if}}
+
+      {{#if (or (eq params.operation "increase") (eq params.operation "decrease") (eq params.operation "setIntensity") (eq params.operation "invert"))}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.IntensityDelta"}}</label>
+          <input type="number" name="system.graph.nodes.{{index}}.params.intensityDelta"
+                 value="{{#if (or params.intensityDelta (eq params.intensityDelta 0))}}{{params.intensityDelta}}{{else}}1{{/if}}"
+                 min="0" step="1" class="select-on-focus"/>
+        </div>
+      {{/if}}
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceMode"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.choiceMode">
+          <option value="choose_one" {{#if (or (eq params.choiceMode "choose_one") (not params.choiceMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceModeChoices.choose_one"}}</option>
+          <option value="choose_multiple" {{#if (eq params.choiceMode "choose_multiple")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceModeChoices.choose_multiple"}}</option>
+          <option value="all_matching" {{#if (eq params.choiceMode "all_matching")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceModeChoices.all_matching"}}</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetScope"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.targetScope">
+          <option value="targets" {{#if (or (eq params.targetScope "targets") (not params.targetScope))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetScopeChoices.targets"}}</option>
+          <option value="self" {{#if (eq params.targetScope "self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetScopeChoices.self"}}</option>
+        </select>
+      </div>
     </div>
   {{/if}}
 

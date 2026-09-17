@@ -330,6 +330,7 @@
             "grantRecovery": "Conceder Recuperação ao Alvo",
             "grantRecoveryToTarget": "Conceder Recuperação ao Alvo",
             "applyEffects": "Aplicar Efeitos ao Alvo",
+            "modifyEffects": "Modificar Efeitos do Alvo",
             "spawnTerrain": "Criar Terreno",
             "moveTerrain": "Mover Terreno",
             "moveSource": "Mover Ator de Origem",
@@ -399,6 +400,8 @@
             "ResultRef": "Referência de Resultado",
             "Source": "Origem",
             "SourceRef": "Referência de Origem",
+            "Effect": "Efeito",
+            "EffectRef": "Referência de Efeito",
             "ReferencedRollTooltip": "Da rolagem #{id}: {formula}",
             "ReferencedAreaTooltip": "Da área #{id}: {summary}",
             "ReferencedTerrainTooltip": "Do terreno #{id}: {name}",
@@ -474,6 +477,40 @@
           "BranchingModeHitThenSpark": "Executar Acerto e depois Centelha (Padrão)",
           "BranchingModeHitOrSpark": "Executar Acerto ou Centelha",
           "HitOrSparkTag": "Acerto/Centelha",
+          "AllyOverride": "Tratar Aliado / Próprio como Suporte vs 10",
+          "AllyActionType": "Tipo de Ação no Aliado",
+          "AllyVersus": "Contra (Aliado)",
+          "AllyOverrideTag": "Aliado: Suporte vs 10",
+          "ModifyEffectsHint": "Modifica efeitos/estados ativos nos alvos, como inverter para o estado oposto, aumentar/diminuir intensidade ou remover.",
+          "Operation": "Operação",
+          "EffectFilter": "Filtro de Efeitos",
+          "SpecificState": "ID do Estado Específico",
+          "SpecificStatePlaceholder": "ex: compendium-id ou status-id",
+          "ChoiceMode": "Modo de Escolha",
+          "TargetScope": "Escopo do Alvo",
+          "IntensityDelta": "Variação / Valor de Intensidade",
+          "ModifyOp": {
+            "invert": "Inverter (Estado Oposto)",
+            "increase": "Aumentar Intensidade",
+            "decrease": "Diminuir Intensidade",
+            "remove": "Remover Estado",
+            "setIntensity": "Definir Intensidade"
+          },
+          "EffectFilterChoices": {
+            "hasOpposite": "Estados com Oposto",
+            "all": "Todos os Estados Ativos",
+            "referenced": "Estado Referenciado",
+            "specific": "Estado Específico"
+          },
+          "ChoiceModeChoices": {
+            "choose_one": "Escolher Um Estado",
+            "choose_multiple": "Escolher Múltiplos (Janela)",
+            "all_matching": "Todos os Estados Correspondentes"
+          },
+          "TargetScopeChoices": {
+            "targets": "Alvos",
+            "self": "Próprio (Conjurador)"
+          },
           "RollAccuracyHint": "Executa a verificação de acurácia. Os atributos usam os valores padrão dos Detalhes da habilidade, mas podem ser substituídos abaixo. Ramifica em Acerto, Erro, Centelha ou Sempre.",
           "StartHint": "Ponto de entrada para execução da habilidade. Segue a conexão de fluxo de Saída.",
           "SwitchHint": "Alterna entre ramos de entrada dinâmicos com base no resultado do nó de origem conectado, encaminhando o nó vencedor para a saída.",

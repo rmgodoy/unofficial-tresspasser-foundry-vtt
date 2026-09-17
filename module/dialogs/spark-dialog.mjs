@@ -27,35 +27,29 @@ export function getEligibleSparkTypes(item, context = {}, actor = null) {
   // B. Check direct onSpark flow connections from rollAccuracy or other nodes
   if (!hasDeedSpark) {
     const onSparkConns = connections.filter(c => c.type !== "reference" && c.sourcePort === "onSpark");
-    const onHitConns = connections.filter(c => c.type !== "reference" && c.sourcePort === "onHit");
-
-    for (const sparkConn of onSparkConns) {
-      const isSharedWithHit = onHitConns.some(
-        hConn => hConn.sourceId === sparkConn.sourceId && hConn.targetId === sparkConn.targetId
-      );
-      if (!isSharedWithHit) {
-        hasDeedSpark = true;
-        break;
-      }
+    if (onSparkConns.length > 0) {
+      hasDeedSpark = true;
     }
   }
 
-  // C. Check switch nodes: only distinct if onSpark input is plugged in and different from onHit
+  // C. Check switch nodes: onSpark input plugged in
   if (!hasDeedSpark) {
     const switchNodes = nodes.filter(n => n.type === "switch");
     for (const swNode of switchNodes) {
       const swConns = connections.filter(c => c.targetId === swNode.id);
-      const hitSourceConn = swConns.find(c => c.targetPort === "onHit");
-      const sparkSourceConn = swConns.find(c => c.targetPort === "onSpark");
-
-      if (sparkSourceConn && (!hitSourceConn || sparkSourceConn.sourceId !== hitSourceConn.sourceId)) {
+      if (swConns.some(c => c.targetPort === "onSpark")) {
         hasDeedSpark = true;
         break;
       }
     }
   }
 
-  // D. Legacy non-graph fallback (if graph is empty)
+  // D. Phase description check
+  if (!hasDeedSpark && item.system?.phases?.spark?.description?.trim() && !item.system?.phases?.spark?.skipPhase) {
+    hasDeedSpark = true;
+  }
+
+  // E. Legacy non-graph fallback (if graph is empty)
   if (!hasDeedSpark && nodes.length === 0) {
     const legacySpark = item.system?.legacyPhases?.spark || item.system?.effects?.spark;
     if (legacySpark?.appliesWeaponEffects || legacySpark?.appliedEffects?.length > 0 || legacySpark?.damage?.trim()) {
@@ -71,14 +65,15 @@ export function getEligibleSparkTypes(item, context = {}, actor = null) {
   const hasPotency = nodes.some(n =>
     n.type === "grantRecovery" ||
     n.type === "applyEffects" ||
+    n.type === "modifyEffects" ||
     n.type === "spawnTerrain"
   ) || (nodes.length === 0 && Boolean(item.system?.effects?.hit?.appliedEffects?.length > 0 || item.system?.effects?.spark?.appliedEffects?.length > 0));
 
   // 4. Detect Power (Damage)
   const hasPower = nodes.some(n =>
     n.type === "applyDamage" ||
-    (n.type === "roll" && (n.params?.usePowerSparks || n.params?.expression))
-  ) || item.system?.actionType === "attack" || (nodes.length === 0 && Boolean(item.system?.effects?.hit?.damage?.trim() || item.system?.effects?.base?.damage?.trim()));
+    (n.type === "roll" && (n.params?.usePowerSparks || (n.params?.expression && !n.params?.expression?.includes?.("d20"))))
+  ) || (nodes.length === 0 && Boolean(item.system?.effects?.hit?.damage?.trim() || item.system?.effects?.base?.damage?.trim()));
 
   const types = [];
   if (hasDeedSpark) {
@@ -110,13 +105,21 @@ export function getEligibleSparkTypes(item, context = {}, actor = null) {
     });
   }
 
-  // Fallback to power if none detected
+  // Fallback to Deed Spark or Potency if none detected
   if (types.length === 0) {
-    types.push({
-      key: "power",
-      label: game.i18n.localize("TRESPASSER.Dialog.Spark.Power"),
-      desc: game.i18n.localize("TRESPASSER.Dialog.Spark.PowerDesc")
-    });
+    if (hasDeedSpark) {
+      types.push({
+        key: "deed",
+        label: game.i18n.localize("TRESPASSER.Dialog.Spark.DeedSpark"),
+        desc: game.i18n.localize("TRESPASSER.Dialog.Spark.DeedSparkDesc")
+      });
+    } else {
+      types.push({
+        key: "potency",
+        label: game.i18n.localize("TRESPASSER.Dialog.Spark.Potency"),
+        desc: game.i18n.localize("TRESPASSER.Dialog.Spark.PotencyDesc")
+      });
+    }
   }
 
   return types;

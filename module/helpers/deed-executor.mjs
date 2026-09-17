@@ -255,6 +255,8 @@ export class DeedExecutor {
         node.params.areaBehaviorId = refNode.id;
       } else if (refConn.targetPort === "terrainRef") {
         node.params.terrainBehaviorId = refNode.id;
+      } else if (refConn.targetPort === "effectRef") {
+        node.params.referencedNodeId = refNode.id;
       }
     }
     return true;
@@ -316,38 +318,42 @@ export class DeedExecutor {
       const condResult = result || { passed: false, matchedTokens: [], unmatchedTokens: [] };
       const origTargets = this.context.targets ? [...this.context.targets] : [];
       for (const conn of outgoing) {
+        const branchVisited = new Set(visited);
         if (conn.sourcePort === "onTrue" && condResult.passed) {
           if (condResult.matchedTokens && condResult.matchedTokens.length > 0) {
             this.context.targets = [...condResult.matchedTokens];
           }
-          const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, effectivePhase);
+          const cancelled = await this._traverseNode(conn.targetId, branchVisited, conn.sourcePort, effectivePhase);
           this.context.targets = origTargets;
           if (cancelled) return true;
         } else if (conn.sourcePort === "onFalse" && (!condResult.passed || (condResult.unmatchedTokens && condResult.unmatchedTokens.length > 0))) {
           if (condResult.unmatchedTokens && condResult.unmatchedTokens.length > 0) {
             this.context.targets = [...condResult.unmatchedTokens];
           }
-          const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, effectivePhase);
+          const cancelled = await this._traverseNode(conn.targetId, branchVisited, conn.sourcePort, effectivePhase);
           this.context.targets = origTargets;
           if (cancelled) return true;
         } else if (conn.sourcePort === "out" || conn.sourcePort === "always") {
-          const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, effectivePhase);
+          const cancelled = await this._traverseNode(conn.targetId, branchVisited, conn.sourcePort, effectivePhase);
           if (cancelled) return true;
         }
       }
     } else if (node.type === "switch") {
       const { branchSourceNode } = await SwitchBehavior.resolveWinningBranch(node, this.context, this);
       if (branchSourceNode && !this._isResolved(branchSourceNode)) {
-        const cancelled = await this._traverseNode(branchSourceNode.id, visited, "in", effectivePhase);
+        const branchVisited = new Set(visited);
+        const cancelled = await this._traverseNode(branchSourceNode.id, branchVisited, "in", effectivePhase);
         if (cancelled) return true;
       }
       for (const conn of outgoing) {
-        const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, effectivePhase);
+        const branchVisited = new Set(visited);
+        const cancelled = await this._traverseNode(conn.targetId, branchVisited, conn.sourcePort, effectivePhase);
         if (cancelled) return true;
       }
     } else {
       for (const conn of outgoing) {
-        const cancelled = await this._traverseNode(conn.targetId, visited, conn.sourcePort, effectivePhase);
+        const branchVisited = new Set(visited);
+        const cancelled = await this._traverseNode(conn.targetId, branchVisited, conn.sourcePort, effectivePhase);
         if (cancelled) return true;
       }
     }

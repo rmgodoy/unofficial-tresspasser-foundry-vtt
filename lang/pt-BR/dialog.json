@@ -58,6 +58,12 @@
         "Content": "{user} deseja dar {item} para {target}. Você aceita?",
         "SelectTargetHint": "Selecione um personagem para receber o item:"
       },
+      "ModifyEffect": {
+        "Title": "Escolher Efeito em {target}",
+        "TitleInvert": "Inverter Estado em {target}",
+        "Prompt": "Escolha um estado ativo em {target} para modificar:",
+        "Becomes": "Torna-se: "
+      },
       "ItemType": {
         "Title": "Escolher Tipo de Item",
         "SelectTypeHint": "Selecione o tipo de item que deseja criar no inventário:"
