@@ -7,11 +7,47 @@
     <div class="bonus-details">
         <label>{{localize "TRESPASSER.Dialog.Roll.Bonuses"}}</label>
         <div class="bonuses-list">
-            {{#each bonuses}}
-                <div class="bonus-row">
-                    <span class="bonus-label">{{{formatDice this.label}}}</span>
-                    <span class="bonus-value">{{#if (gte this.value 0)}}+{{/if}}{{this.value}}</span>
-                </div>
+            {{#each bonuses as |bonus bonusIndex|}}
+                {{#if bonus.isAccordion}}
+                    <div class="bonus-accordion-group {{#if bonus.hasChildren}}has-children{{else}}empty-children{{/if}}" data-bonus-index="{{bonusIndex}}">
+                        <div class="bonus-row bonus-accordion-header {{#if bonus.hasChildren}}clickable{{/if}}" data-action="toggleAccordion" data-bonus-index="{{bonusIndex}}">
+                            <div class="bonus-label-wrap">
+                                {{#if bonus.hasChildren}}
+                                    <i class="fas fa-chevron-right accordion-chevron"></i>
+                                {{/if}}
+                                <span class="bonus-label">{{{formatDice bonus.label}}}</span>
+                            </div>
+                            <span class="bonus-value accordion-total" data-bonus-index="{{bonusIndex}}">{{#if (gte bonus.value 0)}}+{{/if}}{{bonus.value}}</span>
+                        </div>
+                        {{#if bonus.hasChildren}}
+                            <div class="bonus-accordion-content collapsed" data-bonus-index="{{bonusIndex}}">
+                                {{#each bonus.children as |child childIndex|}}
+                                    <div class="bonus-child-row {{#unless child.checked}}is-unchecked{{/unless}}" title="{{child.description}}">
+                                        <label class="child-checkbox-label">
+                                            <input type="checkbox" class="bonus-child-checkbox" data-parent-index="{{bonusIndex}}" data-child-index="{{childIndex}}" data-child-id="{{child.id}}" data-value="{{child.value}}" data-name="{{child.name}}" {{#if child.checked}}checked{{/if}} />
+                                            <span class="child-name">{{child.name}}</span>
+                                        </label>
+                                        <span class="child-value">{{#if (gte child.value 0)}}+{{/if}}{{child.value}}</span>
+                                    </div>
+                                {{/each}}
+                            </div>
+                        {{/if}}
+                    </div>
+                {{else}}
+                    <div class="bonus-row standard-bonus-row {{#unless bonus.checked}}is-unchecked{{/unless}}" data-bonus-index="{{bonusIndex}}">
+                        {{#if bonus.toggleable}}
+                            <label class="bonus-checkbox-label">
+                                <input type="checkbox" class="bonus-checkbox" data-bonus-index="{{bonusIndex}}" data-value="{{bonus.value}}" data-label="{{bonus.label}}" {{#if bonus.checked}}checked{{/if}} />
+                                <span class="bonus-label">{{{formatDice bonus.label}}}</span>
+                            </label>
+                        {{else}}
+                            <div class="bonus-static-label">
+                                <span class="bonus-label">{{{formatDice bonus.label}}}</span>
+                            </div>
+                        {{/if}}
+                        <span class="bonus-value">{{#if (gte bonus.value 0)}}+{{/if}}{{bonus.value}}</span>
+                    </div>
+                {{/if}}
             {{else}}
                 <div class="bonus-row empty">
                     <span class="bonus-label">{{localize "TRESPASSER.Global.Status.None"}}</span>
@@ -19,6 +55,7 @@
                 </div>
             {{/each}}
         </div>
+    </div>
 
     <div class="modifier-row">
         <div class="modifier-input">

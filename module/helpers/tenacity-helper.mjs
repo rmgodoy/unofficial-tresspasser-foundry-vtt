@@ -44,8 +44,8 @@ export async function promptTenacityRoll(actorId, cd) {
 
   const statKey = "tenacity";
   const statVal = actor.system.combat?.[statKey] ?? 0;
-  const effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, statKey, "use");
-  const baseVal = statVal - effectBonus;
+  const effectBonusEntry = TrespasserEffectsHelper.buildEffectBonusEntry(actor, statKey, "use");
+  const baseVal = statVal - (effectBonusEntry.value || 0);
   const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, statKey);
   const diceFormula = isAdv ? "2d20kh" : "1d20";
   const targetCD = parseInt(cd) || 10;
@@ -55,14 +55,15 @@ export async function promptTenacityRoll(actorId, cd) {
     showCD: true,
     cd: targetCD,
     bonuses: [
-      { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Tenacity"), value: baseVal },
-      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
+      { key: "baseTenacity", label: game.i18n.localize("TRESPASSER.Sheet.Combat.Tenacity"), value: baseVal, toggleable: true },
+      effectBonusEntry
     ]
   }, { title: game.i18n.localize("TRESPASSER.Chat.Combat.TenacityCheck") });
 
   if (!result) return;
 
-  let formula = `${diceFormula} + ${baseVal} + ${effectBonus} + ${result.modifier}`;
+  const activeBonusTotal = result.activeBonusTotal ?? (baseVal + (effectBonusEntry.value || 0));
+  let formula = `${diceFormula} + ${activeBonusTotal} + ${result.modifier}`;
   const roll = new foundry.dice.Roll(formula);
   await roll.evaluate();
 

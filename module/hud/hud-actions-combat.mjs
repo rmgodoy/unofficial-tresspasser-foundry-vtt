@@ -222,7 +222,8 @@ export async function executePrevail(hud) {
     }
   }
   const defaultCD = Math.min(20, 10 + intensity);
-  const prevailStat = hud._token.actor.system.combat?.prevail || 0;
+  const effectBonusEntry = TrespasserEffectsHelper.buildEffectBonusEntry(hud._token.actor, "prevail", "use");
+  const prevailStat = (hud._token.actor.system.combat?.prevail || 0) - (effectBonusEntry.value || 0);
   const apBonus = extraAP * 2;
 
   const isAdv = TrespasserEffectsHelper.hasAdvantage(hud._token.actor, "prevail");
@@ -233,14 +234,16 @@ export async function executePrevail(hud) {
     showCD: true,
     cd: defaultCD,
     bonuses: [
-      { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Prevail"), value: prevailStat },
-      { label: game.i18n.localize("TRESPASSER.HUD.Resource.ExtraAP"), value: apBonus }
+      { key: "basePrevail", label: game.i18n.localize("TRESPASSER.Sheet.Combat.Prevail"), value: prevailStat, toggleable: true },
+      { key: "apBonus", label: game.i18n.localize("TRESPASSER.HUD.Resource.ExtraAP"), value: apBonus, toggleable: true },
+      effectBonusEntry
     ]
   }, { title: game.i18n.format("TRESPASSER.Chat.Check.PrevailCheck", { name: stateItem.name }) });
 
   if (!result) return;
 
   await hud._token.actor.rollPrevail(stateId, extraAP, {
+    totalBonus: result.totalBonus,
     modifier: result.modifier,
     cd: result.cd
   });

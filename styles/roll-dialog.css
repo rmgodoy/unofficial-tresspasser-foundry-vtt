@@ -57,12 +57,17 @@
     border: 1px solid var(--trp-border-light);
     border-radius: 4px;
     padding: 4px 8px;
+    max-height: 220px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--trp-scrollbar) transparent;
 }
 
 .roll-dialog-content .bonus-row {
     display: flex;
     justify-content: space-between;
-    padding: 4px 0;
+    align-items: center;
+    padding: 5px 0;
     font-size: var(--fs-13);
     color: var(--trp-text);
     border-bottom: 1px solid var(--trp-border-light);
@@ -75,6 +80,145 @@
 .roll-dialog-content .bonus-row .bonus-value {
     color: var(--dialog-gold);
     font-weight: bold;
+}
+
+/* Bonus Checkboxes & Labels */
+.roll-dialog-content .bonus-checkbox-label,
+.roll-dialog-content .child-checkbox-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    margin-bottom: 0;
+    font-family: inherit;
+    font-size: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+    color: inherit;
+    pointer-events: auto !important;
+}
+
+.roll-dialog-content .bonus-static-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    user-select: none;
+    margin-bottom: 0;
+    font-family: inherit;
+    font-size: inherit;
+    letter-spacing: normal;
+    text-transform: none;
+    color: inherit;
+}
+
+.roll-dialog-content .bonus-checkbox,
+.roll-dialog-content .bonus-child-checkbox {
+    accent-color: var(--trp-gold);
+    width: 14px;
+    height: 14px;
+    cursor: pointer;
+    margin: 0;
+    pointer-events: auto !important;
+}
+
+/* Accordion Styling */
+.roll-dialog-content .bonus-accordion-group {
+    border-bottom: 1px solid var(--trp-border-light);
+}
+
+.roll-dialog-content .bonus-accordion-group:last-child {
+    border-bottom: none;
+}
+
+.roll-dialog-content .bonus-accordion-group .bonus-accordion-header {
+    border-bottom: none;
+}
+
+.roll-dialog-content .bonus-accordion-header.clickable {
+    cursor: pointer;
+    transition: background 0.15s ease;
+    border-radius: var(--trp-radius-sm);
+    padding: 5px 4px;
+    margin: 0 -4px;
+}
+
+.roll-dialog-content .bonus-accordion-header.clickable:hover {
+    background: var(--trp-gold-overlay, rgba(201, 168, 76, 0.1));
+}
+
+.roll-dialog-content .bonus-label-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.roll-dialog-content .accordion-chevron {
+    font-size: var(--fs-10);
+    color: var(--dialog-gold);
+    transition: transform 0.2s ease;
+    width: 12px;
+    text-align: center;
+}
+
+.roll-dialog-content .bonus-accordion-group.expanded .accordion-chevron {
+    transform: rotate(90deg);
+}
+
+.roll-dialog-content .bonus-accordion-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 4px 6px 6px 18px;
+    background: rgba(0, 0, 0, 0.25);
+    border-left: 2px solid var(--trp-gold-dim);
+    border-radius: 0 0 var(--trp-radius-sm) var(--trp-radius-sm);
+    margin-bottom: 4px;
+}
+
+.roll-dialog-content .bonus-accordion-content.collapsed {
+    display: none;
+}
+
+.roll-dialog-content .bonus-child-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    font-size: var(--fs-12);
+    color: var(--trp-text);
+    border-bottom: 1px dashed rgba(74, 63, 47, 0.5);
+    pointer-events: auto !important;
+}
+
+.roll-dialog-content .bonus-child-row:last-child {
+    border-bottom: none;
+}
+
+.roll-dialog-content .bonus-child-row .child-name {
+    color: var(--trp-text);
+    transition: color 0.15s ease;
+}
+
+.roll-dialog-content .bonus-child-row .child-value {
+    color: var(--dialog-gold);
+    font-size: var(--fs-11);
+    font-weight: bold;
+}
+
+/* Unchecked Row States */
+.roll-dialog-content .standard-bonus-row.is-unchecked,
+.roll-dialog-content .bonus-child-row.is-unchecked {
+    pointer-events: auto !important;
+}
+
+.roll-dialog-content .standard-bonus-row.is-unchecked .bonus-label,
+.roll-dialog-content .standard-bonus-row.is-unchecked .bonus-value,
+.roll-dialog-content .bonus-child-row.is-unchecked .child-name,
+.roll-dialog-content .bonus-child-row.is-unchecked .child-value {
+    color: var(--trp-text-dim);
+    text-decoration: line-through;
+    opacity: 0.6;
 }
 
 .roll-dialog-content .modifier-row {
@@ -141,3 +285,4 @@
     color: var(--trp-text);
     border-color: var(--dialog-gold);
 }
+

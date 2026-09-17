@@ -13,8 +13,8 @@ export async function onCompanionStatRoll(actor, stat, sheet) {
   }
 
   const statVal = actor.system.combat?.[stat] ?? 0;
-  const effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, stat, "use");
-  const baseVal = statVal - effectBonus;
+  const effectBonusEntry = TrespasserEffectsHelper.buildEffectBonusEntry(actor, stat, "use");
+  const baseVal = statVal - (effectBonusEntry.value || 0);
   const statLabel = game.i18n.localize(`TRESPASSER.Sheet.Companion.${stat.charAt(0).toUpperCase() + stat.slice(1)}`) || stat;
 
   const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, stat);
@@ -26,15 +26,15 @@ export async function onCompanionStatRoll(actor, stat, sheet) {
     showCD: true,
     cd: targetCD ?? 10,
     bonuses: [
-      { label: statLabel, value: baseVal },
-      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
+      { key: "baseStat", label: statLabel, value: baseVal, toggleable: true },
+      effectBonusEntry
     ]
   }, { title: `${statLabel} Check` });
 
   if (!result) return;
 
-  let formula = `${diceFormula} + ${baseVal} + ${result.modifier}`;
-  if (effectBonus !== 0) formula += ` + ${effectBonus}`;
+  const activeBonusTotal = result.activeBonusTotal ?? (baseVal + (effectBonusEntry.value || 0));
+  const formula = `${diceFormula} + ${activeBonusTotal} + ${result.modifier}`;
 
   const roll = new foundry.dice.Roll(formula);
   const flavor = isAdv

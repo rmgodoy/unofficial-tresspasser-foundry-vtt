@@ -32,8 +32,9 @@ export async function handleSlipperyCheck(tokenDoc, actor, region) {
 
   const modifier = result.modifier || 0;
   const cd = result.cd || 10;
+  const activeBonusTotal = result.activeBonusTotal ?? totalBonus;
 
-  const roll = new foundry.dice.Roll(`1d20 + ${totalBonus} + ${modifier}`);
+  const roll = new foundry.dice.Roll(`1d20 + ${activeBonusTotal} + ${modifier}`);
   await roll.evaluate();
 
   const total = roll.total;

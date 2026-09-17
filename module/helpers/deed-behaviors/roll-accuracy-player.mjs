@@ -49,32 +49,38 @@ export async function executePlayerAccuracyRoll({
   const engagementMod = penaltyCheck.penaltyValue;
 
   const isAdv = actor ? TrespasserEffectsHelper.hasAdvantage(actor, "accuracy") : false;
-  const effectBonus = actor ? TrespasserEffectsHelper.getAttributeBonus(actor, "accuracy", "use") : 0;
+  const effectBonusEntry = actor ? TrespasserEffectsHelper.buildEffectBonusEntry(actor, "accuracy", "use") : { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus") || "Effect Bonus", value: 0 };
   const totalAccuracy = actor?.system?.combat?.accuracy ?? 0;
-  const baseAccuracy = totalAccuracy - effectBonus;
+  const baseAccuracy = totalAccuracy - (effectBonusEntry.value || 0);
   const diceFormula = isAdv ? "2d20kh" : "1d20";
 
   const rollDialogData = {
     dice: diceFormula,
     bonuses: [
-      { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Accuracy") || "Accuracy", value: baseAccuracy },
-      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus") || "Effect Bonus", value: effectBonus }
+      { key: "baseAccuracy", label: game.i18n.localize("TRESPASSER.Sheet.Combat.Accuracy") || "Accuracy", value: baseAccuracy, toggleable: false }
     ]
   };
 
   if (hasEngagementPenalty) {
     rollDialogData.bonuses.push({
+      key: "engagement",
       label: game.i18n.localize("TRESPASSER.Chat.Combat.EngagementPenalty") || "Engaged",
-      value: -2
+      value: -2,
+      toggleable: true
     });
   }
 
   if (apBonus > 0) {
     rollDialogData.bonuses.push({
+      key: "apBonus",
       label: game.i18n.localize("TRESPASSER.Chat.Check.AccuracyFromAP") || "Accuracy from Extra Effort",
-      value: apBonus
+      value: apBonus,
+      toggleable: true
     });
   }
+
+  // Effect Bonus accordion at the end
+  rollDialogData.bonuses.push(effectBonusEntry);
 
   // Prompt user with Trespasser Roll Dialog
   const dialogResult = await TrespasserRollDialog.wait({
@@ -85,7 +91,8 @@ export async function executePlayerAccuracyRoll({
   if (!dialogResult) return false; // User cancelled roll dialog
 
   const userModifier = dialogResult.modifier || 0;
-  const totalBonuses = `${baseAccuracy} + ${effectBonus} + ${engagementMod} + ${apBonus} + ${userModifier}`;
+  const activeBonusTotal = dialogResult.activeBonusTotal ?? (baseAccuracy + (effectBonusEntry.value || 0) + engagementMod + apBonus);
+  const totalBonuses = `${activeBonusTotal} + ${userModifier}`;
   const formula = isAdv ? `2d20kh + ${totalBonuses}` : `1d20 + ${totalBonuses}`;
 
   const rollData = actor?.getRollData() || {};

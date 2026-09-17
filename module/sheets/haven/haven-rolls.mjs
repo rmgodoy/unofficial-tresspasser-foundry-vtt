@@ -17,13 +17,14 @@ export async function onRollAttribute(sheet, event, target) {
     showCD: true,
     cd: 10,
     bonuses: [
-      { label, value: attrVal }
+      { label, value: attrVal, toggleable: true }
     ]
   }, { title: `${label} Check` });
 
   if (!result) return;
 
-  const formula = `1d20 + ${attrVal} + ${result.modifier}`;
+  const activeBonusTotal = result.activeBonusTotal ?? attrVal;
+  const formula = `1d20 + ${activeBonusTotal} + ${result.modifier}`;
   const roll = new foundry.dice.Roll(formula);
   await roll.evaluate();
 
@@ -124,14 +125,15 @@ export async function onRollSkill(sheet, event, target) {
     showCD: true,
     cd: 10,
     bonuses: [
-      { label: label, value: attrVal },
-      { label: skillLabel, value: skillBonusValue }
+      { label: label, value: attrVal, toggleable: true },
+      { label: skillLabel, value: skillBonusValue, toggleable: true }
     ]
   }, { title: `${skillLabel} Check` });
 
   if (!result) return;
 
-  const formula = `1d20 + ${attrVal} + ${skillBonusValue} + ${result.modifier}`;
+  const activeBonusTotal = result.activeBonusTotal ?? (attrVal + skillBonusValue);
+  const formula = `1d20 + ${activeBonusTotal} + ${result.modifier}`;
   const roll = new foundry.dice.Roll(formula);
   await roll.evaluate();
 

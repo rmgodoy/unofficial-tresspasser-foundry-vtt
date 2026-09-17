@@ -136,12 +136,12 @@ export async function executeTemptFateFlow(actor, skillKey, cd, originalMsgId) {
   let finalAttrVal = attrVal;
   let finalSkillBonus = skillBonus;
   let attrBonus = actor.system.bonuses?.[chosenAttr] ?? 0;
-  let effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, chosenAttr, "use");
+  let effectBonusEntry = TrespasserEffectsHelper.buildEffectBonusEntry(actor, chosenAttr, "use");
 
   if (isSuppressed) {
     finalAttrVal = 0;
     attrBonus = 0;
-    effectBonus = 0;
+    effectBonusEntry = { id: "effectBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus") || "Effect Bonus", value: 0, isAccordion: true, children: [] };
     const plightName = (chosenAttr === "intellect" || chosenAttr === "spirit") ? "Befuddled" : "Sickly";
     const attrLabel = game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.capitalize()}`);
     ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.AttributeSuppressed", { plight: plightName, attr: attrLabel }));
@@ -153,17 +153,17 @@ export async function executeTemptFateFlow(actor, skillKey, cd, originalMsgId) {
   const rollData = {
     dice: diceFormula,
     bonuses: [
-      { label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.capitalize()}`), value: finalAttrVal },
-      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: finalSkillBonus },
-      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
+      { key: "baseAttribute", label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.capitalize()}`), value: finalAttrVal, toggleable: true },
+      { key: "skillBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: finalSkillBonus, toggleable: true }
     ],
     showCD: true,
     cd: cd,
     isNonCombat: true
   };
   if (attrBonus !== 0) {
-    rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
+    rollData.bonuses.push({ key: "permBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.PermanentBonus") || "Permanent Bonus", value: attrBonus, toggleable: true });
   }
+  rollData.bonuses.push(effectBonusEntry);
 
   const result = await TrespasserRollDialog.wait(rollData, {
     title: game.i18n.format("TRESPASSER.Dialog.TemptFate.CheckTitle", { skill: skillLabel })
@@ -171,10 +171,8 @@ export async function executeTemptFateFlow(actor, skillKey, cd, originalMsgId) {
   if (!result) return;
 
   // 4. Perform Roll
-  let formula = `${diceFormula} + ${finalAttrVal} + ${result.modifier}`;
-  if (attrBonus !== 0) formula += ` + ${attrBonus}`;
-  if (effectBonus !== 0) formula += ` + ${effectBonus}`;
-  if (finalSkillBonus > 0) formula += ` + ${finalSkillBonus}`;
+  const activeBonusTotal = result.activeBonusTotal ?? (finalAttrVal + attrBonus + (effectBonusEntry.value || 0) + finalSkillBonus);
+  const formula = `${diceFormula} + ${activeBonusTotal} + ${result.modifier}`;
 
   const roll = new foundry.dice.Roll(formula);
   const flavor = isAdv

@@ -13,7 +13,7 @@ export async function onAttributeRoll(event, sheet) {
   event.preventDefault();
   const attrKey = event.currentTarget.dataset.attribute;
   let attrVal = sheet.actor.system.attributes[attrKey] ?? 0;
-  let effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, attrKey, "use");
+  let effectBonusEntry = TrespasserEffectsHelper.buildEffectBonusEntry(sheet.actor, attrKey, "use");
 
   // Befuddled & Sickly checks
   let plightName = "";
@@ -25,7 +25,7 @@ export async function onAttributeRoll(event, sheet) {
 
   if (plightName) {
     attrVal = 0;
-    effectBonus = 0;
+    effectBonusEntry = { id: "effectBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus") || "Effect Bonus", value: 0, isAccordion: true, children: [] };
     const attrLabel = game.i18n.localize(`TRESPASSER.Terms.Attribute.${attrKey.charAt(0).toUpperCase() + attrKey.slice(1)}`);
     ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.AttributeSuppressed", { plight: plightName, attr: attrLabel }));
   }
@@ -38,8 +38,8 @@ export async function onAttributeRoll(event, sheet) {
   const result = await TrespasserRollDialog.wait({
     dice: diceFormula,
     bonuses: [
-      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.BaseAttribute"), value: attrVal },
-      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
+      { key: "baseAttribute", label: game.i18n.localize("TRESPASSER.Dialog.Roll.BaseAttribute"), value: attrVal, toggleable: true },
+      effectBonusEntry
     ],
     showCD: true,
     cd: 10,
@@ -48,8 +48,8 @@ export async function onAttributeRoll(event, sheet) {
 
   if (!result) return;
 
-  let formula = `${diceFormula} + ${attrVal} + ${result.modifier}`;
-  if (effectBonus !== 0) formula += ` + ${effectBonus}`;
+  const activeBonusTotal = result.activeBonusTotal ?? (attrVal + (effectBonusEntry.value || 0));
+  const formula = `${diceFormula} + ${activeBonusTotal} + ${result.modifier}`;
 
   const roll   = new foundry.dice.Roll(formula);
   const flavor = isAdv
@@ -65,8 +65,8 @@ export async function onCombatStatRoll(event, sheet) {
   event.preventDefault();
   const statKey = event.currentTarget.dataset.stat;
   const statVal     = sheet.actor.system.combat[statKey] ?? 0;
-  const effectBonus = TrespasserEffectsHelper.getAttributeBonus(sheet.actor, statKey, "use");
-  const baseVal     = statVal - effectBonus;
+  const effectBonusEntry = TrespasserEffectsHelper.buildEffectBonusEntry(sheet.actor, statKey, "use");
+  const baseVal     = statVal - (effectBonusEntry.value || 0);
   const label       = statKey.charAt(0).toUpperCase() + statKey.slice(1);
   const isAdv       = TrespasserEffectsHelper.hasAdvantage(sheet.actor, statKey);
   const diceFormula = isAdv ? "2d20kh" : "1d20";
@@ -77,14 +77,15 @@ export async function onCombatStatRoll(event, sheet) {
     showCD: true,
     cd: targetCD ?? 10,
     bonuses: [
-      { label: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`), value: baseVal },
-      { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
+      { key: "baseStat", label: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`), value: baseVal, toggleable: true },
+      effectBonusEntry
     ]
   }, { title: `${label} Check` });
 
   if (!result) return;
 
-  let formula = `${diceFormula} + ${baseVal} + ${effectBonus} + ${result.modifier}`;
+  const activeBonusTotal = result.activeBonusTotal ?? (baseVal + (effectBonusEntry.value || 0));
+  const formula = `${diceFormula} + ${activeBonusTotal} + ${result.modifier}`;
 
   const roll   = new foundry.dice.Roll(formula);
   const flavor = isAdv
@@ -174,7 +175,7 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
 
             let attrVal    = attr[chosenAttr]    ?? 0;
             let attrBonus  = bonuses[chosenAttr] ?? 0;
-            let effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, chosenAttr, "use");
+            let effectBonusEntry = TrespasserEffectsHelper.buildEffectBonusEntry(actor, chosenAttr, "use");
 
             // Befuddled & Sickly checks
             let plightName = "";
@@ -187,7 +188,7 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
             if (plightName) {
               attrVal = 0;
               attrBonus = 0;
-              effectBonus = 0;
+              effectBonusEntry = { id: "effectBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus") || "Effect Bonus", value: 0, isAccordion: true, children: [] };
               const attrLabel = game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.charAt(0).toUpperCase() + chosenAttr.slice(1)}`);
               ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.AttributeSuppressed", { plight: plightName, attr: attrLabel }));
             }
@@ -198,12 +199,12 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
             const rollData = {
               dice: diceFormula,
               bonuses: [
-                { label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.capitalize()}`), value: attrVal },
-                { label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus },
-                { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
+                { key: "baseAttribute", label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${chosenAttr.capitalize()}`), value: attrVal, toggleable: true },
+                { key: "skillBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus, toggleable: true }
               ]
             };
-            if (attrBonus !== 0) rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
+            if (attrBonus !== 0) rollData.bonuses.push({ key: "permBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.PermanentBonus") || "Permanent Bonus", value: attrBonus, toggleable: true });
+            rollData.bonuses.push(effectBonusEntry);
 
             const result = await TrespasserRollDialog.wait({
               ...rollData,
@@ -214,10 +215,8 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
 
             if (!result) return resolve(null); // Resolve with null if roll dialog canceled
 
-            let formula = `${diceFormula} + ${attrVal} + ${result.modifier}`;
-            if (attrBonus  !== 0) formula += ` + ${attrBonus}`;
-            if (effectBonus !== 0) formula += ` + ${effectBonus}`;
-            if (skillBonus  > 0)  formula += ` + ${skillBonus}`;
+            const activeBonusTotal = result.activeBonusTotal ?? (attrVal + attrBonus + (effectBonusEntry.value || 0) + skillBonus);
+            const formula = `${diceFormula} + ${activeBonusTotal} + ${result.modifier}`;
 
             const roll = new foundry.dice.Roll(formula);
             const flavorFull = isAdv

@@ -206,6 +206,66 @@ export function getMovementType(actor) {
 }
 
 /**
+ * Retrieves the breakdown of all active effects targeting a specific attribute/stat.
+ * Single source of truth for attribute effect resolution.
+ * @param {Actor} actor 
+ * @param {string} attributeKey 
+ * @param {string} [includeTiming] Optional timing to include (e.g. "use")
+ * @returns {Array<object>} List of matching effect breakdown items
+ */
+export function getAttributeEffects(actor, attributeKey, includeTiming = null) {
+  if (!actor || !attributeKey) return [];
+  const effects = getActorEffects(actor);
+  const allEffects = [...effects.combat, ...effects.nonCombat];
+  
+  const results = [];
+  for (const eff of allEffects) {
+    if (eff.target !== attributeKey) continue;
+
+    if (eff.type === "on-trigger" && eff.when && eff.when !== "immediate" && eff.when !== includeTiming) continue;
+    
+    const rawMod = eff.modifier !== undefined && eff.modifier !== null ? eff.modifier.toString() : "0";
+    const isAdv = rawMod.toLowerCase() === "adv";
+    const resolvedMod = replacePlaceholders(rawMod, actor);
+    const modStr = resolvedMod.replace(/\s+/g, "").replace("+", "").trim();
+    const parsed = attributeKey === "elevation" ? parseInt(modStr, 10) : parseFloat(modStr);
+    const numericValue = !isNaN(parsed) ? (attributeKey === "elevation" ? Math.round(parsed) : parsed) : 0;
+
+    results.push({
+      id: eff.id,
+      name: eff.name,
+      value: numericValue,
+      modifierStr: rawMod,
+      isAdv,
+      description: eff.description || "",
+      source: eff.sourceName || eff.source || "",
+      checked: true
+    });
+  }
+  return results;
+}
+
+/**
+ * Constructs the standardized Effect Bonus entry for roll dialogs.
+ * @param {Actor} actor 
+ * @param {string} attributeKey 
+ * @param {string} [includeTiming="use"]
+ * @returns {object}
+ */
+export function buildEffectBonusEntry(actor, attributeKey, includeTiming = "use") {
+  const children = getAttributeEffects(actor, attributeKey, includeTiming);
+  const totalValue = children.reduce((sum, eff) => sum + (eff.value || 0), 0);
+  return {
+    id: "effectBonus",
+    key: "effectBonus",
+    label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus") || "Effect Bonus",
+    value: totalValue,
+    isAccordion: true,
+    children
+  };
+}
+
+/**
  * Calculates the total numeric bonus for a specific attribute from all active effects.
  * @param {Actor} actor 
  * @param {string} attributeKey 
@@ -213,23 +273,8 @@ export function getMovementType(actor) {
  * @returns {number}
  */
 export function getAttributeBonus(actor, attributeKey, includeTiming = null) {
-  if (!actor) return 0;
-  const effects = getActorEffects(actor);
-  const allEffects = [...effects.combat, ...effects.nonCombat];
-  
-  let total = 0;
-  for (const eff of allEffects) {
-    if (eff.target !== attributeKey) continue;
-
-    if (eff.type === "on-trigger" && eff.when && eff.when !== "immediate" && eff.when !== includeTiming) continue;
-    
-    const resolvedMod = replacePlaceholders(eff.modifier.toString(), actor);
-    const modStr = resolvedMod.replace(/\s+/g, "").replace("+", "").trim();
-    const value = attributeKey === "elevation" ? parseInt(modStr, 10) : parseFloat(modStr);
-    if (!isNaN(value)) {
-      total += value;
-    }
-  }
+  const effects = getAttributeEffects(actor, attributeKey, includeTiming);
+  const total = effects.reduce((sum, eff) => sum + (eff.value || 0), 0);
   return attributeKey === "elevation" ? Math.round(total) : total;
 }
 
@@ -240,13 +285,7 @@ export function getAttributeBonus(actor, attributeKey, includeTiming = null) {
  * @returns {boolean}
  */
 export function hasAdvantage(actor, attributeKey) {
-  if (!actor) return false;
-  const effects = getActorEffects(actor);
-  const allEffects = [...effects.combat, ...effects.nonCombat];
-  
-  for (const eff of allEffects) {
-    if (eff.target !== attributeKey) continue;
-    if (eff.modifier.toString().toLowerCase() === "adv") return true;
-  }
-  return false;
+  if (!actor || !attributeKey) return false;
+  const effects = getAttributeEffects(actor, attributeKey, "use");
+  return effects.some(eff => eff.isAdv);
 }

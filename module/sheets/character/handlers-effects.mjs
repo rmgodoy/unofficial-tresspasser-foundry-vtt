@@ -48,7 +48,8 @@ export async function onPrevailRoll(event, sheet) {
     }
   }
   const defaultCD = Math.min(20, 10 + intensity);
-  const prevailStat = sheet.actor.system.combat?.prevail || 0;
+  const effectBonusEntry = TrespasserEffectsHelper.buildEffectBonusEntry(sheet.actor, "prevail", "use");
+  const prevailStat = (sheet.actor.system.combat?.prevail || 0) - (effectBonusEntry.value || 0);
   const apBonus = extraAP * 2;
 
   const isAdv = TrespasserEffectsHelper.hasAdvantage(sheet.actor, "prevail");
@@ -60,14 +61,16 @@ export async function onPrevailRoll(event, sheet) {
     showCD: true,
     cd: defaultCD,
     bonuses: [
-      { label: game.i18n.localize("TRESPASSER.Sheet.Combat.Prevail"), value: prevailStat },
-      { label: game.i18n.localize("TRESPASSER.Sheet.HUD.ExtraAP"), value: apBonus }
+      { key: "basePrevail", label: game.i18n.localize("TRESPASSER.Sheet.Combat.Prevail"), value: prevailStat, toggleable: true },
+      { key: "apBonus", label: game.i18n.localize("TRESPASSER.Sheet.HUD.ExtraAP"), value: apBonus, toggleable: true },
+      effectBonusEntry
     ]
   }, { title: game.i18n.format("TRESPASSER.Chat.Check.PrevailCheck", { name: effectItem.name }) });
 
   if (!result) return;
 
   await sheet.actor.rollPrevail(effectItem.id, extraAP, {
+    totalBonus: result.totalBonus,
     modifier: result.modifier,
     cd: result.cd
   });

@@ -140,7 +140,7 @@ export async function onTurnEnd(actor, combatant = null) {
  * @param {number} extraAP
  * @param {object} [options]
  */
-export async function rollPrevail(actor, stateItemId, extraAP = 0, { modifier = 0, cd = null } = {}) {
+export async function rollPrevail(actor, stateItemId, extraAP = 0, { modifier = 0, cd = null, totalBonus = null } = {}) {
   const stateItem = actor.items.get(stateItemId);
   if (!stateItem) {
     ui.notifications.warn("State item not found.");
@@ -161,7 +161,7 @@ export async function rollPrevail(actor, stateItemId, extraAP = 0, { modifier = 
   const dc = cd !== null ? cd : Math.min(20, 10 + intensity);
   const prevailStat = actor.system.combat?.prevail || 0;
   const apBonus = extraAP * 2;
-  const bonuses = `${prevailStat} + ${apBonus} + ${modifier}`;
+  const bonuses = totalBonus !== null ? `${totalBonus}` : `${prevailStat} + ${apBonus} + ${modifier}`;
 
   const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, "prevail");
   const formula = isAdv ? `2d20kh + ${bonuses}` : `1d20 + ${bonuses}`;

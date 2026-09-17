@@ -24,6 +24,8 @@ import {
   getActorEffects,
   getActiveMovementEffect,
   getMovementType,
+  getAttributeEffects,
+  buildEffectBonusEntry,
   getAttributeBonus,
   hasAdvantage
 } from "../effects/effects-aggregate.mjs";
@@ -76,6 +78,8 @@ export {
   getActorEffects,
   getActiveMovementEffect,
   getMovementType,
+  getAttributeEffects,
+  buildEffectBonusEntry,
   getAttributeBonus,
   hasAdvantage,
   updateFocus,
@@ -140,8 +144,16 @@ export class TrespasserEffectsHelper {
     return getMovementType(actor);
   }
 
-  static getAttributeBonus(actor, attribute) {
-    return getAttributeBonus(actor, attribute);
+  static getAttributeEffects(actor, attribute, timing = null) {
+    return getAttributeEffects(actor, attribute, timing);
+  }
+
+  static buildEffectBonusEntry(actor, attribute, timing = "use") {
+    return buildEffectBonusEntry(actor, attribute, timing);
+  }
+
+  static getAttributeBonus(actor, attribute, timing = null) {
+    return getAttributeBonus(actor, attribute, timing);
   }
 
   static hasAdvantage(actor, attribute) {

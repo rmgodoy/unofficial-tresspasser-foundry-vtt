@@ -65,10 +65,12 @@ export async function promptGroupCheckRoll(messageId, isAutoPrompt = false) {
       plightName = "Sickly";
     }
 
+    let effectBonusEntry = TrespasserEffectsHelper.buildEffectBonusEntry(actor, attribute, "use");
+
     if (plightName) {
       attrVal = 0;
       attrBonus = 0;
-      finalEffectBonus = 0;
+      effectBonusEntry = { id: "effectBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus") || "Effect Bonus", value: 0, isAccordion: true, children: [] };
       const attrLabel = game.i18n.localize(`TRESPASSER.Terms.Attribute.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`);
       ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.AttributeSuppressed", { plight: plightName, attr: attrLabel }));
     }
@@ -79,12 +81,12 @@ export async function promptGroupCheckRoll(messageId, isAutoPrompt = false) {
     const rollData = {
       dice: diceFormula,
       bonuses: [
-        { label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`), value: attrVal },
-        { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: finalEffectBonus }
+        { key: "baseAttribute", label: game.i18n.localize(`TRESPASSER.Terms.Attribute.${attribute.charAt(0).toUpperCase() + attribute.slice(1)}`), value: attrVal, toggleable: true }
       ]
     };
-    if (skillBonus > 0) rollData.bonuses.push({ label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus });
-    if (attrBonus !== 0) rollData.bonuses.push({ label: "Permanent Bonus", value: attrBonus });
+    if (skillBonus > 0) rollData.bonuses.push({ key: "skillBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus, toggleable: true });
+    if (attrBonus !== 0) rollData.bonuses.push({ key: "permBonus", label: "Permanent Bonus", value: attrBonus, toggleable: true });
+    rollData.bonuses.push(effectBonusEntry);
 
     const result = await TrespasserRollDialog.wait({
       ...rollData,
@@ -95,10 +97,8 @@ export async function promptGroupCheckRoll(messageId, isAutoPrompt = false) {
 
     if (!result) continue;
 
-    let formula = `${diceFormula} + ${attrVal} + ${result.modifier}`;
-    if (attrBonus !== 0) formula += ` + ${attrBonus}`;
-    if (finalEffectBonus !== 0) formula += ` + ${finalEffectBonus}`;
-    if (skillBonus > 0) formula += ` + ${skillBonus}`;
+    const activeBonusTotal = result.activeBonusTotal ?? (attrVal + attrBonus + (effectBonusEntry.value || 0) + skillBonus);
+    const formula = `${diceFormula} + ${activeBonusTotal} + ${result.modifier}`;
 
     const roll = new foundry.dice.Roll(formula);
     await roll.evaluate();

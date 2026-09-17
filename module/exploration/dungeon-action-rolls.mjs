@@ -134,7 +134,7 @@ export async function rollDungeonActionCheck(actor, attribute, skill, dc) {
 
   let attrVal = attr[attribute] ?? 0;
   let attrBonus = bonuses[attribute] ?? 0;
-  let effectBonus = TrespasserEffectsHelper.getAttributeBonus(actor, attribute, "use");
+  let effectBonusEntry = TrespasserEffectsHelper.buildEffectBonusEntry(actor, attribute, "use");
 
   let plightName = "";
   if ((attribute === "intellect" || attribute === "spirit") && actor.system.hasPlight?.("befuddled")) {
@@ -146,7 +146,7 @@ export async function rollDungeonActionCheck(actor, attribute, skill, dc) {
   if (plightName) {
     attrVal = 0;
     attrBonus = 0;
-    effectBonus = 0;
+    effectBonusEntry = { id: "effectBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus") || "Effect Bonus", value: 0, isAccordion: true, children: [] };
     ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.AttributeSuppressed", { plight: plightName, attr: attrLabel }));
   }
 
@@ -154,13 +154,13 @@ export async function rollDungeonActionCheck(actor, attribute, skill, dc) {
   const diceFormula = isAdv ? "2d20kh" : "1d20";
 
   const rollBonuses = [
-    { label: attrLabel, value: attrVal },
-    { label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus },
-    { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: effectBonus }
+    { key: "baseAttribute", label: attrLabel, value: attrVal, toggleable: true },
+    { key: "skillBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.SkillBonus"), value: skillBonus, toggleable: true }
   ];
   if (attrBonus !== 0) {
-    rollBonuses.push({ label: game.i18n.localize("TRESPASSER.Dialog.Roll.PermanentBonus") || "Permanent Bonus", value: attrBonus });
+    rollBonuses.push({ key: "permBonus", label: game.i18n.localize("TRESPASSER.Dialog.Roll.PermanentBonus") || "Permanent Bonus", value: attrBonus, toggleable: true });
   }
+  rollBonuses.push(effectBonusEntry);
 
   const result = await TrespasserRollDialog.wait({
     dice: diceFormula,
@@ -172,10 +172,8 @@ export async function rollDungeonActionCheck(actor, attribute, skill, dc) {
 
   if (!result) return null;
 
-  let formula = `${diceFormula} + ${attrVal} + ${result.modifier}`;
-  if (attrBonus !== 0) formula += ` + ${attrBonus}`;
-  if (effectBonus !== 0) formula += ` + ${effectBonus}`;
-  if (skillBonus > 0) formula += ` + ${skillBonus}`;
+  const activeBonusTotal = result.activeBonusTotal ?? (attrVal + attrBonus + (effectBonusEntry.value || 0) + skillBonus);
+  const formula = `${diceFormula} + ${activeBonusTotal} + ${result.modifier}`;
 
   const roll = new foundry.dice.Roll(formula);
   const flavor = isAdv

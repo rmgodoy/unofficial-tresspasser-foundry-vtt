@@ -144,16 +144,16 @@ export async function _rollDefenseLocally(actor, statKey, creatureDC, deedName) 
   // Use-triggered bonuses (e.g. Defend's +2) are NOT baked in.
   // We must split them to display correctly and avoid double-counting.
   const continuousBonus = TrespasserEffectsHelper.getAttributeBonus(actor, statKey);
-  const fullBonus = TrespasserEffectsHelper.getAttributeBonus(actor, statKey, "use");
-  const useOnlyBonus = fullBonus - continuousBonus;
+  const effectBonusEntry = TrespasserEffectsHelper.buildEffectBonusEntry(actor, statKey, "use");
+  const fullBonus = effectBonusEntry.value || 0;
   const baseDefense = totalDef - continuousBonus;
   const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, statKey);
   const diceFormula = isAdv ? "2d20kh" : "1d20";
   const label = statKey.charAt(0).toUpperCase() + statKey.slice(1);
 
   const bonuses = [
-    { label: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`), value: baseDefense },
-    { label: game.i18n.localize("TRESPASSER.Dialog.Roll.EffectBonus"), value: fullBonus }
+    { key: "baseDefense", label: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`), value: baseDefense, toggleable: true },
+    effectBonusEntry
   ];
 
   const result = await TrespasserRollDialog.wait({
@@ -166,7 +166,8 @@ export async function _rollDefenseLocally(actor, statKey, creatureDC, deedName) 
   if (!result) return null;
 
   const userModifier = result.modifier ?? 0;
-  let formula = `${diceFormula} + ${baseDefense} + ${fullBonus}`;
+  const activeBonusTotal = result.activeBonusTotal ?? (baseDefense + fullBonus);
+  let formula = `${diceFormula} + ${activeBonusTotal}`;
   if (userModifier !== 0) formula += ` + ${userModifier}`;
 
   const defRoll = new foundry.dice.Roll(formula);

@@ -1,7 +1,7 @@
-
 /**
  * Stylized Roll Dialog for Trespasser.
  * Uses ApplicationsV2.
+ * Supports toggleable bonuses and collapsible Effect Bonus accordion.
  */
 export class TrespasserRollDialog extends foundry.applications.api.HandlebarsApplicationMixin(foundry.applications.api.ApplicationV2) {
 
@@ -14,13 +14,14 @@ export class TrespasserRollDialog extends foundry.applications.api.HandlebarsApp
   static DEFAULT_OPTIONS = {
     tag: "form",
     classes: ["trespasser", "dialog", "roll-dialog"],
-    position: { width: 320, height: "auto" },
+    position: { width: 340, height: "auto" },
     window: {
       resizable: false,
       minimizable: false,
       title: ""
     },
     actions: {
+      toggleAccordion: TrespasserRollDialog.#onToggleAccordion,
       roll: TrespasserRollDialog.#onRoll,
       cancel: TrespasserRollDialog.#onCancel
     }
@@ -36,21 +37,168 @@ export class TrespasserRollDialog extends foundry.applications.api.HandlebarsApp
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     context.dice = this.data.dice || "1d20";
-    context.bonuses = this.data.bonuses || [];
     context.showCD = this.data.showCD ?? false;
     context.cd = this.data.cd ?? 10;
-    
+
+    context.bonuses = (this.data.bonuses || []).map((b, idx) => {
+      const isAccordion = !!b.isAccordion || (Array.isArray(b.children) && b.children.length > 0);
+      const children = (b.children || []).map((c, cIdx) => ({
+        id: c.id ?? `child-${idx}-${cIdx}`,
+        name: c.name || c.label || "Effect",
+        value: typeof c.value === "number" ? c.value : (parseFloat(c.value) || 0),
+        modifierStr: c.modifierStr || (c.value >= 0 ? `+${c.value}` : `${c.value}`),
+        description: c.description || "",
+        checked: c.checked ?? true
+      }));
+
+      const computedValue = isAccordion && children.length > 0
+        ? children.reduce((sum, c) => sum + (c.checked ? c.value : 0), 0)
+        : (typeof b.value === "number" ? b.value : (parseFloat(b.value) || 0));
+
+      return {
+        id: b.id ?? b.key ?? `bonus-${idx}`,
+        key: b.key ?? b.id ?? `bonus-${idx}`,
+        label: b.label || "",
+        value: computedValue,
+        isAccordion,
+        children,
+        hasChildren: children.length > 0,
+        toggleable: b.toggleable ?? (!isAccordion),
+        checked: b.checked ?? true
+      };
+    });
+
     return context;
+  }
+
+  /** @override */
+  _onRender(context, options) {
+    super._onRender(context, options);
+
+    // Attach real-time recalculation on child checkboxes
+    const childCheckboxes = this.element.querySelectorAll(".bonus-child-checkbox");
+    childCheckboxes.forEach(cb => {
+      cb.addEventListener("change", (e) => {
+        const row = e.target.closest(".bonus-child-row");
+        if (row) {
+          row.classList.toggle("is-unchecked", !e.target.checked);
+        }
+
+        const group = e.target.closest(".bonus-accordion-group");
+        if (group) {
+          const checkedChildren = group.querySelectorAll(".bonus-child-checkbox:checked");
+          let sum = 0;
+          checkedChildren.forEach(c => {
+            sum += parseFloat(c.dataset.value) || 0;
+          });
+          const totalEl = group.querySelector(".accordion-total");
+          if (totalEl) {
+            totalEl.textContent = (sum >= 0 ? `+${sum}` : `${sum}`);
+          }
+        }
+      });
+    });
+
+    // Attach change listener on standard bonus checkboxes
+    const standardCheckboxes = this.element.querySelectorAll(".bonus-checkbox");
+    standardCheckboxes.forEach(cb => {
+      cb.addEventListener("change", (e) => {
+        const row = e.target.closest(".standard-bonus-row");
+        if (row) {
+          row.classList.toggle("is-unchecked", !e.target.checked);
+        }
+      });
+    });
+  }
+
+  /**
+   * Action handler to toggle accordion expanded/collapsed state.
+   */
+  static #onToggleAccordion(event, target) {
+    event.preventDefault();
+    const group = target.closest(".bonus-accordion-group");
+    if (!group) return;
+
+    const content = group.querySelector(".bonus-accordion-content");
+    if (!content) return;
+
+    const isCollapsed = content.classList.contains("collapsed");
+    content.classList.toggle("collapsed", !isCollapsed);
+    group.classList.toggle("expanded", isCollapsed);
   }
 
   static async #onRoll(event, target) {
     event.preventDefault();
-    const modifier = parseInt(this.element.querySelector('input[name="modifier"]').value) || 0;
+    const modifier = parseInt(this.element.querySelector('input[name="modifier"]')?.value) || 0;
     const cdElement = this.element.querySelector('input[name="cd"]');
     const parsedCd = cdElement ? parseInt(cdElement.value) : null;
     const cd = (parsedCd !== null && !isNaN(parsedCd)) ? parsedCd : 10;
 
-    this.resolve({ modifier, cd });
+    let activeBonusTotal = 0;
+    const activeBonuses = [];
+    const disabledBonuses = [];
+    const disabledEffectIds = [];
+
+    // Evaluate standard bonus rows
+    const standardRows = this.element.querySelectorAll(".standard-bonus-row");
+    standardRows.forEach(row => {
+      const cb = row.querySelector(".bonus-checkbox");
+      const label = row.querySelector(".bonus-label")?.textContent?.trim() || "";
+      const isChecked = cb ? cb.checked : true;
+      const value = cb ? (parseFloat(cb.dataset.value) || 0) : (parseFloat(row.querySelector(".bonus-value")?.textContent?.replace("+", "")) || 0);
+
+      const entry = { label, value, isChecked };
+      if (isChecked) {
+        activeBonusTotal += value;
+        activeBonuses.push(entry);
+      } else {
+        disabledBonuses.push(entry);
+      }
+    });
+
+    // Evaluate accordion sub-effects
+    const accordionGroups = this.element.querySelectorAll(".bonus-accordion-group");
+    accordionGroups.forEach(group => {
+      const childRows = group.querySelectorAll(".bonus-child-row");
+      if (childRows.length > 0) {
+        childRows.forEach(row => {
+          const cb = row.querySelector(".bonus-child-checkbox");
+          if (!cb) return;
+          const id = cb.dataset.childId;
+          const name = cb.dataset.name || row.querySelector(".child-name")?.textContent?.trim() || "";
+          const value = parseFloat(cb.dataset.value) || 0;
+          const isChecked = cb.checked;
+
+          const entry = { id, name, value, isChecked, isEffect: true };
+          if (isChecked) {
+            activeBonusTotal += value;
+            activeBonuses.push(entry);
+          } else {
+            disabledBonuses.push(entry);
+            if (id) disabledEffectIds.push(id);
+          }
+        });
+      } else {
+        // Group without children: read total directly
+        const totalText = group.querySelector(".accordion-total")?.textContent?.replace("+", "")?.trim();
+        const value = parseFloat(totalText) || 0;
+        const label = group.querySelector(".bonus-label")?.textContent?.trim() || "Effect Bonus";
+        activeBonusTotal += value;
+        activeBonuses.push({ label, value, isChecked: true });
+      }
+    });
+
+    const totalBonus = activeBonusTotal + modifier;
+
+    this.resolve({
+      modifier,
+      cd,
+      activeBonusTotal,
+      totalBonus,
+      activeBonuses,
+      disabledBonuses,
+      disabledEffectIds
+    });
     this.close();
   }
 
@@ -83,3 +231,4 @@ export class TrespasserRollDialog extends foundry.applications.api.HandlebarsApp
     });
   }
 }
+
