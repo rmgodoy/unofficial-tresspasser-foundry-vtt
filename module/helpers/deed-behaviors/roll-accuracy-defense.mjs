@@ -114,6 +114,7 @@ export async function executeCreatureDefenseRoll({
   context.isHit = anyHit;
   context.maxSparks = maxSparks;
   context.accuracyResults = results;
+  context.accuracyResolved = true;
 
   // Post creature defense roll results HTML
   let resultsHtml = "";
@@ -177,7 +178,7 @@ export async function executeCreatureDefenseRoll({
 
   let sparkChoices = null;
   if (maxSparks > 0 && anyHit) {
-    sparkChoices = await askSparkDialog(results);
+    sparkChoices = await askSparkDialog(results, { item, context, actor });
   }
 
   const applySparkPhase = maxSparks > 0 && (!sparkChoices || sparkChoices.applyDeedSpark !== false);
@@ -187,6 +188,8 @@ export async function executeCreatureDefenseRoll({
   if (sparkChoices) {
     const { DeedPotencyHelper } = await import("./potency-helper.mjs");
     await DeedPotencyHelper.onSparksSelected(context, actor, item, phaseKey);
+    const { DeedPowerHelper } = await import("./power-helper.mjs");
+    await DeedPowerHelper.onSparksSelected(context, actor, item, phaseKey);
   }
 
   const onHitResult = branchingMode === "hitOrSpark" ? (anyHit && !applySparkPhase) : anyHit;

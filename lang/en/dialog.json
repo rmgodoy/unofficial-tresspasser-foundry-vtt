@@ -96,7 +96,9 @@
         "IntroHealing": "Distribute total healing <b>{total}</b> among targeted creatures:",
         "Remaining": "Remaining to allocate",
         "InvalidTotal": "Total allocated exceeds available amount!",
-        "ResetAll": "Reset All"
+        "ResetAll": "Reset All",
+        "ResetRow": "Reset",
+        "AllocateRemaining": "Allocate Remaining"
       },
       "GrantRecovery": {
         "CasterTitle": "Grant Recovery",

@@ -161,6 +161,17 @@ export async function collectPotencyCandidates(context, actor, item, phaseKey = 
         baseIntensity: baseIntensity,
         source: "terrain"
       });
+    } else if (node.type === "grantRecovery") {
+      const baseIntensity = parseIntensity(node.params?.intensity, 1);
+      const recoveryLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Behavior.Type.grantRecovery") || "Grant Recovery";
+      candidates.push({
+        type: "recovery",
+        nodeId: node.id,
+        displayName: `${recoveryLabel} (${baseIntensity})`,
+        img: "icons/svg/heal.svg",
+        baseIntensity: baseIntensity,
+        source: "recovery"
+      });
     }
   }
 

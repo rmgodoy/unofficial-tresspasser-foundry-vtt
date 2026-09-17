@@ -96,7 +96,9 @@
         "IntroHealing": "Distribua a cura total de <b>{total}</b> entre as criaturas alvo:",
         "Remaining": "Restante a alocar",
         "InvalidTotal": "O total alocado excede a quantidade disponível!",
-        "ResetAll": "Zerar Tudo"
+        "ResetAll": "Zerar Tudo",
+        "ResetRow": "Zerar",
+        "AllocateRemaining": "Alocar Restante"
       },
       "GrantRecovery": {
         "CasterTitle": "Conceder Recuperação",

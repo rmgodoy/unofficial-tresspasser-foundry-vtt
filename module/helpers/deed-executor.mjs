@@ -203,7 +203,7 @@ export class DeedExecutor {
     if (targetPort === "rollRef" && this.context.evaluatedRolls?.has(node.id)) return true;
     if (targetPort === "areaRef" && this.context.areas?.has(node.id)) return true;
     if (targetPort === "result") {
-      if (node.type === "rollAccuracy" && this.context.accuracyResolved) return true;
+      if (node.type === "rollAccuracy" && (this.context.accuracyResolved || Boolean(this.context.rollResult) || this._executedNodes.has(node.id))) return true;
       if (node.type === "condition" && this.context.conditionResults?.has(node.id)) return true;
     }
     return false;
@@ -214,10 +214,11 @@ export class DeedExecutor {
     visited.add(refNode.id);
     const resolved = await this._resolveReferences(refNode, visited);
     if (resolved === false) return false;
-    const result = await this._executeBehavior(refNode, refNode.phase || "base");
+    const refPhase = (!refNode.phase || refNode.phase === "inherit") ? (this._currentPhaseKey || "base") : refNode.phase;
+    const result = await this._executeBehavior(refNode, refPhase);
     if (result === false) return false;
     this._executedNodes.add(refNode.id);
-    await this.chat.onBehaviorExecuted(refNode.phase || "base", refNode);
+    await this.chat.onBehaviorExecuted(refPhase, refNode);
     return true;
   }
 

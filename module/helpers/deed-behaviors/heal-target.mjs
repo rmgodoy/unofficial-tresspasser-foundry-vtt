@@ -76,7 +76,7 @@ export class HealTargetBehavior {
         type: "healing"
       });
 
-      if (distributedHealingMap === null) {
+      if (!distributedHealingMap || !(distributedHealingMap instanceof Map)) {
         // User cancelled distribution: revert pending roll entry and update chat card
         context.currentPhaseOutputs.rollEntries.splice(rollEntryIndex, 1);
         const rollIdx = context.currentPhaseOutputs.rolls.indexOf(baseRoll);
@@ -99,7 +99,7 @@ export class HealTargetBehavior {
       if (!targetActor) continue;
 
       const tokenName = DeedBehaviorUtils.getTokenDisplayName(targetToken);
-      const baseTargetHeal = distributedHealingMap ? (distributedHealingMap.get(targetToken.id) ?? healTotal) : healTotal;
+      const baseTargetHeal = (distributedHealingMap instanceof Map) ? (distributedHealingMap.get(targetToken.id) ?? healTotal) : healTotal;
       const healReceivedBonus = await TrespasserEffectsHelper.evaluateDamageBonus(targetActor, "heal_received", "d4", { toMessage: false });
       const totalBonus = healGivenBonus + healReceivedBonus;
       const targetHeal = Math.max(0, baseTargetHeal + totalBonus);

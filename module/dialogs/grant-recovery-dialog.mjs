@@ -191,10 +191,10 @@ export async function askGrantRecoveryCasterDialog({ actor, intensity = 1, targe
         label: game.i18n.localize("TRESPASSER.Global.Action.Confirm") || "Confirm",
         icon: "fas fa-check",
         default: true,
-        callback: (event, button) => {
-          const form = button.form;
+        callback: (event, button, dialog) => {
+          const root = dialog?.element || button?.form || button?.closest(".application") || button?.closest(".window-app") || document;
           const map = new Map();
-          const inputs = form.querySelectorAll(".target-recovery-input");
+          const inputs = root.querySelectorAll(".target-recovery-input");
           inputs.forEach(inp => {
             const targetId = inp.dataset.targetId;
             const val = Math.max(0, parseInt(inp.value) || 0);
@@ -220,6 +220,8 @@ export async function askGrantRecoveryCasterDialog({ actor, intensity = 1, targe
     rejectClose: false,
     close: () => null
   });
+
+  return (result instanceof Map) ? result : null;
 }
 
 /**

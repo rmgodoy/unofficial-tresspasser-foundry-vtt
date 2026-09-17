@@ -3,6 +3,7 @@ import { askDistributionDialog } from "../../dialogs/distribution-dialog.mjs";
 import { buildTenacityButtonHtml } from "../tenacity-helper.mjs";
 import { TrespasserEffectsHelper } from "../effects-helper.mjs";
 import { isSunken } from "../elevation-helper.mjs";
+import { DeedPowerHelper } from "./power-helper.mjs";
 
 export class ApplyDamageBehavior {
   /**
@@ -86,6 +87,23 @@ export class ApplyDamageBehavior {
     if (!context.evaluatedRolls) context.evaluatedRolls = new Map();
     context.evaluatedRolls.set(behavior.id, combinedRoll);
 
+    let distributedDamageMap = null;
+    let rollEntryIndex = -1;
+
+    // Register executed damage record for potential retroactive Power spark bonus dice
+    const damageRecord = {
+      nodeId: behavior.id,
+      behavior,
+      baseRoll: combinedRoll,
+      validTargets,
+      phaseKey,
+      appliedPowerDice: maxPowerDice,
+      distribute,
+      distributedDamageMap,
+      rollLabel
+    };
+    DeedPowerHelper.registerExecutedDamage(context, damageRecord);
+
     if (!context.currentPhaseOutputs) {
       context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
     }
@@ -94,9 +112,6 @@ export class ApplyDamageBehavior {
     const rollHtml = await combinedRoll.render();
 
     // Interactive Distribution Dialog prompt if distribute option is enabled and targets > 1
-    let distributedDamageMap = null;
-    let rollEntryIndex = -1;
-
     if (distribute && validTargets.length > 1) {
       const pendingText = game.i18n.localize("TRESPASSER.Chat.Combat.PendingDistribution") || "Awaiting distribution choices...";
       rollEntryIndex = context.currentPhaseOutputs.rollEntries.length;
@@ -125,8 +140,9 @@ export class ApplyDamageBehavior {
         targets: validTargets,
         type: "damage"
       });
+      damageRecord.distributedDamageMap = distributedDamageMap;
 
-      if (distributedDamageMap === null) {
+      if (!distributedDamageMap || !(distributedDamageMap instanceof Map)) {
         // User cancelled distribution: revert pending roll entry and update chat card
         context.currentPhaseOutputs.rollEntries.splice(rollEntryIndex, 1);
         const rollIdx = context.currentPhaseOutputs.rolls.indexOf(combinedRoll);
@@ -155,7 +171,7 @@ export class ApplyDamageBehavior {
       const targetPowerCount = refAlreadyHasPower ? 0 : Math.min(maxPowerDice, targetChoices?.power || 0);
       const targetPowerDmg = powerDiceRolls[targetPowerCount] || 0;
 
-      const baseTargetDmg = distributedDamageMap ? (distributedDamageMap.get(targetToken.id) ?? combinedRoll.total) : baseTotal;
+      const baseTargetDmg = (distributedDamageMap instanceof Map) ? (distributedDamageMap.get(targetToken.id) ?? combinedRoll.total) : baseTotal;
       const rolledTargetDmg = distributedDamageMap ? baseTargetDmg : (baseTargetDmg + targetPowerDmg);
 
       const targetWeaponDie = DeedBehaviorUtils.getActorWeaponDie(targetActor);

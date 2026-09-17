@@ -41,10 +41,13 @@ export async function askDistributionDialog({ totalAmount, targets, type = "dama
   for (const item of targetList) {
     html += `
       <div class="form-group target-distrib-row" style="display:flex; justify-content:space-between; align-items:center; background: rgba(0,0,0,0.25); padding: 6px 10px; border: 1px solid var(--trp-border-light, #5c4f3a); border-radius: 4px;">
-        <label style="font-size: var(--fs-13); font-weight:bold; color: var(--trp-gold-bright, #e8c96b); margin-right: 12px; flex: 1;">
+        <label style="font-size: var(--fs-13); font-weight:bold; color: var(--trp-gold-bright, #e8c96b); margin-right: 12px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
           ${item.name}
         </label>
         <div class="distrib-counter" style="display:flex; align-items:center; gap:6px;">
+          <button type="button" class="distrib-btn row-reset-btn" data-token-id="${item.id}" title="${game.i18n.localize("TRESPASSER.Dialog.Distribution.ResetRow")}" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center; background: var(--trp-bg-button, #3d3428); border: 1px solid var(--trp-border, #4a3f2f); color: var(--trp-text-dim, #a09070); border-radius:3px; cursor:pointer;">
+            <i class="fas fa-rotate-left" style="font-size: var(--fs-11);"></i>
+          </button>
           <button type="button" class="distrib-btn minus-btn" data-token-id="${item.id}" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center; background: var(--trp-bg-button, #3d3428); border: 1px solid var(--trp-border, #4a3f2f); color: var(--trp-gold-bright, #e8c96b); border-radius:3px; cursor:pointer;">
             <i class="fas fa-minus" style="font-size: var(--fs-11);"></i>
           </button>
@@ -52,6 +55,9 @@ export async function askDistributionDialog({ totalAmount, targets, type = "dama
           <input type="hidden" class="target-distrib-input" data-token-id="${item.id}" value="0" />
           <button type="button" class="distrib-btn plus-btn" data-token-id="${item.id}" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center; background: var(--trp-bg-button, #3d3428); border: 1px solid var(--trp-border, #4a3f2f); color: var(--trp-gold-bright, #e8c96b); border-radius:3px; cursor:pointer;">
             <i class="fas fa-plus" style="font-size: var(--fs-11);"></i>
+          </button>
+          <button type="button" class="distrib-btn row-fill-btn" data-token-id="${item.id}" title="${game.i18n.localize("TRESPASSER.Dialog.Distribution.AllocateRemaining")}" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center; background: var(--trp-bg-button, #3d3428); border: 1px solid var(--trp-border, #4a3f2f); color: var(--trp-gold-bright, #e8c96b); border-radius:3px; cursor:pointer;">
+            <i class="fas fa-angles-up" style="font-size: var(--fs-11);"></i>
           </button>
         </div>
       </div>`;
@@ -76,7 +82,7 @@ export async function askDistributionDialog({ totalAmount, targets, type = "dama
   return foundry.applications.api.DialogV2.wait({
     window: {
       title: game.i18n.localize(titleKey),
-      width: 400,
+      width: 420,
       resizable: true
     },
     classes: ["trespasser", "dialog", "distribution-dialog-window"],
@@ -123,12 +129,41 @@ export async function askDistributionDialog({ totalAmount, targets, type = "dama
         updateTotals();
       };
 
+      const setExactVal = (tokenId, exactValue) => {
+        const inp = el.querySelector(`.target-distrib-input[data-token-id="${tokenId}"]`);
+        const valSpan = el.querySelector(`.target-distrib-val[data-token-id="${tokenId}"]`);
+        if (!inp || !valSpan) return;
+
+        const next = Math.max(0, exactValue);
+        inp.value = next;
+        valSpan.textContent = next;
+        updateTotals();
+      };
+
       el.querySelectorAll(".plus-btn").forEach(btn => {
         btn.addEventListener("click", () => setVal(btn.dataset.tokenId, 1));
       });
 
       el.querySelectorAll(".minus-btn").forEach(btn => {
         btn.addEventListener("click", () => setVal(btn.dataset.tokenId, -1));
+      });
+
+      el.querySelectorAll(".row-reset-btn").forEach(btn => {
+        btn.addEventListener("click", () => setExactVal(btn.dataset.tokenId, 0));
+      });
+
+      el.querySelectorAll(".row-fill-btn").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const tokenId = btn.dataset.tokenId;
+          let otherSum = 0;
+          inputs.forEach(inp => {
+            if (inp.dataset.tokenId !== tokenId) {
+              otherSum += parseInt(inp.value) || 0;
+            }
+          });
+          const available = Math.max(0, totalAmount - otherSum);
+          setExactVal(tokenId, available);
+        });
       });
 
       if (resetBtn) {
@@ -151,10 +186,10 @@ export async function askDistributionDialog({ totalAmount, targets, type = "dama
         label: game.i18n.localize("TRESPASSER.Global.Action.Confirm"),
         icon: "fas fa-check",
         default: true,
-        callback: (event, button) => {
-          const form = button.form;
+        callback: (event, button, dialog) => {
+          const root = dialog?.element || button?.form || button?.closest(".application") || button?.closest(".window-app") || document;
           const map = new Map();
-          const inputs = form.querySelectorAll(".target-distrib-input");
+          const inputs = root.querySelectorAll(".target-distrib-input");
           inputs.forEach(inp => {
             const tokenId = inp.dataset.tokenId;
             const val = Math.max(0, parseInt(inp.value) || 0);
@@ -173,4 +208,6 @@ export async function askDistributionDialog({ totalAmount, targets, type = "dama
     rejectClose: false,
     close: () => null
   });
+
+  return (result instanceof Map) ? result : null;
 }

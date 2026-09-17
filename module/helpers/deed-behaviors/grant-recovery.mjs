@@ -2,6 +2,7 @@ import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 import { askGrantRecoveryCasterDialog } from "../../dialogs/grant-recovery-dialog.mjs";
 import { requestGrantRecoveryTargetChoice } from "../socket/grant-recovery-handler.mjs";
 import { TrespasserEffectsHelper } from "../effects-helper.mjs";
+import { DeedPotencyHelper } from "./potency-helper.mjs";
 
 export class GrantRecoveryBehavior {
   /**
@@ -16,7 +17,8 @@ export class GrantRecoveryBehavior {
    */
   static async execute(behavior, context, actor, item, phaseKey = "") {
     const params = behavior.params || {};
-    const intensity = Math.max(1, parseInt(params.intensity) || 1);
+    const potencyBonus = DeedPotencyHelper.getRecoveryPotency(context, behavior.id);
+    const intensity = Math.max(1, (parseInt(params.intensity) || 1) + potencyBonus);
 
     const validTargets = DeedBehaviorUtils.getValidTargets(context, phaseKey);
     if (validTargets.length === 0) return true;

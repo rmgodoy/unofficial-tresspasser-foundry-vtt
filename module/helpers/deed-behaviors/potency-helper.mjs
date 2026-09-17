@@ -68,7 +68,8 @@ export class DeedPotencyHelper {
 
     context.potencyAllocations = context.potencyAllocations || {
       terrainBonuses: new Map(),
-      effectBonuses: new Map()
+      effectBonuses: new Map(),
+      recoveryBonuses: new Map()
     };
 
     // If spark choices have not yet been evaluated (e.g. node runs before rollAccuracy),
@@ -141,6 +142,9 @@ export class DeedPotencyHelper {
           if (cand.type === "terrain") {
             const curr = context.potencyAllocations.terrainBonuses.get(cand.nodeId) || 0;
             context.potencyAllocations.terrainBonuses.set(cand.nodeId, curr + bonus);
+          } else if (cand.type === "recovery") {
+            const curr = context.potencyAllocations.recoveryBonuses.get(cand.nodeId) || 0;
+            context.potencyAllocations.recoveryBonuses.set(cand.nodeId, curr + bonus);
           } else {
             const curr = context.potencyAllocations.effectBonuses.get(`${tokenId}_${cand.uuid}`) || 0;
             context.potencyAllocations.effectBonuses.set(`${tokenId}_${cand.uuid}`, curr + bonus);
@@ -169,6 +173,9 @@ export class DeedPotencyHelper {
         if (cand.type === "terrain") {
           const curr = context.potencyAllocations.terrainBonuses.get(cand.nodeId) || 0;
           context.potencyAllocations.terrainBonuses.set(cand.nodeId, curr + bonus);
+        } else if (cand.type === "recovery") {
+          const curr = context.potencyAllocations.recoveryBonuses.get(cand.nodeId) || 0;
+          context.potencyAllocations.recoveryBonuses.set(cand.nodeId, curr + bonus);
         } else {
           const curr = context.potencyAllocations.effectBonuses.get(`global_${cand.uuid}`) || 0;
           context.potencyAllocations.effectBonuses.set(`global_${cand.uuid}`, curr + bonus);
@@ -217,6 +224,17 @@ export class DeedPotencyHelper {
    */
   static getTerrainPotency(context, nodeId) {
     return context.potencyAllocations?.terrainBonuses?.get(nodeId) ?? 0;
+  }
+
+  /**
+   * Retrieve allocated potency bonus for a recovery node ID.
+   * @param {object} context
+   * @param {string} nodeId
+   * @returns {number}
+   */
+  static getRecoveryPotency(context, nodeId) {
+    return context.potencyAllocations?.recoveryBonuses?.get(nodeId) ??
+           (context.sparkChoices?.potencyBonus || 0);
   }
 
   /**

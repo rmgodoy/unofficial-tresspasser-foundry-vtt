@@ -1,4 +1,128 @@
 /**
+ * Detect eligible spark types for a deed based purely on graph architecture and system data.
+ * @param {Item} item
+ * @param {object} [context]
+ * @param {Actor} [actor]
+ * @returns {Array<{ key: string, label: string, desc: string }>}
+ */
+export function getEligibleSparkTypes(item, context = {}, actor = null) {
+  if (!item) {
+    return [
+      { key: "power", label: game.i18n.localize("TRESPASSER.Dialog.Spark.Power"), desc: game.i18n.localize("TRESPASSER.Dialog.Spark.PowerDesc") }
+    ];
+  }
+
+  const graph = item.system?.graph || (context.executor?.system?.graph ?? null);
+  const nodes = graph?.nodes || [];
+  const connections = graph?.connections || [];
+
+  // 1. Detect Deed Spark
+  let hasDeedSpark = false;
+
+  // A. Check if any node in graph explicitly has phase === "spark"
+  if (nodes.some(n => n.phase === "spark")) {
+    hasDeedSpark = true;
+  }
+
+  // B. Check direct onSpark flow connections from rollAccuracy or other nodes
+  if (!hasDeedSpark) {
+    const onSparkConns = connections.filter(c => c.type !== "reference" && c.sourcePort === "onSpark");
+    const onHitConns = connections.filter(c => c.type !== "reference" && c.sourcePort === "onHit");
+
+    for (const sparkConn of onSparkConns) {
+      const isSharedWithHit = onHitConns.some(
+        hConn => hConn.sourceId === sparkConn.sourceId && hConn.targetId === sparkConn.targetId
+      );
+      if (!isSharedWithHit) {
+        hasDeedSpark = true;
+        break;
+      }
+    }
+  }
+
+  // C. Check switch nodes: only distinct if onSpark input is plugged in and different from onHit
+  if (!hasDeedSpark) {
+    const switchNodes = nodes.filter(n => n.type === "switch");
+    for (const swNode of switchNodes) {
+      const swConns = connections.filter(c => c.targetId === swNode.id);
+      const hitSourceConn = swConns.find(c => c.targetPort === "onHit");
+      const sparkSourceConn = swConns.find(c => c.targetPort === "onSpark");
+
+      if (sparkSourceConn && (!hitSourceConn || sparkSourceConn.sourceId !== hitSourceConn.sourceId)) {
+        hasDeedSpark = true;
+        break;
+      }
+    }
+  }
+
+  // D. Legacy non-graph fallback (if graph is empty)
+  if (!hasDeedSpark && nodes.length === 0) {
+    const legacySpark = item.system?.legacyPhases?.spark || item.system?.effects?.spark;
+    if (legacySpark?.appliesWeaponEffects || legacySpark?.appliedEffects?.length > 0 || legacySpark?.damage?.trim()) {
+      hasDeedSpark = true;
+    }
+  }
+
+  // 2. Detect Impact (Forced Movement)
+  const hasImpact = nodes.some(n => n.type === "forceMoveTargets") ||
+    (nodes.length === 0 && Boolean(item.system?.effects?.start?.forcedMovement || item.system?.effects?.hit?.forcedMovement));
+
+  // 3. Detect Potency (States, Recovery, Intensity)
+  const hasPotency = nodes.some(n =>
+    n.type === "grantRecovery" ||
+    n.type === "applyEffects" ||
+    n.type === "spawnTerrain"
+  ) || (nodes.length === 0 && Boolean(item.system?.effects?.hit?.appliedEffects?.length > 0 || item.system?.effects?.spark?.appliedEffects?.length > 0));
+
+  // 4. Detect Power (Damage)
+  const hasPower = nodes.some(n =>
+    n.type === "applyDamage" ||
+    (n.type === "roll" && (n.params?.usePowerSparks || n.params?.expression))
+  ) || item.system?.actionType === "attack" || (nodes.length === 0 && Boolean(item.system?.effects?.hit?.damage?.trim() || item.system?.effects?.base?.damage?.trim()));
+
+  const types = [];
+  if (hasDeedSpark) {
+    types.push({
+      key: "deed",
+      label: game.i18n.localize("TRESPASSER.Dialog.Spark.DeedSpark"),
+      desc: game.i18n.localize("TRESPASSER.Dialog.Spark.DeedSparkDesc")
+    });
+  }
+  if (hasImpact) {
+    types.push({
+      key: "impact",
+      label: game.i18n.localize("TRESPASSER.Dialog.Spark.Impact"),
+      desc: game.i18n.localize("TRESPASSER.Dialog.Spark.ImpactDesc")
+    });
+  }
+  if (hasPotency) {
+    types.push({
+      key: "potency",
+      label: game.i18n.localize("TRESPASSER.Dialog.Spark.Potency"),
+      desc: game.i18n.localize("TRESPASSER.Dialog.Spark.PotencyDesc")
+    });
+  }
+  if (hasPower) {
+    types.push({
+      key: "power",
+      label: game.i18n.localize("TRESPASSER.Dialog.Spark.Power"),
+      desc: game.i18n.localize("TRESPASSER.Dialog.Spark.PowerDesc")
+    });
+  }
+
+  // Fallback to power if none detected
+  if (types.length === 0) {
+    types.push({
+      key: "power",
+      label: game.i18n.localize("TRESPASSER.Dialog.Spark.Power"),
+      desc: game.i18n.localize("TRESPASSER.Dialog.Spark.PowerDesc")
+    });
+  }
+
+  return types;
+}
+
+/**
  * Spark selection dialog for deed rolls.
  *
  * Rules:
@@ -8,9 +132,10 @@
  *   - Each spark choice can only be picked once per "layer" (per target)
  *
  * @param {Array} results  Per-target results from the roll: { tokenId, tokenName, sparks, ... }
+ * @param {object} [options]  Options containing { item, context, actor, allowedSparkTypes }
  * @returns {Promise<object|null>}  Spark choices or null if cancelled
  */
-export async function askSparkDialog(results) {
+export async function askSparkDialog(results, options = {}) {
   // Filter to only targets with sparks
   const sparkTargets = results
     .filter(r => r.isHit && r.sparks > 0)
@@ -19,13 +144,8 @@ export async function askSparkDialog(results) {
   if (sparkTargets.length === 0) return null;
 
   const maxSparks = Math.max(...sparkTargets.map(r => r.sparks));
-
-  const sparkTypes = [
-    { key: "deed",    label: game.i18n.localize("TRESPASSER.Dialog.Spark.DeedSpark"),  desc: game.i18n.localize("TRESPASSER.Dialog.Spark.DeedSparkDesc") },
-    { key: "impact",  label: game.i18n.localize("TRESPASSER.Dialog.Spark.Impact"),     desc: game.i18n.localize("TRESPASSER.Dialog.Spark.ImpactDesc") },
-    { key: "potency", label: game.i18n.localize("TRESPASSER.Dialog.Spark.Potency"),    desc: game.i18n.localize("TRESPASSER.Dialog.Spark.PotencyDesc") },
-    { key: "power",   label: game.i18n.localize("TRESPASSER.Dialog.Spark.Power"),      desc: game.i18n.localize("TRESPASSER.Dialog.Spark.PowerDesc") }
-  ];
+  const { item, context, actor } = options;
+  const sparkTypes = options.allowedSparkTypes || getEligibleSparkTypes(item, context, actor);
 
   // Build HTML for each layer
   let html = `<div class="trespasser-dialog spark-dialog" style="max-height:60vh;overflow-y:auto;">`;
@@ -71,7 +191,8 @@ export async function askSparkDialog(results) {
         icon: "fas fa-sun",
         default: true,
         callback: (event, button, dialog) => {
-          return _parseSparkChoices(button.form, sparkTargets, maxSparks);
+          const root = dialog?.element || button?.form || button?.closest(".application") || button?.closest(".window-app") || document;
+          return _parseSparkChoices(root, sparkTargets, maxSparks);
         }
       },
       {
@@ -105,6 +226,7 @@ export async function askSparkDialog(results) {
  * Parse the dialog HTML into structured spark choices.
  */
 function _parseSparkChoices(element, sparkTargets, maxSparks) {
+  if (!element) return null;
   const layerChoices = [];
   let deedSparkLayer = null;
 
