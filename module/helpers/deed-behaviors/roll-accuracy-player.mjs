@@ -3,6 +3,7 @@ import { TrespasserEffectsHelper } from "../effects-helper.mjs";
 import { TrespasserRollDialog } from "../../dialogs/roll-dialog.mjs";
 import { askSparkDialog } from "../../dialogs/spark-dialog.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
+import { EngagementHelper } from "../engagement-helper.mjs";
 
 /**
  * Executes accuracy check for Character Attacking (Player Roll vs Target CD/DC).
@@ -39,13 +40,13 @@ export async function executePlayerAccuracyRoll({
     || actor?.getActiveTokens?.()[0] 
     || null;
 
-  const isEngaged = sourceToken ? TargetingHelper.isEngaged(sourceToken) : false;
-  const deedType = abilityType || item.system.abilityType || item.system.type;
-  const isMissileOrSpell = ["missile", "spell"].includes(deedType) || ["missile", "spell"].includes(item.system.type);
-  const actualTargetTokens = actualTargets.filter(t => t && t.center);
-  const isExempt = TargetingHelper.isExemptFromEngagement(item.system, actualTargetTokens, sourceToken);
-  const hasEngagementPenalty = isEngaged && isMissileOrSpell && !isExempt;
-  const engagementMod = hasEngagementPenalty ? -2 : 0;
+  const penaltyCheck = EngagementHelper.checkDeedEngagementPenalty(item, {
+    actor,
+    sourceToken,
+    targetTokens: isAttack && targetList.length > 0 ? targetList : []
+  });
+  const hasEngagementPenalty = penaltyCheck.hasPenalty;
+  const engagementMod = penaltyCheck.penaltyValue;
 
   const isAdv = actor ? TrespasserEffectsHelper.hasAdvantage(actor, "accuracy") : false;
   const effectBonus = actor ? TrespasserEffectsHelper.getAttributeBonus(actor, "accuracy", "use") : 0;

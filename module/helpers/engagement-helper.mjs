@@ -91,49 +91,51 @@ export class EngagementHelper {
    * Check if a deed suffers from the Engagement Penalty (-2 Accuracy).
    * Penalty applies if:
    * 1. The actor's token is engaged by an enemy on the canvas.
-   * 2. The deed is an attack (actionType !== "support").
-   * 3. The deed is a missile or spell deed.
-   * 4. The deed is not inherently exempt (not burst, close blast, close path, melee burst, personal, or self).
+   * 2. The deed is a missile or spell deed (versatile, melee, unarmed, innate, and tool never have penalty).
+   * 3. The deed is not inherently exempt (burst, close blast, close path, melee burst, aura, personal, or self).
+   * 4. When targets are provided: all targets must be adjacent/self to be exempt; if any target is non-adjacent, the attack suffers -2.
    *
    * @param {Item} deedItem - Deed or BDeed item document
-   * @param {Actor} [actor] - Owning actor document
-   * @returns {{ isEngaged: boolean, hasPenalty: boolean, penaltyValue: number }}
+   * @param {object|Actor} [optionsOrActor={}] - Options object or owning actor
+   * @param {Actor} [optionsOrActor.actor] - Owning actor document
+   * @param {Token} [optionsOrActor.sourceToken] - Caster token
+   * @param {Array<Token|TokenDocument>} [optionsOrActor.targetTokens] - Array of targets
+   * @param {Token|TokenDocument} [optionsOrActor.targetToken] - Single target
+   * @returns {{ isEngaged: boolean, hasPenalty: boolean, penaltyValue: number, isExemptAdjacent: boolean, engagementState: "none"|"penalty"|"exempt_adjacent"|"exempt_aoe" }}
    */
-  static checkDeedEngagementPenalty(deedItem, actor = null) {
-    const actorDoc = actor || deedItem?.actor;
+  static checkDeedEngagementPenalty(deedItem, optionsOrActor = {}) {
+    const isActorDoc = optionsOrActor && (optionsOrActor.documentName === "Actor" || typeof optionsOrActor.getRollData === "function");
+    const options = isActorDoc ? { actor: optionsOrActor } : (optionsOrActor || {});
+    const actorDoc = options.actor || deedItem?.actor;
     if (!actorDoc) {
-      return { isEngaged: false, hasPenalty: false, penaltyValue: 0 };
+      return { isEngaged: false, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "none" };
     }
 
-    const isEngaged = this.isActorEngaged(actorDoc);
+    const sourceToken = options.sourceToken || this.getActorToken(actorDoc);
+    const isEngaged = sourceToken ? TargetingHelper.isEngaged(sourceToken) : this.isActorEngaged(actorDoc);
     if (!isEngaged) {
-      return { isEngaged: false, hasPenalty: false, penaltyValue: 0 };
+      return { isEngaged: false, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "none" };
     }
 
     const effectiveAttrs = getEffectiveDeedAttributes(deedItem);
     const deedType = effectiveAttrs.abilityType || deedItem.system?.abilityType || deedItem.system?.type;
-    let isMissileOrSpell = ["missile", "spell"].includes(deedType) || ["missile", "spell"].includes(deedItem.system?.type);
 
-    if (!isMissileOrSpell && deedType === "versatile") {
-      const activeWeapons = getActiveWeapons(actorDoc);
-      const isRangedWeapon = activeWeapons.some(w => w.system?.type === "missile" || w.system?.type === "spell" || w.system?.properties?.thrown);
-      if (isRangedWeapon) isMissileOrSpell = true;
+    // Versatile, Melee, Unarmed, Innate, and Tool deeds NEVER suffer engagement penalty
+    if (["versatile", "melee", "unarmed", "innate", "tool"].includes(deedType)) {
+      return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "none" };
     }
 
+    // Only Missile and Spell deeds can suffer engagement penalty
+    const isMissileOrSpell = ["missile", "spell"].includes(deedType) || ["missile", "spell"].includes(deedItem.system?.type);
     if (!isMissileOrSpell) {
-      return { isEngaged: true, hasPenalty: false, penaltyValue: 0 };
+      return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "none" };
     }
 
-    const actionType = effectiveAttrs.actionType || deedItem.system?.actionType || "attack";
-    if (actionType === "support") {
-      return { isEngaged: true, hasPenalty: false, penaltyValue: 0 };
-    }
-
-    // Check if inherently exempt (e.g. personal, burst, close blast, etc.)
-    const exemptTypes = ["burst", "close_blast", "close_path", "melee_burst", "personal"];
+    // Check if inherently exempt (e.g. personal, burst, close blast, close path, melee burst, aura)
+    const exemptTypes = ["burst", "close_blast", "close_path", "melee_burst", "aura", "personal"];
     const targetType = deedItem.system?.targetType;
     if (exemptTypes.includes(targetType)) {
-      return { isEngaged: true, hasPenalty: false, penaltyValue: 0 };
+      return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "exempt_aoe" };
     }
 
     // Check BDeed graph nodes for area/target exempt parameters
@@ -142,15 +144,12 @@ export class EngagementHelper {
       if (node.type === "selectArea") {
         const aoeType = node.params?.aoeType;
         if (exemptTypes.includes(aoeType)) {
-          return { isEngaged: true, hasPenalty: false, penaltyValue: 0 };
+          return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "exempt_aoe" };
         }
       } else if (node.type === "selectTarget") {
-        if (node.params?.targetMode === "self") {
-          return { isEngaged: true, hasPenalty: false, penaltyValue: 0 };
-        }
         const aoeType = node.params?.aoeType;
         if (exemptTypes.includes(aoeType)) {
-          return { isEngaged: true, hasPenalty: false, penaltyValue: 0 };
+          return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "exempt_aoe" };
         }
       }
     }
@@ -161,16 +160,58 @@ export class EngagementHelper {
       const behaviors = phases[pKey]?.behaviors || [];
       for (const b of behaviors) {
         if (b.type === "selectArea" && exemptTypes.includes(b.params?.aoeType)) {
-          return { isEngaged: true, hasPenalty: false, penaltyValue: 0 };
+          return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "exempt_aoe" };
         }
-        if (b.type === "selectTarget") {
-          if (b.params?.targetMode === "self") return { isEngaged: true, hasPenalty: false, penaltyValue: 0 };
-          if (exemptTypes.includes(b.params?.aoeType)) return { isEngaged: true, hasPenalty: false, penaltyValue: 0 };
+        if (b.type === "selectTarget" && exemptTypes.includes(b.params?.aoeType)) {
+          return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "exempt_aoe" };
         }
       }
     }
 
-    return { isEngaged: true, hasPenalty: true, penaltyValue: -2 };
+    // Target-dependent adjacency check
+    let rawTargets = options.targetTokens || (options.targetToken ? [options.targetToken] : []);
+    if (!Array.isArray(rawTargets)) rawTargets = [rawTargets];
+    const targetList = rawTargets.filter(Boolean);
+
+    if (targetList.length > 0) {
+      const gridPx = canvas?.grid?.size || 100;
+      let allAdjacent = true;
+
+      for (const t of targetList) {
+        const isSelf = (sourceToken && (t.id === sourceToken.id || t.document?.id === sourceToken.id)) ||
+                       (actorDoc && (t.actor?.id === actorDoc.id || t.id === actorDoc.id));
+        if (isSelf) continue;
+
+        const tDoc = t.document ?? t;
+        const sDoc = sourceToken?.document ?? sourceToken;
+
+        const tCenter = t.center || (tDoc ? { x: (tDoc.x ?? 0) + (tDoc.width ?? 1) * gridPx / 2, y: (tDoc.y ?? 0) + (tDoc.height ?? 1) * gridPx / 2 } : null);
+        const sCenter = sourceToken?.center || (sDoc ? { x: (sDoc.x ?? 0) + (sDoc.width ?? 1) * gridPx / 2, y: (sDoc.y ?? 0) + (sDoc.height ?? 1) * gridPx / 2 } : null);
+
+        if (sCenter && tCenter) {
+          const distSquares = Math.max(
+            Math.abs(tCenter.x - sCenter.x),
+            Math.abs(tCenter.y - sCenter.y)
+          ) / gridPx;
+          if (distSquares > 1.1) {
+            allAdjacent = false;
+            break;
+          }
+        } else {
+          allAdjacent = false;
+          break;
+        }
+      }
+
+      if (allAdjacent) {
+        return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: true, engagementState: "exempt_adjacent" };
+      } else {
+        return { isEngaged: true, hasPenalty: true, penaltyValue: -2, isExemptAdjacent: false, engagementState: "penalty" };
+      }
+    }
+
+    // Static view (e.g. Deed Card / Attempt Deed dropdown)
+    return { isEngaged: true, hasPenalty: true, penaltyValue: -2, isExemptAdjacent: false, engagementState: "penalty" };
   }
 
   /**

@@ -1,0 +1,128 @@
+/* ─── Target Preview HUD ─── */
+.target-preview-hud-layer {
+  pointer-events: none !important;
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+  overflow: visible !important;
+}
+
+.target-outcome-card {
+  pointer-events: none;
+  background: rgba(26, 23, 20, 0.94);
+  border: 1px solid var(--role-color, var(--trp-border));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
+  border-radius: var(--trp-radius-sm);
+  padding: 2px 5px;
+  min-width: 65px;
+  max-width: 150px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: var(--trp-font-body);
+  color: var(--trp-text);
+  font-size: var(--fs-10);
+  z-index: 100;
+  transition: opacity 0.15s ease-out;
+}
+
+.target-card-header {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.10);
+  padding-bottom: 1px;
+}
+
+.target-card-header .role-icon {
+  font-size: var(--fs-10);
+  display: inline-flex;
+  align-items: center;
+}
+
+.target-card-header .target-name {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-10);
+  font-weight: 600;
+  color: var(--trp-text-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 95px;
+}
+
+.sunken-pill-badge {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-9);
+  background: rgba(116, 185, 255, 0.25);
+  color: #74b9ff;
+  border: 1px solid rgba(116, 185, 255, 0.4);
+  border-radius: var(--trp-radius-sm);
+  padding: 1px 4px;
+  margin-left: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+  line-height: 1.2;
+}
+
+
+.target-card-body {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.outcome-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--fs-10);
+  white-space: nowrap;
+}
+
+.outcome-chip .chip-icon {
+  font-size: var(--fs-8);
+  opacity: 0.85;
+}
+
+.outcome-chip .chip-val {
+  font-size: var(--fs-10);
+  font-weight: 600;
+  color: var(--trp-text-bright);
+}
+
+.outcome-dmg {
+  color: var(--trp-red);
+}
+
+.outcome-heal {
+  color: var(--trp-green-bright);
+}
+
+.outcome-eff {
+  color: var(--trp-spark);
+}
+
+/* ─── Spectator Target Preview HUD (Monochrome Gray Tone) ─── */
+.target-outcome-card.is-spectator,
+.target-preview-hud-layer.is-spectator .target-outcome-card {
+  filter: grayscale(100%) brightness(0.9);
+  background: rgba(30, 30, 30, 0.90);
+  border-color: #777777 !important;
+  opacity: 0.88;
+}
+
+.target-outcome-card.is-spectator .role-icon,
+.target-outcome-card.is-spectator .chip-icon {
+  color: #aaaaaa !important;
+}
+
+.target-outcome-card.is-spectator .target-name,
+.target-outcome-card.is-spectator .chip-val,
+.target-outcome-card.is-spectator .outcome-dmg,
+.target-outcome-card.is-spectator .outcome-heal,
+.target-outcome-card.is-spectator .outcome-eff {
+  color: #cccccc !important;
+}

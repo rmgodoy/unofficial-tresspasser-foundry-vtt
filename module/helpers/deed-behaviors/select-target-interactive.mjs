@@ -74,7 +74,7 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     // 2. Resolve outcomes for candidates and selected targets
     const allRelevantTokens = [...selectedTargets, ...(candidateTokens || [])];
     const outcomeMap = item
-      ? DeedIntentResolver.resolveTargetsOutcome(allRelevantTokens, sourceToken, item, { actor, params: { ...params, isJump } })
+      ? DeedIntentResolver.resolveTargetsOutcome(allRelevantTokens, sourceToken, item, { actor, params: { ...params, isJump }, selectedTargets })
       : new Map();
 
     if (allRelevantTokens.length > 0) {

@@ -3,6 +3,7 @@ import { TrespasserEffectsHelper } from "../effects-helper.mjs";
 import { askSparkDialog } from "../../dialogs/spark-dialog.mjs";
 import { requestPlayerDefenseRoll } from "../defense-roll-helper.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
+import { EngagementHelper } from "../engagement-helper.mjs";
 
 /**
  * Executes accuracy check for Creature Attacking Characters (Player-Facing Defense Roll via Socket).
@@ -32,13 +33,13 @@ export async function executeCreatureDefenseRoll({
   branchingMode
 }) {
   const creatureToken = context.sourceToken || context.executor?.sourceToken || actor?.getActiveTokens?.()[0] || null;
-  const isEngaged = creatureToken ? TargetingHelper.isEngaged(creatureToken) : false;
-  const deedType = abilityType || item.system.abilityType || item.system.type;
-  const isMissileOrSpell = ["missile", "spell"].includes(deedType) || ["missile", "spell"].includes(item.system.type);
-  const targetTokensList = targetList.filter(t => t && t.center);
-  const isExempt = TargetingHelper.isExemptFromEngagement(item.system, targetTokensList, creatureToken);
-  const hasEngagementPenalty = isEngaged && isMissileOrSpell && !isExempt;
-  const engagementMod = hasEngagementPenalty ? -2 : 0;
+  const penaltyCheck = EngagementHelper.checkDeedEngagementPenalty(item, {
+    actor,
+    sourceToken: creatureToken,
+    targetTokens: targetList || []
+  });
+  const hasEngagementPenalty = penaltyCheck.hasPenalty;
+  const engagementMod = penaltyCheck.penaltyValue;
 
   const creatureEffBonus = actor ? TrespasserEffectsHelper.getAttributeBonus(actor, "accuracy", "use") : 0;
   const creatureAccuracy = actor?.system?.combat?.accuracy ?? 0;

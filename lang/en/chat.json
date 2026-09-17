@@ -80,6 +80,7 @@
         "EngagementPenalty": "(Engaged: -2 accuracy)",
         "EngagedTag": "Engaged",
         "EngagementPenaltyDeedTooltip": "Engaged: -2 Accuracy with missile and spell attacks (unless targeting adjacent foes).",
+        "EngagementAdjacentExemptTooltip": "Engaged: The -2 accuracy penalty is bypassed because all targets are adjacent.",
         "Block": "Block",
         "Blocked": "Blocked",
         "BlockReaction": "Block Reaction",
