@@ -2,6 +2,8 @@ import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 import { onDeedRoll, postDeedPhase } from "./character/handlers-deed.mjs";
 import { onPrevailRoll, onIntensityChange, onEffectInfo } from "./character/handlers-effects.mjs";
+import { onCombatStatRoll, evaluateAndShowRoll } from "./character/handlers-rolls.mjs";
+import { getAccuracyFromTarget } from "./character/handlers-combat.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { TrespasserCreatureConfigDialog } from "../dialogs/creature-config-dialog.mjs";
 import { PASSIVE_STATES } from "../config/state-config.mjs";
@@ -129,7 +131,8 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
     html.find('.item-edit').on("click", this._onItemEdit.bind(this));
     html.find('.item-delete').on("click", this._onItemDelete.bind(this));
     
-    // Rollable Deeds
+    // Rollable Deeds & Stats
+    html.find('.stat-label.rollable').on("click", this._onCombatStatRoll.bind(this));
     html.find('.deed-rollable').on("click", this._onDeedRoll.bind(this));
     html.find('.feature-name.rollable').on("click", this._onFeatureRoll.bind(this));
     
@@ -291,6 +294,27 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
 
   async _onPrevailRoll(event) {
     return onPrevailRoll(event, this);
+  }
+
+  /**
+   * Handle rolling a combat stat from the creature sheet.
+   */
+  async _onCombatStatRoll(event) {
+    return onCombatStatRoll(event, this);
+  }
+
+  /**
+   * Evaluate a roll against target CD and format the chat message.
+   */
+  async _evaluateAndShowRoll(roll, flavor, cd = null, options = {}) {
+    return evaluateAndShowRoll(roll, flavor, cd, options, this);
+  }
+
+  /**
+   * Fetch accuracy from selected targets.
+   */
+  _getAccuracyFromTarget() {
+    return getAccuracyFromTarget(this);
   }
 
   /**

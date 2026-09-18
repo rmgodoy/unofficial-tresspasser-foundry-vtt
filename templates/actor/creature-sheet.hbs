@@ -69,14 +69,14 @@
           </div>
         </div>
         <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Common.Base'}}: {{system.guard}}">
-          <label class="stat-label">
+          <label class="stat-label rollable" data-stat="guard">
             {{localize "TRESPASSER.Sheet.Combat.Guard"}}
             {{#if (ne system.guard system.combat.guard)}}<small class="mod-val">({{system.combat.guard}})</small>{{/if}}
           </label>
           <input type="number" name="system.guard" value="{{system.guard}}" class="stat-input" />
         </div>
         <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Common.Base'}}: {{system.resist}}">
-          <label class="stat-label">
+          <label class="stat-label rollable" data-stat="resist">
             {{localize "TRESPASSER.Sheet.Combat.Resist"}}
             {{#if (ne system.resist system.combat.resist)}}<small class="mod-val">({{system.combat.resist}})</small>{{/if}}
           </label>
@@ -87,14 +87,14 @@
       <!-- Row 4: Combat Ratings (Accuracy, Initiative, Speed, Prevail) -->
       <div class="header-row creature-stats-row creature-combat-row">
         <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Common.Base'}}: {{system.accuracy}}">
-          <label class="stat-label">
+          <label class="stat-label rollable" data-stat="accuracy">
             {{localize "TRESPASSER.Sheet.Combat.Accuracy"}}
             {{#if (ne system.accuracy system.combat.accuracy)}}<small class="mod-val">({{system.combat.accuracy}})</small>{{/if}}
           </label>
           <input type="number" name="system.accuracy" value="{{system.accuracy}}" class="stat-input" />
         </div>
         <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Common.Base'}}: {{system.initiative}}">
-          <label class="stat-label">
+          <label class="stat-label rollable" data-stat="initiative">
             {{localize "TRESPASSER.Sheet.Combat.Initiative"}}
             {{#if (ne system.initiative system.combat.initiative)}}<small class="mod-val">({{system.combat.initiative}})</small>{{/if}}
           </label>
@@ -108,7 +108,7 @@
           <input type="number" name="system.speed" value="{{system.speed}}" class="stat-input" />
         </div>
         <div class="creature-stat-box" data-tooltip="{{localize 'TRESPASSER.Sheet.Common.Base'}}: {{system.prevail}}">
-          <label class="stat-label">
+          <label class="stat-label rollable" data-stat="prevail">
             {{localize "TRESPASSER.Sheet.Combat.Prevail"}}
             {{#if (ne system.prevail system.combat.prevail)}}<small class="mod-val">({{system.combat.prevail}})</small>{{/if}}
           </label>

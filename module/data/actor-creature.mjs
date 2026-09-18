@@ -35,6 +35,22 @@ export class TrespasserCreatureData extends TrespasserCombatantData {
     };
   }
 
+  /**
+   * Migrate legacy creature data structures.
+   * @param {object} source
+   * @returns {object}
+   */
+  static migrateData(source) {
+    if (!source || typeof source !== "object") return super.migrateData(source);
+
+    if (source.damage_die === undefined) {
+      if (source.weapon_die !== undefined) source.damage_die = source.weapon_die;
+      else if (source.weaponDie !== undefined) source.damage_die = source.weaponDie;
+    }
+
+    return super.migrateData(source);
+  }
+
   get skill_die() {
     return this.damage_die || "d6";
   }

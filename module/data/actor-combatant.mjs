@@ -108,6 +108,48 @@ export class TrespasserCombatantData extends foundry.abstract.TypeDataModel {
   }
 
   /**
+   * Migrate legacy data structures to current combatant schema.
+   * @param {object} source
+   * @returns {object}
+   */
+  static migrateData(source) {
+    if (!source || typeof source !== "object") return super.migrateData(source);
+
+    // Legacy HP structure migration: { hp: { value, max } } or { hp: 10 }
+    if (source.hp !== undefined && source.hp !== null) {
+      if (typeof source.hp === "object") {
+        if (source.health === undefined && source.hp.value !== undefined) {
+          source.health = source.hp.value;
+        }
+        if (source.max_health === undefined && source.hp.max !== undefined) {
+          source.max_health = source.hp.max;
+        }
+      } else if (typeof source.hp === "number") {
+        if (source.health === undefined) source.health = source.hp;
+        if (source.max_health === undefined) source.max_health = source.hp;
+      }
+      delete source.hp;
+    }
+
+    if (source.max_hp !== undefined) {
+      if (source.max_health === undefined) source.max_health = source.max_hp;
+      delete source.max_hp;
+    }
+
+    if (source.maxHealth !== undefined) {
+      if (source.max_health === undefined) source.max_health = source.maxHealth;
+      delete source.maxHealth;
+    }
+
+    if (source.inventoryMax !== undefined) {
+      if (source.inventory_max === undefined) source.inventory_max = source.inventoryMax;
+      delete source.inventoryMax;
+    }
+
+    return super.migrateData(source);
+  }
+
+  /**
    * Return dictionary of modifiable attribute dot-paths for effect targeting validation.
    * @returns {Record<string, string>}
    */

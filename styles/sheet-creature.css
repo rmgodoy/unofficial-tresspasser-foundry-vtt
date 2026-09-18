@@ -231,6 +231,17 @@
   gap: 2px;
 }
 
+.creature .creature-stat-box .stat-label.rollable {
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease, text-shadow 0.15s ease;
+}
+
+.creature .creature-stat-box .stat-label.rollable:hover {
+  color: var(--trp-gold-bright);
+  text-shadow: 0 0 5px var(--trp-shadow-gold);
+}
+
 .creature .creature-stat-box .stat-label .mod-val {
   color: var(--trp-text-dim);
   font-size: var(--fs-9);
