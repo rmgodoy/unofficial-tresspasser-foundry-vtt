@@ -1,158 +1,78 @@
-[
-  {
-    "source": "Deed",
-    "target": "Habilidade"
-  },
-  {
-    "source": "Spark",
-    "target": "Centelha"
-  },
-  {
-    "source": "Haven",
-    "target": "Abrigo"
-  },
-  {
-    "source": "Hireling",
-    "target": "Servo"
-  },
-  {
-    "source": "Plight",
-    "target": "Aflição"
-  },
-  {
-    "source": "Rummage",
-    "target": "Organizar"
-  },
-  {
-    "source": "Tempt Fate",
-    "target": "Desafiar o Destino"
-  },
-  {
-    "source": "Resolve",
-    "target": "Determinação"
-  },
-  {
-    "source": "Endurance",
-    "target": "Vigor"
-  },
-  {
-    "source": "Might",
-    "target": "Poder"
-  },
-  {
-    "source": "Tinkering",
-    "target": "Engenhosidade"
-  },
-  {
-    "source": "Speech",
-    "target": "Lábia"
-  },
-  {
-    "source": "Crafting",
-    "target": "Ofício"
-  },
-  {
-    "source": "Calling",
-    "target": "Vocação"
-  },
-  {
-    "source": "Underling",
-    "target": "Subalterno"
-  },
-  {
-    "source": "Paragon",
-    "target": "Exemplar"
-  },
-  {
-    "source": "Tyrant",
-    "target": "Tirano"
-  },
-  {
-    "source": "Enforcer",
-    "target": "Executor"
-  },
-  {
-    "source": "Harrier",
-    "target": "Assolador"
-  },
-  {
-    "source": "Hellion",
-    "target": "Turbulento"
-  },
-  {
-    "source": "Stalker",
-    "target": "Espreitador"
-  },
-  {
-    "source": "Blast",
-    "target": "Explosão"
-  },
-  {
-    "source": "Burst",
-    "target": "Erupção"
-  },
-  {
-    "source": "Melee Burst",
-    "target": "Erupção Corpo-a-corpo"
-  },
-  {
-    "source": "Path",
-    "target": "Caminho"
-  },
-  {
-    "source": "Close Path",
-    "target": "Caminho Próximo"
-  },
-  {
-    "source": "Lift Spirits",
-    "target": "Animar o Grupo"
-  },
-  {
-    "source": "Survey",
-    "target": "Vistoriar"
-  },
-  {
-    "source": "Harrowing",
-    "target": "Dilacerante"
-  },
-  {
-    "source": "Canny",
-    "target": "Esperto"
-  },
-  {
-    "source": "Striking",
-    "target": "Impressionante"
-  },
-  {
-    "source": "Daunting",
-    "target": "Desanimador"
-  },
-  {
-    "source": "Costly",
-    "target": "Caro"
-  },
-  {
-    "source": "Harmful",
-    "target": "Prejudicial"
-  },
-  {
-    "source": "Depletion",
-    "target": "Depleção"
-  },
-  {
-    "source": "Recovery Dice",
-    "target": "Dados de Recuperação"
-  },
-  {
-    "source": "Skill Die",
-    "target": "Dado de Perícia"
-  },
-  {
-    "source": "Stronghold",
-    "target": "Fortaleza"
-  },
-  {
-    "source": "Vault",
-    "target": "Saltar"
-  }
-]
+{
+  "Trespasser": "Trespasser",
+  "Commoner": "Plebeu",
+  "Deed": "Habilidade",
+  "Deeds": "Habilidades",
+  "Spark": "Centelha",
+  "Sparks": "Centelhas",
+  "Shadow": "Sombra",
+  "Shadows": "Sombras",
+  "Calling": "Vocação",
+  "Craft": "Ofício",
+  "Past Life": "Vida Passada",
+  "Hireling": "Servo",
+  "Haven": "Abrigo",
+  "Stronghold": "Fortaleza",
+  "Plight": "Aflição",
+  "Tempt Fate": "Desafiar o Destino",
+  "Peril": "Perigo",
+  "Tenacity": "Tenacidade",
+  "Tenacious": "Tenaz",
+  "Prevail": "Prevalecer",
+  "Guard": "Guarda",
+  "Resist": "Resistir",
+  "Resolve": "Determinação",
+  "Endurance": "Vigor",
+  "Might": "Poder",
+  "Focus": "Foco",
+  "Action Points": "Pontos de Ação",
+  "AP": "PA",
+  "Depletion": "Depleção",
+  "Recovery Die": "Dado de Recuperação",
+  "Recovery Dice": "Dados de Recuperação",
+  "Skill Die": "Dado de Perícia",
+  "Rummage": "Organizar",
+  "Vault": "Saltar",
+  "Take Aim": "Mirar",
+  "Underling": "Subalterno",
+  "Paragon": "Exemplar",
+  "Tyrant": "Tirano",
+  "Enforcer": "Executor",
+  "Harrier": "Assolador",
+  "Hellion": "Turbulento",
+  "Stalker": "Espreitador",
+  "Blast": "Explosão",
+  "Close Blast": "Explosão Próxima",
+  "Burst": "Erupção",
+  "Melee Burst": "Erupção Corpo a Corpo",
+  "Path": "Caminho",
+  "Close Path": "Caminho Próximo",
+  "Canny": "Esperto",
+  "Costly": "Caro",
+  "Striking": "Impressionante",
+  "Daunting": "Desanimador",
+  "Harmful": "Prejudicial",
+  "Harrowing": "Dilacerante",
+  "Lift Spirits": "Animar o Grupo",
+  "Survey": "Vistoriar",
+  "Wayfinding": "Orientação",
+  "Moment's Rest": "Descanso Breve",
+  "Night's Rest": "Descanso Noturno",
+  "Week's Rest": "Descanso Semanal",
+  "Staggered": "Abalado",
+  "Toppled": "Derrubado",
+  "Sunken": "Submerso",
+  "Engaged": "Engajado",
+  "Unguarded": "Desprotegido",
+  "Afflicted": "Afligido",
+  "Tinkering": "Engenhosidade",
+  "Speech": "Lábia",
+  "Letters": "Letras",
+  "Crafting": "Ofício",
+  "Sweep": "Varrer",
+  "Shove": "Empurrão",
+  "Conspicuous": "Chamativo",
+  "Discouraged": "Desanimado",
+  "Enfeebled": "Debilitado",
+  "Sluggish": "Lento"
+}
