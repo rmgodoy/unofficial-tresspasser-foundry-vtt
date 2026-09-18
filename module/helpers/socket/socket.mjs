@@ -34,6 +34,12 @@ import {
   handleGrantRecoveryRequest,
   handleGrantRecoveryResponse
 } from "./grant-recovery-handler.mjs";
+import {
+  handleInterceptionBatchRequest,
+  handleInterceptionBatchResponse,
+  handleInterceptionSingleRequest,
+  handleInterceptionSingleResponse
+} from "../../reactions/interception-prompts.mjs";
 import { TargetingPreviewSyncer } from "../../targeting/targeting-preview-syncer.mjs";
 import { SYSTEM_ID } from "../../system-id.mjs";
 
@@ -113,6 +119,14 @@ export class TrespasserSocket {
         return handleGrantRecoveryRequest(data, senderId);
       case "GRANT_RECOVERY_RESPONSE":
         return handleGrantRecoveryResponse(data);
+      case "INTERCEPTION_BATCH_REQUEST":
+        return handleInterceptionBatchRequest(data, senderId);
+      case "INTERCEPTION_BATCH_RESPONSE":
+        return handleInterceptionBatchResponse(data);
+      case "INTERCEPTION_SINGLE_REQUEST":
+        return handleInterceptionSingleRequest(data, senderId);
+      case "INTERCEPTION_SINGLE_RESPONSE":
+        return handleInterceptionSingleResponse(data);
       case "TARGETING_PREVIEW_UPDATE":
         return TargetingPreviewSyncer.handleRemoteUpdate(data, senderId);
       case "TARGETING_PREVIEW_CLEAR":

@@ -19,6 +19,7 @@ import {
 } from "../actor/actor-linked-items.mjs";
 import { CombatActorMixin } from "../actor/combat-actor-mixin.mjs";
 import { actorEventBus } from "../actor/actor-event-bus.mjs";
+import { syncActorInterceptions } from "../reactions/middleware-interception.mjs";
 import {
   TRESPASSER_STATUS_EFFECTS,
   STATUS_EFFECT_COUNTERS,
@@ -366,6 +367,15 @@ export class TrespasserActor extends CombatActorMixin(Actor) {
         await TrespasserEffectsHelper.triggerImmediate(this, doc);
       }
     }
+    syncActorInterceptions(this);
+  }
+
+  /** @override */
+  _onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId) {
+    super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
+    if (collection === "items" && game.user.id === userId) {
+      syncActorInterceptions(this);
+    }
   }
 
   /** @override */
@@ -398,6 +408,7 @@ export class TrespasserActor extends CombatActorMixin(Actor) {
     if (changed) {
       this.update(updates);
     }
+    syncActorInterceptions(this);
   }
 
   // --- Static Damage Animation API ---

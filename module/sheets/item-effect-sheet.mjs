@@ -1,6 +1,7 @@
 import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { resolveItem } from "../helpers/item-resolver.mjs";
+import { getInterceptionModesForTrigger } from "../reactions/middleware-interception.mjs";
 
 /**
  * Item sheet for Trespasser Effect items.
@@ -69,6 +70,24 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     context.isCustomStatus = isCustomStatus;
     context.customStatusLabel = customStatusLabel;
 
+    // Dynamic flags for contextual UI
+    const isDamageInterception = ["redirect_damage", "reduce_damage"].includes(system.interceptionMode);
+    const isCustomRange = !system.rangeType || system.rangeType === "custom";
+    const isNumberLimit = system.targetLimit === "number" || (!["all"].includes(system.targetLimit) && Number(system.targetLimit) > 0);
+    const targetLimitChoice = isNumberLimit ? "number" : "all";
+    const targetLimitCount = system.targetLimitCount ?? (Number(system.targetLimit) || 1);
+    const showTargetAttribute = system.type !== "movement" && !system.isOnlyReminder && (system.type === "continuous" || system.interceptionMode === "none" || system.interceptionMode === "modify_amount");
+
+    context.isDamageInterception = isDamageInterception;
+    context.isCustomRange = isCustomRange;
+    context.isNumberLimit = isNumberLimit;
+    context.targetLimitChoice = targetLimitChoice;
+    context.targetLimitCount = targetLimitCount;
+    context.showTargetAttribute = showTargetAttribute;
+    context.modifierLabel = isDamageInterception
+      ? "TRESPASSER.Sheet.Item.Details.InterceptionCapacity"
+      : "TRESPASSER.Sheet.Common.Modifier";
+
     // Add constants for the sheet
     context.config = {
       effectTypes: {
@@ -80,6 +99,24 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
       targetAttributes: TrespasserEffectsHelper.TARGET_ATTRIBUTES,
       triggerWhen: TrespasserEffectsHelper.TRIGGER_LABELS,
       durationModes: TrespasserEffectsHelper.DURATION_LABELS,
+      scopes: {
+        "self": "TRESPASSER.Sheet.Item.Effect.ScopeChoices.Self",
+        "ally": "TRESPASSER.Sheet.Item.Effect.ScopeChoices.Ally",
+        "enemy": "TRESPASSER.Sheet.Item.Effect.ScopeChoices.Enemy",
+        "all": "TRESPASSER.Sheet.Item.Effect.ScopeChoices.All"
+      },
+      targetLimitChoices: {
+        "all": "TRESPASSER.Sheet.Item.Effect.TargetLimitChoices.All",
+        "number": "TRESPASSER.Sheet.Item.Effect.TargetLimitChoices.Number"
+      },
+      rangeTypes: {
+        "custom": "TRESPASSER.Sheet.Item.Effect.RangeChoices.Custom",
+        "melee": "TRESPASSER.Sheet.Item.Effect.RangeChoices.Melee",
+        "missile": "TRESPASSER.Sheet.Item.Effect.RangeChoices.Missile",
+        "spell": "TRESPASSER.Sheet.Item.Effect.RangeChoices.Spell",
+        "throw": "TRESPASSER.Sheet.Item.Effect.RangeChoices.Throw"
+      },
+      interceptionModes: this._getContextualInterceptionModes(system.when),
       statusEffects
     };
 
@@ -239,6 +276,31 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
   }
 
   /**
+   * Return contextual interception mode labels for a trigger.
+   * @param {string} when
+   * @returns {Record<string, string>}
+   */
+  _getContextualInterceptionModes(when) {
+    const allLabels = {
+      "none": "TRESPASSER.Sheet.Item.Effect.InterceptionChoices.None",
+      "redirect_damage": "TRESPASSER.Sheet.Item.Effect.InterceptionChoices.RedirectDamage",
+      "reduce_damage": "TRESPASSER.Sheet.Item.Effect.InterceptionChoices.ReduceDamage",
+      "cancel_action": "TRESPASSER.Sheet.Item.Effect.InterceptionChoices.CancelAction",
+      "modify_amount": "TRESPASSER.Sheet.Item.Effect.InterceptionChoices.ModifyAmount",
+      "grant_advantage": "TRESPASSER.Sheet.Item.Effect.InterceptionChoices.GrantAdvantage",
+      "grant_disadvantage": "TRESPASSER.Sheet.Item.Effect.InterceptionChoices.GrantDisadvantage",
+      "custom": "TRESPASSER.Sheet.Item.Effect.InterceptionChoices.Custom"
+    };
+
+    const allowedKeys = getInterceptionModesForTrigger(when);
+    const result = {};
+    for (const key of allowedKeys) {
+      if (allLabels[key]) result[key] = allLabels[key];
+    }
+    return result;
+  }
+
+  /**
    * Manual form submission handler for AppV2.
    */
   static async #onSubmit(event, form, formData) {
@@ -250,6 +312,16 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
       formData.object["system.syncStatusIcon"] = false;
       formData.object["system.statusIcon"] = statusIconVal;
     }
+
+    // Sanitize interceptionMode if trigger changed
+    const newWhen = formData.object["system.when"] ?? this.document.system.when;
+    const allowed = getInterceptionModesForTrigger(newWhen);
+    const submittedMode = formData.object["system.interceptionMode"] ?? this.document.system.interceptionMode;
+    if (submittedMode && !allowed.includes(submittedMode)) {
+      formData.object["system.interceptionMode"] = "none";
+    }
+
     await this.document.update(formData.object);
   }
 }
+

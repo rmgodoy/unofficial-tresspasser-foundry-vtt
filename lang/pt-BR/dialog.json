@@ -12,7 +12,17 @@
         "SearchPlaceholder": "Buscar…"
       },
       "Combat": {
-        "SelectArmorToBlock": "Selecione qual dado de armadura equipada rolar para bloquear o dano ({damage} sofrido):"
+        "SelectArmorToBlock": "Selecione qual dado de armadura equipada rolar para bloquear o dano ({damage} sofrido):",
+        "ConfirmRedirectDamage": "{caster}: Interceptar e redirecionar {amount} de dano de {target} para si através de {effect}?",
+        "ConfirmReduceDamage": "{caster}: Interceptar e reduzir {amount} de dano para {target} através de {effect}?",
+        "ConfirmBatchRedirectDamage": "{caster}: Selecione os aliados para proteger através de {effect} (Máximo {limit}):",
+        "ConfirmBatchRedirectDamageAll": "{caster}: Selecione os aliados para proteger através de {effect} (Todos elegíveis):",
+        "ConfirmBatchReduceDamage": "{caster}: Selecione os aliados para reduzir o dano através de {effect} (Máximo {limit}):",
+        "ConfirmBatchReduceDamageAll": "{caster}: Selecione os aliados para reduzir o dano através de {effect} (Todos elegíveis):",
+        "BatchProtectionHeader": "Selecione os Aliados para Proteger",
+        "SquaresAway": "{dist} qdr de distância",
+        "IncomingDamage": "{amount} de dano",
+        "PassAll": "Passar Todos"
       },
       "SkillCheckTitle": "Teste de {skill} - Escolher Atributo",
       "SkillCheck": {

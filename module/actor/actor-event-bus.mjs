@@ -22,6 +22,9 @@ export class ActorEventBus {
 
     /** @type {boolean} */
     this.debug = false;
+
+    /** @type {object|null} */
+    this._activeBatch = null;
   }
 
   /**
@@ -45,7 +48,8 @@ export class ActorEventBus {
    * @param {string} [options.scope='self'] - 'self' | 'ally' | 'enemy' | 'all'
    * @param {string} [options.sourceActorId] - ID of the actor registering this middleware
    * @param {string} [options.effectItemId] - ID of the effect item granting this middleware
-   * @param {number|string|null} [options.range=null] - Max range in squares or keyword ('spell', 'melee')
+   * @param {string} [options.rangeType='custom'] - 'custom' | 'melee' | 'missile' | 'spell' | 'throw'
+   * @param {number|string|null} [options.range=null] - Max range in squares
    * @param {number} [options.priority=100] - Lower runs earlier
    * @returns {string} The registered handler ID
    */
@@ -59,6 +63,7 @@ export class ActorEventBus {
         scope: options.scope || "self",
         sourceActorId: options.sourceActorId || null,
         effectItemId: options.effectItemId || null,
+        rangeType: options.rangeType || "custom",
         range: options.range ?? null,
         priority: options.priority ?? 100,
         ...options
@@ -183,12 +188,102 @@ export class ActorEventBus {
   }
 
   /**
+   * Start a multi-target batch envelope to resolve cross-actor reactions in a single prompt.
+   * @param {string} eventName
+   * @param {Array<Actor|Token|{ actor: Actor, token?: Token, amount?: number }>} targets
+   * @param {object} [context={}]
+   * @returns {Promise<object|null>}
+   */
+  async startBatch(eventName, targets = [], context = {}) {
+    if (!eventName || !Array.isArray(targets) || targets.length <= 1) return null;
+
+    const normalizedTargets = targets.map(t => {
+      if (t?.actor && t?.document) return { actor: t.actor, token: t, amount: t.amount ?? context.amount ?? 0 };
+      if (t?.actor) return { actor: t.actor, token: t.token || t.actor.getActiveTokens?.(true, true)?.[0] || t.actor.token, amount: t.amount ?? context.amount ?? 0 };
+      if (t?.type) return { actor: t, token: t.getActiveTokens?.(true, true)?.[0] || t.token, amount: context.amount ?? 0 };
+      return null;
+    }).filter(Boolean);
+
+    if (normalizedTargets.length <= 1) return null;
+
+    const batch = {
+      eventName,
+      targets: normalizedTargets,
+      preApproved: new Map(),
+      context
+    };
+
+    const middlewareList = this._middleware.get(eventName) || [];
+    const { promptBatchInterception } = await import("../reactions/middleware-interception.mjs");
+
+    for (const entry of middlewareList) {
+      const { options } = entry;
+      if (!options.scope || options.scope === "self" || !options.sourceActorId) continue;
+
+      const sourceActor = game.actors?.get(options.sourceActorId);
+      if (!sourceActor) continue;
+
+      const sourceToken = options.sourceToken || sourceActor.getActiveTokens?.(true, true)?.[0] || sourceActor.token;
+
+      // Filter eligible targets in scope and in range
+      const eligible = [];
+      for (const targetItem of normalizedTargets) {
+        if (!this.isActorInScope(options.scope, sourceActor, targetItem.actor, sourceToken, targetItem.token)) {
+          continue;
+        }
+
+        const rangeType = options.rangeType || (typeof options.range === "string" ? options.range : "custom");
+        const customSquares = typeof options.range === "number" ? options.range : (Number(options.rangeRequirement) || 0);
+        const hasRangeReq = (rangeType !== "custom" && rangeType !== "none") || customSquares > 0;
+
+        if (hasRangeReq) {
+          const maxRange = RangeHelper.getActorRange(sourceActor, rangeType, customSquares, sourceToken);
+          if (maxRange !== null && maxRange > 0 && sourceToken && targetItem.token && canvas?.grid) {
+            const dist = RangeHelper.measureDistanceSquares(sourceToken, targetItem.token);
+            if (dist > maxRange) continue;
+          }
+        }
+
+        eligible.push(targetItem);
+      }
+
+      if (eligible.length > 1 && typeof promptBatchInterception === "function") {
+        const effectItem = sourceActor.items?.get(options.effectItemId);
+        if (effectItem) {
+          const approvedSet = await promptBatchInterception(sourceActor, effectItem, eligible, sourceToken);
+          batch.preApproved.set(effectItem.id, approvedSet);
+          batch.preApproved.set(entry.id, approvedSet);
+        }
+      }
+    }
+
+    this._activeBatch = batch;
+    return batch;
+  }
+
+  /**
+   * End the current batch envelope and clean up active batch context.
+   */
+  endBatch() {
+    this._activeBatch = null;
+  }
+
+  /**
+   * Retrieve the active multi-target batch envelope if one is open.
+   * @returns {object|null}
+   */
+  getActiveBatch() {
+    return this._activeBatch;
+  }
+
+  /**
    * Clear all middleware, observers, and history.
    */
   clear() {
     this._middleware.clear();
     this._observers.clear();
     this._history = [];
+    this._activeBatch = null;
     this.logDebug("Cleared all middleware, observers, and history.");
   }
 
@@ -224,15 +319,17 @@ export class ActorEventBus {
         }
 
         // Range validation
-        if (options.range !== null && options.range !== undefined && options.range !== "none") {
-          const maxRange = typeof options.range === "number"
-            ? options.range
-            : (options.range === "spell" ? 4 : (options.range === "melee" ? 1 : null));
+        const rangeType = options.rangeType || (typeof options.range === "string" ? options.range : "custom");
+        const customSquares = typeof options.range === "number" ? options.range : (Number(options.rangeRequirement) || 0);
+        const hasRangeReq = (rangeType !== "custom" && rangeType !== "none") || customSquares > 0;
 
-          if (maxRange !== null && sourceToken && targetToken && canvas?.grid) {
+        if (hasRangeReq) {
+          const maxRange = RangeHelper.getActorRange(sourceActor, rangeType, customSquares, sourceToken);
+
+          if (maxRange !== null && maxRange > 0 && sourceToken && targetToken && canvas?.grid) {
             const dist = RangeHelper.measureDistanceSquares(sourceToken, targetToken);
             if (dist > maxRange) {
-              this.logDebug(`Middleware ${entry.id} out of range (dist: ${dist}, max: ${maxRange})`);
+              this.logDebug(`Middleware ${entry.id} out of range (dist: ${dist}, max: ${maxRange}, type: ${rangeType})`);
               continue;
             }
           }

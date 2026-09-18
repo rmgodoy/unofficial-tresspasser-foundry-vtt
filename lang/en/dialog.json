@@ -12,7 +12,17 @@
         "SearchPlaceholder": "Search…"
       },
       "Combat": {
-        "SelectArmorToBlock": "Select which equipped armor die to roll to block damage ({damage} incoming):"
+        "SelectArmorToBlock": "Select which equipped armor die to roll to block damage ({damage} incoming):",
+        "ConfirmRedirectDamage": "{caster}: Intercept and redirect {amount} damage from {target} to yourself via {effect}?",
+        "ConfirmReduceDamage": "{caster}: Intercept and reduce {amount} damage for {target} via {effect}?",
+        "ConfirmBatchRedirectDamage": "{caster}: Select allies to protect via {effect} (Max {limit}):",
+        "ConfirmBatchRedirectDamageAll": "{caster}: Select allies to protect via {effect} (All eligible):",
+        "ConfirmBatchReduceDamage": "{caster}: Select allies to reduce damage for via {effect} (Max {limit}):",
+        "ConfirmBatchReduceDamageAll": "{caster}: Select allies to reduce damage for via {effect} (All eligible):",
+        "BatchProtectionHeader": "Select Allies to Protect",
+        "SquaresAway": "{dist} sq away",
+        "IncomingDamage": "{amount} damage",
+        "PassAll": "Pass All"
       },
       "SkillCheckTitle": "{skill} Check - Choose Attribute",
       "SkillCheck": {

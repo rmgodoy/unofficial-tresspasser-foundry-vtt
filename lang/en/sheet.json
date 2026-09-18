@@ -632,7 +632,43 @@
           "SyncedWithArtwork": "Synced with Effect Artwork (Click to unlink)",
           "CustomStatusIcon": "Custom Icon",
           "BrowseStatusIcon": "Browse Icon File",
-          "ClearStatusIcon": "Clear Icon"
+          "ClearStatusIcon": "Clear Icon",
+          "InterceptionCapacity": "Capacity / Reduction Formula"
+        },
+        "Effect": {
+          "Scope": "Scope",
+          "ScopeChoices": {
+            "Self": "Self",
+            "Ally": "Ally",
+            "Enemy": "Enemy",
+            "All": "All"
+          },
+          "TargetLimit": "Max Targets Affected",
+          "TargetLimitCount": "Number of Targets",
+          "TargetLimitChoices": {
+            "All": "All Eligible",
+            "Number": "Specific Number"
+          },
+          "RangeType": "Range",
+          "RangeChoices": {
+            "Custom": "Custom (Squares)",
+            "Melee": "Melee Range",
+            "Missile": "Missile Range",
+            "Spell": "Spell Range",
+            "Throw": "Throw Range"
+          },
+          "RangeRequirement": "Squares",
+          "InterceptionMode": "Interception Mode",
+          "InterceptionChoices": {
+            "None": "None",
+            "RedirectDamage": "Redirect Damage to Self",
+            "ReduceDamage": "Reduce Damage",
+            "CancelAction": "Cancel / Prevent Action",
+            "ModifyAmount": "Modify Amount / Value",
+            "GrantAdvantage": "Grant Advantage",
+            "GrantDisadvantage": "Grant Disadvantage",
+            "Custom": "Custom Middleware"
+          }
         },
         "Placeholder": {
           "Name": "Item name...",

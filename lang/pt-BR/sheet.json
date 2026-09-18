@@ -632,7 +632,43 @@
           "SyncedWithArtwork": "Sincronizado com a Arte do Efeito (Clique para desvincular)",
           "CustomStatusIcon": "Ícone Personalizado",
           "BrowseStatusIcon": "Procurar Arquivo de Ícone",
-          "ClearStatusIcon": "Limpar Ícone"
+          "ClearStatusIcon": "Limpar Ícone",
+          "InterceptionCapacity": "Capacidade / Fórmula de Redução"
+        },
+        "Effect": {
+          "Scope": "Escopo",
+          "ScopeChoices": {
+            "Self": "Próprio",
+            "Ally": "Aliado",
+            "Enemy": "Inimigo",
+            "All": "Todos"
+          },
+          "TargetLimit": "Máx. de Alvos Afetados",
+          "TargetLimitCount": "Número de Alvos",
+          "TargetLimitChoices": {
+            "All": "Todos os Elegíveis",
+            "Number": "Número Específico"
+          },
+          "RangeType": "Alcance",
+          "RangeChoices": {
+            "Custom": "Personalizado (Quadrados)",
+            "Melee": "Alcance Corpo a Corpo",
+            "Missile": "Alcance de Projétil",
+            "Spell": "Alcance de Magia",
+            "Throw": "Alcance de Arremesso"
+          },
+          "RangeRequirement": "Quadrados",
+          "InterceptionMode": "Modo de Intercepção",
+          "InterceptionChoices": {
+            "None": "Nenhum",
+            "RedirectDamage": "Redirecionar Dano para Si",
+            "ReduceDamage": "Reduzir Dano",
+            "CancelAction": "Cancelar / Prevenir Ação",
+            "ModifyAmount": "Modificar Quantidade / Valor",
+            "GrantAdvantage": "Conceder Vantagem",
+            "GrantDisadvantage": "Conceder Desvantagem",
+            "Custom": "Middleware Customizado"
+          }
         },
         "Placeholder": {
           "Name": "Nome do item...",

@@ -409,5 +409,79 @@ export class RangeHelper {
   static canTargetAirborne(sourceToken, targetToken, itemOrDeed, options = {}) {
     return canTargetAirborne(sourceToken, targetToken, itemOrDeed, options);
   }
+
+  /**
+   * Determine effective range in grid squares for an actor based on range type.
+   * @param {Actor} actor
+   * @param {string} [rangeType="custom"] - "custom" | "melee" | "missile" | "spell" | "throw"
+   * @param {number} [customSquares=0]
+   * @param {Token|TokenDocument} [sourceToken]
+   * @returns {number} Distance in grid squares (0 if invalid/no reach)
+   */
+  static getActorRange(actor, rangeType = "custom", customSquares = 0, sourceToken = null) {
+    if (!actor && !sourceToken) return Number(customSquares) || 0;
+    const actorDoc = actor || sourceToken?.actor;
+    const gridDist = canvas.dimensions?.distance ?? 5;
+
+    switch (rangeType) {
+      case "melee": {
+        if (actorDoc?.type === "creature") {
+          return actorDoc.system?.combat?.engagement_range ?? actorDoc.system?.engagement_range ?? 1;
+        }
+        const activeWeapons = getActiveWeapons(actorDoc);
+        const meleeWeapons = activeWeapons.filter(w => w.system?.type === "melee");
+        if (meleeWeapons.length > 0) {
+          const reaches = meleeWeapons.map(w => this.getWeaponMeleeRange(w, gridDist));
+          return Math.max(...reaches);
+        }
+        return 1;
+      }
+      case "missile": {
+        let base = 0;
+        if (actorDoc?.type === "creature") {
+          base = actorDoc.system?.combat?.range ?? 12;
+        } else {
+          const activeWeapons = getActiveWeapons(actorDoc);
+          const missileWeapons = activeWeapons.filter(w =>
+            !w.system?.isThrown && (w.system?.type === "missile" || w.system?.properties?.thrown)
+          );
+          if (missileWeapons.length > 0) {
+            base = this.getWeaponRangeInSquares(missileWeapons, gridDist);
+          } else {
+            base = 12;
+          }
+        }
+        const aimBonus = this.getAimRangeBonus(sourceToken, actorDoc);
+        return base + aimBonus;
+      }
+      case "spell": {
+        if (actorDoc?.type === "creature") return 4;
+        const activeWeapons = getActiveWeapons(actorDoc);
+        const spellWeapons = activeWeapons.filter(w => w.system?.type === "spell");
+        if (spellWeapons.length > 0) {
+          const r = this.getWeaponRangeInSquares(spellWeapons, gridDist);
+          return r > 0 ? r : 4;
+        }
+        return 4;
+      }
+      case "throw":
+      case "thrown": {
+        const activeWeapons = getActiveWeapons(actorDoc);
+        const thrownWeapons = activeWeapons.filter(w => w.system?.properties?.thrown);
+        if (thrownWeapons.length > 0) {
+          const ranges = thrownWeapons.map(w => this.getWeaponThrownRange(w, gridDist));
+          const best = Math.max(...ranges);
+          if (best > 0) return best;
+        }
+        const baseAgility = actorDoc?.system?.attributes?.agility ?? 0;
+        const bonusAgility = TrespasserEffectsHelper.getAttributeBonus(actorDoc, "agility");
+        return 5 + baseAgility + bonusAgility;
+      }
+      case "custom":
+      default: {
+        return Number(customSquares) || 0;
+      }
+    }
+  }
 }
 

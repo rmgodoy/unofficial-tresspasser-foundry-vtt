@@ -96,31 +96,33 @@ export function CombatActorMixin(BaseClass) {
      * Apply damage to this actor with dual-phase event bus lifecycle.
      * @param {number} amount
      * @param {object} [options]
-     * @returns {Promise<number>} Resulting health value
+     * @returns {Promise<object|number>} Result with health, appliedDamage, rawHP
      */
     async applyDamage(amount, options = {}) {
       let damageNum = Math.max(0, Number(amount) || 0);
-      if (damageNum <= 0) return this.system?.health ?? 0;
+      const currentHealth = this.system.health ?? this.system.hp?.value ?? this.system.hp ?? 0;
+      if (damageNum <= 0) return { health: currentHealth, appliedDamage: 0, rawHP: currentHealth, valueOf() { return this.health; } };
 
       const event = this._buildCombatEvent(options.type || "damage", damageNum, options);
 
       await actorEventBus.runMiddleware("damage-received", event);
-      if (event.preventDefault) return this.system?.health ?? 0;
+      if (event.preventDefault) {
+        await this._executePostAction(event, "damage-received", null);
+        return { health: this.system?.health ?? currentHealth, appliedDamage: 0, rawHP: currentHealth, event, valueOf() { return this.health; } };
+      }
 
       damageNum = Math.max(0, Number(event.amount) || 0);
-      if (damageNum <= 0) return this.system?.health ?? 0;
+      let rawHealth = currentHealth;
 
-      if (isSunken(this) && !options.isPreHalved && !event.data.isPreHalved) {
-        damageNum = Math.floor(damageNum / 2);
+      if (damageNum > 0) {
+        if (isSunken(this) && !options.isPreHalved && !event.data.isPreHalved) {
+          damageNum = Math.floor(damageNum / 2);
+        }
+        if (damageNum > 0) {
+          rawHealth = currentHealth - damageNum;
+          await this.update({ "system.health": rawHealth }, options);
+        }
       }
-      if (damageNum <= 0) return this.system?.health ?? 0;
-
-      const currentHealth = this.system.health ?? this.system.hp?.value ?? this.system.hp ?? 0;
-      const maxHealth = this.system.max_health ?? this.system.hp?.max ?? currentHealth;
-      const rawHealth = currentHealth - damageNum;
-      const newHealth = Math.clamp(rawHealth, 0, maxHealth);
-
-      await this.update({ "system.health": rawHealth }, options);
 
       await this._executePostAction(event, "damage-received", "damage-received");
       if (event.sourceActor) {
@@ -128,7 +130,8 @@ export function CombatActorMixin(BaseClass) {
         await this._executePostAction(dealtEvent, "damage-dealt", "damage-dealt");
       }
 
-      return newHealth;
+      const finalHealth = this.system.health ?? Math.max(0, rawHealth);
+      return { health: finalHealth, appliedDamage: damageNum, rawHP: rawHealth, event, valueOf() { return this.health; } };
     }
 
     /**

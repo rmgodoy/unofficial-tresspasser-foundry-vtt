@@ -68,15 +68,17 @@
       {{/if}}
 
       {{#unless (or system.isOnlyReminder (eq system.type 'movement'))}}
+      {{#if showTargetAttribute}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Item.Details.TargetAttribute"}}</label>
         <select name="system.targetAttribute">
           {{{selectOptions config.targetAttributes selected=system.targetAttribute localize=true}}}
         </select>
       </div>
+      {{/if}}
 
       <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Common.Modifier"}}</label>
+        <label>{{localize modifierLabel}}</label>
         <input type="text" name="system.modifier" value="{{system.modifier}}" placeholder="{{localize 'TRESPASSER.Sheet.Item.Placeholder.Modifier'}}" />
         <p class="notes" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: -5px;">{{localize "TRESPASSER.Sheet.Item.Details.IntensityNote"}}</p>
       </div>
@@ -89,6 +91,50 @@
           {{{selectOptions config.triggerWhen selected=system.when localize=true}}}
         </select>
       </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Item.Effect.Scope"}}</label>
+        <select name="system.scope">
+          {{{selectOptions config.scopes selected=system.scope localize=true}}}
+        </select>
+      </div>
+
+      {{#if (ne system.scope 'self')}}
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Item.Effect.TargetLimit"}}</label>
+        <select name="system.targetLimit">
+          {{{selectOptions config.targetLimitChoices selected=targetLimitChoice localize=true}}}
+        </select>
+      </div>
+
+      {{#if isNumberLimit}}
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Item.Effect.TargetLimitCount"}}</label>
+        <input type="number" name="system.targetLimitCount" value="{{targetLimitCount}}" min="1" placeholder="1" />
+      </div>
+      {{/if}}
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Item.Effect.RangeType"}}</label>
+        <select name="system.rangeType">
+          {{{selectOptions config.rangeTypes selected=system.rangeType localize=true}}}
+        </select>
+      </div>
+
+      {{#if isCustomRange}}
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Item.Effect.RangeRequirement"}}</label>
+        <input type="number" name="system.rangeRequirement" value="{{system.rangeRequirement}}" min="0" placeholder="0" />
+      </div>
+      {{/if}}
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Item.Effect.InterceptionMode"}}</label>
+        <select name="system.interceptionMode">
+          {{{selectOptions config.interceptionModes selected=system.interceptionMode localize=true}}}
+        </select>
+      </div>
+      {{/if}}
       {{/if}}
 
       {{#if (or (eq system.type 'on-trigger') (eq system.type 'movement'))}}

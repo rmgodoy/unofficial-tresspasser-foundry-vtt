@@ -91,9 +91,11 @@ export class HealTargetBehavior {
       }
     }
 
-    // 2. Apply healing to all valid targets & build chat output lines
+    // 2. Pre-calculate incoming healing per target & build preliminary chat card so players see rolled healing immediately
     const healGivenBonus = actor ? await TrespasserEffectsHelper.evaluateDamageBonus(actor, "heal_given", "d4", { toMessage: false }) : 0;
-    const targetHealingLines = [];
+    const preliminaryTargetLines = [];
+    const targetCalcData = new Map();
+
     for (const targetToken of validTargets) {
       const targetActor = targetToken.actor || (targetToken instanceof Actor ? targetToken : null);
       if (!targetActor) continue;
@@ -103,6 +105,57 @@ export class HealTargetBehavior {
       const healReceivedBonus = await TrespasserEffectsHelper.evaluateDamageBonus(targetActor, "heal_received", "d4", { toMessage: false });
       const totalBonus = healGivenBonus + healReceivedBonus;
       const targetHeal = Math.max(0, baseTargetHeal + totalBonus);
+
+      targetCalcData.set(targetToken.id, {
+        targetActor,
+        tokenName,
+        totalBonus,
+        targetHeal
+      });
+
+      const bonusLabel = totalBonus !== 0 ? ` <span style="font-size: var(--fs-10); color:#2ecc71;">(${totalBonus > 0 ? `+${totalBonus}` : totalBonus})</span>` : "";
+      preliminaryTargetLines.push(`
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size: var(--fs-12); margin-top:4px; padding-top:3px; border-top:1px dotted var(--trp-border-light, #5c4f3a);">
+          <span><strong>${tokenName}</strong>${bonusLabel}</span>
+          <span style="color:#2ecc71; font-weight:bold;">💚 ${targetHeal} ${game.i18n.localize("TRESPASSER.Sheet.Common.Healing") || "Cura"}</span>
+        </div>
+      `);
+    }
+
+    const preliminaryRollEntryHtml = `
+      <div class="healing-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
+        <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
+          ${game.i18n.localize("TRESPASSER.Sheet.Common.Healing") || "Healing"}: ${rollLabel}${distributedLabel}
+        </h4>
+        ${rollHtml}
+        <div class="target-healing-results" style="margin-top: 6px;">
+          ${preliminaryTargetLines.join("")}
+        </div>
+      </div>
+    `;
+
+    if (distribute && validTargets.length > 1 && rollEntryIndex >= 0) {
+      context.currentPhaseOutputs.rollEntries[rollEntryIndex] = preliminaryRollEntryHtml;
+    } else {
+      rollEntryIndex = context.currentPhaseOutputs.rollEntries.length;
+      context.currentPhaseOutputs.rolls.push(baseRoll);
+      context.currentPhaseOutputs.rollEntries.push(preliminaryRollEntryHtml);
+    }
+
+    // Post preliminary roll card immediately so all players see the rolled healing before reactions/processing
+    if (context.executor?.chat) {
+      await context.executor.chat.postOrUpdatePhaseCard(phaseKey);
+    } else if (context.executor) {
+      await context.executor._postPhaseCard(phaseKey);
+    }
+
+    // 3. Apply healing to all valid targets & build final chat output lines
+    const targetHealingLines = [];
+    for (const targetToken of validTargets) {
+      const calc = targetCalcData.get(targetToken.id);
+      if (!calc) continue;
+
+      const { targetActor, tokenName, totalBonus, targetHeal } = calc;
 
       if (targetActor.isOwner) {
         await targetActor.applyHealing(targetHeal, { sourceActor: actor });
@@ -137,11 +190,13 @@ export class HealTargetBehavior {
       </div>
     `;
 
-    if (distribute && validTargets.length > 1 && rollEntryIndex >= 0) {
-      context.currentPhaseOutputs.rollEntries[rollEntryIndex] = finalRollEntryHtml;
-    } else {
-      context.currentPhaseOutputs.rolls.push(baseRoll);
-      context.currentPhaseOutputs.rollEntries.push(finalRollEntryHtml);
+    context.currentPhaseOutputs.rollEntries[rollEntryIndex] = finalRollEntryHtml;
+
+    // Refresh chat card in-place with final results
+    if (context.executor?.chat) {
+      await context.executor.chat.postOrUpdatePhaseCard(phaseKey);
+    } else if (context.executor) {
+      await context.executor._postPhaseCard(phaseKey);
     }
 
     return true;

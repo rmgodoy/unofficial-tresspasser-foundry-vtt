@@ -31,6 +31,42 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
         choices: Object.values(TrespasserEffectsHelper.TRIGGER_WHEN),
         blank: true
       }),
+      // --- Cross-Actor & Reactive Scope (new) ---
+      scope: new fields.StringField({
+        initial: "self",
+        choices: ["self", "ally", "enemy", "all"]
+      }),
+      targetLimit: new fields.StringField({
+        initial: "all",
+        choices: ["all", "number"]
+      }),
+      targetLimitCount: new fields.NumberField({
+        initial: 1,
+        integer: true,
+        min: 1
+      }),
+      rangeType: new fields.StringField({
+        initial: "custom",
+        choices: ["custom", "melee", "missile", "spell", "throw"]
+      }),
+      rangeRequirement: new fields.NumberField({
+        initial: 0,
+        integer: true,
+        min: 0
+      }),
+      interceptionMode: new fields.StringField({
+        initial: "none",
+        choices: [
+          "none",
+          "redirect_damage",
+          "reduce_damage",
+          "cancel_action",
+          "modify_amount",
+          "grant_advantage",
+          "grant_disadvantage",
+          "custom"
+        ]
+      }),
       // --- Legacy flat duration fields (kept for backward compat; deprecated) ---
       duration: new fields.StringField({
         initial: "indefinite",

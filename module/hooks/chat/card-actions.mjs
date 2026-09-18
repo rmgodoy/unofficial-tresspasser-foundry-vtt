@@ -3,6 +3,7 @@ import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { buildTenacityButtonHtml } from "../../helpers/tenacity-helper.mjs";
 import { NonCombatSparkDialog, NonCombatShadowDialog } from "../../dialogs/tempt-fate-dialogs.mjs";
 import { resolveItem } from "../../helpers/item-resolver.mjs";
+import { actorEventBus } from "../../actor/actor-event-bus.mjs";
 
 /**
  * Resolve which tokens a chat-card action button should affect.
@@ -138,43 +139,62 @@ export function bindCardActionListeners(message, html) {
       const attackerSpeaker = msg?.speaker;
       const attacker = attackerSpeaker?.actor ? game.actors.get(attackerSpeaker.actor) : null;
 
-      for (const token of tokens) {
-        const actor = token.actor;
-        if (!actor) continue;
+      if (tokens.length > 1) {
+        await actorEventBus.startBatch("damage-received", tokens.map(t => ({
+          actor: t.actor,
+          token: t,
+          amount: rawDamage
+        })), { attacker });
+      }
 
-        const currentHP = actor.system.health ?? 0;
-        const reduction = await TrespasserEffectsHelper.evaluateDamageBonus(actor, "damage_received");
-        const finalDamage = Math.max(0, rawDamage + reduction);
-        const rawNewHP = currentHP - finalDamage;
+      try {
+        for (const token of tokens) {
+          const actor = token.actor;
+          if (!actor) continue;
 
-        if (typeof actor.applyDamage === "function") {
-          await actor.applyDamage(finalDamage, { sourceActor: attacker, skipBelowZeroChat: true });
-        } else {
-          const newHP = Math.max(0, rawNewHP);
-          await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
-          await TrespasserEffectsHelper.triggerEffects(actor, "damage-received");
-          if (attacker) {
-            await TrespasserEffectsHelper.triggerEffects(attacker, "damage-dealt");
+          const currentHP = actor.system.health ?? 0;
+          const reduction = await TrespasserEffectsHelper.evaluateDamageBonus(actor, "damage_received");
+          const finalDamage = Math.max(0, rawDamage + reduction);
+          let appliedDamage = finalDamage;
+          let resultingRawHP = currentHP - finalDamage;
+
+          if (typeof actor.applyDamage === "function") {
+            const res = await actor.applyDamage(finalDamage, { sourceActor: attacker, skipBelowZeroChat: true });
+            if (res && typeof res === "object" && res.appliedDamage !== undefined) {
+              appliedDamage = res.appliedDamage;
+              resultingRawHP = res.rawHP;
+            }
+          } else {
+            const newHP = Math.max(0, resultingRawHP);
+            await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
+            await TrespasserEffectsHelper.triggerEffects(actor, "damage-received");
+            if (attacker) {
+              await TrespasserEffectsHelper.triggerEffects(attacker, "damage-dealt");
+            }
           }
+
+          let chatMsg = reduction !== 0
+            ? game.i18n.format("TRESPASSER.Chat.Combat.TookDamageReduction", { name: actor.name, total: appliedDamage, reduced: Math.abs(reduction) })
+            : game.i18n.format("TRESPASSER.Chat.Combat.TookDamage", { name: actor.name, total: appliedDamage });
+
+          let buttonHtml = "";
+          if (actor.type === "character" && resultingRawHP < 0 && appliedDamage > 0) {
+            const belowZeroMsg = currentHP === 0
+              ? game.i18n.format("TRESPASSER.Chat.Combat.DamageWhileTenacious", { name: actor.name, damage: appliedDamage })
+              : game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: resultingRawHP });
+            chatMsg += `<p class="miss-text">${belowZeroMsg}</p>`;
+            buttonHtml = buildTenacityButtonHtml(actor, resultingRawHP);
+          }
+
+          await ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ actor }),
+            content: `<div class="trespasser-chat-card"><p>${chatMsg}</p>${buttonHtml}</div>`
+          });
         }
-
-        let chatMsg = reduction !== 0
-          ? game.i18n.format("TRESPASSER.Chat.Combat.TookDamageReduction", { name: actor.name, total: finalDamage, reduced: Math.abs(reduction) })
-          : game.i18n.format("TRESPASSER.Chat.Combat.TookDamage", { name: actor.name, total: finalDamage });
-
-        let buttonHtml = "";
-        if (actor.type === "character" && rawNewHP < 0) {
-          const belowZeroMsg = currentHP === 0
-            ? game.i18n.format("TRESPASSER.Chat.Combat.DamageWhileTenacious", { name: actor.name, damage: finalDamage })
-            : game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: actor.name, hp: rawNewHP });
-          chatMsg += `<p class="miss-text">${belowZeroMsg}</p>`;
-          buttonHtml = buildTenacityButtonHtml(actor, rawNewHP);
+      } finally {
+        if (tokens.length > 1) {
+          actorEventBus.endBatch();
         }
-
-        await ChatMessage.create({
-          speaker: ChatMessage.getSpeaker({ actor }),
-          content: `<div class="trespasser-chat-card"><p>${chatMsg}</p>${buttonHtml}</div>`
-        });
       }
     });
   });
@@ -196,33 +216,47 @@ export function bindCardActionListeners(message, html) {
 
       const healGivenBonus = healer ? await TrespasserEffectsHelper.evaluateDamageBonus(healer, "heal_given", "d4", { toMessage: false }) : 0;
 
-      for (const token of tokens) {
-        const actor = token.actor;
-        if (!actor) continue;
+      if (tokens.length > 1) {
+        await actorEventBus.startBatch("heal-received", tokens.map(t => ({
+          actor: t.actor,
+          token: t,
+          amount: rawHeal
+        })), { healer });
+      }
 
-        const healReceivedBonus = await TrespasserEffectsHelper.evaluateDamageBonus(actor, "heal_received", "d4", { toMessage: false });
-        const totalBonus = healGivenBonus + healReceivedBonus;
-        const finalHeal = Math.max(0, rawHeal + totalBonus);
+      try {
+        for (const token of tokens) {
+          const actor = token.actor;
+          if (!actor) continue;
 
-        if (typeof actor.applyHealing === "function") {
-          await actor.applyHealing(finalHeal, { sourceActor: healer });
-        } else {
-          const newHP = Math.min(actor.system.max_health ?? actor.system.health, (actor.system.health ?? 0) + finalHeal);
-          await actor.update({ "system.health": newHP });
-          await TrespasserEffectsHelper.triggerEffects(actor, "heal-received");
-          if (healer) {
-            await TrespasserEffectsHelper.triggerEffects(healer, "heal-given");
+          const healReceivedBonus = await TrespasserEffectsHelper.evaluateDamageBonus(actor, "heal_received", "d4", { toMessage: false });
+          const totalBonus = healGivenBonus + healReceivedBonus;
+          const finalHeal = Math.max(0, rawHeal + totalBonus);
+
+          if (typeof actor.applyHealing === "function") {
+            await actor.applyHealing(finalHeal, { sourceActor: healer });
+          } else {
+            const newHP = Math.min(actor.system.max_health ?? actor.system.health, (actor.system.health ?? 0) + finalHeal);
+            await actor.update({ "system.health": newHP });
+            await TrespasserEffectsHelper.triggerEffects(actor, "heal-received");
+            if (healer) {
+              await TrespasserEffectsHelper.triggerEffects(healer, "heal-given");
+            }
           }
+
+          const chatMsg = totalBonus !== 0
+            ? game.i18n.format("TRESPASSER.Chat.Combat.HealedAmountBonus", { name: actor.name, total: finalHeal, bonus: totalBonus })
+            : game.i18n.format("TRESPASSER.Chat.Combat.HealedAmount", { name: actor.name, amount: finalHeal });
+
+          await ChatMessage.create({
+            speaker: ChatMessage.getSpeaker({ actor }),
+            content: `<div class="trespasser-chat-card"><p>${chatMsg}</p></div>`
+          });
         }
-
-        const chatMsg = totalBonus !== 0
-          ? game.i18n.format("TRESPASSER.Chat.Combat.HealedAmountBonus", { name: actor.name, total: finalHeal, bonus: totalBonus })
-          : game.i18n.format("TRESPASSER.Chat.Combat.HealedAmount", { name: actor.name, amount: finalHeal });
-
-        await ChatMessage.create({
-          speaker: ChatMessage.getSpeaker({ actor }),
-          content: `<div class="trespasser-chat-card"><p>${chatMsg}</p></div>`
-        });
+      } finally {
+        if (tokens.length > 1) {
+          actorEventBus.endBatch();
+        }
       }
     });
   });
