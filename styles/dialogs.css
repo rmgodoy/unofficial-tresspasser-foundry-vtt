@@ -1458,3 +1458,51 @@
   color: var(--trp-text-bright) !important;
 }
 
+/* Distribution Dialog */
+.distribution-dialog-window .dialog-content {
+  font-family: var(--trp-font-body);
+  color: var(--trp-text);
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.distribution-dialog {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.distribution-dialog .distrib-targets-list {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.distribution-dialog .target-distrib-row {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  display: flex !important;
+  flex-direction: row !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+}
+
+.distribution-dialog .target-distrib-info {
+  flex: 1 1 auto !important;
+  min-width: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 8px !important;
+}
+
+.distribution-dialog .distrib-counter {
+  flex: 0 0 auto !important;
+  margin-left: auto !important;
+  display: flex !important;
+  align-items: center !important;
+  gap: 6px !important;
+}
+
+.distribution-dialog .distrib-counter button:hover {
+  background: var(--trp-border-light) !important;
+  color: var(--trp-text-bright) !important;
+}
+

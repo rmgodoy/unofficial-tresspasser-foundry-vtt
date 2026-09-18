@@ -14,11 +14,14 @@ import { DeedBehaviorUtils } from "../helpers/deed-behaviors/deed-behavior-utils
 export async function askDistributionDialog({ totalAmount, targets, type = "damage" }) {
   if (!targets || targets.length === 0) return new Map();
 
-  // Filter valid target elements and retrieve display names
+  // Filter valid target elements and retrieve display names & HP
   const targetList = targets.map(t => {
+    const actor = t.actor || (t instanceof Actor ? t : (t.document?.actor || null));
     const id = t.id || t.document?.id || foundry.utils.randomID();
     const name = DeedBehaviorUtils.getTokenDisplayName(t);
-    return { id, name, target: t };
+    const hp = actor?.system?.health ?? actor?.system?.hp?.value ?? (typeof actor?.system?.hp === "number" ? actor?.system?.hp : 0);
+    const hpMax = actor?.system?.max_health ?? actor?.system?.hp?.max ?? hp;
+    return { id, name, target: t, actor, hp, hpMax };
   });
 
   // If only 1 target, assign full totalAmount without prompting
@@ -32,19 +35,25 @@ export async function askDistributionDialog({ totalAmount, targets, type = "dama
   const titleKey = isDamage ? "TRESPASSER.Dialog.Distribution.TitleDamage" : "TRESPASSER.Dialog.Distribution.TitleHealing";
   const introKey = isDamage ? "TRESPASSER.Dialog.Distribution.IntroDamage" : "TRESPASSER.Dialog.Distribution.IntroHealing";
 
-  let html = `<div class="trespasser-dialog distribution-dialog" style="max-height:60vh; overflow-y:auto; padding: 4px;">`;
+  let html = `<div class="trespasser-dialog distribution-dialog" style="max-height:60vh; overflow-y:auto; padding: 4px; width: 100%; box-sizing: border-box;">`;
   html += `<p style="margin-bottom: 12px; font-size: var(--fs-13); color: var(--trp-text, #ddd0aa);">
     ${game.i18n.format(introKey, { total: totalAmount })}
   </p>`;
 
-  html += `<div class="distrib-targets-list" style="display:flex; flex-direction:column; gap:8px;">`;
+  html += `<div class="distrib-targets-list" style="display:flex; flex-direction:column; gap:8px; width: 100%; box-sizing: border-box;">`;
   for (const item of targetList) {
     html += `
-      <div class="form-group target-distrib-row" style="display:flex; justify-content:space-between; align-items:center; background: rgba(0,0,0,0.25); padding: 6px 10px; border: 1px solid var(--trp-border-light, #5c4f3a); border-radius: 4px;">
-        <label style="font-size: var(--fs-13); font-weight:bold; color: var(--trp-gold-bright, #e8c96b); margin-right: 12px; flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
-          ${item.name}
-        </label>
-        <div class="distrib-counter" style="display:flex; align-items:center; gap:6px;">
+      <div class="target-distrib-row" style="display:flex; justify-content:space-between; align-items:center; background: rgba(0,0,0,0.25); padding: 8px 12px; border: 1px solid var(--trp-border-light, #5c4f3a); border-radius: 4px; width: 100%; box-sizing: border-box;">
+        <div class="target-distrib-info" style="display:flex; align-items:center; gap:8px; flex:1; min-width:0; margin-right:12px;">
+          <span class="target-distrib-name" style="font-size: var(--fs-13); font-weight:bold; color: var(--trp-gold-bright, #e8c96b); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">
+            ${item.name}
+          </span>
+          <span class="target-distrib-hp" style="font-size: var(--fs-11); color: var(--trp-text-dim, #a09070); white-space:nowrap; display:inline-flex; align-items:center; gap:4px; flex-shrink:0;" title="${game.i18n.localize("TRESPASSER.Sheet.Header.Health") || "Health"}">
+            <i class="fas fa-heart" style="color: var(--trp-red, #ff5252); font-size: var(--fs-10);"></i>
+            <span class="target-hp-current" data-token-id="${item.id}" style="color: var(--trp-text, #ddd0aa); font-weight:bold;">${item.hp}</span><span style="color: var(--trp-text-dim, #a09070);">/</span><span class="target-hp-max" data-token-id="${item.id}" style="color: var(--trp-text-dim, #a09070);">${item.hpMax}</span>
+          </span>
+        </div>
+        <div class="distrib-counter" style="display:flex; align-items:center; gap:6px; margin-left:auto; flex-shrink:0;">
           <button type="button" class="distrib-btn row-reset-btn" data-token-id="${item.id}" title="${game.i18n.localize("TRESPASSER.Dialog.Distribution.ResetRow")}" style="width:28px; height:28px; padding:0; display:flex; align-items:center; justify-content:center; background: var(--trp-bg-button, #3d3428); border: 1px solid var(--trp-border, #4a3f2f); color: var(--trp-text-dim, #a09070); border-radius:3px; cursor:pointer;">
             <i class="fas fa-rotate-left" style="font-size: var(--fs-11);"></i>
           </button>
@@ -82,7 +91,7 @@ export async function askDistributionDialog({ totalAmount, targets, type = "dama
   return foundry.applications.api.DialogV2.wait({
     window: {
       title: game.i18n.localize(titleKey),
-      width: 420,
+      width: 440,
       resizable: true
     },
     classes: ["trespasser", "dialog", "distribution-dialog-window"],
@@ -97,9 +106,43 @@ export async function askDistributionDialog({ totalAmount, targets, type = "dama
 
       const updateTotals = () => {
         let currentSum = 0;
+
         inputs.forEach(inp => {
           const val = parseInt(inp.value) || 0;
           currentSum += val;
+
+          const tokenId = inp.dataset.tokenId;
+          const targetItem = targetList.find(t => t.id === tokenId);
+          const hpCurrentEl = el.querySelector(`.target-hp-current[data-token-id="${tokenId}"]`);
+
+          if (hpCurrentEl && targetItem) {
+            if (isDamage) {
+              if (val > 0) {
+                const finalHp = Math.max(0, targetItem.hp - val);
+                hpCurrentEl.textContent = finalHp;
+                hpCurrentEl.style.color = "#ff5252";
+              } else {
+                hpCurrentEl.textContent = targetItem.hp;
+                hpCurrentEl.style.color = "var(--trp-text, #ddd0aa)";
+              }
+            } else {
+              // Healing
+              if (val > 0) {
+                const totalHp = targetItem.hp + val;
+                if (totalHp > targetItem.hpMax && targetItem.hpMax > 0) {
+                  const excess = totalHp - targetItem.hpMax;
+                  hpCurrentEl.textContent = `${targetItem.hpMax}(${excess})`;
+                  hpCurrentEl.style.color = "#f39c12";
+                } else {
+                  hpCurrentEl.textContent = totalHp;
+                  hpCurrentEl.style.color = "#2ecc71";
+                }
+              } else {
+                hpCurrentEl.textContent = targetItem.hp;
+                hpCurrentEl.style.color = "var(--trp-text, #ddd0aa)";
+              }
+            }
+          }
         });
 
         const remaining = totalAmount - currentSum;
