@@ -116,7 +116,11 @@ export async function promptGroupCheckRoll(messageId, isAutoPrompt = false) {
       flavor: `${flavor}<p>${game.i18n.format("TRESPASSER.Chat.Check.VsCD", { cd: dc })}</p>`
     });
 
-    await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: attribute });
+    if (typeof actor.rollSkillCheck === "function") {
+      await actor.rollSkillCheck(attribute, { roll });
+    } else {
+      await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: attribute });
+    }
 
     const resultObj = {
       actorId: actor.id,

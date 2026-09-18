@@ -43,8 +43,14 @@ export async function onEquipRoll(event, sheet) {
 
         if (eff.target === "health") {
           const rawHP = sheet.actor.system.health + modValue;
-          const newHP = Math.clamp(rawHP, 0, sheet.actor.system.max_health);
-          await sheet.actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
+          if (modValue < 0 && typeof sheet.actor.applyDamage === "function") {
+            await sheet.actor.applyDamage(Math.abs(modValue), { skipBelowZeroChat: true });
+          } else if (modValue > 0 && typeof sheet.actor.applyHealing === "function") {
+            await sheet.actor.applyHealing(modValue);
+          } else {
+            const newHP = Math.clamp(rawHP, 0, sheet.actor.system.max_health);
+            await sheet.actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
+          }
           let contentHtml = `<p>${game.i18n.format("TRESPASSER.Chat.Effect.TriggeredHP", { name: item.name, value: (modValue > 0 ? "+" : "") + modValue })}</p>`;
           if (sheet.actor.type === "character" && rawHP < 0) {
             contentHtml += `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Combat.DroppedBelowZero", { name: sheet.actor.name, hp: rawHP })}</p>`;

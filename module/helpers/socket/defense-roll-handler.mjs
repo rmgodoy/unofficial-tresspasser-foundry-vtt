@@ -46,8 +46,12 @@ export async function handleDefenseResponse(data) {
   if (targetActorId && statKey && actorWasOwner === false) {
     const actor = game.actors.get(targetActorId);
     if (actor) {
-      const { TrespasserEffectsHelper } = await import("../effects-helper.mjs");
-      await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: statKey });
+      if (typeof actor.rollSkillCheck === "function") {
+        await actor.rollSkillCheck(statKey, { skipRoll: true });
+      } else {
+        const { TrespasserEffectsHelper } = await import("../effects-helper.mjs");
+        await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: statKey });
+      }
     }
   }
 

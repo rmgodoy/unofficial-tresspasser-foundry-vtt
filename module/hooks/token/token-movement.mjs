@@ -159,12 +159,20 @@ export function registerTokenMovementHooks() {
       });
 
       if (combatant.actor) {
-        if (options.trespasserIsFirstMove && dist > 0) {
-          await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
-        }
-
-        if (dist > 0) {
-          await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+        if (typeof combatant.actor.onMove === "function") {
+          await combatant.actor.onMove({
+            distance: dist,
+            isFirstMove: options.trespasserIsFirstMove && dist > 0,
+            from: options.trespasserFrom,
+            to: options.trespasserTo
+          });
+        } else {
+          if (options.trespasserIsFirstMove && dist > 0) {
+            await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
+          }
+          if (dist > 0) {
+            await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+          }
         }
       }
     } else {

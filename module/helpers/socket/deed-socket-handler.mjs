@@ -203,12 +203,21 @@ async function _handleForceMoveTokens(data) {
       await canvas.scene.updateEmbeddedDocuments("Token", updates, { trespasserForcedMovement: true });
       await new Promise(resolve => setTimeout(resolve, 300));
     }
-    const { TrespasserEffectsHelper } = await import("../effects-helper.mjs");
     if (movingToken?.actor) {
-      await TrespasserEffectsHelper.triggerEffects(movingToken.actor, "on-move");
+      if (typeof movingToken.actor.onMove === "function") {
+        await movingToken.actor.onMove({ isForced: true });
+      } else {
+        const { TrespasserEffectsHelper } = await import("../effects-helper.mjs");
+        await TrespasserEffectsHelper.triggerEffects(movingToken.actor, "on-move");
+      }
     }
     if (otherToken?.actor) {
-      await TrespasserEffectsHelper.triggerEffects(otherToken.actor, "on-move");
+      if (typeof otherToken.actor.onMove === "function") {
+        await otherToken.actor.onMove({ isForced: true });
+      } else {
+        const { TrespasserEffectsHelper } = await import("../effects-helper.mjs");
+        await TrespasserEffectsHelper.triggerEffects(otherToken.actor, "on-move");
+      }
     }
   }
 

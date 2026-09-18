@@ -246,11 +246,21 @@ export class VaultMovementMode {
 
             if (combatant.actor) {
                 const isFirst = (currentUsed === 0);
-                if (isFirst && moveDist > 0) {
-                    await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
-                }
-                if (moveDist > 0) {
-                    await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+                if (typeof combatant.actor.onMove === "function") {
+                    await combatant.actor.onMove({
+                        distance: moveDist,
+                        isFirstMove: isFirst && moveDist > 0,
+                        movementType,
+                        from: { x: tokenDoc.x, y: tokenDoc.y },
+                        to: { x: snapped.x, y: snapped.y }
+                    });
+                } else {
+                    if (isFirst && moveDist > 0) {
+                        await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
+                    }
+                    if (moveDist > 0) {
+                        await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
+                    }
                 }
             }
 

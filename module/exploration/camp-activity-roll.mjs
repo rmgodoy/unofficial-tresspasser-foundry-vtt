@@ -121,7 +121,11 @@ export async function performCampRoll(actor, activityConfig, activityKey, dc, as
   });
 
   if (diff >= 0) {
-    await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: attrKey });
+    if (typeof actor.rollSkillCheck === "function") {
+      await actor.rollSkillCheck(attrKey, { roll, skillKey, isNonCombat: true });
+    } else {
+      await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: attrKey });
+    }
   }
 
   return roll;

@@ -183,7 +183,11 @@ export async function rollDungeonActionCheck(actor, attribute, skill, dc) {
   const finalCD = result.cd ?? dc;
   const rollRes = await evaluateAndShowRoll(roll, flavor, finalCD, actor.sheet, { skillKey: skill, isNonCombat: true });
   if (rollRes) {
-    await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: attribute });
+    if (typeof actor.rollSkillCheck === "function") {
+      await actor.rollSkillCheck(attribute, { roll, skillKey: skill, isNonCombat: true });
+    } else {
+      await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: attribute });
+    }
   }
 
   return roll;

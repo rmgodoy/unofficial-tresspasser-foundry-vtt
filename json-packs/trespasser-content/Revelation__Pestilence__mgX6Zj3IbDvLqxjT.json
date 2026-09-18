@@ -64,20 +64,118 @@
         "appliedEffects": [],
         "appliesWeaponEffects": false
       }
-    }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "NydWQW9v7Ys45u4s",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "sKzY5F66ArmoAVlQ",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "5n5Im6fYfeeWNdjj",
+          "type": "rollAccuracy",
+          "phase": "base",
+          "params": {
+            "branchingMode": "hitThenSpark"
+          },
+          "x": 620,
+          "y": 180
+        },
+        {
+          "id": "n2T4dB1rrwpSQz0C",
+          "type": "applyDamage",
+          "phase": "hit",
+          "params": {
+            "expression": ""
+          },
+          "x": 900,
+          "y": 100
+        },
+        {
+          "id": "ithYpcvLvLcFaS0X",
+          "type": "applyEffects",
+          "phase": "spark",
+          "params": {
+            "effects": []
+          },
+          "x": 900,
+          "y": 260
+        }
+      ],
+      "connections": [
+        {
+          "id": "xErZFIwkrELQhHYv",
+          "sourceId": "NydWQW9v7Ys45u4s",
+          "sourcePort": "out",
+          "targetId": "sKzY5F66ArmoAVlQ",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "Cab9XWTmud0x3K8N",
+          "sourceId": "sKzY5F66ArmoAVlQ",
+          "sourcePort": "out",
+          "targetId": "5n5Im6fYfeeWNdjj",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "E0zceEveQQpensba",
+          "sourceId": "5n5Im6fYfeeWNdjj",
+          "sourcePort": "onHit",
+          "targetId": "n2T4dB1rrwpSQz0C",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "5ZXoqE4WjI0N0UZ0",
+          "sourceId": "5n5Im6fYfeeWNdjj",
+          "sourcePort": "onSpark",
+          "targetId": "ithYpcvLvLcFaS0X",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1
   },
   "effects": [],
-  "flags": {},
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -278,
+        "panY": 13,
+        "zoom": 1,
+        "selectedNodeId": "n2T4dB1rrwpSQz0C"
+      }
+    }
+  },
   "_stats": {
     "compendiumSource": null,
     "duplicateSource": null,
     "exportSource": null,
-    "coreVersion": "13.351",
+    "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.0.4-3",
+    "systemVersion": "0.2.0-13",
     "createdTime": 1773341957281,
-    "modifiedTime": 1773341957281,
-    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+    "modifiedTime": 1789687120962,
+    "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "_id": "mgX6Zj3IbDvLqxjT",
   "ownership": {

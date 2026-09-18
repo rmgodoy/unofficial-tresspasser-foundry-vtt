@@ -155,7 +155,11 @@ export async function promptTenacityRoll(actorId, cd) {
     flavor
   });
 
-  await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: "tenacity" });
+  if (typeof actor.rollSkillCheck === "function") {
+    await actor.rollSkillCheck("tenacity", { roll });
+  } else {
+    await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: "tenacity" });
+  }
 }
 
 /**

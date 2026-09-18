@@ -59,7 +59,11 @@ export function registerCombatHooks() {
 
     for (const c of combat.combatants) {
       if (c.actor) {
-        await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");
+        if (typeof c.actor.onCombatEnd === "function") {
+          await c.actor.onCombatEnd(combat);
+        } else {
+          await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");
+        }
 
         // Remove combat states that were acquired during combat (excluding persistent special states)
         const acquiredInCombat = c.actor.items.filter(i => {

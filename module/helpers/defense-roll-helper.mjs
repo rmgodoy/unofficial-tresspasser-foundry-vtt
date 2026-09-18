@@ -214,7 +214,11 @@ export async function _rollDefenseLocally(actor, statKey, creatureDC, deedName) 
 
   // Trigger "use" effects on the defense stat if user has permission
   if (actor.isOwner) {
-    await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: statKey });
+    if (typeof actor.rollSkillCheck === "function") {
+      await actor.rollSkillCheck(statKey, { roll: defRoll });
+    } else {
+      await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: statKey });
+    }
   }
 
   return {

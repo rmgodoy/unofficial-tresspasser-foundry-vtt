@@ -9,7 +9,7 @@
     "armorRating": 0,
     "armorDie": "d4",
     "depletionDie": "d4",
-    "description": "as cap",
+    "description": "",
     "slotOccupancy": 1,
     "price": 0,
     "broken": false,
@@ -23,12 +23,12 @@
     "compendiumSource": null,
     "duplicateSource": null,
     "exportSource": null,
-    "coreVersion": "13.351",
+    "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.0.4-3",
+    "systemVersion": "0.2.0-12",
     "createdTime": 1773341957281,
-    "modifiedTime": 1773341957281,
-    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+    "modifiedTime": 1789684504146,
+    "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "ownership": {
     "default": 0,

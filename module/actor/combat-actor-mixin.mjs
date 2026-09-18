@@ -72,7 +72,8 @@ export function CombatActorMixin(BaseClass) {
       }
       event.deferredActions = [];
       if (triggerTiming && event.actor) {
-        await TrespasserEffectsHelper.triggerEffects(event.actor, triggerTiming);
+        const filterTarget = event.attribute || event.data?.filterTarget || null;
+        await TrespasserEffectsHelper.triggerEffects(event.actor, triggerTiming, { filterTarget });
       }
     }
 
@@ -190,6 +191,11 @@ export function CombatActorMixin(BaseClass) {
       await actorEventBus.runMiddleware("use", event);
       if (event.preventDefault) return null;
 
+      if (options.skipRoll || options.roll) {
+        await this._executePostAction(event, "use", "use");
+        return options.roll || null;
+      }
+
       const data = this.system;
       const attrValue = data?.attributes?.[attribute] ?? 0;
       const skillDie = data?.skill_die || "d6";
@@ -279,11 +285,35 @@ export function CombatActorMixin(BaseClass) {
       return roll;
     }
 
-    /**
-     * Called when this actor's turn begins.
-     * @param {Combatant} [combatant]
-     * @param {object} [options]
-     */
+    /** Called when combat begins. */
+    async onCombatStart(combat = null, options = {}) {
+      const event = this._buildCombatEvent("combat-start", 0, { combat, ...options });
+      event.combat = combat;
+      return this._dispatchCombatEvent("start-of-combat", event, "start-of-combat");
+    }
+
+    /** Called when combat ends. */
+    async onCombatEnd(combat = null, options = {}) {
+      const event = this._buildCombatEvent("combat-end", 0, { combat, ...options });
+      event.combat = combat;
+      return this._dispatchCombatEvent("end-of-combat", event, "end-of-combat");
+    }
+
+    /** Called when a combat round begins. */
+    async onRoundStart(combat = null, options = {}) {
+      const event = this._buildCombatEvent("round-start", 0, { combat, ...options });
+      event.combat = combat;
+      return this._dispatchCombatEvent("start-of-round", event, "start-of-round");
+    }
+
+    /** Called when a combat round ends. */
+    async onRoundEnd(combat = null, options = {}) {
+      const event = this._buildCombatEvent("round-end", 0, { combat, ...options });
+      event.combat = combat;
+      return this._dispatchCombatEvent("end-of-round", event, "end-of-round");
+    }
+
+    /** Called when this actor's turn begins. */
     async onTurnStart(combatant = null, options = {}) {
       const event = this._buildCombatEvent("turn-start", 0, { combatant, ...options });
       event.combatant = combatant;

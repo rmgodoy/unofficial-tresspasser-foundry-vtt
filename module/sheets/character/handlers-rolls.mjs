@@ -58,7 +58,13 @@ export async function onAttributeRoll(event, sheet) {
   
   const cd = result.cd ?? 10;
   const rollRes = await sheet._evaluateAndShowRoll(roll, flavor, cd, { attributeKey: attrKey, isNonCombat: true });
-  if (rollRes) await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: attrKey });
+  if (rollRes) {
+    if (typeof sheet.actor.rollSkillCheck === "function") {
+      await sheet.actor.rollSkillCheck(attrKey, { roll: rollRes, isNonCombat: true });
+    } else {
+      await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: attrKey });
+    }
+  }
 }
 
 export async function onCombatStatRoll(event, sheet) {
@@ -94,7 +100,13 @@ export async function onCombatStatRoll(event, sheet) {
 
   const finalCD = result.cd ?? 10;
   const rollRes = await sheet._evaluateAndShowRoll(roll, flavor, finalCD);
-  if (rollRes) await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: statKey });
+  if (rollRes) {
+    if (typeof sheet.actor.rollSkillCheck === "function") {
+      await sheet.actor.rollSkillCheck(statKey, { roll: rollRes });
+    } else {
+      await TrespasserEffectsHelper.triggerEffects(sheet.actor, "use", { filterTarget: statKey });
+    }
+  }
 }
 
 export async function onSkillRoll(skillKey, isTrained, sheet) {
@@ -225,7 +237,13 @@ export async function onSkillRoll(skillKey, isTrained, sheet) {
             
             const finalCD = result.cd ?? 10;
             const rollRes = await sheet._evaluateAndShowRoll(roll, flavorFull, finalCD, { skillKey, isNonCombat: true });
-            if (rollRes) await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: chosenAttr });
+            if (rollRes) {
+              if (typeof actor.rollSkillCheck === "function") {
+                await actor.rollSkillCheck(chosenAttr, { roll: rollRes, skillKey, isNonCombat: true });
+              } else {
+                await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: chosenAttr });
+              }
+            }
             
             resolve(roll);
           });

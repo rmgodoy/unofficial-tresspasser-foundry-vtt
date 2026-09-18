@@ -73,8 +73,13 @@ export async function rollWayfindingCheck(actor, dc) {
     : game.i18n.format("TRESPASSER.Chat.Check.SkillCheck", { name: actor.name, skill: label }) + ` (${chosenAttr})${trainedLabel}`;
 
   const finalCD = result.cd ?? dc;
-  const rollRes = await evaluateAndShowRoll(roll, flavorFull, finalCD, actor.sheet, { skillKey, isNonCombat: true });
-  if (rollRes) await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: chosenAttr });
+  if (rollRes) {
+    if (typeof actor.rollSkillCheck === "function") {
+      await actor.rollSkillCheck(chosenAttr, { roll, skillKey, isNonCombat: true });
+    } else {
+      await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: chosenAttr });
+    }
+  }
 
   return roll;
 }

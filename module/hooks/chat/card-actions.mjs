@@ -142,18 +142,20 @@ export function bindCardActionListeners(message, html) {
         const actor = token.actor;
         if (!actor) continue;
 
+        const currentHP = actor.system.health ?? 0;
         const reduction = await TrespasserEffectsHelper.evaluateDamageBonus(actor, "damage_received");
         const finalDamage = Math.max(0, rawDamage + reduction);
-
-        const currentHP = actor.system.health ?? 0;
         const rawNewHP = currentHP - finalDamage;
-        const newHP = Math.max(0, rawNewHP);
-        await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
 
-        await TrespasserEffectsHelper.triggerEffects(actor, "damage-received");
-
-        if (attacker) {
-          await TrespasserEffectsHelper.triggerEffects(attacker, "damage-dealt");
+        if (typeof actor.applyDamage === "function") {
+          await actor.applyDamage(finalDamage, { sourceActor: attacker, skipBelowZeroChat: true });
+        } else {
+          const newHP = Math.max(0, rawNewHP);
+          await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
+          await TrespasserEffectsHelper.triggerEffects(actor, "damage-received");
+          if (attacker) {
+            await TrespasserEffectsHelper.triggerEffects(attacker, "damage-dealt");
+          }
         }
 
         let chatMsg = reduction !== 0

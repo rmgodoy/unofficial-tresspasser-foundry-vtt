@@ -88,10 +88,18 @@ export class ForcedMovementHelper {
             if (result.path && result.path.length > 0) {
               await this.animateTokenAlongPath(movingToken, result.movingPath, otherToken, result.compoundPath);
               if (movingToken?.actor) {
-                await TrespasserEffectsHelper.triggerEffects(movingToken.actor, "on-move");
+                if (typeof movingToken.actor.onMove === "function") {
+                  await movingToken.actor.onMove({ distance, isForced: true, movementType });
+                } else {
+                  await TrespasserEffectsHelper.triggerEffects(movingToken.actor, "on-move");
+                }
               }
               if (otherToken?.actor) {
-                await TrespasserEffectsHelper.triggerEffects(otherToken.actor, "on-move");
+                if (typeof otherToken.actor.onMove === "function") {
+                  await otherToken.actor.onMove({ distance, isForced: true, movementType });
+                } else {
+                  await TrespasserEffectsHelper.triggerEffects(otherToken.actor, "on-move");
+                }
               }
             }
             await this.postCollisionDamage(targetToken, result.collisions, result.totalDamage);
