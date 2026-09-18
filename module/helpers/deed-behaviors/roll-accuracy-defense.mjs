@@ -132,6 +132,21 @@ export async function executeCreatureDefenseRoll({
   context.accuracyResults = results;
   context.accuracyResolved = true;
 
+  if (actor) {
+    for (const res of results) {
+      const targetTokenObj = targetList.find(t => t.id === res.tokenId) || null;
+      const targetActorObj = res.actorId ? game.actors?.get(res.actorId) : (targetTokenObj?.actor || null);
+      const targetRef = targetActorObj || targetTokenObj;
+      if (targetRef) {
+        if (res.isHit && typeof actor.onDeedHit === "function") {
+          await actor.onDeedHit(targetRef, { item, result: res, context });
+        } else if (!res.isHit && typeof actor.onDeedMiss === "function") {
+          await actor.onDeedMiss(targetRef, { item, result: res, context });
+        }
+      }
+    }
+  }
+
   // Post creature defense roll results HTML
   let resultsHtml = "";
   for (const res of results) {

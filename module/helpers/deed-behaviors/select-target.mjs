@@ -4,6 +4,15 @@ import { getActiveWeapons } from "../../sheets/character/handlers-combat.mjs";
 import { selectTokensInteractive } from "./select-target-interactive.mjs";
 
 export class SelectTargetBehavior {
+  static async _notifyTargets(targets, actor, item, behavior, context) {
+    for (const target of targets || []) {
+      const targetActor = target?.actor || (target instanceof Actor ? target : null);
+      if (typeof targetActor?.onTargeted === "function") {
+        await targetActor.onTargeted(actor, { item, behavior, context });
+      }
+    }
+  }
+
   /**
    * 1. selectTarget: Target mode "self", "creatures", "aoe", or "area".
    * For "creatures" mode: prompts interactive canvas selection for up to N targets.
@@ -21,6 +30,7 @@ export class SelectTargetBehavior {
 
     if (mode === "self") {
       context.targets = token ? [token] : (actor ? [actor] : []);
+      await this._notifyTargets(context.targets, actor, item, behavior, context);
       ui.notifications.info(`Targeted self: ${actor?.name || token?.name || "Self"}`);
       return true;
     }
@@ -54,6 +64,7 @@ export class SelectTargetBehavior {
       }
 
       context.targets = resultTargets;
+      await this._notifyTargets(context.targets, actor, item, behavior, context);
       ui.notifications.info(`Targeted ${resultTargets.length} token(s).`);
       return true;
     }
@@ -110,6 +121,7 @@ export class SelectTargetBehavior {
 
       if (!params.chooseCreatures) {
         context.targets = tokensInAoE;
+        await this._notifyTargets(context.targets, actor, item, behavior, context);
         if (game.user.updateTokenTargets) {
           game.user.updateTokenTargets(tokensInAoE.map(t => t.id));
         }
@@ -146,6 +158,7 @@ export class SelectTargetBehavior {
       }
 
       context.targets = resultTargets;
+      await this._notifyTargets(context.targets, actor, item, behavior, context);
       if (game.user.updateTokenTargets) {
         game.user.updateTokenTargets(resultTargets.map(t => t.id));
       }
@@ -198,6 +211,7 @@ export class SelectTargetBehavior {
 
       if (!params.chooseCreatures) {
         context.targets = selectedTargets;
+        await this._notifyTargets(context.targets, actor, item, behavior, context);
         if (game.user.updateTokenTargets) {
           game.user.updateTokenTargets(selectedTargets.map(t => t.id));
         }
@@ -234,6 +248,7 @@ export class SelectTargetBehavior {
       }
 
       context.targets = resultTargets;
+      await this._notifyTargets(context.targets, actor, item, behavior, context);
       if (game.user.updateTokenTargets) {
         game.user.updateTokenTargets(resultTargets.map(t => t.id));
       }

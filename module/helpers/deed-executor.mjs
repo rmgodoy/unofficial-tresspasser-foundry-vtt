@@ -127,6 +127,11 @@ export class DeedExecutor {
     this._phaseOutputs.clear();
     this.chat.reset();
 
+    if (typeof this.actor?.useDeed === "function") {
+      const allowed = await this.actor.useDeed(this.item, { context: this.context });
+      if (allowed === false) return;
+    }
+
     try {
       const visited = new Set();
       const cancelled = await this._traverseNode(startNode.id, visited, null, "start");

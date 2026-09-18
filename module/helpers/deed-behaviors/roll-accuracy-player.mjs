@@ -185,6 +185,21 @@ export async function executePlayerAccuracyRoll({
   context.accuracyResults = results;
   context.accuracyResolved = true;
 
+  if (actor) {
+    for (const res of results) {
+      const targetTokenObj = res.tokenId ? canvas.tokens?.get(res.tokenId) : null;
+      const targetActorObj = res.actorId ? game.actors?.get(res.actorId) : (targetTokenObj?.actor || null);
+      const targetRef = targetActorObj || targetTokenObj;
+      if (targetRef) {
+        if (res.isHit && typeof actor.onDeedHit === "function") {
+          await actor.onDeedHit(targetRef, { item, result: res, context });
+        } else if (!res.isHit && typeof actor.onDeedMiss === "function") {
+          await actor.onDeedMiss(targetRef, { item, result: res, context });
+        }
+      }
+    }
+  }
+
   const rollHtml = await accRoll.render();
 
   let resultsHtml = "";

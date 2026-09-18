@@ -442,7 +442,11 @@ export function CombatActorMixin(BaseClass) {
           preventDefault: false
         };
 
-        await this._dispatchCombatEvent(`on-deed-${outcome}-received`, receiverEvt, `on-deed-${outcome}-received`);
+        if (typeof targetDoc._dispatchCombatEvent === "function") {
+          await targetDoc._dispatchCombatEvent(`on-deed-${outcome}-received`, receiverEvt, `on-deed-${outcome}-received`);
+        } else {
+          await this._dispatchCombatEvent(`on-deed-${outcome}-received`, receiverEvt, `on-deed-${outcome}-received`);
+        }
       }
     }
 
