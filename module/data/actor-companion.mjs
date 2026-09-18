@@ -1,17 +1,20 @@
-import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { TrespasserCombatantData } from "./actor-combatant.mjs";
 import { buildFormulaContext, evaluateFormula, evaluateDieFormula } from "../helpers/companion-formula.mjs";
 import { RangeHelper } from "../helpers/range-helper.mjs";
 
 /**
  * Data model for the Trespasser TTRPG Companion actor type.
  * Companions are player-controlled summons/pets bound to a Character.
- * Their attributes, level, and damage die are derived from GM-configurable formulas.
+ * Their attributes, level, and combat stats are derived from GM-configurable formulas.
  */
-export class TrespasserCompanionData extends foundry.abstract.TypeDataModel {
+export class TrespasserCompanionData extends TrespasserCombatantData {
 
+  /** @override */
   static defineSchema() {
     const fields = foundry.data.fields;
     return {
+      ...super.defineSchema(),
+
       // Identity — bound character reference (Actor ID or UUID)
       boundCharacterId: new fields.StringField({ blank: true }),
 
@@ -22,82 +25,20 @@ export class TrespasserCompanionData extends foundry.abstract.TypeDataModel {
         blank: false
       }),
 
-      // Level (derived / stored)
-      level: new fields.NumberField({ required: true, integer: true, initial: 1, min: 0 }),
-
-      // Resources
-      health:     new fields.NumberField({ required: true, integer: true, initial: 10, min: 0 }),
-      max_health: new fields.NumberField({ required: true, integer: true, initial: 10, min: 0 }),
-
-      // Skill Die (derived / stored, e.g. "d6", "1d8")
-      skill_die: new fields.StringField({ initial: "d6" }),
-
       // GM-configurable formulas for level, skill die, and each attribute
       formulas: new fields.SchemaField({
-        level:       new fields.StringField({ initial: "<c.lvl>" }),
-        skill_die:   new fields.StringField({ initial: "<c.skill_die>" }),
-        damageDie:   new fields.StringField({ initial: "<c.skill_die>" }),
-        hp:          new fields.StringField({ initial: "10+5*(<lvl>)" }),
-        speed:       new fields.StringField({ initial: "5" }),
+        level: new fields.StringField({ initial: "<c.lvl>" }),
+        skill_die: new fields.StringField({ initial: "<c.skill_die>" }),
+        damageDie: new fields.StringField({ initial: "<c.skill_die>" }),
+        hp: new fields.StringField({ initial: "10+5*(<lvl>)" }),
+        speed: new fields.StringField({ initial: "5" }),
         speed_bonus: new fields.StringField({ initial: "2" }),
-        initiative:  new fields.StringField({ initial: "<lvl>" }),
-        accuracy:    new fields.StringField({ initial: "<lvl>+<c.skill>" }),
-        guard:       new fields.StringField({ initial: "<lvl>+<c.agility>" }),
-        resist:      new fields.StringField({ initial: "<lvl>+<c.spirit>" }),
-        prevail:     new fields.StringField({ initial: "<lvl>+<c.intellect>" }),
+        initiative: new fields.StringField({ initial: "<lvl>" }),
+        accuracy: new fields.StringField({ initial: "<lvl>+<c.skill>" }),
+        guard: new fields.StringField({ initial: "<lvl>+<c.agility>" }),
+        resist: new fields.StringField({ initial: "<lvl>+<c.spirit>" }),
+        prevail: new fields.StringField({ initial: "<lvl>+<c.intellect>" }),
       }),
-
-      // Derived combat stats (computed from formulas in prepareDerivedData)
-      combat: new fields.SchemaField({
-        speed:            new fields.NumberField({ integer: true, initial: 5 }),
-        speed_bonus:      new fields.NumberField({ integer: true, initial: 2 }),
-        initiative:       new fields.NumberField({ integer: true, initial: 0 }),
-        accuracy:         new fields.NumberField({ integer: true, initial: 0 }),
-        guard:            new fields.NumberField({ integer: true, initial: 0 }),
-        resist:           new fields.NumberField({ integer: true, initial: 0 }),
-        prevail:          new fields.NumberField({ integer: true, initial: 0 }),
-        engagement_range: new fields.NumberField({ integer: true, initial: 1, min: 0 }),
-        weaponMode:       new fields.StringField({ initial: "main", choices: ["main", "off", "dual"] }),
-        equipment_snapshot: new fields.SchemaField({
-          weapon:   new fields.SchemaField({ die: new fields.StringField({ initial: "" }), effect: new fields.StringField({ initial: "" }), used: new fields.BooleanField({ initial: false }) }),
-          off_hand: new fields.SchemaField({ die: new fields.StringField({ initial: "" }), effect: new fields.StringField({ initial: "" }), used: new fields.BooleanField({ initial: false }) }),
-        }),
-      }),
-
-      // Equipment slots
-      equipment: new fields.SchemaField({
-        head:      new fields.StringField({ blank: true }),
-        arms:      new fields.StringField({ blank: true }),
-        body:      new fields.StringField({ blank: true }),
-        legs:      new fields.StringField({ blank: true }),
-        outer:     new fields.StringField({ blank: true }),
-        shield:    new fields.StringField({ blank: true }),
-        main_hand: new fields.StringField({ blank: true }),
-        off_hand:  new fields.StringField({ blank: true }),
-        amulet:    new fields.StringField({ blank: true }),
-        ring:      new fields.StringField({ blank: true }),
-        talisman:  new fields.StringField({ blank: true }),
-      }),
-
-      // Dynamic Bonuses (from effects)
-      bonuses: new fields.SchemaField({
-        speed:       new fields.NumberField({ integer: true, initial: 0 }),
-        speed_bonus: new fields.NumberField({ integer: true, initial: 0 }),
-        initiative:  new fields.NumberField({ integer: true, initial: 0 }),
-        accuracy:    new fields.NumberField({ integer: true, initial: 0 }),
-        guard:       new fields.NumberField({ integer: true, initial: 0 }),
-        resist:      new fields.NumberField({ integer: true, initial: 0 }),
-        prevail:     new fields.NumberField({ integer: true, initial: 0 }),
-        health:      new fields.NumberField({ integer: true, initial: 0 }),
-        max_health:  new fields.NumberField({ integer: true, initial: 0 }),
-        damage:      new fields.NumberField({ integer: true, initial: 0 }),
-      }),
-
-      // Inventory capacity (GM-configurable)
-      inventory_max: new fields.NumberField({ integer: true, initial: 3 }),
-
-      // Notes
-      notes: new fields.HTMLField({ initial: "" }),
     };
   }
 
@@ -120,6 +61,7 @@ export class TrespasserCompanionData extends foundry.abstract.TypeDataModel {
 
   /** @override */
   prepareDerivedData() {
+    super.prepareDerivedData();
     const actor = this.parent;
     const boundChar = this.getBoundCharacter();
     const ctx = buildFormulaContext(actor, boundChar);
@@ -134,24 +76,18 @@ export class TrespasserCompanionData extends foundry.abstract.TypeDataModel {
     const dieFormula = this.formulas?.skill_die || this.formulas?.damageDie || "<c.skill_die>";
     this.skill_die = evaluateDieFormula(dieFormula, ctx);
 
-    // 3. Effect bonuses
-    const trackedKeys = ["speed", "speed_bonus", "initiative", "accuracy", "guard", "resist", "prevail", "health", "max_health", "damage", "elevation"];
-    for (const key of trackedKeys) {
-      this.bonuses[key] = TrespasserEffectsHelper.getAttributeBonus(actor, key);
-    }
-
-    // 4. Evaluate formulas → combat stats & health
+    // 3. Evaluate formulas → combat stats & health
     const f = this.formulas ?? {};
-    this.max_health        = evaluateFormula(f.hp || "10+5*(<lvl>)", ctx) + this.bonuses.max_health;
-    this.combat.speed      = evaluateFormula(f.speed || "5", ctx) + this.bonuses.speed;
-    this.combat.speed_bonus = evaluateFormula(f.speed_bonus || "2", ctx) + this.bonuses.speed_bonus;
-    this.combat.initiative = evaluateFormula(f.initiative || "<lvl>", ctx) + this.bonuses.initiative;
-    this.combat.accuracy   = evaluateFormula(f.accuracy || "<lvl>+<c.skill>", ctx) + this.bonuses.accuracy;
-    this.combat.guard      = evaluateFormula(f.guard || "<lvl>+<c.agility>", ctx) + this.bonuses.guard;
-    this.combat.resist     = evaluateFormula(f.resist || "<lvl>+<c.spirit>", ctx) + this.bonuses.resist;
-    this.combat.prevail    = evaluateFormula(f.prevail || "<lvl>+<c.intellect>", ctx) + this.bonuses.prevail;
+    this.max_health = evaluateFormula(f.hp || "10+5*(<lvl>)", ctx) + (this.bonuses.max_health || 0);
+    this.combat.speed = evaluateFormula(f.speed || "5", ctx) + (this.bonuses.speed || 0);
+    this.combat.speed_bonus = evaluateFormula(f.speed_bonus || "2", ctx) + (this.bonuses.speed_bonus || 0);
+    this.combat.initiative = evaluateFormula(f.initiative || "<lvl>", ctx) + (this.bonuses.initiative || 0);
+    this.combat.accuracy = evaluateFormula(f.accuracy || "<lvl>+<c.skill>", ctx) + (this.bonuses.accuracy || 0);
+    this.combat.guard = evaluateFormula(f.guard || "<lvl>+<c.agility>", ctx) + (this.bonuses.guard || 0);
+    this.combat.resist = evaluateFormula(f.resist || "<lvl>+<c.spirit>", ctx) + (this.bonuses.resist || 0);
+    this.combat.prevail = evaluateFormula(f.prevail || "<lvl>+<c.intellect>", ctx) + (this.bonuses.prevail || 0);
 
-    // 5. Engagement Range (derived from equipped melee weapons or natural reach 1)
+    // 4. Engagement Range (derived from equipped melee weapons or natural reach 1)
     const eq = this.equipment ?? {};
     const equippedIds = [eq.main_hand, eq.off_hand].filter(Boolean);
     const equippedWeapons = equippedIds
@@ -163,15 +99,9 @@ export class TrespasserCompanionData extends foundry.abstract.TypeDataModel {
       const ranges = meleeWeapons.map(w => RangeHelper.getWeaponMeleeRange(w));
       this.combat.engagement_range = Math.max(...ranges);
     } else if (equippedWeapons.length > 0 && equippedWeapons.every(w => w.system?.type === "missile" || w.system?.type === "ranged")) {
-      // Missile/ranged only weapon wielders do not threaten melee engagement
       this.combat.engagement_range = 0;
     } else {
-      // Unarmed natural reach
       this.combat.engagement_range = 1;
     }
-
-    // Passive states
-    this.passiveStates = {};
-    this.passiveStates.bloody = this.health <= (this.max_health / 2);
   }
 }

@@ -10,6 +10,10 @@ import { isSunken } from "../helpers/elevation-helper.mjs";
  * @returns {Promise<Roll>}
  */
 export async function rollSkillCheck(actor, attribute) {
+  if (actor?.rollSkillCheck && actor.rollSkillCheck !== rollSkillCheck) {
+    return actor.rollSkillCheck(attribute);
+  }
+
   const data = actor.system;
   const attrValue = data.attributes[attribute] ?? 0;
   const skillDie = data.skill_die || "d6";
@@ -39,6 +43,10 @@ export async function rollSkillCheck(actor, attribute) {
  * @returns {Promise<number>} New health value
  */
 export async function applyDamage(actor, amount, options = {}) {
+  if (actor?.applyDamage && actor.applyDamage !== applyDamage) {
+    return actor.applyDamage(amount, options);
+  }
+
   let damageNum = Math.max(0, Number(amount) || 0);
   if (damageNum <= 0) return actor.system.health;
 
@@ -72,6 +80,10 @@ export async function applyDamage(actor, amount, options = {}) {
  * @returns {Promise<number>} New health value
  */
 export async function applyHealing(actor, amount, options = {}) {
+  if (actor?.applyHealing && actor.applyHealing !== applyHealing) {
+    return actor.applyHealing(amount, options);
+  }
+
   const healNum = Math.max(0, Number(amount) || 0);
   if (healNum <= 0) return actor.system.health;
 
@@ -112,6 +124,10 @@ export async function applyHealing(actor, amount, options = {}) {
  * @param {Combatant} [combatant]
  */
 export async function onTurnEnd(actor, combatant = null) {
+  if (actor?.onTurnEnd && actor.onTurnEnd !== onTurnEnd) {
+    return actor.onTurnEnd(combatant);
+  }
+
   if (!game.combat) return;
 
   if (actor.type === "character") {
@@ -141,6 +157,9 @@ export async function onTurnEnd(actor, combatant = null) {
  * @param {object} [options]
  */
 export async function rollPrevail(actor, stateItemId, extraAP = 0, { modifier = 0, cd = null, totalBonus = null } = {}) {
+  if (actor?.rollPrevail && actor.rollPrevail !== rollPrevail) {
+    return actor.rollPrevail(stateItemId, extraAP, { modifier, cd, totalBonus });
+  }
   const stateItem = actor.items.get(stateItemId);
   if (!stateItem) {
     ui.notifications.warn("State item not found.");

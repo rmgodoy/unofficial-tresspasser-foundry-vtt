@@ -17,6 +17,9 @@ import { TreasureGenerator } from "../helpers/treasure-generator.mjs";
 import { TrespasserTreasureDialog } from "../dialogs/treasure-dialog.mjs";
 import { StatusIntensityDialog } from "../dialogs/status-intensity-dialog.mjs";
 import { formatDiceIcons, replaceDiceInElement } from "../helpers/dice-icon-helper.mjs";
+import { actorEventBus, ActorEventBus } from "../actor/actor-event-bus.mjs";
+import { CombatActorMixin } from "../actor/combat-actor-mixin.mjs";
+import { TrespasserCombatantData } from "../data/actor-combatant.mjs";
 import { SYSTEM_ID, getSystemId } from "../system-id.mjs";
 
 /**
@@ -26,6 +29,11 @@ export function initializeSystemNamespace() {
   game.trespasser = game.trespasser || {};
   game.trespasser.SYSTEM_ID = SYSTEM_ID;
   game.trespasser.getSystemId = getSystemId;
+  game.trespasser.eventBus = actorEventBus;
+  game.trespasser.ActorEventBus = ActorEventBus;
+  game.trespasser.CombatActorMixin = CombatActorMixin;
+  game.trespasser.CombatantData = TrespasserCombatantData;
+  game.trespasser.TrespasserCombatantData = TrespasserCombatantData;
   game.trespasser.ItemExporter = ItemExporter;
   game.trespasser.Config = TrespasserConfigV2;
   game.trespasser.EventClocks = EventClocksTracker;

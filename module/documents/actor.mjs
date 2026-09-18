@@ -17,14 +17,8 @@ import {
   applyLinkedItems,
   removeLinkedItems
 } from "../actor/actor-linked-items.mjs";
-import {
-  rollSkillCheck,
-  applyDamage,
-  applyHealing,
-  onTurnEnd,
-  rollPrevail,
-  onItemConsume
-} from "../actor/actor-actions.mjs";
+import { CombatActorMixin } from "../actor/combat-actor-mixin.mjs";
+import { actorEventBus } from "../actor/actor-event-bus.mjs";
 import {
   TRESPASSER_STATUS_EFFECTS,
   STATUS_EFFECT_COUNTERS,
@@ -37,7 +31,7 @@ import { SYSTEM_ID } from "../system-id.mjs";
 /**
  * Custom Actor document class for Trespasser TTRPG.
  */
-export class TrespasserActor extends Actor {
+export class TrespasserActor extends CombatActorMixin(Actor) {
 
   /** @override */
   async toggleStatusEffect(statusId, { active, overlay = false, intensity } = {}) {
@@ -384,6 +378,9 @@ export class TrespasserActor extends Actor {
     let changed = false;
 
     for (const doc of documents) {
+      if (doc.type === "effect") {
+        actorEventBus.removeMiddlewareByEffect(doc.id);
+      }
       const itemId = doc.id;
       const slots = [
         "head", "body", "arms", "legs", "outer", "shield", 
@@ -423,32 +420,6 @@ export class TrespasserActor extends Actor {
 
   static animateHealingText(token, amount) {
     return animateHealingText(token, amount);
-  }
-
-  // --- Actor Actions API ---
-
-  async rollSkillCheck(attribute) {
-    return rollSkillCheck(this, attribute);
-  }
-
-  async applyDamage(amount, options = {}) {
-    return applyDamage(this, amount, options);
-  }
-
-  async applyHealing(amount, options = {}) {
-    return applyHealing(this, amount, options);
-  }
-
-  async onTurnEnd(combatant = null) {
-    return onTurnEnd(this, combatant);
-  }
-
-  async rollPrevail(stateItemId, extraAP = 0, options = {}) {
-    return rollPrevail(this, stateItemId, extraAP, options);
-  }
-
-  async onItemConsume(itemId, options = {}) {
-    return onItemConsume(this, itemId, options);
   }
 
   // --- Inventory & Equipment API ---

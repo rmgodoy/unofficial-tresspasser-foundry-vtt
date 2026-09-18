@@ -2,7 +2,7 @@
   "id": "trespasser",
   "title": "Trespasser",
   "description": "A Foundry VTT system for the Trespasser TTRPG by Tundalus.",
-  "version": "0.2.0-12",
+  "version": "0.2.0-13",
   "compatibility": {
     "minimum": "13",
     "verified": "14"
@@ -32,6 +32,11 @@
       "lang": "en",
       "name": "English (app)",
       "path": "lang/en/app.json"
+    },
+    {
+      "lang": "en",
+      "name": "English (alignments)",
+      "path": "lang/en/alignments.json"
     },
     {
       "lang": "en",
@@ -79,62 +84,57 @@
       "path": "lang/en/dungeon.json"
     },
     {
-      "lang": "pt-br",
+      "lang": "pt-BR",
       "name": "Portuguese (Brazil) (app)",
       "path": "lang/pt-BR/app.json"
     },
     {
-      "lang": "pt-br",
+      "lang": "pt-BR",
       "name": "Portuguese (Brazil) (chat)",
       "path": "lang/pt-BR/chat.json"
     },
     {
-      "lang": "pt-br",
+      "lang": "pt-BR",
       "name": "Portuguese (Brazil) (dialog)",
       "path": "lang/pt-BR/dialog.json"
     },
     {
-      "lang": "pt-br",
+      "lang": "pt-BR",
       "name": "Portuguese (Brazil) (hud)",
       "path": "lang/pt-BR/hud.json"
     },
     {
-      "lang": "pt-br",
+      "lang": "pt-BR",
       "name": "Portuguese (Brazil) (notification)",
       "path": "lang/pt-BR/notification.json"
     },
     {
-      "lang": "pt-br",
+      "lang": "pt-BR",
       "name": "Portuguese (Brazil) (settings)",
       "path": "lang/pt-BR/settings.json"
     },
     {
-      "lang": "pt-br",
+      "lang": "pt-BR",
       "name": "Portuguese (Brazil) (sheet)",
       "path": "lang/pt-BR/sheet.json"
     },
     {
-      "lang": "pt-br",
+      "lang": "pt-BR",
       "name": "Portuguese (Brazil) (terms)",
       "path": "lang/pt-BR/terms.json"
     },
     {
-      "lang": "pt-br",
+      "lang": "pt-BR",
       "name": "Portuguese (Brazil) (global)",
       "path": "lang/pt-BR/global.json"
     },
     {
-      "lang": "en",
-      "name": "English (alignments)",
-      "path": "lang/en/alignments.json"
-    },
-    {
-      "lang": "pt-br",
+      "lang": "pt-BR",
       "name": "Portuguese (Brazil) (dungeon)",
       "path": "lang/pt-BR/dungeon.json"
     },
     {
-      "lang": "pt-br",
+      "lang": "pt-BR",
       "name": "Portuguese (Brazil) (alignments)",
       "path": "lang/pt-BR/alignments.json"
     }
