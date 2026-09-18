@@ -51,7 +51,11 @@ export async function onCompanionStatRoll(actor, stat, sheet) {
     });
   }
 
-  await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: stat });
+  if (typeof actor.rollSkillCheck === "function") {
+    await actor.rollSkillCheck(stat, { roll, isCompanion: true });
+  } else {
+    await TrespasserEffectsHelper.triggerEffects(actor, "use", { filterTarget: stat });
+  }
   return roll;
 }
 
