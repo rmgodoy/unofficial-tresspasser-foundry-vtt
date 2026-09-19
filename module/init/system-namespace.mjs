@@ -20,6 +20,7 @@ import { formatDiceIcons, replaceDiceInElement } from "../helpers/dice-icon-help
 import { actorEventBus, ActorEventBus } from "../actor/actor-event-bus.mjs";
 import { CombatActorMixin } from "../actor/combat-actor-mixin.mjs";
 import { TrespasserCombatantData } from "../data/actor-combatant.mjs";
+import { tcaEngine } from "../engine/tca-engine.mjs";
 import { SYSTEM_ID, getSystemId } from "../system-id.mjs";
 
 /**
@@ -34,6 +35,7 @@ export function initializeSystemNamespace() {
   game.trespasser.CombatActorMixin = CombatActorMixin;
   game.trespasser.CombatantData = TrespasserCombatantData;
   game.trespasser.TrespasserCombatantData = TrespasserCombatantData;
+  game.trespasser.tcaEngine = tcaEngine;
   game.trespasser.ItemExporter = ItemExporter;
   game.trespasser.Config = TrespasserConfigV2;
   game.trespasser.EventClocks = EventClocksTracker;

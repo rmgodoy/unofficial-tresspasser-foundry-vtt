@@ -87,7 +87,61 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
       isPrevailable: new fields.BooleanField({ initial: true }),
       isLasting: new fields.BooleanField({ initial: false }),
       statusIcon: new fields.StringField({ initial: "", blank: true }),
-      syncStatusIcon: new fields.BooleanField({ initial: true })
+      syncStatusIcon: new fields.BooleanField({ initial: true }),
+      // --- TCA Behavior Blocks (new) ---
+      behaviors: new fields.ArrayField(
+        new fields.SchemaField({
+          id: new fields.StringField({ initial: "" }),
+          label: new fields.StringField({ initial: "" }),
+          trigger: new fields.StringField({ initial: "continuous" }),
+          condition: new fields.StringField({ initial: "" }),
+          action: new fields.StringField({
+            initial: "modify_attribute",
+            choices: [
+              "modify_attribute",
+              "confer_state",
+              "remove_state",
+              "modify_intensity",
+              "set_flag",
+              "force_movement",
+              "roll_check",
+              "grant_reaction",
+              "redirect_damage",
+              "chat_message"
+            ]
+          }),
+          params: new fields.ObjectField({ initial: {} }),
+          actionTarget: new fields.StringField({ initial: "self", choices: ["self", "target"] }),
+          scope: new fields.StringField({ initial: "", blank: true }),
+          rangeType: new fields.StringField({ initial: "", blank: true }),
+          range: new fields.NumberField({ initial: 0, nullable: true }),
+          priority: new fields.NumberField({ initial: null, nullable: true }),
+          requiresConfirmation: new fields.BooleanField({ initial: false }),
+          promptText: new fields.StringField({ initial: "", blank: true }),
+          choiceGroup: new fields.StringField({ initial: "", blank: true }),
+          choiceLabel: new fields.StringField({ initial: "", blank: true }),
+          gatedBy: new fields.StringField({ initial: "", blank: true }),
+          cooldown: new fields.ObjectField({ initial: null, nullable: true }),
+          cost: new fields.ObjectField({ initial: null, nullable: true })
+        }),
+        { initial: [] }
+      ),
+      // --- Tags for grouping/mutual exclusivity (new) ---
+      tags: new fields.ArrayField(
+        new fields.StringField(),
+        { initial: [] }
+      ),
+      // --- Effect-level priority override (new) ---
+      effectPriority: new fields.NumberField({ initial: null, nullable: true })
     };
+  }
+
+  prepareDerivedData() {
+    super.prepareDerivedData();
+    for (const behavior of this.behaviors || []) {
+      if (!behavior.id) {
+        behavior.id = foundry.utils.randomID(8);
+      }
+    }
   }
 }

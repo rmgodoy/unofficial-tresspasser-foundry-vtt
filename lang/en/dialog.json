@@ -11,6 +11,10 @@
         "Remove": "Remove",
         "SearchPlaceholder": "Search…"
       },
+      "ChoiceGroup": {
+        "Prompt": "Choose an action for {effect} ({group}):",
+        "Select": "Confirm Choice"
+      },
       "Combat": {
         "SelectArmorToBlock": "Select which equipped armor die to roll to block damage ({damage} incoming):",
         "ConfirmRedirectDamage": "{caster}: Intercept and redirect {amount} damage from {target} to yourself via {effect}?",

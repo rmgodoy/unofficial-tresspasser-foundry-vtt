@@ -246,7 +246,9 @@
         "APGained": "Gained {value} Action Points.",
         "APLost": "Lost {value} Action Points.",
         "PhaseChanged": "Combat Phase changed to {phase}.",
-        "ModifierGenerated": "Generated {value} modifier to {target}."
+        "ModifierGenerated": "Generated {value} modifier to {target}.",
+        "StateConferred": "Applied <strong>{name} [{intensity}]</strong> to <strong>{target}</strong>.",
+        "StateRemoved": "Removed <strong>{name}</strong> from <strong>{target}</strong>."
       },
       "Dungeon": {
         "LightDepletion": "Light Depletion",

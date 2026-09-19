@@ -1216,6 +1216,48 @@
         "ConfigureFormulas": "Configure Attribute Formulas (GM)",
         "Notes": "Notes"
       }
+    },
+    "TCA": {
+      "Title": "Trigger-Condition-Action (TCA)",
+      "Behaviors": "Behaviors",
+      "AddBehavior": "Add Behavior Block",
+      "RemoveBehavior": "Remove Behavior Block",
+      "BlockLabel": "Block Label",
+      "Trigger": "Trigger",
+      "Condition": "Condition Expression",
+      "ConditionHelp": "Safe expression (e.g. intensity >= 2 && actor.system.health > 0)",
+      "Action": "Action",
+      "ActionTarget": "Action Target",
+      "ActionTargetSelf": "Self (Effect Bearer)",
+      "ActionTargetTarget": "Target (Counterpart)",
+      "Scope": "Scope",
+      "Range": "Range (Squares)",
+      "Priority": "Priority Override",
+      "RequiresConfirmation": "Requires Confirmation Prompt",
+      "PromptText": "Custom Prompt Text",
+      "ChoiceGroup": "Choice Group",
+      "ChoiceLabel": "Choice Label",
+      "GatedBy": "Gated By Block ID",
+      "Cooldown": "Cooldown",
+      "CooldownUses": "Max Uses",
+      "CooldownPer": "Per Period",
+      "CooldownPerTurn": "Per Turn",
+      "CooldownPerRound": "Per Round",
+      "CooldownPerCombat": "Per Combat",
+      "Tags": "Tags (Comma-separated)",
+      "EffectPriority": "Effect Priority Override",
+      "Actions": {
+        "modify_attribute": "Modify Attribute",
+        "confer_state": "Confer State",
+        "remove_state": "Remove State",
+        "modify_intensity": "Modify Intensity",
+        "set_flag": "Set Flag",
+        "force_movement": "Force Movement",
+        "roll_check": "Roll Check",
+        "grant_reaction": "Grant Reaction",
+        "redirect_damage": "Redirect Damage",
+        "chat_message": "Chat Message"
+      }
     }
   }
 }

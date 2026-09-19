@@ -11,6 +11,10 @@
         "Remove": "Remover",
         "SearchPlaceholder": "Buscar…"
       },
+      "ChoiceGroup": {
+        "Prompt": "Escolha uma ação para {effect} ({group}):",
+        "Select": "Confirmar Escolha"
+      },
       "Combat": {
         "SelectArmorToBlock": "Selecione qual dado de armadura equipada rolar para bloquear o dano ({damage} sofrido):",
         "ConfirmRedirectDamage": "{caster}: Interceptar e redirecionar {amount} de dano de {target} para si através de {effect}?",

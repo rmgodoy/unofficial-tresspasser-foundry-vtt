@@ -246,7 +246,9 @@
         "APGained": "Ganhou {value} Pontos de Ação.",
         "APLost": "Perdeu {value} Pontos de Ação.",
         "PhaseChanged": "Fase de Combate alterada para {phase}.",
-        "ModifierGenerated": "Gerou modificador de {value} para {target}."
+        "ModifierGenerated": "Gerou modificador de {value} para {target}.",
+        "StateConferred": "Aplicou <strong>{name} [{intensity}]</strong> em <strong>{target}</strong>.",
+        "StateRemoved": "Removeu <strong>{name}</strong> de <strong>{target}</strong>."
       },
       "Dungeon": {
         "LightDepletion": "Esgotamento de Luz",

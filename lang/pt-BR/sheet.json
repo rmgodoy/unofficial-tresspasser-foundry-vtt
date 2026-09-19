@@ -1216,6 +1216,48 @@
         "ConfigureFormulas": "Configurar Fórmulas de Atributos (GM)",
         "Notes": "Notas"
       }
+    },
+    "TCA": {
+      "Title": "Gatilho-Condição-Ação (TCA)",
+      "Behaviors": "Comportamentos",
+      "AddBehavior": "Adicionar Bloco de Comportamento",
+      "RemoveBehavior": "Remover Bloco de Comportamento",
+      "BlockLabel": "Rótulo do Bloco",
+      "Trigger": "Gatilho",
+      "Condition": "Expressão de Condição",
+      "ConditionHelp": "Expressão segura (ex: intensity >= 2 && actor.system.health > 0)",
+      "Action": "Ação",
+      "ActionTarget": "Alvo da Ação",
+      "ActionTargetSelf": "Próprio (Portador do Efeito)",
+      "ActionTargetTarget": "Alvo (Contraparte)",
+      "Scope": "Escopo",
+      "Range": "Alcance (Quadrados)",
+      "Priority": "Sobrescrita de Prioridade",
+      "RequiresConfirmation": "Requer Confirmação",
+      "PromptText": "Texto de Confirmação Personalizado",
+      "ChoiceGroup": "Grupo de Escolha",
+      "ChoiceLabel": "Rótulo da Escolha",
+      "GatedBy": "Depende do Bloco (ID)",
+      "Cooldown": "Recarga",
+      "CooldownUses": "Usos Máximos",
+      "CooldownPer": "Por Período",
+      "CooldownPerTurn": "Por Turno",
+      "CooldownPerRound": "Por Rodada",
+      "CooldownPerCombat": "Por Combate",
+      "Tags": "Etiquetas (separadas por vírgula)",
+      "EffectPriority": "Sobrescrita de Prioridade do Efeito",
+      "Actions": {
+        "modify_attribute": "Modificar Atributo",
+        "confer_state": "Conceder Estado",
+        "remove_state": "Remover Estado",
+        "modify_intensity": "Modificar Intensidade",
+        "set_flag": "Definir Sinalizador (Flag)",
+        "force_movement": "Movimento Forçado",
+        "roll_check": "Rolar Teste",
+        "grant_reaction": "Conceder Reação",
+        "redirect_damage": "Redirecionar Dano",
+        "chat_message": "Mensagem no Chat"
+      }
     }
   }
 }
