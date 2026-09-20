@@ -29,8 +29,6 @@ export async function rollSkillCheck(actor, attribute) {
     flavor: `${attrLabel} Check ${bonus !== 0 ? `(Bonus: ${bonus > 0 ? "+" : ""}${bonus})` : ""}`,
   });
 
-  await TrespasserEffectsHelper.triggerEffects(actor, "use");
-
   return roll;
 }
 
@@ -61,13 +59,6 @@ export async function applyDamage(actor, amount, options = {}) {
   const newHealth = Math.clamp(rawHealth, 0, maxHealth);
 
   await actor.update({ "system.health": rawHealth }, options);
-
-  await TrespasserEffectsHelper.triggerEffects(actor, "damage-received");
-
-  const sourceActor = options.sourceActor || (options.sourceActorId ? game.actors.get(options.sourceActorId) : null);
-  if (sourceActor) {
-    await TrespasserEffectsHelper.triggerEffects(sourceActor, "damage-dealt");
-  }
 
   return newHealth;
 }
@@ -105,13 +96,6 @@ export async function applyHealing(actor, amount, options = {}) {
       speaker: ChatMessage.getSpeaker({ actor }),
       content: `<div class="trespasser-chat-card"><p class="hit-text"><strong>${actor.name}</strong> ${game.i18n.localize("TRESPASSER.Chat.Combat.RecoveredFromDefeat")}</p></div>`
     });
-  }
-
-  await TrespasserEffectsHelper.triggerEffects(actor, "heal-received");
-
-  const sourceActor = options.sourceActor || (options.sourceActorId ? game.actors.get(options.sourceActorId) : null);
-  if (sourceActor) {
-    await TrespasserEffectsHelper.triggerEffects(sourceActor, "heal-given");
   }
 
   return newHealth;
@@ -210,8 +194,6 @@ export async function rollPrevail(actor, stateItemId, extraAP = 0, { modifier = 
   if (success) {
     await stateItem.delete();
   }
-
-  await TrespasserEffectsHelper.triggerEffects(actor, "on-prevail");
 
   return roll;
 }

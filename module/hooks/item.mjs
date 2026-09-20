@@ -1,4 +1,5 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { TrespasserEffectData } from "../data/item-effect.mjs";
 import { syncBoundCompanions } from "../helpers/companion-formula.mjs";
 import { ItemExporter } from "../helpers/item-exporter.mjs";
 import { TrespasserTreasureDialog } from "../dialogs/treasure-dialog.mjs";
@@ -114,16 +115,78 @@ export function registerItemHooks() {
       if (isSynced && !item.system.statusIcon) {
         item.updateSource({ "system.statusIcon": item.img || "systems/trespasser/assets/icons/effect.webp" });
       }
+
+      // Ensure behaviors are always present in the created item data source
+      if (!item._source?.system?.behaviors?.length) {
+        const sourceCopy = foundry.utils.deepClone(item._source?.system || {});
+        delete sourceCopy.behaviors;
+        const migrated = TrespasserEffectData.migrateData(sourceCopy);
+        if (migrated.behaviors?.length > 0) {
+          item.updateSource({ "system.behaviors": migrated.behaviors });
+        }
+      }
     }
   });
 
-  // Pre-update item: synchronize statusIcon when effect image changes
+  // Pre-update item: synchronize statusIcon and persist behaviors
   Hooks.on("preUpdateItem", (item, changed, options, userId) => {
     if (item.type === "effect") {
+      console.log("%c[Item Hook | preUpdateItem]%c", "color: #e5c07b; font-weight: bold;", "color: inherit;", {
+        itemId: item.id,
+        name: item.name,
+        actor: item.parent?.name,
+        changed: foundry.utils.deepClone(changed),
+        currentBehaviors: foundry.utils.deepClone(item.system?.behaviors || [])
+      });
+
       if (changed.img && !foundry.utils.hasProperty(changed, "system.statusIcon")) {
-        const isSynced = changed.system?.syncStatusIcon ?? item.system.syncStatusIcon ?? true;
+        const expanded = foundry.utils.expandObject(changed);
+        const isSynced = expanded.system?.syncStatusIcon ?? item.system.syncStatusIcon ?? true;
         if (isSynced) {
           foundry.utils.setProperty(changed, "system.statusIcon", changed.img);
+        }
+      }
+
+      const flatKeys = [
+        "when", "modifier", "targetAttribute", "type",
+        "intensityIncrement", "conferredState", "interceptionMode",
+        "isOnlyReminder", "scope", "rangeType", "rangeRequirement"
+      ];
+      const expandedChanges = foundry.utils.expandObject(changed);
+      const changedSystem = expandedChanges.system || {};
+      const flatFieldsChanged = flatKeys.some(k => k in changedSystem);
+
+      const hasExplicitBehaviors = foundry.utils.hasProperty(changed, "system.behaviors") ||
+        (changed.system && "behaviors" in changed.system);
+
+      if (flatFieldsChanged && !hasExplicitBehaviors) {
+        const mergedSystem = foundry.utils.mergeObject(
+          foundry.utils.deepClone(item.toObject().system || {}),
+          changedSystem
+        );
+        delete mergedSystem.behaviors;
+        const migrated = TrespasserEffectData.migrateData(mergedSystem);
+        if (migrated.behaviors?.length > 0) {
+          if (changed.system && typeof changed.system === "object") {
+            changed.system.behaviors = migrated.behaviors;
+            delete changed["system.behaviors"];
+          } else {
+            changed["system.behaviors"] = migrated.behaviors;
+          }
+          console.log("%c[Item Hook | preUpdateItem]%c Regenerated behaviors from flat fields:", "color: #98c379; font-weight: bold;", "color: inherit;", migrated.behaviors);
+        }
+      } else if (!hasExplicitBehaviors) {
+        // Catch-all: preserve existing behaviors when the delta doesn't explicitly set them.
+        // This prevents intensity updates (or any non-flat-field update) from dropping behaviors.
+        const existing = item.system?.behaviors;
+        if (Array.isArray(existing) && existing.length > 0) {
+          if (changed.system && typeof changed.system === "object") {
+            changed.system.behaviors = foundry.utils.deepClone(existing);
+            delete changed["system.behaviors"];
+          } else {
+            changed["system.behaviors"] = foundry.utils.deepClone(existing);
+          }
+          console.log("%c[Item Hook | preUpdateItem]%c Preserved existing behaviors:", "color: #61afef; font-weight: bold;", "color: inherit;", existing);
         }
       }
     }

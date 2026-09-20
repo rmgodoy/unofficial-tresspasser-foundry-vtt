@@ -51,13 +51,12 @@ export function CombatActorMixin(BaseClass) {
     }
 
     /**
-     * Execute observers, deferred actions, and triggerEffects after state mutation.
+     * Execute observers and deferred actions after state mutation.
      * @param {object} event
      * @param {string|null} [observerEventName]
-     * @param {string|null} [triggerTiming]
      * @private
      */
-    async _executePostAction(event, observerEventName = null, triggerTiming = null) {
+    async _executePostAction(event, observerEventName = null) {
       if (observerEventName) {
         await actorEventBus.runObservers(observerEventName, event);
       }
@@ -71,24 +70,19 @@ export function CombatActorMixin(BaseClass) {
         }
       }
       event.deferredActions = [];
-      if (triggerTiming && event.actor) {
-        const filterTarget = event.attribute || event.data?.filterTarget || null;
-        await TrespasserEffectsHelper.triggerEffects(event.actor, triggerTiming, { filterTarget });
-      }
     }
 
     /**
-     * Dispatch an event through middleware, observers, deferred actions, and triggerEffects.
+     * Dispatch an event through middleware, observers, and deferred actions.
      * @param {string} eventName
      * @param {object} event
-     * @param {string|null} [triggerTiming]
      * @returns {Promise<boolean>} False if prevented by middleware, true otherwise
      * @private
      */
-    async _dispatchCombatEvent(eventName, event, triggerTiming = null) {
+    async _dispatchCombatEvent(eventName, event) {
       await actorEventBus.runMiddleware(eventName, event);
       if (event.preventDefault) return false;
-      await this._executePostAction(event, eventName, triggerTiming);
+      await this._executePostAction(event, eventName);
       return true;
     }
 
@@ -124,10 +118,10 @@ export function CombatActorMixin(BaseClass) {
         }
       }
 
-      await this._executePostAction(event, "damage-received", "damage-received");
+      await this._executePostAction(event, "damage-received");
       if (event.sourceActor) {
         const dealtEvent = { ...event, actor: event.sourceActor, targetActor: this };
-        await this._executePostAction(dealtEvent, "damage-dealt", "damage-dealt");
+        await this._executePostAction(dealtEvent, "damage-dealt");
       }
 
       const finalHealth = this.system.health ?? Math.max(0, rawHealth);
@@ -172,10 +166,10 @@ export function CombatActorMixin(BaseClass) {
         });
       }
 
-      await this._executePostAction(event, "heal-received", "heal-received");
+      await this._executePostAction(event, "heal-received");
       if (event.sourceActor) {
         const givenEvent = { ...event, actor: event.sourceActor, targetActor: this };
-        await this._executePostAction(givenEvent, "heal-given", "heal-given");
+        await this._executePostAction(givenEvent, "heal-given");
       }
 
       return newHealth;
@@ -195,7 +189,7 @@ export function CombatActorMixin(BaseClass) {
       if (event.preventDefault) return null;
 
       if (options.skipRoll || options.roll) {
-        await this._executePostAction(event, "use", "use");
+        await this._executePostAction(event, "use");
         return options.roll || null;
       }
 
@@ -214,7 +208,7 @@ export function CombatActorMixin(BaseClass) {
         flavor: `${attrLabel} Check ${bonus !== 0 ? `(Bonus: ${bonus > 0 ? "+" : ""}${bonus})` : ""}`
       });
 
-      await this._executePostAction(event, "use", "use");
+      await this._executePostAction(event, "use");
       return roll;
     }
 
@@ -284,7 +278,7 @@ export function CombatActorMixin(BaseClass) {
         await stateItem.delete();
       }
 
-      await this._executePostAction(event, "on-prevail", "on-prevail");
+      await this._executePostAction(event, "on-prevail");
       return roll;
     }
 
@@ -292,35 +286,35 @@ export function CombatActorMixin(BaseClass) {
     async onCombatStart(combat = null, options = {}) {
       const event = this._buildCombatEvent("combat-start", 0, { combat, ...options });
       event.combat = combat;
-      return this._dispatchCombatEvent("start-of-combat", event, "start-of-combat");
+      return this._dispatchCombatEvent("start-of-combat", event);
     }
 
     /** Called when combat ends. */
     async onCombatEnd(combat = null, options = {}) {
       const event = this._buildCombatEvent("combat-end", 0, { combat, ...options });
       event.combat = combat;
-      return this._dispatchCombatEvent("end-of-combat", event, "end-of-combat");
+      return this._dispatchCombatEvent("end-of-combat", event);
     }
 
     /** Called when a combat round begins. */
     async onRoundStart(combat = null, options = {}) {
       const event = this._buildCombatEvent("round-start", 0, { combat, ...options });
       event.combat = combat;
-      return this._dispatchCombatEvent("start-of-round", event, "start-of-round");
+      return this._dispatchCombatEvent("start-of-round", event);
     }
 
     /** Called when a combat round ends. */
     async onRoundEnd(combat = null, options = {}) {
       const event = this._buildCombatEvent("round-end", 0, { combat, ...options });
       event.combat = combat;
-      return this._dispatchCombatEvent("end-of-round", event, "end-of-round");
+      return this._dispatchCombatEvent("end-of-round", event);
     }
 
     /** Called when this actor's turn begins. */
     async onTurnStart(combatant = null, options = {}) {
       const event = this._buildCombatEvent("turn-start", 0, { combatant, ...options });
       event.combatant = combatant;
-      return this._dispatchCombatEvent("start-of-turn", event, "start-of-turn");
+      return this._dispatchCombatEvent("start-of-turn", event);
     }
 
     /**
@@ -353,7 +347,7 @@ export function CombatActorMixin(BaseClass) {
         }
       }
 
-      await this._executePostAction(event, "end-of-turn", "end-of-turn");
+      await this._executePostAction(event, "end-of-turn");
     }
 
     /**
@@ -371,9 +365,9 @@ export function CombatActorMixin(BaseClass) {
 
       if (event.preventDefault) return false;
 
-      await this._executePostAction(event, "on-move", "on-move");
+      await this._executePostAction(event, "on-move");
       if (movementData.isFirstMove) {
-        await this._executePostAction(event, "on-first-move", "on-first-move");
+        await this._executePostAction(event, "on-first-move");
       }
 
       return true;
@@ -389,7 +383,7 @@ export function CombatActorMixin(BaseClass) {
       const event = this._buildCombatEvent("use-deed", 0, { item, ...options });
       event.source = item;
       event.sourceItem = item;
-      return this._dispatchCombatEvent("on-use-deed", event, "on-use-deed");
+      return this._dispatchCombatEvent("on-use-deed", event);
     }
 
     /**
@@ -427,7 +421,7 @@ export function CombatActorMixin(BaseClass) {
       attackerEvt.source = options.item || this;
       attackerEvt.sourceItem = options.item || null;
 
-      await this._dispatchCombatEvent(`on-deed-${outcome}`, attackerEvt, `on-deed-${outcome}`);
+      await this._dispatchCombatEvent(`on-deed-${outcome}`, attackerEvt);
 
       if (targetDoc) {
         const receiverEvt = {
@@ -446,9 +440,9 @@ export function CombatActorMixin(BaseClass) {
         };
 
         if (typeof targetDoc._dispatchCombatEvent === "function") {
-          await targetDoc._dispatchCombatEvent(`on-deed-${outcome}-received`, receiverEvt, `on-deed-${outcome}-received`);
+          await targetDoc._dispatchCombatEvent(`on-deed-${outcome}-received`, receiverEvt);
         } else {
-          await this._dispatchCombatEvent(`on-deed-${outcome}-received`, receiverEvt, `on-deed-${outcome}-received`);
+          await this._dispatchCombatEvent(`on-deed-${outcome}-received`, receiverEvt);
         }
       }
     }
@@ -473,8 +467,8 @@ export function CombatActorMixin(BaseClass) {
       await actorEventBus.runMiddleware("on-targeted-deed", event);
       if (event.preventDefault) return false;
 
-      await this._executePostAction(event, "targeted", "targeted");
-      await this._executePostAction(event, "on-targeted-deed", "on-targeted-deed");
+      await this._executePostAction(event, "targeted");
+      await this._executePostAction(event, "on-targeted-deed");
       return true;
     }
 

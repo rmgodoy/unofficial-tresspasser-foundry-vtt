@@ -254,13 +254,6 @@ export class VaultMovementMode {
                         from: { x: tokenDoc.x, y: tokenDoc.y },
                         to: { x: snapped.x, y: snapped.y }
                     });
-                } else {
-                    if (isFirst && moveDist > 0) {
-                        await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
-                    }
-                    if (moveDist > 0) {
-                        await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
-                    }
                 }
             }
 

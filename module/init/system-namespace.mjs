@@ -61,6 +61,7 @@ export function initializeSystemNamespace() {
   game.trespasser.openTreasureDialog = (options) => TrespasserTreasureDialog.open(options);
   game.trespasser.migrateWorldDeeds = (options) => import("../helpers/migration-deed.mjs").then(m => m.migrateWorldDeeds(options));
   game.trespasser.migrateCompendiumDeeds = (packId, options) => import("../helpers/migration-deed.mjs").then(m => m.migrateCompendiumDeeds(packId, options));
+  game.trespasser.migrateCompendiumEffects = (packId, options) => import("../helpers/migration-effect.mjs").then(m => m.migrateCompendiumEffects(packId, options));
 
   globalThis.trespasser = game.trespasser;
 }

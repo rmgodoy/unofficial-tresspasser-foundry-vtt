@@ -22,7 +22,32 @@
     "intensityIncrement": 0,
     "counterStates": [],
     "isPrevailable": false,
-    "statusIcon": "systems/trespasser/assets/icons/states/Bloodied.svg"
+    "statusIcon": "systems/trespasser/assets/icons/states/Bloodied.svg",
+    "behaviors": [
+      {
+        "id": "gNZvjrbi",
+        "trigger": "immediate",
+        "action": "chat_message",
+        "params": {
+          "message": "<p>You gain this state while you are at or below half your hit pointtotal. Creatures that can see you can recognize that you are bloodied. This state has no other effect on its own, but some enemies have effects that trigger the first time they are reduced to a bloodied state.</p>",
+          "gmOnly": false
+        },
+        "label": "",
+        "condition": "",
+        "actionTarget": "self",
+        "scope": "",
+        "rangeType": "",
+        "range": 0,
+        "priority": null,
+        "requiresConfirmation": false,
+        "promptText": "",
+        "choiceGroup": "",
+        "choiceLabel": "",
+        "gatedBy": "",
+        "cooldown": null,
+        "cost": null
+      }
+    ]
   },
   "effects": [],
   "flags": {},
@@ -32,10 +57,10 @@
     "exportSource": null,
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-8",
+    "systemVersion": "0.2.0-13",
     "createdTime": 1773341957281,
-    "modifiedTime": 1788358155112,
-    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+    "modifiedTime": 1789789665243,
+    "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "ownership": {
     "default": 0,

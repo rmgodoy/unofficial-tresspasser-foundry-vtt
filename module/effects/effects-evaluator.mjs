@@ -10,7 +10,7 @@
  */
 export function parseModifier(modifierString, intensity) {
   if (!modifierString) return "0";
-  return modifierString.toString().replace(/<Int>/g, intensity.toString());
+  return modifierString.toString().replace(/<Int>/gi, intensity.toString());
 }
 
 /**

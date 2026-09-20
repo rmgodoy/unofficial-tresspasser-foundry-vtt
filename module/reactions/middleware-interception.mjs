@@ -317,6 +317,9 @@ export async function dispatchInterception(sourceActor, effectItem, event) {
 export function registerEffectMiddleware(actor, effectItem) {
   if (!actor || !effectItem || effectItem.type !== "effect") return;
 
+  // Skip effects with TCA behaviors — TCA registration handles them
+  if (effectItem.system?.behaviors?.length > 0) return;
+
   const scope = effectItem.system?.scope || "self";
   const rangeType = effectItem.system?.rangeType || "custom";
   const rangeReq = effectItem.system?.rangeRequirement ?? 0;

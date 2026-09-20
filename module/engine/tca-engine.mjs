@@ -23,6 +23,65 @@ export const ACTION_PRIORITIES = {
 };
 
 /**
+ * Checks whether an actor currently has the Tenacious state active.
+ * @param {Actor} actor
+ * @returns {boolean}
+ */
+export function isActorTenacious(actor) {
+  if (!actor) return false;
+  if (actor.system?.passiveStates?.tenacious) return true;
+  if (actor.items?.some(i => i.type === "effect" && (
+    i.getFlag("trespasser", "isTenaciousState") ||
+    i.name?.toLowerCase() === "tenacious" ||
+    i.getFlag("trespasser", "statusEffectId") === "tenacious"
+  ))) {
+    return true;
+  }
+  if (actor.type === "character" && (actor.system?.health ?? 0) <= 0) {
+    const isDefeated = actor.system?.passiveStates?.defeated ||
+      actor.items?.some(i => i.type === "effect" && (
+        i.getFlag("trespasser", "isDefeatedState") ||
+        i.name?.toLowerCase() === "defeated"
+      ));
+    if (!isDefeated) return true;
+  }
+  return false;
+}
+
+/**
+ * Determines whether an effect item is a damage-dealing state/effect.
+ * @param {Item} effectItem
+ * @returns {boolean}
+ */
+export function isDamageDealingEffect(effectItem) {
+  if (!effectItem || effectItem.type !== "effect") return false;
+
+  const behaviors = effectItem.system?.behaviors || [];
+  for (const b of behaviors) {
+    if (b.action === "modify_attribute") {
+      const attr = b.params?.attribute || effectItem.system?.targetAttribute;
+      const mod = String(b.params?.modifier ?? effectItem.system?.modifier ?? "0").trim();
+      if (attr === "health" || attr === "hp") {
+        if (mod.startsWith("-") || mod.includes("-")) return true;
+        const num = parseFloat(mod);
+        if (!isNaN(num) && num < 0) return true;
+      }
+    }
+  }
+
+  // Check legacy flat fields as fallback
+  const targetAttr = effectItem.system?.targetAttribute;
+  if (targetAttr === "health" || targetAttr === "hp") {
+    const mod = String(effectItem.system?.modifier || "0").trim();
+    if (mod.startsWith("-") || mod.includes("-")) return true;
+    const num = parseFloat(mod);
+    if (!isNaN(num) && num < 0) return true;
+  }
+
+  return false;
+}
+
+/**
  * Retrieves all effect items bearing TCA behaviors on an actor.
  * @param {Actor} actor
  * @returns {Item[]}
@@ -170,6 +229,7 @@ function isBlockEligible(block, sourceActor, effectItem, event, targetActor, bas
   const targetToken = event?.token || targetActor?.getActiveTokens?.(true, true)?.[0] || targetActor?.token;
 
   if (!actorEventBus.isActorInScope(blockScope, sourceActor, targetActor || sourceActor, sourceToken, targetToken)) {
+    console.log(`%c[TCA Engine | Ineligible]%c Block "${block.id}" (${block.action}) on "${effectItem.name}" skipped: Scope "${blockScope}" not satisfied.`, "color: #e06c75;", "color: inherit;");
     return false;
   }
 
@@ -180,17 +240,28 @@ function isBlockEligible(block, sourceActor, effectItem, event, targetActor, bas
     const maxRange = RangeHelper.getActorRange(sourceActor, rangeType, rangeVal, sourceToken);
     if (maxRange !== null && maxRange > 0 && sourceToken && targetToken && canvas?.grid) {
       const dist = RangeHelper.measureDistanceSquares(sourceToken, targetToken);
-      if (dist > maxRange) return false;
+      if (dist > maxRange) {
+        console.log(`%c[TCA Engine | Ineligible]%c Block "${block.id}" (${block.action}) on "${effectItem.name}" skipped: Out of range (${dist} > ${maxRange}).`, "color: #e06c75;", "color: inherit;");
+        return false;
+      }
     }
   }
 
   // Condition evaluation
   if (block.condition && !evaluateCondition(block.condition, baseContext)) {
+    console.log(`%c[TCA Engine | Ineligible]%c Block "${block.id}" (${block.action}) on "${effectItem.name}" skipped: Condition "${block.condition}" evaluated to false.`, "color: #e06c75;", "color: inherit;");
     return false;
   }
 
   // Cooldown evaluation
   if (!canUseBlock(sourceActor.id, effectItem.id, block.id, block.cooldown)) {
+    console.log(`%c[TCA Engine | Ineligible]%c Block "${block.id}" (${block.action}) on "${effectItem.name}" skipped: Cooldown active.`, "color: #e06c75;", "color: inherit;");
+    return false;
+  }
+
+  // Paused while Tenacious if damage-dealing
+  if (isActorTenacious(sourceActor) && isDamageDealingEffect(effectItem)) {
+    console.log(`%c[TCA Engine | Ineligible]%c Block "${block.id}" on "${effectItem.name}" skipped: Paused while Tenacious.`, "color: #e5c07b;", "color: inherit;");
     return false;
   }
 
@@ -206,13 +277,22 @@ function isBlockEligible(block, sourceActor, effectItem, event, targetActor, bas
 async function executeBlock(block, context) {
   const handler = ACTION_HANDLERS[block.action];
   if (typeof handler !== "function") {
-    console.warn(`TCAEngine | No action handler registered for action "${block.action}"`);
+    console.warn(`%c[TCA Engine]%c No action handler registered for action "${block.action}"`, "color: #e06c75; font-weight: bold;", "color: inherit;");
     return { executed: false, result: null, chatContent: "" };
   }
+
+  console.log(`%c[TCA Engine | Executing]%c "${block.id}" (${block.action}) from "${context.effectItem?.name}" [Int: ${context.intensity}] on "${context.actor?.name}"`, "color: #98c379; font-weight: bold;", "color: inherit;", {
+    block,
+    intensity: context.intensity,
+    params: block.params
+  });
 
   const result = await handler(block.params || {}, context);
   if (result?.executed) {
     recordBlockUse(context.actor.id, context.effectItem.id, block.id, block.cooldown);
+    console.log(`%c[TCA Engine | Executed]%c "${block.id}" (${block.action}) Result:`, "color: #98c379;", "color: inherit;", result);
+  } else {
+    console.log(`%c[TCA Engine | Result (not executed)]%c "${block.id}" (${block.action}) Result:`, "color: #d19a66;", "color: inherit;", result);
   }
   return result || { executed: false, result: null, chatContent: "" };
 }
@@ -257,15 +337,27 @@ export async function processTCAEvent(eventName, event, actor) {
     ...crossActorEffects
   ];
 
+  console.log(`%c[TCA Engine | Event: ${eventName}]%c Actor "${actor.name}" (${actor.id}) - found ${localEffects.length} local effects, ${crossActorEffects.length} cross effects`, "color: #e5c07b; font-weight: bold;", "color: inherit;", {
+    localEffects: localEffects.map(e => ({ id: e.id, name: e.name, intensity: e.system?.intensity, behaviors: e.system?.behaviors })),
+    crossEffects: crossActorEffects.map(c => ({ source: c.sourceActor.name, effect: c.effectItem.name }))
+  });
+
   if (effectEntries.length === 0) return;
 
   // Sort effects by priority
   effectEntries.sort((a, b) => getEffectPriority(a.effectItem) - getEffectPriority(b.effectItem));
 
   for (const { sourceActor, effectItem } of effectEntries) {
+    if (isActorTenacious(sourceActor) && isDamageDealingEffect(effectItem)) {
+      console.log(`%c[TCA Engine | Effect Paused]%c Damage-dealing effect "${effectItem.name}" is paused because "${sourceActor.name}" is Tenacious.`, "color: #e5c07b; font-weight: bold;", "color: inherit;");
+      continue;
+    }
+
     const behaviors = effectItem.system?.behaviors || [];
     const matchingBlocks = behaviors.filter(b => b.trigger === eventName || (b.trigger === "continuous" && eventName === "use"));
     if (matchingBlocks.length === 0) continue;
+
+    console.log(`%c[TCA Engine | Matching Effect: ${effectItem.name}]%c Trigger "${eventName}": ${matchingBlocks.length}/${behaviors.length} blocks matched`, "color: #61afef; font-weight: bold;", "color: inherit;", matchingBlocks);
 
     const executedBlockIds = new Set();
     const effectChatLines = [];
@@ -286,7 +378,10 @@ export async function processTCAEvent(eventName, event, actor) {
 
     // Process sequential standard blocks
     for (const block of standardBlocks) {
-      if (block.gatedBy && !executedBlockIds.has(block.gatedBy)) continue;
+      if (block.gatedBy && !executedBlockIds.has(block.gatedBy)) {
+        console.log(`%c[TCA Engine | Gated Block Skipped]%c Block "${block.id}" waiting on gate "${block.gatedBy}"`, "color: #d19a66;", "color: inherit;");
+        continue;
+      }
 
       const blockContext = {
         actor: sourceActor,
@@ -307,7 +402,10 @@ export async function processTCAEvent(eventName, event, actor) {
 
       if (block.requiresConfirmation) {
         const confirmed = await promptBlockConfirmation(sourceActor, effectItem, block, blockContext);
-        if (!confirmed) continue;
+        if (!confirmed) {
+          console.log(`%c[TCA Engine | Block Declined]%c Prompt declined for "${block.id}" on "${effectItem.name}"`, "color: #d19a66;", "color: inherit;");
+          continue;
+        }
       }
 
       const outcome = await executeBlock(block, blockContext);

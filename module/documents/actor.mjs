@@ -19,7 +19,7 @@ import {
 } from "../actor/actor-linked-items.mjs";
 import { CombatActorMixin } from "../actor/combat-actor-mixin.mjs";
 import { actorEventBus } from "../actor/actor-event-bus.mjs";
-import { syncActorInterceptions } from "../reactions/middleware-interception.mjs";
+import { syncActorTCA } from "../engine/tca-registration.mjs";
 import {
   TRESPASSER_STATUS_EFFECTS,
   STATUS_EFFECT_COUNTERS,
@@ -27,6 +27,7 @@ import {
   AIRBORNE_EFFECT_DATA,
   SUNKEN_EFFECT_DATA
 } from "../config/status-effects.mjs";
+import { TrespasserEffectData } from "../data/item-effect.mjs";
 import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
@@ -140,6 +141,10 @@ export class TrespasserActor extends CombatActorMixin(Actor) {
         if (!itemData.system.counterStates || itemData.system.counterStates.length === 0) {
           itemData.system.counterStates = fallbackCounterStates;
         }
+      }
+
+      if (!itemData.system.behaviors || itemData.system.behaviors.length === 0) {
+        TrespasserEffectData.migrateData(itemData.system);
       }
 
       delete itemData._id;
@@ -363,18 +368,50 @@ export class TrespasserActor extends CombatActorMixin(Actor) {
     if (game.user.id !== userId) return;
 
     for (const doc of documents) {
-      if (doc.type === "effect" && doc.system.type === "on-trigger" && doc.system.when === "immediate") {
-        await TrespasserEffectsHelper.triggerImmediate(this, doc);
+      if (doc.type === "effect" && this._isOneShotImmediate(doc)) {
+        const { tcaEngine } = await import("../engine/tca-engine.mjs");
+        await tcaEngine.processTCAEvent("immediate", { actor: this, item: doc }, this);
+        await doc.delete();
       }
     }
-    syncActorInterceptions(this);
+    syncActorTCA(this);
+  }
+
+  /**
+   * Determine whether an effect item is a true fire-and-forget immediate effect
+   * that should be auto-deleted after processing its behaviors.
+   * Excludes persistent effects (continuous, isOnlyReminder, special states)
+   * that happen to have an "immediate" trigger from migration.
+   * @param {Item} doc
+   * @returns {boolean}
+   * @private
+   */
+  _isOneShotImmediate(doc) {
+    const sys = doc.system;
+    if (!sys) return false;
+
+    // Never delete special states (bloodied, tenacious, engaged, encumbered, etc.)
+    if (TrespasserEffectsHelper.isSpecialState(doc)) return false;
+
+    // Never delete reminder-only effects
+    if (sys.isOnlyReminder) return false;
+
+    // Only "on-trigger" type effects with "immediate" when are one-shot
+    if (sys.type !== "on-trigger" || sys.when !== "immediate") return false;
+
+    // Must have at least one immediate behavior to process
+    const behaviors = sys.behaviors;
+    if (!Array.isArray(behaviors) || behaviors.length === 0) return false;
+
+    // All behaviors must be immediate triggers for it to be a one-shot
+    return behaviors.every(b => b.trigger === "immediate");
   }
 
   /** @override */
   _onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId) {
     super._onUpdateDescendantDocuments(parent, collection, documents, changes, options, userId);
     if (collection === "items" && game.user.id === userId) {
-      syncActorInterceptions(this);
+      syncActorTCA(this);
     }
   }
 
@@ -408,7 +445,7 @@ export class TrespasserActor extends CombatActorMixin(Actor) {
     if (changed) {
       this.update(updates);
     }
-    syncActorInterceptions(this);
+    syncActorTCA(this);
   }
 
   // --- Static Damage Animation API ---

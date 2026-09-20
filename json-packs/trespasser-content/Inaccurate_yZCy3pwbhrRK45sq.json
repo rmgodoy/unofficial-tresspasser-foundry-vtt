@@ -29,7 +29,32 @@
       }
     ],
     "isPrevailable": true,
-    "statusIcon": "systems/trespasser/assets/icons/states/Inaccurate.svg"
+    "statusIcon": "systems/trespasser/assets/icons/states/Inaccurate.svg",
+    "behaviors": [
+      {
+        "id": "B22EHCFq",
+        "trigger": "continuous",
+        "action": "modify_attribute",
+        "params": {
+          "attribute": "accuracy",
+          "modifier": "-<Int>"
+        },
+        "label": "",
+        "condition": "",
+        "actionTarget": "self",
+        "scope": "",
+        "rangeType": "",
+        "range": 0,
+        "priority": null,
+        "requiresConfirmation": false,
+        "promptText": "",
+        "choiceGroup": "",
+        "choiceLabel": "",
+        "gatedBy": "",
+        "cooldown": null,
+        "cost": null
+      }
+    ]
   },
   "effects": [],
   "flags": {},
@@ -39,10 +64,10 @@
     "exportSource": null,
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-8",
+    "systemVersion": "0.2.0-13",
     "createdTime": 1773341957281,
-    "modifiedTime": 1788357962545,
-    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+    "modifiedTime": 1789789665290,
+    "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "ownership": {
     "default": 0,

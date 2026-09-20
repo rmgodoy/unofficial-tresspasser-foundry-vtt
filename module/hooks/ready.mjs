@@ -4,7 +4,6 @@ import { TrespasserSocket } from "../helpers/socket/socket.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { registerStatusHudInterceptor } from "../hud/status-hud-interceptor.mjs";
 import { TargetingPreviewSyncer } from "../targeting/targeting-preview-syncer.mjs";
-import { initMiddlewareInterception } from "../reactions/middleware-interception.mjs";
 import { initTCARegistration } from "../engine/tca-registration.mjs";
 import { SYSTEM_ID } from "../system-id.mjs";
 
@@ -26,9 +25,6 @@ export function registerReadyHooks() {
 
     // Initialize Real-Time Targeting Preview Syncer
     TargetingPreviewSyncer.init();
-
-    // Initialize Cross-Actor Middleware Interceptions
-    initMiddlewareInterception();
 
     // Initialize TCA Engine Core Registration
     initTCARegistration();

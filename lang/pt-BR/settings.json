@@ -17,6 +17,14 @@
         "Running": "Executando migração das Habilidades...",
         "Success": "Migração das Habilidades concluída com sucesso."
       },
+      "EffectMigration": {
+        "Name": "Migração TCA de Efeitos do Compêndio",
+        "Button": "Executar Migração de Efeitos",
+        "Hint": "Migra permanentemente todos os Efeitos do compêndio para o formato de comportamentos TCA.",
+        "ConfirmContent": "Deseja realmente executar a migração TCA de efeitos no compêndio agora?",
+        "Running": "Executando migração TCA de efeitos do compêndio...",
+        "Success": "Migração de {count} efeitos do compêndio para o formato TCA concluída com sucesso."
+      },
       "Tabs": {
         "Mechanics": "Mecânicas",
         "Exploration": "Abrigo & Exploração",

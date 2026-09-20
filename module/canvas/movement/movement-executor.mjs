@@ -99,13 +99,6 @@ export async function executeTokenMovement(host) {
                         from: { x: startX, y: startY },
                         to: { x: endPt.x, y: endPt.y }
                     });
-                } else {
-                    if (isFirst && totalCost > 0) {
-                        await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-first-move");
-                    }
-                    if (totalCost > 0) {
-                        await TrespasserEffectsHelper.triggerEffects(combatant.actor, "on-move");
-                    }
                 }
             }
 

@@ -38,15 +38,19 @@ function registerGlobalEventListeners() {
   // Register cooldown boundary observers
   actorEventBus.on("start-of-round", async () => {
     resetCooldowns("round");
-  }, { id: "tca:cooldown:round", priority: 10 });
+  }, { id: "tca:cooldown:round", priority: 1 });
 
   actorEventBus.on("start-of-turn", async () => {
     resetCooldowns("turn");
-  }, { id: "tca:cooldown:turn", priority: 10 });
+  }, { id: "tca:cooldown:turn", priority: 1 });
+
+  actorEventBus.on("start-of-combat", async () => {
+    resetCooldowns("combat");
+  }, { id: "tca:cooldown:combat-start", priority: 1 });
 
   actorEventBus.on("end-of-combat", async () => {
     clearAllCooldowns();
-  }, { id: "tca:cooldown:combat", priority: 10 });
+  }, { id: "tca:cooldown:combat-end", priority: 1 });
 }
 
 /**
@@ -57,6 +61,8 @@ export function registerActorTCA(actor) {
   if (!actor || !actor.items) return;
 
   const tcaEffects = tcaEngine.getTCAEffects(actor);
+  console.log(`%c[TCA Registration]%c Registering TCA for actor "${actor.name}" (${actor.id}) - found ${tcaEffects.length} TCA effects`, "color: #c678dd;", "color: inherit;", tcaEffects.map(e => ({ name: e.name, intensity: e.system?.intensity, behaviors: e.system?.behaviors })));
+
   for (const effect of tcaEffects) {
     const behaviors = effect.system?.behaviors || [];
     for (const block of behaviors) {
@@ -82,6 +88,7 @@ export function registerActorTCA(actor) {
         range,
         priority: block.priority ?? 50
       });
+      console.log(`%c[TCA Registration]%c Registered cross-actor middleware "${middlewareId}" (${scope}) for "${effect.name}" on event "${trigger}"`, "color: #c678dd;", "color: inherit;");
     }
   }
 }
@@ -101,6 +108,7 @@ export function unregisterActorTCA(actor) {
  */
 export function syncActorTCA(actor) {
   if (!actor) return;
+  console.log(`%c[TCA Registration]%c Syncing TCA for actor "${actor.name}" (${actor.id})`, "color: #c678dd; font-weight: bold;", "color: inherit;");
   unregisterActorTCA(actor);
   registerActorTCA(actor);
 }

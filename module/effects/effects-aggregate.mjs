@@ -220,6 +220,7 @@ export function getAttributeEffects(actor, attributeKey, includeTiming = null) {
   
   const results = [];
   for (const eff of allEffects) {
+    if (eff.item?.system?.behaviors?.length > 0) continue;
     if (eff.target !== attributeKey) continue;
 
     if (eff.type === "on-trigger" && eff.when && eff.when !== "immediate" && eff.when !== includeTiming) continue;
@@ -242,6 +243,42 @@ export function getAttributeEffects(actor, attributeKey, includeTiming = null) {
       checked: true
     });
   }
+
+  // Also include TCA blocks (continuous, or matching the specified timing like "use")
+  for (const item of actor.items) {
+    if (item.type !== "effect" || !item.system?.behaviors?.length) continue;
+    for (const block of item.system.behaviors) {
+      const matchesTiming = block.trigger === "continuous" ||
+        (includeTiming && block.trigger === includeTiming) ||
+        (includeTiming === "use" && (block.trigger === "continuous" || block.trigger === "use"));
+      if (!matchesTiming) continue;
+      if (block.action !== "modify_attribute") continue;
+      if (block.params?.attribute !== attributeKey) continue;
+
+      const rawMod = parseModifier(block.params?.modifier || "0", item.system?.intensity || 0);
+      const resolvedMod = replacePlaceholders(rawMod, actor);
+      const modStr = resolvedMod.replace(/\s+/g, "").replace("+", "").trim();
+      const parsed = attributeKey === "elevation" ? parseInt(modStr, 10) : parseFloat(modStr);
+      const numericValue = !isNaN(parsed) ? (attributeKey === "elevation" ? Math.round(parsed) : parsed) : 0;
+      const isAdv = (block.params?.modifier || "").toLowerCase() === "adv";
+
+      results.push({
+        id: `${item.id}-tca-${block.id}`,
+        name: item.name,
+        value: numericValue,
+        modifierStr: block.params?.modifier || "0",
+        isAdv,
+        description: item.system?.description || "",
+        source: item.name,
+        checked: true
+      });
+    }
+  }
+
+  if (results.length > 0) {
+    console.log(`%c[Effects Aggregate | getAttributeEffects]%c Actor "${actor.name}": Attribute "${attributeKey}" (timing: ${includeTiming}) -> ${results.length} modifiers`, "color: #61afef;", "color: inherit;", results);
+  }
+
   return results;
 }
 
@@ -323,6 +360,7 @@ export function getActorRelevantModifiers(actor, targetType) {
 
   const modifiers = [];
   for (const eff of allEffects) {
+    if (eff.item?.system?.behaviors?.length > 0) continue;
     if (eff.isOnlyReminder) continue;
     const normTarget = normalizeTargetAttribute(eff.target);
     if (normTarget === targetType) {
@@ -332,6 +370,23 @@ export function getActorRelevantModifiers(actor, targetType) {
       }
     }
   }
+
+  for (const item of actor.items) {
+    if (item.type !== "effect" || !item.system?.behaviors?.length) continue;
+    for (const block of item.system.behaviors) {
+      if (block.trigger !== "continuous") continue;
+      if (block.action !== "modify_attribute") continue;
+      const normAttr = normalizeTargetAttribute(block.params?.attribute);
+      if (normAttr === targetType) {
+        const rawMod = parseModifier(block.params?.modifier || "0", item.system?.intensity || 0);
+        const cleanMod = String(rawMod).trim();
+        if (cleanMod && cleanMod !== "0") {
+          modifiers.push(cleanMod);
+        }
+      }
+    }
+  }
+
   return modifiers;
 }
 

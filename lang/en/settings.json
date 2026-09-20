@@ -17,6 +17,14 @@
         "Running": "Running Deed data model migration...",
         "Success": "Deed data model migration complete."
       },
+      "EffectMigration": {
+        "Name": "Effect TCA Compendium Migration",
+        "Button": "Run Compendium Effect Migration",
+        "Hint": "Permanently migrates all Effects in the compendium pack to the TCA behavior format.",
+        "ConfirmContent": "Are you sure you want to run the Effect TCA data migration on the compendium pack now?",
+        "Running": "Running Compendium Effect TCA migration...",
+        "Success": "Successfully migrated {count} compendium effects to TCA format."
+      },
       "Tabs": {
         "Mechanics": "Mechanics",
         "Exploration": "Haven & Exploration",

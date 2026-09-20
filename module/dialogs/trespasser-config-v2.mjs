@@ -21,7 +21,8 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     actions: {
       reset: TrespasserConfigV2._onReset,
       save: TrespasserConfigV2._onSubmit,
-      runDeedMigration: TrespasserConfigV2._onRunDeedMigration
+      runDeedMigration: TrespasserConfigV2._onRunDeedMigration,
+      runEffectMigration: TrespasserConfigV2._onRunEffectMigration
     }
   };
 
@@ -234,5 +235,20 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     await migrateWorldDeeds({ force: true });
     await migrateCompendiumDeeds("trespasser.trespasser-content", { force: true });
     ui.notifications.info(game.i18n.localize("TRESPASSER.Settings.DeedMigration.Success"));
+  }
+
+  static async _onRunEffectMigration(event, target) {
+    const confirm = await foundry.applications.api.DialogV2.confirm({
+      window: { title: game.i18n.localize("TRESPASSER.Settings.EffectMigration.Name") },
+      content: `<p>${game.i18n.localize("TRESPASSER.Settings.EffectMigration.ConfirmContent")}</p>`,
+      rejectClose: false
+    });
+
+    if (!confirm) return;
+
+    ui.notifications.info(game.i18n.localize("TRESPASSER.Settings.EffectMigration.Running"));
+    const { migrateCompendiumEffects } = await import("../helpers/migration-effect.mjs");
+    const count = await migrateCompendiumEffects("trespasser.trespasser-content", { force: true });
+    ui.notifications.info(game.i18n.format("TRESPASSER.Settings.EffectMigration.Success", { count }));
   }
 }

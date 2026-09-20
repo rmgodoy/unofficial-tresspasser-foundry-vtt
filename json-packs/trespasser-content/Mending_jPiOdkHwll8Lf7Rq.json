@@ -33,7 +33,32 @@
       }
     ],
     "isPrevailable": true,
-    "statusIcon": "systems/trespasser/assets/icons/states/Mending.svg"
+    "statusIcon": "systems/trespasser/assets/icons/states/Mending.svg",
+    "behaviors": [
+      {
+        "id": "uwtSxZm6",
+        "trigger": "start-of-turn",
+        "action": "modify_attribute",
+        "params": {
+          "attribute": "health",
+          "modifier": "<Int>"
+        },
+        "label": "",
+        "condition": "",
+        "actionTarget": "self",
+        "scope": "",
+        "rangeType": "",
+        "range": 0,
+        "priority": null,
+        "requiresConfirmation": false,
+        "promptText": "",
+        "choiceGroup": "",
+        "choiceLabel": "",
+        "gatedBy": "",
+        "cooldown": null,
+        "cost": null
+      }
+    ]
   },
   "effects": [],
   "flags": {},
@@ -43,10 +68,10 @@
     "exportSource": null,
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-8",
+    "systemVersion": "0.2.0-13",
     "createdTime": 1773341957281,
-    "modifiedTime": 1788357972487,
-    "lastModifiedBy": "DEZnoyKFJxoIhxqY"
+    "modifiedTime": 1789789665245,
+    "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "_id": "jPiOdkHwll8Lf7Rq",
   "ownership": {

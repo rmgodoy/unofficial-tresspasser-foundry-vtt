@@ -167,10 +167,6 @@ export function bindCardActionListeners(message, html) {
           } else {
             const newHP = Math.max(0, resultingRawHP);
             await actor.update({ "system.health": newHP }, { skipBelowZeroChat: true });
-            await TrespasserEffectsHelper.triggerEffects(actor, "damage-received");
-            if (attacker) {
-              await TrespasserEffectsHelper.triggerEffects(attacker, "damage-dealt");
-            }
           }
 
           let chatMsg = reduction !== 0
@@ -238,10 +234,6 @@ export function bindCardActionListeners(message, html) {
           } else {
             const newHP = Math.min(actor.system.max_health ?? actor.system.health, (actor.system.health ?? 0) + finalHeal);
             await actor.update({ "system.health": newHP });
-            await TrespasserEffectsHelper.triggerEffects(actor, "heal-received");
-            if (healer) {
-              await TrespasserEffectsHelper.triggerEffects(healer, "heal-given");
-            }
           }
 
           const chatMsg = totalBonus !== 0

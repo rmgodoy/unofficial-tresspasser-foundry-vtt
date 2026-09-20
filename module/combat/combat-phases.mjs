@@ -277,12 +277,8 @@ export async function checkEmptyPhaseAdvanceFlow(combat) {
 
 export async function onStartOfCombat(combat) {
   for (const c of combat.combatants) {
-    if (c.actor) {
-      if (typeof c.actor.onCombatStart === "function") {
-        await c.actor.onCombatStart(combat);
-      } else {
-        await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-combat");
-      }
+    if (c.actor && typeof c.actor.onCombatStart === "function") {
+      await c.actor.onCombatStart(combat);
     }
   }
 }
@@ -295,8 +291,6 @@ export async function onStartOfRound(combat) {
       await TrespasserEffectsHelper.decrementRound(c.actor);
       if (typeof c.actor.onRoundStart === "function") {
         await c.actor.onRoundStart(combat);
-      } else {
-        await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-round");
       }
     }
   }
@@ -304,12 +298,8 @@ export async function onStartOfRound(combat) {
 
 export async function onEndOfRound(combat) {
   for (const c of combat.combatants) {
-    if (c.actor) {
-      if (typeof c.actor.onRoundEnd === "function") {
-        await c.actor.onRoundEnd(combat);
-      } else {
-        await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-round");
-      }
+    if (c.actor && typeof c.actor.onRoundEnd === "function") {
+      await c.actor.onRoundEnd(combat);
     }
   }
 }
@@ -345,12 +335,8 @@ export async function onStartOfTurn(combat, phase) {
       await tokenDoc.unsetFlag("trespasser", "slipperyCheckedThisTurn");
     }
 
-    if (c.actor) {
-      if (typeof c.actor.onTurnStart === "function") {
-        await c.actor.onTurnStart(c);
-      } else {
-        await TrespasserEffectsHelper.triggerEffects(c.actor, "start-of-turn");
-      }
+    if (c.actor && typeof c.actor.onTurnStart === "function") {
+      await c.actor.onTurnStart(c);
     }
 
     if (tokenDoc) {
@@ -366,12 +352,8 @@ export async function onEndOfTurn(combat, phase) {
   const currentCombatants = combat.combatants.filter(c => c.initiative === phase && !c.defeated);
   for (const c of currentCombatants) {
     await c.setFlag("trespasser", "actionPoints", 0);
-    if (c.actor) {
-      if (typeof c.actor.onTurnEnd === "function") {
-        await c.actor.onTurnEnd(c);
-      } else {
-        await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-turn");
-      }
+    if (c.actor && typeof c.actor.onTurnEnd === "function") {
+      await c.actor.onTurnEnd(c);
     }
   }
 }
