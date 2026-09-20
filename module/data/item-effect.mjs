@@ -319,8 +319,10 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
     });
 
     const hasBehaviors = foundry.utils.hasProperty(changes, "system.behaviors") ||
+      foundry.utils.hasProperty(changes, "behaviors") ||
       (changes.system && "behaviors" in changes.system) ||
-      ("behaviors" in changes);
+      ("behaviors" in changes) ||
+      Object.keys(changes).some(k => k.startsWith("system.behaviors.") || k.startsWith("behaviors."));
 
     // If source in database has no behaviors yet, persist current in-memory behaviors
     if (!hasBehaviors && !this._source?.behaviors?.length && Array.isArray(this.behaviors) && this.behaviors.length > 0) {

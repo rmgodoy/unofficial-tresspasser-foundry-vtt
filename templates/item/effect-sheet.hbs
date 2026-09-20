@@ -1,4 +1,5 @@
 <section class="{{cssClass}} trespasser-sheet item-sheet effect-sheet" autocomplete="off">
+  {{!-- SECTION 1: HEADER --}}
   <header class="sheet-header item-header-layout">
     <div class="header-column image-column">
       <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
@@ -6,7 +7,7 @@
     <div class="header-info">
       <div class="name-group">
         <h1 class="item-title" style="margin: 0;">
-        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}" style="font-family: 'Cinzel', serif; font-size: var(--fs-24); color: var(--trp-gold-bright); border: none; border-bottom: 1px solid #555; background: transparent; width: 100%;" />
+          <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}" style="font-family: 'Cinzel', serif; font-size: var(--fs-24); color: var(--trp-gold-bright); border: none; border-bottom: 1px solid #555; background: transparent; width: 100%;" />
         </h1>
       </div>
     </div>
@@ -14,13 +15,7 @@
 
   <section class="sheet-body scrollable" data-scrollable="true">
     <div class="details-grid">
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Item.Details.ItemType"}}</label>
-        <select name="system.type">
-          {{{selectOptions config.effectTypes selected=system.type localize=true}}}
-        </select>
-      </div>
-
+      {{!-- SECTION 2: CORE PROPERTIES --}}
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.isCombat" {{checked system.isCombat}} id="effect-combat-{{item.id}}"/>
         <label for="effect-combat-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.IsCombat"}}</label>
@@ -58,40 +53,27 @@
         <input type="number" name="system.intensityIncrement" value="{{system.intensityIncrement}}" />
       </div>
 
-      {{#if (eq system.type 'movement')}}
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Item.Details.MovementType"}}</label>
-        <select name="system.movementType">
-          {{{selectOptions config.movementTypes selected=system.movementType localize=true}}}
-        </select>
-      </div>
-      {{/if}}
-
-      {{#unless (or system.isOnlyReminder (eq system.type 'movement'))}}
-      {{#if showTargetAttribute}}
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Item.Details.TargetAttribute"}}</label>
-        <select name="system.targetAttribute">
-          {{{selectOptions config.targetAttributes selected=system.targetAttribute localize=true}}}
-        </select>
-      </div>
-      {{/if}}
-
-      <div class="field-row">
-        <label>{{localize modifierLabel}}</label>
-        <input type="text" name="system.modifier" value="{{system.modifier}}" placeholder="{{localize 'TRESPASSER.Sheet.Item.Placeholder.Modifier'}}" />
-        <p class="notes" style="font-size: var(--fs-11); color: var(--trp-text-dim); margin-top: -5px;">{{localize "TRESPASSER.Sheet.Item.Details.IntensityNote"}}</p>
-      </div>
-      {{/unless}}
-
-      {{#if (eq system.type 'on-trigger')}}
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Common.Trigger"}}</label>
-        <select name="system.when">
-          {{{selectOptions config.triggerWhen selected=system.when localize=true}}}
-        </select>
+      {{!-- Tags Editor --}}
+      <div class="field-row full-width tags-editor">
+        <label>{{localize "TRESPASSER.Sheet.Item.Effect.Tags"}}</label>
+        <div class="tag-chips">
+          {{#each tags as |tag idx|}}
+            <span class="tag-chip">
+              {{tag}}
+              {{#if @root.editable}}
+              <button type="button" class="tag-remove" data-action="removeTag" data-index="{{idx}}" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}">
+                <i class="fas fa-times"></i>
+              </button>
+              {{/if}}
+            </span>
+          {{/each}}
+          {{#if editable}}
+          <input type="text" class="tag-add-input" placeholder="{{localize 'TRESPASSER.Sheet.Item.Effect.AddTag'}}" />
+          {{/if}}
+        </div>
       </div>
 
+      {{!-- Cross-Actor Scope / Range (if applicable) --}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Item.Effect.Scope"}}</label>
         <select name="system.scope">
@@ -103,14 +85,14 @@
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Item.Effect.TargetLimit"}}</label>
         <select name="system.targetLimit">
-          {{{selectOptions config.targetLimitChoices selected=targetLimitChoice localize=true}}}
+          {{{selectOptions config.targetLimitChoices selected=system.targetLimit localize=true}}}
         </select>
       </div>
 
-      {{#if isNumberLimit}}
+      {{#if (eq system.targetLimit 'number')}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Item.Effect.TargetLimitCount"}}</label>
-        <input type="number" name="system.targetLimitCount" value="{{targetLimitCount}}" min="1" placeholder="1" />
+        <input type="number" name="system.targetLimitCount" value="{{system.targetLimitCount}}" min="1" placeholder="1" />
       </div>
       {{/if}}
 
@@ -121,28 +103,18 @@
         </select>
       </div>
 
-      {{#if isCustomRange}}
+      {{#if (or (eq system.rangeType 'custom') (not system.rangeType))}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Item.Effect.RangeRequirement"}}</label>
         <input type="number" name="system.rangeRequirement" value="{{system.rangeRequirement}}" min="0" placeholder="0" />
       </div>
       {{/if}}
-
-      <div class="field-row">
-        <label>{{localize "TRESPASSER.Sheet.Item.Effect.InterceptionMode"}}</label>
-        <select name="system.interceptionMode">
-          {{{selectOptions config.interceptionModes selected=system.interceptionMode localize=true}}}
-        </select>
-      </div>
-      {{/if}}
       {{/if}}
 
-      {{#if (or (eq system.type 'on-trigger') (eq system.type 'movement'))}}
       {{!-- Compound Duration --}}
       <div class="field-row" style="flex-direction:column;gap:4px;align-items:flex-start;">
         <label>{{localize "TRESPASSER.Sheet.Common.Duration"}}</label>
 
-        {{!-- Operator selector — only meaningful when 2+ conditions are present --}}
         {{#if (gt system.durationConditions.length 1)}}
         <div class="dur-operator-wrap" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
           <span style="font-size:var(--fs-11);color:var(--trp-text-dim);">{{localize "TRESPASSER.Sheet.Common.Operator"}}</span>
@@ -153,8 +125,7 @@
         </div>
         {{/if}}
 
-        {{!-- Condition rows --}}
-        <div id="dur-conditions-list">
+        <div id="dur-conditions-list" style="width: 100%;">
           {{#each system.durationConditions as |cond idx|}}
           <div class="duration-condition-row" data-index="{{idx}}" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
             <select class="dur-mode" name="system.durationConditions.{{idx}}.mode" style="flex:1;">
@@ -171,7 +142,6 @@
             {{/if}}
           </div>
           {{else}}
-          {{!-- No conditions yet — render a default indefinite row --}}
           <div class="duration-condition-row" data-index="0" style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
             <select class="dur-mode" name="system.durationConditions.0.mode" style="flex:1;">
               {{{selectOptions @root.config.durationModes selected="indefinite" localize=true}}}
@@ -186,8 +156,8 @@
         </a>
         {{/if}}
       </div>
-      {{/if}}
 
+      {{!-- Counter States Section --}}
       <div class="applied-effects-section">
         <h3 class="section-title">{{localize "TRESPASSER.Sheet.Item.Sections.CounterEffects"}}</h3>
         <span class="section-note">{{localize "TRESPASSER.Sheet.Item.Note.CounterEffects"}}</span>
@@ -209,6 +179,7 @@
         </div>
       </div>
 
+      {{!-- Status Icon Section --}}
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Item.Details.StatusIcon"}}</label>
         <div class="status-icon-controls">
@@ -249,11 +220,210 @@
         </div>
       </div>
 
+      {{!-- Description --}}
       <div class="field-row editor-row" style="margin-top: 10px;">
         <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
         <div class="trp-editor-container">
           <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false">{{{descriptionHTML}}}</prose-mirror>
         </div>
+      </div>
+
+      {{!-- SECTION 3: BEHAVIORS (TWO-MODE) --}}
+      <div class="full-width">
+        <div class="tca-behaviors-header">
+          <h3>{{localize "TRESPASSER.Sheet.Item.Effect.Behaviors"}}</h3>
+          <button type="button" data-action="toggleAdvancedMode" class="tca-mode-toggle">
+            <i class="fas {{#if advancedMode}}fa-table-cells-large{{else}}fa-sliders{{/if}}"></i>
+            {{#if advancedMode}}
+              {{localize "TRESPASSER.Sheet.Item.Effect.SimpleMode"}}
+            {{else}}
+              {{localize "TRESPASSER.Sheet.Item.Effect.AdvancedMode"}}
+            {{/if}}
+          </button>
+        </div>
+
+        {{!-- Simple Mode View --}}
+        {{#unless advancedMode}}
+          {{#if editable}}
+          <div class="tca-template-picker">
+            {{#each templates as |tmpl|}}
+            <button type="button" class="tca-template-btn" data-action="applyTemplate" data-template="{{tmpl.key}}" title="{{localize tmpl.description}}">
+              <i class="{{tmpl.icon}}"></i>
+              <span>{{localize tmpl.label}}</span>
+            </button>
+            {{/each}}
+          </div>
+          {{/if}}
+
+          <div class="tca-summary-list">
+            {{#if summaries.length}}
+              {{#each summaries as |sum|}}
+              <div class="tca-summary-row" data-index="{{sum.index}}" title="{{localize 'TRESPASSER.Sheet.Item.Effect.AdvancedMode'}}">
+                <i class="tca-summary-icon {{sum.icon}}"></i>
+                <div class="tca-summary-content">
+                  <span class="tca-summary-text">{{sum.text}}</span>
+                </div>
+              </div>
+              {{/each}}
+            {{else}}
+              <div class="tca-empty-state">
+                <p>{{localize "TRESPASSER.Sheet.Item.Effect.Template.CustomDesc"}}</p>
+              </div>
+            {{/if}}
+          </div>
+        {{/unless}}
+
+        {{!-- Advanced Mode View --}}
+        {{#if advancedMode}}
+          <div class="tca-blocks-container">
+            {{#each preparedBlocks as |block|}}
+            <div class="tca-block-card" draggable="true" data-block-index="{{block.index}}">
+              <div class="tca-block-header">
+                <span class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></span>
+                <span class="block-collapse-icon"><i class="fas fa-chevron-down"></i></span>
+                <span class="block-label">{{block.computedLabel}}</span>
+                <span class="block-summary-pill"><i class="{{block.icon}}"></i> {{block.action}}</span>
+                {{#if @root.editable}}
+                <div class="block-actions">
+                  <button type="button" data-action="deleteBehaviorBlock" data-index="{{block.index}}" title="{{localize 'TRESPASSER.Sheet.Item.Effect.DeleteBlock'}}">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+                {{/if}}
+              </div>
+
+              <div class="tca-block-body">
+                <input type="hidden" name="system.behaviors.{{block.index}}.id" value="{{block.id}}" />
+
+                <div class="field-row full-width">
+                  <label>{{localize "TRESPASSER.Sheet.Header.Name"}}</label>
+                  <input type="text" name="system.behaviors.{{block.index}}.label" value="{{block.label}}" placeholder="Block label / description" />
+                </div>
+
+                <div class="field-row">
+                  <label>{{localize "TRESPASSER.Sheet.Item.Effect.BlockTrigger"}}</label>
+                  <select name="system.behaviors.{{block.index}}.trigger">
+                    {{{selectOptions @root.config.triggerWhen selected=block.trigger localize=true}}}
+                  </select>
+                </div>
+
+                <div class="field-row">
+                  <label>{{localize "TRESPASSER.Sheet.Item.Effect.BlockCondition"}}</label>
+                  <input type="text" name="system.behaviors.{{block.index}}.condition" value="{{block.condition}}" placeholder="e.g. intensity &gt;= 5" />
+                </div>
+
+                <div class="field-row">
+                  <label>{{localize "TRESPASSER.Sheet.Item.Effect.BlockAction"}}</label>
+                  <select class="tca-action-select" data-index="{{block.index}}" name="system.behaviors.{{block.index}}.action">
+                    {{{selectOptions @root.config.actions selected=block.action localize=true}}}
+                  </select>
+                </div>
+
+                <div class="field-row">
+                  <label>{{localize "TRESPASSER.Sheet.Item.Effect.ActionTarget"}}</label>
+                  <select name="system.behaviors.{{block.index}}.actionTarget">
+                    <option value="self" {{#if (eq block.actionTarget 'self')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Effect.ActionTargetSelf"}}</option>
+                    <option value="target" {{#if (eq block.actionTarget 'target')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Effect.ActionTargetTarget"}}</option>
+                  </select>
+                </div>
+
+                {{!-- Dynamic Action Params Form --}}
+                <div class="tca-params-section">
+                  <div class="params-header">{{localize "TRESPASSER.Sheet.Item.Effect.BlockParams"}}</div>
+                  {{{block.paramsHtml}}}
+                </div>
+
+                {{!-- Confirmation & Prompt --}}
+                <div class="field-row checkbox-row full-width">
+                  <input type="checkbox" name="system.behaviors.{{block.index}}.requiresConfirmation" {{checked block.requiresConfirmation}} id="block-confirm-{{block.index}}" />
+                  <label for="block-confirm-{{block.index}}">{{localize "TRESPASSER.Sheet.Item.Effect.RequiresConfirmation"}}</label>
+                </div>
+
+                {{#if block.requiresConfirmation}}
+                <div class="field-row full-width">
+                  <label>{{localize "TRESPASSER.Sheet.Item.Effect.PromptText"}}</label>
+                  <input type="text" name="system.behaviors.{{block.index}}.promptText" value="{{block.promptText}}" placeholder="Confirmation prompt message..." />
+                </div>
+                {{/if}}
+
+                {{!-- Choice Grouping --}}
+                <div class="field-row">
+                  <label>{{localize "TRESPASSER.Sheet.Item.Effect.ChoiceGroup"}}</label>
+                  <input type="text" name="system.behaviors.{{block.index}}.choiceGroup" value="{{block.choiceGroup}}" placeholder="e.g. stance_select" />
+                </div>
+
+                <div class="field-row">
+                  <label>{{localize "TRESPASSER.Sheet.Item.Effect.ChoiceLabel"}}</label>
+                  <input type="text" name="system.behaviors.{{block.index}}.choiceLabel" value="{{block.choiceLabel}}" placeholder="Option label in dialog" />
+                </div>
+
+                {{!-- Gated By Dependency --}}
+                <div class="field-row full-width">
+                  <label>{{localize "TRESPASSER.Sheet.Item.Effect.GatedBy"}}</label>
+                  <select name="system.behaviors.{{block.index}}.gatedBy">
+                    {{{selectOptions block.gatedByOptions selected=block.gatedBy localize=true}}}
+                  </select>
+                </div>
+
+                {{!-- Cooldown Sub-Details --}}
+                <details class="tca-sub-details" {{#if block.hasCooldown}}open{{/if}}>
+                  <summary><i class="fas fa-clock"></i> {{localize "TRESPASSER.Sheet.Item.Effect.Cooldown"}}</summary>
+                  <div class="tca-sub-details-content">
+                    <div class="field-row">
+                      <label>{{localize "TRESPASSER.Sheet.Item.Effect.CooldownUses"}}</label>
+                      <input type="number" name="system.behaviors.{{block.index}}.cooldown.uses" value="{{block.cooldown.uses}}" placeholder="Uses" />
+                    </div>
+                    <div class="field-row">
+                      <label>{{localize "TRESPASSER.Sheet.Item.Effect.CooldownPer"}}</label>
+                      <select name="system.behaviors.{{block.index}}.cooldown.per">
+                        <option value="round" {{#if (eq block.cooldown.per 'round')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Effect.PerRound"}}</option>
+                        <option value="turn" {{#if (eq block.cooldown.per 'turn')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Effect.PerTurn"}}</option>
+                        <option value="combat" {{#if (eq block.cooldown.per 'combat')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Effect.PerCombat"}}</option>
+                      </select>
+                    </div>
+                  </div>
+                </details>
+
+                {{!-- Cost Sub-Details --}}
+                <details class="tca-sub-details" {{#if block.hasCost}}open{{/if}}>
+                  <summary><i class="fas fa-coins"></i> {{localize "TRESPASSER.Sheet.Item.Effect.Cost"}}</summary>
+                  <div class="tca-sub-details-content">
+                    <div class="field-row">
+                      <label>{{localize "TRESPASSER.Sheet.Item.Effect.CostAP"}}</label>
+                      <input type="number" name="system.behaviors.{{block.index}}.cost.actionPoints" value="{{block.cost.actionPoints}}" placeholder="AP" />
+                    </div>
+                    <div class="field-row">
+                      <label>{{localize "TRESPASSER.Sheet.Item.Effect.CostFocus"}}</label>
+                      <input type="number" name="system.behaviors.{{block.index}}.cost.focus" value="{{block.cost.focus}}" placeholder="Focus" />
+                    </div>
+                    <div class="field-row checkbox-row full-width">
+                      <input type="checkbox" name="system.behaviors.{{block.index}}.cost.reaction" {{checked block.cost.reaction}} id="block-reaction-{{block.index}}" />
+                      <label for="block-reaction-{{block.index}}">{{localize "TRESPASSER.Sheet.Item.Effect.CostReaction"}}</label>
+                    </div>
+                  </div>
+                </details>
+              </div>
+            </div>
+            {{/each}}
+
+            {{#if editable}}
+            <button type="button" class="tca-add-block" data-action="addBehaviorBlock">
+              <i class="fas fa-plus"></i> {{localize "TRESPASSER.Sheet.Item.Effect.AddBehavior"}}
+            </button>
+            {{/if}}
+
+            <details class="tca-advanced-settings">
+              <summary>{{localize "TRESPASSER.Sheet.Item.Effect.AdvancedSettings"}}</summary>
+              <div class="advanced-settings-body">
+                <div class="field-row full-width">
+                  <label>{{localize "TRESPASSER.Sheet.Item.Effect.EffectPriority"}}</label>
+                  <input type="number" name="system.effectPriority" value="{{system.effectPriority}}" placeholder="Auto" />
+                  <span class="hint">{{localize "TRESPASSER.Sheet.Item.Effect.PriorityHint"}}</span>
+                </div>
+              </div>
+            </details>
+          </div>
+        {{/if}}
       </div>
     </div>
   </section>

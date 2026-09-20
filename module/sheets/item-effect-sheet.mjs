@@ -2,16 +2,22 @@ import { TrespasserItemSheet } from "./base-sheet.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { resolveItem } from "../helpers/item-resolver.mjs";
 import { getInterceptionModesForTrigger } from "../reactions/middleware-interception.mjs";
+import { EFFECT_TEMPLATES, applyTemplate } from "./effect/tca-templates.mjs";
+import { summarizeBlock, getActionIcon } from "./effect/tca-summary.mjs";
+import { TCABlockEditor } from "./effect/tca-block-editor.mjs";
 
 /**
  * Item sheet for Trespasser Effect items.
- * Implemented using ApplicationV2 (sheets.ItemSheetV2).
+ * Implemented using ApplicationV2 (sheets.ItemSheetV2) with Two-Mode TCA Behavior editing.
  */
 export class TrespasserEffectSheet extends TrespasserItemSheet {
 
+  /** @type {boolean} Toggle state for Simple vs Advanced TCA editor mode */
+  _advancedMode = false;
+
   static DEFAULT_OPTIONS = {
     classes: ["trespasser", "sheet", "item", "effect-sheet"],
-    position: { width: 520, height: 600 },
+    position: { width: 540, height: 640 },
     form: { 
       handler: TrespasserEffectSheet.#onSubmit,
       submitOnChange: true,
@@ -36,12 +42,12 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     context.item = item;
     context.system = system;
     context.editable = this.isEditable;
+    context.advancedMode = this._advancedMode;
     
     if (!system.durationConditions) system.durationConditions = [];
 
-    // Map default status effects.
-    // Object.values handles both the v13 array and v14 object formats
-    const statusEffects = Object.values(CONFIG.statusEffects)
+    // Map default status effects
+    const statusEffects = Object.values(CONFIG.statusEffects || {})
       .map(effect => {
         const id = effect.id;
         const img = effect.img || effect.icon || effect.src || "";
@@ -56,7 +62,7 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     const syncStatusIcon = system.syncStatusIcon !== false;
     const effectiveStatusIcon = syncStatusIcon ? (item.img || "") : (system.statusIcon || "");
 
-    // Check if system.statusIcon is a custom file path (not among default statusEffects)
+    // Check if system.statusIcon is a custom file path
     const isDefaultStatus = statusEffects.some(se => se.img === system.statusIcon);
     const isCustomStatus = Boolean(system.statusIcon && !isDefaultStatus && !syncStatusIcon);
     let customStatusLabel = "";
@@ -70,25 +76,7 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     context.isCustomStatus = isCustomStatus;
     context.customStatusLabel = customStatusLabel;
 
-    // Dynamic flags for contextual UI
-    const isDamageInterception = ["redirect_damage", "reduce_damage"].includes(system.interceptionMode);
-    const isCustomRange = !system.rangeType || system.rangeType === "custom";
-    const isNumberLimit = system.targetLimit === "number" || (!["all"].includes(system.targetLimit) && Number(system.targetLimit) > 0);
-    const targetLimitChoice = isNumberLimit ? "number" : "all";
-    const targetLimitCount = system.targetLimitCount ?? (Number(system.targetLimit) || 1);
-    const showTargetAttribute = system.type !== "movement" && !system.isOnlyReminder && (system.type === "continuous" || system.interceptionMode === "none" || system.interceptionMode === "modify_amount");
-
-    context.isDamageInterception = isDamageInterception;
-    context.isCustomRange = isCustomRange;
-    context.isNumberLimit = isNumberLimit;
-    context.targetLimitChoice = targetLimitChoice;
-    context.targetLimitCount = targetLimitCount;
-    context.showTargetAttribute = showTargetAttribute;
-    context.modifierLabel = isDamageInterception
-      ? "TRESPASSER.Sheet.Item.Details.InterceptionCapacity"
-      : "TRESPASSER.Sheet.Common.Modifier";
-
-    // Add constants for the sheet
+    // Config dictionary
     context.config = {
       effectTypes: {
         "on-trigger": "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.OnTrigger",
@@ -116,10 +104,45 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
         "spell": "TRESPASSER.Sheet.Item.Effect.RangeChoices.Spell",
         "throw": "TRESPASSER.Sheet.Item.Effect.RangeChoices.Throw"
       },
+      actions: {
+        "modify_attribute": "TRESPASSER.Sheet.Item.Effect.Action.ModifyAttribute",
+        "confer_state": "TRESPASSER.Sheet.Item.Effect.Action.ConferState",
+        "remove_state": "TRESPASSER.Sheet.Item.Effect.Action.RemoveState",
+        "modify_intensity": "TRESPASSER.Sheet.Item.Effect.Action.ModifyIntensity",
+        "set_flag": "TRESPASSER.Sheet.Item.Effect.Action.SetFlag",
+        "force_movement": "TRESPASSER.Sheet.Item.Effect.Action.ForceMovement",
+        "roll_check": "TRESPASSER.Sheet.Item.Effect.Action.RollCheck",
+        "grant_reaction": "TRESPASSER.Sheet.Item.Effect.Action.GrantReaction",
+        "redirect_damage": "TRESPASSER.Sheet.Item.Effect.Action.RedirectDamage",
+        "chat_message": "TRESPASSER.Sheet.Item.Effect.Action.ChatMessage"
+      },
       interceptionModes: this._getContextualInterceptionModes(system.when),
       statusEffects
     };
 
+    // Template picker models
+    context.templates = Object.values(EFFECT_TEMPLATES).map(t => ({
+      key: t.key,
+      label: t.label,
+      icon: t.icon,
+      description: t.description
+    }));
+
+    // Simple Mode summaries
+    const behaviors = system.behaviors || [];
+    context.summaries = behaviors.map((b, idx) => ({
+      index: idx,
+      icon: getActionIcon(b.action, b.params),
+      text: summarizeBlock(b, system.intensity ?? 0)
+    }));
+
+    // Advanced Mode prepared blocks
+    context.preparedBlocks = TCABlockEditor.prepareBlocks(behaviors, context.config, system.intensity ?? 0);
+
+    // Tags array
+    context.tags = Array.isArray(system.tags) ? system.tags : [];
+
+    // Description HTML
     context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
       system.description ?? "",
       { 
@@ -138,6 +161,71 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     if (!this.isEditable) return;
 
     const html = this.element;
+
+    // Toggle Advanced / Simple Mode
+    html.querySelectorAll('[data-action="toggleAdvancedMode"]').forEach(btn => {
+      btn.addEventListener('click', (event) => {
+        event.preventDefault();
+        this._advancedMode = !this._advancedMode;
+        this.render();
+      });
+    });
+
+    // Apply Template in Simple Mode
+    html.querySelectorAll('[data-action="applyTemplate"]').forEach(btn => {
+      btn.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const templateKey = event.currentTarget.dataset.template;
+        const updates = applyTemplate(templateKey, this.document.system);
+        if (Object.keys(updates).length > 0) {
+          await this.document.update(updates);
+        }
+      });
+    });
+
+    // Switch to Advanced Mode when clicking summary row in Simple Mode
+    html.querySelectorAll('.tca-summary-row').forEach(row => {
+      row.addEventListener('click', (event) => {
+        event.preventDefault();
+        this._advancedMode = true;
+        this.render();
+      });
+    });
+
+    // Tags Editor: Add Tag
+    const tagInput = html.querySelector('.tag-add-input');
+    if (tagInput) {
+      tagInput.addEventListener('keydown', async (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          const val = tagInput.value.trim().toLowerCase();
+          if (val) {
+            const tags = Array.isArray(this.document.system.tags) ? [...this.document.system.tags] : [];
+            if (!tags.includes(val)) {
+              tags.push(val);
+              tagInput.value = "";
+              await this.document.update({ "system.tags": tags });
+            }
+          }
+        }
+      });
+    }
+
+    // Tags Editor: Remove Tag
+    html.querySelectorAll('[data-action="removeTag"]').forEach(btn => {
+      btn.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const idx = Number(event.currentTarget.dataset.index);
+        const tags = Array.isArray(this.document.system.tags) ? [...this.document.system.tags] : [];
+        if (idx >= 0 && idx < tags.length) {
+          tags.splice(idx, 1);
+          await this.document.update({ "system.tags": tags });
+        }
+      });
+    });
+
+    // Delegate TCABlockEditor DOM listeners
+    TCABlockEditor.activateListeners(html, this);
 
     // Toggle sync status icon
     html.querySelectorAll('[data-action="toggleSyncStatusIcon"]').forEach(btn => {
@@ -166,24 +254,24 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
       });
     });
 
-    // Drag-and-drop
+    // Drag-and-drop for counter states
     const dropZones = html.querySelectorAll('.drop-zone');
     dropZones.forEach(zone => {
       zone.addEventListener("dragover", this._onDragOver.bind(this));
       zone.addEventListener("drop", this._onDropItem.bind(this));
     });
 
-    // Remove buttons
+    // Remove counter states
     html.querySelectorAll('.counter-state-remove').forEach(btn => {
       btn.addEventListener('click', this._onRemoveCounterState.bind(this));
     });
 
-    // Edit buttons
+    // Edit counter states
     html.querySelectorAll('.effect-edit').forEach(btn => {
       btn.addEventListener('click', this._onEditCounterState.bind(this));
     });
 
-    // --- Compound Duration ---
+    // Compound Duration conditions
     html.querySelectorAll('.dur-add-condition').forEach(btn => {
       btn.addEventListener('click', this._onAddDurationCondition.bind(this));
     });
@@ -208,7 +296,6 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     const sourceItem = await resolveItem(data);
     if (!sourceItem) return;
     
-    // Validate types: Only effects can be counter states
     if (sourceItem.type !== "effect") {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropEffectsOnly"));
       return;
@@ -216,7 +303,6 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
 
     const currentArray = this.document.system.counterStates ? [...this.document.system.counterStates] : [];
 
-    // Avoid self-reference and duplicates
     if (sourceItem.uuid === this.document.uuid) return;
     if (currentArray.some(e => e.uuid === sourceItem.uuid)) {
        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name }));
@@ -237,7 +323,7 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     event.preventDefault();
     const el = event.currentTarget.closest('.effect-chip');
     const index = Number(el.dataset.index);
-    const currentArray = [...this.document.system.counterStates];
+    const currentArray = [...(this.document.system.counterStates || [])];
     currentArray.splice(index, 1);
     await this.document.update({ "system.counterStates": currentArray });
   }
@@ -266,8 +352,8 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
   }
 
   _onDurationModeChange(event) {
-    const row    = event.currentTarget.closest('.duration-condition-row');
-    const mode   = event.currentTarget.value;
+    const row = event.currentTarget.closest('.duration-condition-row');
+    const mode = event.currentTarget.value;
     const valInput = row.querySelector('.dur-value');
     if (valInput) {
       const needsVal = mode === "round" || mode === "trigger";
@@ -301,7 +387,7 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
   }
 
   /**
-   * Manual form submission handler for AppV2.
+   * Form submission handler for AppV2.
    */
   static async #onSubmit(event, form, formData) {
     const statusIconVal = formData.object["system.statusIcon"];
@@ -311,6 +397,59 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     } else if (statusIconVal !== undefined) {
       formData.object["system.syncStatusIcon"] = false;
       formData.object["system.statusIcon"] = statusIconVal;
+    }
+
+    // Reconstruct system.behaviors array cleanly from formData.object if present
+    const expanded = foundry.utils.expandObject(formData.object);
+    if (expanded.system?.behaviors !== undefined) {
+      const rawBehaviors = expanded.system.behaviors;
+      const behaviorsArray = Array.isArray(rawBehaviors)
+        ? rawBehaviors
+        : (typeof rawBehaviors === "object" && rawBehaviors !== null)
+        ? Object.keys(rawBehaviors)
+            .filter(k => !isNaN(Number(k)))
+            .sort((a, b) => Number(a) - Number(b))
+            .map(k => rawBehaviors[k])
+        : [];
+
+      for (let i = 0; i < behaviorsArray.length; i++) {
+        const b = behaviorsArray[i];
+        if (!b.id) {
+          b.id = this.document.system.behaviors?.[i]?.id || foundry.utils.randomID(8);
+        }
+        const prevBlock = this.document.system.behaviors?.[i];
+        // If action changed on this block, reset its params
+        if (prevBlock && prevBlock.action && b.action && prevBlock.action !== b.action) {
+          b.params = {};
+        } else if (!b.params || typeof b.params !== "object") {
+          b.params = {};
+        }
+
+        b.requiresConfirmation = Boolean(b.requiresConfirmation);
+        if (b.cost) {
+          const ap = Number(b.cost.actionPoints) || 0;
+          const focus = Number(b.cost.focus) || 0;
+          const reaction = Boolean(b.cost.reaction);
+          b.cost = (ap > 0 || focus > 0 || reaction) ? { actionPoints: ap, focus, reaction } : null;
+        }
+        if (b.cooldown) {
+          const uses = Number(b.cooldown.uses) || 0;
+          b.cooldown = uses > 0 ? { uses, per: b.cooldown.per || "round" } : null;
+        }
+        if (b.priority !== null && b.priority !== undefined && b.priority !== "") {
+          b.priority = isNaN(Number(b.priority)) ? null : Number(b.priority);
+        } else {
+          b.priority = null;
+        }
+      }
+
+      // Remove raw dotted behavior keys from formData.object so they don't corrupt the array
+      for (const key of Object.keys(formData.object)) {
+        if (key.startsWith("system.behaviors.") || key.startsWith("system.behaviors[")) {
+          delete formData.object[key];
+        }
+      }
+      formData.object["system.behaviors"] = behaviorsArray;
     }
 
     // Sanitize interceptionMode if trigger changed
@@ -324,4 +463,3 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     await this.document.update(formData.object);
   }
 }
-

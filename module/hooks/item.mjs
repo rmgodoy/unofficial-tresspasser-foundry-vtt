@@ -147,19 +147,24 @@ export function registerItemHooks() {
         }
       }
 
-      const flatKeys = [
-        "when", "modifier", "targetAttribute", "type",
-        "intensityIncrement", "conferredState", "interceptionMode",
-        "isOnlyReminder", "scope", "rangeType", "rangeRequirement"
-      ];
       const expandedChanges = foundry.utils.expandObject(changed);
       const changedSystem = expandedChanges.system || {};
-      const flatFieldsChanged = flatKeys.some(k => k in changedSystem);
 
       const hasExplicitBehaviors = foundry.utils.hasProperty(changed, "system.behaviors") ||
-        (changed.system && "behaviors" in changed.system);
+        (changed.system && "behaviors" in changed.system) ||
+        (expandedChanges.system && "behaviors" in expandedChanges.system) ||
+        Object.keys(changed).some(k => k.startsWith("system.behaviors.") || k.startsWith("system.behaviors["));
 
-      if (flatFieldsChanged && !hasExplicitBehaviors) {
+      const hasExistingBehaviors = Boolean(
+        (Array.isArray(item.system?.behaviors) && item.system.behaviors.length > 0) ||
+        (Array.isArray(item._source?.system?.behaviors) && item._source.system.behaviors.length > 0)
+      );
+
+      // Legacy fields that define action behavior
+      const legacyBehaviorKeys = ["when", "modifier", "targetAttribute", "type", "conferredState", "interceptionMode", "movementType"];
+      const legacyFieldsChanged = legacyBehaviorKeys.some(k => k in changedSystem);
+
+      if (!hasExplicitBehaviors && !hasExistingBehaviors && legacyFieldsChanged) {
         const mergedSystem = foundry.utils.mergeObject(
           foundry.utils.deepClone(item.toObject().system || {}),
           changedSystem
@@ -173,11 +178,10 @@ export function registerItemHooks() {
           } else {
             changed["system.behaviors"] = migrated.behaviors;
           }
-          console.log("%c[Item Hook | preUpdateItem]%c Regenerated behaviors from flat fields:", "color: #98c379; font-weight: bold;", "color: inherit;", migrated.behaviors);
+          console.log("%c[Item Hook | preUpdateItem]%c Regenerated behaviors from legacy flat fields:", "color: #98c379; font-weight: bold;", "color: inherit;", migrated.behaviors);
         }
-      } else if (!hasExplicitBehaviors) {
-        // Catch-all: preserve existing behaviors when the delta doesn't explicitly set them.
-        // This prevents intensity updates (or any non-flat-field update) from dropping behaviors.
+      } else if (!hasExplicitBehaviors && hasExistingBehaviors && !item._source?.system?.behaviors?.length) {
+        // If DB source didn't have behaviors persisted yet, ensure existing in-memory behaviors are saved
         const existing = item.system?.behaviors;
         if (Array.isArray(existing) && existing.length > 0) {
           if (changed.system && typeof changed.system === "object") {
@@ -186,7 +190,7 @@ export function registerItemHooks() {
           } else {
             changed["system.behaviors"] = foundry.utils.deepClone(existing);
           }
-          console.log("%c[Item Hook | preUpdateItem]%c Preserved existing behaviors:", "color: #61afef; font-weight: bold;", "color: inherit;", existing);
+          console.log("%c[Item Hook | preUpdateItem]%c Persisted existing behaviors to DB:", "color: #61afef; font-weight: bold;", "color: inherit;", existing);
         }
       }
     }

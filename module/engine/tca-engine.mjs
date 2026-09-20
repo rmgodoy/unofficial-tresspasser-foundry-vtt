@@ -310,39 +310,15 @@ export async function processTCAEvent(eventName, event, actor) {
     ? (event.sourceActor || (event.source?.actor ? event.source.actor : (event.source instanceof Actor ? event.source : null)))
     : event.actor;
 
-  // 1. Collect all local TCA effects
+  // 1. Collect local TCA effects for this actor (cross-actor routing is handled by ActorEventBus middleware)
   const localEffects = getTCAEffects(actor);
+  if (localEffects.length === 0) return;
 
-  // 2. Also collect cross-actor TCA effects in scene/world if actor is the target
-  const crossActorEffects = [];
-  if (game.actors && targetActor && targetActor.id !== actor.id) {
-    for (const otherActor of game.actors) {
-      if (otherActor.id === actor.id) continue;
-      const otherEffects = getTCAEffects(otherActor);
-      for (const eff of otherEffects) {
-        const hasCrossBlock = (eff.system?.behaviors || []).some(b => {
-          const s = b.scope || eff.system?.scope || "self";
-          return s !== "self" && b.trigger === eventName;
-        });
-        if (hasCrossBlock) {
-          crossActorEffects.push({ sourceActor: otherActor, effectItem: eff });
-        }
-      }
-    }
-  }
+  const effectEntries = localEffects.map(e => ({ sourceActor: actor, effectItem: e }));
 
-  // Build full processing list
-  const effectEntries = [
-    ...localEffects.map(e => ({ sourceActor: actor, effectItem: e })),
-    ...crossActorEffects
-  ];
-
-  console.log(`%c[TCA Engine | Event: ${eventName}]%c Actor "${actor.name}" (${actor.id}) - found ${localEffects.length} local effects, ${crossActorEffects.length} cross effects`, "color: #e5c07b; font-weight: bold;", "color: inherit;", {
-    localEffects: localEffects.map(e => ({ id: e.id, name: e.name, intensity: e.system?.intensity, behaviors: e.system?.behaviors })),
-    crossEffects: crossActorEffects.map(c => ({ source: c.sourceActor.name, effect: c.effectItem.name }))
+  console.log(`%c[TCA Engine | Event: ${eventName}]%c Actor "${actor.name}" (${actor.id}) - processing ${localEffects.length} local effects`, "color: #e5c07b; font-weight: bold;", "color: inherit;", {
+    localEffects: localEffects.map(e => ({ id: e.id, name: e.name, intensity: e.system?.intensity, behaviors: e.system?.behaviors }))
   });
-
-  if (effectEntries.length === 0) return;
 
   // Sort effects by priority
   effectEntries.sort((a, b) => getEffectPriority(a.effectItem) - getEffectPriority(b.effectItem));

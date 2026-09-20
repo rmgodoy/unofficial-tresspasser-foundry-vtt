@@ -1,0 +1,205 @@
+/**
+ * TCA Block Editor
+ * Helper class managing DOM events and preparation for TCA Behavior Block Cards in Advanced Mode.
+ */
+
+import { renderParamsForAction } from "./tca-param-editors.mjs";
+import { getActionIcon, summarizeBlock } from "./tca-summary.mjs";
+
+export class TCABlockEditor {
+  /**
+   * Prepares behavior blocks for rendering in the Handlebars context.
+   * @param {Array<object>} behaviors
+   * @param {object} config
+   * @param {number} [intensity=0]
+   * @returns {Array<object>}
+   */
+  static prepareBlocks(behaviors = [], config = {}, intensity = 0) {
+    if (!Array.isArray(behaviors)) return [];
+
+    return behaviors.map((block, index) => {
+      const blockId = block.id || `b_${index}`;
+      const blockLabel = block.label || `${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Behaviors")} #${index + 1}`;
+      
+      // Build sibling options for gatedBy
+      const gatedByOptions = {
+        "": "TRESPASSER.Sheet.Item.Effect.GatedByNone"
+      };
+      behaviors.forEach((b, otherIdx) => {
+        if (otherIdx !== index && b.id) {
+          const siblingLabel = b.label || `${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Behaviors")} #${otherIdx + 1}`;
+          gatedByOptions[b.id] = siblingLabel;
+        }
+      });
+
+      const paramsHtml = renderParamsForAction(block.action || "modify_attribute", block.params || {}, config, index);
+      const icon = getActionIcon(block.action, block.params);
+      const summaryText = summarizeBlock(block, intensity);
+
+      return {
+        ...block,
+        id: blockId,
+        index,
+        displayIndex: index + 1,
+        computedLabel: blockLabel,
+        icon,
+        summaryText,
+        gatedByOptions,
+        paramsHtml,
+        hasCooldown: Boolean(block.cooldown && block.cooldown.uses),
+        hasCost: Boolean(block.cost && (block.cost.actionPoints || block.cost.focus || block.cost.reaction))
+      };
+    });
+  }
+
+  /**
+   * Attaches event listeners for behavior block interactions.
+   * @param {HTMLElement} html
+   * @param {TrespasserEffectSheet} sheet
+   */
+  static activateListeners(html, sheet) {
+    if (!sheet.isEditable) return;
+
+    // Add block button
+    html.querySelectorAll('[data-action="addBehaviorBlock"]').forEach(btn => {
+      btn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        await this.onAddBlock(sheet);
+      });
+    });
+
+    // Delete block button
+    html.querySelectorAll('[data-action="deleteBehaviorBlock"]').forEach(btn => {
+      btn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const index = Number(event.currentTarget.dataset.index);
+        await this.onDeleteBlock(sheet, index);
+      });
+    });
+
+    // Collapse toggle on header
+    html.querySelectorAll('.tca-block-header').forEach(header => {
+      header.addEventListener("click", (event) => {
+        // Prevent toggle if clicking action buttons or drag handle
+        if (event.target.closest('.block-actions') || event.target.closest('.drag-handle') || event.target.closest('input')) {
+          return;
+        }
+        event.preventDefault();
+        const card = header.closest('.tca-block-card');
+        if (card) {
+          card.classList.toggle('collapsed');
+          const icon = card.querySelector('.block-collapse-icon i');
+          if (icon) {
+            icon.className = card.classList.contains('collapsed') ? 'fas fa-chevron-right' : 'fas fa-chevron-down';
+          }
+        }
+      });
+    });
+
+    // Drag-and-drop reordering
+    this._attachDragAndDrop(html, sheet);
+  }
+
+  /**
+   * Attaches drag and drop listeners to block cards.
+   * @private
+   */
+  static _attachDragAndDrop(html, sheet) {
+    const cards = html.querySelectorAll('.tca-block-card');
+    let draggedIndex = null;
+
+    cards.forEach(card => {
+      card.addEventListener("dragstart", (event) => {
+        draggedIndex = Number(card.dataset.blockIndex);
+        card.classList.add("dragging");
+        event.dataTransfer.effectAllowed = "move";
+        event.dataTransfer.setData("text/plain", String(draggedIndex));
+      });
+
+      card.addEventListener("dragend", () => {
+        card.classList.remove("dragging");
+        cards.forEach(c => c.classList.remove("drag-over"));
+        draggedIndex = null;
+      });
+
+      card.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        event.dataTransfer.dropEffect = "move";
+        card.classList.add("drag-over");
+      });
+
+      card.addEventListener("dragleave", () => {
+        card.classList.remove("drag-over");
+      });
+
+      card.addEventListener("drop", async (event) => {
+        event.preventDefault();
+        card.classList.remove("drag-over");
+        const targetIndex = Number(card.dataset.blockIndex);
+        if (draggedIndex !== null && targetIndex !== null && draggedIndex !== targetIndex) {
+          await this.onReorderBlocks(sheet, draggedIndex, targetIndex);
+        }
+      });
+    });
+  }
+
+  /**
+   * Adds a new behavior block with default parameters.
+   * @param {TrespasserEffectSheet} sheet
+   */
+  static async onAddBlock(sheet) {
+    const behaviors = foundry.utils.deepClone(sheet.document.system.behaviors || []);
+    const newBlock = {
+      id: foundry.utils?.randomID?.(8) || Math.random().toString(36).substring(2, 10),
+      label: "",
+      trigger: "continuous",
+      condition: "",
+      action: "modify_attribute",
+      params: { attribute: "guard", modifier: "+<Int>", applyMode: "delta" },
+      actionTarget: "self",
+      scope: "",
+      rangeType: "",
+      range: 0,
+      priority: null,
+      requiresConfirmation: false,
+      promptText: "",
+      choiceGroup: "",
+      choiceLabel: "",
+      gatedBy: "",
+      cooldown: null,
+      cost: null
+    };
+    behaviors.push(newBlock);
+    await sheet.document.update({ "system.behaviors": behaviors });
+  }
+
+  /**
+   * Deletes a behavior block by index.
+   * @param {TrespasserEffectSheet} sheet
+   * @param {number} index
+   */
+  static async onDeleteBlock(sheet, index) {
+    const behaviors = foundry.utils.deepClone(sheet.document.system.behaviors || []);
+    if (index >= 0 && index < behaviors.length) {
+      behaviors.splice(index, 1);
+      await sheet.document.update({ "system.behaviors": behaviors });
+    }
+  }
+
+  /**
+   * Reorders behavior blocks from one index to another.
+   * @param {TrespasserEffectSheet} sheet
+   * @param {number} fromIndex
+   * @param {number} toIndex
+   */
+  static async onReorderBlocks(sheet, fromIndex, toIndex) {
+    const behaviors = foundry.utils.deepClone(sheet.document.system.behaviors || []);
+    if (fromIndex < 0 || fromIndex >= behaviors.length || toIndex < 0 || toIndex >= behaviors.length) return;
+
+    const [moved] = behaviors.splice(fromIndex, 1);
+    behaviors.splice(toIndex, 0, moved);
+    await sheet.document.update({ "system.behaviors": behaviors });
+  }
+}
