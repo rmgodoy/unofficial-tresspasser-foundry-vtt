@@ -86,76 +86,118 @@ export async function onIntensityChange(event, sheet) {
 }
 
 export async function onEffectRemove(event, sheet) {
-  const li   = event.currentTarget.closest(".effect-row");
-  const item = sheet.actor.items.get(li.dataset.itemId);
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  const li = event.currentTarget.closest(".effect-row, [data-item-id]");
+  const itemId = li?.dataset?.itemId;
+  if (!itemId) return;
+  const actor = sheet.actor || sheet.document;
+  const item = actor?.items?.get(itemId);
   if (item) await item.delete();
 }
 
 export async function onDurationChange(event, sheet) {
-  const li     = event.currentTarget.closest(".effect-row");
+  const li     = event.currentTarget.closest(".effect-row, [data-item-id]");
   const val    = parseInt(event.currentTarget.value);
-  if (isNaN(val)) return;
-  const item = sheet.actor.items.get(li.dataset.itemId);
+  if (isNaN(val) || !li?.dataset?.itemId) return;
+  const actor = sheet.actor || sheet.document;
+  const item = actor?.items?.get(li.dataset.itemId);
   if (item) await item.update({ "system.durationValue": val });
 }
 
 export async function onEffectInfo(event, sheet) {
-  const li = event.currentTarget.closest("[data-item-id]");
-  if (!li) return;
-  const item = sheet.actor.items.get(li.dataset.itemId);
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  const li = event.currentTarget.closest(".effect-row, [data-item-id]");
+  if (!li?.dataset?.itemId) return;
+  const actor = sheet.actor || sheet.document;
+  const item = actor?.items?.get(li.dataset.itemId);
   if (item) showItemInfoDialog(item.uuid);
 }
 
 export async function onEffectEdit(event, sheet) {
-  const li     = event.currentTarget.closest(".effect-row");
-  const actor  = sheet.actor;
-  const itemId = li.dataset.itemId;
+  event?.preventDefault?.();
+  event?.stopPropagation?.();
+  const li = event.currentTarget.closest(".effect-row, [data-item-id]") || event.target?.closest?.(".effect-row, [data-item-id]");
+  const actor = sheet.actor || sheet.document;
+  if (!actor) return;
+  const itemId = li?.dataset?.itemId || event.currentTarget.dataset?.itemId;
+  if (!itemId) return;
 
-  // 1. Identify what we're editing
+  // 1. Direct item on actor (standalone Effect, State, Plight, etc.)
+  const directItem = actor.items.get(itemId);
+  if (directItem) {
+    return directItem.sheet.render(true);
+  }
+
+  // 2. Synthetic / Internal effect on an equipped item or feature
   const allEffects = TrespasserEffectsHelper.getActorEffects(actor);
-  const found = [...allEffects.combat, ...allEffects.nonCombat].find(e => e.id === itemId);
+  const found = [...(allEffects.combat || []), ...(allEffects.nonCombat || [])].find(e => e.id === itemId);
 
-  if (!found) return;
+  if (found) {
+    if (found.uuid) {
+      const opened = await TrespasserEffectsHelper.openEffectSheet(found.uuid);
+      if (opened) return;
+    }
+    if (found.property && found.index !== undefined) {
+      const parentItem = actor.items.get(found.itemId);
+      if (parentItem) {
+        const effectData = foundry.utils.deepClone(parentItem.system[found.property]?.[found.index] || {});
+        const docType = effectData.type || "effect";
+        delete effectData.type;
+        delete effectData.uuid;
+        delete effectData.name;
+        delete effectData.img;
 
-  if (found.property && found.index !== undefined) {
-    // Internal effect of an item
-    const parentItem = actor.items.get(found.itemId);
-    if (!parentItem) return;
-    
-    // Create a virtual Item document for the sheet to work on
-    const effectData = foundry.utils.deepClone(parentItem.system[found.property][found.index]);
-    
-    // Rename/Remove conflicting fields before passing to Item.implementation
-    const docType = effectData.type || "effect";
-    delete effectData.type;
-    delete effectData.uuid;
-    delete effectData.name;
-    delete effectData.img;
+        const tempItem = new Item.implementation({
+          name: found.name || "Effect",
+          type: docType,
+          img: found.img,
+          system: effectData
+        }, { parent: actor });
 
-    const tempItem = new Item.implementation({
-      name: found.name || "Effect",
-      type: docType,
-      img: found.img,
-      system: effectData
-    }, { parent: actor });
+        tempItem.update = async (updateData) => {
+          const currentArray = [...(parentItem.system[found.property] || [])];
+          const newSystemData = foundry.utils.mergeObject(currentArray[found.index] || {}, updateData.system || updateData);
+          currentArray[found.index] = newSystemData;
+          await parentItem.update({ [`system.${found.property}`]: currentArray });
+          return tempItem;
+        };
 
-    // Force the ID to be the synthetic one to avoid confusion if needed, 
-    // but usually not necessary for the sheet.
-    
-    // Override update to sync back to the parent item
-    tempItem.update = async (updateData) => {
-      const currentArray = [...parentItem.system[found.property]];
-      const newSystemData = foundry.utils.mergeObject(currentArray[found.index], updateData.system || updateData);
-      currentArray[found.index] = newSystemData;
-      await parentItem.update({ [`system.${found.property}`]: currentArray });
-      return tempItem;
-    };
+        return tempItem.sheet.render(true);
+      }
+    }
+  }
 
-    // Render the sheet for the virtual item
-    tempItem.sheet.render(true);
-  } else {
-    // Standalone Effect/State item
-    const effectItem = actor.items.get(found.id);
-    if (effectItem) effectItem.sheet.render(true);
+  // 3. Fallback: Parse synthetic ID format "${parentItemId}-${property}-${index}"
+  const match = itemId.match(/^(.+)-(effects|enhancementEffects)-(\d+)$/);
+  if (match) {
+    const [, parentId, prop, idxStr] = match;
+    const parentItem = actor.items.get(parentId);
+    const idx = parseInt(idxStr, 10);
+    if (parentItem && parentItem.system[prop]?.[idx]) {
+      const effectData = foundry.utils.deepClone(parentItem.system[prop][idx]);
+      const docType = effectData.type || "effect";
+      delete effectData.type;
+      delete effectData.uuid;
+      delete effectData.name;
+      delete effectData.img;
+
+      const tempItem = new Item.implementation({
+        name: effectData.name || "Effect",
+        type: docType,
+        img: effectData.img,
+        system: effectData
+      }, { parent: actor });
+
+      tempItem.update = async (updateData) => {
+        const currentArray = [...(parentItem.system[prop] || [])];
+        currentArray[idx] = foundry.utils.mergeObject(currentArray[idx] || {}, updateData.system || updateData);
+        await parentItem.update({ [`system.${prop}`]: currentArray });
+        return tempItem;
+      };
+
+      return tempItem.sheet.render(true);
+    }
   }
 }

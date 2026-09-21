@@ -2,6 +2,7 @@ import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { messageVisibility } from "../helpers/compat.mjs";
 import { isSunken } from "../helpers/elevation-helper.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Roll a skill check against one of the core attributes.
@@ -10,6 +11,11 @@ import { isSunken } from "../helpers/elevation-helper.mjs";
  * @returns {Promise<Roll>}
  */
 export async function rollSkillCheck(actor, attribute) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: actor?.name }));
+    return null;
+  }
+
   if (actor?.rollSkillCheck && actor.rollSkillCheck !== rollSkillCheck) {
     return actor.rollSkillCheck(attribute);
   }
@@ -43,6 +49,11 @@ export async function rollSkillCheck(actor, attribute) {
 export async function applyDamage(actor, amount, options = {}) {
   if (actor?.applyDamage && actor.applyDamage !== applyDamage) {
     return actor.applyDamage(amount, options);
+  }
+
+  const isImmune = TrespasserEffectsHelper.hasActorFlagOrEffect(actor, "immuneToDamage");
+  if (isImmune) {
+    return actor.system?.health ?? 0;
   }
 
   let damageNum = Math.max(0, Number(amount) || 0);
@@ -296,4 +307,67 @@ export async function onItemConsume(actor, itemId, { spendAP = true } = {}) {
   }
 
   await item.delete();
+}
+
+/**
+ * Roll a Prevail check for an actor to remove a state.
+ * @param {Actor} actor
+ * @param {string} stateItemId
+ * @param {number} [extraAP=0]
+ * @param {object} [options={}]
+ * @returns {Promise<Roll|null>}
+ */
+export async function executePrevailRoll(actor, stateItemId, extraAP = 0, options = {}) {
+  const stateItem = actor.items?.get(stateItemId);
+  if (!stateItem) {
+    ui.notifications.warn("State item not found.");
+    return null;
+  }
+
+  const { modifier = 0, cd = null, totalBonus = null } = options;
+  let intensity = stateItem.system?.intensity || 0;
+  if (!stateItem.system?.isLasting) {
+    const matchingLasting = actor.items?.find(i =>
+      i.type === "effect" &&
+      i.system?.isLasting &&
+      i.name.toLowerCase() === stateItem.name.toLowerCase()
+    );
+    if (matchingLasting) {
+      intensity += (matchingLasting.system?.intensity || 0);
+    }
+  }
+  const dc = cd !== null ? cd : Math.min(20, 10 + intensity);
+  const prevailStat = actor.system?.combat?.prevail || 0;
+  const apBonus = extraAP * 2;
+  const bonuses = totalBonus !== null ? `${totalBonus}` : `${prevailStat} + ${apBonus} + ${modifier}`;
+
+  const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, "prevail");
+  const formula = isAdv ? `2d20kh + ${bonuses}` : `1d20 + ${bonuses}`;
+
+  const roll = new foundry.dice.Roll(formula);
+  await roll.evaluate();
+
+  const success = roll.total >= dc;
+  const flavor = `<div class="trespasser-chat-card">
+    <h3>${game.i18n.format("TRESPASSER.Chat.Check.PrevailCheck", { name: stateItem.name })}</h3>
+    <p>${game.i18n.format("TRESPASSER.Chat.Check.PrevailVsDC", { total: roll.total, dc })}</p>
+    <div class="roll-details" style="font-size: var(--fs-10); color: var(--trp-text-dim); margin-bottom: 5px;">
+      Formula: ${roll.formula} (d20: ${roll.dice[0].total})<br>
+      Bonus: ${prevailStat} (Prevail) ${apBonus > 0 ? `+ ${apBonus} (AP)` : ""} ${modifier !== 0 ? `+ ${modifier} (Mod)` : ""}
+    </div>
+    <p class="${success ? 'hit-text' : 'miss-text'}" style="font-size: var(--fs-16); font-weight: bold; text-align: center;">
+      ${success ? game.i18n.localize("TRESPASSER.Chat.Common.Success") : game.i18n.localize("TRESPASSER.Chat.Common.Failure")}
+    </p>
+  </div>`;
+
+  await roll.toMessage({
+    speaker: ChatMessage.getSpeaker({ actor }),
+    flavor
+  });
+
+  if (success) {
+    await stateItem.delete();
+  }
+
+  return roll;
 }

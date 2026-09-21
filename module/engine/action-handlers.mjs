@@ -8,6 +8,7 @@ import { updateFocus, updateActionPoints, updateCombatPhase } from "../effects/e
 import { ForcedMovementHelper } from "../helpers/forced-movement-helper.mjs";
 import { canTakeReaction } from "../reactions/reactions-tracking.mjs";
 import { TARGET_ATTRIBUTES } from "../effects/effects-constants.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Resolves the effective target actor for a block execution.
@@ -16,6 +17,9 @@ import { TARGET_ATTRIBUTES } from "../effects/effects-constants.mjs";
  * @returns {Actor|null}
  */
 function resolveActionTarget(context, actionTarget = "self") {
+  if (context.actionTargetActor) {
+    return context.actionTargetActor;
+  }
   if (actionTarget === "target") {
     return context.target || context.actor;
   }
@@ -93,12 +97,27 @@ export async function handleModifyAttribute(params = {}, context = {}) {
     } else {
       if (modValue < 0) {
         if (typeof targetActor.applyDamage === "function") {
-          await targetActor.applyDamage(Math.abs(modValue), { sourceItem: context.effectItem });
+          const res = await targetActor.applyDamage(Math.abs(modValue), { sourceItem: context.effectItem });
+          if (res?.isImmune) {
+            chatContent = `<p class="miss-text"><strong>${targetActor.name}</strong>: ${game.i18n.format("TRESPASSER.Notification.Combat.ImmuneToDamage", { name: targetActor.name })}</p>`;
+          } else {
+            chatContent = `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
+          }
         } else {
-          const currentHp = targetActor.system?.health ?? 0;
-          await targetActor.update({ "system.health": Math.max(0, currentHp + modValue) });
+          const isImmune = Boolean(
+            targetActor.getFlag?.(SYSTEM_ID, "immuneToDamage") ||
+            targetActor.getFlag?.("trespasser", "immuneToDamage") ||
+            targetActor.flags?.[SYSTEM_ID]?.immuneToDamage ||
+            targetActor.flags?.trespasser?.immuneToDamage
+          );
+          if (!isImmune) {
+            const currentHp = targetActor.system?.health ?? 0;
+            await targetActor.update({ "system.health": Math.max(0, currentHp + modValue) });
+            chatContent = `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
+          } else {
+            chatContent = `<p class="miss-text"><strong>${targetActor.name}</strong>: ${game.i18n.format("TRESPASSER.Notification.Combat.ImmuneToDamage", { name: targetActor.name })}</p>`;
+          }
         }
-        chatContent = `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
       } else if (modValue > 0) {
         if (typeof targetActor.applyHealing === "function") {
           await targetActor.applyHealing(modValue, { sourceItem: context.effectItem });
@@ -261,10 +280,23 @@ export async function handleSetFlag(params = {}, context = {}) {
   const targetActor = resolveActionTarget(context, context.block?.actionTarget);
   if (!targetActor) return { executed: false, result: null, chatContent: "" };
 
-  const { flag, value = true } = params;
-  if (!flag) return { executed: false, result: null, chatContent: "" };
+  const flag = params.flag || "immuneToDamage";
+  let rawVal = params.value;
+  let value = true;
+  if (rawVal === false || rawVal === "false" || rawVal === 0 || rawVal === "0") {
+    value = false;
+  } else if (rawVal !== undefined && rawVal !== null && rawVal !== "") {
+    value = rawVal === "true" ? true : rawVal;
+  }
 
-  await targetActor.setFlag("trespasser", flag, value);
+  await targetActor.setFlag(SYSTEM_ID, flag, value);
+
+  // Synchronize status effect item and token HUD icon if applicable
+  if (typeof targetActor.toggleStatusEffect === "function") {
+    const boolActive = Boolean(value);
+    await targetActor.toggleStatusEffect(flag, { active: boolActive });
+  }
+
   const chatContent = `<p><strong>${targetActor.name}</strong> flag <em>${flag}</em> set to <em>${JSON.stringify(value)}</em>.</p>`;
   return { executed: true, result: value, chatContent };
 }

@@ -6,7 +6,8 @@ const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications?.api 
  */
 export class CanvasInputOverlay extends (HandlebarsApplicationMixin ? HandlebarsApplicationMixin(ApplicationV2) : class {}) {
   constructor(options = {}) {
-    super(options);
+    const uniqueId = `canvas-input-overlay-${foundry.utils.randomID()}`;
+    super({ ...options, id: uniqueId });
     this.session = options.session;
     this.overlayData = {
       title: options.title || "",
@@ -23,7 +24,6 @@ export class CanvasInputOverlay extends (HandlebarsApplicationMixin ? Handlebars
   }
 
   static DEFAULT_OPTIONS = {
-    id: "canvas-input-overlay",
     classes: ["trespasser", "canvas-input-overlay-window"],
     tag: "div",
     window: {

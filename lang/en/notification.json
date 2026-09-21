@@ -47,6 +47,9 @@
         "WeaponIsThrown": "This weapon was thrown and must be recovered before equipping."
       },
       "Combat": {
+        "ImmuneToDamage": "{name} is immune to damage.",
+        "CannotAct": "{name} cannot take actions.",
+        "CannotMove": "{name} cannot move.",
         "WeaponThrown": "{actor} throws {weapon}! It leaves their hand and is lost for the encounter.",
         "NoTargets": "No targets selected. Aborting.",
         "RecordedTargetsGone": "The targets recorded on this card are no longer on the scene.",

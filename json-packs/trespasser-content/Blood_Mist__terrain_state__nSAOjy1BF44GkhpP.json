@@ -1,0 +1,74 @@
+{
+  "folder": "rrVnaJcDxQOLfMgB",
+  "name": "Blood Mist (terrain state)",
+  "type": "effect",
+  "_id": "nSAOjy1BF44GkhpP",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "<p>A state controlling a light cloud in the area of effect. While inside, creatures regain INTENSITY extra hit points whenever they regain hit points.</p>",
+    "type": "continuous",
+    "movementType": "walk",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "immediate",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": true,
+    "isLasting": false,
+    "statusIcon": "systems/trespasser/assets/icons/effect.webp",
+    "syncStatusIcon": true,
+    "behaviors": [
+      {
+        "id": "P3h96h3K",
+        "trigger": "immediate",
+        "action": "chat_message",
+        "params": {
+          "message": "<p>A state controlling a light cloud in the area of effect. While inside, creatures regain INTENSITY extra hit points whenever they regain hit points.</p>",
+          "gmOnly": false
+        },
+        "label": "",
+        "condition": "",
+        "actionTarget": "self",
+        "scope": "",
+        "rangeType": "",
+        "range": 0,
+        "priority": null,
+        "requiresConfirmation": false,
+        "promptText": "",
+        "choiceGroup": "",
+        "choiceLabel": "",
+        "gatedBy": "",
+        "cooldown": null,
+        "cost": null
+      }
+    ]
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1789652495921,
+    "modifiedTime": 1789789665245,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!nSAOjy1BF44GkhpP"
+}

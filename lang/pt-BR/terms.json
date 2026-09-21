@@ -506,7 +506,11 @@
       "Unguarded": "Desprotegido",
       "Weak": "Fraco",
       "Weary": "Cansado",
-      "Willful": "Obstinado"
+      "Willful": "Obstinado",
+      "ImmuneToDamage": "Imune a Dano",
+      "CannotAct": "Não Pode Agir",
+      "CannotMove": "Não Pode Mover",
+      "CountsAsObstacle": "Conta como Obstáculo"
     }
   }
 }

@@ -1,0 +1,183 @@
+{
+  "folder": "k6JUbXFCMOzTt7RK",
+  "name": "Boiling Blood",
+  "type": "deed",
+  "_id": "Bj5HzselpRNAdRVF",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "heavy",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "Resist",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "Deal 2<sd> damage.",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Confer berserk 1. On its turn, the affected creature must attempt a light attack deed against the nearest creature before doing anything else, moving if needed. Then this state loses 1 INTENSITY.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "Bri3BfRDx0iLWbCV",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": -191,
+          "y": 187
+        },
+        {
+          "id": "B3IkzJ1Qpo5Am73x",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 87,
+          "y": 188
+        },
+        {
+          "id": "jYlTT3xXkvw7dQHs",
+          "type": "rollAccuracy",
+          "phase": "inherit",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Resist"
+          },
+          "x": 620,
+          "y": 180
+        },
+        {
+          "id": "ubTdMUziAERWwXCX",
+          "type": "applyEffects",
+          "phase": "spark",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.mYIRxcYkw9RulE8n",
+                "name": "Berserk",
+                "img": "systems/trespasser/assets/icons/effect.webp",
+                "intensity": 1
+              }
+            ]
+          },
+          "x": 934,
+          "y": 214
+        },
+        {
+          "id": "LbN5dFMV3HB2G3T5",
+          "type": "applyDamage",
+          "phase": "inherit",
+          "params": {
+            "expression": "2<sd>"
+          },
+          "x": 356,
+          "y": 180
+        }
+      ],
+      "connections": [
+        {
+          "id": "XCxC5Ca1pVZb9Xp3",
+          "sourceId": "Bri3BfRDx0iLWbCV",
+          "sourcePort": "out",
+          "targetId": "B3IkzJ1Qpo5Am73x",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "Og8tLR799ZbmaJo0",
+          "sourceId": "jYlTT3xXkvw7dQHs",
+          "sourcePort": "onHit",
+          "targetId": "ubTdMUziAERWwXCX",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "wjU5WquncHgQ4V2O",
+          "sourceId": "B3IkzJ1Qpo5Am73x",
+          "sourcePort": "out",
+          "targetId": "LbN5dFMV3HB2G3T5",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "s4NJ75Ly9ashjhBO",
+          "sourceId": "LbN5dFMV3HB2G3T5",
+          "sourcePort": "out",
+          "targetId": "jYlTT3xXkvw7dQHs",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": 39,
+        "panY": -51,
+        "zoom": 1,
+        "selectedNodeId": null
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1789653402716,
+    "modifiedTime": 1789687182775,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!Bj5HzselpRNAdRVF"
+}

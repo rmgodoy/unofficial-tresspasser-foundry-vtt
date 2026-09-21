@@ -1,0 +1,185 @@
+{
+  "folder": "k6JUbXFCMOzTt7RK",
+  "name": "Mass Wounds",
+  "type": "deed",
+  "_id": "cLmA8VYUYbzPK9SE",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "heavy",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "Guard",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "Deal 3<sd> damage.",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Confer bleeding 4.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "zZ9ctMwY3kXHLh8t",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "fuGVzwiOdxUQnsJN",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "aoe",
+            "disposition": "any",
+            "targetCount": 1,
+            "aoeType": "close_blast",
+            "aoeSize": 3
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "6uD94C7m6VjFuSz3",
+          "type": "rollAccuracy",
+          "phase": "inherit",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Guard"
+          },
+          "x": 884,
+          "y": 169
+        },
+        {
+          "id": "2vf7lVPLgkgpApJv",
+          "type": "applyDamage",
+          "phase": "hit",
+          "params": {
+            "expression": "3<sd>"
+          },
+          "x": 609,
+          "y": 178
+        },
+        {
+          "id": "i9mZC2MoFxd3lR3Z",
+          "type": "applyEffects",
+          "phase": "spark",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.dMCSC3lbB5v70qwR",
+                "name": "Bleeding",
+                "img": "systems/trespasser/assets/icons/states/Bleeding.svg",
+                "intensity": 4
+              }
+            ]
+          },
+          "x": 1164,
+          "y": 184
+        }
+      ],
+      "connections": [
+        {
+          "id": "n9RwPCfOwP1K2Krj",
+          "sourceId": "zZ9ctMwY3kXHLh8t",
+          "sourcePort": "out",
+          "targetId": "fuGVzwiOdxUQnsJN",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "k8nLESyc0tRqQNXD",
+          "sourceId": "fuGVzwiOdxUQnsJN",
+          "sourcePort": "out",
+          "targetId": "2vf7lVPLgkgpApJv",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "lE2Fi08sdkHiZY3c",
+          "sourceId": "2vf7lVPLgkgpApJv",
+          "sourcePort": "out",
+          "targetId": "6uD94C7m6VjFuSz3",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "LDaFYm66dJCipn27",
+          "sourceId": "6uD94C7m6VjFuSz3",
+          "sourcePort": "onHit",
+          "targetId": "i9mZC2MoFxd3lR3Z",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": 40,
+        "panY": 40,
+        "zoom": 1,
+        "selectedNodeId": "fuGVzwiOdxUQnsJN"
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1789679614933,
+    "modifiedTime": 1789679683308,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!cLmA8VYUYbzPK9SE"
+}

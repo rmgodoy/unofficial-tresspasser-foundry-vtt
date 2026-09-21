@@ -1,7 +1,8 @@
 import { actorEventBus } from "./actor-event-bus.mjs";
 import { isSunken } from "../helpers/elevation-helper.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
-import { onItemConsume as handleItemConsume } from "./actor-actions.mjs";
+import { onItemConsume as handleItemConsume, executePrevailRoll } from "./actor-actions.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Mixin injecting unified combat actions and observability hooks into Actor classes.
@@ -97,6 +98,14 @@ export function CombatActorMixin(BaseClass) {
       const currentHealth = this.system.health ?? this.system.hp?.value ?? this.system.hp ?? 0;
       if (damageNum <= 0) return { health: currentHealth, appliedDamage: 0, rawHP: currentHealth, valueOf() { return this.health; } };
 
+      const isImmune = TrespasserEffectsHelper.hasActorFlagOrEffect(this, "immuneToDamage");
+      if (isImmune) {
+        if (!options.silent && !options.skipBelowZeroChat) {
+          ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.ImmuneToDamage", { name: this.name }));
+        }
+        return { health: currentHealth, appliedDamage: 0, rawHP: currentHealth, isImmune: true, event: null, valueOf() { return this.health; } };
+      }
+
       const event = this._buildCombatEvent(options.type || "damage", damageNum, options);
 
       await actorEventBus.runMiddleware("damage-received", event);
@@ -156,10 +165,22 @@ export function CombatActorMixin(BaseClass) {
         this.items?.some(i => i.type === "effect" && (i.getFlag("trespasser", "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated"))
       );
 
-      await this.update({ "system.health": newHealth });
+      const isDirectlyUpdatable = this.isOwner || game.user?.isGM;
+
+      if (isDirectlyUpdatable) {
+        await this.update({ "system.health": newHealth });
+      } else {
+        const { emitDeedActionAndWait } = await import("../helpers/socket/deed-socket-handler.mjs");
+        await emitDeedActionAndWait("applyHealing", {
+          actorId: this.id,
+          healing: healNum
+        });
+      }
 
       if (wasDefeated && newHealth > 0 && this.type === "character") {
-        await this.toggleStatusEffect("defeated", { active: false });
+        if (isDirectlyUpdatable) {
+          await this.toggleStatusEffect("defeated", { active: false });
+        }
         ChatMessage.create({
           speaker: ChatMessage.getSpeaker({ actor: this }),
           content: `<div class="trespasser-chat-card"><p class="hit-text"><strong>${this.name}</strong> ${game.i18n.localize("TRESPASSER.Chat.Combat.RecoveredFromDefeat")}</p></div>`
@@ -227,58 +248,10 @@ export function CombatActorMixin(BaseClass) {
       await actorEventBus.runMiddleware("on-prevail", event);
       if (event.preventDefault) return null;
 
-      const stateItem = this.items?.get(stateItemId);
-      if (!stateItem) {
-        ui.notifications.warn("State item not found.");
-        return null;
+      const roll = await executePrevailRoll(this, stateItemId, extraAP, options);
+      if (roll) {
+        await this._executePostAction(event, "on-prevail");
       }
-
-      const { modifier = 0, cd = null, totalBonus = null } = options;
-      let intensity = stateItem.system?.intensity || 0;
-      if (!stateItem.system?.isLasting) {
-        const matchingLasting = this.items?.find(i =>
-          i.type === "effect" &&
-          i.system?.isLasting &&
-          i.name.toLowerCase() === stateItem.name.toLowerCase()
-        );
-        if (matchingLasting) {
-          intensity += (matchingLasting.system?.intensity || 0);
-        }
-      }
-      const dc = cd !== null ? cd : Math.min(20, 10 + intensity);
-      const prevailStat = this.system?.combat?.prevail || 0;
-      const apBonus = extraAP * 2;
-      const bonuses = totalBonus !== null ? `${totalBonus}` : `${prevailStat} + ${apBonus} + ${modifier}`;
-
-      const isAdv = TrespasserEffectsHelper.hasAdvantage(this, "prevail");
-      const formula = isAdv ? `2d20kh + ${bonuses}` : `1d20 + ${bonuses}`;
-
-      const roll = new foundry.dice.Roll(formula);
-      await roll.evaluate();
-
-      const success = roll.total >= dc;
-      const flavor = `<div class="trespasser-chat-card">
-        <h3>${game.i18n.format("TRESPASSER.Chat.Check.PrevailCheck", { name: stateItem.name })}</h3>
-        <p>${game.i18n.format("TRESPASSER.Chat.Check.PrevailVsDC", { total: roll.total, dc })}</p>
-        <div class="roll-details" style="font-size: var(--fs-10); color: var(--trp-text-dim); margin-bottom: 5px;">
-          Formula: ${roll.formula} (d20: ${roll.dice[0].total})<br>
-          Bonus: ${prevailStat} (Prevail) ${apBonus > 0 ? `+ ${apBonus} (AP)` : ""} ${modifier !== 0 ? `+ ${modifier} (Mod)` : ""}
-        </div>
-        <p class="${success ? 'hit-text' : 'miss-text'}" style="font-size: var(--fs-16); font-weight: bold; text-align: center;">
-          ${success ? game.i18n.localize("TRESPASSER.Chat.Common.Success") : game.i18n.localize("TRESPASSER.Chat.Common.Failure")}
-        </p>
-      </div>`;
-
-      await roll.toMessage({
-        speaker: ChatMessage.getSpeaker({ actor: this }),
-        flavor
-      });
-
-      if (success) {
-        await stateItem.delete();
-      }
-
-      await this._executePostAction(event, "on-prevail");
       return roll;
     }
 
@@ -380,6 +353,10 @@ export function CombatActorMixin(BaseClass) {
      * @returns {Promise<boolean>}
      */
     async useDeed(item, options = {}) {
+      if (TrespasserEffectsHelper.hasActorFlagOrEffect(this, "cannotAct")) {
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: this.name }));
+        return false;
+      }
       const event = this._buildCombatEvent("use-deed", 0, { item, ...options });
       event.source = item;
       event.sourceItem = item;

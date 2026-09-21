@@ -48,6 +48,9 @@ export async function handleDeedActionRequest(payload, senderId) {
       case "modifyEffects":
         result = await _handleModifyEffects(data);
         break;
+      case "transferState":
+        result = await _handleTransferState(data);
+        break;
       case "spawnTerrain":
         result = await _handleSpawnTerrain(data);
         break;
@@ -59,6 +62,9 @@ export async function handleDeedActionRequest(payload, senderId) {
         break;
       case "forceMoveTokens":
         result = await _handleForceMoveTokens(data);
+        break;
+      case "swapTokens":
+        result = await _handleSwapTokens(data);
         break;
       case "updateChatMessage":
         result = await _handleUpdateChatMessage(data);
@@ -321,6 +327,77 @@ async function _handleModifyEffects(data) {
       return true;
     }
     return false;
+  }
+
+  return true;
+}
+
+async function _handleTransferState(data) {
+  const {
+    originActorId,
+    destActorId,
+    originItemId,
+    shouldDeleteFromOrigin,
+    shouldUpdateOrigin,
+    remainingOriginInt,
+    existingDestItemId,
+    newDestIntensity,
+    createDestItemData
+  } = data;
+
+  const originActor = game.actors.get(originActorId);
+  const destActor = game.actors.get(destActorId);
+  if (!originActor || !destActor) return null;
+
+  // 1. Origin modifications
+  if (originItemId) {
+    const originItem = originActor.items.get(originItemId);
+    if (originItem) {
+      if (shouldDeleteFromOrigin) {
+        await originItem.delete();
+      } else if (shouldUpdateOrigin && remainingOriginInt > 0) {
+        await originItem.update({ "system.intensity": remainingOriginInt });
+      }
+    }
+  }
+
+  // 2. Destination modifications
+  let destItemId = null;
+  if (existingDestItemId && newDestIntensity !== null && newDestIntensity !== undefined) {
+    const existingDestItem = destActor.items.get(existingDestItemId);
+    if (existingDestItem) {
+      await existingDestItem.update({ "system.intensity": newDestIntensity });
+      destItemId = existingDestItem.id;
+    }
+  } else if (createDestItemData) {
+    const created = await destActor.createEmbeddedDocuments("Item", [createDestItemData]);
+    destItemId = created[0]?.id || null;
+  }
+
+  return { destItemId };
+}
+
+async function _handleSwapTokens(data) {
+  const { tokenAId, tokenBId, posA, posB, movementType } = data;
+  const tokenDocA = canvas.scene?.tokens.get(tokenAId);
+  const tokenDocB = canvas.scene?.tokens.get(tokenBId);
+  if (!tokenDocA || !tokenDocB) return false;
+
+  const isTeleport = movementType === "teleport";
+  await canvas.scene.updateEmbeddedDocuments("Token", [
+    { _id: tokenDocA.id, x: posB.x, y: posB.y },
+    { _id: tokenDocB.id, x: posA.x, y: posA.y }
+  ], { animate: !isTeleport, trespasserSwap: true });
+
+  const tokenA = canvas.tokens.get(tokenAId);
+  const tokenB = canvas.tokens.get(tokenBId);
+  if (tokenA) {
+    const { SwapPositionsBehavior } = await import("../deed-behaviors/swap-positions.mjs");
+    await SwapPositionsBehavior._triggerTokenMoveHooks(tokenA, isTeleport);
+  }
+  if (tokenB) {
+    const { SwapPositionsBehavior } = await import("../deed-behaviors/swap-positions.mjs");
+    await SwapPositionsBehavior._triggerTokenMoveHooks(tokenB, isTeleport);
   }
 
   return true;

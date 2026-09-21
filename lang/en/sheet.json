@@ -331,10 +331,12 @@
             "grantRecoveryToTarget": "Grant Recovery to Target",
             "applyEffects": "Apply Effects to Target",
             "modifyEffects": "Modify Target Effects",
+            "transferState": "Transfer State",
             "spawnTerrain": "Spawn Terrain",
             "moveTerrain": "Move Terrain",
             "moveSource": "Move Source Actor",
             "forceMoveTargets": "Force Move Targets",
+            "swapPositions": "Swap Positions",
             "clearTargets": "Clear Targets",
             "executeDeed": "Execute Auxiliary Deed",
             "condition": "Condition",
@@ -503,13 +505,40 @@
             "specific": "Specific State"
           },
           "ChoiceModeChoices": {
-            "choose_one": "Choose One State",
-            "choose_multiple": "Choose Multiple (Dialog)",
+            "choose_count": "Choose Specific Number (Dialog)",
+            "choose_one": "Choose Specific Number (Dialog)",
+            "choose_any": "Choose Any Number (Dialog)",
+            "choose_multiple": "Choose Any Number (Dialog)",
             "all_matching": "All Matching States"
           },
+          "ChoiceCount": "Choice Count",
           "TargetScopeChoices": {
             "targets": "Targets",
             "self": "Self (Caster)"
+          },
+          "TransferStateHint": "Transfers active states/effects between actors (e.g. Target to Self, Self to Target, or between Targets).",
+          "TransferMode": "Transfer Mode",
+          "TransferModeChoices": {
+            "bidirectional": "Target ⇄ Another Creature (Choose Direction)",
+            "targetToAnother": "Target ➔ Another Creature in Range",
+            "anotherToTarget": "Another Creature in Range ➔ Target",
+            "targetToSelf": "Target ➔ Self",
+            "selfToTarget": "Self ➔ Target",
+            "targetToTarget": "Target 1 ➔ Target 2"
+          },
+          "IntensityMode": "Intensity Mode",
+          "IntensityModeChoices": {
+            "full": "Full Intensity",
+            "delta": "Fixed Value / Delta"
+          },
+          "KeepOnSource": "Keep on Source (Copy instead of Move)",
+          "InvertOnTransfer": "Invert State on Transfer (to opposite state)",
+          "SwapPositionsHint": "Exchanges the canvas grid positions of two tokens (Self with Target, or two Targets).",
+          "SwapMode": "Swap Mode",
+          "SwapModeChoices": {
+            "selfWithTarget": "Self ↔ Target",
+            "targetWithAnother": "Target ↔ Another Creature in Range",
+            "twoTargets": "Target 1 ↔ Target 2"
           },
           "RollAccuracyHint": "Executes the accuracy check. Attributes default to the deed's Details, but can be overridden below. Branches on Hit, Miss, Spark, or Always.",
           "StartHint": "Root entry point for deed execution. Follows the Out flow connection.",
@@ -686,6 +715,10 @@
           "ActionTarget": "Action Target",
           "ActionTargetSelf": "Self",
           "ActionTargetTarget": "Target",
+          "ActionTargetAdjacent": "Adjacent Creatures",
+          "ActionTargetAllInRange": "All in Range",
+          "ActionTargetEnemiesInRange": "Enemies in Range",
+          "ActionTargetAlliesInRange": "Allies in Range",
           "RequiresConfirmation": "Requires Confirmation",
           "PromptText": "Prompt Text",
           "ChoiceGroup": "Choice Group",
@@ -1346,6 +1379,10 @@
       "ActionTarget": "Action Target",
       "ActionTargetSelf": "Self (Effect Bearer)",
       "ActionTargetTarget": "Target (Counterpart)",
+      "ActionTargetAdjacent": "Adjacent Creatures",
+      "ActionTargetAllInRange": "All in Range",
+      "ActionTargetEnemiesInRange": "Enemies in Range",
+      "ActionTargetAlliesInRange": "Allies in Range",
       "Scope": "Scope",
       "Range": "Range (Squares)",
       "Priority": "Priority Override",

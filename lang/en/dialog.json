@@ -15,6 +15,9 @@
         "Prompt": "Choose an action for {effect} ({group}):",
         "Select": "Confirm Choice"
       },
+      "BlockConfirmation": {
+        "DefaultPrompt": "{effect}: Accept {action}?"
+      },
       "Combat": {
         "SelectArmorToBlock": "Select which equipped armor die to roll to block damage ({damage} incoming):",
         "ConfirmRedirectDamage": "{caster}: Intercept and redirect {amount} damage from {target} to yourself via {effect}?",
@@ -76,7 +79,15 @@
         "Title": "Choose Effect on {target}",
         "TitleInvert": "Invert State on {target}",
         "Prompt": "Choose one active state on {target} to modify:",
+        "PromptMax": "Choose up to {count} active state(s) on {target}:",
+        "PromptAny": "Choose any number of active states on {target}:",
+        "MaxReached": "You can select at most {count} state(s).",
         "Becomes": "Becomes: "
+      },
+      "TransferState": {
+        "Title": "Transfer State from {target}",
+        "ChooseDirectionTitle": "Choose Transfer Direction",
+        "ChooseDirectionPrompt": "Choose the direction of state transfer between {target} and {other}:"
       },
       "ItemType": {
         "Title": "Choose Item Type",

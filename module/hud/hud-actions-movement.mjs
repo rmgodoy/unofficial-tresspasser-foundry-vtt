@@ -1,3 +1,4 @@
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../documents/combat.mjs";
 import { MovementOverlay }         from "../canvas/movement-overlay.mjs";
 import { ForcedMovementHelper }    from "../helpers/forced-movement-helper.mjs";
@@ -11,6 +12,10 @@ import { getCombatant, getVaultRange } from "./hud-context.mjs";
  */
 export function handleMovePanelPreToggle(hud, panelId) {
   if (panelId !== "move") return false;
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotMove")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotMove", { name: hud._token?.actor?.name || hud._token?.name }));
+    return true;
+  }
   const combatant = getCombatant(hud._token);
   const moveActionTaken = combatant?.getFlag("trespasser", "moveActionTaken");
   const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
@@ -60,6 +65,10 @@ export function updateMovementOverlayForPanel(hud, panelId, panelNowOpen) {
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeMove(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotMove")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotMove", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   const costInput = hud.element.querySelector('[name="move-cost"]');
   const cost = costInput ? parseInt(costInput.value) : 1;
   

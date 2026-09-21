@@ -111,7 +111,10 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
             ]
           }),
           params: new fields.ObjectField({ initial: {} }),
-          actionTarget: new fields.StringField({ initial: "self", choices: ["self", "target"] }),
+          actionTarget: new fields.StringField({
+            initial: "self",
+            choices: ["self", "target", "adjacent", "all_in_range", "enemies_in_range", "allies_in_range"]
+          }),
           scope: new fields.StringField({ initial: "", blank: true }),
           rangeType: new fields.StringField({ initial: "", blank: true }),
           range: new fields.NumberField({ initial: 0, nullable: true }),

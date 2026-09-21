@@ -23,12 +23,12 @@ export const BEHAVIOR_CATEGORIES = [
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Effects",
     icon: "fa-wand-magic-sparkles",
-    types: ["applyEffects", "modifyEffects"]
+    types: ["applyEffects", "modifyEffects", "transferState"]
   },
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Movement",
     icon: "fa-person-running",
-    types: ["moveSource", "forceMoveTargets"]
+    types: ["moveSource", "forceMoveTargets", "swapPositions"]
   },
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Terrain",

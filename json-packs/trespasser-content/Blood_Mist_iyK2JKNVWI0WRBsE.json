@@ -1,0 +1,268 @@
+{
+  "folder": "k6JUbXFCMOzTt7RK",
+  "name": "Blood Mist",
+  "type": "deed",
+  "_id": "iyK2JKNVWI0WRBsE",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "heavy",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "10",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "Gain blood mist 4, a state controlling a light cloud in the area of effect. While inside, creatures regain INTENSITY extra hit points whenever they regain hit points.",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Deal 2<sd> damage.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "Allies in the area regain hit points equal to half the damage dealt (plus blood mist).",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "Bri3BfRDx0iLWbCV",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 84,
+          "y": 305
+        },
+        {
+          "id": "jYlTT3xXkvw7dQHs",
+          "type": "rollAccuracy",
+          "phase": "inherit",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "10"
+          },
+          "x": 652,
+          "y": 300
+        },
+        {
+          "id": "K4vlflgdiAPF6E9F",
+          "type": "selectArea",
+          "phase": "inherit",
+          "params": {
+            "aoeType": "blast",
+            "aoeSize": 4,
+            "targetMode": "aoe"
+          },
+          "x": 73,
+          "y": 111
+        },
+        {
+          "id": "Vv22aIeBIXJxwT5e",
+          "type": "spawnTerrain",
+          "phase": "inherit",
+          "params": {
+            "areaBehaviorId": "K4vlflgdiAPF6E9F",
+            "placement": "selected_area",
+            "terrainUuid": "Compendium.trespasser.trespasser-content.Item.Yfia1qPtPYN2ijhg",
+            "terrainName": "Blood Mist (Terrain)",
+            "terrainImg": "icons/svg/item-bag.svg",
+            "intensity": 4
+          },
+          "x": 376,
+          "y": 305
+        },
+        {
+          "id": "gjDM34K8pKPmvWxL",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "area",
+            "disposition": "enemy",
+            "targetCount": 1,
+            "areaBehaviorId": "K4vlflgdiAPF6E9F",
+            "ignoreSelf": true
+          },
+          "x": 988,
+          "y": 93
+        },
+        {
+          "id": "m75EY9GCj08qjXV4",
+          "type": "applyDamage",
+          "phase": "inherit",
+          "params": {
+            "expression": "2<sd>"
+          },
+          "x": 1262,
+          "y": 94
+        },
+        {
+          "id": "kDSC8IpiEYJcrTP6",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "area",
+            "disposition": "ally",
+            "targetCount": 1,
+            "areaBehaviorId": "K4vlflgdiAPF6E9F",
+            "ignoreSelf": true
+          },
+          "x": 1011,
+          "y": 242
+        },
+        {
+          "id": "UTZGpTFovNH498Ph",
+          "type": "healTarget",
+          "phase": "inherit",
+          "params": {
+            "rollBehaviorId": "m75EY9GCj08qjXV4",
+            "distribute": true
+          },
+          "x": 1553,
+          "y": 231
+        }
+      ],
+      "connections": [
+        {
+          "id": "5iXayC4YpVzQGewg",
+          "sourceId": "Bri3BfRDx0iLWbCV",
+          "sourcePort": "out",
+          "targetId": "Vv22aIeBIXJxwT5e",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "zrH0zOlisVkWbLoJ",
+          "sourceId": "K4vlflgdiAPF6E9F",
+          "sourcePort": "out",
+          "targetId": "Vv22aIeBIXJxwT5e",
+          "targetPort": "areaRef",
+          "type": "reference"
+        },
+        {
+          "id": "yxO6R59F81nNkJWU",
+          "sourceId": "Vv22aIeBIXJxwT5e",
+          "sourcePort": "out",
+          "targetId": "jYlTT3xXkvw7dQHs",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "mTP9HoRL80Xo5Epu",
+          "sourceId": "K4vlflgdiAPF6E9F",
+          "sourcePort": "out",
+          "targetId": "gjDM34K8pKPmvWxL",
+          "targetPort": "areaRef",
+          "type": "reference"
+        },
+        {
+          "id": "MgR9HyKJPCuUDIcL",
+          "sourceId": "jYlTT3xXkvw7dQHs",
+          "sourcePort": "onHit",
+          "targetId": "gjDM34K8pKPmvWxL",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "dub8LEBi98PQsX5T",
+          "sourceId": "gjDM34K8pKPmvWxL",
+          "sourcePort": "out",
+          "targetId": "m75EY9GCj08qjXV4",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "1CeMW9INX7JUKlJB",
+          "sourceId": "jYlTT3xXkvw7dQHs",
+          "sourcePort": "onSpark",
+          "targetId": "kDSC8IpiEYJcrTP6",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "w41XSZWmrBcv7E4f",
+          "sourceId": "K4vlflgdiAPF6E9F",
+          "sourcePort": "out",
+          "targetId": "kDSC8IpiEYJcrTP6",
+          "targetPort": "areaRef",
+          "type": "reference"
+        },
+        {
+          "id": "6CI9Iwa7Zs9Y6JRb",
+          "sourceId": "kDSC8IpiEYJcrTP6",
+          "sourcePort": "out",
+          "targetId": "UTZGpTFovNH498Ph",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "apr3sKekhbe58qlE",
+          "sourceId": "m75EY9GCj08qjXV4",
+          "sourcePort": "out",
+          "targetId": "UTZGpTFovNH498Ph",
+          "targetPort": "rollRef",
+          "type": "reference"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 150000,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -9.157840000000192,
+        "panY": 182.59213734374993,
+        "zoom": 0.5904900000000002,
+        "selectedNodeId": "kDSC8IpiEYJcrTP6"
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1789652682408,
+    "modifiedTime": 1789653360996,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!iyK2JKNVWI0WRBsE"
+}

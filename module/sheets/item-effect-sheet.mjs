@@ -5,6 +5,8 @@ import { getInterceptionModesForTrigger } from "../reactions/middleware-intercep
 import { EFFECT_TEMPLATES, applyTemplate } from "./effect/tca-templates.mjs";
 import { summarizeBlock, getActionIcon } from "./effect/tca-summary.mjs";
 import { TCABlockEditor } from "./effect/tca-block-editor.mjs";
+import { getDefaultParamsForAction } from "./effect/tca-param-editors.mjs";
+
 
 /**
  * Item sheet for Trespasser Effect items.
@@ -103,6 +105,14 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
         "missile": "TRESPASSER.Sheet.Item.Effect.RangeChoices.Missile",
         "spell": "TRESPASSER.Sheet.Item.Effect.RangeChoices.Spell",
         "throw": "TRESPASSER.Sheet.Item.Effect.RangeChoices.Throw"
+      },
+      actionTargetChoices: {
+        "self": "TRESPASSER.Sheet.Item.Effect.ActionTargetSelf",
+        "target": "TRESPASSER.Sheet.Item.Effect.ActionTargetTarget",
+        "adjacent": "TRESPASSER.Sheet.Item.Effect.ActionTargetAdjacent",
+        "all_in_range": "TRESPASSER.Sheet.Item.Effect.ActionTargetAllInRange",
+        "enemies_in_range": "TRESPASSER.Sheet.Item.Effect.ActionTargetEnemiesInRange",
+        "allies_in_range": "TRESPASSER.Sheet.Item.Effect.ActionTargetAlliesInRange"
       },
       actions: {
         "modify_attribute": "TRESPASSER.Sheet.Item.Effect.Action.ModifyAttribute",
@@ -418,11 +428,11 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
           b.id = this.document.system.behaviors?.[i]?.id || foundry.utils.randomID(8);
         }
         const prevBlock = this.document.system.behaviors?.[i];
-        // If action changed on this block, reset its params
+        // If action changed on this block, reset its params to defaults; otherwise ensure defaults are merged
         if (prevBlock && prevBlock.action && b.action && prevBlock.action !== b.action) {
-          b.params = {};
-        } else if (!b.params || typeof b.params !== "object") {
-          b.params = {};
+          b.params = getDefaultParamsForAction(b.action);
+        } else {
+          b.params = foundry.utils.mergeObject(getDefaultParamsForAction(b.action), (b.params && typeof b.params === "object") ? b.params : {});
         }
 
         b.requiresConfirmation = Boolean(b.requiresConfirmation);

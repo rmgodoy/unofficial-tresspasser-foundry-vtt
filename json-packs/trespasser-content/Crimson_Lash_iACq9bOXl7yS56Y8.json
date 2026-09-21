@@ -1,0 +1,204 @@
+{
+  "folder": "k6JUbXFCMOzTt7RK",
+  "name": "Crimson Lash",
+  "type": "deed",
+  "_id": "iACq9bOXl7yS56Y8",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "heavy",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "Guard",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "Deal 2<sd> damage.",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Confer bleeding 4.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "Sweep 2.",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "Bri3BfRDx0iLWbCV",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": -310,
+          "y": 189
+        },
+        {
+          "id": "B3IkzJ1Qpo5Am73x",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "aoe",
+            "disposition": "any",
+            "targetCount": 1,
+            "aoeType": "close_path",
+            "aoeSize": 6
+          },
+          "x": -16,
+          "y": 188
+        },
+        {
+          "id": "jYlTT3xXkvw7dQHs",
+          "type": "rollAccuracy",
+          "phase": "inherit",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Guard"
+          },
+          "x": 620,
+          "y": 180
+        },
+        {
+          "id": "ubTdMUziAERWwXCX",
+          "type": "applyEffects",
+          "phase": "spark",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.dMCSC3lbB5v70qwR",
+                "name": "Bleeding",
+                "img": "systems/trespasser/assets/icons/states/Bleeding.svg",
+                "intensity": 4
+              }
+            ]
+          },
+          "x": 918,
+          "y": 184
+        },
+        {
+          "id": "ONIXDA1oBdDRVGws",
+          "type": "applyDamage",
+          "phase": "inherit",
+          "params": {
+            "expression": "2<sd>"
+          },
+          "x": 290,
+          "y": 190
+        },
+        {
+          "id": "XkG2m3zSa4gxX4kP",
+          "type": "forceMoveTargets",
+          "phase": "inherit",
+          "params": {
+            "type": "sweep",
+            "distance": 2
+          },
+          "x": 919,
+          "y": 302
+        }
+      ],
+      "connections": [
+        {
+          "id": "XCxC5Ca1pVZb9Xp3",
+          "sourceId": "Bri3BfRDx0iLWbCV",
+          "sourcePort": "out",
+          "targetId": "B3IkzJ1Qpo5Am73x",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "5RwLn9N5Dd0s8GuF",
+          "sourceId": "B3IkzJ1Qpo5Am73x",
+          "sourcePort": "out",
+          "targetId": "ONIXDA1oBdDRVGws",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "1TfRqk6s9ib3jyBj",
+          "sourceId": "ONIXDA1oBdDRVGws",
+          "sourcePort": "out",
+          "targetId": "jYlTT3xXkvw7dQHs",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "ZS7GAxWNsQ5JJvOo",
+          "sourceId": "jYlTT3xXkvw7dQHs",
+          "sourcePort": "onHit",
+          "targetId": "ubTdMUziAERWwXCX",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "YV6ZRnAHUG3PzONm",
+          "sourceId": "jYlTT3xXkvw7dQHs",
+          "sourcePort": "onSpark",
+          "targetId": "XkG2m3zSa4gxX4kP",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -237,
+        "panY": 33,
+        "zoom": 1,
+        "selectedNodeId": null
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1789659591414,
+    "modifiedTime": 1789659724602,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!iACq9bOXl7yS56Y8"
+}

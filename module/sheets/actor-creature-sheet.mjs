@@ -1,7 +1,7 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { askAPDialog } from "../dialogs/ap-dialog.mjs";
 import { onDeedRoll, postDeedPhase } from "./character/handlers-deed.mjs";
-import { onPrevailRoll, onIntensityChange, onEffectInfo } from "./character/handlers-effects.mjs";
+import { onPrevailRoll, onIntensityChange, onEffectInfo, onEffectEdit, onEffectRemove } from "./character/handlers-effects.mjs";
 import { onCombatStatRoll, evaluateAndShowRoll } from "./character/handlers-rolls.mjs";
 import { getAccuracyFromTarget } from "./character/handlers-combat.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
@@ -126,9 +126,9 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
 
     if (!this.isEditable) return;
 
-    // Item Management
+    // Item & Effect Management
     html.find('.item-create').on("click", this._onItemCreate.bind(this));
-    html.find('.item-edit').on("click", this._onItemEdit.bind(this));
+    html.find('.item-edit, .effect-edit').on("click", this._onEffectEdit.bind(this));
     html.find('.item-delete').on("click", this._onItemDelete.bind(this));
     
     // Rollable Deeds & Stats
@@ -141,13 +141,7 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
     html.find(".effect-prevail").on("click", this._onPrevailRoll.bind(this));
     html.find(".effect-info, .feature-info, .talent-info").on("click", this._onEffectInfo.bind(this));
     html.find(".effect-duration-input").on("change", this._onDurationChange.bind(this));
-    html.find(".effect-remove").on("click", async (ev) => {
-      const effectId = ev.currentTarget.closest(".combat-effect, .effect-row")?.dataset.itemId;
-      if (effectId) {
-        const effect = this.actor.items.get(effectId);
-        if (effect) await effect.delete();
-      }
-    });
+    html.find(".effect-remove, [data-action='delete-effect']").on("click", this._onEffectRemove.bind(this));
 
     // Generic item name click
     html.find(".item-name:not(.rollable)").on("click", (ev) => {
@@ -348,5 +342,13 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
 
   async _onEffectInfo(event) {
     return onEffectInfo(event, this);
+  }
+
+  async _onEffectEdit(event) {
+    return onEffectEdit(event, this);
+  }
+
+  async _onEffectRemove(event) {
+    return onEffectRemove(event, this);
   }
 }

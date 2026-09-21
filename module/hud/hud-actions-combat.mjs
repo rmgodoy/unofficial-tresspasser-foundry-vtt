@@ -8,6 +8,10 @@ import { getCombatant }            from "./hud-context.mjs";
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeDefend(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   const type = hud.element.querySelector('[name="defend-type"]').value;
   const costInput = hud.element.querySelector('[name="defend-cost"]');
   const cost = costInput ? parseInt(costInput.value) : 1;
@@ -25,26 +29,54 @@ export async function executeDefend(hud) {
 
   const isBoth = cost === 2;
   const durationOptions = {
+    duration: "round",
+    durationValue: 1,
     durationOperator: "OR",
     durationConditions: [{ mode: "round", value: 1 }]
   };
 
-  const targets = isBoth ? ["guard", "resist"] : [type];
+  const guardLabel = game.i18n.localize("TRESPASSER.Sheet.Combat.Guard");
+  const resistLabel = game.i18n.localize("TRESPASSER.Sheet.Combat.Resist");
 
-  const effectDocs = targets.map(attr => {
-    const label = game.i18n.localize(attr === "guard" ? "TRESPASSER.Sheet.Combat.Guard" : "TRESPASSER.Sheet.Combat.Resist");
-    return {
-      name: `${game.i18n.localize("TRESPASSER.HUD.Action.Defend")} (${label})`,
+  let effectDoc = null;
+
+  if (isBoth) {
+    effectDoc = {
+      name: `${game.i18n.localize("TRESPASSER.HUD.Action.Defend")} (${guardLabel} & ${resistLabel})`,
       type: "effect",
       img: "icons/magic/defensive/shield-barrier-blue.webp",
       system: {
-        targetAttribute: attr,
-        modifier: "+2",
         isCombat: true,
         isPrevailable: false,
         type: "on-trigger",
         when: "use",
-        ...durationOptions,
+        behaviors: [
+          {
+            id: "defend-guard",
+            label: `Defend (${guardLabel} +2)`,
+            trigger: "use",
+            action: "modify_attribute",
+            actionTarget: "self",
+            params: {
+              attribute: "guard",
+              modifier: "+2",
+              applyMode: "delta"
+            }
+          },
+          {
+            id: "defend-resist",
+            label: `Defend (${resistLabel} +2)`,
+            trigger: "use",
+            action: "modify_attribute",
+            actionTarget: "self",
+            params: {
+              attribute: "resist",
+              modifier: "+2",
+              applyMode: "delta"
+            }
+          }
+        ],
+        ...durationOptions
       },
       flags: {
         trespasser: {
@@ -52,17 +84,50 @@ export async function executeDefend(hud) {
         }
       }
     };
-  });
+  } else {
+    const label = type === "guard" ? guardLabel : resistLabel;
+    effectDoc = {
+      name: `${game.i18n.localize("TRESPASSER.HUD.Action.Defend")} (${label})`,
+      type: "effect",
+      img: "icons/magic/defensive/shield-barrier-blue.webp",
+      system: {
+        targetAttribute: type,
+        modifier: "+2",
+        isCombat: true,
+        isPrevailable: false,
+        type: "on-trigger",
+        when: "use",
+        behaviors: [
+          {
+            id: `defend-${type}`,
+            label: `Defend (${label} +2)`,
+            trigger: "use",
+            action: "modify_attribute",
+            actionTarget: "self",
+            params: {
+              attribute: type,
+              modifier: "+2",
+              applyMode: "delta"
+            }
+          }
+        ],
+        ...durationOptions
+      },
+      flags: {
+        trespasser: {
+          isDefend: true
+        }
+      }
+    };
+  }
 
-  await hud._token.actor.createEmbeddedDocuments("Item", effectDocs);
+  await hud._token.actor.createEmbeddedDocuments("Item", [effectDoc]);
   await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
   await TrespasserCombat.recordHUDAction(hud._token.actor, "defend");
 
-  const guardLabel = game.i18n.localize("TRESPASSER.Sheet.Combat.Guard");
-  const resistLabel = game.i18n.localize("TRESPASSER.Sheet.Combat.Resist");
   const typeLabel = isBoth
     ? `${guardLabel} & ${resistLabel}`
-    : game.i18n.localize(type === "guard" ? "TRESPASSER.Sheet.Combat.Guard" : "TRESPASSER.Sheet.Combat.Resist");
+    : (type === "guard" ? guardLabel : resistLabel);
   
   ChatMessage.create({
     speaker: ChatMessage.getSpeaker({ token: hud._token }),
@@ -83,6 +148,10 @@ export async function executeDefend(hud) {
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeHelp(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   const targetId = hud.element.querySelector('[name="help-target"]')?.value;
   const attr = hud.element.querySelector('[name="help-attr"]')?.value;
   const costInput = hud.element.querySelector('[name="help-cost"]');
@@ -187,6 +256,10 @@ export async function executeHelp(hud) {
  * @param {TrespasserTokenHUD} hud
  */
 export async function executePrevail(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   const stateSelect = hud.element.querySelector('[name="prevail-state"]');
   const extraApSelect = hud.element.querySelector('[name="prevail-extra-ap"]');
   
@@ -258,6 +331,10 @@ export async function executePrevail(hud) {
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeTakeAim(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   const costInput = hud.element.querySelector('[name="take-aim-cost"]');
   const cost = costInput ? parseInt(costInput.value) : 1;
   
@@ -304,6 +381,10 @@ export async function executeTakeAim(hud) {
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeThrow(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   const costInput = hud.element.querySelector('[name="throw-cost"]');
   const cost = costInput ? parseInt(costInput.value) : 1;
   

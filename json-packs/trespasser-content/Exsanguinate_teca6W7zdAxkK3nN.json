@@ -1,0 +1,208 @@
+{
+  "folder": "k6JUbXFCMOzTt7RK",
+  "name": "Exsanguinate",
+  "type": "deed",
+  "_id": "teca6W7zdAxkK3nN",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "heavy",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "Guard",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "Deal 3<sd> damage.",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Restore hit points equal to the damage roll, divided as you choose among creatures within spell range.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "Bri3BfRDx0iLWbCV",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "B3IkzJ1Qpo5Am73x",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "jYlTT3xXkvw7dQHs",
+          "type": "rollAccuracy",
+          "phase": "inherit",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Guard"
+          },
+          "x": 948,
+          "y": 276
+        },
+        {
+          "id": "KHptbAfb7ZU1fBXV",
+          "type": "applyDamage",
+          "phase": "base",
+          "params": {
+            "expression": "3<sd>"
+          },
+          "x": 640,
+          "y": 176
+        },
+        {
+          "id": "zHFUAKIEB61rjkqi",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 99999,
+            "aoeType": "burst",
+            "aoeSize": 12,
+            "chooseCreatures": false
+          },
+          "x": 1261,
+          "y": 323
+        },
+        {
+          "id": "LmRCZG0B2GFyWRJM",
+          "type": "healTarget",
+          "phase": "inherit",
+          "params": {
+            "distribute": true,
+            "rollBehaviorId": "KHptbAfb7ZU1fBXV"
+          },
+          "x": 1601,
+          "y": 224
+        }
+      ],
+      "connections": [
+        {
+          "id": "XCxC5Ca1pVZb9Xp3",
+          "sourceId": "Bri3BfRDx0iLWbCV",
+          "sourcePort": "out",
+          "targetId": "B3IkzJ1Qpo5Am73x",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "VXSwoYrKDYqJsqhv",
+          "sourceId": "B3IkzJ1Qpo5Am73x",
+          "sourcePort": "out",
+          "targetId": "KHptbAfb7ZU1fBXV",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "crQfFTq5YngupLve",
+          "sourceId": "KHptbAfb7ZU1fBXV",
+          "sourcePort": "out",
+          "targetId": "jYlTT3xXkvw7dQHs",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "tvFMclW72FiIjXJt",
+          "sourceId": "jYlTT3xXkvw7dQHs",
+          "sourcePort": "onHit",
+          "targetId": "zHFUAKIEB61rjkqi",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "NAZ8T792HfeEBvMg",
+          "sourceId": "zHFUAKIEB61rjkqi",
+          "sourcePort": "out",
+          "targetId": "LmRCZG0B2GFyWRJM",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "xrOTC4CJ53AFjDfi",
+          "sourceId": "KHptbAfb7ZU1fBXV",
+          "sourcePort": "out",
+          "targetId": "LmRCZG0B2GFyWRJM",
+          "targetPort": "rollRef",
+          "type": "reference"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": 20.317999999999984,
+        "panY": 148.794109375,
+        "zoom": 0.7290000000000001,
+        "selectedNodeId": "KHptbAfb7ZU1fBXV"
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1789659893357,
+    "modifiedTime": 1789746723424,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!teca6W7zdAxkK3nN"
+}

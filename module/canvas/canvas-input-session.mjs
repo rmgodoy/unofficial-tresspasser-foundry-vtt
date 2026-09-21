@@ -186,8 +186,9 @@ export class CanvasInputSession {
     }
 
     if (this.overlay) {
-      this.overlay.close();
+      const overlay = this.overlay;
       this.overlay = null;
+      overlay.close({ animate: false });
     }
 
     // Clear remote targeting previews on other clients
@@ -195,29 +196,33 @@ export class CanvasInputSession {
   }
 
   /**
-   * Disable PIXI interactivity on all canvas tokens so pointer events pass
-   * through to canvas.stage. Saves each token's previous eventMode for restore.
+   * Disable PIXI interactivity on all canvas tokens and meshes so pointer events pass
+   * through to canvas.stage. Saves each token's and mesh's previous eventMode for restore.
    * @protected
    */
   _disableTokenInteractivity() {
     this._savedTokenEventModes.clear();
     const tokens = canvas.tokens?.placeables ?? [];
     for (const token of tokens) {
-      this._savedTokenEventModes.set(token.id, token.eventMode ?? "static");
+      const currentMode = token.eventMode ?? "static";
+      const currentMeshMode = token.mesh?.eventMode ?? "static";
+      this._savedTokenEventModes.set(token.id, { token: currentMode, mesh: currentMeshMode });
       token.eventMode = "none";
+      if (token.mesh) token.mesh.eventMode = "none";
     }
   }
 
   /**
-   * Restore PIXI interactivity on all canvas tokens to their saved values.
+   * Restore PIXI interactivity on all canvas tokens and meshes to their saved values.
    * @protected
    */
   _restoreTokenInteractivity() {
     const tokens = canvas.tokens?.placeables ?? [];
     for (const token of tokens) {
       const saved = this._savedTokenEventModes.get(token.id);
-      if (saved !== undefined) {
-        token.eventMode = saved;
+      token.eventMode = (saved?.token && saved.token !== "none") ? saved.token : "static";
+      if (token.mesh) {
+        token.mesh.eventMode = (saved?.mesh && saved.mesh !== "none") ? saved.mesh : "static";
       }
     }
     this._savedTokenEventModes.clear();

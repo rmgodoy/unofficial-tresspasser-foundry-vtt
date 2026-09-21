@@ -56,8 +56,15 @@ export function registerTokenMovementHooks() {
     const dist = Math.round(distRaw / canvas.dimensions.distance);
 
     // Bypass Move Action checks for free/independent movements
-    if (MovementHelper.isFreeMovementActive(options)) {
+    if (MovementHelper.isFreeMovementActive(options) || options.forcedMovement) {
       return;
+    }
+
+    if (TrespasserEffectsHelper.hasActorFlagOrEffect(tokenDoc.actor, "cannotMove")) {
+      if (!game.user.isGM) {
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotMove", { name: tokenDoc.actor?.name || tokenDoc.name }));
+        return false;
+      }
     }
 
     // GMs bypass the action/limit checks if Move action was taken or restrictMovement setting is false

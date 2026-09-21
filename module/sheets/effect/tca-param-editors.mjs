@@ -317,3 +317,36 @@ export function renderParamsForAction(action, params = {}, config = {}, index = 
       return `<p class="notes" style="font-size: var(--fs-11); color: var(--trp-text-dim);">${escapeAttr(action)}</p>`;
   }
 }
+
+/**
+ * Returns sensible default parameter structures for each action type.
+ * @param {string} action
+ * @returns {object}
+ */
+export function getDefaultParamsForAction(action) {
+  switch (action) {
+    case "set_flag":
+      return { flag: "immuneToDamage", value: true };
+    case "modify_attribute":
+      return { attribute: "guard", modifier: "+<Int>", applyMode: "delta" };
+    case "confer_state":
+      return { stateName: "", intensity: "1", removeTags: "" };
+    case "remove_state":
+      return { stateName: "", stateTag: "" };
+    case "modify_intensity":
+      return { value: "+1" };
+    case "force_movement":
+      return { type: "push", distance: "1" };
+    case "roll_check":
+      return { checkType: "prevail", attribute: "mighty", dc: null };
+    case "grant_reaction":
+      return { reactionLabel: "" };
+    case "redirect_damage":
+      return { target: "" };
+    case "chat_message":
+      return { message: "" };
+    default:
+      return {};
+  }
+}
+

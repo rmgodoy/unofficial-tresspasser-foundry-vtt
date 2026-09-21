@@ -24,7 +24,8 @@ export class ModifyEffectsBehavior {
     const operation = params.operation || "invert"; // "invert" | "increase" | "decrease" | "remove" | "setIntensity"
     const effectFilter = params.effectFilter || "hasOpposite";
     const specificStateId = params.specificStateId || "";
-    const choiceMode = params.choiceMode || "choose_one";
+    const choiceMode = params.choiceMode || "choose_count";
+    const choiceCount = Math.max(1, Number(params.choiceCount ?? 1));
     const intensityDelta = Number(params.intensityDelta ?? 1);
     const referencedNodeId = params.referencedNodeId || "";
 
@@ -64,7 +65,7 @@ export class ModifyEffectsBehavior {
 
       if (choiceMode === "all_matching") {
         selectedCandidates = candidates;
-      } else if (choiceMode === "choose_multiple") {
+      } else if (choiceMode === "choose_any" || choiceMode === "choose_multiple") {
         let chosenIds = null;
         const choiceKey = `modifyEffect_${behavior.id}_${targetToken.id || targetActor.id}_${phaseKey}`;
         if (!context.modalChoices) context.modalChoices = new Map();
@@ -75,7 +76,8 @@ export class ModifyEffectsBehavior {
             target: targetToken,
             candidates,
             operation,
-            multiple: true
+            multiple: true,
+            maxCount: null
           });
           if (chosenIds) context.modalChoices.set(choiceKey, chosenIds);
         }
@@ -86,29 +88,34 @@ export class ModifyEffectsBehavior {
           selectedCandidates = candidates.filter(c => c.item.id === chosenIds);
         }
       } else {
-        // choose_one (or auto if 1 candidate)
-        let chosenId = null;
-        if (candidates.length === 1) {
-          chosenId = candidates[0].item.id;
+        // choose_count / choose_one (specific number, default 1)
+        if (choiceCount <= 1 && candidates.length === 1) {
+          selectedCandidates = [candidates[0]];
         } else {
-          // Check cached modal choice for consistency
+          const isMulti = choiceCount > 1;
+          let chosenIds = null;
           const choiceKey = `modifyEffect_${behavior.id}_${targetToken.id || targetActor.id}_${phaseKey}`;
           if (!context.modalChoices) context.modalChoices = new Map();
-          chosenId = context.modalChoices.get(choiceKey);
+          chosenIds = context.modalChoices.get(choiceKey);
 
-          if (!chosenId) {
-            chosenId = await promptModifyEffectChoice({
+          if (!chosenIds) {
+            chosenIds = await promptModifyEffectChoice({
               target: targetToken,
               candidates,
               operation,
-              multiple: false
+              multiple: isMulti,
+              maxCount: choiceCount
             });
-            if (chosenId) context.modalChoices.set(choiceKey, chosenId);
+            if (chosenIds) context.modalChoices.set(choiceKey, chosenIds);
+          }
+
+          if (Array.isArray(chosenIds)) {
+            selectedCandidates = candidates.filter(c => chosenIds.includes(c.item.id)).slice(0, choiceCount);
+          } else if (chosenIds) {
+            const match = candidates.find(c => c.item.id === chosenIds) || candidates[0];
+            if (match) selectedCandidates = [match];
           }
         }
-
-        const match = candidates.find(c => c.item.id === chosenId) || candidates[0];
-        if (match) selectedCandidates = [match];
       }
 
       for (const candidate of selectedCandidates) {

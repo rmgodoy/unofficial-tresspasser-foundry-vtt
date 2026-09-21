@@ -453,11 +453,20 @@
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceMode"}}</label>
         <select name="system.graph.nodes.{{index}}.params.choiceMode">
-          <option value="choose_one" {{#if (or (eq params.choiceMode "choose_one") (not params.choiceMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceModeChoices.choose_one"}}</option>
-          <option value="choose_multiple" {{#if (eq params.choiceMode "choose_multiple")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceModeChoices.choose_multiple"}}</option>
+          <option value="choose_count" {{#if (or (eq params.choiceMode "choose_count") (eq params.choiceMode "choose_one") (not params.choiceMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceModeChoices.choose_count"}}</option>
+          <option value="choose_any" {{#if (or (eq params.choiceMode "choose_any") (eq params.choiceMode "choose_multiple"))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceModeChoices.choose_any"}}</option>
           <option value="all_matching" {{#if (eq params.choiceMode "all_matching")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceModeChoices.all_matching"}}</option>
         </select>
       </div>
+
+      {{#if (or (eq params.choiceMode "choose_count") (eq params.choiceMode "choose_one") (not params.choiceMode))}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceCount"}}</label>
+          <input type="number" name="system.graph.nodes.{{index}}.params.choiceCount"
+                 value="{{#if params.choiceCount}}{{params.choiceCount}}{{else}}1{{/if}}"
+                 min="1" step="1" class="select-on-focus"/>
+        </div>
+      {{/if}}
 
       <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetScope"}}</label>
@@ -465,6 +474,108 @@
           <option value="targets" {{#if (or (eq params.targetScope "targets") (not params.targetScope))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetScopeChoices.targets"}}</option>
           <option value="self" {{#if (eq params.targetScope "self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetScopeChoices.self"}}</option>
         </select>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if (eq type "transferState")}}
+    <div class="behavior-hint-box">
+      <p class="hint-title"><i class="fas fa-arrow-right-arrow-left"></i> {{localize "TRESPASSER.Sheet.Deed.Behavior.Type.transferState"}}</p>
+      <p class="hint-text">{{localize "TRESPASSER.Sheet.Deed.Params.TransferStateHint"}}</p>
+    </div>
+
+    {{#if hasRefEffect}}
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.referencedNodeId" value="{{params.referencedNodeId}}"/>
+      <input type="hidden" name="system.graph.nodes.{{index}}.params.effectFilter" value="referenced"/>
+    {{/if}}
+
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.TransferMode"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.transferMode">
+          <option value="bidirectional" {{#if (eq params.transferMode "bidirectional")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TransferModeChoices.bidirectional"}}</option>
+          <option value="targetToAnother" {{#if (eq params.transferMode "targetToAnother")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TransferModeChoices.targetToAnother"}}</option>
+          <option value="anotherToTarget" {{#if (eq params.transferMode "anotherToTarget")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TransferModeChoices.anotherToTarget"}}</option>
+          <option value="targetToSelf" {{#if (or (eq params.transferMode "targetToSelf") (not params.transferMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TransferModeChoices.targetToSelf"}}</option>
+          <option value="selfToTarget" {{#if (eq params.transferMode "selfToTarget")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TransferModeChoices.selfToTarget"}}</option>
+          <option value="targetToTarget" {{#if (eq params.transferMode "targetToTarget")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TransferModeChoices.targetToTarget"}}</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.EffectFilter"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.effectFilter" {{#if hasRefEffect}}disabled class="is-ref-locked" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ControlledByReference'}}"{{/if}}>
+          <option value="all" {{#if (or (eq params.effectFilter "all") (not params.effectFilter))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.EffectFilterChoices.all"}}</option>
+          <option value="hasOpposite" {{#if (eq params.effectFilter "hasOpposite")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.EffectFilterChoices.hasOpposite"}}</option>
+          <option value="referenced" {{#if (or (eq params.effectFilter "referenced") hasRefEffect)}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.EffectFilterChoices.referenced"}}</option>
+          <option value="specific" {{#if (eq params.effectFilter "specific")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.EffectFilterChoices.specific"}}</option>
+        </select>
+      </div>
+
+      {{#if (and (eq params.effectFilter "specific") (not hasRefEffect))}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.SpecificState"}}</label>
+          <input type="text" name="system.graph.nodes.{{index}}.params.specificStateId"
+                 value="{{params.specificStateId}}"
+                 placeholder="{{localize 'TRESPASSER.Sheet.Deed.Params.SpecificStatePlaceholder'}}"/>
+        </div>
+      {{/if}}
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceMode"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.choiceMode">
+          <option value="choose_count" {{#if (or (eq params.choiceMode "choose_count") (eq params.choiceMode "choose_one") (not params.choiceMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceModeChoices.choose_count"}}</option>
+          <option value="choose_any" {{#if (or (eq params.choiceMode "choose_any") (eq params.choiceMode "choose_multiple"))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceModeChoices.choose_any"}}</option>
+          <option value="all_matching" {{#if (eq params.choiceMode "all_matching")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceModeChoices.all_matching"}}</option>
+        </select>
+      </div>
+
+      {{#if (or (eq params.choiceMode "choose_count") (eq params.choiceMode "choose_one") (not params.choiceMode))}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.ChoiceCount"}}</label>
+          <input type="number" name="system.graph.nodes.{{index}}.params.choiceCount"
+                 value="{{#if params.choiceCount}}{{params.choiceCount}}{{else}}1{{/if}}"
+                 min="1" step="1" class="select-on-focus"/>
+        </div>
+      {{/if}}
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.IntensityMode"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.intensityMode">
+          <option value="full" {{#if (or (eq params.intensityMode "full") (not params.intensityMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.IntensityModeChoices.full"}}</option>
+          <option value="delta" {{#if (eq params.intensityMode "delta")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.IntensityModeChoices.delta"}}</option>
+        </select>
+      </div>
+
+      {{#if (eq params.intensityMode "delta")}}
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.IntensityDelta"}}</label>
+          <input type="number" name="system.graph.nodes.{{index}}.params.intensityDelta"
+                 value="{{#if (or params.intensityDelta (eq params.intensityDelta 0))}}{{params.intensityDelta}}{{else}}1{{/if}}"
+                 min="1" step="1" class="select-on-focus"/>
+        </div>
+      {{/if}}
+    </div>
+
+    <div class="behavior-checkboxes-row" style="margin-top: 6px;">
+      <div class="field-row checkbox-row">
+        <input type="checkbox"
+               name="system.graph.nodes.{{index}}.params.keepOnSource"
+               {{#if params.keepOnSource}}checked{{/if}}
+               id="deed-keep-source-{{id}}"/>
+        <label for="deed-keep-source-{{id}}">
+          {{localize "TRESPASSER.Sheet.Deed.Params.KeepOnSource"}}
+        </label>
+      </div>
+
+      <div class="field-row checkbox-row">
+        <input type="checkbox"
+               name="system.graph.nodes.{{index}}.params.invertOnTransfer"
+               {{#if params.invertOnTransfer}}checked{{/if}}
+               id="deed-invert-transfer-{{id}}"/>
+        <label for="deed-invert-transfer-{{id}}">
+          {{localize "TRESPASSER.Sheet.Deed.Params.InvertOnTransfer"}}
+        </label>
       </div>
     </div>
   {{/if}}
@@ -579,6 +690,33 @@
         <label>{{localize "TRESPASSER.Sheet.Deed.Params.Distance"}}</label>
         <input type="number" name="system.graph.nodes.{{index}}.params.distance"
                value="{{params.distance}}" min="1" step="1" class="select-on-focus"/>
+      </div>
+    </div>
+  {{/if}}
+
+  {{#if (eq type "swapPositions")}}
+    <div class="behavior-hint-box">
+      <p class="hint-title"><i class="fas fa-arrows-rotate"></i> {{localize "TRESPASSER.Sheet.Deed.Behavior.Type.swapPositions"}}</p>
+      <p class="hint-text">{{localize "TRESPASSER.Sheet.Deed.Params.SwapPositionsHint"}}</p>
+    </div>
+
+    <div class="param-row-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.SwapMode"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.swapMode">
+          <option value="selfWithTarget" {{#if (or (eq params.swapMode "selfWithTarget") (not params.swapMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.SwapModeChoices.selfWithTarget"}}</option>
+          <option value="targetWithAnother" {{#if (eq params.swapMode "targetWithAnother")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.SwapModeChoices.targetWithAnother"}}</option>
+          <option value="twoTargets" {{#if (eq params.swapMode "twoTargets")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.SwapModeChoices.twoTargets"}}</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.MovementType"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.movementType">
+          <option value="teleport" {{#if (or (eq params.movementType "teleport") (not params.movementType))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Teleport"}}</option>
+          <option value="walk" {{#if (eq params.movementType "walk")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Walk"}}</option>
+          <option value="jump" {{#if (eq params.movementType "jump")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Details.MovementTypeChoices.Jump"}}</option>
+        </select>
       </div>
     </div>
   {{/if}}

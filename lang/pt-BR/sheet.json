@@ -331,10 +331,12 @@
             "grantRecoveryToTarget": "Conceder Recuperação ao Alvo",
             "applyEffects": "Aplicar Efeitos ao Alvo",
             "modifyEffects": "Modificar Efeitos do Alvo",
+            "transferState": "Transferir Estado",
             "spawnTerrain": "Criar Terreno",
             "moveTerrain": "Mover Terreno",
             "moveSource": "Mover Ator de Origem",
             "forceMoveTargets": "Forçar Movimento dos Alvos",
+            "swapPositions": "Trocar de Lugar",
             "clearTargets": "Limpar Alvos",
             "executeDeed": "Executar Habilidade Auxiliar",
             "condition": "Condição",
@@ -503,13 +505,40 @@
             "specific": "Estado Específico"
           },
           "ChoiceModeChoices": {
-            "choose_one": "Escolher Um Estado",
-            "choose_multiple": "Escolher Múltiplos (Janela)",
+            "choose_count": "Escolher Quantidade Específica (Janela)",
+            "choose_one": "Escolher Quantidade Específica (Janela)",
+            "choose_any": "Escolher Qualquer Quantidade (Janela)",
+            "choose_multiple": "Escolher Qualquer Quantidade (Janela)",
             "all_matching": "Todos os Estados Correspondentes"
           },
+          "ChoiceCount": "Quantidade a Escolher",
           "TargetScopeChoices": {
             "targets": "Alvos",
             "self": "Próprio (Conjurador)"
+          },
+          "TransferStateHint": "Transfere estados/efeitos ativos entre atores (ex: Alvo para Conjurador, Conjurador para Alvo, ou entre Alvos).",
+          "TransferMode": "Modo de Transferência",
+          "TransferModeChoices": {
+            "bidirectional": "Alvo ⇄ Outra Criatura (Escolher Direção)",
+            "targetToAnother": "Alvo ➔ Outra Criatura no Alcance",
+            "anotherToTarget": "Outra Criatura no Alcance ➔ Alvo",
+            "targetToSelf": "Alvo ➔ Conjurador",
+            "selfToTarget": "Conjurador ➔ Alvo",
+            "targetToTarget": "Alvo 1 ➔ Alvo 2"
+          },
+          "IntensityMode": "Modo de Intensidade",
+          "IntensityModeChoices": {
+            "full": "Intensidade Total",
+            "delta": "Valor Fixo / Delta"
+          },
+          "KeepOnSource": "Manter na Origem (Copiar em vez de Mover)",
+          "InvertOnTransfer": "Inverter Estado ao Transferir (para o estado oposto)",
+          "SwapPositionsHint": "Troca as posições no grid de dois tokens (Conjurador com Alvo, ou dois Alvos).",
+          "SwapMode": "Modo de Troca",
+          "SwapModeChoices": {
+            "selfWithTarget": "Conjurador ↔ Alvo",
+            "targetWithAnother": "Alvo ↔ Outra Criatura no Alcance",
+            "twoTargets": "Alvo 1 ↔ Alvo 2"
           },
           "RollAccuracyHint": "Executa a verificação de acurácia. Os atributos usam os valores padrão dos Detalhes da habilidade, mas podem ser substituídos abaixo. Ramifica em Acerto, Erro, Centelha ou Sempre.",
           "StartHint": "Ponto de entrada para execução da habilidade. Segue a conexão de fluxo de Saída.",
@@ -686,6 +715,10 @@
           "ActionTarget": "Alvo da Ação",
           "ActionTargetSelf": "Próprio",
           "ActionTargetTarget": "Alvo",
+          "ActionTargetAdjacent": "Criaturas Adjacentes",
+          "ActionTargetAllInRange": "Todos no Alcance",
+          "ActionTargetEnemiesInRange": "Inimigos no Alcance",
+          "ActionTargetAlliesInRange": "Aliados no Alcance",
           "RequiresConfirmation": "Requer Confirmação",
           "PromptText": "Texto do Prompt",
           "ChoiceGroup": "Grupo de Escolha",
@@ -1346,6 +1379,10 @@
       "ActionTarget": "Alvo da Ação",
       "ActionTargetSelf": "Próprio (Portador do Efeito)",
       "ActionTargetTarget": "Alvo (Contraparte)",
+      "ActionTargetAdjacent": "Criaturas Adjacentes",
+      "ActionTargetAllInRange": "Todos no Alcance",
+      "ActionTargetEnemiesInRange": "Inimigos no Alcance",
+      "ActionTargetAlliesInRange": "Aliados no Alcance",
       "Scope": "Escopo",
       "Range": "Alcance (Quadrados)",
       "Priority": "Sobrescrita de Prioridade",

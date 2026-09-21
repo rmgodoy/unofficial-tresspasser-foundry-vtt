@@ -60,7 +60,7 @@ export async function renderBehaviorParamsHtml({ node, nodeIndex, sheet, editor,
   if (hasRefSource) node.params.sourceBehaviorId = refSourceId;
   if (hasRefEffect) {
     node.params.referencedNodeId = refEffectId;
-    if (node.type === "modifyEffects") node.params.effectFilter = "referenced";
+    if (node.type === "modifyEffects" || node.type === "transferState") node.params.effectFilter = "referenced";
   }
 
   let switchOptions = [];

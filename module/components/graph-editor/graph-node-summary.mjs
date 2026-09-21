@@ -143,6 +143,18 @@ export function getNodeSummary(node, getIncomingReference) {
       const deltaStr = (op === "increase" || op === "decrease") ? ` ${op === "increase" ? "+" : "-"}${params.intensityDelta ?? 1}` : "";
       return `<span class="summary-tag">${opLabel}${deltaStr} (${filter})</span>`;
     }
+    case "transferState": {
+      const mode = params.transferMode || "targetToSelf";
+      const modeLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Params.TransferModeChoices.${mode}`) || mode;
+      const filter = params.effectFilter || "all";
+      const filterLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Params.EffectFilterChoices.${filter}`) || filter;
+      return `<span class="summary-tag">${modeLabel} (${filterLabel})</span>`;
+    }
+    case "swapPositions": {
+      const mode = params.swapMode || "selfWithTarget";
+      const modeLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Params.SwapModeChoices.${mode}`) || mode;
+      return `<span class="summary-tag">swap: ${modeLabel}</span>`;
+    }
     case "condition": {
       const condType = params.conditionType || "hasState";
       return `<span class="summary-tag">${condType}</span>`;

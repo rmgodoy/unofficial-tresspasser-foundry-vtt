@@ -8,6 +8,8 @@ import { canUseBlock, recordBlockUse, getRemainingUses } from "./cooldown-tracke
 import { ACTION_HANDLERS } from "./action-handlers.mjs";
 import { RangeHelper } from "../helpers/range-helper.mjs";
 import { actorEventBus } from "../actor/actor-event-bus.mjs";
+import { resolveActionTargets } from "./tca-target-resolver.mjs";
+import { promptBlockConfirmation, promptChoiceGroup } from "./tca-dialogs.mjs";
 
 export const ACTION_PRIORITIES = {
   modify_intensity: 15,
@@ -111,106 +113,7 @@ function getEffectPriority(effectItem) {
   return minPriority;
 }
 
-/**
- * Resolves prompt confirmation for a single TCA block.
- * @param {Actor} actor
- * @param {Item} effectItem
- * @param {object} block
- * @param {object} context
- * @returns {Promise<boolean>}
- */
-async function promptBlockConfirmation(actor, effectItem, block, context) {
-  if (typeof foundry?.applications?.api?.DialogV2?.confirm !== "function") return true;
 
-  const defaultPrompt = `${effectItem.name}: ${game.i18n.localize("TRESPASSER.Global.Action.Accept")} ${block.label || block.action}?`;
-  let promptText = block.promptText || defaultPrompt;
-  if (promptText) {
-    promptText = promptText
-      .replace(/{actorName}/g, actor.name)
-      .replace(/{effectName}/g, effectItem.name)
-      .replace(/{intensity}/g, String(context.intensity ?? 0));
-  }
-
-  const content = `<div class="trespasser-dialog"><p style="font-size: var(--fs-13); margin: 0;">${promptText}</p></div>`;
-
-  try {
-    return await foundry.applications.api.DialogV2.confirm({
-      window: { title: effectItem.name },
-      content,
-      yes: { label: game.i18n.localize("TRESPASSER.Global.Action.Accept") || "Accept", icon: "fas fa-check" },
-      no: { label: game.i18n.localize("TRESPASSER.Global.Action.Decline") || "Decline", icon: "fas fa-times" },
-      defaultYes: true
-    });
-  } catch (_) {
-    return false;
-  }
-}
-
-/**
- * Resolves choice group selection dialog for mutually exclusive blocks.
- * @param {Actor} actor
- * @param {Item} effectItem
- * @param {string} groupName
- * @param {object[]} blocks
- * @param {object} context
- * @returns {Promise<object|null>} The chosen block, or null if cancelled
- */
-async function promptChoiceGroup(actor, effectItem, groupName, blocks, context) {
-  if (typeof foundry?.applications?.api?.DialogV2?.wait !== "function" || blocks.length <= 1) {
-    return blocks[0] || null;
-  }
-
-  const optionsHtml = blocks.map((b, idx) => {
-    const label = b.choiceLabel || b.label || `${b.action} (${b.id})`;
-    return `
-      <label class="choice-option-row" style="display:flex; align-items:center; gap:8px; margin-bottom:6px; cursor:pointer; padding:6px; border:1px solid var(--trp-border-light, #5c4f3a); border-radius:4px; background:rgba(0,0,0,0.2);">
-        <input type="radio" name="blockChoice" value="${b.id}" ${idx === 0 ? "checked" : ""} style="cursor:pointer;" />
-        <span style="font-size: var(--fs-12);">${label}</span>
-      </label>
-    `;
-  }).join("");
-
-  const content = `
-    <div class="trespasser-dialog choice-group-dialog" style="padding:4px;">
-      <p style="font-size:var(--fs-12); margin-bottom:8px;">${game.i18n.format("TRESPASSER.Dialog.ChoiceGroup.Prompt", { effect: effectItem.name, group: groupName }) || `Choose an action for ${effectItem.name}:`}</p>
-      <div class="choice-group-list">
-        ${optionsHtml}
-      </div>
-    </div>
-  `;
-
-  try {
-    const selectedId = await foundry.applications.api.DialogV2.wait({
-      window: { title: `${effectItem.name} — ${groupName}` },
-      classes: ["trespasser", "dialog"],
-      position: { width: 340 },
-      content,
-      buttons: [
-        {
-          action: "select",
-          icon: "fas fa-check",
-          label: game.i18n.localize("TRESPASSER.Global.Action.Accept") || "Confirm",
-          default: true,
-          callback: (_event, _button, dialog) => {
-            const checked = dialog.element.querySelector('input[name="blockChoice"]:checked');
-            return checked ? checked.value : null;
-          }
-        },
-        {
-          action: "cancel",
-          icon: "fas fa-times",
-          label: game.i18n.localize("TRESPASSER.Global.Action.Cancel") || "Cancel",
-          callback: () => null
-        }
-      ]
-    });
-
-    if (!selectedId) return null;
-    return blocks.find(b => b.id === selectedId) || null;
-  } catch (_) {
-    return null;
-  }
-}
 
 /**
  * Evaluates whether a TCA block can execute in the given event context.
@@ -228,7 +131,8 @@ function isBlockEligible(block, sourceActor, effectItem, event, targetActor, bas
   const sourceToken = sourceActor?.getActiveTokens?.(true, true)?.[0] || sourceActor?.token;
   const targetToken = event?.token || targetActor?.getActiveTokens?.(true, true)?.[0] || targetActor?.token;
 
-  if (!actorEventBus.isActorInScope(blockScope, sourceActor, targetActor || sourceActor, sourceToken, targetToken)) {
+  const eventActor = event?.actor || sourceActor;
+  if (!actorEventBus.isActorInScope(blockScope, sourceActor, eventActor, sourceToken, targetToken)) {
     console.log(`%c[TCA Engine | Ineligible]%c Block "${block.id}" (${block.action}) on "${effectItem.name}" skipped: Scope "${blockScope}" not satisfied.`, "color: #e06c75;", "color: inherit;");
     return false;
   }
@@ -281,20 +185,32 @@ async function executeBlock(block, context) {
     return { executed: false, result: null, chatContent: "" };
   }
 
-  console.log(`%c[TCA Engine | Executing]%c "${block.id}" (${block.action}) from "${context.effectItem?.name}" [Int: ${context.intensity}] on "${context.actor?.name}"`, "color: #98c379; font-weight: bold;", "color: inherit;", {
-    block,
-    intensity: context.intensity,
-    params: block.params
-  });
-
-  const result = await handler(block.params || {}, context);
-  if (result?.executed) {
-    recordBlockUse(context.actor.id, context.effectItem.id, block.id, block.cooldown);
-    console.log(`%c[TCA Engine | Executed]%c "${block.id}" (${block.action}) Result:`, "color: #98c379;", "color: inherit;", result);
-  } else {
-    console.log(`%c[TCA Engine | Result (not executed)]%c "${block.id}" (${block.action}) Result:`, "color: #d19a66;", "color: inherit;", result);
+  const targetActors = resolveActionTargets(context, block.actionTarget || "self");
+  if (targetActors.length === 0) {
+    console.log(`%c[TCA Engine | Ineligible]%c "${block.id}" (${block.action}) skipped: No eligible targets in range.`, "color: #d19a66;", "color: inherit;");
+    return { executed: false, result: null, chatContent: "" };
   }
-  return result || { executed: false, result: null, chatContent: "" };
+
+  const chatContents = [];
+  const results = [];
+  let anyExecuted = false;
+
+  for (const targetActor of targetActors) {
+    const targetContext = { ...context, target: targetActor, actionTargetActor: targetActor };
+    const res = await handler(block.params || {}, targetContext);
+    if (res?.executed) {
+      anyExecuted = true;
+      results.push(res.result);
+      if (res.chatContent) chatContents.push(res.chatContent);
+    }
+  }
+
+  if (anyExecuted) {
+    recordBlockUse(context.actor.id, context.effectItem.id, block.id, block.cooldown);
+    console.log(`%c[TCA Engine | Executed]%c "${block.id}" (${block.action}) Result:`, "color: #98c379;", "color: inherit;", results);
+  }
+
+  return { executed: anyExecuted, result: results.length === 1 ? results[0] : results, chatContent: chatContents.join("") };
 }
 
 /**

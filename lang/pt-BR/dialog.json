@@ -15,6 +15,9 @@
         "Prompt": "Escolha uma ação para {effect} ({group}):",
         "Select": "Confirmar Escolha"
       },
+      "BlockConfirmation": {
+        "DefaultPrompt": "{effect}: Aceitar {action}?"
+      },
       "Combat": {
         "SelectArmorToBlock": "Selecione qual dado de armadura equipada rolar para bloquear o dano ({damage} sofrido):",
         "ConfirmRedirectDamage": "{caster}: Interceptar e redirecionar {amount} de dano de {target} para si através de {effect}?",
@@ -76,7 +79,15 @@
         "Title": "Escolher Efeito em {target}",
         "TitleInvert": "Inverter Estado em {target}",
         "Prompt": "Escolha um estado ativo em {target} para modificar:",
+        "PromptMax": "Escolha até {count} estado(s) ativo(s) em {target}:",
+        "PromptAny": "Escolha qualquer quantidade de estados ativos em {target}:",
+        "MaxReached": "Você pode selecionar no máximo {count} estado(s).",
         "Becomes": "Torna-se: "
+      },
+      "TransferState": {
+        "Title": "Transferir Estado de {target}",
+        "ChooseDirectionTitle": "Escolher Direção da Transferência",
+        "ChooseDirectionPrompt": "Escolha a direção da transferência de estado entre {target} e {other}:"
       },
       "ItemType": {
         "Title": "Escolher Tipo de Item",

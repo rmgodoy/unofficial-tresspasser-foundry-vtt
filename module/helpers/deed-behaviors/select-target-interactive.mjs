@@ -154,6 +154,136 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     });
   };
 
+  const _onTargetsChanged = (currentSession = null) => {
+    if (game.user.updateTokenTargets) {
+      game.user.updateTokenTargets(selectedTargets.map(t => t.id));
+    }
+    const active = currentSession || CanvasInputSession.activeSession;
+    if (active) {
+      active.updateOverlay({
+        details: formatDetails(selectedTargets.length),
+        canConfirm: selectedTargets.length > 0
+      });
+    }
+    redrawHighlights(active, hoveredSquare);
+  };
+
+  const addTarget = (hitToken, currentSession = null) => {
+    if (!hitToken) return;
+    if (selectedTargets.some(t => t.id === hitToken.id)) return;
+
+    if (params.ignoreSelf && (hitToken.id === sourceToken?.id || hitToken.document?.id === sourceToken?.id)) {
+      return;
+    }
+    if (params.disposition && !TargetingHelper.matchesDisposition(hitToken, params.disposition, sourceToken)) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.InvalidTargetDisposition") || "Selected target does not match the required disposition.");
+      return;
+    }
+
+    if (isAreaMode && candidateTokens) {
+      const isCandidate = candidateTokens.some(c => c.id === hitToken.id);
+      if (!isCandidate) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.TargetMustBeInArea") || "Selected target must be inside the designated area.");
+        return;
+      }
+    }
+
+    const airborneCheck = RangeHelper.canTargetAirborne(sourceToken, hitToken, item, { actor, params, isJump });
+    if (!airborneCheck.valid) {
+      if (airborneCheck.reason === "airborne_requires_jump") {
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.AirborneRequiresJump", {
+          name: hitToken.name,
+          height: airborneCheck.height
+        }));
+      } else if (airborneCheck.reason === "airborne_too_high") {
+        ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.AirborneTooHigh", {
+          name: hitToken.name,
+          height: airborneCheck.height,
+          aoeSize: airborneCheck.aoeSize
+        }));
+      }
+      return;
+    }
+
+    if (!isAreaMode && maxRangeSq !== null && maxRangeSq !== undefined && !RangeHelper.isWithinRange(sourceToken, hitToken, maxRangeSq, { originOverride: origin })) {
+      const dist = RangeHelper.measureDistanceSquares(sourceToken, hitToken, { originOverride: origin });
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
+        name: hitToken.name,
+        range: maxRangeSq,
+        distance: dist
+      }));
+      return;
+    }
+
+    if (maxCount === 1) {
+      selectedTargets.length = 0;
+      selectedTargets.push(hitToken);
+    } else if (selectedTargets.length < maxCount) {
+      selectedTargets.push(hitToken);
+    } else {
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TooManyTargets", { max: maxCount, count: selectedTargets.length + 1 }));
+      return;
+    }
+
+    _onTargetsChanged(currentSession);
+  };
+
+  const removeTarget = (hitToken, currentSession = null) => {
+    if (!hitToken) return;
+    const idx = selectedTargets.findIndex(t => t.id === hitToken.id);
+    if (idx >= 0) {
+      selectedTargets.splice(idx, 1);
+      _onTargetsChanged(currentSession);
+    }
+  };
+
+  const toggleTarget = (hitToken, currentSession = null) => {
+    if (!hitToken) return;
+    const idx = selectedTargets.findIndex(t => t.id === hitToken.id);
+    if (idx >= 0) {
+      if (maxCount === 1) {
+        selectedTargets.splice(idx, 1);
+        _onTargetsChanged(currentSession);
+      } else {
+        removeTarget(hitToken, currentSession);
+      }
+    } else {
+      addTarget(hitToken, currentSession);
+    }
+  };
+
+  let hookTargetId = null;
+  let hookControlId = null;
+
+  const cleanupHooks = () => {
+    if (hookTargetId !== null) {
+      Hooks.off("targetToken", hookTargetId);
+      hookTargetId = null;
+    }
+    if (hookControlId !== null) {
+      Hooks.off("controlToken", hookControlId);
+      hookControlId = null;
+    }
+  };
+
+  hookTargetId = Hooks.on("targetToken", (user, tokenDocOrObj, targeted) => {
+    if (user.id !== game.user.id) return;
+    const tokenObj = tokenDocOrObj?.object || (tokenDocOrObj instanceof Token ? tokenDocOrObj : null) || canvas.tokens?.get(tokenDocOrObj?.id);
+    if (!tokenObj) return;
+    if (targeted) {
+      addTarget(tokenObj, CanvasInputSession.activeSession);
+    } else {
+      removeTarget(tokenObj, CanvasInputSession.activeSession);
+    }
+  });
+
+  hookControlId = Hooks.on("controlToken", (tokenObj, controlled) => {
+    if (!controlled || !tokenObj) return;
+    const resolvedToken = (tokenObj instanceof Token ? tokenObj : null) || tokenObj.object || canvas.tokens?.get(tokenObj.id);
+    if (!resolvedToken) return;
+    addTarget(resolvedToken, CanvasInputSession.activeSession);
+  });
+
   return CanvasInputSession.start({
     title,
     details: formatDetails(selectedTargets.length),
@@ -207,45 +337,7 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
       if (isAreaMode && candidateTokens) {
         const hitToken = tokensInSq.find(t => candidateTokens.some(c => c.id === t.id));
         if (hitToken) {
-          const idx = selectedTargets.findIndex(t => t.id === hitToken.id);
-          if (idx >= 0) {
-            selectedTargets.splice(idx, 1);
-          } else {
-            const airborneCheck = RangeHelper.canTargetAirborne(sourceToken, hitToken, item, { actor, params, isJump });
-            if (!airborneCheck.valid) {
-              if (airborneCheck.reason === "airborne_requires_jump") {
-                ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.AirborneRequiresJump", {
-                  name: hitToken.name,
-                  height: airborneCheck.height
-                }));
-              } else if (airborneCheck.reason === "airborne_too_high") {
-                ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.AirborneTooHigh", {
-                  name: hitToken.name,
-                  height: airborneCheck.height,
-                  aoeSize: airborneCheck.aoeSize
-                }));
-              }
-              return;
-            }
-            if (selectedTargets.length < maxCount) {
-              selectedTargets.push(hitToken);
-            } else {
-              ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TooManyTargets", { max: maxCount, count: selectedTargets.length + 1 }));
-            }
-          }
-
-          if (game.user.updateTokenTargets) {
-            game.user.updateTokenTargets(selectedTargets.map(t => t.id));
-          }
-
-          if (CanvasInputSession.activeSession) {
-            CanvasInputSession.activeSession.updateOverlay({
-              details: formatDetails(selectedTargets.length),
-              canConfirm: selectedTargets.length > 0
-            });
-          }
-
-          redrawHighlights(session, hoveredSquare);
+          toggleTarget(hitToken, session);
         } else if (rawTokens.length > 0) {
           const isInsideCandidate = rawTokens.some(t => candidateTokens.some(c => c.id === t.id));
           if (!isInsideCandidate) {
@@ -256,67 +348,21 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
         }
       } else {
         if (tokensInSq.length > 0) {
-          const hitToken = tokensInSq[0];
-          const idx = selectedTargets.findIndex(t => t.id === hitToken.id);
-          if (idx >= 0) {
-            selectedTargets.splice(idx, 1);
-          } else {
-            const airborneCheck = RangeHelper.canTargetAirborne(sourceToken, hitToken, item, { actor, params, isJump });
-            if (!airborneCheck.valid) {
-              if (airborneCheck.reason === "airborne_requires_jump") {
-                ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.AirborneRequiresJump", {
-                  name: hitToken.name,
-                  height: airborneCheck.height
-                }));
-              } else if (airborneCheck.reason === "airborne_too_high") {
-                ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.AirborneTooHigh", {
-                  name: hitToken.name,
-                  height: airborneCheck.height,
-                  aoeSize: airborneCheck.aoeSize
-                }));
-              }
-              return;
-            }
-            if (maxRangeSq !== null && maxRangeSq !== undefined && !RangeHelper.isWithinRange(sourceToken, hitToken, maxRangeSq, { originOverride: origin })) {
-              const dist = RangeHelper.measureDistanceSquares(sourceToken, hitToken, { originOverride: origin });
-              ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TargetOutOfRange", {
-                name: hitToken.name,
-                range: maxRangeSq,
-                distance: dist
-              }));
-              return;
-            }
-            if (selectedTargets.length < maxCount) {
-              selectedTargets.push(hitToken);
-            } else {
-              ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.TooManyTargets", { max: maxCount, count: selectedTargets.length + 1 }));
-            }
-          }
-
-          if (game.user.updateTokenTargets) {
-            game.user.updateTokenTargets(selectedTargets.map(t => t.id));
-          }
-
-          if (CanvasInputSession.activeSession) {
-            CanvasInputSession.activeSession.updateOverlay({
-              details: formatDetails(selectedTargets.length),
-              canConfirm: selectedTargets.length > 0
-            });
-          }
-
-          redrawHighlights(session, hoveredSquare);
+          toggleTarget(tokensInSq[0], session);
         } else if (rawTokens.length > 0) {
           ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.InvalidTargetDisposition") || "Selected target does not match the required disposition.");
         }
       }
     },
     onConfirm: () => {
+      cleanupHooks();
       TargetPreviewHUD.clear();
       TargetingPreviewSyncer.clear();
       selectedTargets._isJump = isJump;
       return selectedTargets;
     },
     onCancel: () => {
+      cleanupHooks();
       TargetPreviewHUD.clear();
       TargetingPreviewSyncer.clear();
       return null;

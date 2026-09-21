@@ -1,0 +1,197 @@
+{
+  "folder": "k6JUbXFCMOzTt7RK",
+  "name": "Humoral Shift",
+  "type": "deed",
+  "_id": "OAvfHls5H2p9iQi8",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "heavy",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "Resist",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "If you target yourself or an ally with this deed, treat it as a SPELL SUPPORT VS. 10.",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "Choose one state affecting the target that has an opposite state. Change it to the opposite state, keeping the same INTENSITY.",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Add +1 INTENSITY to the changed state.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "Add +1 INTENSITY to the changed state.",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "EIldcyyniOCUswUx",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "G6Tl2wUNNhU8KVpS",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "2SwuxwyjT3e7MvMm",
+          "type": "rollAccuracy",
+          "phase": "inherit",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Resist",
+            "allyOverride": {
+              "enabled": true
+            }
+          },
+          "x": 976,
+          "y": 70
+        },
+        {
+          "id": "Oyvb7I7u3g5Lsf2R",
+          "type": "modifyEffects",
+          "phase": "inherit",
+          "params": {
+            "choiceMode": "choose_one"
+          },
+          "x": 665,
+          "y": 180
+        },
+        {
+          "id": "MA6vsbaNozBpjYFk",
+          "type": "modifyEffects",
+          "phase": "inherit",
+          "params": {
+            "operation": "increase",
+            "effectFilter": "hasOpposite",
+            "choiceMode": "choose_one"
+          },
+          "x": 1311,
+          "y": 174
+        }
+      ],
+      "connections": [
+        {
+          "id": "rDjhez2PUdNo9Xxq",
+          "sourceId": "EIldcyyniOCUswUx",
+          "sourcePort": "out",
+          "targetId": "G6Tl2wUNNhU8KVpS",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "J5ZK8eCSas2sV8gq",
+          "sourceId": "G6Tl2wUNNhU8KVpS",
+          "sourcePort": "out",
+          "targetId": "Oyvb7I7u3g5Lsf2R",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "5jlB4nlsNvyiFIGZ",
+          "sourceId": "Oyvb7I7u3g5Lsf2R",
+          "sourcePort": "out",
+          "targetId": "2SwuxwyjT3e7MvMm",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "9oJaZAbdpvac9hRT",
+          "sourceId": "2SwuxwyjT3e7MvMm",
+          "sourcePort": "onHit",
+          "targetId": "MA6vsbaNozBpjYFk",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "45Vz9JsVymYEedjX",
+          "sourceId": "2SwuxwyjT3e7MvMm",
+          "sourcePort": "onSpark",
+          "targetId": "MA6vsbaNozBpjYFk",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "SefFTSUrp6z5wJ0Y",
+          "sourceId": "Oyvb7I7u3g5Lsf2R",
+          "sourcePort": "effectRef",
+          "targetId": "MA6vsbaNozBpjYFk",
+          "targetPort": "effectRef",
+          "type": "reference"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -207.1847490497314,
+        "panY": 159.0895335534836,
+        "zoom": 0.9227446944279211,
+        "selectedNodeId": "Oyvb7I7u3g5Lsf2R"
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1789670463994,
+    "modifiedTime": 1789679587216,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!OAvfHls5H2p9iQi8"
+}

@@ -89,13 +89,20 @@ export async function applyOilDialog(actor, oilItem) {
 /**
  * Open effect sheet with an optional callback.
  * @param {string} uuid 
- * @param {Function} callback 
+ * @param {Function} [callback] 
+ * @returns {Promise<boolean>}
  */
 export async function openEffectSheet(uuid, callback) {
+  if (!uuid) return false;
   const doc = await resolveItem(uuid, { type: "effect" });
-  if (!doc) return;
-  doc.sheet._updateObject = async (_event, formData) => {
-    if (callback) await callback(doc, formData);
-  };
-  doc.sheet.render(true);
+  if (!doc) return false;
+  if (callback && doc.sheet) {
+    const originalUpdate = doc.sheet._updateObject;
+    doc.sheet._updateObject = async (event, formData) => {
+      if (typeof originalUpdate === "function") await originalUpdate.call(doc.sheet, event, formData);
+      await callback(doc, formData);
+    };
+  }
+  doc.sheet?.render(true);
+  return true;
 }

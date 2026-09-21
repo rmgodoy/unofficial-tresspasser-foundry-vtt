@@ -7,6 +7,10 @@ import { getCombatant }            from "./hud-context.mjs";
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeAttemptDeed(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   hud._deedDropdownOpen = false;
   const deedSelect = hud.element.querySelector("[name='attempt-deed-id']");
   const apSelect   = hud.element.querySelector("[name='attempt-deed-ap']");
@@ -65,6 +69,10 @@ export async function executeAttemptDeed(hud) {
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeUseConcoction(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   const select = hud.element.querySelector("[name='concoction-id']");
   if (!select) return;
   const itemId = select.value;
@@ -81,6 +89,10 @@ export async function executeUseConcoction(hud) {
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeInteract(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   const costInput = hud.element.querySelector('[name="interact-cost"]');
   const cost = costInput ? parseInt(costInput.value) : 1;
   
@@ -120,6 +132,10 @@ export async function executeInteract(hud) {
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeManeuver(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   const costInput = hud.element.querySelector('[name="maneuver-cost"]');
   const cost = costInput ? parseInt(costInput.value) : 1;
   
@@ -181,6 +197,10 @@ export async function executeManeuver(hud) {
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeSmash(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   const costInput = hud.element.querySelector('[name="smash-cost"]');
   const cost = costInput ? parseInt(costInput.value) : 1;
   
@@ -228,6 +248,10 @@ export async function executeSmash(hud) {
  * @param {TrespasserTokenHUD} hud
  */
 export async function executeRummage(hud) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 

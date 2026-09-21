@@ -41,7 +41,11 @@ export const TRESPASSER_STATUS_EFFECTS = [
   { id: "grappled",   order: 28, compendiumId: "risZeWoRLbDjgmHA", name: "TRESPASSER.States.Grappled",   img: "systems/trespasser/assets/icons/states/Grappled.svg" },
   { id: "shadowy",    order: 29, compendiumId: "D3tj8ogo4Uygc7Sg", name: "TRESPASSER.States.Shadowy",    img: "systems/trespasser/assets/icons/states/Shadowy.svg" },
   { id: "tenacious",  order: 30, compendiumId: "ucUF4hsZP7f1fJM6", name: "TRESPASSER.States.Tenacious",  img: "systems/trespasser/assets/icons/states/Tenacious.svg" },
-  { id: "toppled",    order: 31, compendiumId: "SihFJEG1cPOzBaXN", name: "TRESPASSER.States.Toppled",    img: "systems/trespasser/assets/icons/states/Toppled.svg" }
+  { id: "toppled",          order: 31, compendiumId: "SihFJEG1cPOzBaXN", name: "TRESPASSER.States.Toppled",          img: "systems/trespasser/assets/icons/states/Toppled.svg" },
+  { id: "immuneToDamage",   order: 32, compendiumId: "",                 name: "TRESPASSER.States.ImmuneToDamage",   img: "systems/trespasser/assets/icons/states/ImmuneToDamage.svg" },
+  { id: "cannotAct",        order: 33, compendiumId: "",                 name: "TRESPASSER.States.CannotAct",        img: "systems/trespasser/assets/icons/states/CannotAct.svg" },
+  { id: "cannotMove",       order: 34, compendiumId: "",                 name: "TRESPASSER.States.CannotMove",       img: "systems/trespasser/assets/icons/states/CannotMove.svg" },
+  { id: "countsAsObstacle", order: 35, compendiumId: "",                 name: "TRESPASSER.States.CountsAsObstacle", img: "systems/trespasser/assets/icons/states/CountsAsObstacle.svg" }
 ];
 
 export const STATUS_EFFECT_COUNTERS = {
@@ -68,233 +72,142 @@ export const STATUS_EFFECT_COUNTERS = {
 /** Status effects that don't have intensity and can be directly toggled without a dialog */
 export const TOGGLE_ONLY_STATUS_EFFECTS = new Set([
   "bloodied",
+  "cannotact",
+  "cannotmove",
+  "countsasobstacle",
   "defeated",
   "encumbered",
   "engaged",
+  "immunetodamage",
   "shadowy",
   "tenacious"
 ]);
 
+function _createSpecialEffectData({ name, img, description, intensity = 0, isOnlyReminder = true, targetAttribute = "health", modifier = "0", counterStates = [], isPrevailable = false, flags = {} }) {
+  return {
+    name,
+    type: "effect",
+    img: `systems/trespasser/assets/icons/states/${img}.svg`,
+    system: {
+      description,
+      type: "continuous",
+      isCombat: true,
+      isOnlyReminder,
+      gmOnly: false,
+      intensity,
+      targetAttribute,
+      modifier,
+      conferredState: "",
+      when: "immediate",
+      duration: "indefinite",
+      durationValue: 0,
+      durationOperator: "OR",
+      durationConditions: [],
+      intensityIncrement: 0,
+      counterStates,
+      isPrevailable,
+      statusIcon: `systems/trespasser/assets/icons/states/${img}.svg`,
+      syncStatusIcon: false
+    },
+    flags: {
+      [SYSTEM_ID]: { ...flags }
+    }
+  };
+}
+
 export const BLOODIED_EFFECT_COMPENDIUM_ID = "4xEKVGCw0Xw71JBR";
 
-export const BLOODIED_EFFECT_DATA = {
+export const BLOODIED_EFFECT_DATA = _createSpecialEffectData({
   name: "Bloodied",
-  type: "effect",
-  img: "systems/trespasser/assets/icons/states/Bloodied.svg",
-  system: {
-    description: "<p>You gain this state while you are at or below half your hit point total. Creatures that can see you can recognize that you are bloodied. This state has no other effect on its own, but some enemies have effects that trigger the first time they are reduced to a bloodied state.</p>",
-    type: "continuous",
-    isCombat: true,
-    isOnlyReminder: true,
-    gmOnly: false,
-    intensity: 0,
-    targetAttribute: "health",
-    modifier: "0",
-    conferredState: "",
-    when: "immediate",
-    duration: "indefinite",
-    durationValue: 0,
-    durationOperator: "OR",
-    durationConditions: [],
-    intensityIncrement: 0,
-    counterStates: [],
-    isPrevailable: false,
-    statusIcon: "systems/trespasser/assets/icons/states/Bloodied.svg",
-    syncStatusIcon: false
-  },
-  flags: {
-    trespasser: {
-      isBloodiedState: true
-    }
-  }
-};
+  img: "Bloodied",
+  description: "<p>You gain this state while you are at or below half your hit point total. Creatures that can see you can recognize that you are bloodied. This state has no other effect on its own, but some enemies have effects that trigger the first time they are reduced to a bloodied state.</p>",
+  flags: { isBloodiedState: true, statusEffectId: "bloodied" }
+});
 
 export const TENACIOUS_EFFECT_COMPENDIUM_ID = "ucUF4hsZP7f1fJM6";
 
-export const TENACIOUS_EFFECT_DATA = {
+export const TENACIOUS_EFFECT_DATA = _createSpecialEffectData({
   name: "Tenacious",
-  type: "effect",
-  img: "systems/trespasser/assets/icons/states/Tenacious.svg",
-  system: {
-    description: "<p>You gain this state while you are at 0 hit points, and you lose it if you are defeated or if your hit point total increases above 0. Damage-dealing states are paused while you have this state, and you also ignore minor environmental hazards, such as terrain damage.</p>",
-    type: "continuous",
-    isCombat: true,
-    isOnlyReminder: true,
-    gmOnly: false,
-    intensity: 0,
-    targetAttribute: "health",
-    modifier: "0",
-    conferredState: "",
-    when: "immediate",
-    duration: "indefinite",
-    durationValue: 0,
-    durationOperator: "OR",
-    durationConditions: [],
-    intensityIncrement: 0,
-    counterStates: [],
-    isPrevailable: false,
-    statusIcon: "systems/trespasser/assets/icons/states/Tenacious.svg",
-    syncStatusIcon: false
-  },
-  flags: {
-    trespasser: {
-      isTenaciousState: true,
-      statusEffectId: "tenacious"
-    }
-  }
-};
+  img: "Tenacious",
+  description: "<p>You gain this state while you are at 0 hit points, and you lose it if you are defeated or if your hit point total increases above 0. Damage-dealing states are paused while you have this state, and you also ignore minor environmental hazards, such as terrain damage.</p>",
+  flags: { isTenaciousState: true, statusEffectId: "tenacious" }
+});
 
 export const ENGAGED_EFFECT_COMPENDIUM_ID = "EnGagedStAte0001";
 
-export const ENGAGED_EFFECT_DATA = {
+export const ENGAGED_EFFECT_DATA = _createSpecialEffectData({
   name: "Engaged",
-  type: "effect",
-  img: "systems/trespasser/assets/icons/states/Engaged.svg",
-  system: {
-    description: "<p>An engaged creature suffers -2 accuracy with missile and spell deeds, unless the deed targets an adjacent creature, a burst, close blast, or close path.</p>",
-    type: "continuous",
-    isCombat: true,
-    isOnlyReminder: true,
-    gmOnly: false,
-    intensity: 0,
-    targetAttribute: "health",
-    modifier: "0",
-    conferredState: "",
-    when: "immediate",
-    duration: "indefinite",
-    durationValue: 0,
-    durationOperator: "OR",
-    durationConditions: [],
-    intensityIncrement: 0,
-    counterStates: [],
-    isPrevailable: false,
-    statusIcon: "systems/trespasser/assets/icons/states/Engaged.svg",
-    syncStatusIcon: false
-  },
-  flags: {
-    [SYSTEM_ID]: {
-      isEngagedState: true,
-      statusEffectId: "engaged"
-    }
-  }
-};
+  img: "Engaged",
+  description: "<p>An engaged creature suffers -2 accuracy with missile and spell deeds, unless the deed targets an adjacent creature, a burst, close blast, or close path.</p>",
+  flags: { isEngagedState: true, statusEffectId: "engaged" }
+});
 
 export const ENCUMBERED_EFFECT_COMPENDIUM_ID = "EnCumbEredSt0001";
 
-export const ENCUMBERED_EFFECT_DATA = {
+export const ENCUMBERED_EFFECT_DATA = _createSpecialEffectData({
   name: "Encumbered",
-  type: "effect",
-  img: "systems/trespasser/assets/icons/states/Encumbered.svg",
-  system: {
-    description: "<p>Your Armor Rating is 6 or higher. Agility is not added to Guard checks, and Speed Bonus is limited to +2.</p>",
-    type: "continuous",
-    isCombat: true,
-    isOnlyReminder: true,
-    gmOnly: false,
-    intensity: 0,
-    targetAttribute: "health",
-    modifier: "0",
-    conferredState: "",
-    when: "immediate",
-    duration: "indefinite",
-    durationValue: 0,
-    durationOperator: "OR",
-    durationConditions: [],
-    intensityIncrement: 0,
-    counterStates: [],
-    isPrevailable: false,
-    statusIcon: "systems/trespasser/assets/icons/states/Encumbered.svg",
-    syncStatusIcon: false
-  },
-  flags: {
-    [SYSTEM_ID]: {
-      isEncumberedState: true,
-      statusEffectId: "encumbered"
-    }
-  }
-};
+  img: "Encumbered",
+  description: "<p>Your Armor Rating is 6 or higher. Agility is not added to Guard checks, and Speed Bonus is limited to +2.</p>",
+  flags: { isEncumberedState: true, statusEffectId: "encumbered" }
+});
 
 export const AIRBORNE_EFFECT_COMPENDIUM_ID = "AirBorneStAt0001";
 
-export const AIRBORNE_EFFECT_DATA = {
+export const AIRBORNE_EFFECT_DATA = _createSpecialEffectData({
   name: "Airborne",
-  type: "effect",
-  img: "systems/trespasser/assets/icons/states/Airborne.svg",
-  system: {
-    description: "<p>An airborne creature is flying or floating above the ground. The INTENSITY of this state refers to the creature's altitude in squares, so it is usually referred to as height.</p><p>At airborne 2 or higher, an airborne creature cannot be targeted by melee attacks unless they involve a jump. An airborne creature can always be targeted by missile or spell attacks that target a single creature.</p><p>A blast or burst can target an airborne creature, but only if its area is equal or greater than the creature's height. For example, a blast 4 would target a creature with airborne 4, but not a creature with airborne 5.</p><p>After damaging an airborne creature, a character can use prevail to try to knock it out of the sky. On a success, the creature falls to earth, suffering normal falling damage of 1d6 damage per 2 height lost. A flying creature grounded in this way also gains toppled. A hovering creature does not.</p><p>When a character drags, pulls, or sweeps an airborne creature, they can choose to remove height equal to the squares of the forced movement. If this reduces the creature's height to zero, the creature is dragged to the earth and gains toppled.</p>",
-    type: "continuous",
-    isCombat: true,
-    isOnlyReminder: false,
-    gmOnly: false,
-    intensity: 1,
-    targetAttribute: "elevation",
-    modifier: "<Int>",
-    conferredState: "",
-    when: "immediate",
-    duration: "indefinite",
-    durationValue: 0,
-    durationOperator: "OR",
-    durationConditions: [],
-    intensityIncrement: 0,
-    counterStates: [
-      {
-        uuid: "Item.SunKenStAtE00001",
-        name: "Sunken",
-        img: "systems/trespasser/assets/icons/states/Sunken.svg",
-        type: "effect"
-      }
-    ],
-    isPrevailable: true,
-    statusIcon: "systems/trespasser/assets/icons/states/Airborne.svg",
-    syncStatusIcon: false
-  },
-  flags: {
-    [SYSTEM_ID]: {
-      statusEffectId: "airborne"
-    }
-  }
-};
+  img: "Airborne",
+  description: "<p>An airborne creature is flying or floating above the ground. The INTENSITY of this state refers to the creature's altitude in squares, so it is usually referred to as height.</p><p>At airborne 2 or higher, an airborne creature cannot be targeted by melee attacks unless they involve a jump. An airborne creature can always be targeted by missile or spell attacks that target a single creature.</p><p>A blast or burst can target an airborne creature, but only if its area is equal or greater than the creature's height. For example, a blast 4 would target a creature with airborne 4, but not a creature with airborne 5.</p><p>After damaging an airborne creature, a character can use prevail to try to knock it out of the sky. On a success, the creature falls to earth, suffering normal falling damage of 1d6 damage per 2 height lost. A flying creature grounded in this way also gains toppled. A hovering creature does not.</p><p>When a character drags, pulls, or sweeps an airborne creature, they can choose to remove height equal to the squares of the forced movement. If this reduces the creature's height to zero, the creature is dragged to the earth and gains toppled.</p>",
+  intensity: 1,
+  isOnlyReminder: false,
+  targetAttribute: "elevation",
+  modifier: "<Int>",
+  counterStates: [{ uuid: "Item.SunKenStAtE00001", name: "Sunken", img: "systems/trespasser/assets/icons/states/Sunken.svg", type: "effect" }],
+  isPrevailable: true,
+  flags: { statusEffectId: "airborne" }
+});
 
 export const SUNKEN_EFFECT_COMPENDIUM_ID = "SunKenStAtE00001";
 
-export const SUNKEN_EFFECT_DATA = {
+export const SUNKEN_EFFECT_DATA = _createSpecialEffectData({
   name: "Sunken",
-  type: "effect",
-  img: "systems/trespasser/assets/icons/states/Sunken.svg",
-  system: {
-    description: "<p>A sunken creature is either swimming underwater or tunneling just beneath the earth. The INTENSITY of this state represents how deep it, so it is usually referred to as depth.</p><p>A sunken creature is protected by the substance it travels in, reducing all damage it takes by half. It can move through other creatures and obstacles and ignores difficult terrain, terrain damage, fields, and other effects on the surface.</p><p>After damaging a sunken creature, a character can use prevail to try to force it out of the water. On a success, the creature is pulled to the surface, losing this state and gaining toppled.</p><p>When a character drags, pulls, or sweeps a sunken creature, they can choose to remove depth equal to the squares of the forced movement. If this reduces the creature's depth to zero, the creature is wrenched to the surface and gains toppled.</p>",
-    type: "continuous",
-    isCombat: true,
-    isOnlyReminder: false,
-    gmOnly: false,
-    intensity: 1,
-    targetAttribute: "elevation",
-    modifier: "-<Int>",
-    conferredState: "",
-    when: "immediate",
-    duration: "indefinite",
-    durationValue: 0,
-    durationOperator: "OR",
-    durationConditions: [],
-    intensityIncrement: 0,
-    counterStates: [
-      {
-        uuid: "Item.AirBorneStAt0001",
-        name: "Airborne",
-        img: "systems/trespasser/assets/icons/states/Airborne.svg",
-        type: "effect"
-      }
-    ],
-    isPrevailable: true,
-    statusIcon: "systems/trespasser/assets/icons/states/Sunken.svg",
-    syncStatusIcon: false
-  },
-  flags: {
-    [SYSTEM_ID]: {
-      statusEffectId: "sunken"
-    }
-  }
-};
+  img: "Sunken",
+  description: "<p>A sunken creature is either swimming underwater or tunneling just beneath the earth. The INTENSITY of this state represents how deep it, so it is usually referred to as depth.</p><p>A sunken creature is protected by the substance it travels in, reducing all damage it takes by half. It can move through other creatures and obstacles and ignores difficult terrain, terrain damage, fields, and other effects on the surface.</p><p>After damaging a sunken creature, a character can use prevail to try to force it out of the water. On a success, the creature is pulled to the surface, losing this state and gaining toppled.</p><p>When a character drags, pulls, or sweeps a sunken creature, they can choose to remove depth equal to the squares of the forced movement. If this reduces the creature's depth to zero, the creature is wrenched to the surface and gains toppled.</p>",
+  intensity: 1,
+  isOnlyReminder: false,
+  targetAttribute: "elevation",
+  modifier: "-<Int>",
+  counterStates: [{ uuid: "Item.AirBorneStAt0001", name: "Airborne", img: "systems/trespasser/assets/icons/states/Airborne.svg", type: "effect" }],
+  isPrevailable: true,
+  flags: { statusEffectId: "sunken" }
+});
+
+export const IMMUNE_TO_DAMAGE_EFFECT_DATA = _createSpecialEffectData({
+  name: "Immune to Damage",
+  img: "ImmuneToDamage",
+  description: "<p>You cannot take damage from any source.</p>",
+  flags: { immuneToDamage: true, statusEffectId: "immuneToDamage" }
+});
+
+export const CANNOT_ACT_EFFECT_DATA = _createSpecialEffectData({
+  name: "Cannot Act",
+  img: "CannotAct",
+  description: "<p>You cannot take actions, perform deeds, or make skill checks during combat.</p>",
+  flags: { cannotAct: true, statusEffectId: "cannotAct" }
+});
+
+export const CANNOT_MOVE_EFFECT_DATA = _createSpecialEffectData({
+  name: "Cannot Move",
+  img: "CannotMove",
+  description: "<p>You cannot move voluntarily or use movement actions.</p>",
+  flags: { cannotMove: true, statusEffectId: "cannotMove" }
+});
+
+export const COUNTS_AS_OBSTACLE_EFFECT_DATA = _createSpecialEffectData({
+  name: "Counts as Obstacle",
+  img: "CountsAsObstacle",
+  description: "<p>You count as an impassable obstacle for movement and forced movement collisions.</p>",
+  flags: { countsAsObstacle: true, statusEffectId: "countsAsObstacle" }
+});
 
 export const SPECIAL_STATUS_EFFECT_IDS = new Set([
   "defeated",
@@ -306,7 +219,15 @@ export const SPECIAL_STATUS_EFFECT_IDS = new Set([
   "shadowy",
   "tenacious",
   "airborne",
-  "sunken"
+  "sunken",
+  "immunetodamage",
+  "immuneToDamage",
+  "cannotact",
+  "cannotAct",
+  "cannotmove",
+  "cannotMove",
+  "countsasobstacle",
+  "countsAsObstacle"
 ]);
 
 export const SPECIAL_STATUS_COMPENDIUM_IDS = new Set([

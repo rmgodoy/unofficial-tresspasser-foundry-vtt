@@ -1,0 +1,85 @@
+{
+  "folder": "rrVnaJcDxQOLfMgB",
+  "name": "Blood Mist (Terrain)",
+  "type": "terrain",
+  "_id": "Yfia1qPtPYN2ijhg",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "category": "light_cloud",
+    "width": 4,
+    "height": 4,
+    "terrainDamage": 0,
+    "extraMovementCost": 0,
+    "slippery": false,
+    "destructible": true,
+    "centerMode": "fixed",
+    "centerActorId": "",
+    "terrainImage": null,
+    "behaviors": [
+      {
+        "trigger": "whileInside",
+        "action": "applyEffect",
+        "effects": [
+          {
+            "uuid": "Compendium.trespasser.trespasser-content.Item.PUUdyopL3ywnicUc",
+            "name": "Blood Mist (healing)",
+            "img": "systems/trespasser/assets/icons/effect.webp",
+            "intensity": "<Int>"
+          }
+        ],
+        "effectUuid": "",
+        "effectName": "",
+        "effectImg": "",
+        "effectIntensity": "1",
+        "forcedMovementType": "",
+        "forcedMovementDistance": "0",
+        "forcedMovementDirection": "away_from_origin",
+        "damageFormula": "",
+        "script": "",
+        "onlyOnFirstEntry": true
+      }
+    ],
+    "interactable": false,
+    "interactAction": {
+      "label": "",
+      "actionCost": 1,
+      "actionType": "",
+      "moveDistance": 0,
+      "moveEffect": ""
+    },
+    "linkedEffects": [
+      {
+        "uuid": "Compendium.trespasser.trespasser-content.Item.nSAOjy1BF44GkhpP",
+        "name": "Blood Mist (terrain state)",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": "4"
+      }
+    ],
+    "linkedEffect": {
+      "uuid": "Compendium.trespasser.trespasser-content.Item.nSAOjy1BF44GkhpP",
+      "name": "Blood Mist (terrain state)",
+      "img": "systems/trespasser/assets/icons/effect.webp"
+    },
+    "linkedEffectKey": "Compendium.trespasser.trespasser-content.Item.nSAOjy1BF44GkhpP",
+    "regionColor": "#ff0026"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1789652596902,
+    "modifiedTime": 1789652666934,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!Yfia1qPtPYN2ijhg"
+}

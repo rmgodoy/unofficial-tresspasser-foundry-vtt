@@ -47,6 +47,9 @@
         "WeaponIsThrown": "Esta arma foi jogada e deve ser recuperada antes de equipar."
       },
       "Combat": {
+        "ImmuneToDamage": "{name} é imune a dano.",
+        "CannotAct": "{name} não pode realizar ações.",
+        "CannotMove": "{name} não pode se mover.",
         "WeaponThrown": "{actor} joga {weapon}! A arma sai de sua mão e está perdida pelo resto do encontro.",
         "NoTargets": "Nenhum alvo selecionado. Abortando.",
         "RecordedTargetsGone": "Os alvos registrados neste cartão não estão mais na cena.",

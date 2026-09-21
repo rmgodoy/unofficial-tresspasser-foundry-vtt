@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": "k6JUbXFCMOzTt7RK",
+  "name": "Blood Mist (terrain effects)",
+  "color": null,
+  "sorting": "a",
+  "_id": "rrVnaJcDxQOLfMgB",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1789651960353,
+    "modifiedTime": 1789653373122,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!folders!rrVnaJcDxQOLfMgB"
+}

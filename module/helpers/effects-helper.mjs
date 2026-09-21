@@ -27,7 +27,8 @@ import {
   getAttributeEffects,
   buildEffectBonusEntry,
   getAttributeBonus,
-  hasAdvantage
+  hasAdvantage,
+  hasActorFlagOrEffect
 } from "../effects/effects-aggregate.mjs";
 
 import {
@@ -104,7 +105,8 @@ export {
   refreshTokensForActor,
   getCombatTrackerEffects,
   syncActorTokenElevation,
-  isSpecialState
+  isSpecialState,
+  hasActorFlagOrEffect
 };
 
 export class TrespasserEffectsHelper {
@@ -250,5 +252,9 @@ export class TrespasserEffectsHelper {
 
   static isSpecialState(item) {
     return isSpecialState(item);
+  }
+
+  static hasActorFlagOrEffect(actor, flagKey) {
+    return hasActorFlagOrEffect(actor, flagKey);
   }
 }

@@ -99,6 +99,7 @@
         "RunCheck": "Run Check",
         "Reset": "Reset",
         "Accept": "Accept",
+        "Decline": "Decline",
         "Pass": "Pass"
       },
       "Status": {

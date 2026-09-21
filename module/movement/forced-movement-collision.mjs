@@ -1,4 +1,5 @@
 import { TerrainHelper } from "../helpers/terrain-helper.mjs";
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
  * Test native wall collision between two grid square points.
@@ -58,6 +59,9 @@ export function checkCollisionAtSquare(x, y, gridPx, movingTokenId, fromPos = nu
     const tw = (t.width || 1) * gridPx;
     const th = (t.height || 1) * gridPx;
     if (cx >= t.x && cx <= t.x + tw && cy >= t.y && cy <= t.y + th) {
+      if (TrespasserEffectsHelper.hasActorFlagOrEffect(t.actor, "countsAsObstacle")) {
+        return { type: "obstacle", token: t };
+      }
       return { type: "creature", token: t };
     }
   }

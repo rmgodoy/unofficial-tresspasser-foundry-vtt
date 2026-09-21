@@ -1,0 +1,79 @@
+{
+  "folder": "Umt0qfcxJvadPcTS",
+  "name": "Berserk",
+  "type": "effect",
+  "_id": "mYIRxcYkw9RulE8n",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "<p>On its turn, the affected creature must attempt a light attack deed against the nearest creature before doing anything else, moving if needed. Then this state loses 1 INTENSITY.</p>",
+    "type": "on-trigger",
+    "movementType": "walk",
+    "isCombat": true,
+    "isOnlyReminder": true,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "start-of-turn",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "indefinite",
+        "value": null
+      }
+    ],
+    "intensityIncrement": -1,
+    "counterStates": [],
+    "isPrevailable": true,
+    "isLasting": false,
+    "statusIcon": "systems/trespasser/assets/icons/effect.webp",
+    "syncStatusIcon": true,
+    "behaviors": [
+      {
+        "id": "a3zwnFKP",
+        "trigger": "start-of-turn",
+        "action": "chat_message",
+        "params": {
+          "message": "<p>On its turn, the affected creature must attempt a light attack deed against the nearest creature before doing anything else, moving if needed. Then this state loses 1 INTENSITY.</p>",
+          "gmOnly": false
+        },
+        "label": "",
+        "condition": "",
+        "actionTarget": "self",
+        "scope": "",
+        "rangeType": "",
+        "range": 0,
+        "priority": null,
+        "requiresConfirmation": false,
+        "promptText": "",
+        "choiceGroup": "",
+        "choiceLabel": "",
+        "gatedBy": "",
+        "cooldown": null,
+        "cost": null
+      }
+    ]
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1789653443227,
+    "modifiedTime": 1789789665245,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!mYIRxcYkw9RulE8n"
+}

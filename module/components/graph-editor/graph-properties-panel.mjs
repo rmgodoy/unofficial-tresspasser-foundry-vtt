@@ -239,7 +239,7 @@ export class GraphPropertiesPanel {
       }
 
       // If this property triggers conditional UI branches, re-render the panel immediately
-      const conditionalProps = ["targetMode", "placement", "destinationMode", "chooseCreatures", "property", "aoeType", "dieRecovery", "hpRecovery"];
+      const conditionalProps = ["targetMode", "placement", "destinationMode", "chooseCreatures", "property", "aoeType", "dieRecovery", "hpRecovery", "transferMode", "swapMode", "intensityMode", "effectFilter", "choiceMode"];
       if (conditionalProps.includes(propPath)) {
         await this.render();
       }

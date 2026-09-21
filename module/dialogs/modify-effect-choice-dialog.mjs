@@ -1,6 +1,6 @@
 /**
  * modify-effect-choice-dialog.mjs
- * ApplicationV2 dialog for selecting which active effect/state on a target to modify.
+ * ApplicationV2 dialog for selecting which active effect/state on a target to modify or transfer.
  */
 
 /**
@@ -10,26 +10,40 @@
  * @param {Array<{ item: Item, oppositeDef: object|null, intensity: number }>} options.candidates
  * @param {string} [options.operation="invert"] - The modification operation
  * @param {boolean} [options.multiple=false] - Whether multiple effects can be selected via checkboxes
+ * @param {number|null} [options.maxCount=null] - Maximum number of effects selectable (if multiple)
  * @param {string} [options.title]
  * @returns {Promise<string|string[]|null>} Returns chosen effect ID(s) or null if cancelled
  */
-export async function promptModifyEffectChoice({ target, candidates, operation = "invert", multiple = false, title = null }) {
+export async function promptModifyEffectChoice({ target, candidates, operation = "invert", multiple = false, maxCount = null, title = null, showInvertPreview = null }) {
   if (!candidates || candidates.length === 0) return multiple ? [] : null;
-  if (candidates.length === 1 && !multiple) return candidates[0].item.id;
+  if (candidates.length === 1 && !multiple && (maxCount === null || maxCount === 1)) return candidates[0].item.id;
 
   const targetName = target.name || game.i18n.localize("TRESPASSER.Terms.Target") || "Target";
+  const isInvert = showInvertPreview !== null ? showInvertPreview : (operation === "invert");
   const dialogTitle = title || (
-    operation === "invert"
+    isInvert
       ? game.i18n.format("TRESPASSER.Dialog.ModifyEffect.TitleInvert", { target: targetName })
       : game.i18n.format("TRESPASSER.Dialog.ModifyEffect.Title", { target: targetName })
   );
 
-  const inputType = multiple ? "checkbox" : "radio";
+  const isMultiple = multiple || (maxCount !== null && maxCount > 1);
+  const inputType = isMultiple ? "checkbox" : "radio";
+
+  let promptText = "";
+  if (isMultiple) {
+    if (maxCount !== null && maxCount > 1) {
+      promptText = game.i18n.format("TRESPASSER.Dialog.ModifyEffect.PromptMax", { target: targetName, count: maxCount });
+    } else {
+      promptText = game.i18n.format("TRESPASSER.Dialog.ModifyEffect.PromptAny", { target: targetName });
+    }
+  } else {
+    promptText = game.i18n.format("TRESPASSER.Dialog.ModifyEffect.Prompt", { target: targetName });
+  }
 
   let html = `
     <div class="trespasser-dialog modify-effect-choice-dialog" style="display:flex; flex-direction:column; gap:8px;">
       <p style="margin:0 0 6px 0; font-size:var(--fs-12); color:var(--trp-text-dim, #a09070);">
-        ${game.i18n.format("TRESPASSER.Dialog.ModifyEffect.Prompt", { target: targetName })}
+        ${promptText}
       </p>
       <div class="candidates-list" style="display:flex; flex-direction:column; gap:6px;">
   `;
@@ -37,9 +51,11 @@ export async function promptModifyEffectChoice({ target, candidates, operation =
   for (let i = 0; i < candidates.length; i++) {
     const cand = candidates[i];
     const item = cand.item;
-    const isChecked = multiple ? "checked" : (i === 0 ? "checked" : "");
+    const isChecked = isMultiple
+      ? (maxCount !== null ? (i < maxCount ? "checked" : "") : "checked")
+      : (i === 0 ? "checked" : "");
     const intLabel = cand.intensity > 0 ? ` (Int ${cand.intensity})` : "";
-    const oppLabel = cand.oppositeDef?.name ? ` ➔ ${cand.oppositeDef.name}` : "";
+    const oppLabel = (isInvert && cand.oppositeDef?.name) ? ` ➔ ${cand.oppositeDef.name}` : "";
 
     html += `
       <label class="candidate-option-label" style="display:flex; align-items:center; gap:8px; padding:6px 8px; background:rgba(0,0,0,0.3); border:1px solid var(--trp-border-light, #5c4f3a); border-radius:4px; cursor:pointer; font-size:var(--fs-12);">
@@ -74,9 +90,10 @@ export async function promptModifyEffectChoice({ target, candidates, operation =
         default: true,
         callback: (event, button, dialog) => {
           const root = dialog?.element || button?.form || button?.closest(".application") || button?.closest(".window-app") || document;
-          if (multiple) {
+          if (isMultiple) {
             const checkedEls = root.querySelectorAll('input[name="selectedEffectId"]:checked');
-            return Array.from(checkedEls).map(el => el.value);
+            const ids = Array.from(checkedEls).map(el => el.value);
+            return maxCount !== null && maxCount > 0 ? ids.slice(0, maxCount) : ids;
           }
           const checked = root.querySelector('input[name="selectedEffectId"]:checked');
           return checked ? checked.value : candidates[0].item.id;
@@ -89,6 +106,24 @@ export async function promptModifyEffectChoice({ target, candidates, operation =
         callback: () => null
       }
     ],
+    render: (event, dialog) => {
+      if (isMultiple && maxCount !== null && maxCount > 0) {
+        const root = dialog?.element || document;
+        const checkboxes = root.querySelectorAll('input[name="selectedEffectId"]');
+        for (const cb of checkboxes) {
+          cb.addEventListener("change", () => {
+            const checkedCount = root.querySelectorAll('input[name="selectedEffectId"]:checked').length;
+            if (checkedCount > maxCount) {
+              cb.checked = false;
+              ui.notifications?.warn(
+                game.i18n.format("TRESPASSER.Dialog.ModifyEffect.MaxReached", { count: maxCount }) ||
+                `You can select at most ${maxCount} state(s).`
+              );
+            }
+          });
+        }
+      }
+    },
     rejectClose: false
   });
 }

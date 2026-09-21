@@ -1,6 +1,7 @@
 import { DurationHelper } from "../helpers/duration-helper.mjs";
 import { parseModifier, replacePlaceholders } from "./effects-evaluator.mjs";
 import { MOVEMENT_TYPES, MOVEMENT_TYPE_LABELS } from "./effects-constants.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Aggregates all active effects (Combat and Non-Combat) from an actor.
@@ -414,4 +415,43 @@ export function combineModifierFormulas(baseList, modifierList) {
   }
   return [result];
 }
+
+/**
+ * Checks whether an actor has a specific flag or effect active.
+ * Checks actor flags, embedded effect items, and status effects.
+ * @param {Actor} actor
+ * @param {string} flagKey - e.g. "immuneToDamage", "cannotAct", "cannotMove", "countsAsObstacle"
+ * @returns {boolean}
+ */
+export function hasActorFlagOrEffect(actor, flagKey) {
+  if (!actor || !flagKey) return false;
+
+  // 1. Direct document flag on actor
+  if (actor.getFlag?.(SYSTEM_ID, flagKey) || actor.flags?.[SYSTEM_ID]?.[flagKey] || actor.flags?.trespasser?.[flagKey]) {
+    return true;
+  }
+
+  // 2. Active status effects on Actor (Foundry statuses set or ActiveEffects)
+  if (actor.statuses?.has?.(flagKey) || actor.statuses?.has?.(flagKey.toLowerCase())) {
+    return true;
+  }
+
+  // 3. Embedded Effect items on actor
+  if (actor.items) {
+    const lowerKey = flagKey.toLowerCase();
+    for (const item of actor.items) {
+      if (item.type !== "effect" && item.type !== "state") continue;
+
+      const itemFlags = item.flags?.[SYSTEM_ID] || item.flags?.trespasser || {};
+      if (itemFlags[flagKey] || itemFlags[lowerKey]) return true;
+      if (itemFlags.statusEffectId && itemFlags.statusEffectId.toLowerCase() === lowerKey) return true;
+
+      const itemName = item.name?.toLowerCase()?.trim();
+      if (itemName === lowerKey) return true;
+    }
+  }
+
+  return false;
+}
+
 

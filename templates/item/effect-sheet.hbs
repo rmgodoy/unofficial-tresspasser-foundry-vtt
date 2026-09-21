@@ -322,8 +322,7 @@
                 <div class="field-row">
                   <label>{{localize "TRESPASSER.Sheet.Item.Effect.ActionTarget"}}</label>
                   <select name="system.behaviors.{{block.index}}.actionTarget">
-                    <option value="self" {{#if (eq block.actionTarget 'self')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Effect.ActionTargetSelf"}}</option>
-                    <option value="target" {{#if (eq block.actionTarget 'target')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Effect.ActionTargetTarget"}}</option>
+                    {{{selectOptions @root.config.actionTargetChoices selected=block.actionTarget localize=true}}}
                   </select>
                 </div>
 

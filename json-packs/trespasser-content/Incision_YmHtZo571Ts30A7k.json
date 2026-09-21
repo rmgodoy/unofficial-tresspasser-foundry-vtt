@@ -1,0 +1,216 @@
+{
+  "folder": "k6JUbXFCMOzTt7RK",
+  "name": "Incision",
+  "type": "deed",
+  "_id": "YmHtZo571Ts30A7k",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "light",
+    "actionType": "attack",
+    "abilityType": "versatile",
+    "versus": "Guard",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Deal <wd> damage. Confer bleeding 2.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "Confer bleeding 4 instead.",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "dqbDG35uYT3cEJto",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "JpMSRCzR4FYjYOgi",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "xceOyyYiyAzN5o4q",
+          "type": "rollAccuracy",
+          "phase": "base",
+          "params": {
+            "branchingMode": "hitOrSpark",
+            "actionType": "attack",
+            "abilityType": "versatile",
+            "versus": "Guard"
+          },
+          "x": 622,
+          "y": 178
+        },
+        {
+          "id": "x5AC34iicyURtHt9",
+          "type": "applyDamage",
+          "phase": "inherit",
+          "params": {
+            "expression": "<wd>"
+          },
+          "x": 959,
+          "y": 221
+        },
+        {
+          "id": "997pRNRhbFZzzDEi",
+          "type": "applyEffects",
+          "phase": "spark",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.dMCSC3lbB5v70qwR",
+                "name": "Bleeding",
+                "img": "systems/trespasser/assets/icons/states/Bleeding.svg",
+                "intensity": 4
+              }
+            ]
+          },
+          "x": 962,
+          "y": 342
+        },
+        {
+          "id": "dwPOwEqoGPU1sl5S",
+          "type": "applyEffects",
+          "phase": "inherit",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.dMCSC3lbB5v70qwR",
+                "name": "Bleeding",
+                "img": "systems/trespasser/assets/icons/states/Bleeding.svg",
+                "intensity": 2
+              }
+            ]
+          },
+          "x": 965,
+          "y": 111
+        }
+      ],
+      "connections": [
+        {
+          "id": "ol8EUXxt0xcnyORN",
+          "sourceId": "dqbDG35uYT3cEJto",
+          "sourcePort": "out",
+          "targetId": "JpMSRCzR4FYjYOgi",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "K0SLAah31TFYFhin",
+          "sourceId": "JpMSRCzR4FYjYOgi",
+          "sourcePort": "out",
+          "targetId": "xceOyyYiyAzN5o4q",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "EwQADGXTvpMbB7Hg",
+          "sourceId": "xceOyyYiyAzN5o4q",
+          "sourcePort": "onHit",
+          "targetId": "x5AC34iicyURtHt9",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "CWXvipdeTOIZE4DV",
+          "sourceId": "xceOyyYiyAzN5o4q",
+          "sourcePort": "onSpark",
+          "targetId": "997pRNRhbFZzzDEi",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "a0de1TwJte57zpGi",
+          "sourceId": "xceOyyYiyAzN5o4q",
+          "sourcePort": "onHit",
+          "targetId": "dwPOwEqoGPU1sl5S",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "cx5A9A3cNTN09lX4",
+          "sourceId": "xceOyyYiyAzN5o4q",
+          "sourcePort": "onSpark",
+          "targetId": "x5AC34iicyURtHt9",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 100000,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -11,
+        "panY": 22,
+        "zoom": 1,
+        "selectedNodeId": "xceOyyYiyAzN5o4q"
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-12",
+    "createdTime": 1789600468558,
+    "modifiedTime": 1789652685218,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!YmHtZo571Ts30A7k"
+}

@@ -506,7 +506,11 @@
       "Unguarded": "Unguarded",
       "Weak": "Weak",
       "Weary": "Weary",
-      "Willful": "Willful"
+      "Willful": "Willful",
+      "ImmuneToDamage": "Immune to Damage",
+      "CannotAct": "Cannot Act",
+      "CannotMove": "Cannot Move",
+      "CountsAsObstacle": "Counts as Obstacle"
     }
   }
 }

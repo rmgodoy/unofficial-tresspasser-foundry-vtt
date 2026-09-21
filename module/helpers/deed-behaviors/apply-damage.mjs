@@ -272,12 +272,14 @@ export class ApplyDamageBehavior {
 
         let appliedDmg = targetDmg;
         let resultingRawHP = rawHP;
+        let isImmune = false;
 
         if (targetActor.isOwner) {
           const res = await targetActor.applyDamage(targetDmg, { skipBelowZeroChat: true, sourceActor: actor, isPreHalved: true });
-          if (res && typeof res === "object" && res.appliedDamage !== undefined) {
-            appliedDmg = res.appliedDamage;
-            resultingRawHP = res.rawHP;
+          if (res && typeof res === "object") {
+            if (res.appliedDamage !== undefined) appliedDmg = res.appliedDamage;
+            if (res.rawHP !== undefined) resultingRawHP = res.rawHP;
+            if (res.isImmune) isImmune = true;
           }
         } else {
           const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
@@ -287,9 +289,10 @@ export class ApplyDamageBehavior {
             damage: targetDmg,
             options: { skipBelowZeroChat: true, sourceActorId: actor?.id, isPreHalved: true }
           });
-          if (res && typeof res === "object" && res.appliedDamage !== undefined) {
-            appliedDmg = res.appliedDamage;
-            resultingRawHP = res.rawHP;
+          if (res && typeof res === "object") {
+            if (res.appliedDamage !== undefined) appliedDmg = res.appliedDamage;
+            if (res.rawHP !== undefined) resultingRawHP = res.rawHP;
+            if (res.isImmune) isImmune = true;
           }
         }
 
@@ -327,7 +330,10 @@ export class ApplyDamageBehavior {
             <div style="display:flex; justify-content:space-between; align-items:center; font-size: var(--fs-12);">
               <span><strong>${tokenName}</strong>${powerBonusLabel}${modBonusLabel}${sunkenLabel}</span>
               <div style="display:flex; align-items:center; gap:8px;">
-                <span style="color:#ff5252; font-weight:bold;">⚡ ${appliedDmg} ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Dano"}</span>
+                ${isImmune
+                  ? `<span style="color:#55efc4; font-weight:bold;">🛡️ ${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Flag.ImmuneToDamage") || "Immune to Damage"}</span>`
+                  : `<span style="color:#ff5252; font-weight:bold;">⚡ ${appliedDmg} ${game.i18n.localize("TRESPASSER.Sheet.Common.Damage") || "Dano"}</span>`
+                }
                 ${blockBtnHtml}
               </div>
             </div>

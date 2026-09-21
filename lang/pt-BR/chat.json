@@ -155,6 +155,18 @@
         "SetIntensity": "Definiu a intensidade de {effect} em {target} para {intensity}.",
         "NoEligibleStates": "Nenhum estado elegível encontrado em {target} para modificar."
       },
+      "TransferState": {
+        "Transferred": "Transferiu {effect} (Intensidade {intensity}) de {origin} para {destination}.",
+        "Copied": "Copiou {effect} (Intensidade {intensity}) de {origin} para {destination}.",
+        "NoEligibleStates": "Nenhum estado elegível encontrado em {origin} para transferir.",
+        "NeedTwoTargets": "Transferência entre alvos requer pelo menos 2 alvos."
+      },
+      "SwapPositions": {
+        "Swapped": "Trocou de lugar: {tokenA} ↔ {tokenB} ({movementType}).",
+        "NoSourceToken": "Nenhum token de origem encontrado para trocar de lugar.",
+        "NoTargetToken": "Nenhum token alvo encontrado para trocar de lugar.",
+        "NeedTwoTargets": "Trocar dois alvos requer pelo menos 2 alvos."
+      },
       "Terrain": {
         "Spawned": "Terreno \"{terrain}\" criado no tabuleiro.",
         "SpawnedWithIntensity": "Terreno \"{terrain}\" criado no tabuleiro com intensidade {intensity}.",

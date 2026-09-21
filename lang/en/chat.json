@@ -155,6 +155,18 @@
         "SetIntensity": "Set {target}'s {effect} intensity to {intensity}.",
         "NoEligibleStates": "No eligible states found on {target} to modify."
       },
+      "TransferState": {
+        "Transferred": "Transferred {effect} (Intensity {intensity}) from {origin} to {destination}.",
+        "Copied": "Copied {effect} (Intensity {intensity}) from {origin} to {destination}.",
+        "NoEligibleStates": "No eligible states found on {origin} to transfer.",
+        "NeedTwoTargets": "Transfer between targets requires at least 2 targets."
+      },
+      "SwapPositions": {
+        "Swapped": "Swapped positions: {tokenA} ↔ {tokenB} ({movementType}).",
+        "NoSourceToken": "No source token found to swap places.",
+        "NoTargetToken": "No target token found to swap places with.",
+        "NeedTwoTargets": "Swapping two targets requires at least 2 targets."
+      },
       "Terrain": {
         "Spawned": "Spawned terrain \"{terrain}\" on canvas.",
         "SpawnedWithIntensity": "Spawned terrain \"{terrain}\" on canvas with intensity {intensity}.",

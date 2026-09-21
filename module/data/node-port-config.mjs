@@ -101,6 +101,12 @@ export const NODE_PORT_CONFIG = {
     refInputs: ["effectRef"],
     refOutputs: ["effectRef"]
   },
+  transferState: {
+    inputs: ["in"],
+    outputs: ["out"],
+    refInputs: ["effectRef"],
+    refOutputs: ["effectRef"]
+  },
   spawnTerrain: {
     inputs: ["in"],
     outputs: ["out"],
@@ -120,6 +126,12 @@ export const NODE_PORT_CONFIG = {
     refOutputs: []
   },
   forceMoveTargets: {
+    inputs: ["in"],
+    outputs: ["out"],
+    refInputs: [],
+    refOutputs: []
+  },
+  swapPositions: {
     inputs: ["in"],
     outputs: ["out"],
     refInputs: [],

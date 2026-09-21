@@ -49,10 +49,23 @@ export const DEFAULT_PARAMS = {
     operation: "invert",
     effectFilter: "hasOpposite",
     specificStateId: "",
-    choiceMode: "choose_one",
+    choiceMode: "choose_count",
+    choiceCount: 1,
     intensityDelta: 1,
     referencedNodeId: "",
     targetScope: "targets"
+  },
+  transferState: {
+    transferMode: "targetToSelf",
+    effectFilter: "all",
+    specificStateId: "",
+    choiceMode: "choose_count",
+    choiceCount: 1,
+    intensityMode: "full",
+    intensityDelta: 1,
+    keepOnSource: false,
+    invertOnTransfer: false,
+    referencedNodeId: ""
   },
   spawnTerrain: {
     terrainUuid: "",
@@ -73,6 +86,10 @@ export const DEFAULT_PARAMS = {
   forceMoveTargets: {
     type: "push",
     distance: 1
+  },
+  swapPositions: {
+    swapMode: "selfWithTarget",
+    movementType: "teleport"
   },
   clearTargets: {},
   executeDeed: {

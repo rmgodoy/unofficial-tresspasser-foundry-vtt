@@ -1,4 +1,5 @@
 import { isSunken } from "../../helpers/elevation-helper.mjs";
+import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 
 /**
  * Calculates distances, paths, collision checks, and valid squares for movement.
@@ -90,7 +91,7 @@ export class MovementPathfinder {
                         const tw = (t.width || 1) * sizeX;
                         const th = (t.height || 1) * sizeY;
                         if (p2.x >= t.x && p2.x <= t.x + tw && p2.y >= t.y && p2.y <= t.y + th) {
-                            if (t.disposition !== token.document.disposition) {
+                            if (t.disposition !== token.document.disposition || TrespasserEffectsHelper.hasActorFlagOrEffect(t.actor, "countsAsObstacle")) {
                                 wallCollision = true; break;
                             }
                         }
