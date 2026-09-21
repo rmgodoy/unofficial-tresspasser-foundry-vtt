@@ -1,0 +1,190 @@
+{
+  "folder": "k6JUbXFCMOzTt7RK",
+  "name": "Sanguine Veil",
+  "type": "deed",
+  "_id": "qk75Jh2hDDXplXVn",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "heavy",
+    "actionType": "support",
+    "abilityType": "spell",
+    "versus": "10",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "Gain sanguine veil 4. Whenever an ally within spell range suffers attack damage, you may redirect INTENSITY of that damage to you.",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Gain sanguine veil 6 instead.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "OfjQAHcRAxlHAijM",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": -18,
+          "y": 182
+        },
+        {
+          "id": "gLgKb0kwtRMfgMS2",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "self",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 265,
+          "y": 180
+        },
+        {
+          "id": "4miFQw48x3yzFmjK",
+          "type": "rollAccuracy",
+          "phase": "inherit",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "support",
+            "abilityType": "spell",
+            "versus": "10"
+          },
+          "x": 598,
+          "y": 177
+        },
+        {
+          "id": "stdmLDDMjfnax5Bd",
+          "type": "applyEffects",
+          "phase": "inherit",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.pt1BPZHKJ9AhE7Dp",
+                "name": "Sanguine Veil",
+                "img": "systems/trespasser/assets/icons/effect.webp",
+                "intensity": 6
+              }
+            ]
+          },
+          "x": 951,
+          "y": 283
+        },
+        {
+          "id": "2tciaZgWzrlkJAlL",
+          "type": "applyEffects",
+          "phase": "inherit",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.pt1BPZHKJ9AhE7Dp",
+                "name": "Sanguine Veil",
+                "img": "systems/trespasser/assets/icons/effect.webp",
+                "intensity": 4
+              }
+            ]
+          },
+          "x": 950,
+          "y": 157
+        }
+      ],
+      "connections": [
+        {
+          "id": "nmqBy9Sxs3NTqApQ",
+          "sourceId": "OfjQAHcRAxlHAijM",
+          "sourcePort": "out",
+          "targetId": "gLgKb0kwtRMfgMS2",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "q7tV5A3b6xLqNVlt",
+          "sourceId": "gLgKb0kwtRMfgMS2",
+          "sourcePort": "out",
+          "targetId": "4miFQw48x3yzFmjK",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "JH0bt4nuFFD0VrIP",
+          "sourceId": "4miFQw48x3yzFmjK",
+          "sourcePort": "onMiss",
+          "targetId": "2tciaZgWzrlkJAlL",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "lmwMPBqN1UKLEnlH",
+          "sourceId": "4miFQw48x3yzFmjK",
+          "sourcePort": "onHit",
+          "targetId": "stdmLDDMjfnax5Bd",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -128,
+        "panY": 69,
+        "zoom": 1,
+        "selectedNodeId": "stdmLDDMjfnax5Bd"
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1789903587190,
+    "modifiedTime": 1789903859037,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!qk75Jh2hDDXplXVn"
+}

@@ -143,6 +143,13 @@
       "name": "Bolha de Ar",
       "description": "<p>Este encantamento cria um revestimento fino e flexível de ar respirável ao redor de até quatro criaturas e seus pertences, permitindo que elas viajem com segurança debaixo d'água e emerjam completamente secas. A bolha neutraliza os efeitos da pressão da água, mas pode ser facilmente perfurada por qualquer objeto pontiagudo, encerrando o efeito imediatamente.</p><p>O efeito dura por um turno de masmorra. Cada Centelha aumenta a duração em mais um turno.</p>"
     },
+    "Air Pummel": {
+      "id": "VYr3alKbuvufNM4Y",
+      "name": "Golpe de Ar",
+      "system.graph.nodes[4].params.effects[0].name": "Derrubado",
+      "phases_hit_description": "Causa 2<sd> de dano. Varrer 2.",
+      "phases_spark_description": "Concede Derrubado."
+    },
     "Air Shaping": {
       "id": "VVDM1QmYSYNptLHg",
       "name": "Moldagem de Ar",
@@ -259,6 +266,10 @@
       "items": {
         "Firebomb": "Bomba de fogo"
       }
+    },
+    "Arterial Font": {
+      "id": "ZASoyWbUX8TfRueg",
+      "name": "Fonte Arterial"
     },
     "Artful Dodger": {
       "id": "6SOlZmhE61yddBeS",
@@ -879,7 +890,7 @@
     },
     "Burning": {
       "id": "U8u8iFYvAEaL6Y5Z",
-      "name": "Ardente",
+      "name": "Queimadura",
       "description": "<p>Você sofre 1d6 + INTENSIDADE de dano no início do seu turno. Em seguida, aumente a intensidade em +2. Se o resultado do dado for 1, este estado termina.</p>"
     },
     "Butcher": {
@@ -1165,6 +1176,26 @@
       "id": "XHNA7z7jAhh5Q1dA",
       "name": "Capa"
     },
+    "Cloud of Pestilence": {
+      "id": "D5imK2jiYV4olBn0",
+      "name": "Nuvem de Peste",
+      "linkedEffects": {
+        "Cloud of Pestilence (terrain efefct)": "Nuvem de Peste (efeito de terreno)"
+      },
+      "system.behaviors[0].effects[0].name": "Afligido",
+      "system.linkedEffect.name": "Nuvem de Peste (efeito de terreno)"
+    },
+    "Cloud of Pestilence_LYOOHQABNhzB5CbZ": {
+      "id": "LYOOHQABNhzB5CbZ",
+      "name": "Nuvem de Peste",
+      "system.graph.nodes[4].params.terrainName": "Nuvem de Peste",
+      "phases_base_description": "Ganhe nuvem de peste 4, um estado que controla uma leve nuvem de doenças giratórias na área. Criaturas não podem recuperar pontos de vida dentro, e uma criatura que começar seu turno dentro ganha Afligido (INTENSIDADE).",
+      "phases_hit_description": "Causa 2<sd> de dano."
+    },
+    "Cloud of Pestilence (terrain efefct)": {
+      "id": "L0zhPndUWQPNVkkJ",
+      "name": "Nuvem de Peste (efeito de terreno)"
+    },
     "Cobbler": {
       "id": "h50fkYLeHui1zrk4",
       "name": "Sapateiro",
@@ -1392,6 +1423,17 @@
         "Spiteful Hex": "Maldição Maliciosa",
         "Curse Affinity": "Afinidade com Maldições"
       }
+    },
+    "Cyclonic Furnance (effect)": {
+      "id": "WUBIUIHlPkuVItWZ",
+      "name": "Fornalha Ciclônica (efeito)"
+    },
+    "Cyclonic Furnance": {
+      "id": "w9qjFxN7NIiaknbk",
+      "name": "Fornalha Ciclônica",
+      "system.graph.nodes[5].params.effects[0].name": "Fornalha Ciclônica (efeito)",
+      "phases_base_description": "Puxe 1. Cause 2<sd> de dano.",
+      "phases_hit_description": "Adicione <sd> de dano. O alvo não pode sair de seu quadrado por nenhum meio até o final de seu próximo turno."
     },
     "Dagger": {
       "id": "xfOMNcUWr4Pyw7dO",
@@ -1996,6 +2038,13 @@
         "Inaccurate": "Impreciso"
       }
     },
+    "Flame Lash": {
+      "id": "xIC4Jsqos5ghnLyz",
+      "name": "Chicote de Chamas",
+      "system.graph.nodes[4].params.effects[0].name": "Queimadura",
+      "phases_hit_description": "Causa 2<sd> de dano.",
+      "phases_spark_description": "Conceda queimadura 2."
+    },
     "Flame Shaping": {
       "id": "fPMQAXMxA7SqAtZy",
       "name": "Moldagem de Chamas",
@@ -2073,6 +2122,13 @@
         "Flanked": "Flanqueado"
       }
     },
+    "Flare Up": {
+      "id": "q2zmGrh8xEVttInT",
+      "name": "Chama Ardente",
+      "system.graph.nodes[4].params.effects[0].name": "Desprotegido",
+      "phases_base_description": "Cause <sd> de dano. Adicione <sd> de dano a cada alvo que estiver segurando uma fonte de luz, e essa fonte de luz é destruída.",
+      "phases_hit_description": "Adicione <sd> de dano. Conceda desprotegido 2."
+    },
     "Flawless Counter": {
       "id": "StxVWGKSKGIj4T2z",
       "name": "Contra-ataque Impecável",
@@ -2098,6 +2154,14 @@
       "effects": {
         "Bonus Speed (Fleet of Foot)": "Velocidade Bônus (Passo Veloz)"
       }
+    },
+    "Flesh Rot": {
+      "id": "VhT64kFaYIM53Tkn",
+      "name": "Podridão da Carne",
+      "system.graph.nodes[4].params.effects[0].name": "Afligido",
+      "system.graph.nodes[5].params.effects[0].name": "Afligido",
+      "phases_hit_description": "Cause <sd> de dano. Aplique afligido 2.",
+      "phases_spark_description": "Adicione <sd> de dano. Aplique afligido 4 em vez disso."
     },
     "Fletcher": {
       "id": "w9gIeR2EEKxK42cP",
@@ -2375,6 +2439,13 @@
       "id": "q6vLhMfrsmvdDOT6",
       "name": "Gancho de Escalada",
       "description": "<p>Um gancho de escalada pode compartilhar um espaço com um comprimento de corda e pode ser usado em conjunto para escalar lugares altos.</p>"
+    },
+    "Grasping Gale": {
+      "id": "PR7G6jrYUwb60kYM",
+      "name": "Vendaval Agarranteiro",
+      "system.graph.nodes[4].params.effects[0].name": "Desprotegido",
+      "phases_hit_description": "Cause <sd> de dano. Puxe 4.",
+      "phases_spark_description": "Aplique desprotegido 2."
     },
     "Gravedigger": {
       "id": "4xEscLF9erOWhSJq",
@@ -3102,7 +3173,7 @@
       "name": "Bomba Menor de Chamas",
       "description": "<p>Concede queimadura 2.</p>",
       "effects": {
-        "Burning": "Ardente"
+        "Burning": "Queimadura"
       }
     },
     "Lesser Bomb of Force": {
@@ -3173,7 +3244,7 @@
       "name": "Óleo Menor de Chamas",
       "description": "<p>Concede queimadura 4.</p>",
       "effects": {
-        "Burning": "Ardente"
+        "Burning": "Queimadura"
       }
     },
     "Lesser Oil of Frost": {
@@ -4458,7 +4529,7 @@
       "name": "Revelação (Infrno)",
       "target": "Explosão 4",
       "effects_base_description": "Concede Recuperação 2 a cada aliado na área.",
-      "system.effects.hit.appliedEffects[0].name": "Ardente",
+      "system.effects.hit.appliedEffects[0].name": "Queimadura",
       "effects_hit_description": "Concede queimadura 4 a cada inimigo na área de efeito."
     },
     "Revelation (Letters)": {
@@ -4657,6 +4728,18 @@
       "items": {
         "Broken sword hilt": "Punho de espada quebrado"
       }
+    },
+    "Sanguine Veil": {
+      "id": "pt1BPZHKJ9AhE7Dp",
+      "name": "Véu Sanguíneo"
+    },
+    "Sanguine Veil_qk75Jh2hDDXplXVn": {
+      "id": "qk75Jh2hDDXplXVn",
+      "name": "Véu Sanguíneo",
+      "system.graph.nodes[3].params.effects[0].name": "Véu Sanguíneo",
+      "system.graph.nodes[4].params.effects[0].name": "Véu Sanguíneo",
+      "phases_base_description": "Ganhe véu sanguíneo 4. Sempre que um aliado dentro do alcance de feitiço sofrer dano de ataque, você pode redirecionar a INTENSIDADE desse dano para si mesmo.",
+      "phases_hit_description": "Ganhe véu sanguíneo 6 em vez disso."
     },
     "Sapper": {
       "id": "JUPIMxMX4qRWtpzO",
@@ -5382,15 +5465,21 @@
       "name": "Tocha",
       "description": "<p>Fornece luz em um raio de 4. Quando usado como arma, causa 1d4 de dano e pode conferir Queimadura.</p>",
       "effects": {
-        "Burning": "Ardente"
+        "Burning": "Queimadura"
       }
     },
     "Torch_lsTpa9XaewfW4ZS0": {
       "id": "lsTpa9XaewfW4ZS0",
       "name": "Tocha",
       "effects": {
-        "Burning": "Ardente"
+        "Burning": "Queimadura"
       }
+    },
+    "Torment": {
+      "id": "T6t0PXz77CmN3E0T",
+      "name": "Tormento",
+      "phases_hit_description": "Causa <sd> de dano. Adicione +1 de INTENSIDADE a qualquer um dos estados no alvo.",
+      "phases_spark_description": "Adicione +2 de INTENSIDADE em vez disso."
     },
     "Town Guard": {
       "id": "ofD8H0ouTEx2Zpa3",
@@ -5402,6 +5491,13 @@
     "Trained falcon": {
       "id": "WBV9Ukj4keeoeIAQ",
       "name": "Falcão treinado"
+    },
+    "Transfusion": {
+      "id": "mEqEDfjWKhem7KZL",
+      "name": "Transfusão",
+      "phases_base_description": "Causa 2<sd> de dano.",
+      "phases_hit_description": "Transfira um estado daquela criatura para outra criatura ao alcance do feitiço, ou vice-versa.",
+      "phases_spark_description": "Você pode transferir um segundo estado entre o alvo e a mesma ou uma criatura diferente."
     },
     "Transpose": {
       "id": "FlF3WLYIrHdOhznn",
@@ -5803,7 +5899,7 @@
         "Air Pummel": "Golpe de Ar",
         "Cyclone": "Ciclone",
         "Dancing Weapon": "Arma Dançante",
-        "Grasping Gale": "Vendaval Agarrante",
+        "Grasping Gale": "Vendaval Agarranteiro",
         "Scattering Gust": "Rajada Dispersiva",
         "Steal Breath": "Roubar Fôlego",
         "Sweeping Winds": "Ventos Varredores",
@@ -5833,6 +5929,19 @@
     "Wine": {
       "id": "jiX5iCR4kmjOLvPo",
       "name": "Vinho"
+    },
+    "Wings of Wind (effect)": {
+      "id": "vcl2CkTo7fPXyJDK",
+      "name": "Asas do Vento (efeito)",
+      "description": "<p>Uma criatura afetada pode escolher saltar em vez de se mover normalmente. Quando um ataque a erra, ela pode usar uma reação após ser atacada para saltar 4.</p>"
+    },
+    "Wings of Wind": {
+      "id": "vJlaOM52wfgevCCa",
+      "name": "Asas do Vento",
+      "system.graph.nodes[5].params.effects[0].name": "Asas do Vento (efeito)",
+      "phases_base_description": "Concede asas do vento 4 a uma criatura ao alcance. Uma criatura afetada pode escolher saltar em vez de se mover normalmente. Quando um ataque a erra, ela pode usar uma reação  após ser atacada para saltar 4.",
+      "phases_hit_description": "Conceda a uma segunda criatura.",
+      "phases_spark_description": "Conceda a uma terceira criatura."
     },
     "Wolfnose": {
       "id": "SbrghtyPTNa3Ojxv",
@@ -5889,11 +5998,29 @@
         "Vengeful Might": "Poder Vingativo",
         "Foul Temper": "Mau Temperamento"
       }
+    },
+    "Wreathed in Flame (effect)": {
+      "id": "uRwUSMouB9MGhoxs",
+      "name": "Envolto em Chamas (efeito)",
+      "description": "<p>Ao final de seu turno, ele causa 4 de dano a cada inimigo na aura.</p>"
+    },
+    "Wreathed in Flame": {
+      "id": "tzED9uQ4HO48eXRP",
+      "name": "Envolto em Chamas",
+      "description": "<p>Aura 1. Um elemental de fogo ilumina todos os quadrados na área. Ao final de seu turno, ele causa 4 de dano a cada inimigo na aura.</p>",
+      "effects": {
+        "Wreathed in Flame (effect)": "Envolto em Chamas (efeito)"
+      }
+    },
+    "cloud of pestilence (no healingeffect)": {
+      "id": "gxloSYcNRI4pxGrr",
+      "name": "nuvem de peste (sem efeito de cura)"
     }
   },
   "folders": {
     "Adventuring tools": "Ferramentas de aventura",
     "Armor": "Armadura",
+    "Arterial Font (effects)": "Fonte Arterial (efeitos)",
     "Artisans": "Artesãos",
     "Battle": "Batalha",
     "Blood": "Sangue",
@@ -5902,6 +6029,7 @@
     "Brawling": "Briga de Rua",
     "Callings": "Vocações",
     "Cleric": "Clérigo",
+    "Cloud of Pestilence (Terrain)": "Nuvem de Peste (Terreno)",
     "Command": "Comando",
     "Common": "Comum",
     "Concotions": "Concoções",
@@ -5918,6 +6046,7 @@
     "Farmers": "Fazendeiros",
     "Features (Callings)": "Características (Vocações)",
     "Features (Crafts)": "Características (Ofícios)",
+    "Fire Elemental": "Elemental de Fogo",
     "Flames": "Chamas",
     "From Features": "Das Habilidades",
     "From Talents": "Dos Talentos",
@@ -5936,12 +6065,15 @@
     "Magician": "Mago",
     "Marauder": "Saqueador",
     "Merchants": "Mercadores",
+    "Monster Deeds": "Habilidades de Monstros",
+    "Monster Features": "Características de Monstros",
     "Others": "Outros",
     "Outcasts": "Exilados",
     "Past Lifes": "Vidas Passadas",
     "Possessions": "Posses",
     "Prowess": "Destreza",
     "Radiance": "Radiância",
+    "Sanguine Veil": "Véu Sanguíneo",
     "Servants": "Servos",
     "Soldiers": "Soldados",
     "Special": "Especial",
@@ -5954,6 +6086,7 @@
     "Weapons": "Armas",
     "Wilds": "Terras Selvagens",
     "Wind": "Vento",
+    "Wings of Wind (effect)": "Asas do Vento (efeito)",
     "Wrath": "Ira"
   }
 }

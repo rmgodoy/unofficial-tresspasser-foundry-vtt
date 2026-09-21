@@ -1,0 +1,85 @@
+{
+  "folder": "JRsvUy002iqjm6E6",
+  "name": "Cloud of Pestilence",
+  "type": "terrain",
+  "_id": "D5imK2jiYV4olBn0",
+  "img": "icons/svg/item-bag.svg",
+  "system": {
+    "category": "light_cloud",
+    "width": 4,
+    "height": 4,
+    "terrainDamage": 0,
+    "extraMovementCost": 0,
+    "slippery": false,
+    "destructible": true,
+    "centerMode": "fixed",
+    "centerActorId": "",
+    "terrainImage": null,
+    "behaviors": [
+      {
+        "trigger": "onStartTurn",
+        "action": "applyEffect",
+        "onlyOnFirstEntry": false,
+        "effects": [
+          {
+            "uuid": "Compendium.trespasser.trespasser-content.Item.xClBUuzde7pga8Z5",
+            "name": "Afflicted",
+            "img": "systems/trespasser/assets/icons/states/Afflicted.svg",
+            "intensity": "<Int>"
+          }
+        ],
+        "effectUuid": "",
+        "effectName": "",
+        "effectImg": "",
+        "effectIntensity": "1",
+        "forcedMovementType": "",
+        "forcedMovementDistance": "0",
+        "forcedMovementDirection": "away_from_origin",
+        "damageFormula": "",
+        "script": ""
+      }
+    ],
+    "interactable": false,
+    "interactAction": {
+      "label": "",
+      "actionCost": 1,
+      "actionType": "",
+      "moveDistance": 0,
+      "moveEffect": ""
+    },
+    "linkedEffects": [
+      {
+        "uuid": "Compendium.trespasser.trespasser-content.Item.L0zhPndUWQPNVkkJ",
+        "name": "Cloud of Pestilence (terrain efefct)",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": "0"
+      }
+    ],
+    "linkedEffect": {
+      "uuid": "Compendium.trespasser.trespasser-content.Item.L0zhPndUWQPNVkkJ",
+      "name": "Cloud of Pestilence (terrain efefct)",
+      "img": "systems/trespasser/assets/icons/effect.webp"
+    },
+    "linkedEffectKey": "Compendium.trespasser.trespasser-content.Item.L0zhPndUWQPNVkkJ",
+    "regionColor": "#c9fe67"
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790021434506,
+    "modifiedTime": 1790021534156,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!D5imK2jiYV4olBn0"
+}

@@ -1,0 +1,202 @@
+{
+  "folder": "JQccULlaCyPlMBIw",
+  "name": "Flare Up",
+  "type": "deed",
+  "_id": "q2zmGrh8xEVttInT",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "heavy",
+    "actionType": "attack",
+    "abilityType": "innate",
+    "versus": "Guard",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "Deal <sd> damage. Add <sd> damage to each target holding a light source, and that light source is destroyed.",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Add <sd> damage. Confer unguarded 2.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "IKy4DAqekWkVWA8p",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "ecilY45J3dWR92kw",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "aoe",
+            "disposition": "any",
+            "targetCount": 1,
+            "aoeType": "burst"
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "7BpiaREqYqwjShKD",
+          "type": "rollAccuracy",
+          "phase": "base",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "innate",
+            "versus": "Guard"
+          },
+          "x": 620,
+          "y": 180
+        },
+        {
+          "id": "Y2GAlR2jwThUywxW",
+          "type": "applyDamage",
+          "phase": "hit",
+          "params": {
+            "expression": "<sd>"
+          },
+          "x": 937,
+          "y": 153
+        },
+        {
+          "id": "csxAdcEX4gHUej2A",
+          "type": "applyEffects",
+          "phase": "spark",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.9R5Y8QGjEbVctHlA",
+                "name": "Unguarded",
+                "img": "systems/trespasser/assets/icons/states/Unguarded.svg",
+                "intensity": 2
+              }
+            ]
+          },
+          "x": 1262,
+          "y": 305
+        },
+        {
+          "id": "cPksoVJl6c2hvjRE",
+          "type": "applyDamage",
+          "phase": "inherit",
+          "params": {
+            "expression": "<sd>"
+          },
+          "x": 939,
+          "y": 308
+        }
+      ],
+      "connections": [
+        {
+          "id": "Tvmgr5o27E3ojl3b",
+          "sourceId": "IKy4DAqekWkVWA8p",
+          "sourcePort": "out",
+          "targetId": "ecilY45J3dWR92kw",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "tv7EflredPfSKUIb",
+          "sourceId": "ecilY45J3dWR92kw",
+          "sourcePort": "out",
+          "targetId": "7BpiaREqYqwjShKD",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "9FHuBL6i8jUpTgzY",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onHit",
+          "targetId": "Y2GAlR2jwThUywxW",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "tzS84Zz0RTfELSFD",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onSpark",
+          "targetId": "cPksoVJl6c2hvjRE",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "fKbJxpM3Um6x7q0F",
+          "sourceId": "cPksoVJl6c2hvjRE",
+          "sourcePort": "out",
+          "targetId": "csxAdcEX4gHUej2A",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -265.88190000000003,
+        "panY": 87.3480609375,
+        "zoom": 0.6561000000000001,
+        "selectedNodeId": "7BpiaREqYqwjShKD"
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790022584617,
+    "modifiedTime": 1790022760354,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!q2zmGrh8xEVttInT"
+}

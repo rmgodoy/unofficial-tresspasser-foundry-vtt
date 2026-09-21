@@ -1,0 +1,88 @@
+{
+  "folder": "9JP2idErR2OcrZi2",
+  "name": "Wreathed in Flame (effect)",
+  "type": "effect",
+  "_id": "uRwUSMouB9MGhoxs",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "<p>At the end of its turn, it deals 4 damage to each enemy in the aura.</p>",
+    "type": "continuous",
+    "movementType": "walk",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "immediate",
+    "scope": "self",
+    "targetLimit": "all",
+    "targetLimitCount": 1,
+    "rangeType": "custom",
+    "rangeRequirement": 0,
+    "interceptionMode": "none",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "indefinite",
+        "value": null
+      }
+    ],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": false,
+    "isLasting": false,
+    "statusIcon": "systems/trespasser/assets/icons/effect.webp",
+    "syncStatusIcon": true,
+    "behaviors": [
+      {
+        "id": "jELcMfzX",
+        "label": "",
+        "trigger": "end-of-turn",
+        "condition": "",
+        "action": "modify_attribute",
+        "actionTarget": "adjacent",
+        "params": {
+          "attribute": "health",
+          "modifier": "-4",
+          "applyMode": "delta"
+        },
+        "requiresConfirmation": false,
+        "choiceGroup": "",
+        "choiceLabel": "",
+        "gatedBy": "",
+        "cooldown": null,
+        "cost": null,
+        "priority": null,
+        "scope": "",
+        "rangeType": "",
+        "range": 0,
+        "promptText": ""
+      }
+    ],
+    "tags": [],
+    "effectPriority": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790023222860,
+    "modifiedTime": 1790023283861,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!uRwUSMouB9MGhoxs"
+}

@@ -1,0 +1,40 @@
+{
+  "folder": "9JP2idErR2OcrZi2",
+  "name": "Wreathed in Flame",
+  "type": "feature",
+  "_id": "tzED9uQ4HO48eXRP",
+  "img": "systems/trespasser/assets/icons/feature.webp",
+  "system": {
+    "description": "<p>Aura 1. A fire elemental illuminates all squares in the area. At the end of its turn, it deals 4 damage to each enemy in the aura.</p>",
+    "type": "none",
+    "effects": [
+      {
+        "uuid": "Compendium.trespasser.trespasser-content.Item.uRwUSMouB9MGhoxs",
+        "type": "effect",
+        "name": "Wreathed in Flame (effect)",
+        "img": "systems/trespasser/assets/icons/effect.webp",
+        "intensity": 0
+      }
+    ],
+    "deeds": []
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790023195801,
+    "modifiedTime": 1790023294423,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!tzED9uQ4HO48eXRP"
+}

@@ -1,0 +1,210 @@
+{
+  "folder": "GpaWfUgqqCpQUaUm",
+  "name": "Cloud of Pestilence",
+  "type": "deed",
+  "_id": "LYOOHQABNhzB5CbZ",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "heavy",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "Resist",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "Gain cloud of pestilence 4, a state controlling a light cloud of swirling disease in the area. Creatures cannot regain hit points inside, and a creature that starts its turn inside gains afflicted (INTENSITY).",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Deal 2<sd> damage.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "IKy4DAqekWkVWA8p",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": -9,
+          "y": 207
+        },
+        {
+          "id": "7BpiaREqYqwjShKD",
+          "type": "rollAccuracy",
+          "phase": "inherit",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Resist"
+          },
+          "x": 602,
+          "y": 177
+        },
+        {
+          "id": "Y2GAlR2jwThUywxW",
+          "type": "applyDamage",
+          "phase": "hit",
+          "params": {
+            "expression": "2<sd>"
+          },
+          "x": 1162,
+          "y": 217
+        },
+        {
+          "id": "u4fdSgWE9xC2kp5y",
+          "type": "selectArea",
+          "phase": "inherit",
+          "params": {
+            "aoeType": "blast",
+            "aoeSize": 4,
+            "targetMode": "aoe"
+          },
+          "x": 4,
+          "y": 65
+        },
+        {
+          "id": "0T4blkosbqV8wOnf",
+          "type": "spawnTerrain",
+          "phase": "inherit",
+          "params": {
+            "areaBehaviorId": "u4fdSgWE9xC2kp5y",
+            "placement": "selected_area",
+            "terrainUuid": "Compendium.trespasser.trespasser-content.Item.D5imK2jiYV4olBn0",
+            "terrainName": "Cloud of Pestilence",
+            "terrainImg": "icons/svg/item-bag.svg",
+            "intensity": 4
+          },
+          "x": 313,
+          "y": 200
+        },
+        {
+          "id": "IMiUUX83m8XstI86",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "area",
+            "disposition": "any",
+            "targetCount": 1,
+            "areaBehaviorId": "u4fdSgWE9xC2kp5y"
+          },
+          "x": 888,
+          "y": 222
+        }
+      ],
+      "connections": [
+        {
+          "id": "jaFFP1y7pHmPNrY1",
+          "sourceId": "IKy4DAqekWkVWA8p",
+          "sourcePort": "out",
+          "targetId": "0T4blkosbqV8wOnf",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "kWALHwoQYtpmaNIP",
+          "sourceId": "u4fdSgWE9xC2kp5y",
+          "sourcePort": "out",
+          "targetId": "0T4blkosbqV8wOnf",
+          "targetPort": "areaRef",
+          "type": "reference"
+        },
+        {
+          "id": "KFP3XAgOZ3ovECtj",
+          "sourceId": "0T4blkosbqV8wOnf",
+          "sourcePort": "out",
+          "targetId": "7BpiaREqYqwjShKD",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "S7Zf9PY0eheBzSDs",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onHit",
+          "targetId": "IMiUUX83m8XstI86",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "UNpKi34DkGcniXl2",
+          "sourceId": "IMiUUX83m8XstI86",
+          "sourcePort": "out",
+          "targetId": "Y2GAlR2jwThUywxW",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "ZYdRra6w1AS5DyaA",
+          "sourceId": "u4fdSgWE9xC2kp5y",
+          "sourcePort": "out",
+          "targetId": "IMiUUX83m8XstI86",
+          "targetPort": "areaRef",
+          "type": "reference"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": 40,
+        "panY": 40,
+        "zoom": 1,
+        "selectedNodeId": null
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790021549843,
+    "modifiedTime": 1790021662037,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!LYOOHQABNhzB5CbZ"
+}

@@ -1,0 +1,203 @@
+{
+  "folder": "JQccULlaCyPlMBIw",
+  "name": "Cyclonic Furnance",
+  "type": "deed",
+  "_id": "w9qjFxN7NIiaknbk",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "mighty",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "Resist",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "Pull 1. Deal 2<sd> damage.",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Add <sd> damage. The target can't leave its square by any means until the end of its next turn.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "IKy4DAqekWkVWA8p",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "ecilY45J3dWR92kw",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "aoe",
+            "disposition": "any",
+            "targetCount": 1,
+            "aoeType": "burst",
+            "aoeSize": 2
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "7BpiaREqYqwjShKD",
+          "type": "rollAccuracy",
+          "phase": "inherit",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Resist"
+          },
+          "x": 950,
+          "y": 147
+        },
+        {
+          "id": "Y2GAlR2jwThUywxW",
+          "type": "applyDamage",
+          "phase": "hit",
+          "params": {
+            "expression": "<sd>"
+          },
+          "x": 1241,
+          "y": 160
+        },
+        {
+          "id": "7AfsfzuV08XA6yxG",
+          "type": "applyDamage",
+          "phase": "inherit",
+          "params": {
+            "expression": "2<sd>"
+          },
+          "x": 636,
+          "y": 181
+        },
+        {
+          "id": "o9DnvGFnruMKcmW3",
+          "type": "applyEffects",
+          "phase": "inherit",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.WUBIUIHlPkuVItWZ",
+                "name": "Cyclonic Furnance (effect)",
+                "img": "systems/trespasser/assets/icons/effect.webp",
+                "intensity": 1
+              }
+            ]
+          },
+          "x": 1532,
+          "y": 159
+        }
+      ],
+      "connections": [
+        {
+          "id": "Tvmgr5o27E3ojl3b",
+          "sourceId": "IKy4DAqekWkVWA8p",
+          "sourcePort": "out",
+          "targetId": "ecilY45J3dWR92kw",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "9FHuBL6i8jUpTgzY",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onHit",
+          "targetId": "Y2GAlR2jwThUywxW",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "B1LmhkF05ALSKhGo",
+          "sourceId": "ecilY45J3dWR92kw",
+          "sourcePort": "out",
+          "targetId": "7AfsfzuV08XA6yxG",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "9N5J8VRjbyMPZnu5",
+          "sourceId": "7AfsfzuV08XA6yxG",
+          "sourcePort": "out",
+          "targetId": "7BpiaREqYqwjShKD",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "SREjVLMSgOJqraoC",
+          "sourceId": "Y2GAlR2jwThUywxW",
+          "sourcePort": "out",
+          "targetId": "o9DnvGFnruMKcmW3",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -754.1644513303003,
+        "panY": -30.183099450864233,
+        "zoom": 0.7780827681000003,
+        "selectedNodeId": "o9DnvGFnruMKcmW3"
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790022789818,
+    "modifiedTime": 1790023121533,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!w9qjFxN7NIiaknbk"
+}

@@ -1,23 +1,23 @@
 {
   "type": "Item",
-  "folder": null,
-  "name": "Deeds (Crafts)",
+  "folder": "WMHAFPGu39x3DPDY",
+  "name": "Wind",
   "color": null,
   "sorting": "a",
-  "_id": "WMHAFPGu39x3DPDY",
+  "_id": "8rqEgfnOtD9EKri6",
   "description": "",
-  "sort": 200000,
+  "sort": 0,
   "flags": {},
   "_stats": {
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-12",
-    "createdTime": 1789599537689,
-    "modifiedTime": 1789866997270,
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790021676236,
+    "modifiedTime": 1790021676236,
     "lastModifiedBy": "yywZQPY84nrAEthp",
     "compendiumSource": null,
     "duplicateSource": null,
     "exportSource": null
   },
-  "_key": "!folders!WMHAFPGu39x3DPDY"
+  "_key": "!folders!8rqEgfnOtD9EKri6"
 }

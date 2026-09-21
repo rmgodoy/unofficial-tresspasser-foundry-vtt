@@ -1,0 +1,202 @@
+{
+  "folder": "8rqEgfnOtD9EKri6",
+  "name": "Grasping Gale",
+  "type": "deed",
+  "_id": "PR7G6jrYUwb60kYM",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "light",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "Guard",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Deal <sd> damage. Pull 4.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "Confer unguarded 2.",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "IKy4DAqekWkVWA8p",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "ecilY45J3dWR92kw",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "7BpiaREqYqwjShKD",
+          "type": "rollAccuracy",
+          "phase": "base",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Guard"
+          },
+          "x": 620,
+          "y": 180
+        },
+        {
+          "id": "Y2GAlR2jwThUywxW",
+          "type": "applyDamage",
+          "phase": "hit",
+          "params": {
+            "expression": "<sd>"
+          },
+          "x": 900,
+          "y": 100
+        },
+        {
+          "id": "csxAdcEX4gHUej2A",
+          "type": "applyEffects",
+          "phase": "spark",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.9R5Y8QGjEbVctHlA",
+                "name": "Unguarded",
+                "img": "systems/trespasser/assets/icons/states/Unguarded.svg",
+                "intensity": 2
+              }
+            ]
+          },
+          "x": 900,
+          "y": 260
+        },
+        {
+          "id": "txAj6P2r4SYZgNb0",
+          "type": "forceMoveTargets",
+          "phase": "inherit",
+          "params": {
+            "type": "pull",
+            "distance": 4
+          },
+          "x": 1216,
+          "y": 105
+        }
+      ],
+      "connections": [
+        {
+          "id": "Tvmgr5o27E3ojl3b",
+          "sourceId": "IKy4DAqekWkVWA8p",
+          "sourcePort": "out",
+          "targetId": "ecilY45J3dWR92kw",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "tv7EflredPfSKUIb",
+          "sourceId": "ecilY45J3dWR92kw",
+          "sourcePort": "out",
+          "targetId": "7BpiaREqYqwjShKD",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "9FHuBL6i8jUpTgzY",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onHit",
+          "targetId": "Y2GAlR2jwThUywxW",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "rtKE7dx24m2x7qtf",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onSpark",
+          "targetId": "csxAdcEX4gHUej2A",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "L04vTM0ZlHxPPPqu",
+          "sourceId": "Y2GAlR2jwThUywxW",
+          "sourcePort": "out",
+          "targetId": "txAj6P2r4SYZgNb0",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -204.6183880000002,
+        "panY": 32.900297109374975,
+        "zoom": 0.5314410000000002,
+        "selectedNodeId": null
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790021784486,
+    "modifiedTime": 1790021838580,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!PR7G6jrYUwb60kYM"
+}

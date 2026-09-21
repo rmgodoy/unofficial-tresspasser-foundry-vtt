@@ -1,0 +1,88 @@
+{
+  "folder": "SnhaYNR2Aptpmneb",
+  "name": "Arterial Font",
+  "type": "effect",
+  "_id": "ZASoyWbUX8TfRueg",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "",
+    "type": "continuous",
+    "movementType": "walk",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "immediate",
+    "scope": "self",
+    "targetLimit": "all",
+    "targetLimitCount": 1,
+    "rangeType": "custom",
+    "rangeRequirement": 0,
+    "interceptionMode": "none",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "indefinite",
+        "value": null
+      }
+    ],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": true,
+    "isLasting": false,
+    "statusIcon": "systems/trespasser/assets/icons/effect.webp",
+    "syncStatusIcon": true,
+    "behaviors": [
+      {
+        "id": "iWsYRHqc",
+        "label": "",
+        "trigger": "damage-received",
+        "condition": "",
+        "action": "modify_attribute",
+        "actionTarget": "target",
+        "params": {
+          "attribute": "health",
+          "modifier": "+<Int>",
+          "applyMode": "delta"
+        },
+        "requiresConfirmation": false,
+        "choiceGroup": "",
+        "choiceLabel": "",
+        "gatedBy": "",
+        "cooldown": null,
+        "cost": null,
+        "priority": null,
+        "scope": "",
+        "rangeType": "",
+        "range": 0,
+        "promptText": ""
+      }
+    ],
+    "tags": [],
+    "effectPriority": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1789909379230,
+    "modifiedTime": 1789910223867,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!ZASoyWbUX8TfRueg"
+}

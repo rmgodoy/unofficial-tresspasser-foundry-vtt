@@ -1,0 +1,202 @@
+{
+  "folder": "8rqEgfnOtD9EKri6",
+  "name": "Air Pummel",
+  "type": "deed",
+  "_id": "VYr3alKbuvufNM4Y",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "light",
+    "actionType": "attack",
+    "abilityType": "innate",
+    "versus": "Guard",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Deal 2<sd> damage. Sweep 2.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "Confer toppled.",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "IKy4DAqekWkVWA8p",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "ecilY45J3dWR92kw",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "7BpiaREqYqwjShKD",
+          "type": "rollAccuracy",
+          "phase": "base",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "innate",
+            "versus": "Guard"
+          },
+          "x": 620,
+          "y": 180
+        },
+        {
+          "id": "Y2GAlR2jwThUywxW",
+          "type": "applyDamage",
+          "phase": "hit",
+          "params": {
+            "expression": "2<sd>"
+          },
+          "x": 900,
+          "y": 100
+        },
+        {
+          "id": "csxAdcEX4gHUej2A",
+          "type": "applyEffects",
+          "phase": "spark",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.SihFJEG1cPOzBaXN",
+                "name": "Toppled",
+                "img": "systems/trespasser/assets/icons/states/Toppled.svg",
+                "intensity": 0
+              }
+            ]
+          },
+          "x": 900,
+          "y": 260
+        },
+        {
+          "id": "PHYThG0Em3OSvZq1",
+          "type": "forceMoveTargets",
+          "phase": "inherit",
+          "params": {
+            "type": "sweep",
+            "distance": 2
+          },
+          "x": 1218,
+          "y": 95
+        }
+      ],
+      "connections": [
+        {
+          "id": "Tvmgr5o27E3ojl3b",
+          "sourceId": "IKy4DAqekWkVWA8p",
+          "sourcePort": "out",
+          "targetId": "ecilY45J3dWR92kw",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "tv7EflredPfSKUIb",
+          "sourceId": "ecilY45J3dWR92kw",
+          "sourcePort": "out",
+          "targetId": "7BpiaREqYqwjShKD",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "9FHuBL6i8jUpTgzY",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onHit",
+          "targetId": "Y2GAlR2jwThUywxW",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "rtKE7dx24m2x7qtf",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onSpark",
+          "targetId": "csxAdcEX4gHUej2A",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "r9Xzx9wfvEuw35HU",
+          "sourceId": "Y2GAlR2jwThUywxW",
+          "sourcePort": "out",
+          "targetId": "PHYThG0Em3OSvZq1",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -298,
+        "panY": 39,
+        "zoom": 1,
+        "selectedNodeId": "7BpiaREqYqwjShKD"
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790021709238,
+    "modifiedTime": 1790021763606,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!VYr3alKbuvufNM4Y"
+}

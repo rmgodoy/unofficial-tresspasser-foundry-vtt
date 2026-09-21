@@ -1,0 +1,226 @@
+{
+  "folder": "GpaWfUgqqCpQUaUm",
+  "name": "Flesh Rot",
+  "type": "deed",
+  "_id": "VhT64kFaYIM53Tkn",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "light",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "Resist",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Deal <sd> damage. Confer afflicted 2.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "Add <sd> damage. Confer afflicted 4 instead.",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "IKy4DAqekWkVWA8p",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "ecilY45J3dWR92kw",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "7BpiaREqYqwjShKD",
+          "type": "rollAccuracy",
+          "phase": "base",
+          "params": {
+            "branchingMode": "hitOrSpark",
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Resist"
+          },
+          "x": 620,
+          "y": 180
+        },
+        {
+          "id": "Y2GAlR2jwThUywxW",
+          "type": "applyDamage",
+          "phase": "hit",
+          "params": {
+            "expression": "<sd>"
+          },
+          "x": 922,
+          "y": 75
+        },
+        {
+          "id": "csxAdcEX4gHUej2A",
+          "type": "applyEffects",
+          "phase": "spark",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.xClBUuzde7pga8Z5",
+                "name": "Afflicted",
+                "img": "systems/trespasser/assets/icons/states/Afflicted.svg",
+                "intensity": 4
+              }
+            ]
+          },
+          "x": 1215,
+          "y": 274
+        },
+        {
+          "id": "aL7Z2Nq4gbrONFzd",
+          "type": "applyEffects",
+          "phase": "hit",
+          "params": {
+            "effects": [
+              {
+                "uuid": "Compendium.trespasser.trespasser-content.Item.xClBUuzde7pga8Z5",
+                "name": "Afflicted",
+                "img": "systems/trespasser/assets/icons/states/Afflicted.svg",
+                "intensity": 2
+              }
+            ]
+          },
+          "x": 1207,
+          "y": 68
+        },
+        {
+          "id": "L1b5dFgaRSIk1dvj",
+          "type": "applyDamage",
+          "phase": "spark",
+          "params": {
+            "expression": "2<sd>"
+          },
+          "x": 921,
+          "y": 273
+        }
+      ],
+      "connections": [
+        {
+          "id": "Tvmgr5o27E3ojl3b",
+          "sourceId": "IKy4DAqekWkVWA8p",
+          "sourcePort": "out",
+          "targetId": "ecilY45J3dWR92kw",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "tv7EflredPfSKUIb",
+          "sourceId": "ecilY45J3dWR92kw",
+          "sourcePort": "out",
+          "targetId": "7BpiaREqYqwjShKD",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "jzpzCPuPFQrlMNlg",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onHit",
+          "targetId": "Y2GAlR2jwThUywxW",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "Bzodw25bL5yIWwFr",
+          "sourceId": "Y2GAlR2jwThUywxW",
+          "sourcePort": "out",
+          "targetId": "aL7Z2Nq4gbrONFzd",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "gJmS7oJFYYi4IzAB",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onSpark",
+          "targetId": "L1b5dFgaRSIk1dvj",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "QV1X82vzrAYGC4Dk",
+          "sourceId": "L1b5dFgaRSIk1dvj",
+          "sourcePort": "out",
+          "targetId": "csxAdcEX4gHUej2A",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -276,
+        "panY": 51,
+        "zoom": 1,
+        "selectedNodeId": null
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790021041954,
+    "modifiedTime": 1790021210065,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!VhT64kFaYIM53Tkn"
+}

@@ -1,0 +1,87 @@
+{
+  "folder": "JQccULlaCyPlMBIw",
+  "name": "Cyclonic Furnance (effect)",
+  "type": "effect",
+  "_id": "WUBIUIHlPkuVItWZ",
+  "img": "systems/trespasser/assets/icons/effect.webp",
+  "system": {
+    "description": "",
+    "type": "continuous",
+    "movementType": "walk",
+    "isCombat": true,
+    "isOnlyReminder": false,
+    "gmOnly": false,
+    "intensity": 0,
+    "targetAttribute": "health",
+    "modifier": "0",
+    "conferredState": "",
+    "when": "immediate",
+    "scope": "self",
+    "targetLimit": "all",
+    "targetLimitCount": 1,
+    "rangeType": "custom",
+    "rangeRequirement": 0,
+    "interceptionMode": "none",
+    "duration": "indefinite",
+    "durationValue": 0,
+    "durationOperator": "OR",
+    "durationConditions": [
+      {
+        "mode": "round",
+        "value": 1
+      }
+    ],
+    "intensityIncrement": 0,
+    "counterStates": [],
+    "isPrevailable": false,
+    "isLasting": false,
+    "statusIcon": "systems/trespasser/assets/icons/effect.webp",
+    "syncStatusIcon": true,
+    "behaviors": [
+      {
+        "id": "tEDx4y7R",
+        "label": "",
+        "trigger": "immediate",
+        "condition": "",
+        "action": "set_flag",
+        "actionTarget": "self",
+        "params": {
+          "flag": "cannotMove",
+          "value": "true"
+        },
+        "requiresConfirmation": false,
+        "choiceGroup": "",
+        "choiceLabel": "",
+        "gatedBy": "",
+        "cooldown": null,
+        "cost": null,
+        "priority": null,
+        "scope": "",
+        "rangeType": "",
+        "range": 0,
+        "promptText": ""
+      }
+    ],
+    "tags": [],
+    "effectPriority": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790023043803,
+    "modifiedTime": 1790023112045,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!WUBIUIHlPkuVItWZ"
+}

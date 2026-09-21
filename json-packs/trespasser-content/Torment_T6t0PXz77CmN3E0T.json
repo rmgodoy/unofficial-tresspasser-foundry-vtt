@@ -1,0 +1,215 @@
+{
+  "folder": "GpaWfUgqqCpQUaUm",
+  "name": "Torment",
+  "type": "deed",
+  "_id": "T6t0PXz77CmN3E0T",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "light",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "Resist",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Deal <sd> damage. Add +1 INTENSITY to any one state on the target.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "Add +2 INTENSITY instead.",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "IKy4DAqekWkVWA8p",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "ecilY45J3dWR92kw",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "7BpiaREqYqwjShKD",
+          "type": "rollAccuracy",
+          "phase": "base",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Resist"
+          },
+          "x": 620,
+          "y": 180
+        },
+        {
+          "id": "Y2GAlR2jwThUywxW",
+          "type": "applyDamage",
+          "phase": "hit",
+          "params": {
+            "expression": "<sd>"
+          },
+          "x": 933,
+          "y": 125
+        },
+        {
+          "id": "kh6WtW47R88gRWUs",
+          "type": "modifyEffects",
+          "phase": "inherit",
+          "params": {
+            "effectFilter": "all",
+            "operation": "increase"
+          },
+          "x": 1229,
+          "y": 120
+        },
+        {
+          "id": "4aRHosKuhsdfOPIT",
+          "type": "applyDamage",
+          "phase": "hit",
+          "params": {
+            "expression": "<sd>"
+          },
+          "x": 922,
+          "y": 279
+        },
+        {
+          "id": "eEsRjxX5Bl7EJO42",
+          "type": "modifyEffects",
+          "phase": "inherit",
+          "params": {
+            "effectFilter": "all",
+            "operation": "increase",
+            "intensityDelta": 2
+          },
+          "x": 1228,
+          "y": 277
+        }
+      ],
+      "connections": [
+        {
+          "id": "Tvmgr5o27E3ojl3b",
+          "sourceId": "IKy4DAqekWkVWA8p",
+          "sourcePort": "out",
+          "targetId": "ecilY45J3dWR92kw",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "tv7EflredPfSKUIb",
+          "sourceId": "ecilY45J3dWR92kw",
+          "sourcePort": "out",
+          "targetId": "7BpiaREqYqwjShKD",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "9FHuBL6i8jUpTgzY",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onHit",
+          "targetId": "Y2GAlR2jwThUywxW",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "bqvmP20W9rFrAxvr",
+          "sourceId": "Y2GAlR2jwThUywxW",
+          "sourcePort": "out",
+          "targetId": "kh6WtW47R88gRWUs",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "r1SNDqLogFNCRVhh",
+          "sourceId": "7BpiaREqYqwjShKD",
+          "sourcePort": "onSpark",
+          "targetId": "4aRHosKuhsdfOPIT",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "GrKjO0Squ62iPT2f",
+          "sourceId": "4aRHosKuhsdfOPIT",
+          "sourcePort": "out",
+          "targetId": "eEsRjxX5Bl7EJO42",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -336.51,
+        "panY": 13.746718749999957,
+        "zoom": 0.81,
+        "selectedNodeId": "7BpiaREqYqwjShKD"
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1790021218935,
+    "modifiedTime": 1790021347583,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!T6t0PXz77CmN3E0T"
+}

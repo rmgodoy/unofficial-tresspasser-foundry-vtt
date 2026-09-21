@@ -1,0 +1,195 @@
+{
+  "folder": "k6JUbXFCMOzTt7RK",
+  "name": "Transfusion",
+  "type": "deed",
+  "_id": "mEqEDfjWKhem7KZL",
+  "img": "systems/trespasser/assets/icons/deed.webp",
+  "system": {
+    "target": null,
+    "targetType": null,
+    "targetCount": null,
+    "targetSize": null,
+    "accuracyTest": null,
+    "effects": null,
+    "type": "",
+    "tier": "heavy",
+    "actionType": "attack",
+    "abilityType": "spell",
+    "versus": "Resist",
+    "focusCost": null,
+    "focusIncrease": null,
+    "bonusCost": null,
+    "uses": 0,
+    "range": null,
+    "phases": {
+      "start": {
+        "description": "",
+        "skipPhase": false
+      },
+      "before": {
+        "description": "",
+        "skipPhase": false
+      },
+      "base": {
+        "description": "Deal 2<sd> damage.",
+        "skipPhase": false
+      },
+      "hit": {
+        "description": "Transfer one state on that creature to another creature in spell range, or vice versa.",
+        "skipPhase": false
+      },
+      "spark": {
+        "description": "You can transfer a second state between the target and the same or a different creature.",
+        "skipPhase": false
+      },
+      "after": {
+        "description": "",
+        "skipPhase": false
+      },
+      "end": {
+        "description": "",
+        "skipPhase": false
+      }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "y9TU2izD2M83tykW",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "yX0uKw4tSkZKsp5e",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "Gp4D2Lzc3ATXaB4J",
+          "type": "transferState",
+          "phase": "inherit",
+          "params": {
+            "transferMode": "targetToAnother",
+            "choiceMode": "choose_count"
+          },
+          "x": 1270,
+          "y": 274
+        },
+        {
+          "id": "fDaWOrEKXm3NvExm",
+          "type": "transferState",
+          "phase": "inherit",
+          "params": {
+            "transferMode": "targetToAnother"
+          },
+          "x": 1282,
+          "y": 110
+        },
+        {
+          "id": "vvfyEVJo8kHhWKmR",
+          "type": "applyDamage",
+          "phase": "inherit",
+          "params": {
+            "expression": "2<sd>"
+          },
+          "x": 631,
+          "y": 179
+        },
+        {
+          "id": "OLlK8WolbQmjRPWS",
+          "type": "rollAccuracy",
+          "phase": "inherit",
+          "params": {
+            "actionType": "attack",
+            "abilityType": "spell",
+            "versus": "Resist",
+            "branchingMode": "hitThenSpark"
+          },
+          "x": 938,
+          "y": 177
+        }
+      ],
+      "connections": [
+        {
+          "id": "Ol02DM2kvjuo6Mp6",
+          "sourceId": "y9TU2izD2M83tykW",
+          "sourcePort": "out",
+          "targetId": "yX0uKw4tSkZKsp5e",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "sC5WbzGZzApt6lHb",
+          "sourceId": "yX0uKw4tSkZKsp5e",
+          "sourcePort": "out",
+          "targetId": "vvfyEVJo8kHhWKmR",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "wPkIbTVTv6GsIWV2",
+          "sourceId": "vvfyEVJo8kHhWKmR",
+          "sourcePort": "out",
+          "targetId": "OLlK8WolbQmjRPWS",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "LBxfniFS7qs7MFzf",
+          "sourceId": "OLlK8WolbQmjRPWS",
+          "sourcePort": "onHit",
+          "targetId": "fDaWOrEKXm3NvExm",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "FPCXKiMwm8OjZncc",
+          "sourceId": "OLlK8WolbQmjRPWS",
+          "sourcePort": "onSpark",
+          "targetId": "Gp4D2Lzc3ATXaB4J",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "legacyPhases": null
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -193.63459278300013,
+        "panY": 94.62272817548416,
+        "zoom": 0.8645364090000005,
+        "selectedNodeId": "fDaWOrEKXm3NvExm"
+      }
+    }
+  },
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-13",
+    "createdTime": 1789906483309,
+    "modifiedTime": 1789908963524,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!mEqEDfjWKhem7KZL"
+}
