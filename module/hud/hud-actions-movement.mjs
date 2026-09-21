@@ -3,6 +3,7 @@ import { TrespasserCombat }        from "../documents/combat.mjs";
 import { MovementOverlay }         from "../canvas/movement-overlay.mjs";
 import { ForcedMovementHelper }    from "../helpers/forced-movement-helper.mjs";
 import { getCombatant, getVaultRange } from "./hud-context.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 /**
  * Handle panel toggling specifically for Move and Movement overlays.
@@ -17,12 +18,12 @@ export function handleMovePanelPreToggle(hud, panelId) {
     return true;
   }
   const combatant = getCombatant(hud._token);
-  const moveActionTaken = combatant?.getFlag("trespasser", "moveActionTaken");
-  const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
+  const moveActionTaken = getSystemFlag(combatant, "moveActionTaken");
+  const restrictMovement = game.settings.get(SYSTEM_ID, "restrictMovementAction");
   
   if (moveActionTaken && restrictMovement) {
-    const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
-    const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
+    const movementUsed = getSystemFlag(combatant, "movementUsed") ?? 0;
+    const movementAllowed = getSystemFlag(combatant, "movementAllowed") ?? 0;
     const pointsLeft = movementAllowed - movementUsed;
     
     if (pointsLeft > 0) {
@@ -43,10 +44,10 @@ export function handleMovePanelPreToggle(hud, panelId) {
  */
 export function updateMovementOverlayForPanel(hud, panelId, panelNowOpen) {
   if (panelId === "move") {
-    const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
+    const restrictMovement = game.settings.get(SYSTEM_ID, "restrictMovementAction");
     if (panelNowOpen && restrictMovement && hud._token) {
       const combatant = getCombatant(hud._token);
-      const availableAP = combatant?.getFlag("trespasser", "actionPoints") ?? 3;
+      const availableAP = getSystemFlag(combatant, "actionPoints") ?? 3;
       const speed = Math.max(0, hud._token.actor?.system.combat?.speed ?? 5);
       const vaultRange = getVaultRange(hud._token);
       MovementOverlay.showInformativeOverlay(hud._token, speed, vaultRange, availableAP);
@@ -75,8 +76,8 @@ export async function executeMove(hud) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   
   if (restrictAPF && currentAP < cost) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
@@ -87,12 +88,12 @@ export async function executeMove(hud) {
   const dist = speed + (cost - 1) * getVaultRange(hud._token);
 
   await combatant.update({
-    "flags.trespasser.actionPoints": Math.max(0, currentAP - cost),
-    "flags.trespasser.moveActionTaken": true,
-    "flags.trespasser.movementAllowed": dist,
-    "flags.trespasser.movementUsed": 0,
-    "flags.trespasser.moveActionCost": cost,
-    "flags.trespasser.moveActionMovements": []
+    [`flags.${SYSTEM_ID}.actionPoints`]: Math.max(0, currentAP - cost),
+    [`flags.${SYSTEM_ID}.moveActionTaken`]: true,
+    [`flags.${SYSTEM_ID}.movementAllowed`]: dist,
+    [`flags.${SYSTEM_ID}.movementUsed`]: 0,
+    [`flags.${SYSTEM_ID}.moveActionCost`]: cost,
+    [`flags.${SYSTEM_ID}.moveActionMovements`]: []
   });
 
   ChatMessage.create({
@@ -102,7 +103,7 @@ export async function executeMove(hud) {
 
   await TrespasserCombat.recordHUDAction(hud._token.actor, "move");
 
-  const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
+  const restrictMovement = game.settings.get(SYSTEM_ID, "restrictMovementAction");
   if (restrictMovement) {
     MovementOverlay.activateMoveMode(hud._token, dist);
   } else {
@@ -123,7 +124,7 @@ export async function undoMove(hud) {
   if (!combatant) return;
 
   const tokenDoc = hud._token.document;
-  const moveActionMovements = Array.from(combatant.getFlag("trespasser", "moveActionMovements") ?? []);
+  const moveActionMovements = Array.from(getSystemFlag(combatant, "moveActionMovements") ?? []);
 
   if (moveActionMovements.length === 0) return;
 
@@ -140,28 +141,28 @@ export async function undoMove(hud) {
       await tokenDoc.clearMovementHistory();
     }
 
-    const currentUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+    const currentUsed = getSystemFlag(combatant, "movementUsed") ?? 0;
     const stepDist = lastMove.distance ?? 0;
     const newUsed = Math.max(0, currentUsed - stepDist);
 
     if (moveActionMovements.length === 0 && newUsed === 0) {
-      const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-      const cost = combatant.getFlag("trespasser", "moveActionCost") ?? 1;
+      const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+      const cost = getSystemFlag(combatant, "moveActionCost") ?? 1;
 
       await combatant.update({
-        "flags.trespasser.actionPoints": currentAP + cost,
-        "flags.trespasser.moveActionTaken": false,
-        "flags.trespasser.movementAllowed": 0,
-        "flags.trespasser.movementUsed": 0,
-        "flags.trespasser.moveActionMovements": [],
-        "flags.trespasser.moveActionCost": 0
+        [`flags.${SYSTEM_ID}.actionPoints`]: currentAP + cost,
+        [`flags.${SYSTEM_ID}.moveActionTaken`]: false,
+        [`flags.${SYSTEM_ID}.movementAllowed`]: 0,
+        [`flags.${SYSTEM_ID}.movementUsed`]: 0,
+        [`flags.${SYSTEM_ID}.moveActionMovements`]: [],
+        [`flags.${SYSTEM_ID}.moveActionCost`]: 0
       });
 
       await TrespasserCombat.removeHUDAction(hud._token.actor, "move");
     } else {
       await combatant.update({
-        "flags.trespasser.movementUsed": newUsed,
-        "flags.trespasser.moveActionMovements": moveActionMovements
+        [`flags.${SYSTEM_ID}.movementUsed`]: newUsed,
+        [`flags.${SYSTEM_ID}.moveActionMovements`]: moveActionMovements
       });
     }
   } catch (e) {
@@ -181,8 +182,8 @@ export async function executeVault(hud) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   
   if (restrictAPF && currentAP < 1) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
@@ -207,18 +208,18 @@ export async function executeWait(hud) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const activePhase = combat.getFlag("trespasser", "activePhase");
+  const activePhase = getSystemFlag(combat, "activePhase");
   if (activePhase !== TrespasserCombat.PHASES.EARLY) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-  const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
-  const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+  const movementAllowed = getSystemFlag(combatant, "movementAllowed") ?? 0;
+  const movementUsed = getSystemFlag(combatant, "movementUsed") ?? 0;
 
   await combatant.update({
     initiative: TrespasserCombat.PHASES.LATE,
-    "flags.trespasser.movementAllowed": movementAllowed - movementUsed,
-    "flags.trespasser.movementUsed": 0,
-    "flags.trespasser.isWaitFinish": true
+    [`flags.${SYSTEM_ID}.movementAllowed`]: movementAllowed - movementUsed,
+    [`flags.${SYSTEM_ID}.movementUsed`]: 0,
+    [`flags.${SYSTEM_ID}.isWaitFinish`]: true
   });
 
   ChatMessage.create({
@@ -271,19 +272,19 @@ export async function modifyMP(hud, ev) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
-  const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+  const movementAllowed = getSystemFlag(combatant, "movementAllowed") ?? 0;
+  const movementUsed = getSystemFlag(combatant, "movementUsed") ?? 0;
   const newAllowed = Math.max(movementUsed, movementAllowed + delta);
   const newRemaining = Math.max(0, newAllowed - movementUsed);
 
   const updates = {
-    "flags.trespasser.movementAllowed": newAllowed
+    [`flags.${SYSTEM_ID}.movementAllowed`]: newAllowed
   };
 
-  if (newRemaining > 0 && !combatant.getFlag("trespasser", "moveActionTaken")) {
-    updates["flags.trespasser.moveActionTaken"] = true;
+  if (newRemaining > 0 && !getSystemFlag(combatant, "moveActionTaken")) {
+    updates[`flags.${SYSTEM_ID}.moveActionTaken`] = true;
   } else if (newRemaining === 0 && movementUsed === 0) {
-    updates["flags.trespasser.moveActionTaken"] = false;
+    updates[`flags.${SYSTEM_ID}.moveActionTaken`] = false;
   }
 
   await combatant.update(updates);

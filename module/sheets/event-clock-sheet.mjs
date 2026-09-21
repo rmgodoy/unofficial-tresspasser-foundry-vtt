@@ -4,6 +4,8 @@
  * Sheet for editing a single Event Clock stored in settings.
  */
 
+import { SYSTEM_ID } from "../system-id.mjs";
+
 const { api } = foundry.applications;
 
 export class EventClockSheet extends api.HandlebarsApplicationMixin(api.ApplicationV2) {
@@ -44,7 +46,7 @@ export class EventClockSheet extends api.HandlebarsApplicationMixin(api.Applicat
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    const settingJson = game.settings.get("trespasser", "eventClocks") || "[]";
+    const settingJson = game.settings.get(SYSTEM_ID, "eventClocks") || "[]";
     const clocks = JSON.parse(settingJson);
     const clock = clocks.find(c => c.id === this.clockId);
     
@@ -110,14 +112,14 @@ export class EventClockSheet extends api.HandlebarsApplicationMixin(api.Applicat
   async onClockSegmentClick(event, target) {
     if (!game.user.isGM) return;
     const idx = parseInt(target.dataset.index);
-    const settingJson = game.settings.get("trespasser", "eventClocks") || "[]";
+    const settingJson = game.settings.get(SYSTEM_ID, "eventClocks") || "[]";
     const clocks = JSON.parse(settingJson);
     const clock = clocks.find(c => c.id === this.clockId);
     
     if (clock) {
         const newVal = (clock.current === idx + 1) ? idx : idx + 1;
         clock.current = Math.min(newVal, clock.target);
-        await game.settings.set("trespasser", "eventClocks", JSON.stringify(clocks));
+        await game.settings.set(SYSTEM_ID, "eventClocks", JSON.stringify(clocks));
         this.render();
     }
   }
@@ -134,7 +136,7 @@ export class EventClockSheet extends api.HandlebarsApplicationMixin(api.Applicat
         return;
     }
     
-    const settingJson = game.settings.get("trespasser", "eventClocks") || "[]";
+    const settingJson = game.settings.get(SYSTEM_ID, "eventClocks") || "[]";
     const clocks = JSON.parse(settingJson);
     
     // Use the native formData.object mapped by ApplicationV2
@@ -160,7 +162,7 @@ export class EventClockSheet extends api.HandlebarsApplicationMixin(api.Applicat
             current: current,
             gmOnly: !!data.gmOnly
         };
-        await game.settings.set("trespasser", "eventClocks", JSON.stringify(clocks));
+        await game.settings.set(SYSTEM_ID, "eventClocks", JSON.stringify(clocks));
         
         // Immediate re-render for feedback
         this.render();

@@ -11,6 +11,7 @@
 import { TravelTracker } from "./travel-tracker.mjs";
 import { TrespasserSocket } from "../helpers/socket/socket.mjs";
 import { performCampRoll } from "./camp-activity-roll.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 export { performCampRoll };
 
@@ -331,7 +332,7 @@ export async function handleCampActivityConfirm(data) {
     });
 
     if (activityConfig.check) {
-      const automate = game.settings.get("trespasser", "automateTravelTracker");
+      const automate = game.settings.get(SYSTEM_ID, "automateTravelTracker");
       if (automate) {
         await performCampRoll(actor, activityConfig, activityKey, hostilityDC, assists);
       }

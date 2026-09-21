@@ -1,4 +1,5 @@
 import { resolveItem } from "../helpers/item-resolver.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 /**
  * Production and Stronghold benefits logic for Haven actors.
@@ -94,7 +95,7 @@ export async function syncStrongholdBenefit(havenData, stronghold, delta = {}) {
   
   // 1. Cleanup old assignments
   for (const char of allCharacters) {
-    const existing = char.items.filter(i => i.getFlag("trespasser", "strongholdSource") === strongholdUuid);
+    const existing = char.items.filter(i => getSystemFlag(i, "strongholdSource") === strongholdUuid);
     if (existing.length > 0) {
       await char.deleteEmbeddedDocuments("Item", existing.map(i => i.id));
     }
@@ -114,8 +115,8 @@ export async function syncStrongholdBenefit(havenData, stronghold, delta = {}) {
         delete itemData._id;
         
         itemData.flags = itemData.flags || {};
-        itemData.flags.trespasser = itemData.flags.trespasser || {};
-        itemData.flags.trespasser.strongholdSource = strongholdUuid;
+        itemData.flags[SYSTEM_ID] = itemData.flags[SYSTEM_ID] || {};
+        itemData.flags[SYSTEM_ID].strongholdSource = strongholdUuid;
         
         try {
           await owner.createEmbeddedDocuments("Item", [itemData]);

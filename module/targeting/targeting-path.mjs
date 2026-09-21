@@ -5,6 +5,7 @@ import { DeedIntentResolver } from "./deed-intent-resolver.mjs";
 import { TargetPreviewHUD } from "../hud/target-preview-hud.mjs";
 import { TargetClassifier } from "./target-classifier.mjs";
 import { TargetingPreviewSyncer } from "./targeting-preview-syncer.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Interactive path placement. Click any reachable square to draw the
@@ -103,7 +104,7 @@ export async function placePath(token, maxSquares, gridPx, close, maxRangeSq = n
       // 3. Draw token target overlays and update TargetPreviewHUD
       const affectedOverlays = [];
       let targetOutcomes = [];
-      const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
+      const showInfo = Boolean(game.settings?.get(SYSTEM_ID, "showTargetPreviewInfo") ?? true);
 
       if (squares.length > 0 && options.item) {
         const tokensInArea = getTokensInSquares(squares, gridPx, {
@@ -243,7 +244,7 @@ export async function placePath(token, maxSquares, gridPx, close, maxRangeSq = n
           if (close) {
             if (!isAdjacentToCasterToken(target, token, gridPx)) {
               ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.PathMustStartAdjacent"));
-              const enforceRange = game.settings.get("trespasser", "enforceAttackRange");
+              const enforceRange = game.settings.get(SYSTEM_ID, "enforceAttackRange");
               if (enforceRange) return;
             }
           } else if (maxRangeSq !== null && maxRangeSq !== undefined) {
@@ -257,7 +258,7 @@ export async function placePath(token, maxSquares, gridPx, close, maxRangeSq = n
                 range: maxRangeSq,
                 distance: distSq
               }));
-              const enforceRange = game.settings.get("trespasser", "enforceAttackRange");
+              const enforceRange = game.settings.get(SYSTEM_ID, "enforceAttackRange");
               if (enforceRange || maxRangeSq === 0) return;
             }
           }

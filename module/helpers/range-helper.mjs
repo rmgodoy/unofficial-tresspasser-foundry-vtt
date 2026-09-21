@@ -1,6 +1,6 @@
 import { getEffectiveDeedAttributes } from "./deed-behaviors/roll-accuracy.mjs";
 import { getActiveWeapons } from "../sheets/character/handlers-combat.mjs";
-import { SYSTEM_ID } from "../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 import {
   getAirborneHeight,
@@ -222,7 +222,7 @@ export class RangeHelper {
       if (tokenId) combatant = game.combat.combatants.find(c => c.tokenId === tokenId);
       if (!combatant && actorDoc) combatant = game.combat.combatants.find(c => c.actorId === actorDoc.id);
     }
-    const bonus = combatant?.getFlag("trespasser", "aimRangeBonus") ?? actorDoc?.getFlag("trespasser", "aimRangeBonus");
+    const bonus = getSystemFlag(combatant, "aimRangeBonus") ?? getSystemFlag(actorDoc, "aimRangeBonus");
     return (bonus && Number.isFinite(Number(bonus)) && Number(bonus) > 0) ? Number(bonus) : 0;
   }
 

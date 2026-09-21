@@ -15,6 +15,7 @@ import { TrespasserPartyHelper } from "../helpers/party-helper.mjs";
 import { TrespasserActorSheet } from "./base-sheet.mjs";
 import { buildMemberContext, getActiveDungeonDC } from "./party/party-member-context.mjs";
 import { runGroupCheck } from "./party/party-group-check.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 export class TrespasserPartySheet extends TrespasserActorSheet {
 
@@ -57,7 +58,7 @@ export class TrespasserPartySheet extends TrespasserActorSheet {
     context.system = system;
     context.editable = this.isEditable;
     context.isGM = game.user.isGM;
-    context.isActiveParty = game.settings.get("trespasser", "activePartyId") === actor.id;
+    context.isActiveParty = game.settings.get(SYSTEM_ID, "activePartyId") === actor.id;
 
     // Resolve member actors with full resource data
     const memberIds = system.members ?? [];
@@ -269,7 +270,7 @@ export class TrespasserPartySheet extends TrespasserActorSheet {
   static async onSetActiveParty(event, target) {
     if (!game.user.isGM) return;
     
-    const currentActiveId = game.settings.get("trespasser", "activePartyId");
+    const currentActiveId = game.settings.get(SYSTEM_ID, "activePartyId");
     if (currentActiveId === this.document.id) {
       await TrespasserPartyHelper.setActiveParty("");
       ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Party.ActivePartyCleared", { name: this.document.name }));

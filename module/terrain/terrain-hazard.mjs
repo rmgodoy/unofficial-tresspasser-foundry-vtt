@@ -1,5 +1,6 @@
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
 import { TERRAIN_COLORS } from "./terrain-constants.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 /**
  * Handle slippery terrain check for a token.
@@ -73,7 +74,7 @@ export async function handleSlipperyCheck(tokenDoc, actor, region) {
 export async function transformObstacleToRubble(region) {
   if (!region || !canvas.scene) return;
   if (!game.user.isGM) return;
-  const terrainData = region.flags?.trespasser?.terrain;
+  const terrainData = getSystemFlag(region, "terrain");
   if (!terrainData || terrainData.system.category !== "obstacle") return;
   
   const sys = terrainData.system;
@@ -89,7 +90,7 @@ export async function transformObstacleToRubble(region) {
     _id: region.id,
     name: newTerrainData.name,
     color: color,
-    "flags.trespasser.terrain": newTerrainData
+    [`flags.${SYSTEM_ID}.terrain`]: newTerrainData
   };
 
   await canvas.scene.updateEmbeddedDocuments("Region", [updates]);

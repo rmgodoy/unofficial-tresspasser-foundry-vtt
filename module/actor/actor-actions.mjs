@@ -2,7 +2,7 @@ import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { messageVisibility } from "../helpers/compat.mjs";
 import { isSunken } from "../helpers/elevation-helper.mjs";
-import { SYSTEM_ID } from "../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../system-id.mjs";
 
 /**
  * Roll a skill check against one of the core attributes.
@@ -96,7 +96,7 @@ export async function applyHealing(actor, amount, options = {}) {
   const wasDefeated = Boolean(
     actor.statuses?.has("defeated") ||
     actor.statuses?.has(CONFIG.specialStatusEffects?.DEFEATED) ||
-    actor.items?.some(i => i.type === "effect" && (i.getFlag("trespasser", "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated"))
+    actor.items?.some(i => i.type === "effect" && (getSystemFlag(i, "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated"))
   );
 
   await actor.update({ "system.health": newHealth });
@@ -126,7 +126,7 @@ export async function onTurnEnd(actor, combatant = null) {
   if (!game.combat) return;
 
   if (actor.type === "character") {
-    const usedExpensive = combatant ? combatant.getFlag("trespasser", "usedExpensiveDeed") : false;
+    const usedExpensive = combatant ? getSystemFlag(combatant, "usedExpensiveDeed") : false;
     if (!usedExpensive) {
       const skillBonus = actor.system.skill || 0;
       if (skillBonus > 0) {
@@ -227,19 +227,19 @@ export async function onItemConsume(actor, itemId, { spendAP = true } = {}) {
   const isConcoction = ["potions", "bombs", "oils", "powders"].includes(item.system.subType);
   if (isConcoction && game.combat && spendAP) {
     const combatant = TrespasserCombat.getPhaseCombatant(actor);
-    const activePhase = game.combat.getFlag("trespasser", "activePhase");
+    const activePhase = getSystemFlag(game.combat, "activePhase");
     if (combatant) {
       if (combatant.initiative !== activePhase && !game.user.isGM) {
         ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotYourPhase"));
         return;
       }
-      const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-      const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+      const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+      const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
       if (restrictAPF && currentAP < 1) {
         ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
         return;
       }
-      await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
+      await setSystemFlag(combatant, "actionPoints", Math.max(0, currentAP - 1));
       await TrespasserCombat.recordHUDAction(actor, "use-concoction");
     }
   }
@@ -295,7 +295,7 @@ export async function onItemConsume(actor, itemId, { spendAP = true } = {}) {
       let expr = TrespasserEffectsHelper.replacePlaceholders(dmg, actor);
       const roll = new foundry.dice.Roll(expr);
       await roll.evaluate();
-      const showCreatureRolls = game.settings.get("trespasser", "showCreatureDamageRolls");
+      const showCreatureRolls = game.settings.get(SYSTEM_ID, "showCreatureDamageRolls");
       const visibility = messageVisibility((actor.type === "creature" && !showCreatureRolls) ? "gm" : "public");
       await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor }), flavor: flavorHtml }, visibility);
     } catch (e) {

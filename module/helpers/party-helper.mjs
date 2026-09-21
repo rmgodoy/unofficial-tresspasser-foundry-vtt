@@ -1,3 +1,5 @@
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
+
 /**
  * Helper class for Party-related logic.
  */
@@ -10,7 +12,7 @@ export class TrespasserPartyHelper {
    * @returns {Actor|null}
    */
   static getActiveParty() {
-    const activeId = game.settings.get("trespasser", "activePartyId");
+    const activeId = game.settings.get(SYSTEM_ID, "activePartyId");
     
     if (activeId) {
       const party = game.actors.get(activeId);
@@ -31,14 +33,14 @@ export class TrespasserPartyHelper {
     if (!game.user.isGM) return;
 
     if (!actorId) {
-      await game.settings.set("trespasser", "activePartyId", "");
+      await game.settings.set(SYSTEM_ID, "activePartyId", "");
       return;
     }
 
     const actor = game.actors.get(actorId);
     if (!actor || actor.type !== "party") return;
     
-    await game.settings.set("trespasser", "activePartyId", actorId);
+    await game.settings.set(SYSTEM_ID, "activePartyId", actorId);
   }
 
   /**
@@ -157,7 +159,7 @@ export class TrespasserPartyHelper {
     const msg = game.messages.get(messageId);
     if (!msg) return;
 
-    const flags = msg.flags.trespasser?.groupCheck;
+    const flags = getSystemFlag(msg, "groupCheck");
     if (!flags) return;
 
     const { checkLabel, dc, results } = flags;
@@ -198,7 +200,7 @@ export class TrespasserPartyHelper {
       content, 
       rolls: rollObjects,
       flags: {
-        trespasser: {
+        [SYSTEM_ID]: {
           groupCheck: baseFlags
         }
       }

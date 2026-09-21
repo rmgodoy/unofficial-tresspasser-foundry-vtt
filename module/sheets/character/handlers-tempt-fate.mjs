@@ -2,6 +2,7 @@ import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { TrespasserRollDialog }    from "../../dialogs/roll-dialog.mjs";
 import { NonCombatSparkDialog, NonCombatShadowDialog } from "../../dialogs/tempt-fate-dialogs.mjs";
 import { evaluateAndShowRoll } from "./handlers-rolls.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 export async function promptAttributeSelection(actor, skillKey) {
   const attr = actor.system.attributes;
@@ -191,7 +192,7 @@ export async function executeTemptFateFlow(actor, skillKey, cd, originalMsgId) {
   const originalMsg = game.messages.get(originalMsgId);
   if (originalMsg) {
     if (originalMsg.isOwner) {
-      const originalFlags = foundry.utils.deepClone(originalMsg.flags.trespasser || {});
+      const originalFlags = foundry.utils.deepClone(originalMsg.flags[SYSTEM_ID] || originalMsg.flags.trespasser || {});
       originalFlags.hasTemptedFate = true;
 
       const parser = new DOMParser();
@@ -201,7 +202,7 @@ export async function executeTemptFateFlow(actor, skillKey, cd, originalMsgId) {
 
       await originalMsg.update({
         content: doc.body.innerHTML,
-        "flags.trespasser": originalFlags
+        [`flags.${SYSTEM_ID}`]: originalFlags
       });
     } else {
       const { TrespasserSocket } = game.trespasser || {};
@@ -215,7 +216,7 @@ export async function handleRemoveTemptFateButton(data) {
   const { messageId } = data;
   const originalMsg = game.messages.get(messageId);
   if (originalMsg) {
-    const originalFlags = foundry.utils.deepClone(originalMsg.flags.trespasser || {});
+    const originalFlags = foundry.utils.deepClone(originalMsg.flags[SYSTEM_ID] || originalMsg.flags.trespasser || {});
     originalFlags.hasTemptedFate = true;
 
     const parser = new DOMParser();
@@ -225,7 +226,7 @@ export async function handleRemoveTemptFateButton(data) {
 
     await originalMsg.update({
       content: doc.body.innerHTML,
-      "flags.trespasser": originalFlags
+      [`flags.${SYSTEM_ID}`]: originalFlags
     });
   }
 }

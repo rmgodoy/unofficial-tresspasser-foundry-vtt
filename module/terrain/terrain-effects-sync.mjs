@@ -2,6 +2,7 @@ import { getTerrainRegionsContainingToken } from "./terrain-geometry.mjs";
 import { resolveIntPlaceholder, evaluateIntensityValue } from "./terrain-behaviors.mjs";
 import { resolveItem } from "../helpers/item-resolver.mjs";
 import { isSunken } from "../helpers/elevation-helper.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 const _syncWhileInsideLocks = new Set();
 const _pendingWhileInsideSync = new Set();
@@ -15,8 +16,9 @@ export async function cleanupCombatTerrains() {
   for (const scene of scenes) {
     const regionsToDelete = scene.regions
       .filter(r => {
-        const flags = r.flags?.trespasser || {};
-        return flags.spawnedInCombat === true && !flags.linkedEffectId && scene.regions.has(r.id);
+        const spawned = getSystemFlag(r, "spawnedInCombat");
+        const linked = getSystemFlag(r, "linkedEffectId");
+        return spawned === true && !linked && scene.regions.has(r.id);
       })
       .map(r => r.id);
     
@@ -182,12 +184,12 @@ export async function syncWhileInsideEffectsForToken(tokenDoc) {
       }
     }
 
-    const existingEffects = actor.items.filter(i => i.type === "effect" && i.flags?.trespasser?.whileInside === true);
+    const existingEffects = actor.items.filter(i => i.type === "effect" && getSystemFlag(i, "whileInside") === true);
 
     const toDelete = [];
     for (const eff of existingEffects) {
-      const regionId = eff.flags?.trespasser?.sourceRegionId;
-      const sourceUuid = eff.flags?.trespasser?.sourceEffectUuid;
+      const regionId = getSystemFlag(eff, "sourceRegionId");
+      const sourceUuid = getSystemFlag(eff, "sourceEffectUuid");
       const stillDesired = desiredEffects.some(d => d.regionId === regionId && d.effectUuid === sourceUuid);
       if (!stillDesired) {
         toDelete.push(eff.id);
@@ -201,8 +203,8 @@ export async function syncWhileInsideEffectsForToken(tokenDoc) {
     for (const desired of desiredEffects) {
       const existing = existingEffects.find(e =>
         !toDelete.includes(e.id) &&
-        e.flags?.trespasser?.sourceRegionId === desired.regionId &&
-        (e.flags?.trespasser?.sourceEffectUuid === desired.effectUuid || e.flags?.trespasser?.linkedSource === desired.effectUuid || e.uuid === desired.effectUuid)
+        getSystemFlag(e, "sourceRegionId") === desired.regionId &&
+        (getSystemFlag(e, "sourceEffectUuid") === desired.effectUuid || getSystemFlag(e, "linkedSource") === desired.effectUuid || e.uuid === desired.effectUuid)
       );
       if (!existing) {
         const sourceEffect = await resolveItem(desired.effectUuid, { type: "effect" });
@@ -210,7 +212,7 @@ export async function syncWhileInsideEffectsForToken(tokenDoc) {
         const effectData = sourceEffect.toObject();
         effectData.system.intensity = desired.intensity;
         effectData.flags = effectData.flags || {};
-        effectData.flags.trespasser = Object.assign(effectData.flags.trespasser || {}, {
+        effectData.flags[SYSTEM_ID] = Object.assign(effectData.flags[SYSTEM_ID] || {}, {
           whileInside: true,
           sourceRegionId: desired.regionId,
           sourceEffectUuid: desired.effectUuid,

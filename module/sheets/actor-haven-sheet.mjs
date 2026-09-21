@@ -1,3 +1,4 @@
+import { SYSTEM_ID } from "../system-id.mjs";
 import { TrespasserActorSheet } from "./base-sheet.mjs";
 import { prepareHavenContext }  from "./haven/haven-context.mjs";
 import { setupHavenDropZones }  from "./haven/haven-drag-drop.mjs";
@@ -97,7 +98,7 @@ export class TrespasserHavenSheet extends TrespasserActorSheet {
   get isEditable() {
     if ( game.user.isGM ) return true;
 
-    const allowAll = game.settings.get("trespasser", "allowAllPlayersHavenEdit");
+    const allowAll = game.settings.get(SYSTEM_ID, "allowAllPlayersHavenEdit");
     if ( allowAll ) return this.document.isOwner;
 
     const leaderId = this.document.system.leaderId;

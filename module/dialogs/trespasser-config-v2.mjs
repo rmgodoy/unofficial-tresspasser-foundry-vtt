@@ -1,4 +1,5 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Trespasser Configuration - ApplicationsV2
@@ -55,29 +56,29 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     
     // Primary settings
     context.settings = {
-      showInitiativeInChat: game.settings.get("trespasser", "showInitiativeInChat"),
-      applyEncumbranceRules: game.settings.get("trespasser", "applyEncumbranceRules"),
-      restrictMovementAction: game.settings.get("trespasser", "restrictMovementAction"),
-      restrictHUDActions: game.settings.get("trespasser", "restrictHUDActions"),
-      restrictAPFocusUsage: game.settings.get("trespasser", "restrictAPFocusUsage"),
-      enableGroupCheckSelection: game.settings.get("trespasser", "enableGroupCheckSelection"),
-      allowAllPlayersHavenEdit: game.settings.get("trespasser", "allowAllPlayersHavenEdit"),
-      enforceHavenBuildingLimits: game.settings.get("trespasser", "enforceHavenBuildingLimits"),
-      enforceAttackRange: game.settings.get("trespasser", "enforceAttackRange"),
-      enforceHandEquipLimits: game.settings.get("trespasser", "enforceHandEquipLimits"),
-      allowOutOfTurnMovement: game.settings.get("trespasser", "allowOutOfTurnMovement"),
-      showCreatureDamageRolls: game.settings.get("trespasser", "showCreatureDamageRolls"),
-      playerFacingInitiative: game.settings.get("trespasser", "playerFacingInitiative"),
-      confirmItemTransfer: game.settings.get("trespasser", "confirmItemTransfer"),
-      enableRetreatDialog: game.settings.get("trespasser", "enableRetreatDialog"),
-      showPerilInChat: game.settings.get("trespasser", "showPerilInChat"),
-      autoEndCombatOnRetreat: game.settings.get("trespasser", "autoEndCombatOnRetreat"),
-      clockSize: game.settings.get("trespasser", "clockSize"),
-      fontSizeBase: game.settings.get("trespasser", "fontSizeBase"),
-      showStatusEffectsOnTokens: game.settings.get("trespasser", "showStatusEffectsOnTokens"),
-      tokenStatusIconScale: game.settings.get("trespasser", "tokenStatusIconScale"),
-      showTargetPreviewInfo: game.settings.get("trespasser", "showTargetPreviewInfo"),
-      automateTravelTracker: game.settings.get("trespasser", "automateTravelTracker")
+      showInitiativeInChat: game.settings.get(SYSTEM_ID, "showInitiativeInChat"),
+      applyEncumbranceRules: game.settings.get(SYSTEM_ID, "applyEncumbranceRules"),
+      restrictMovementAction: game.settings.get(SYSTEM_ID, "restrictMovementAction"),
+      restrictHUDActions: game.settings.get(SYSTEM_ID, "restrictHUDActions"),
+      restrictAPFocusUsage: game.settings.get(SYSTEM_ID, "restrictAPFocusUsage"),
+      enableGroupCheckSelection: game.settings.get(SYSTEM_ID, "enableGroupCheckSelection"),
+      allowAllPlayersHavenEdit: game.settings.get(SYSTEM_ID, "allowAllPlayersHavenEdit"),
+      enforceHavenBuildingLimits: game.settings.get(SYSTEM_ID, "enforceHavenBuildingLimits"),
+      enforceAttackRange: game.settings.get(SYSTEM_ID, "enforceAttackRange"),
+      enforceHandEquipLimits: game.settings.get(SYSTEM_ID, "enforceHandEquipLimits"),
+      allowOutOfTurnMovement: game.settings.get(SYSTEM_ID, "allowOutOfTurnMovement"),
+      showCreatureDamageRolls: game.settings.get(SYSTEM_ID, "showCreatureDamageRolls"),
+      playerFacingInitiative: game.settings.get(SYSTEM_ID, "playerFacingInitiative"),
+      confirmItemTransfer: game.settings.get(SYSTEM_ID, "confirmItemTransfer"),
+      enableRetreatDialog: game.settings.get(SYSTEM_ID, "enableRetreatDialog"),
+      showPerilInChat: game.settings.get(SYSTEM_ID, "showPerilInChat"),
+      autoEndCombatOnRetreat: game.settings.get(SYSTEM_ID, "autoEndCombatOnRetreat"),
+      clockSize: game.settings.get(SYSTEM_ID, "clockSize"),
+      fontSizeBase: game.settings.get(SYSTEM_ID, "fontSizeBase"),
+      showStatusEffectsOnTokens: game.settings.get(SYSTEM_ID, "showStatusEffectsOnTokens"),
+      tokenStatusIconScale: game.settings.get(SYSTEM_ID, "tokenStatusIconScale"),
+      showTargetPreviewInfo: game.settings.get(SYSTEM_ID, "showTargetPreviewInfo"),
+      automateTravelTracker: game.settings.get(SYSTEM_ID, "automateTravelTracker")
     };
 
     // Color settings
@@ -92,7 +93,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
 
     context.colors = colorKeys.map(key => ({
       key,
-      value: game.settings.get("trespasser", key),
+      value: game.settings.get(SYSTEM_ID, key),
       label: `TRESPASSER.Settings.Colors.${key}.Name`
     }));
 
@@ -154,11 +155,11 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
         // Skip the _text inputs used for display
         if ( key.endsWith("_text") ) continue;
         
-        const setting = game.settings.settings.get(`trespasser.${key}`);
+        const setting = game.settings.settings.get(`${SYSTEM_ID}.${key}`);
         if ( setting ) {
             // Only allow GMs to save world-scoped settings; everyone can save client-scoped
             if ( setting.scope !== "world" || game.user.isGM ) {
-                await game.settings.set("trespasser", key, val);
+                await game.settings.set(SYSTEM_ID, key, val);
             }
         }
     }
@@ -206,13 +207,13 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     ];
 
     for ( const key of settingsToReset ) {
-        const setting = game.settings.settings.get(`trespasser.${key}`);
+        const setting = game.settings.settings.get(`${SYSTEM_ID}.${key}`);
         if ( !setting ) continue;
         
         // Only reset if it's client-scoped OR the user is a GM
         if ( setting.scope !== "world" || game.user.isGM ) {
             const def = setting.default;
-            await game.settings.set("trespasser", key, def);
+            await game.settings.set(SYSTEM_ID, key, def);
         }
     }
 
@@ -233,7 +234,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
     ui.notifications.info(game.i18n.localize("TRESPASSER.Settings.DeedMigration.Running"));
     const { migrateWorldDeeds, migrateCompendiumDeeds } = await import("../helpers/migration-deed.mjs");
     await migrateWorldDeeds({ force: true });
-    await migrateCompendiumDeeds("trespasser.trespasser-content", { force: true });
+    await migrateCompendiumDeeds(`${SYSTEM_ID}.trespasser-content`, { force: true });
     ui.notifications.info(game.i18n.localize("TRESPASSER.Settings.DeedMigration.Success"));
   }
 
@@ -248,7 +249,7 @@ export class TrespasserConfigV2 extends foundry.applications.api.HandlebarsAppli
 
     ui.notifications.info(game.i18n.localize("TRESPASSER.Settings.EffectMigration.Running"));
     const { migrateCompendiumEffects } = await import("../helpers/migration-effect.mjs");
-    const count = await migrateCompendiumEffects("trespasser.trespasser-content", { force: true });
+    const count = await migrateCompendiumEffects(`${SYSTEM_ID}.trespasser-content`, { force: true });
     ui.notifications.info(game.i18n.format("TRESPASSER.Settings.EffectMigration.Success", { count }));
   }
 }

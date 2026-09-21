@@ -1,3 +1,5 @@
+import { SYSTEM_ID } from "../../system-id.mjs";
+
 /**
  * Register an applied effect or terrain in context so it can be retroactively updated if Potency is chosen later.
  * @param {object} context
@@ -56,7 +58,7 @@ export async function updateAlreadyApplied(context) {
         for (const st of spawned) {
           if (st && typeof st.update === "function") {
             try {
-              await st.update({ "flags.trespasser.intensity": newIntensity });
+              await st.update({ [`flags.${SYSTEM_ID}.intensity`]: newIntensity });
               await TerrainHelper.syncWhileInsideEffectsForRegion(st);
             } catch (e) {
               console.warn("Trespasser | Failed to sync terrain region intensity:", e);

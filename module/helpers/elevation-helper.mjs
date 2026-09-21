@@ -1,4 +1,4 @@
-import { SYSTEM_ID } from "../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 import { getMovementType } from "../effects/effects-aggregate.mjs";
 import { getEffectiveDeedAttributes } from "./deed-behaviors/roll-accuracy.mjs";
 import { getActiveWeapons } from "../sheets/character/handlers-combat.mjs";
@@ -22,8 +22,7 @@ export function getAirborneHeight(tokenOrActor) {
   if (actor?.items) {
     const airborneEffect = actor.items.find(i =>
       i.type === "effect" && (
-        i.getFlag(SYSTEM_ID, "statusEffectId") === "airborne" ||
-        i.getFlag("trespasser", "statusEffectId") === "airborne" ||
+        getSystemFlag(i, "statusEffectId") === "airborne" ||
         i.name?.toLowerCase() === "airborne"
       )
     );
@@ -69,8 +68,7 @@ export function getSunkenDepth(tokenOrActor) {
   if (actor?.items) {
     const sunkenEffect = actor.items.find(i =>
       i.type === "effect" && (
-        i.getFlag(SYSTEM_ID, "statusEffectId") === "sunken" ||
-        i.getFlag("trespasser", "statusEffectId") === "sunken" ||
+        getSystemFlag(i, "statusEffectId") === "sunken" ||
         i.name?.toLowerCase() === "sunken"
       )
     );

@@ -3,6 +3,7 @@ import { askAPDialog } from "../../dialogs/ap-dialog.mjs";
 import { getEffectiveDeedAttributes } from "../deed-behaviors/roll-accuracy.mjs";
 import { getActiveWeapons } from "../../sheets/character/handlers-combat.mjs";
 import { RangeHelper } from "../range-helper.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../../system-id.mjs";
 
 /**
  * Validate Focus and AP resources without mutating documents or deducting flags.
@@ -13,12 +14,12 @@ export async function validateResources(executor) {
   if (executor.options.isSubDeed || !executor.actor) return true;
 
   const combatant = TrespasserCombat.getPhaseCombatant(executor.actor);
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   let apSpent = 1;
   let apBonus = 0;
 
   if (combatant) {
-    const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+    const availableAP = getSystemFlag(combatant, "actionPoints") ?? 0;
     if (restrictAPF && availableAP < 1) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
       return false;
@@ -33,7 +34,7 @@ export async function validateResources(executor) {
     apBonus = (apSpent - 1) * 2;
   }
 
-  const usedActions = new Set(combatant?.getFlag("trespasser", "usedHUDActions") ?? []);
+  const usedActions = new Set(getSystemFlag(combatant, "usedHUDActions") ?? []);
   const surcharge = usedActions.has("maneuver") ? 2 : 0;
   const tier = (executor.system.tier || "light").toLowerCase();
   const defaultCost = tier === "heavy" ? 2 : tier === "mighty" ? 4 : 0;
@@ -74,15 +75,15 @@ export async function commitResourceUsage(executor) {
   const combatant = TrespasserCombat.getPhaseCombatant(executor.actor);
 
   if (combatant && executor.context.apSpent > 0) {
-    const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+    const availableAP = getSystemFlag(combatant, "actionPoints") ?? 0;
     const newAP = Math.max(0, availableAP - executor.context.apSpent);
     if (combatant.canUserModify(game.user, "update")) {
-      await combatant.setFlag("trespasser", "actionPoints", newAP);
+      await setSystemFlag(combatant, "actionPoints", newAP);
     } else {
       const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
       await emitDeedActionAndWait("setCombatantFlag", {
         combatantId: combatant.id,
-        scope: "trespasser",
+        scope: SYSTEM_ID,
         key: "actionPoints",
         value: newAP
       });

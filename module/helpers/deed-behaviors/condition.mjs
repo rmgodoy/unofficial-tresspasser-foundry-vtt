@@ -1,5 +1,5 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
-import { SYSTEM_ID } from "../../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../../system-id.mjs";
 
 /**
  * ConditionBehavior
@@ -100,7 +100,7 @@ export class ConditionBehavior {
           return candActor.statuses?.has("defeated") ||
                  candActor.statuses?.has("dead") ||
                  candActor.statuses?.has(CONFIG.specialStatusEffects?.DEFEATED) ||
-                 (candActor.items?.some(i => i.type === "effect" && (i.getFlag(SYSTEM_ID, "statusEffectId") === "defeated" || i.getFlag("trespasser", "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated")) ?? false);
+                 (candActor.items?.some(i => i.type === "effect" && (getSystemFlag(i, "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated")) ?? false);
         }
         if (status === "bloodied") return hp <= Math.floor(maxHp / 2);
         if (status === "fullHp") return hp >= maxHp;

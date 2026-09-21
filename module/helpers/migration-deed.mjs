@@ -3,6 +3,7 @@
  * World-level data migration converting legacy Deed items to the behavior-driven format.
  */
 import { migrateToGraph } from "./migration-graph.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 export { migrateToGraph };
 
 /**
@@ -380,7 +381,7 @@ export async function migrateWorldDeeds(options = {}) {
 
   const force = !!options.force;
   const CURRENT_MIGRATION_VERSION = 5;
-  const currentVersion = game.settings.get("trespasser", "deedMigrationVersion") || 0;
+  const currentVersion = game.settings.get(SYSTEM_ID, "deedMigrationVersion") || 0;
   if (!force && currentVersion >= CURRENT_MIGRATION_VERSION) return;
 
   console.log("Trespasser | Starting Deed Data Model Migration to Behavior-Driven format...");
@@ -426,22 +427,23 @@ export async function migrateWorldDeeds(options = {}) {
     }
   }
 
-  await game.settings.set("trespasser", "deedMigrationVersion", CURRENT_MIGRATION_VERSION);
+  await game.settings.set(SYSTEM_ID, "deedMigrationVersion", CURRENT_MIGRATION_VERSION);
   console.log("Trespasser | Deed Data Model Migration complete.");
 }
 
 /**
  * Migrate Deeds within a compendium pack to the behavior-driven format.
- * @param {string} [packId="trespasser.trespasser-content"]
+ * @param {string} [packId]
  * @param {object} [options]
  * @param {boolean} [options.force=false]
  * @returns {Promise<number>} Number of migrated deeds
  */
-export async function migrateCompendiumDeeds(packId = "trespasser.trespasser-content", options = {}) {
+export async function migrateCompendiumDeeds(packId = null, options = {}) {
   if (!game.user.isGM) return 0;
-  const pack = game.packs.get(packId);
+  const effectivePackId = packId || `${SYSTEM_ID}.trespasser-content`;
+  const pack = game.packs.get(effectivePackId) || (packId ? null : game.packs.get("trespasser.trespasser-content"));
   if (!pack || pack.documentName !== "Item") {
-    console.warn(`Trespasser | Compendium pack "${packId}" not found or is not an Item pack.`);
+    console.warn(`Trespasser | Compendium pack "${effectivePackId}" not found or is not an Item pack.`);
     return 0;
   }
 

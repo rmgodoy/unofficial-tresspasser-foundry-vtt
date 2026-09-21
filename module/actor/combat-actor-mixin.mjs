@@ -2,7 +2,7 @@ import { actorEventBus } from "./actor-event-bus.mjs";
 import { isSunken } from "../helpers/elevation-helper.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { onItemConsume as handleItemConsume, executePrevailRoll } from "./actor-actions.mjs";
-import { SYSTEM_ID } from "../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 /**
  * Mixin injecting unified combat actions and observability hooks into Actor classes.
@@ -162,7 +162,7 @@ export function CombatActorMixin(BaseClass) {
       const wasDefeated = Boolean(
         this.statuses?.has("defeated") ||
         this.statuses?.has(CONFIG.specialStatusEffects?.DEFEATED) ||
-        this.items?.some(i => i.type === "effect" && (i.getFlag("trespasser", "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated"))
+        this.items?.some(i => i.type === "effect" && (getSystemFlag(i, "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated"))
       );
 
       const isDirectlyUpdatable = this.isOwner || game.user?.isGM;
@@ -303,7 +303,7 @@ export function CombatActorMixin(BaseClass) {
       if (event.preventDefault) return;
 
       if (game.combat && this.type === "character") {
-        const usedExpensive = combatant ? combatant.getFlag("trespasser", "usedExpensiveDeed") : false;
+        const usedExpensive = combatant ? getSystemFlag(combatant, "usedExpensiveDeed") : false;
         if (!usedExpensive) {
           const skillBonus = this.system?.skill || 0;
           if (skillBonus > 0) {

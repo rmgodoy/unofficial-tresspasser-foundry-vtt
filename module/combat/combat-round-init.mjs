@@ -1,5 +1,6 @@
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { createExtraCombatant, postPerilToChat } from "./combat-initiative.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../system-id.mjs";
 
 /**
  * Resolve Trespasser initiatives for all combatants at the start of a combat or new round.
@@ -7,9 +8,9 @@ import { createExtraCombatant, postPerilToChat } from "./combat-initiative.mjs";
  * @returns {Promise<{updates: Array<object>, newCombatants: Array<object>}>}
  */
 export async function rollAllTrespasserInitiatives(combat) {
-  const playerFacingInit = game.settings.get("trespasser", "playerFacingInitiative");
+  const playerFacingInit = game.settings.get(SYSTEM_ID, "playerFacingInitiative");
   
-  const extras = combat.combatants.filter(c => c.getFlag("trespasser", "isExtraTurn"));
+  const extras = combat.combatants.filter(c => getSystemFlag(c, "isExtraTurn"));
   if (extras.length > 0) {
     await combat.deleteEmbeddedDocuments("Combatant", extras.map(c => c.id));
   }
@@ -32,14 +33,14 @@ export async function rollAllTrespasserInitiatives(combat) {
   const newCombatants = [];
   let hasPending = false;
 
-  const baseCombatants = combat.combatants.filter(c => !c.getFlag("trespasser", "isExtraTurn"));
+  const baseCombatants = combat.combatants.filter(c => !getSystemFlag(c, "isExtraTurn"));
 
   for (const c of baseCombatants) {
     const actor = c.actor;
     if (!actor) continue;
 
     if (actor.type === "creature") {
-      updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.ENEMY, "flags.trespasser.initiativePending": false });
+      updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.ENEMY, [`flags.${SYSTEM_ID}.initiativePending`]: false });
 
       const template = actor.system.template;
       if (template === "paragon" || template === "tyrant") {
@@ -51,7 +52,7 @@ export async function rollAllTrespasserInitiatives(combat) {
         updates.push({
           _id: c.id,
           initiative: null,
-          "flags.trespasser.initiativePending": true
+          [`flags.${SYSTEM_ID}.initiativePending`]: true
         });
         hasPending = true;
       } else {
@@ -60,7 +61,7 @@ export async function rollAllTrespasserInitiatives(combat) {
         let isNat20 = false;
 
         if (isSluggish) {
-          if (game.settings.get("trespasser", "showInitiativeInChat")) {
+          if (game.settings.get(SYSTEM_ID, "showInitiativeInChat")) {
             await ChatMessage.create({
               speaker: ChatMessage.getSpeaker({ actor: actor }),
               content: game.i18n.localize("TRESPASSER.Chat.Check.SluggishAutofail"),
@@ -72,7 +73,7 @@ export async function rollAllTrespasserInitiatives(combat) {
           const roll = new foundry.dice.Roll(`1d20 + ${initBonus}`);
           await roll.evaluate();
           
-          if (game.settings.get("trespasser", "showInitiativeInChat")) {
+          if (game.settings.get(SYSTEM_ID, "showInitiativeInChat")) {
             await roll.toMessage({
               speaker: ChatMessage.getSpeaker({ actor: actor }),
               flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
@@ -84,15 +85,15 @@ export async function rollAllTrespasserInitiatives(combat) {
         }
 
         if (isSluggish) {
-          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, "flags.trespasser.initiativePending": false });
+          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, [`flags.${SYSTEM_ID}.initiativePending`]: false });
         } else if (isNat20) {
-          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, "flags.trespasser.initiativePending": false });
+          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, [`flags.${SYSTEM_ID}.initiativePending`]: false });
           const extraData = createExtraCombatant(c, TrespasserCombat.PHASES.LATE);
           newCombatants.push(extraData);
         } else if (total >= enemyMaxInit) {
-          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, "flags.trespasser.initiativePending": false });
+          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, [`flags.${SYSTEM_ID}.initiativePending`]: false });
         } else {
-          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, "flags.trespasser.initiativePending": false });
+          updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, [`flags.${SYSTEM_ID}.initiativePending`]: false });
         }
       }
     } else if (actor.type === "companion") {
@@ -105,19 +106,19 @@ export async function rollAllTrespasserInitiatives(combat) {
           updates.push({
             _id: c.id,
             initiative: null,
-            "flags.trespasser.initiativePending": false
+            [`flags.${SYSTEM_ID}.initiativePending`]: false
           });
         } else {
           const charUp = updates.find(u => u._id === boundCharCombatant.id);
           const initVal = charUp ? charUp.initiative : TrespasserCombat.PHASES.LATE;
-          updates.push({ _id: c.id, initiative: initVal, "flags.trespasser.initiativePending": false });
+          updates.push({ _id: c.id, initiative: initVal, [`flags.${SYSTEM_ID}.initiativePending`]: false });
         }
       } else {
         if (playerFacingInit) {
           updates.push({
             _id: c.id,
             initiative: null,
-            "flags.trespasser.initiativePending": true
+            [`flags.${SYSTEM_ID}.initiativePending`]: true
           });
           hasPending = true;
         } else {
@@ -126,7 +127,7 @@ export async function rollAllTrespasserInitiatives(combat) {
           let isNat20 = false;
 
           if (isSluggish) {
-            if (game.settings.get("trespasser", "showInitiativeInChat")) {
+            if (game.settings.get(SYSTEM_ID, "showInitiativeInChat")) {
               await ChatMessage.create({
                 speaker: ChatMessage.getSpeaker({ actor: actor }),
                 content: game.i18n.localize("TRESPASSER.Chat.Check.SluggishAutofail"),
@@ -135,12 +136,12 @@ export async function rollAllTrespasserInitiatives(combat) {
             }
           } else {
             const initBonus = actor.system.combat?.initiative || 0;
-            const isAdv = actor.getFlag("trespasser", "initiativeAdvantage") || false;
+            const isAdv = getSystemFlag(actor, "initiativeAdvantage") || false;
             const formula = isAdv ? "2d20kh" : "1d20";
             const roll = new foundry.dice.Roll(`${formula} + ${initBonus}`);
             await roll.evaluate();
 
-            if (game.settings.get("trespasser", "showInitiativeInChat")) {
+            if (game.settings.get(SYSTEM_ID, "showInitiativeInChat")) {
               await roll.toMessage({
                 speaker: ChatMessage.getSpeaker({ actor: actor }),
                 flavor: game.i18n.format("TRESPASSER.Chat.Check.Initiative", { max: enemyMaxInit })
@@ -152,20 +153,20 @@ export async function rollAllTrespasserInitiatives(combat) {
           }
 
           if (isSluggish) {
-            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, "flags.trespasser.initiativePending": false });
+            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, [`flags.${SYSTEM_ID}.initiativePending`]: false });
           } else if (isNat20) {
-            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, "flags.trespasser.initiativePending": false });
+            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, [`flags.${SYSTEM_ID}.initiativePending`]: false });
             const extraData = createExtraCombatant(c, TrespasserCombat.PHASES.LATE);
             newCombatants.push(extraData);
           } else if (total >= enemyMaxInit) {
-            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, "flags.trespasser.initiativePending": false });
+            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.EARLY, [`flags.${SYSTEM_ID}.initiativePending`]: false });
           } else {
-            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, "flags.trespasser.initiativePending": false });
+            updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.LATE, [`flags.${SYSTEM_ID}.initiativePending`]: false });
           }
         }
       }
     } else {
-      updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.END, "flags.trespasser.initiativePending": false });
+      updates.push({ _id: c.id, initiative: TrespasserCombat.PHASES.END, [`flags.${SYSTEM_ID}.initiativePending`]: false });
     }
   }
 
@@ -177,7 +178,7 @@ export async function rollAllTrespasserInitiatives(combat) {
         const compUp = updates.find(u => u._id === c.id);
         if (charUp && compUp && charUp.initiative != null) {
           compUp.initiative = charUp.initiative;
-          compUp["flags.trespasser.initiativePending"] = false;
+          compUp[`flags.${SYSTEM_ID}.initiativePending`] = false;
         }
       }
     }
@@ -237,13 +238,13 @@ export async function rollAllTrespasserInitiatives(combat) {
     deedDisplay
   };
   
-  await combat.setFlag("trespasser", "combatInfo", combatInfo);
+  await setSystemFlag(combat, "combatInfo", combatInfo);
   await postPerilToChat(combat, combatInfo);
 
   if (playerFacingInit) {
-    await combat.setFlag("trespasser", "waitingForInitiatives", hasPending);
+    await setSystemFlag(combat, "waitingForInitiatives", hasPending);
   } else {
-    await combat.setFlag("trespasser", "waitingForInitiatives", false);
+    await setSystemFlag(combat, "waitingForInitiatives", false);
   }
 
   return { updates, newCombatants };

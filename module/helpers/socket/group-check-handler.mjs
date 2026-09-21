@@ -1,4 +1,5 @@
 import { TrespasserPartyHelper } from "../party-helper.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../../system-id.mjs";
 
 export async function handleGroupCheckSubmitRoll(data, senderId) {
   if (!game.user.isGM) return;
@@ -10,7 +11,7 @@ export async function handleGroupCheckSubmitRoll(data, senderId) {
     return;
   }
 
-  const flags = msg.flags.trespasser?.groupCheck;
+  const flags = getSystemFlag(msg, "groupCheck");
   if (!flags || flags.status === "completed") return;
 
   // Clone current results to append the new one
@@ -22,7 +23,7 @@ export async function handleGroupCheckSubmitRoll(data, senderId) {
   currentResults.push(result);
 
   const updates = {
-    "flags.trespasser.groupCheck.results": currentResults,
+    [`flags.${SYSTEM_ID}.groupCheck.results`]: currentResults,
     content: TrespasserPartyHelper.buildGroupCheckPendingHtml(flags.checkLabel, flags.dc, flags.participants, currentResults)
   };
 

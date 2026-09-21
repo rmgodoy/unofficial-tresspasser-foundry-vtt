@@ -1,5 +1,6 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { applyLinkedItems, removeLinkedItems } from "./actor-linked-items.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 export { applyLinkedItems, removeLinkedItems };
 
@@ -44,7 +45,7 @@ export async function equipItem(actor, itemId) {
   // 1. Placement Check (Hands vs discrete slots)
   if (placement === "hand") {
     const is2H = item.type === "weapon" ? !!item.system.properties?.twoHanded : (item.system.slotOccupancy >= 2);
-    const enforceLimits = game.settings.get("trespasser", "enforceHandEquipLimits") ?? true;
+    const enforceLimits = game.settings.get(SYSTEM_ID, "enforceHandEquipLimits") ?? true;
 
     const mainOccupant = equipment.main_hand ? actor.items.get(equipment.main_hand) : null;
     const offOccupant = equipment.off_hand ? actor.items.get(equipment.off_hand) : null;

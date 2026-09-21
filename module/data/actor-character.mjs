@@ -1,5 +1,6 @@
 import { TrespasserCombatantData } from "./actor-combatant.mjs";
 import { DEFAULT_PROGRESSION_TABLE } from "./progression-default.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 /**
  * Data model for the Trespasser TTRPG Character actor type.
@@ -130,7 +131,7 @@ export class TrespasserCharacterData extends TrespasserCombatantData {
     const isDefeated = Boolean(
       actor?.statuses?.has("defeated") ||
       actor?.statuses?.has(CONFIG.specialStatusEffects?.DEFEATED) ||
-      actor?.items?.some(i => i.type === "effect" && (i.getFlag("trespasser", "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated"))
+      actor?.items?.some(i => i.type === "effect" && (getSystemFlag(i, "statusEffectId") === "defeated" || i.name?.toLowerCase() === "defeated"))
     );
 
     this.passiveStates.tenacious = (this.health <= 0) && !isDefeated;
@@ -143,7 +144,7 @@ export class TrespasserCharacterData extends TrespasserCombatantData {
     }
     this.passiveStates.encumbered = equippedArmorRating >= 6;
 
-    const applyEncumbranceRules = game.settings?.get?.("trespasser", "applyEncumbranceRules");
+    const applyEncumbranceRules = game.settings?.get?.(SYSTEM_ID, "applyEncumbranceRules");
     if (this.passiveStates.encumbered && applyEncumbranceRules) {
       this.combat.guard = this.armor + (this.bonuses.guard || 0);
       this.combat.speed_bonus = 2 + (this.bonuses.speed_bonus || 0);

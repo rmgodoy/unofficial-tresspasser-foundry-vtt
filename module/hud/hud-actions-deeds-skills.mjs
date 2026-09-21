@@ -1,6 +1,7 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../documents/combat.mjs";
 import { getCombatant }            from "./hud-context.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../system-id.mjs";
 
 /**
  * Execute Attempt Deed action.
@@ -99,8 +100,8 @@ export async function executeInteract(hud) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   
   if (restrictAPF && currentAP < cost) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
@@ -110,7 +111,7 @@ export async function executeInteract(hud) {
   const bonus = (cost - 1) * 2;
   const bonusText = bonus > 0 ? game.i18n.format("TRESPASSER.HUD.Common.WithBonus", { bonus }) : "";
 
-  await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+  await setSystemFlag(combatant, "actionPoints", Math.max(0, currentAP - cost));
   await TrespasserCombat.recordHUDAction(hud._token.actor, "interact");
 
   ChatMessage.create({
@@ -142,15 +143,15 @@ export async function executeManeuver(hud) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   
   if (restrictAPF && currentAP < cost) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
     return;
   }
 
-  const usedActions = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
+  const usedActions = new Set(getSystemFlag(combatant, "usedHUDActions") ?? []);
   let focusCost = 0;
   if (usedActions.has("attempt-deed")) {
     focusCost = 2;
@@ -171,7 +172,7 @@ export async function executeManeuver(hud) {
   const bonus = (cost - 1) * 2;
   const focusText = focusCost > 0 ? game.i18n.format("TRESPASSER.HUD.Resource.SpentFocusMsg", { count: focusCost }) : "";
 
-  await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+  await setSystemFlag(combatant, "actionPoints", Math.max(0, currentAP - cost));
   if (focusCost > 0) {
     await actor.update({ "system.combat.focus": Math.max(0, currentFocus - focusCost) });
   }
@@ -207,8 +208,8 @@ export async function executeSmash(hud) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   
   if (restrictAPF && currentAP < cost) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
@@ -226,7 +227,7 @@ export async function executeSmash(hud) {
 
   const materialStr = game.i18n.localize(`TRESPASSER.HUD.SmashMaterial.${materialIdx}`);
 
-  await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+  await setSystemFlag(combatant, "actionPoints", Math.max(0, currentAP - cost));
   await TrespasserCombat.recordHUDAction(actor, "smash");
 
   ChatMessage.create({
@@ -255,15 +256,15 @@ export async function executeRummage(hud) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   
   if (restrictAPF && currentAP < 1) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
     return;
   }
 
-  await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
+  await setSystemFlag(combatant, "actionPoints", Math.max(0, currentAP - 1));
   await TrespasserCombat.recordHUDAction(hud._token.actor, "rummage");
 
   ChatMessage.create({
@@ -291,9 +292,9 @@ export async function modifyAP(hud, ev) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 3;
   const newAP = Math.max(0, currentAP + delta);
-  await combatant.setFlag("trespasser", "actionPoints", newAP);
+  await setSystemFlag(combatant, "actionPoints", newAP);
   
   ui.notifications.info(game.i18n.format("TRESPASSER.Notification.Combat.APModified", { 
     name: hud._token.name, 
@@ -311,10 +312,10 @@ export async function onSpendAP(hud) {
   if (!combatant) return;
   if (!combatant.testUserPermission(game.user, "OWNER") && !game.user.isGM) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 3;
   if (currentAP <= 0) return;
 
   const newAP = Math.max(0, currentAP - 1);
-  await combatant.setFlag("trespasser", "actionPoints", newAP);
+  await setSystemFlag(combatant, "actionPoints", newAP);
   hud.render();
 }

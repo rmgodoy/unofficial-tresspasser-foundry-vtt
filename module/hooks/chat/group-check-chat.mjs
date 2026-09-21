@@ -2,6 +2,7 @@ import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { TrespasserRollDialog } from "../../dialogs/roll-dialog.mjs";
 import { NonCombatSparkDialog, NonCombatShadowDialog } from "../../dialogs/tempt-fate-dialogs.mjs";
 import { TrespasserPartyHelper } from "../../helpers/party-helper.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../../system-id.mjs";
 
 /**
  * Prompt the current user to roll for any owned, unrolled actors in a pending group check.
@@ -12,7 +13,7 @@ export async function promptGroupCheckRoll(messageId, isAutoPrompt = false) {
   const message = game.messages.get(messageId);
   if (!message) return;
 
-  const flags = message.flags.trespasser?.groupCheck;
+  const flags = getSystemFlag(message, "groupCheck");
   if (!flags || flags.status === "completed") return;
 
   const { attribute, skill, dc, checkLabel, participants, results } = flags;
@@ -157,7 +158,7 @@ export function bindGroupCheckChatListeners(message, htmlElement) {
       forceRollBtn.addEventListener("click", async (event) => {
         event.preventDefault();
       
-        const flags = message.flags.trespasser?.groupCheck;
+        const flags = getSystemFlag(message, "groupCheck");
         if (!flags || flags.status === "completed") return;
 
         const { attribute, skill, dc, participants, results } = flags;
@@ -210,7 +211,7 @@ export function bindGroupCheckChatListeners(message, htmlElement) {
       ev.preventDefault();
       const sparkCount = parseInt(btn.dataset.sparkCount) || 1;
       
-      const flags = message.flags.trespasser?.groupCheck;
+      const flags = getSystemFlag(message, "groupCheck");
       const results = flags?.results || [];
       const highestRoll = results.reduce((max, curr) => curr.total > max.total ? curr : max, results[0]);
       const actor = highestRoll ? game.actors.get(highestRoll.actorId) : null;
@@ -231,7 +232,7 @@ export function bindGroupCheckChatListeners(message, htmlElement) {
 
       const updates = {
         content: updatedContent,
-        "flags.trespasser.groupCheck.chosenSparks": chosenSparks
+        [`flags.${SYSTEM_ID}.groupCheck.chosenSparks`]: chosenSparks
       };
 
       if (game.user.isGM) {
@@ -256,7 +257,7 @@ export function bindGroupCheckChatListeners(message, htmlElement) {
       const chosenShadows = await NonCombatShadowDialog.wait(shadowCount);
       if (!chosenShadows || chosenShadows.length === 0) return;
 
-      const flags = message.flags.trespasser?.groupCheck;
+      const flags = getSystemFlag(message, "groupCheck");
       const results = flags?.results || [];
 
       const updatedContent = TrespasserPartyHelper.buildGroupCheckFinalHtml(
@@ -267,7 +268,7 @@ export function bindGroupCheckChatListeners(message, htmlElement) {
 
       await message.update({
         content: updatedContent,
-        "flags.trespasser.groupCheck.chosenShadows": chosenShadows
+        [`flags.${SYSTEM_ID}.groupCheck.chosenShadows`]: chosenShadows
       });
     });
   });

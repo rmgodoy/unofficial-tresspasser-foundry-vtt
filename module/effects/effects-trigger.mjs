@@ -1,6 +1,7 @@
 import { DurationHelper } from "../helpers/duration-helper.mjs";
 import { getAttributeEffects } from "./effects-aggregate.mjs";
 import { TARGET_ATTRIBUTES } from "./effects-constants.mjs";
+import { getSystemFlag, setSystemFlag } from "../system-id.mjs";
 
 /**
  * Updates the focus of an actor.
@@ -40,9 +41,9 @@ export async function updateActionPoints(actor, modValue) {
   if (game.combat) {
     const combatant = game.combat.combatants.find(c => c.actorId === actor.id);
     if (combatant) {
-      const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+      const currentAP = getSystemFlag(combatant, "actionPoints") ?? 3;
       const newAP = Math.max(0, currentAP + modValue);
-      await combatant.setFlag("trespasser", "actionPoints", newAP);
+      await setSystemFlag(combatant, "actionPoints", newAP);
       
       if (modValue > 0) {
         flavor += `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.APGained", { value: modValue })}</p>`;

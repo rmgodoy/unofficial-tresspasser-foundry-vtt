@@ -5,6 +5,7 @@ import { DeedIntentResolver } from "./deed-intent-resolver.mjs";
 import { TargetPreviewHUD } from "../hud/target-preview-hud.mjs";
 import { TargetClassifier } from "./target-classifier.mjs";
 import { TargetingPreviewSyncer } from "./targeting-preview-syncer.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Interactive N×N blast placement. A highlighted grid overlay follows the
@@ -66,7 +67,7 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null, 
       const activeSquares = selectedOrigin ? currentSquares : hoverSquares;
       const affectedOverlays = [];
       let targetOutcomes = [];
-      const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
+      const showInfo = Boolean(game.settings?.get(SYSTEM_ID, "showTargetPreviewInfo") ?? true);
 
       if (activeSquares && activeSquares.length > 0 && options.item) {
         const tokensInArea = getTokensInSquares(activeSquares, gridPx, { aoeSize: size, aoeType: close ? "close_blast" : "blast" });
@@ -188,7 +189,7 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null, 
         if (close) {
           if (!isBlastAdjacentToToken(testSquares, token, gridPx)) {
             ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.BlastMustBeAdjacent"));
-            const enforceRange = game.settings.get("trespasser", "enforceAttackRange");
+            const enforceRange = game.settings.get(SYSTEM_ID, "enforceAttackRange");
             if (enforceRange) return;
           }
         } else if (maxRangeSq !== null && maxRangeSq !== undefined) {
@@ -200,7 +201,7 @@ export async function placeBlast(token, size, gridPx, close, maxRangeSq = null, 
               range: maxRangeSq,
               distance: distSq
             }));
-            const enforceRange = game.settings.get("trespasser", "enforceAttackRange");
+            const enforceRange = game.settings.get(SYSTEM_ID, "enforceAttackRange");
             if (enforceRange || maxRangeSq === 0) return;
           }
         }

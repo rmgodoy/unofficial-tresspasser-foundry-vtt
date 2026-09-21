@@ -1,6 +1,7 @@
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { evaluateRetreat, attemptRetreat } from "./combat-retreat.mjs";
 import { rollAllTrespasserInitiatives } from "./combat-round-init.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../system-id.mjs";
 
 export { rollAllTrespasserInitiatives, attemptRetreat, evaluateRetreat };
 
@@ -18,7 +19,7 @@ export function createExtraCombatant(baseCombatant, initiative) {
     initiative: initiative,
     hidden: baseCombatant.hidden,
     flags: {
-      trespasser: {
+      [SYSTEM_ID]: {
         isExtraTurn: true,
         baseCombatantId: baseCombatant.id,
         actionPoints: 3
@@ -33,7 +34,7 @@ export function createExtraCombatant(baseCombatant, initiative) {
  * @param {object} combatInfo 
  */
 export async function postPerilToChat(combat, combatInfo) {
-  if (!game.settings.get("trespasser", "showPerilInChat")) return;
+  if (!game.settings.get(SYSTEM_ID, "showPerilInChat")) return;
   
   const label = game.i18n.localize(combatInfo.perilLabel);
   const content = await foundry.applications.handlebars.renderTemplate("systems/trespasser/templates/chat/peril-card.hbs", {
@@ -58,23 +59,23 @@ export async function postPerilToChat(combat, combatInfo) {
 export async function rollPlayerInitiative(combat, combatantId) {
   const combatant = combat.combatants.get(combatantId);
   if (!combatant?.actor || (combatant.actor.type !== "character" && combatant.actor.type !== "commoner" && combatant.actor.type !== "companion")) return;
-  if (!combatant.getFlag("trespasser", "initiativePending")) return;
+  if (!getSystemFlag(combatant, "initiativePending")) return;
 
   const isCompanion = combatant.actor.type === "companion";
   const initMode = isCompanion ? (combatant.actor.system.initiativeMode ?? "follow") : null;
   if (isCompanion && initMode === "follow" && combatant.actor.system.boundCharacterId) {
     const boundId = combatant.actor.system.boundCharacterId;
     const charCombatant = combat.combatants.find(c => c.actorId === boundId && !c.defeated);
-    if (charCombatant && !charCombatant.getFlag("trespasser", "initiativePending") && charCombatant.initiative != null) {
+    if (charCombatant && !getSystemFlag(charCombatant, "initiativePending") && charCombatant.initiative != null) {
       if (game.user.isGM) {
         await combat.updateEmbeddedDocuments("Combatant", [{
           _id: combatantId,
           initiative: charCombatant.initiative,
-          "flags.trespasser.initiativePending": false
+          [`flags.${SYSTEM_ID}.initiativePending`]: false
         }]);
         await checkAllInitiativesRolled(combat);
       } else {
-        await combatant.actor.setFlag("trespasser", "initiativeRollResult", {
+        await setSystemFlag(combatant.actor, "initiativeRollResult", {
           combatId: combat.id,
           combatantId: combatantId,
           total: charCombatant.initiative,
@@ -90,7 +91,7 @@ export async function rollPlayerInitiative(combat, combatantId) {
   let isNat20 = false;
 
   if (isSluggish) {
-    if (game.settings.get("trespasser", "showInitiativeInChat")) {
+    if (game.settings.get(SYSTEM_ID, "showInitiativeInChat")) {
       await ChatMessage.create({
         speaker: ChatMessage.getSpeaker({ actor: combatant.actor }),
         content: game.i18n.localize("TRESPASSER.Chat.Check.SluggishAutofail"),
@@ -99,7 +100,7 @@ export async function rollPlayerInitiative(combat, combatantId) {
     }
   } else {
     const initBonus = combatant.actor.system.combat?.initiative || 0;
-    const isAdv = combatant.actor.getFlag("trespasser", "initiativeAdvantage") || false;
+    const isAdv = getSystemFlag(combatant.actor, "initiativeAdvantage") || false;
     const formula = isAdv ? "2d20kh" : "1d20";
     const roll = new foundry.dice.Roll(`${formula} + ${initBonus}`);
     await roll.evaluate();
@@ -107,11 +108,11 @@ export async function rollPlayerInitiative(combat, combatantId) {
     total = roll.total;
     isNat20 = roll.dice[0].results[0].result === 20;
 
-    const combatInfo = combat.getFlag("trespasser", "combatInfo") || {};
+    const combatInfo = getSystemFlag(combat, "combatInfo") || {};
     const enemyMaxInit = combatInfo.enemyMaxInit || 0;
-    const isRetreat = combat.getFlag("trespasser", "retreatPending");
+    const isRetreat = getSystemFlag(combat, "retreatPending");
 
-    if (game.settings.get("trespasser", "showInitiativeInChat")) {
+    if (game.settings.get(SYSTEM_ID, "showInitiativeInChat")) {
       let flavor = "";
 
       if (isRetreat) {
@@ -149,7 +150,7 @@ export async function rollPlayerInitiative(combat, combatantId) {
   if (game.user.isGM) {
     await processInitiativeResult(combat, combatantId, total, isNat20);
   } else {
-    await combatant.actor.setFlag("trespasser", "initiativeRollResult", {
+    await setSystemFlag(combatant.actor, "initiativeRollResult", {
       combatId: combat.id,
       combatantId: combatantId,
       total: total,
@@ -169,12 +170,12 @@ export async function processInitiativeResult(combat, combatantId, total, isNat2
   const combatant = combat.combatants.get(combatantId);
   if (!combatant) return;
 
-  const combatInfo = combat.getFlag("trespasser", "combatInfo") || {};
+  const combatInfo = getSystemFlag(combat, "combatInfo") || {};
   const enemyMaxInit = combatInfo.enemyMaxInit || 0;
   
-  const updates = [{ _id: combatantId, "flags.trespasser.initiativePending": false }];
+  const updates = [{ _id: combatantId, [`flags.${SYSTEM_ID}.initiativePending`]: false }];
   const newCombatants = [];
-  const isRetreat = combat.getFlag("trespasser", "retreatPending");
+  const isRetreat = getSystemFlag(combat, "retreatPending");
 
   let assignedInitiative;
   if (isRetreat) {
@@ -207,7 +208,7 @@ export async function processInitiativeResult(combat, combatantId, total, isNat2
       updates.push({
         _id: compCombatant.id,
         initiative: assignedInitiative,
-        "flags.trespasser.initiativePending": false
+        [`flags.${SYSTEM_ID}.initiativePending`]: false
       });
     }
   }
@@ -228,17 +229,17 @@ export async function checkAllInitiativesRolled(combat) {
   const pending = combat.combatants.filter(c =>
     (c.actor?.type === "character" || c.actor?.type === "commoner" || c.actor?.type === "companion") &&
     !c.defeated &&
-    c.getFlag("trespasser", "initiativePending")
+    getSystemFlag(c, "initiativePending")
   );
 
   if (pending.length === 0) {
-    await combat.setFlag("trespasser", "waitingForInitiatives", false);
+    await setSystemFlag(combat, "waitingForInitiatives", false);
 
     const initialPhase = combat._firstNonEmptyPhase();
-    await combat.setFlag("trespasser", "activePhase", initialPhase);
+    await setSystemFlag(combat, "activePhase", initialPhase);
     
     if (game.user.isGM) {
-      const isRetreat = combat.getFlag("trespasser", "retreatPending");
+      const isRetreat = getSystemFlag(combat, "retreatPending");
       if (isRetreat) {
         await evaluateRetreat(combat);
       } else {

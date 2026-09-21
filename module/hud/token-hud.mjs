@@ -1,5 +1,6 @@
 import { TrespasserCombat }        from "../documents/combat.mjs";
 import { MovementOverlay }         from "../canvas/movement-overlay.mjs";
+import { unsetSystemFlag } from "../system-id.mjs";
 import {
   prepareHudContext,
   getCombatant,
@@ -134,7 +135,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
     Hooks.on("deleteCombat", async () => {
       this.close();
       if (this._token?.actor) {
-        await this._token.actor.unsetFlag("trespasser", "aimRangeBonus");
+        await unsetSystemFlag(this._token.actor, "aimRangeBonus");
       }
     });
     Hooks.on("canvasReady", () => this._checkAndRenderForActiveToken());

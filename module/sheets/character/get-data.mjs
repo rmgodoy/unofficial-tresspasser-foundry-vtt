@@ -8,6 +8,7 @@ import { PASSIVE_STATES } from "../../config/state-config.mjs";
 import { COMMON_PLIGHTS } from "../../config/plight-config.mjs";
 import { prepareDeedDisplayData } from "../../helpers/deed-display-helper.mjs";
 import { EngagementHelper } from "../../helpers/engagement-helper.mjs";
+import { getSystemFlag } from "../../system-id.mjs";
 
 export async function getCharacterData(sheet, options = {}) {
   const actor   = sheet.actor;
@@ -82,7 +83,7 @@ export async function getCharacterData(sheet, options = {}) {
     const baseCost  = talentData.system.focusCost || 0;
     const bonusCost = talentData.system.bonusCost || 0;
     talentData.displayCost = baseCost + bonusCost;
-    const callingSource = t.flags?.trespasser?.callingSource;
+    const callingSource = getSystemFlag(t, "callingSource");
     if (callingSource) talentData.callingSource = callingSource;
     return talentData;
   });
@@ -146,7 +147,7 @@ export async function getCharacterData(sheet, options = {}) {
     } else if (item.type === "armor" && item.system.equipped) {
       (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
     }
-    const callingSource = item.flags?.trespasser?.callingSource;
+    const callingSource = getSystemFlag(item, "callingSource");
     if (callingSource) item.callingSource = callingSource;
   }
 

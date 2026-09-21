@@ -1,5 +1,6 @@
 import { showItemInfoDialog } from "./item-info-dialog.mjs";
 import { resolveItem, isLinkedItemMatch } from "../helpers/item-resolver.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 const ATTRIBUTE_LABELS = {
   mighty:    "TRESPASSER.Terms.Attribute.Mighty",
@@ -41,7 +42,7 @@ export class TrespasserCraftDialog extends foundry.applications.api.HandlebarsAp
     const sys = craftItem.system;
     const checkPicked = (entry) => actor.items.some(it => 
       isLinkedItemMatch(it, entry) && 
-      it.flags.trespasser?.linkedSource === craftItem.name
+      getSystemFlag(it, "linkedSource") === craftItem.name
     );
 
     this.selectedDeeds = new Set(
@@ -263,7 +264,7 @@ export class TrespasserCraftDialog extends foundry.applications.api.HandlebarsAp
     }
 
     // Find current actor items linked to this craft
-    const linkedItems = dialog.actor.items.filter(it => it.flags.trespasser?.linkedSource === craftName);
+    const linkedItems = dialog.actor.items.filter(it => getSystemFlag(it, "linkedSource") === craftName);
 
     // Items to delete (unchecked)
     const toDelete = linkedItems.filter(li => !picks.some(p => isLinkedItemMatch(li, p))).map(li => li.id);
@@ -279,9 +280,9 @@ export class TrespasserCraftDialog extends foundry.applications.api.HandlebarsAp
       if (!sourceItem) continue;
       const itemData = sourceItem.toObject();
       delete itemData._id;
-      foundry.utils.setProperty(itemData, "flags.trespasser.linkedSource", craftName);
-      foundry.utils.setProperty(itemData, "flags.trespasser.linkedSourceUuid", entry.uuid || sourceItem.uuid);
-      foundry.utils.setProperty(itemData, "flags.trespasser.linkedSourceId", (entry.uuid || sourceItem.uuid)?.split(".").pop() || sourceItem.id);
+      foundry.utils.setProperty(itemData, `flags.${SYSTEM_ID}.linkedSource`, craftName);
+      foundry.utils.setProperty(itemData, `flags.${SYSTEM_ID}.linkedSourceUuid`, entry.uuid || sourceItem.uuid);
+      foundry.utils.setProperty(itemData, `flags.${SYSTEM_ID}.linkedSourceId`, (entry.uuid || sourceItem.uuid)?.split(".").pop() || sourceItem.id);
       toCreateData.push(itemData);
     }
 

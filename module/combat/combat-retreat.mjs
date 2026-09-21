@@ -1,4 +1,5 @@
 import { TrespasserCombat } from "../documents/combat.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../system-id.mjs";
 
 /**
  * Handle the retreat attempt flow.
@@ -6,7 +7,7 @@ import { TrespasserCombat } from "../documents/combat.mjs";
  * @param {number} enemyMaxInit 
  */
 export async function attemptRetreat(combat, enemyMaxInit) {
-  const playerFacingInit = game.settings.get("trespasser", "playerFacingInitiative");
+  const playerFacingInit = game.settings.get(SYSTEM_ID, "playerFacingInitiative");
   
   // Post attempt to chat
   await ChatMessage.create({
@@ -14,8 +15,8 @@ export async function attemptRetreat(combat, enemyMaxInit) {
   });
 
   if (playerFacingInit) {
-    await combat.setFlag("trespasser", "retreatPending", true);
-    await combat.setFlag("trespasser", "waitingForInitiatives", true);
+    await setSystemFlag(combat, "retreatPending", true);
+    await setSystemFlag(combat, "waitingForInitiatives", true);
     return;
   }
 
@@ -26,7 +27,7 @@ export async function attemptRetreat(combat, enemyMaxInit) {
       const roll = new foundry.dice.Roll(`1d20 + ${initBonus}`);
       await roll.evaluate();
       
-      if (game.settings.get("trespasser", "showInitiativeInChat")) {
+      if (game.settings.get(SYSTEM_ID, "showInitiativeInChat")) {
         const retreatSuccess = roll.total >= enemyMaxInit;
         const retreatKey = retreatSuccess ? "TRESPASSER.Chat.Retreat.Success" : "TRESPASSER.Chat.Retreat.Fail";
         await roll.toMessage({
@@ -35,7 +36,7 @@ export async function attemptRetreat(combat, enemyMaxInit) {
         });
       }
       
-      await c.setFlag("trespasser", "initiativePending", false);
+      await setSystemFlag(c, "initiativePending", false);
       await c.update({ initiative: roll.total });
     }
   }
@@ -48,7 +49,7 @@ export async function attemptRetreat(combat, enemyMaxInit) {
  * @param {Combat} combat
  */
 export async function evaluateRetreat(combat) {
-  const combatInfo = combat.getFlag("trespasser", "combatInfo");
+  const combatInfo = getSystemFlag(combat, "combatInfo") || {};
   const enemyMaxInit = combatInfo.enemyMaxInit;
   
   const pcs = combat.combatants.filter(c => (c.actor?.type === "character" || c.actor?.type === "commoner") && !c.defeated);
@@ -69,7 +70,7 @@ export async function evaluateRetreat(combat) {
       content: `<h2 style="color:var(--trp-green-bright)">${game.i18n.format("TRESPASSER.Chat.Retreat.PartyEscaped", { successes, total: pcs.length })}</h2>`
     });
     
-    if (game.settings.get("trespasser", "autoEndCombatOnRetreat")) {
+    if (game.settings.get(SYSTEM_ID, "autoEndCombatOnRetreat")) {
       await combat.endCombat();
       return;
     }
@@ -79,7 +80,7 @@ export async function evaluateRetreat(combat) {
     });
   }
 
-  await combat.setFlag("trespasser", "retreatPending", false);
+  await setSystemFlag(combat, "retreatPending", false);
   
   const updates = [];
   for (const c of pcs) {
@@ -93,7 +94,7 @@ export async function evaluateRetreat(combat) {
   }
 
   const initialPhase = combat._firstNonEmptyPhase();
-  await combat.setFlag("trespasser", "activePhase", initialPhase);
+  await setSystemFlag(combat, "activePhase", initialPhase);
   await combat._onStartOfRound();
   await combat._onStartOfTurn(initialPhase);
 }

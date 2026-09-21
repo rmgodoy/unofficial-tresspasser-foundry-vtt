@@ -7,6 +7,7 @@ import { DeedIntentResolver } from "./deed-intent-resolver.mjs";
 import { TargetPreviewHUD } from "../hud/target-preview-hud.mjs";
 import { TargetClassifier } from "./target-classifier.mjs";
 import { TargetingPreviewSyncer } from "./targeting-preview-syncer.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Get the melee reach in grid squares for a melee_burst deed.
@@ -128,7 +129,7 @@ export async function placeBurst(token, size, gridPx, isMelee = false, isAura = 
 
       const affectedOverlays = [];
       let targetOutcomes = [];
-      const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
+      const showInfo = Boolean(game.settings?.get(SYSTEM_ID, "showTargetPreviewInfo") ?? true);
 
       if (targets.length > 0 && options.item) {
         if (showInfo) {

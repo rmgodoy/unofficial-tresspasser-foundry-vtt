@@ -1,4 +1,5 @@
 import { addItemToActor } from "../item-transfer-helper.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 /**
  * Socket handlers for item transfer operations.
@@ -23,7 +24,7 @@ export async function handleTransferRequest(data, senderId) {
 
   if (!isResponsible) return;
 
-  const confirm = game.settings.get("trespasser", "confirmItemTransfer");
+  const confirm = game.settings.get(SYSTEM_ID, "confirmItemTransfer");
   let accepted = !confirm;
 
   if (confirm) {

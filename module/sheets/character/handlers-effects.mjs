@@ -8,6 +8,7 @@ import { askAPDialog }             from "../../dialogs/ap-dialog.mjs";
 import { TrespasserCombat }        from "../../documents/combat.mjs";
 import { showItemInfoDialog }      from "../../dialogs/item-info-dialog.mjs";
 import { TrespasserRollDialog }    from "../../dialogs/roll-dialog.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../../system-id.mjs";
 
 export async function onPrevailRoll(event, sheet) {
   event.preventDefault();
@@ -19,8 +20,8 @@ export async function onPrevailRoll(event, sheet) {
   const combatant = TrespasserCombat.getPhaseCombatant(sheet.actor);
   
   if (combatant && (sheet.actor.type === "character" || sheet.actor.type === "commoner" || sheet.actor.type === "creature")) {
-    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
-    const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+    const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
+    const availableAP = getSystemFlag(combatant, "actionPoints") ?? 0;
     if (restrictAPF && availableAP < 1) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
       return;
@@ -33,7 +34,7 @@ export async function onPrevailRoll(event, sheet) {
     }
     
     extraAP = apSpent - 1;
-    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - apSpent));
+    await setSystemFlag(combatant, "actionPoints", Math.max(0, availableAP - apSpent));
   }
 
   let intensity = effectItem.system.intensity || 0;

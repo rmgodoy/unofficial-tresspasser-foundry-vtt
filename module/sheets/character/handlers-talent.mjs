@@ -5,6 +5,7 @@
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../../documents/combat.mjs";
 import { messageVisibility }       from "../../helpers/compat.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../../system-id.mjs";
 
 
 export async function onTalentRoll(event, sheet) {
@@ -24,7 +25,7 @@ export async function onTalentRoll(event, sheet) {
     const costIncrease  = item.system.focusIncrease || 0;
     totalCost = baseCost + currentBonusCost;
 
-    const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+    const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
     const isAction    = item.system.type === "action";
     const combatant   = TrespasserCombat.getPhaseCombatant(sheet.actor);
 
@@ -33,7 +34,7 @@ export async function onTalentRoll(event, sheet) {
 
     // 1. AP check
     if (isAction && combatant) {
-      availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+      availableAP = getSystemFlag(combatant, "actionPoints") ?? 0;
       if (restrictAPF && availableAP < 1) {
         ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
         return;
@@ -49,7 +50,7 @@ export async function onTalentRoll(event, sheet) {
       }
     }
 
-    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - 1));
+    await setSystemFlag(combatant, "actionPoints", Math.max(0, availableAP - 1));
     await sheet.actor.update({ "system.combat.focus": Math.max(0, currentFocus - totalCost) });
 
 
@@ -109,7 +110,7 @@ export async function onTalentRoll(event, sheet) {
       </button>
     </div>`;
 
-    const showCreatureRolls = game.settings.get("trespasser", "showCreatureDamageRolls");
+    const showCreatureRolls = game.settings.get(SYSTEM_ID, "showCreatureDamageRolls");
     const mode = (sheet.actor.type === "creature" && !showCreatureRolls) ? "gm" : "public";
     await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor: cardHtml + applyHealBtns }, messageVisibility(mode));
 
@@ -134,17 +135,17 @@ export async function onFeatureRoll(event, sheet) {
   if (!item) return;
 
   const combatant   = TrespasserCombat.getPhaseCombatant(sheet.actor);
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   const isAction    = item.system.type === "action";
 
   // 1. AP check and deduction
   if (isAction && combatant) {
-    const availableAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+    const availableAP = getSystemFlag(combatant, "actionPoints") ?? 0;
     if (restrictAPF && availableAP < 1) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
       return;
     }
-    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, availableAP - 1));
+    await setSystemFlag(combatant, "actionPoints", Math.max(0, availableAP - 1));
   }
 
   const enrichedRef = await foundry.applications.ux.TextEditor.implementation.enrichHTML(item.system.description, {

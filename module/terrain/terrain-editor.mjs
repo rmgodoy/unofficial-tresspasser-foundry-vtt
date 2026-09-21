@@ -1,5 +1,6 @@
 import { getRegionColor } from "./terrain-behaviors.mjs";
 import { syncWhileInsideEffectsForRegion } from "./terrain-effects-sync.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 /**
  * Open the custom terrain sheet for a dropped Region or Drawing.
@@ -8,13 +9,13 @@ import { syncWhileInsideEffectsForRegion } from "./terrain-effects-sync.mjs";
 export async function editTerrainRegion(document) {
   let region = document;
   if (document.documentName === "Drawing" || document.documentName === "Tile") {
-    const regionId = document.flags?.trespasser?.regionId;
+    const regionId = getSystemFlag(document, "regionId");
     if (regionId) {
       region = document.parent?.regions?.get(regionId) || region;
     }
   }
 
-  const itemData = region.flags?.trespasser?.terrain;
+  const itemData = getSystemFlag(region, "terrain");
   if (!itemData) return;
 
   const itemDataCopy = foundry.utils.deepClone(itemData);
@@ -73,8 +74,8 @@ export async function editTerrainRegion(document) {
       name: tempItem.name,
       color: color,
       shapes: newShapes,
-      "flags.trespasser.terrain": tempItem.toObject(),
-      "flags.trespasser.centerActorId": sys.centerActorId
+      [`flags.${SYSTEM_ID}.terrain`]: tempItem.toObject(),
+      [`flags.${SYSTEM_ID}.centerActorId`]: sys.centerActorId
     };
 
     if (game.user.isGM) {

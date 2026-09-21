@@ -4,6 +4,8 @@
  * Singleton sheet that shows a list of Event Clocks stored in game.settings.
  */
 
+import { SYSTEM_ID } from "../system-id.mjs";
+
 const { api } = foundry.applications;
 
 export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.ApplicationV2) {
@@ -64,7 +66,7 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
 
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
-    const settingJson = game.settings.get("trespasser", "eventClocks") || "[]";
+    const settingJson = game.settings.get(SYSTEM_ID, "eventClocks") || "[]";
     let clocks = [];
     try {
         clocks = JSON.parse(settingJson);
@@ -73,7 +75,7 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
     }
     
     context.isGM = game.user.isGM;
-    context.clockSize = game.settings.get("trespasser", "clockSize") || 40;
+    context.clockSize = game.settings.get(SYSTEM_ID, "clockSize") || 40;
 
     // Filter and prepare clocks
     context.clocks = clocks
@@ -137,7 +139,7 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
   static async #onAddClock(event, target) {
     if (!game.user.isGM) return;
     
-    const settingJson = game.settings.get("trespasser", "eventClocks") || "[]";
+    const settingJson = game.settings.get(SYSTEM_ID, "eventClocks") || "[]";
     const clocks = JSON.parse(settingJson);
     
     const newClock = {
@@ -151,7 +153,7 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
     };
     
     clocks.push(newClock);
-    await game.settings.set("trespasser", "eventClocks", JSON.stringify(clocks));
+    await game.settings.set(SYSTEM_ID, "eventClocks", JSON.stringify(clocks));
     // The hook will trigger re-render
   }
 
@@ -174,9 +176,9 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
 
     if (!confirm) return;
 
-    const settingJson = game.settings.get("trespasser", "eventClocks") || "[]";
+    const settingJson = game.settings.get(SYSTEM_ID, "eventClocks") || "[]";
     const clocks = JSON.parse(settingJson).filter(c => c.id !== clockId);
-    await game.settings.set("trespasser", "eventClocks", JSON.stringify(clocks));
+    await game.settings.set(SYSTEM_ID, "eventClocks", JSON.stringify(clocks));
   }
 
   /**
@@ -188,7 +190,7 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
     const idx = parseInt(target.dataset.index);
     if (isNaN(idx)) return;
 
-    const settingJson = game.settings.get("trespasser", "eventClocks") || "[]";
+    const settingJson = game.settings.get(SYSTEM_ID, "eventClocks") || "[]";
     const clocks = JSON.parse(settingJson);
     const clock = clocks.find(c => c.id === clockId);
     
@@ -197,7 +199,7 @@ export class EventClocksTracker extends api.HandlebarsApplicationMixin(api.Appli
         // If clicking a different segment, set to that number (index + 1)
         const newVal = (clock.current === idx + 1) ? idx : idx + 1;
         clock.current = Math.min(Math.max(0, newVal), clock.target);
-        await game.settings.set("trespasser", "eventClocks", JSON.stringify(clocks));
+        await game.settings.set(SYSTEM_ID, "eventClocks", JSON.stringify(clocks));
     }
   }
 
@@ -268,7 +270,7 @@ export function registerEventClocksHooks() {
   
   // Re-render all open trackers and sheets when settings change
   Hooks.on("updateSetting", (setting) => {
-      if (setting.key === "trespasser.eventClocks") {
+      if (setting.key === `${SYSTEM_ID}.eventClocks`) {
           // Re-render tracker
           EventClocksTracker.getInstance().render();
           

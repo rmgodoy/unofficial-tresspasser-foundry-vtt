@@ -1,6 +1,7 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../documents/combat.mjs";
 import { EngagementHelper }        from "../helpers/engagement-helper.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 /**
  * Centralized way to find the correct combatant for the token,
@@ -104,7 +105,7 @@ export function getSmashOptions(ap) {
 
 export function getTakeAimOptions(ap) {
   const options = [];
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   if (ap >= 1 || !restrictAPF) {
     options.push({ cost: 1, bonus: 4 });
   }
@@ -194,13 +195,13 @@ export function prepareHudContext(hud) {
 
   const states = TrespasserEffectsHelper.getActorEffects(hud._token.actor).combat.filter(e => e.item?.type === "effect" && !e.isLasting);
 
-  const ap = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+  const ap = getSystemFlag(combatant, "actionPoints") ?? 3;
   const maxApCount = Math.max(3, ap);
   const apDots = Array.from({ length: maxApCount }, (_, i) => ({ active: i < ap }));
 
-  const moveActionTaken = combatant.getFlag("trespasser", "moveActionTaken") ?? false;
-  const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
-  const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
+  const moveActionTaken = getSystemFlag(combatant, "moveActionTaken") ?? false;
+  const movementUsed = getSystemFlag(combatant, "movementUsed") ?? 0;
+  const movementAllowed = getSystemFlag(combatant, "movementAllowed") ?? 0;
   const movePointsLeft = movementAllowed - movementUsed;
   const speed = Math.max(0, hud._token.actor?.system.combat?.speed ?? 5);
   const focus = hud._token.actor?.system.combat?.focus ?? 0;
@@ -214,9 +215,9 @@ export function prepareHudContext(hud) {
     });
   }
 
-  const usedActions = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
-  const restrictHUD = game.settings.get("trespasser", "restrictHUDActions");
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const usedActions = new Set(getSystemFlag(combatant, "usedHUDActions") ?? []);
+  const restrictHUD = game.settings.get(SYSTEM_ID, "restrictHUDActions");
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
 
   const deeds = getSortedDeeds(hud._token);
   const selectedDeed = deeds.find(d => d.id === hud._selectedDeedId) || deeds[0] || null;
@@ -290,7 +291,7 @@ export function prepareHudContext(hud) {
     takeAimOptions:  getTakeAimOptions(ap),
     vaultRange:      vaultRange,
     canVault:        (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("vault")),
-    canWait:         (ap >= 1 || !restrictAPF) && (game.combat?.getFlag("trespasser", "activePhase") === TrespasserCombat.PHASES.EARLY) && !hasLateTurn,
+    canWait:         (ap >= 1 || !restrictAPF) && (getSystemFlag(game.combat, "activePhase") === TrespasserCombat.PHASES.EARLY) && !hasLateTurn,
     canForceMove:    game.user.isGM
   };
 

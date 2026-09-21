@@ -3,6 +3,7 @@ import { TrespasserCraftDialog } from "../../dialogs/craft-dialog.mjs";
 import { PlightPickerDialog } from "../../dialogs/plight-picker-dialog.mjs";
 import { COMMON_PLIGHTS } from "../../config/plight-config.mjs";
 import { resolveItem } from "../../helpers/item-resolver.mjs";
+import { getSystemFlag } from "../../system-id.mjs";
 
 /**
  * Handle clicking Edit on Calling.
@@ -38,7 +39,7 @@ export async function onCallingDelete(sheet, event) {
   if (!confirm) return;
 
   const toDelete = sheet.actor.items
-    .filter(it => it.flags.trespasser?.linkedSource === callingName || it.id === callingItem.id)
+    .filter(it => getSystemFlag(it, "linkedSource") === callingName || it.id === callingItem.id)
     .map(it => it.id);
 
   const skillUpdates = {};
@@ -102,7 +103,7 @@ export async function onCraftDelete(sheet, event) {
   if (!confirm) return;
 
   const toDelete = sheet.actor.items
-    .filter(it => it.flags.trespasser?.linkedSource === craftName || (it.type === "craft" && it.name === craftName))
+    .filter(it => getSystemFlag(it, "linkedSource") === craftName || (it.type === "craft" && it.name === craftName))
     .map(it => it.id);
   if (toDelete.length > 0) await sheet.actor.deleteEmbeddedDocuments("Item", toDelete);
 

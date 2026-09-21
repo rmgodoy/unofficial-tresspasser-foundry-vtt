@@ -1,4 +1,5 @@
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../../system-id.mjs";
 
 /**
  * Executes token movement step-by-step with animation and effect triggering.
@@ -74,9 +75,9 @@ export async function executeTokenMovement(host) {
         }
 
         if (combatant) {
-            const currentUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+            const currentUsed = getSystemFlag(combatant, "movementUsed") ?? 0;
             const newUsed = currentUsed + totalCost;
-            const moveActionMovements = Array.from(combatant.getFlag("trespasser", "moveActionMovements") ?? []);
+            const moveActionMovements = Array.from(getSystemFlag(combatant, "moveActionMovements") ?? []);
             const endPt = uniquePath.length > 0 ? uniquePath[uniquePath.length - 1] : { x: startX, y: startY };
             moveActionMovements.push({
                 from: { x: startX, y: startY },
@@ -84,9 +85,9 @@ export async function executeTokenMovement(host) {
                 distance: totalCost
             });
             await combatant.update({
-                "flags.trespasser.movementUsed": newUsed,
-                "flags.trespasser.moveActionMovements": moveActionMovements,
-                "flags.trespasser.hasMovedThisTurn": true
+                [`flags.${SYSTEM_ID}.movementUsed`]: newUsed,
+                [`flags.${SYSTEM_ID}.moveActionMovements`]: moveActionMovements,
+                [`flags.${SYSTEM_ID}.hasMovedThisTurn`]: true
             });
 
             if (combatant.actor) {

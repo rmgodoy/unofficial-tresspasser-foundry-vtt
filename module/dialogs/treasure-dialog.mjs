@@ -1,4 +1,5 @@
 import { TreasureGenerator } from "../helpers/treasure-generator.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * ApplicationsV2 Treasure Generator Dialog for Trespasser RPG.
@@ -23,11 +24,11 @@ export class TrespasserTreasureDialog extends foundry.applications.api.Handlebar
       title: "TRESPASSER.Dialog.TreasureGenerator.Title"
     },
     actions: {
-      generate: TrespasserTreasureDialog.#onGenerate,
-      createSingle: TrespasserTreasureDialog.#onCreateSingle,
-      createAll: TrespasserTreasureDialog.#onCreateAll,
-      clear: TrespasserTreasureDialog.#onClear,
-      close: TrespasserTreasureDialog.#onClose
+      generate: TrespasserTreasureDialog._onGenerate,
+      createSingle: TrespasserTreasureDialog._onCreateSingle,
+      createAll: TrespasserTreasureDialog._onCreateAll,
+      clear: TrespasserTreasureDialog._onClear,
+      close: TrespasserTreasureDialog._onClose
     }
   };
 
@@ -42,7 +43,7 @@ export class TrespasserTreasureDialog extends foundry.applications.api.Handlebar
    * @returns {Actor|null}
    */
   get activeParty() {
-    const activePartyId = game.settings.get("trespasser", "activePartyId");
+    const activePartyId = game.settings.get(SYSTEM_ID, "activePartyId");
     if (activePartyId) {
       const party = game.actors.get(activePartyId);
       if (party) return party;
@@ -84,7 +85,7 @@ export class TrespasserTreasureDialog extends foundry.applications.api.Handlebar
    * @param {string} mode
    * @returns {Actor|null}
    */
-  #resolveTargetActor(mode) {
+  _resolveTargetActor(mode) {
     if (mode === "party") return this.activeParty;
     if (mode === "selected") return this.selectedActor;
     return null;
@@ -93,7 +94,7 @@ export class TrespasserTreasureDialog extends foundry.applications.api.Handlebar
   /**
    * Read form input state from the DOM.
    */
-  #syncFormState() {
+  _syncFormState() {
     if (!this.element) return;
     const countInput = this.element.querySelector('input[name="count"]');
     if (countInput) {
@@ -109,11 +110,11 @@ export class TrespasserTreasureDialog extends foundry.applications.api.Handlebar
     }
   }
 
-  static async #onGenerate(event, target) {
+  static async _onGenerate(event, target) {
     event.preventDefault();
-    this.#syncFormState();
+    this._syncFormState();
 
-    const targetActor = this.#resolveTargetActor(this.recipientMode);
+    const targetActor = this._resolveTargetActor(this.recipientMode);
     const newResults = [];
 
     for (let i = 0; i < this.count; i++) {
@@ -130,23 +131,23 @@ export class TrespasserTreasureDialog extends foundry.applications.api.Handlebar
     this.render();
   }
 
-  static async #onCreateSingle(event, target) {
+  static async _onCreateSingle(event, target) {
     event.preventDefault();
-    this.#syncFormState();
+    this._syncFormState();
     const index = parseInt(target.dataset.index);
     const res = this.results[index];
     if (!res) return;
 
-    const targetActor = this.#resolveTargetActor(this.recipientMode);
+    const targetActor = this._resolveTargetActor(this.recipientMode);
     await TreasureGenerator.createTreasureItem(res, targetActor);
   }
 
-  static async #onCreateAll(event, target) {
+  static async _onCreateAll(event, target) {
     event.preventDefault();
-    this.#syncFormState();
+    this._syncFormState();
     if (!this.results.length) return;
 
-    const targetActor = this.#resolveTargetActor(this.recipientMode);
+    const targetActor = this._resolveTargetActor(this.recipientMode);
     for (const res of this.results) {
       await TreasureGenerator.createTreasureItem(res, targetActor);
     }
@@ -156,13 +157,13 @@ export class TrespasserTreasureDialog extends foundry.applications.api.Handlebar
     }));
   }
 
-  static async #onClear(event, target) {
+  static async _onClear(event, target) {
     event.preventDefault();
     this.results = [];
     this.render();
   }
 
-  static async #onClose(event, target) {
+  static async _onClose(event, target) {
     event.preventDefault();
     this.close();
   }

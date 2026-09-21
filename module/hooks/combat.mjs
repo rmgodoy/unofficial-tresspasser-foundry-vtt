@@ -1,7 +1,7 @@
 import { renderPhasedCombatTracker } from "./combat-tracker-render.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { DurationHelper } from "../helpers/duration-helper.mjs";
-import { SYSTEM_ID } from "../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag, unsetSystemFlag } from "../system-id.mjs";
 
 /**
  * Register combat lifecycle hooks and combat tracker rendering.
@@ -44,7 +44,7 @@ export function registerCombatHooks() {
     const isAPChanged = (changed.flags?.[SYSTEM_ID]?.actionPoints !== undefined) || (changed.flags?.trespasser?.actionPoints !== undefined);
     const isInitiativeChanged = changed.initiative !== undefined;
     if (isDefeatedChanged || isAPChanged || isInitiativeChanged) {
-      const activePhase = game.combat.getFlag(SYSTEM_ID, "activePhase") ?? game.combat.getFlag("trespasser", "activePhase");
+      const activePhase = getSystemFlag(game.combat, "activePhase");
       game.combat.updateTurnMarkers(activePhase);
     }
 
@@ -69,8 +69,7 @@ export function registerCombatHooks() {
         const acquiredInCombat = c.actor.items.filter(i => {
           if (i.type !== "effect") return false;
           if (TrespasserEffectsHelper.isSpecialState(i)) return false;
-          const wasAcquired = i.getFlag(SYSTEM_ID, "acquiredDuringCombat") === true ||
-                              i.getFlag("trespasser", "acquiredDuringCombat") === true;
+          const wasAcquired = getSystemFlag(i, "acquiredDuringCombat") === true;
           return wasAcquired && i.system.isCombat && !i.system.isLasting;
         });
         for (const eff of acquiredInCombat) {
@@ -95,9 +94,8 @@ export function registerCombatHooks() {
           await w.update({ "system.isThrown": false });
         }
 
-        if (c.actor.getFlag(SYSTEM_ID, "failedTenacityThisEncounter") || c.actor.getFlag("trespasser", "failedTenacityThisEncounter")) {
-          await c.actor.unsetFlag(SYSTEM_ID, "failedTenacityThisEncounter");
-          await c.actor.unsetFlag("trespasser", "failedTenacityThisEncounter");
+        if (getSystemFlag(c.actor, "failedTenacityThisEncounter")) {
+          await unsetSystemFlag(c.actor, "failedTenacityThisEncounter");
         }
 
         // Re-evaluate and synchronize persistent passive states

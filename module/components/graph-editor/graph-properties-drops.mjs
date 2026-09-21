@@ -1,4 +1,5 @@
 import { resolveItem } from "../../helpers/item-resolver.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 /**
  * Helper to persist graph state and viewport to the item document.
@@ -11,7 +12,7 @@ export async function persistGraphData({ sheet, editor, graph }) {
   await sheet.document.update({
     "system.graph": graph,
     "system.graphVersion": 1,
-    "flags.trespasser.graphViewport": editor ? editor.getViewportState() : undefined
+    [`flags.${SYSTEM_ID}.graphViewport`]: editor ? editor.getViewportState() : undefined
   });
 }
 

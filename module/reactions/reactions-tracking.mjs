@@ -1,4 +1,5 @@
 import { TrespasserCombat } from "../documents/combat.mjs";
+import { getSystemFlag, setSystemFlag } from "../system-id.mjs";
 
 /**
  * Get the reaction count for an actor in the current combat round.
@@ -11,7 +12,7 @@ export function getReactionCount(actor, combat = game.combat) {
   if (combat && combat.combatants) {
     const combatant = TrespasserCombat.getPhaseCombatant(actor, combat);
     if (combatant) {
-      return combatant.getFlag("trespasser", "reactionCount") || 0;
+      return getSystemFlag(combatant, "reactionCount") || 0;
     }
   }
   return 0;
@@ -61,8 +62,8 @@ export async function consumeReaction(actor, combat = game.combat) {
   if (combat && combat.combatants) {
     const combatant = TrespasserCombat.getPhaseCombatant(actor, combat);
     if (combatant) {
-      const currentCount = combatant.getFlag("trespasser", "reactionCount") || 0;
-      await combatant.setFlag("trespasser", "reactionCount", currentCount + 1);
+      const currentCount = getSystemFlag(combatant, "reactionCount") || 0;
+      await setSystemFlag(combatant, "reactionCount", currentCount + 1);
     }
   }
 

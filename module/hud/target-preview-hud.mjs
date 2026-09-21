@@ -1,4 +1,5 @@
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications?.api || {};
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * TargetPreviewHUD — Floating canvas HUD overlay for previewing deed outcome
@@ -48,7 +49,7 @@ export class TargetPreviewHUD extends (HandlebarsApplicationMixin ? HandlebarsAp
    * @param {Array<object>} targetOutcomes
    */
   static async update(targetOutcomes = []) {
-    const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
+    const showInfo = Boolean(game.settings?.get(SYSTEM_ID, "showTargetPreviewInfo") ?? true);
     if (!showInfo) {
       if (this.activeHUD) {
         this.activeHUD.clear();

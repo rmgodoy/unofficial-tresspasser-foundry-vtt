@@ -1,5 +1,6 @@
 import { MovementHelper } from "../../helpers/movement-helper.mjs";
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../../system-id.mjs";
 
 // Token IDs currently undergoing a Trespasser undo or movement overlay animation — used to bypass movement hooks
 globalThis._trespasserUndoSet = new Set();
@@ -37,11 +38,11 @@ export function registerTokenMovementHooks() {
     const combatant = game.combat.combatants.find(c => c.tokenId === tokenDoc.id);
     if (!combatant) return;
 
-    const activePhase = game.combat.getFlag("trespasser", "activePhase");
+    const activePhase = getSystemFlag(game.combat, "activePhase");
     
     // If it's not this token's phase, block non-GMs; GM repositioning is allowed but not tracked
     if (combatant.initiative !== activePhase) {
-      const allowOutOfTurn = game.settings.get("trespasser", "allowOutOfTurnMovement");
+      const allowOutOfTurn = game.settings.get(SYSTEM_ID, "allowOutOfTurnMovement");
       if (!game.user.isGM && !allowOutOfTurn) {
         ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotYourPhase"));
         return false;
@@ -68,8 +69,8 @@ export function registerTokenMovementHooks() {
     }
 
     // GMs bypass the action/limit checks if Move action was taken or restrictMovement setting is false
-    const restrictMovement = game.settings.get("trespasser", "restrictMovementAction");
-    const moveActionTaken = combatant.getFlag("trespasser", "moveActionTaken") ?? false;
+    const restrictMovement = game.settings.get(SYSTEM_ID, "restrictMovementAction");
+    const moveActionTaken = getSystemFlag(combatant, "moveActionTaken") ?? false;
     if (!restrictMovement || (game.user.isGM && moveActionTaken)) {
       options.trespasserTrack = true;
       options.trespasserMoveDist = dist;
@@ -86,12 +87,12 @@ export function registerTokenMovementHooks() {
       return;
     }
 
-    const movementAllowed = combatant.getFlag("trespasser", "movementAllowed") ?? 0;
-    const movementUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
-    const isVaulting = combatant.getFlag("trespasser", "isVaulting") ?? false;
+    const movementAllowed = getSystemFlag(combatant, "movementAllowed") ?? 0;
+    const movementUsed = getSystemFlag(combatant, "movementUsed") ?? 0;
+    const isVaulting = getSystemFlag(combatant, "isVaulting") ?? false;
 
     if (isVaulting) {
-      const startPos = combatant.getFlag("trespasser", "vaultStartPos") || start;
+      const startPos = getSystemFlag(combatant, "vaultStartPos") || start;
       const dx = end.x - startPos.x;
       const dy = end.y - startPos.y;
       const isStraight = dx === 0 || dy === 0 || Math.abs(dx) === Math.abs(dy);
@@ -140,14 +141,14 @@ export function registerTokenMovementHooks() {
     const combatant = game.combat.combatants.find(c => c.tokenId === tokenDoc.id);
     if (!combatant) return;
 
-    const activePhase = game.combat.getFlag("trespasser", "activePhase");
+    const activePhase = getSystemFlag(game.combat, "activePhase");
     if (combatant.initiative !== activePhase) return;
 
     if (options.trespasserTrack) {
       const dist = options.trespasserMoveDist || 0;
-      const currentUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+      const currentUsed = getSystemFlag(combatant, "movementUsed") ?? 0;
       const newUsed = currentUsed + dist;
-      const moveActionMovements = Array.from(combatant.getFlag("trespasser", "moveActionMovements") ?? []);
+      const moveActionMovements = Array.from(getSystemFlag(combatant, "moveActionMovements") ?? []);
 
       if (options.trespasserFrom && options.trespasserTo) {
         moveActionMovements.push({
@@ -158,11 +159,11 @@ export function registerTokenMovementHooks() {
       }
 
       await combatant.update({
-        "flags.trespasser.movementUsed": newUsed,
-        "flags.trespasser.moveActionMovements": moveActionMovements,
-        "flags.trespasser.movementHistory": tokenDoc.movementHistory,
-        "flags.trespasser.hasMovedThisTurn": true,
-        "flags.trespasser.isVaulting": false
+        [`flags.${SYSTEM_ID}.movementUsed`]: newUsed,
+        [`flags.${SYSTEM_ID}.moveActionMovements`]: moveActionMovements,
+        [`flags.${SYSTEM_ID}.movementHistory`]: tokenDoc.movementHistory,
+        [`flags.${SYSTEM_ID}.hasMovedThisTurn`]: true,
+        [`flags.${SYSTEM_ID}.isVaulting`]: false
       });
 
       if (combatant.actor && typeof combatant.actor.onMove === "function") {
@@ -175,10 +176,10 @@ export function registerTokenMovementHooks() {
       }
     } else {
       await combatant.update({
-        "flags.trespasser.moveActionMovements": [],
-        "flags.trespasser.movementHistory": tokenDoc.movementHistory,
-        "flags.trespasser.hasMovedThisTurn": true,
-        "flags.trespasser.isVaulting": false
+        [`flags.${SYSTEM_ID}.moveActionMovements`]: [],
+        [`flags.${SYSTEM_ID}.movementHistory`]: tokenDoc.movementHistory,
+        [`flags.${SYSTEM_ID}.hasMovedThisTurn`]: true,
+        [`flags.${SYSTEM_ID}.isVaulting`]: false
       });
     }
 

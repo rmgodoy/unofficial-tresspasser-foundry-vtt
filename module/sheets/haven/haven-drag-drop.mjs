@@ -1,4 +1,5 @@
 import { resolveItem } from "../../helpers/item-resolver.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 /**
  * Drag and Drop handlers for Haven sheets.
@@ -72,7 +73,7 @@ export async function handleHavenDrop(sheet, event) {
     if (["hireling", "room", "build", "stronghold"].includes(item.type)) {
       if (item.parent === sheet.document) return;
 
-      if (item.type === "build" && game.settings.get("trespasser", "enforceHavenBuildingLimits")) {
+      if (item.type === "build" && game.settings.get(SYSTEM_ID, "enforceHavenBuildingLimits")) {
         const system = sheet.document.system;
         const allBuildings = sheet.document.items.filter(i => i.type === "build");
         const numConstruction = allBuildings.filter(b => b.system.progress < b.system.buildClock).length;

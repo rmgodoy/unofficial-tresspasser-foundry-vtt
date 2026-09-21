@@ -1,6 +1,7 @@
 import { addItemToActor } from "../../helpers/item-transfer-helper.mjs";
 import { TrespasserSocket } from "../../helpers/socket/socket.mjs";
 import { resolveItem } from "../../helpers/item-resolver.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 export async function onProcessWeek(sheet, event, target) {
   await sheet.document.system.resolveHirelings();
@@ -221,7 +222,7 @@ export async function onUpgradeBuilding(sheet, event, target) {
   itemData.system.progress = 0;
   itemData.system.replacesId = item.id;
 
-  if (game.settings.get("trespasser", "enforceHavenBuildingLimits")) {
+  if (game.settings.get(SYSTEM_ID, "enforceHavenBuildingLimits")) {
     const system = sheet.document.system;
     const construction = sheet.document.items.filter(i => i.type === "build" && i.system.progress < i.system.buildClock);
     

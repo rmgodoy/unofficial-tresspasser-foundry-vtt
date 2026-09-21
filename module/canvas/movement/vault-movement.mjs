@@ -3,6 +3,7 @@ import { TrespasserCombat } from "../../documents/combat.mjs";
 import { CanvasInputSession } from "../canvas-input-session.mjs";
 import { CanvasSelectionRenderer } from "../canvas-selection-renderer.mjs";
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../../system-id.mjs";
 
 /**
  * Encapsulates vault / jump / teleport / walk movement mode.
@@ -230,18 +231,18 @@ export class VaultMovementMode {
 
         if (combatant && host.options?.isMoveAction) {
             // Standard move action using a movement effect (teleport or jump)
-            const currentUsed = combatant.getFlag("trespasser", "movementUsed") ?? 0;
+            const currentUsed = getSystemFlag(combatant, "movementUsed") ?? 0;
             const newUsed = currentUsed + moveDist;
-            const moveActionMovements = Array.from(combatant.getFlag("trespasser", "moveActionMovements") ?? []);
+            const moveActionMovements = Array.from(getSystemFlag(combatant, "moveActionMovements") ?? []);
             moveActionMovements.push({
                 from: { x: tokenDoc.x, y: tokenDoc.y },
                 to: { x: snapped.x, y: snapped.y },
                 distance: moveDist
             });
             await combatant.update({
-                "flags.trespasser.movementUsed": newUsed,
-                "flags.trespasser.moveActionMovements": moveActionMovements,
-                "flags.trespasser.hasMovedThisTurn": true
+                [`flags.${SYSTEM_ID}.movementUsed`]: newUsed,
+                [`flags.${SYSTEM_ID}.moveActionMovements`]: moveActionMovements,
+                [`flags.${SYSTEM_ID}.hasMovedThisTurn`]: true
             });
 
             if (combatant.actor) {
@@ -269,11 +270,11 @@ export class VaultMovementMode {
             });
         } else if (combatant && !host.options?.free) {
             // Standard 1 AP Vault action
-            const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+            const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
             await combatant.update({
-                "flags.trespasser.actionPoints": Math.max(0, currentAP - 1),
-                "flags.trespasser.isVaulting": movementType !== "teleport",
-                "flags.trespasser.vaultStartPos": { x: tokenDoc.x, y: tokenDoc.y }
+                [`flags.${SYSTEM_ID}.actionPoints`]: Math.max(0, currentAP - 1),
+                [`flags.${SYSTEM_ID}.isVaulting`]: movementType !== "teleport",
+                [`flags.${SYSTEM_ID}.vaultStartPos`]: { x: tokenDoc.x, y: tokenDoc.y }
             });
 
             ChatMessage.create({

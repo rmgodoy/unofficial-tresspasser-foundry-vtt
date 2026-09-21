@@ -10,6 +10,7 @@ import { RangeHelper } from "../helpers/range-helper.mjs";
 import { actorEventBus } from "../actor/actor-event-bus.mjs";
 import { resolveActionTargets } from "./tca-target-resolver.mjs";
 import { promptBlockConfirmation, promptChoiceGroup } from "./tca-dialogs.mjs";
+import { getSystemFlag } from "../system-id.mjs";
 
 export const ACTION_PRIORITIES = {
   modify_intensity: 15,
@@ -33,16 +34,17 @@ export function isActorTenacious(actor) {
   if (!actor) return false;
   if (actor.system?.passiveStates?.tenacious) return true;
   if (actor.items?.some(i => i.type === "effect" && (
-    i.getFlag("trespasser", "isTenaciousState") ||
+    getSystemFlag(i, "isTenaciousState") ||
     i.name?.toLowerCase() === "tenacious" ||
-    i.getFlag("trespasser", "statusEffectId") === "tenacious"
+    getSystemFlag(i, "statusEffectId") === "tenacious"
   ))) {
     return true;
   }
   if (actor.type === "character" && (actor.system?.health ?? 0) <= 0) {
     const isDefeated = actor.system?.passiveStates?.defeated ||
       actor.items?.some(i => i.type === "effect" && (
-        i.getFlag("trespasser", "isDefeatedState") ||
+        getSystemFlag(i, "isDefeatedState") ||
+        getSystemFlag(i, "statusEffectId") === "defeated" ||
         i.name?.toLowerCase() === "defeated"
       ));
     if (!isDefeated) return true;

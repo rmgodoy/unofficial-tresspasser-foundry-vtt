@@ -1,5 +1,6 @@
 import { showItemInfoDialog } from "../dialogs/item-info-dialog.mjs";
 import { getCombatTrackerEffects } from "../effects/effects-token-sync.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../system-id.mjs";
 
 /**
  * Custom Combat Tracker for Trespasser TTRPG.
@@ -38,8 +39,8 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
    */
   _enrichTrespasserData(data) {
     const combat = data.combat;
-    const activePhase = combat.getFlag("trespasser", "activePhase");
-    const combatInfo = combat.getFlag("trespasser", "combatInfo") || {};
+    const activePhase = getSystemFlag(combat, "activePhase");
+    const combatInfo = getSystemFlag(combat, "combatInfo") || {};
 
     const phases = [
       { id: 40, label: "TRESPASSER.Terms.Combat.Phase.Early", css: "early", combatants: [] },
@@ -63,8 +64,8 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
           combatant.actor.system.boundCharacterId;
 
         turn.focus      = combatant.actor?.system.combat?.focus ?? 0;
-        turn.ap         = combatant.getFlag("trespasser", "actionPoints") ?? 3;
-        turn.isPending  = isFollowCompanion ? false : (combatant.getFlag("trespasser", "initiativePending") ?? false);
+        turn.ap         = getSystemFlag(combatant, "actionPoints") ?? 3;
+        turn.isPending  = isFollowCompanion ? false : (getSystemFlag(combatant, "initiativePending") ?? false);
         
         // Status updates
         turn.hidden     = combatant.token?.hidden ?? combatant.hidden;
@@ -90,7 +91,7 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
     data.combatInfo = combatInfo;
     data.activePhase = activePhase;
     data.isGM       = game.user.isGM;
-    data.waitingForInitiatives = combat.getFlag("trespasser", "waitingForInitiatives") ?? false;
+    data.waitingForInitiatives = getSystemFlag(combat, "waitingForInitiatives") ?? false;
 
     return data;
   }
@@ -226,9 +227,9 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
     const combatant = game.combat?.combatants.get(li?.dataset.combatantId);
     if (!combatant || !combatant.testUserPermission(game.user, "OWNER")) return;
 
-    const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+    const currentAP = getSystemFlag(combatant, "actionPoints") ?? 3;
     const newAP = Math.max(0, currentAP - 1);
-    await combatant.setFlag("trespasser", "actionPoints", newAP);
+    await setSystemFlag(combatant, "actionPoints", newAP);
   }
 
   async _onFinishTurnClick(ev) {
@@ -236,6 +237,6 @@ export class TrespasserCombatTracker extends (foundry.applications?.sidebar?.tab
     const li = ev.currentTarget.closest(".combatant");
     const combatant = game.combat?.combatants.get(li?.dataset.combatantId);
     if (!combatant || !combatant.testUserPermission(game.user, "OWNER")) return;
-    await combatant.setFlag("trespasser", "actionPoints", 0);
+    await setSystemFlag(combatant, "actionPoints", 0);
   }
 }

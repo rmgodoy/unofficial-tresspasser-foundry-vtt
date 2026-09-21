@@ -4,6 +4,7 @@ import { handleSlipperyCheck, transformObstacleToRubble } from "./terrain-hazard
 import { resolveItem } from "../helpers/item-resolver.mjs";
 import { isSunken } from "../helpers/elevation-helper.mjs";
 import { TERRAIN_COLORS } from "./terrain-constants.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 export { handleSlipperyCheck, transformObstacleToRubble, TERRAIN_COLORS };
 
@@ -225,11 +226,11 @@ export async function executeBehavior(behavior, actor, terrainRegion, context = 
         const intensity = evaluateIntensityValue(rawIntensity, 0);
         effectData.system.intensity = intensity;
         effectData.flags = effectData.flags || {};
-        effectData.flags.trespasser = Object.assign(effectData.flags.trespasser || {}, {
+        effectData.flags[SYSTEM_ID] = Object.assign(effectData.flags[SYSTEM_ID] || {}, {
           sourceRegionId: terrainRegion.id,
           sourceEffectUuid: eff.uuid,
           sourceIntensityFormula: eff.intensity || "1",
-          sourceLinkedEffectUuid: terrainRegion.flags?.trespasser?.linkedEffectId || terrainRegion.flags?.trespasser?.terrain?.system?.linkedEffect?.uuid || null
+          sourceLinkedEffectUuid: getSystemFlag(terrainRegion, "linkedEffectId") || getSystemFlag(terrainRegion, "terrain")?.system?.linkedEffect?.uuid || null
         });
         delete effectData._id;
         toCreate.push(effectData);

@@ -12,6 +12,7 @@ import {
 } from "./terrain-effects-sync.mjs";
 import { applyTerrainDamageAndEffects, postMovementSummary } from "./terrain-hazard.mjs";
 import { isSunken } from "../helpers/elevation-helper.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag, unsetSystemFlag } from "../system-id.mjs";
 
 export const movementQueues = new Map();
 let debounceMovementProcess = null;
@@ -104,9 +105,9 @@ export async function calculateBatchedMovement(tokenDoc, segments) {
   if (fullPath.length === 0) return;
 
   const visitedState = foundry.utils.deepClone(
-    tokenDoc.flags?.trespasser?.terrainSquaresVisitedThisTurn || {}
+    getSystemFlag(tokenDoc, "terrainSquaresVisitedThisTurn") || {}
   );
-  let slipperyChecked = tokenDoc.flags?.trespasser?.slipperyCheckedThisTurn || false;
+  let slipperyChecked = getSystemFlag(tokenDoc, "slipperyCheckedThisTurn") || false;
 
   const terrainDamageMap = new Map();
   const effectsToApply = [];
@@ -118,7 +119,7 @@ export async function calculateBatchedMovement(tokenDoc, segments) {
     const squareCenterY = (square.y + 0.5) * gridSize;
 
     for (const region of scene.regions) {
-      const terrainData = region.flags?.trespasser?.terrain;
+      const terrainData = getSystemFlag(region, "terrain");
       if (!terrainData) continue;
       if (!isPointInRegion(squareCenterX, squareCenterY, region, gridSize)) continue;
 
@@ -175,10 +176,10 @@ export async function calculateBatchedMovement(tokenDoc, segments) {
   }
 
   const flagUpdates = {
-    "flags.trespasser.terrainSquaresVisitedThisTurn": visitedState
+    [`flags.${SYSTEM_ID}.terrainSquaresVisitedThisTurn`]: visitedState
   };
-  if (slipperyChecked && !tokenDoc.flags?.trespasser?.slipperyCheckedThisTurn) {
-    flagUpdates["flags.trespasser.slipperyCheckedThisTurn"] = true;
+  if (slipperyChecked && !getSystemFlag(tokenDoc, "slipperyCheckedThisTurn")) {
+    flagUpdates[`flags.${SYSTEM_ID}.slipperyCheckedThisTurn`] = true;
   }
   await tokenDoc.update(flagUpdates);
 
@@ -187,10 +188,10 @@ export async function calculateBatchedMovement(tokenDoc, segments) {
   await syncWhileInsideEffectsForToken(tokenDoc);
 
   const auraRegions = scene.regions.filter(r => {
-    const t = r.flags?.trespasser?.terrain;
+    const t = getSystemFlag(r, "terrain");
     if (t?.system?.centerMode !== "actor") return false;
-    const centerTokenId = r.flags?.trespasser?.centerTokenId;
-    return centerTokenId ? centerTokenId === tokenDoc.id : (t.system.centerActorId === actor.id || r.flags?.trespasser?.centerActorId === actor.id);
+    const centerTokenId = getSystemFlag(r, "centerTokenId");
+    return centerTokenId ? centerTokenId === tokenDoc.id : (t.system.centerActorId === actor.id || getSystemFlag(r, "centerActorId") === actor.id);
   });
   if (auraRegions.length > 0) {
     for (const auraRegion of auraRegions) {
@@ -206,7 +207,7 @@ export async function calculateBatchedMovement(tokenDoc, segments) {
  */
 export async function onTokenEnterTerrain(token, region) {
   if (!token || !region) return;
-  const terrainData = region.flags?.trespasser?.terrain;
+  const terrainData = getSystemFlag(region, "terrain");
   if (!terrainData) return;
 
   const tokenDoc = token.document ?? token;
@@ -218,10 +219,10 @@ export async function onTokenEnterTerrain(token, region) {
   // Sunken creatures ignore surface terrain onEnter triggers and cost notifications
   if (isSunken(tokenDoc)) return;
 
-  const enteredThisTurn = tokenDoc.flags?.trespasser?.terrainEnteredThisTurn || {};
+  const enteredThisTurn = getSystemFlag(tokenDoc, "terrainEnteredThisTurn") || {};
   if (enteredThisTurn[region.id]) return;
 
-  await tokenDoc.setFlag("trespasser", `terrainEnteredThisTurn.${region.id}`, true);
+  await setSystemFlag(tokenDoc, `terrainEnteredThisTurn.${region.id}`, true);
 
   const sys = terrainData.system;
   if (sys.centerMode === "actor" && sys.centerActorId === actor.id) return;
@@ -260,7 +261,7 @@ export async function onTokenEnterTerrain(token, region) {
  */
 export async function onTokenExitTerrain(token, region) {
   if (!token || !region) return;
-  const terrainData = region.flags?.trespasser?.terrain;
+  const terrainData = getSystemFlag(region, "terrain");
   if (!terrainData) return;
 
   const tokenDoc = token.document ?? token;
@@ -269,8 +270,8 @@ export async function onTokenExitTerrain(token, region) {
   const actor = tokenDoc.actor;
   if (!actor) return;
 
-  if (tokenDoc.flags?.trespasser?.terrainEnteredThisTurn?.[region.id]) {
-    await tokenDoc.unsetFlag("trespasser", `terrainEnteredThisTurn.${region.id}`);
+  if (getSystemFlag(tokenDoc, "terrainEnteredThisTurn")?.[region.id]) {
+    await unsetSystemFlag(tokenDoc, `terrainEnteredThisTurn.${region.id}`);
   }
 
   const sys = terrainData.system;
@@ -303,7 +304,7 @@ export async function onTokenExitTerrain(token, region) {
 export async function onTokenStartTurnInTerrain(tokenDoc, region) {
   if (!tokenDoc || !region) return;
   if (!tokenDoc.isOwner && !game.user.isGM) return;
-  const terrainData = region.flags?.trespasser?.terrain;
+  const terrainData = getSystemFlag(region, "terrain");
   if (!terrainData) return;
 
   const actor = tokenDoc.actor;
@@ -343,9 +344,9 @@ export async function onTokenSurfaced(tokenDoc) {
   const tokenH = tokenDoc.height || 1;
 
   const visitedState = foundry.utils.deepClone(
-    tokenDoc.flags?.trespasser?.terrainSquaresVisitedThisTurn || {}
+    getSystemFlag(tokenDoc, "terrainSquaresVisitedThisTurn") || {}
   );
-  let slipperyChecked = tokenDoc.flags?.trespasser?.slipperyCheckedThisTurn || false;
+  let slipperyChecked = getSystemFlag(tokenDoc, "slipperyCheckedThisTurn") || false;
 
   const terrainDamageMap = new Map();
   const effectsToApply = [];
@@ -354,7 +355,7 @@ export async function onTokenSurfaced(tokenDoc) {
   for (const region of containingRegions) {
     await onTokenEnterTerrain(tokenDoc, region);
 
-    const terrainData = region.flags?.trespasser?.terrain;
+    const terrainData = getSystemFlag(region, "terrain");
     if (!terrainData) continue;
     const sys = terrainData.system;
     if (sys.centerMode === "actor" && sys.centerActorId === actor.id) continue;
@@ -412,10 +413,10 @@ export async function onTokenSurfaced(tokenDoc) {
   }
 
   const flagUpdates = {
-    "flags.trespasser.terrainSquaresVisitedThisTurn": visitedState
+    [`flags.${SYSTEM_ID}.terrainSquaresVisitedThisTurn`]: visitedState
   };
-  if (slipperyChecked && !tokenDoc.flags?.trespasser?.slipperyCheckedThisTurn) {
-    flagUpdates["flags.trespasser.slipperyCheckedThisTurn"] = true;
+  if (slipperyChecked && !getSystemFlag(tokenDoc, "slipperyCheckedThisTurn")) {
+    flagUpdates[`flags.${SYSTEM_ID}.slipperyCheckedThisTurn`] = true;
   }
   await tokenDoc.update(flagUpdates);
 

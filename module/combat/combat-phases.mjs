@@ -3,6 +3,7 @@ import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { showRetreatDialog } from "../dialogs/retreat-dialog.mjs";
 import { TerrainHelper } from "../helpers/terrain-helper.mjs";
 import { attemptRetreat } from "./combat-initiative.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag, unsetSystemFlag } from "../system-id.mjs";
 
 /**
  * Find the correct combatant for an actor, token, tokenId, or actorId
@@ -31,7 +32,7 @@ export function getPhaseCombatant(target, combat = game.combat) {
     (tokenId && c.tokenId === tokenId) ||
     (actorId && c.actorId === actorId);
 
-  const activePhase = combat.getFlag("trespasser", "activePhase");
+  const activePhase = getSystemFlag(combat, "activePhase");
 
   if (activePhase !== undefined && activePhase !== null) {
     const phaseMatch = combat.combatants.find(
@@ -55,9 +56,9 @@ export async function recordHUDAction(actorOrId, actionId, combat = game.combat)
   const target = typeof actorOrId === "string" ? { id: actorOrId } : actorOrId;
   const combatant = getPhaseCombatant(target, combat);
   if (!combatant) return;
-  const used = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
+  const used = new Set(getSystemFlag(combatant, "usedHUDActions") ?? []);
   used.add(actionId);
-  await combatant.setFlag("trespasser", "usedHUDActions", [...used]);
+  await setSystemFlag(combatant, "usedHUDActions", [...used]);
 }
 
 /**
@@ -70,9 +71,9 @@ export async function removeHUDAction(actorOrId, actionId, combat = game.combat)
   const target = typeof actorOrId === "string" ? { id: actorOrId } : actorOrId;
   const combatant = getPhaseCombatant(target, combat);
   if (!combatant) return;
-  const used = new Set(combatant.getFlag("trespasser", "usedHUDActions") ?? []);
+  const used = new Set(getSystemFlag(combatant, "usedHUDActions") ?? []);
   used.delete(actionId);
-  await combatant.setFlag("trespasser", "usedHUDActions", [...used]);
+  await setSystemFlag(combatant, "usedHUDActions", [...used]);
 }
 
 /**
@@ -110,12 +111,12 @@ export async function startCombatFlow(combat) {
         combatantUpdates.push(up);
       }
       
-      up["flags.trespasser.actionPoints"] = 3;
-      up["flags.trespasser.usedHUDActions"] = [];
-      up["flags.trespasser.reactionCount"] = 0;
-      up["flags.trespasser.aimRangeBonus"] = 0;
+      up[`flags.${SYSTEM_ID}.actionPoints`] = 3;
+      up[`flags.${SYSTEM_ID}.usedHUDActions`] = [];
+      up[`flags.${SYSTEM_ID}.reactionCount`] = 0;
+      up[`flags.${SYSTEM_ID}.aimRangeBonus`] = 0;
       if (combatant.actor) {
-        await combatant.actor.unsetFlag("trespasser", "aimRangeBonus");
+        await unsetSystemFlag(combatant.actor, "aimRangeBonus");
       }
     }
     
@@ -127,12 +128,12 @@ export async function startCombatFlow(combat) {
       await combat.createEmbeddedDocuments("Combatant", initResults.newCombatants);
     }
 
-    const playerFacingInit = game.settings.get("trespasser", "playerFacingInitiative");
-    const isWaiting = combat.getFlag("trespasser", "waitingForInitiatives");
+    const playerFacingInit = game.settings.get(SYSTEM_ID, "playerFacingInitiative");
+    const isWaiting = getSystemFlag(combat, "waitingForInitiatives");
 
     if (!playerFacingInit || !isWaiting) {
       const initialPhase = getFirstNonEmptyPhase(combat);
-      await combat.setFlag("trespasser", "activePhase", initialPhase);
+      await setSystemFlag(combat, "activePhase", initialPhase);
       await onStartOfCombat(combat);
       await onStartOfRound(combat);
       await onStartOfTurn(combat, initialPhase);
@@ -158,12 +159,12 @@ export async function nextRoundFlow(combat) {
         up = { _id: combatant.id };
         combatantUpdates.push(up);
       }
-      up["flags.trespasser.actionPoints"] = 3;
-      up["flags.trespasser.usedHUDActions"] = [];
-      up["flags.trespasser.reactionCount"] = 0;
-      up["flags.trespasser.aimRangeBonus"] = 0;
+      up[`flags.${SYSTEM_ID}.actionPoints`] = 3;
+      up[`flags.${SYSTEM_ID}.usedHUDActions`] = [];
+      up[`flags.${SYSTEM_ID}.reactionCount`] = 0;
+      up[`flags.${SYSTEM_ID}.aimRangeBonus`] = 0;
       if (combatant.actor) {
-        await combatant.actor.unsetFlag("trespasser", "aimRangeBonus");
+        await unsetSystemFlag(combatant.actor, "aimRangeBonus");
       }
     }
     
@@ -175,9 +176,9 @@ export async function nextRoundFlow(combat) {
       await combat.createEmbeddedDocuments("Combatant", initResults.newCombatants);
     }
 
-    const enableRetreat = game.settings.get("trespasser", "enableRetreatDialog");
+    const enableRetreat = game.settings.get(SYSTEM_ID, "enableRetreatDialog");
     if (enableRetreat) {
-      const combatInfo = combat.getFlag("trespasser", "combatInfo");
+      const combatInfo = getSystemFlag(combat, "combatInfo");
       const choice = await showRetreatDialog(combatInfo);
       
       if (choice === "retreat") {
@@ -187,12 +188,12 @@ export async function nextRoundFlow(combat) {
       }
     }
 
-    const playerFacingInit = game.settings.get("trespasser", "playerFacingInitiative");
-    const isWaiting = combat.getFlag("trespasser", "waitingForInitiatives");
+    const playerFacingInit = game.settings.get(SYSTEM_ID, "playerFacingInitiative");
+    const isWaiting = getSystemFlag(combat, "waitingForInitiatives");
 
     if (!playerFacingInit || !isWaiting) {
       const initialPhase = getFirstNonEmptyPhase(combat);
-      await combat.setFlag("trespasser", "activePhase", initialPhase);
+      await setSystemFlag(combat, "activePhase", initialPhase);
       await onStartOfRound(combat);
       await onStartOfTurn(combat, initialPhase);
     } else {
@@ -208,7 +209,7 @@ export async function nextRoundFlow(combat) {
 export async function nextPhaseFlow(combat) {
   if (!game.user.isGM) return;
 
-  const currentPhase = combat.getFlag("trespasser", "activePhase") ?? TrespasserCombat.PHASES.EARLY;
+  const currentPhase = getSystemFlag(combat, "activePhase") ?? TrespasserCombat.PHASES.EARLY;
 
   await onEndOfTurn(combat, currentPhase);
 
@@ -225,7 +226,7 @@ export async function nextPhaseFlow(combat) {
   }
 
   if (nextPhase !== null) {
-    await combat.setFlag("trespasser", "activePhase", nextPhase);
+    await setSystemFlag(combat, "activePhase", nextPhase);
     await combat.update({ turn: 0 });
     await onStartOfTurn(combat, nextPhase);
   } else {
@@ -242,10 +243,10 @@ export async function checkEmptyPhaseAdvanceFlow(combat) {
   if (!game.user.isGM) return;
   if (!combat.started) return;
 
-  const isWaiting = combat.getFlag("trespasser", "waitingForInitiatives");
+  const isWaiting = getSystemFlag(combat, "waitingForInitiatives");
   if (isWaiting) return;
 
-  const activePhase = combat.getFlag("trespasser", "activePhase");
+  const activePhase = getSystemFlag(combat, "activePhase");
   if (activePhase === null || activePhase === undefined) return;
 
   const hasOccupants = combat.combatants.some(
@@ -266,7 +267,7 @@ export async function checkEmptyPhaseAdvanceFlow(combat) {
   }
 
   if (nextPhase !== null) {
-    await combat.setFlag("trespasser", "activePhase", nextPhase);
+    await setSystemFlag(combat, "activePhase", nextPhase);
     await combat.update({ turn: 0 });
     await onStartOfTurn(combat, nextPhase);
   } else {
@@ -307,8 +308,8 @@ export async function onEndOfRound(combat) {
 export async function onStartOfTurn(combat, phase) {
   const phaseEntrants = combat.combatants.filter(c => c.initiative === phase && !c.defeated);
   for (const c of phaseEntrants) {
-    if (c.getFlag("trespasser", "isWaitFinish")) {
-      await c.setFlag("trespasser", "isWaitFinish", false);
+    if (getSystemFlag(c, "isWaitFinish")) {
+      await setSystemFlag(c, "isWaitFinish", false);
       continue;
     }
 
@@ -318,21 +319,21 @@ export async function onStartOfTurn(combat, phase) {
     }
     
     await c.update({
-      "flags.trespasser.hasMovedThisTurn": false,
-      "flags.trespasser.moveActionTaken": false,
-      "flags.trespasser.movementAllowed": 0,
-      "flags.trespasser.movementUsed": 0,
-      "flags.trespasser.moveActionMovements": [],
-      "flags.trespasser.moveActionCost": 0,
-      "flags.trespasser.movementHistory": tokenDoc?.movementHistory ?? [],
-      "flags.trespasser.usedExpensiveDeed": false,
-      "flags.trespasser.usedHUDActions": []
+      [`flags.${SYSTEM_ID}.hasMovedThisTurn`]: false,
+      [`flags.${SYSTEM_ID}.moveActionTaken`]: false,
+      [`flags.${SYSTEM_ID}.movementAllowed`]: 0,
+      [`flags.${SYSTEM_ID}.movementUsed`]: 0,
+      [`flags.${SYSTEM_ID}.moveActionMovements`]: [],
+      [`flags.${SYSTEM_ID}.moveActionCost`]: 0,
+      [`flags.${SYSTEM_ID}.movementHistory`]: tokenDoc?.movementHistory ?? [],
+      [`flags.${SYSTEM_ID}.usedExpensiveDeed`]: false,
+      [`flags.${SYSTEM_ID}.usedHUDActions`]: []
     });
 
     if (tokenDoc) {
-      await tokenDoc.unsetFlag("trespasser", "terrainEnteredThisTurn");
-      await tokenDoc.unsetFlag("trespasser", "terrainSquaresVisitedThisTurn");
-      await tokenDoc.unsetFlag("trespasser", "slipperyCheckedThisTurn");
+      await unsetSystemFlag(tokenDoc, "terrainEnteredThisTurn");
+      await unsetSystemFlag(tokenDoc, "terrainSquaresVisitedThisTurn");
+      await unsetSystemFlag(tokenDoc, "slipperyCheckedThisTurn");
     }
 
     if (c.actor && typeof c.actor.onTurnStart === "function") {
@@ -351,7 +352,7 @@ export async function onStartOfTurn(combat, phase) {
 export async function onEndOfTurn(combat, phase) {
   const currentCombatants = combat.combatants.filter(c => c.initiative === phase && !c.defeated);
   for (const c of currentCombatants) {
-    await c.setFlag("trespasser", "actionPoints", 0);
+    await setSystemFlag(c, "actionPoints", 0);
     if (c.actor && typeof c.actor.onTurnEnd === "function") {
       await c.actor.onTurnEnd(c);
     }

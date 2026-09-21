@@ -2,6 +2,7 @@ import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 import { TrespasserCombat }        from "../documents/combat.mjs";
 import { TrespasserRollDialog }    from "../dialogs/roll-dialog.mjs";
 import { getCombatant }            from "./hud-context.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../system-id.mjs";
 
 /**
  * Execute Defend action.
@@ -19,8 +20,8 @@ export async function executeDefend(hud) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   
   if (restrictAPF && currentAP < cost) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
@@ -79,7 +80,7 @@ export async function executeDefend(hud) {
         ...durationOptions
       },
       flags: {
-        trespasser: {
+        [SYSTEM_ID]: {
           isDefend: true
         }
       }
@@ -114,7 +115,7 @@ export async function executeDefend(hud) {
         ...durationOptions
       },
       flags: {
-        trespasser: {
+        [SYSTEM_ID]: {
           isDefend: true
         }
       }
@@ -122,7 +123,7 @@ export async function executeDefend(hud) {
   }
 
   await hud._token.actor.createEmbeddedDocuments("Item", [effectDoc]);
-  await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+  await setSystemFlag(combatant, "actionPoints", Math.max(0, currentAP - cost));
   await TrespasserCombat.recordHUDAction(hud._token.actor, "defend");
 
   const typeLabel = isBoth
@@ -164,8 +165,8 @@ export async function executeHelp(hud) {
   const targetActor = targetToken?.actor;
   if (!targetActor) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   
   if (restrictAPF && currentAP < cost) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
@@ -195,7 +196,7 @@ export async function executeHelp(hud) {
       when: "use"
     },
     flags: {
-      trespasser: {
+      [SYSTEM_ID]: {
         isHelp: true,
         helperName: hud._token.name
       }
@@ -219,7 +220,7 @@ export async function executeHelp(hud) {
     }
   }
 
-  await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+  await setSystemFlag(combatant, "actionPoints", Math.max(0, currentAP - cost));
   await TrespasserCombat.recordHUDAction(hud._token.actor, "help");
   ui.notifications.info(game.i18n.format("TRESPASSER.Chat.Action.AppliedHelp", { target: targetToken.name }));
 
@@ -275,8 +276,8 @@ export async function executePrevail(hud) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   
   if (restrictAPF && currentAP < totalCost) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
@@ -320,7 +321,7 @@ export async function executePrevail(hud) {
     modifier: result.modifier,
     cd: result.cd
   });
-  await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - totalCost));
+  await setSystemFlag(combatant, "actionPoints", Math.max(0, currentAP - totalCost));
 
   hud._activePanel = null;
   hud.render();
@@ -339,10 +340,10 @@ export async function executeTakeAim(hud) {
   const cost = costInput ? parseInt(costInput.value) : 1;
   
   const combatant = getCombatant(hud._token);
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   
   if (combatant && restrictAPF) {
-    const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
+    const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
     if (currentAP < cost) {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
       return;
@@ -352,13 +353,13 @@ export async function executeTakeAim(hud) {
   const rangeBonus = cost >= 2 ? 8 : 4;
 
   if (combatant) {
-    const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-    await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
-    await combatant.setFlag("trespasser", "aimRangeBonus", rangeBonus);
+    const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+    await setSystemFlag(combatant, "actionPoints", Math.max(0, currentAP - cost));
+    await setSystemFlag(combatant, "aimRangeBonus", rangeBonus);
   }
 
   if (hud._token?.actor) {
-    await hud._token.actor.setFlag("trespasser", "aimRangeBonus", rangeBonus);
+    await setSystemFlag(hud._token.actor, "aimRangeBonus", rangeBonus);
     await TrespasserCombat.recordHUDAction(hud._token.actor, "take-aim");
   }
 
@@ -391,8 +392,8 @@ export async function executeThrow(hud) {
   const combatant = getCombatant(hud._token);
   if (!combatant) return;
 
-  const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 0;
-  const restrictAPF = game.settings.get("trespasser", "restrictAPFocusUsage");
+  const currentAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
   
   if (restrictAPF && currentAP < cost) {
     ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
@@ -405,7 +406,7 @@ export async function executeThrow(hud) {
   const agility = baseAgility + bonusAgility;
   const range = 5 + agility + (cost - 1) * 2;
 
-  await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - cost));
+  await setSystemFlag(combatant, "actionPoints", Math.max(0, currentAP - cost));
   await TrespasserCombat.recordHUDAction(actor, "throw");
 
   ChatMessage.create({

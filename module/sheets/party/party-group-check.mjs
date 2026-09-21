@@ -1,4 +1,5 @@
 import { TrespasserPartyHelper } from "../../helpers/party-helper.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 /**
  * Roll a group check for all or selected party members.
@@ -27,7 +28,7 @@ export async function runGroupCheck(sheet, event, target) {
   }
 
   let members = allMembers;
-  const promptSelection = game.settings.get("trespasser", "enableGroupCheckSelection");
+  const promptSelection = game.settings.get(SYSTEM_ID, "enableGroupCheckSelection");
   if (promptSelection) {
     const selection = await foundry.applications.api.DialogV2.wait({
       window: { title: game.i18n.localize("TRESPASSER.Dialog.Party.SelectParticipants") },
@@ -84,7 +85,7 @@ export async function runGroupCheck(sheet, event, target) {
 
   // Create the pending Chat Message
   const messageFlags = {
-    trespasser: {
+    [SYSTEM_ID]: {
       groupCheck: {
         attribute,
         skill,

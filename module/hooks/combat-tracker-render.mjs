@@ -1,4 +1,5 @@
 import { getCombatTrackerEffects } from "../effects/effects-token-sync.mjs";
+import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../system-id.mjs";
 
 /**
  * Render custom phased initiative UI in the Combat Tracker.
@@ -10,9 +11,9 @@ export async function renderPhasedCombatTracker(app, html, data) {
   const combat = game.combat;
   if (!combat) return;
 
-  const isWaiting = combat.getFlag("trespasser", "waitingForInitiatives") ?? false;
-  const activePhase = combat.getFlag("trespasser", "activePhase");
-  const combatInfo = combat.getFlag("trespasser", "combatInfo") || {};
+  const isWaiting = getSystemFlag(combat, "waitingForInitiatives") ?? false;
+  const activePhase = getSystemFlag(combat, "activePhase");
+  const combatInfo = getSystemFlag(combat, "combatInfo") || {};
 
   const PHASES = [
     { id: 40, label: game.i18n.localize("TRESPASSER.Terms.Combat.Phase.Early"), css: "early", combatants: [] },
@@ -27,12 +28,12 @@ export async function renderPhasedCombatTracker(app, html, data) {
     const phaseId = combatant.initiative ?? 0;
     const phase = PHASES.find(p => p.id === phaseId);
     if (phase) {
-      const ap = combatant.getFlag("trespasser", "actionPoints") ?? 3;
+      const ap = getSystemFlag(combatant, "actionPoints") ?? 3;
       const focus = combatant.actor?.system.combat?.focus ?? 0;
       const isFollowCompanion = combatant.actor?.type === "companion" &&
         (combatant.actor.system.initiativeMode ?? "follow") === "follow" &&
         combatant.actor.system.boundCharacterId;
-      const isPending = isFollowCompanion ? false : (combatant.getFlag("trespasser", "initiativePending") ?? false);
+      const isPending = isFollowCompanion ? false : (getSystemFlag(combatant, "initiativePending") ?? false);
       phase.combatants.push({ combatant, ap, focus, isPending });
     }
   }
@@ -193,8 +194,8 @@ export async function renderPhasedCombatTracker(app, html, data) {
       const li = ev.currentTarget.closest(".combatant");
       const combatant = game.combat?.combatants.get(li?.dataset.combatantId);
       if (!combatant || !combatant.testUserPermission(game.user, "OWNER")) return;
-      const currentAP = combatant.getFlag("trespasser", "actionPoints") ?? 3;
-      await combatant.setFlag("trespasser", "actionPoints", Math.max(0, currentAP - 1));
+      const currentAP = getSystemFlag(combatant, "actionPoints") ?? 3;
+      await setSystemFlag(combatant, "actionPoints", Math.max(0, currentAP - 1));
     });
   });
 

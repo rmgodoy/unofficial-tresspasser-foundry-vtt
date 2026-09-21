@@ -5,6 +5,7 @@
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { messageVisibility }         from "../../helpers/compat.mjs";
 import { formatDiceIcons }           from "../../helpers/dice-icon-helper.mjs";
+import { SYSTEM_ID }                 from "../../system-id.mjs";
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Main orchestrator
@@ -125,7 +126,7 @@ export async function postDeedPhase(phaseName, phaseData, actor, item, options =
           <i class="fas fa-heart"></i> ${game.i18n.localize("TRESPASSER.Chat.Common.Heal")}
         </button>
       </div>`;
-      const showCreatureRolls = game.settings.get("trespasser", "showCreatureDamageRolls");
+      const showCreatureRolls = game.settings.get(SYSTEM_ID, "showCreatureDamageRolls");
       const mode = (actor.type === "creature" && !showCreatureRolls) ? "gm" : "public";
       await rollObj.toMessage({
         speaker: ChatMessage.getSpeaker({ actor }),

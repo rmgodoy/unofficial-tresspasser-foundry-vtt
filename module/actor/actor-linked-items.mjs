@@ -1,4 +1,5 @@
 import { resolveItem } from "../helpers/item-resolver.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 /**
  * Trespasser Actor Linked Items Sub-module
@@ -45,13 +46,13 @@ export async function applyLinkedItems(actor, itemsArray, { continuousOnly = fal
 
     // Mark it so we know it came from a link
     itemData.flags = itemData.flags || {};
-    itemData.flags.trespasser = itemData.flags.trespasser || {};
-    itemData.flags.trespasser.linkedSource = eff.uuid;
+    itemData.flags[SYSTEM_ID] = itemData.flags[SYSTEM_ID] || {};
+    itemData.flags[SYSTEM_ID].linkedSource = eff.uuid;
 
     // Stamp injury metadata if provided
     if (fromInjury) {
-      itemData.flags.trespasser.fromInjury = true;
-      if (injuryId) itemData.flags.trespasser.injuryId = injuryId;
+      itemData.flags[SYSTEM_ID].fromInjury = true;
+      if (injuryId) itemData.flags[SYSTEM_ID].injuryId = injuryId;
     }
     await foundry.documents.BaseItem.create(itemData, { parent: actor });
   }
@@ -94,7 +95,7 @@ export async function removeLinkedItems(actor, itemsArray, sourceItemId) {
     // Protection for Deeds
     if (existingEffect.type === "deed") {
       // 1. Never delete natural Deeds (no linkedSource flag)
-      if (!existingEffect.getFlag("trespasser", "linkedSource")) continue;
+      if (!getSystemFlag(existingEffect, "linkedSource")) continue;
 
       // 2. Never delete if another source still provides it
       if (otherDeedNames.has(existingEffect.name)) continue;

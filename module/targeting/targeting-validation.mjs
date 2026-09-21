@@ -1,7 +1,7 @@
 import { RangeHelper } from "../helpers/range-helper.mjs";
 import { getActiveWeapons } from "../sheets/character/handlers-combat.mjs";
 import { matchesDisposition, getTokenOccupiedSquares, getMinSquareDistance } from "./targeting-geometry.mjs";
-import { SYSTEM_ID } from "../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 /**
  * Validate manually selected targets for "creature" type deeds.
@@ -73,8 +73,7 @@ export function isTokenDefeated(tok) {
     return true;
   }
   return actor.items?.some(i => i.type === "effect" && (
-    i.getFlag(SYSTEM_ID, "statusEffectId") === "defeated" ||
-    i.getFlag("trespasser", "statusEffectId") === "defeated" ||
+    getSystemFlag(i, "statusEffectId") === "defeated" ||
     i.name?.toLowerCase() === "defeated"
   )) ?? false;
 }

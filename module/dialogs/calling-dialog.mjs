@@ -1,5 +1,6 @@
 import { showItemInfoDialog } from "./item-info-dialog.mjs";
 import { resolveItem, isLinkedItemMatch } from "../helpers/item-resolver.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 const ALL_SKILL_KEYS = [
   "acrobatics", "alchemy", "athletics", "crafting",
@@ -48,7 +49,7 @@ export class TrespasserCallingDialog extends foundry.applications.api.Handlebars
 
     const checkPicked = (entry) => actor.items.some(it => 
       isLinkedItemMatch(it, entry) && 
-      it.flags.trespasser?.linkedSource === callingItem.name
+      getSystemFlag(it, "linkedSource") === callingItem.name
     );
 
     this.selectedTalents = new Set(
@@ -282,7 +283,7 @@ export class TrespasserCallingDialog extends foundry.applications.api.Handlebars
     }
 
     // Find current actor items linked to this calling
-    const linkedItems = actor.items.filter(it => it.flags.trespasser?.linkedSource === callingName);
+    const linkedItems = actor.items.filter(it => getSystemFlag(it, "linkedSource") === callingName);
     
     // Items to delete (unchecked)
     const toDelete = linkedItems.filter(li => !picks.some(p => isLinkedItemMatch(li, p))).map(li => li.id);
@@ -299,9 +300,9 @@ export class TrespasserCallingDialog extends foundry.applications.api.Handlebars
       
       const itemData = sourceItem.toObject();
       delete itemData._id;
-      foundry.utils.setProperty(itemData, "flags.trespasser.linkedSource", callingName);
-      foundry.utils.setProperty(itemData, "flags.trespasser.linkedSourceUuid", entry.uuid || sourceItem.uuid);
-      foundry.utils.setProperty(itemData, "flags.trespasser.linkedSourceId", (entry.uuid || sourceItem.uuid)?.split(".").pop() || sourceItem.id);
+      foundry.utils.setProperty(itemData, `flags.${SYSTEM_ID}.linkedSource`, callingName);
+      foundry.utils.setProperty(itemData, `flags.${SYSTEM_ID}.linkedSourceUuid`, entry.uuid || sourceItem.uuid);
+      foundry.utils.setProperty(itemData, `flags.${SYSTEM_ID}.linkedSourceId`, (entry.uuid || sourceItem.uuid)?.split(".").pop() || sourceItem.id);
       toCreateData.push(itemData);
     }
 

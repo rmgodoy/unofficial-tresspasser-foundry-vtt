@@ -1,5 +1,6 @@
 import { TrespasserEffectsHelper } from "./effects-helper.mjs";
 import { TrespasserRollDialog } from "../dialogs/roll-dialog.mjs";
+import { getSystemFlag, setSystemFlag } from "../system-id.mjs";
 
 /**
  * Helper to build the HTML for the "Roll Tenacity" button on chat cards.
@@ -93,9 +94,9 @@ export async function promptTenacityRoll(actorId, cd) {
     outcomeClass = "miss-text";
 
     // 1. Encounter-level endurance loss on first failure
-    const hasFailedThisEncounter = Boolean(actor.getFlag("trespasser", "failedTenacityThisEncounter"));
+    const hasFailedThisEncounter = Boolean(getSystemFlag(actor, "failedTenacityThisEncounter"));
     if (!hasFailedThisEncounter) {
-      await actor.setFlag("trespasser", "failedTenacityThisEncounter", true);
+      await setSystemFlag(actor, "failedTenacityThisEncounter", true);
       const currentEnd = actor.system.endurance ?? 0;
       const newEnd = Math.max(0, currentEnd - 2);
       await actor.update({ "system.endurance": newEnd });
