@@ -28,8 +28,8 @@
     "isPrevailable": true,
     "behaviors": [
       {
-        "id": "xEX4BegO",
-        "trigger": "continuous",
+        "id": "nzEzLQPl",
+        "trigger": "damage-dealt",
         "action": "modify_attribute",
         "params": {
           "attribute": "damage_received",
@@ -60,9 +60,9 @@
     "exportSource": null,
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-13",
+    "systemVersion": "0.2.0-14",
     "createdTime": 1773341957281,
-    "modifiedTime": 1789789665245,
+    "modifiedTime": 1791039246881,
     "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "_id": "XSyAvDYBgFgpdH8D",

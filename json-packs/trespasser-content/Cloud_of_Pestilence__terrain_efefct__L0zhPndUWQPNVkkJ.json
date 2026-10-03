@@ -38,8 +38,8 @@
     "syncStatusIcon": true,
     "behaviors": [
       {
-        "id": "tIZ4Y9Bz",
-        "trigger": "immediate",
+        "id": "MHbdW5RC",
+        "trigger": "continuous",
         "action": "modify_attribute",
         "params": {
           "attribute": "health",
@@ -74,9 +74,9 @@
   "_stats": {
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-13",
+    "systemVersion": "0.2.0-14",
     "createdTime": 1790021459375,
-    "modifiedTime": 1790021461953,
+    "modifiedTime": 1791039246879,
     "lastModifiedBy": "yywZQPY84nrAEthp",
     "compendiumSource": null,
     "duplicateSource": null,

@@ -33,8 +33,8 @@
     "syncStatusIcon": true,
     "behaviors": [
       {
-        "id": "Ejlo7x55",
-        "trigger": "continuous",
+        "id": "M7nXL611",
+        "trigger": "heal-received",
         "action": "modify_attribute",
         "params": {
           "attribute": "heal_received",
@@ -67,9 +67,9 @@
   "_stats": {
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-13",
+    "systemVersion": "0.2.0-14",
     "createdTime": 1789652538804,
-    "modifiedTime": 1789789665244,
+    "modifiedTime": 1791039246880,
     "lastModifiedBy": "yywZQPY84nrAEthp",
     "compendiumSource": null,
     "duplicateSource": null,

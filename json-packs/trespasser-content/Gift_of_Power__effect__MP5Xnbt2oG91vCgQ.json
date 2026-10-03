@@ -33,7 +33,7 @@
     "isPrevailable": false,
     "behaviors": [
       {
-        "id": "EeuW0gWI",
+        "id": "G4he7uDw",
         "trigger": "on-use-deed",
         "action": "modify_attribute",
         "params": {
@@ -65,9 +65,9 @@
     "exportSource": null,
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-13",
+    "systemVersion": "0.2.0-14",
     "createdTime": 1773341957281,
-    "modifiedTime": 1789789665244,
+    "modifiedTime": 1791039246880,
     "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "ownership": {

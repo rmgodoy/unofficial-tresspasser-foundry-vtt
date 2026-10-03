@@ -32,7 +32,7 @@
     "statusIcon": "systems/trespasser/assets/icons/states/Airborne.svg",
     "behaviors": [
       {
-        "id": "4omr4RKB",
+        "id": "SPTSsG0Y",
         "trigger": "continuous",
         "action": "modify_attribute",
         "params": {
@@ -68,9 +68,9 @@
     "exportSource": null,
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-13",
+    "systemVersion": "0.2.0-14",
     "createdTime": 1773400000000,
-    "modifiedTime": 1789789665243,
+    "modifiedTime": 1791039246879,
     "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "ownership": {

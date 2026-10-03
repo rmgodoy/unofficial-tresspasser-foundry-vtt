@@ -39,28 +39,27 @@
     "syncStatusIcon": true,
     "behaviors": [
       {
-        "id": "jELcMfzX",
-        "label": "",
-        "trigger": "end-of-turn",
-        "condition": "",
+        "id": "ytCOHzEY",
+        "trigger": "continuous",
         "action": "modify_attribute",
-        "actionTarget": "adjacent",
         "params": {
           "attribute": "health",
-          "modifier": "-4",
-          "applyMode": "delta"
+          "modifier": "0"
         },
+        "label": "",
+        "condition": "",
+        "actionTarget": "self",
+        "scope": "",
+        "rangeType": "",
+        "range": 0,
+        "priority": null,
         "requiresConfirmation": false,
+        "promptText": "",
         "choiceGroup": "",
         "choiceLabel": "",
         "gatedBy": "",
         "cooldown": null,
-        "cost": null,
-        "priority": null,
-        "scope": "",
-        "rangeType": "",
-        "range": 0,
-        "promptText": ""
+        "cost": null
       }
     ],
     "tags": [],
@@ -76,9 +75,9 @@
   "_stats": {
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-13",
+    "systemVersion": "0.2.0-14",
     "createdTime": 1790023222860,
-    "modifiedTime": 1790023283861,
+    "modifiedTime": 1791039246936,
     "lastModifiedBy": "yywZQPY84nrAEthp",
     "compendiumSource": null,
     "duplicateSource": null,

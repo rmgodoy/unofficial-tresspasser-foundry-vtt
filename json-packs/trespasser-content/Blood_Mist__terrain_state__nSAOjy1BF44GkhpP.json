@@ -28,7 +28,7 @@
     "syncStatusIcon": true,
     "behaviors": [
       {
-        "id": "P3h96h3K",
+        "id": "KwwJ4c0z",
         "trigger": "immediate",
         "action": "chat_message",
         "params": {
@@ -62,9 +62,9 @@
   "_stats": {
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-13",
+    "systemVersion": "0.2.0-14",
     "createdTime": 1789652495921,
-    "modifiedTime": 1789789665245,
+    "modifiedTime": 1791039246936,
     "lastModifiedBy": "yywZQPY84nrAEthp",
     "compendiumSource": null,
     "duplicateSource": null,

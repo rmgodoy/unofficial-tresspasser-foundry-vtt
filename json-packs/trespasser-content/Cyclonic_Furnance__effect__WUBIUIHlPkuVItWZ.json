@@ -39,27 +39,27 @@
     "syncStatusIcon": true,
     "behaviors": [
       {
-        "id": "tEDx4y7R",
-        "label": "",
-        "trigger": "immediate",
-        "condition": "",
-        "action": "set_flag",
-        "actionTarget": "self",
+        "id": "HO9zTugQ",
+        "trigger": "continuous",
+        "action": "modify_attribute",
         "params": {
-          "flag": "cannotMove",
-          "value": "true"
+          "attribute": "health",
+          "modifier": "0"
         },
+        "label": "",
+        "condition": "",
+        "actionTarget": "self",
+        "scope": "",
+        "rangeType": "",
+        "range": 0,
+        "priority": null,
         "requiresConfirmation": false,
+        "promptText": "",
         "choiceGroup": "",
         "choiceLabel": "",
         "gatedBy": "",
         "cooldown": null,
-        "cost": null,
-        "priority": null,
-        "scope": "",
-        "rangeType": "",
-        "range": 0,
-        "promptText": ""
+        "cost": null
       }
     ],
     "tags": [],
@@ -75,9 +75,9 @@
   "_stats": {
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-13",
+    "systemVersion": "0.2.0-14",
     "createdTime": 1790023043803,
-    "modifiedTime": 1790023112045,
+    "modifiedTime": 1791039246880,
     "lastModifiedBy": "yywZQPY84nrAEthp",
     "compendiumSource": null,
     "duplicateSource": null,

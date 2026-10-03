@@ -37,7 +37,31 @@
     "isLasting": false,
     "statusIcon": "systems/trespasser/assets/icons/effect.webp",
     "syncStatusIcon": true,
-    "behaviors": [],
+    "behaviors": [
+      {
+        "id": "qIrAWVKq",
+        "trigger": "continuous",
+        "action": "modify_attribute",
+        "params": {
+          "attribute": "health",
+          "modifier": "0"
+        },
+        "label": "",
+        "condition": "",
+        "actionTarget": "self",
+        "scope": "",
+        "rangeType": "",
+        "range": 0,
+        "priority": null,
+        "requiresConfirmation": false,
+        "promptText": "",
+        "choiceGroup": "",
+        "choiceLabel": "",
+        "gatedBy": "",
+        "cooldown": null,
+        "cost": null
+      }
+    ],
     "tags": [],
     "effectPriority": null
   },
@@ -51,9 +75,9 @@
   "_stats": {
     "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.2.0-13",
+    "systemVersion": "0.2.0-14",
     "createdTime": 1790021869179,
-    "modifiedTime": 1790022235658,
+    "modifiedTime": 1791039246937,
     "lastModifiedBy": "yywZQPY84nrAEthp",
     "compendiumSource": null,
     "duplicateSource": null,
