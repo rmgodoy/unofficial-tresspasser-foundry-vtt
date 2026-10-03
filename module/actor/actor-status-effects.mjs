@@ -22,6 +22,30 @@ const SPECIAL_EFFECT_FALLBACKS = {
   countsAsObstacle: COUNTS_AS_OBSTACLE_EFFECT_DATA
 };
 
+const STATUS_EFFECT_DEFAULTS = {
+  accurate: { targetAttribute: "accuracy", modifier: "<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  inaccurate: { targetAttribute: "accuracy", modifier: "-<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  fortified: { targetAttribute: "damage_received", modifier: "-<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  frail: { targetAttribute: "damage_received", modifier: "<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  guarded: { targetAttribute: "guard", modifier: "<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  unguarded: { targetAttribute: "guard", modifier: "-<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  hastened: { targetAttribute: "initiative", modifier: "<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  hindered: { targetAttribute: "initiative", modifier: "-<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  mending: { targetAttribute: "health", modifier: "<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  afflicted: { targetAttribute: "health", modifier: "-<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  strong: { targetAttribute: "damage_dealt", modifier: "<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  weak: { targetAttribute: "damage_dealt", modifier: "-<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  swift: { targetAttribute: "speed", modifier: "<Int>", type: "continuous", isPrevailable: true },
+  slow: { targetAttribute: "speed", modifier: "-<Int>", type: "continuous", isPrevailable: true },
+  willful: { targetAttribute: "resist", modifier: "<Int>", type: "continuous", isPrevailable: true },
+  weary: { targetAttribute: "resist", modifier: "-<Int>", type: "continuous", isPrevailable: true },
+  bleeding: { targetAttribute: "health", modifier: "-<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  blinded: { targetAttribute: "accuracy", modifier: "0", isCombat: true, type: "continuous", isPrevailable: true },
+  burning: { targetAttribute: "health", modifier: "-<Int>", isCombat: true, type: "continuous", isPrevailable: true },
+  toppled: { targetAttribute: "guard", modifier: "-2", isCombat: true, type: "continuous", isPrevailable: true },
+  staggered: { targetAttribute: "action_points", modifier: "-<Int>", isCombat: true, type: "continuous", isPrevailable: true }
+};
+
 /**
  * Handle custom status effect toggling on an actor.
  * Creates, updates, or deletes embedded Effect items and synchronizes token icons.
@@ -107,19 +131,25 @@ export async function toggleActorStatusEffect(actor, statusId, { active, overlay
     }
 
     if (!itemData) {
+      const effectDef = STATUS_EFFECT_DEFAULTS[status.id.toLowerCase()] || {};
+      const targetAttr = effectDef.targetAttribute || "health";
+      const mod = effectDef.modifier || "0";
+      const effType = effectDef.type || "continuous";
+      const isPrev = effectDef.isPrevailable !== undefined ? effectDef.isPrevailable : !isToggleOnly;
+
       itemData = {
         name: localizedName || status.id.capitalize(),
         type: "effect",
         img: status.img,
         system: {
           description: "",
-          type: "continuous",
+          type: effType,
           isCombat: true,
           isOnlyReminder: isToggleOnly,
           gmOnly: false,
           intensity: initialIntensity,
-          targetAttribute: "health",
-          modifier: "0",
+          targetAttribute: targetAttr,
+          modifier: mod,
           conferredState: "",
           when: "immediate",
           duration: "indefinite",
@@ -128,7 +158,7 @@ export async function toggleActorStatusEffect(actor, statusId, { active, overlay
           durationConditions: [],
           intensityIncrement: 0,
           counterStates: fallbackCounterStates,
-          isPrevailable: !isToggleOnly,
+          isPrevailable: isPrev,
           statusIcon: status.img,
           syncStatusIcon: false
         }

@@ -248,7 +248,7 @@ export async function processTCAEvent(eventName, event, actor) {
     }
 
     const behaviors = effectItem.system?.behaviors || [];
-    const matchingBlocks = behaviors.filter(b => b.trigger === eventName || (b.trigger === "continuous" && eventName === "use"));
+    const matchingBlocks = behaviors.filter(b => b.trigger === eventName && b.trigger !== "continuous" && b.trigger !== "immediate");
     if (matchingBlocks.length === 0) continue;
 
     console.log(`%c[TCA Engine | Matching Effect: ${effectItem.name}]%c Trigger "${eventName}": ${matchingBlocks.length}/${behaviors.length} blocks matched`, "color: #61afef; font-weight: bold;", "color: inherit;", matchingBlocks);

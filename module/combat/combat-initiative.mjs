@@ -2,6 +2,7 @@ import { TrespasserCombat } from "../documents/combat.mjs";
 import { evaluateRetreat, attemptRetreat } from "./combat-retreat.mjs";
 import { rollAllTrespasserInitiatives } from "./combat-round-init.mjs";
 import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../system-id.mjs";
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 export { rollAllTrespasserInitiatives, attemptRetreat, evaluateRetreat };
 
@@ -100,13 +101,14 @@ export async function rollPlayerInitiative(combat, combatantId) {
     }
   } else {
     const initBonus = combatant.actor.system.combat?.initiative || 0;
-    const isAdv = getSystemFlag(combatant.actor, "initiativeAdvantage") || false;
+    const isAdv = TrespasserEffectsHelper.hasAdvantage(combatant.actor, "initiative") || getSystemFlag(combatant.actor, "initiativeAdvantage") || false;
     const formula = isAdv ? "2d20kh" : "1d20";
     const roll = new foundry.dice.Roll(`${formula} + ${initBonus}`);
     await roll.evaluate();
 
     total = roll.total;
-    isNat20 = roll.dice[0].results[0].result === 20;
+    const dieResults = roll.dice[0]?.results || [];
+    isNat20 = dieResults.some(r => r.active !== false && r.result === 20);
 
     const combatInfo = getSystemFlag(combat, "combatInfo") || {};
     const enemyMaxInit = combatInfo.enemyMaxInit || 0;

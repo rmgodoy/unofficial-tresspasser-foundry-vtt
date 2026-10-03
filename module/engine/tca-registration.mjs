@@ -11,8 +11,7 @@ const TCA_EVENTS = [
   "start-of-combat", "start-of-round", "start-of-turn", "end-of-turn", "end-of-round", "end-of-combat",
   "on-first-move", "on-move", "use", "targeted", "damage-dealt", "damage-received",
   "heal-given", "heal-received", "on-prevail", "on-use-deed", "on-targeted-deed",
-  "on-deed-hit-received", "on-deed-miss-received", "on-deed-hit", "on-deed-miss",
-  "immediate", "continuous"
+  "on-deed-hit-received", "on-deed-miss-received", "on-deed-hit", "on-deed-miss"
 ];
 
 let _isInitialized = false;

@@ -142,9 +142,9 @@ export async function handleModifyAttribute(params = {}, context = {}) {
   } else if (attribute === "combat_phase") {
     chatContent = await updateCombatPhase(targetActor, modValue);
   } else {
-    // Combat stat (guard, resist, accuracy, etc.) continuous breakdown
-    const targetLabel = game.i18n.localize(TARGET_ATTRIBUTES[attribute]) || attribute;
-    chatContent = `<p>${game.i18n.format("TRESPASSER.Chat.Trigger.ModifierGenerated", { value: modValue > 0 ? `+${modValue}` : modValue, target: targetLabel })}</p>`;
+    // Passive/derived stats (guard, resist, accuracy, max_health, initiative, etc.)
+    // are resolved during stat calculation and roll dialogs, not as standalone chat cards.
+    chatContent = "";
   }
 
   if (rollResult instanceof foundry.dice.Roll) {

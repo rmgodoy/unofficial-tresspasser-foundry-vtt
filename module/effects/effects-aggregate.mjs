@@ -216,13 +216,57 @@ export function getMovementType(actor) {
  */
 export function getAttributeEffects(actor, attributeKey, includeTiming = null) {
   if (!actor || !attributeKey) return [];
+  const targetNorm = normalizeTargetAttribute(attributeKey);
   const effects = getActorEffects(actor);
   const allEffects = [...effects.combat, ...effects.nonCombat];
   
   const results = [];
+  const handledItemIds = new Set();
+
+  // 1. Process TCA blocks from items with behaviors
+  for (const item of actor.items) {
+    const behaviors = item.system?.behaviors;
+    if (!Array.isArray(behaviors) || behaviors.length === 0) continue;
+
+    for (const block of behaviors) {
+      if (block.action !== "modify_attribute") continue;
+
+      const rawAttr = block.params?.attribute || item.system?.targetAttribute;
+      if (!rawAttr || normalizeTargetAttribute(rawAttr) !== targetNorm) continue;
+
+      const trigger = block.trigger || item.system?.when || (item.system?.type === "continuous" ? "continuous" : "immediate");
+      const matchesTiming = trigger === "continuous" ||
+        trigger === "immediate" ||
+        (includeTiming && trigger === includeTiming) ||
+        (includeTiming === "use" && (trigger === "continuous" || trigger === "immediate" || trigger === "use"));
+      if (!matchesTiming) continue;
+
+      const rawModifier = block.params?.modifier ?? item.system?.modifier ?? "0";
+      const rawMod = parseModifier(rawModifier, item.system?.intensity || 0);
+      const resolvedMod = replacePlaceholders(rawMod, actor);
+      const modStr = resolvedMod.replace(/\s+/g, "").replace("+", "").trim();
+      const parsed = targetNorm === "elevation" ? parseInt(modStr, 10) : parseFloat(modStr);
+      const numericValue = !isNaN(parsed) ? (targetNorm === "elevation" ? Math.round(parsed) : parsed) : 0;
+      const isAdv = String(rawModifier).toLowerCase() === "adv";
+
+      results.push({
+        id: `${item.id}-tca-${block.id || foundry.utils.randomID(4)}`,
+        name: item.name,
+        value: numericValue,
+        modifierStr: String(rawModifier),
+        isAdv,
+        description: item.system?.description || "",
+        source: item.name,
+        checked: true
+      });
+      handledItemIds.add(item.id);
+    }
+  }
+
+  // 2. Process all effects from getActorEffects that weren't handled as TCA blocks
   for (const eff of allEffects) {
-    if (eff.item?.system?.behaviors?.length > 0) continue;
-    if (eff.target !== attributeKey) continue;
+    if (eff.item?.id && handledItemIds.has(eff.item.id)) continue;
+    if (!eff.target || normalizeTargetAttribute(eff.target) !== targetNorm) continue;
 
     if (eff.type === "on-trigger" && eff.when && eff.when !== "immediate" && eff.when !== includeTiming) continue;
     
@@ -230,8 +274,8 @@ export function getAttributeEffects(actor, attributeKey, includeTiming = null) {
     const isAdv = rawMod.toLowerCase() === "adv";
     const resolvedMod = replacePlaceholders(rawMod, actor);
     const modStr = resolvedMod.replace(/\s+/g, "").replace("+", "").trim();
-    const parsed = attributeKey === "elevation" ? parseInt(modStr, 10) : parseFloat(modStr);
-    const numericValue = !isNaN(parsed) ? (attributeKey === "elevation" ? Math.round(parsed) : parsed) : 0;
+    const parsed = targetNorm === "elevation" ? parseInt(modStr, 10) : parseFloat(modStr);
+    const numericValue = !isNaN(parsed) ? (targetNorm === "elevation" ? Math.round(parsed) : parsed) : 0;
 
     results.push({
       id: eff.id,
@@ -243,37 +287,6 @@ export function getAttributeEffects(actor, attributeKey, includeTiming = null) {
       source: eff.sourceName || eff.source || "",
       checked: true
     });
-  }
-
-  // Also include TCA blocks (continuous, or matching the specified timing like "use")
-  for (const item of actor.items) {
-    if (item.type !== "effect" || !item.system?.behaviors?.length) continue;
-    for (const block of item.system.behaviors) {
-      const matchesTiming = block.trigger === "continuous" ||
-        (includeTiming && block.trigger === includeTiming) ||
-        (includeTiming === "use" && (block.trigger === "continuous" || block.trigger === "use"));
-      if (!matchesTiming) continue;
-      if (block.action !== "modify_attribute") continue;
-      if (block.params?.attribute !== attributeKey) continue;
-
-      const rawMod = parseModifier(block.params?.modifier || "0", item.system?.intensity || 0);
-      const resolvedMod = replacePlaceholders(rawMod, actor);
-      const modStr = resolvedMod.replace(/\s+/g, "").replace("+", "").trim();
-      const parsed = attributeKey === "elevation" ? parseInt(modStr, 10) : parseFloat(modStr);
-      const numericValue = !isNaN(parsed) ? (attributeKey === "elevation" ? Math.round(parsed) : parsed) : 0;
-      const isAdv = (block.params?.modifier || "").toLowerCase() === "adv";
-
-      results.push({
-        id: `${item.id}-tca-${block.id}`,
-        name: item.name,
-        value: numericValue,
-        modifierStr: block.params?.modifier || "0",
-        isAdv,
-        description: item.system?.description || "",
-        source: item.name,
-        checked: true
-      });
-    }
   }
 
   if (results.length > 0) {
@@ -335,7 +348,10 @@ export function hasAdvantage(actor, attributeKey) {
  */
 export function normalizeTargetAttribute(target) {
   if (!target) return "";
-  const s = String(target).toLowerCase().replace(/-/g, "_").trim();
+  let s = String(target).toLowerCase().replace(/^(system\.)?(combat\.|attributes\.)/, "").replace(/-/g, "_").trim();
+  if (s === "hp") s = "health";
+  if (s === "max_hp" || s === "maxhealth") s = "max_health";
+  if (s === "speedbonus") s = "speed_bonus";
   if (s === "damage_dealt" || s === "damage_given" || s === "dmg_dealt" || s === "dmg_given") return "damage_given";
   if (s === "damage_received" || s === "dmg_received") return "damage_received";
   if (s === "heal_given") return "heal_given";
@@ -351,6 +367,7 @@ export function normalizeTargetAttribute(target) {
  */
 export function getActorRelevantModifiers(actor, targetType) {
   if (!actor) return [];
+  const targetNorm = normalizeTargetAttribute(targetType);
   let allEffects = [];
   try {
     const { combat = [], nonCombat = [] } = getActorEffects(actor) || {};
@@ -360,30 +377,35 @@ export function getActorRelevantModifiers(actor, targetType) {
   }
 
   const modifiers = [];
-  for (const eff of allEffects) {
-    if (eff.item?.system?.behaviors?.length > 0) continue;
-    if (eff.isOnlyReminder) continue;
-    const normTarget = normalizeTargetAttribute(eff.target);
-    if (normTarget === targetType) {
-      const mod = eff.modifier ? String(eff.modifier).trim() : "";
-      if (mod && mod !== "0") {
-        modifiers.push(mod);
-      }
-    }
-  }
+  const handledItemIds = new Set();
 
   for (const item of actor.items) {
-    if (item.type !== "effect" || !item.system?.behaviors?.length) continue;
-    for (const block of item.system.behaviors) {
-      if (block.trigger !== "continuous") continue;
+    const behaviors = item.system?.behaviors;
+    if (!Array.isArray(behaviors) || behaviors.length === 0) continue;
+    for (const block of behaviors) {
+      const trigger = block.trigger || item.system?.when || (item.system?.type === "continuous" ? "continuous" : "immediate");
+      if (trigger !== "continuous" && trigger !== "immediate") continue;
       if (block.action !== "modify_attribute") continue;
-      const normAttr = normalizeTargetAttribute(block.params?.attribute);
-      if (normAttr === targetType) {
-        const rawMod = parseModifier(block.params?.modifier || "0", item.system?.intensity || 0);
+      const rawAttr = block.params?.attribute || item.system?.targetAttribute;
+      if (normalizeTargetAttribute(rawAttr) === targetNorm) {
+        const rawMod = parseModifier(block.params?.modifier || item.system?.modifier || "0", item.system?.intensity || 0);
         const cleanMod = String(rawMod).trim();
         if (cleanMod && cleanMod !== "0") {
           modifiers.push(cleanMod);
         }
+        handledItemIds.add(item.id);
+      }
+    }
+  }
+
+  for (const eff of allEffects) {
+    if (eff.item?.id && handledItemIds.has(eff.item.id)) continue;
+    if (eff.isOnlyReminder) continue;
+    const normTarget = normalizeTargetAttribute(eff.target);
+    if (normTarget === targetNorm) {
+      const mod = eff.modifier ? String(eff.modifier).trim() : "";
+      if (mod && mod !== "0") {
+        modifiers.push(mod);
       }
     }
   }

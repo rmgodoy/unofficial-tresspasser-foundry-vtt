@@ -1,6 +1,7 @@
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { createExtraCombatant, postPerilToChat } from "./combat-initiative.mjs";
 import { SYSTEM_ID, getSystemFlag, setSystemFlag } from "../system-id.mjs";
+import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
 
 /**
  * Resolve Trespasser initiatives for all combatants at the start of a combat or new round.
@@ -70,7 +71,9 @@ export async function rollAllTrespasserInitiatives(combat) {
           }
         } else {
           const initBonus = actor.system.combat?.initiative || 0;
-          const roll = new foundry.dice.Roll(`1d20 + ${initBonus}`);
+          const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, "initiative") || getSystemFlag(actor, "initiativeAdvantage") || false;
+          const formula = isAdv ? "2d20kh" : "1d20";
+          const roll = new foundry.dice.Roll(`${formula} + ${initBonus}`);
           await roll.evaluate();
           
           if (game.settings.get(SYSTEM_ID, "showInitiativeInChat")) {
@@ -81,7 +84,8 @@ export async function rollAllTrespasserInitiatives(combat) {
           }
 
           total = roll.total;
-          isNat20 = roll.dice[0].results[0].result === 20;
+          const dieResults = roll.dice[0]?.results || [];
+          isNat20 = dieResults.some(r => r.active !== false && r.result === 20);
         }
 
         if (isSluggish) {
@@ -136,7 +140,7 @@ export async function rollAllTrespasserInitiatives(combat) {
             }
           } else {
             const initBonus = actor.system.combat?.initiative || 0;
-            const isAdv = getSystemFlag(actor, "initiativeAdvantage") || false;
+            const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, "initiative") || getSystemFlag(actor, "initiativeAdvantage") || false;
             const formula = isAdv ? "2d20kh" : "1d20";
             const roll = new foundry.dice.Roll(`${formula} + ${initBonus}`);
             await roll.evaluate();
@@ -149,7 +153,8 @@ export async function rollAllTrespasserInitiatives(combat) {
             }
 
             total = roll.total;
-            isNat20 = roll.dice[0]?.results?.[0]?.result === 20;
+            const dieResults = roll.dice[0]?.results || [];
+            isNat20 = dieResults.some(r => r.active !== false && r.result === 20);
           }
 
           if (isSluggish) {
