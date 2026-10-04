@@ -297,3 +297,194 @@
     border-color: var(--dialog-gold);
 }
 
+/* ─── Two-Column CD Layout ────────────────────────────────────────── */
+.roll-dialog.has-cd-bonuses {
+    min-width: 580px;
+    max-width: 620px;
+}
+
+.roll-dialog-content.has-cd-bonuses {
+    gap: 16px;
+}
+
+.roll-dialog-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    align-items: start;
+}
+
+.dialog-column {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    min-width: 0;
+}
+
+.roll-dialog-content.has-cd-bonuses .dice-preview {
+    padding: 10px 12px;
+}
+
+/* Align buttons with each column in 2-column layout */
+.roll-dialog-content.has-cd-bonuses .dialog-footer {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-top: 0;
+    padding: 0;
+}
+
+.roll-dialog-content.has-cd-bonuses .dialog-footer .trp-btn {
+    width: 100%;
+}
+
+/* ─── Target CD Accordion List ────────────────────────────────────── */
+.roll-dialog-content .cd-section-header label {
+    margin-bottom: 6px;
+}
+
+.roll-dialog-content .target-cd-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 230px;
+    min-height: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 4px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--trp-scrollbar) transparent;
+}
+
+.roll-dialog-content .target-cd-list::-webkit-scrollbar { width: 5px; }
+.roll-dialog-content .target-cd-list::-webkit-scrollbar-track { background: transparent; }
+.roll-dialog-content .target-cd-list::-webkit-scrollbar-thumb { background: var(--trp-scrollbar); border-radius: 2px; }
+.roll-dialog-content .target-cd-list::-webkit-scrollbar-thumb:hover { background: var(--trp-gold); }
+
+.roll-dialog-content .target-accordion-item {
+    flex-shrink: 0;
+    background: var(--trp-bg-panel);
+    border: 1px solid var(--dialog-border);
+    border-radius: 4px;
+    overflow: hidden;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    cursor: default;
+}
+
+.roll-dialog-content .target-accordion-item.clickable { cursor: pointer; }
+.roll-dialog-content .target-accordion-item.clickable:hover { border-color: var(--trp-gold-dim); }
+.roll-dialog-content .target-accordion-item.expanded { border-color: var(--dialog-gold); }
+
+.roll-dialog-content .target-accordion-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 10px;
+    user-select: none;
+    background: rgba(0, 0, 0, 0.25);
+    gap: 8px;
+    transition: background 0.15s;
+    cursor: default;
+}
+
+.roll-dialog-content .target-accordion-item.clickable .target-accordion-header {
+    cursor: pointer;
+}
+
+.roll-dialog-content .target-accordion-item.clickable .target-accordion-header:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.roll-dialog-content .target-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.roll-dialog-content .target-avatar {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 1px solid var(--dialog-border);
+    object-fit: cover;
+    flex-shrink: 0;
+    background: var(--trp-bg-dark);
+}
+
+.roll-dialog-content .target-name {
+    font-family: var(--trp-font-body);
+    font-size: var(--fs-13);
+    font-weight: bold;
+    color: var(--trp-text-bright);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.roll-dialog-content .target-accordion-header .accordion-chevron {
+    font-size: var(--fs-9);
+    color: var(--trp-text-dim);
+    transition: transform 0.2s;
+    margin-left: 2px;
+}
+
+.roll-dialog-content .target-accordion-item.expanded .target-accordion-header .accordion-chevron {
+    transform: rotate(90deg);
+    color: var(--dialog-gold);
+}
+
+.roll-dialog-content .target-header-right {
+    flex-shrink: 0;
+}
+
+.roll-dialog-content .target-cd-summary {
+    font-family: var(--trp-font-header);
+    font-size: var(--fs-12);
+    font-weight: bold;
+    color: var(--dialog-gold);
+    white-space: nowrap;
+    letter-spacing: 0.03em;
+}
+
+.roll-dialog-content .target-accordion-content {
+    padding: 4px 10px 6px 10px;
+    border-top: 1px solid var(--trp-border-light);
+    background: rgba(0, 0, 0, 0.12);
+}
+
+.roll-dialog-content .target-accordion-content.collapsed {
+    display: none;
+}
+
+.roll-dialog-content .target-bonuses-list {
+    display: flex;
+    flex-direction: column;
+}
+
+.roll-dialog-content .target-bonus-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 3px 0;
+    font-size: var(--fs-12);
+    color: var(--trp-text);
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.05);
+}
+.roll-dialog-content .target-bonus-row:last-child { border-bottom: none; }
+.roll-dialog-content .target-bonus-checkbox {
+    width: 14px;
+    height: 14px;
+    margin: 0;
+    accent-color: var(--dialog-gold);
+    cursor: pointer;
+}
+.roll-dialog-content .target-bonus-row .bonus-name { font-size: var(--fs-12); color: var(--trp-text); }
+.roll-dialog-content .target-bonus-row .bonus-value { color: var(--dialog-gold); font-weight: bold; font-size: var(--fs-12); }
+.roll-dialog-content .target-bonus-row.is-unchecked .bonus-name,
+.roll-dialog-content .target-bonus-row.is-unchecked .bonus-value {
+    color: var(--trp-text-dim);
+    text-decoration: line-through;
+    opacity: 0.6;
+}
+

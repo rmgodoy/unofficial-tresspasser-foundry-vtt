@@ -1,82 +1,157 @@
-<div class="roll-dialog-content">
-    <div class="dice-preview">
-        <i class="fas fa-dice-d20"></i>
-        <div class="formula">
-            <span class="dice-formula">{{{formatDice dice}}}</span>
-            <span class="dynamic-bonus">{{initialBonusFormatted}}</span>
-        </div>
-    </div>
-
-    <div class="bonus-details">
-        <label>{{localize "TRESPASSER.Dialog.Roll.Bonuses"}}</label>
-        <div class="bonuses-list">
-            {{#each bonuses as |bonus bonusIndex|}}
-                {{#if bonus.isAccordion}}
-                    <div class="bonus-accordion-group {{#if bonus.hasChildren}}has-children{{else}}empty-children{{/if}}" data-bonus-index="{{bonusIndex}}">
-                        <div class="bonus-row bonus-accordion-header {{#if bonus.hasChildren}}clickable{{/if}}" data-action="toggleAccordion" data-bonus-index="{{bonusIndex}}">
-                            <div class="bonus-label-wrap">
-                                {{#if bonus.hasChildren}}
-                                    <i class="fas fa-chevron-right accordion-chevron"></i>
-                                {{/if}}
-                                <span class="bonus-label">{{{formatDice bonus.label}}}</span>
-                            </div>
-                            <span class="bonus-value accordion-total" data-bonus-index="{{bonusIndex}}">{{#if (gte bonus.value 0)}}+{{/if}}{{bonus.value}}</span>
+{{#*inline "bonusList"}}
+    <div class="bonuses-list {{listClass}}">
+        {{#each bonuses as |bonus bonusIndex|}}
+            {{#if bonus.isAccordion}}
+                <div class="bonus-accordion-group {{#if bonus.hasChildren}}has-children{{else}}empty-children{{/if}}" data-bonus-index="{{bonusIndex}}">
+                    <div class="bonus-row bonus-accordion-header {{#if bonus.hasChildren}}clickable{{/if}}" data-action="toggleAccordion" data-bonus-index="{{bonusIndex}}">
+                        <div class="bonus-label-wrap">
+                            {{#if bonus.hasChildren}}
+                                <i class="fas fa-chevron-right accordion-chevron"></i>
+                            {{/if}}
+                            <span class="bonus-label">{{{formatDice bonus.label}}}</span>
                         </div>
-                        {{#if bonus.hasChildren}}
-                            <div class="bonus-accordion-content collapsed" data-bonus-index="{{bonusIndex}}">
-                                {{#each bonus.children as |child childIndex|}}
-                                    <div class="bonus-child-row {{#unless child.checked}}is-unchecked{{/unless}}" title="{{child.description}}">
-                                        <label class="child-checkbox-label">
-                                            <input type="checkbox" class="bonus-child-checkbox" data-parent-index="{{bonusIndex}}" data-child-index="{{childIndex}}" data-child-id="{{child.id}}" data-value="{{child.value}}" data-name="{{child.name}}" {{#if child.checked}}checked{{/if}} />
-                                            <span class="child-name">{{child.name}}</span>
-                                        </label>
-                                        <span class="child-value">{{#if (gte child.value 0)}}+{{/if}}{{child.value}}</span>
-                                    </div>
-                                {{/each}}
-                            </div>
-                        {{/if}}
+                        <span class="bonus-value accordion-total" data-bonus-index="{{bonusIndex}}">{{#if (gte bonus.value 0)}}+{{/if}}{{bonus.value}}</span>
                     </div>
-                {{else}}
-                    <div class="bonus-row standard-bonus-row {{#unless bonus.checked}}is-unchecked{{/unless}}" data-bonus-index="{{bonusIndex}}">
-                        {{#if bonus.toggleable}}
-                            <label class="bonus-checkbox-label">
-                                <input type="checkbox" class="bonus-checkbox" data-bonus-index="{{bonusIndex}}" data-value="{{bonus.value}}" data-label="{{bonus.label}}" {{#if bonus.checked}}checked{{/if}} />
-                                <span class="bonus-label">{{{formatDice bonus.label}}}</span>
-                            </label>
-                        {{else}}
-                            <div class="bonus-static-label">
-                                <span class="bonus-label">{{{formatDice bonus.label}}}</span>
-                            </div>
-                        {{/if}}
-                        <span class="bonus-value">{{#if (gte bonus.value 0)}}+{{/if}}{{bonus.value}}</span>
-                    </div>
-                {{/if}}
-            {{else}}
-                <div class="bonus-row empty">
-                    <span class="bonus-label">{{localize "TRESPASSER.Global.Status.None"}}</span>
-                    <span class="bonus-value">0</span>
+                    {{#if bonus.hasChildren}}
+                        <div class="bonus-accordion-content collapsed" data-bonus-index="{{bonusIndex}}">
+                            {{#each bonus.children as |child childIndex|}}
+                                <div class="bonus-child-row {{#unless child.checked}}is-unchecked{{/unless}}" title="{{child.description}}">
+                                    <label class="child-checkbox-label">
+                                        <input type="checkbox" class="bonus-child-checkbox" data-parent-index="{{bonusIndex}}" data-child-index="{{childIndex}}" data-child-id="{{child.id}}" data-value="{{child.value}}" data-name="{{child.name}}" {{#if child.checked}}checked{{/if}} />
+                                        <span class="child-name">{{child.name}}</span>
+                                    </label>
+                                    <span class="child-value">{{#if (gte child.value 0)}}+{{/if}}{{child.value}}</span>
+                                </div>
+                            {{/each}}
+                        </div>
+                    {{/if}}
                 </div>
-            {{/each}}
-        </div>
+            {{else}}
+                <div class="bonus-row standard-bonus-row {{#unless bonus.checked}}is-unchecked{{/unless}}" data-bonus-index="{{bonusIndex}}">
+                    {{#if bonus.toggleable}}
+                        <label class="bonus-checkbox-label">
+                            <input type="checkbox" class="bonus-checkbox" data-bonus-index="{{bonusIndex}}" data-value="{{bonus.value}}" data-label="{{bonus.label}}" {{#if bonus.checked}}checked{{/if}} />
+                            <span class="bonus-label">{{{formatDice bonus.label}}}</span>
+                        </label>
+                    {{else}}
+                        <div class="bonus-static-label">
+                            <span class="bonus-label">{{{formatDice bonus.label}}}</span>
+                        </div>
+                    {{/if}}
+                    <span class="bonus-value">{{#if (and (not bonus.isBase) (gte bonus.value 0))}}+{{/if}}{{bonus.value}}</span>
+                </div>
+            {{/if}}
+        {{else}}
+            <div class="bonus-row empty">
+                <span class="bonus-label">{{localize "TRESPASSER.Global.Status.None"}}</span>
+                <span class="bonus-value">0</span>
+            </div>
+        {{/each}}
     </div>
+{{/inline}}
 
-    <div class="modifier-row">
-        <div class="modifier-input">
-            <label>{{localize "TRESPASSER.Dialog.Roll.AdditionalModifier"}}</label>
-            <div class="input-wrapper">
-                 <input type="number" name="modifier" value="0" placeholder="0" autofocus onclick="this.select()" />
+<div class="roll-dialog-content {{#if hasCDBonuses}}has-cd-bonuses{{/if}}">
+    {{#if hasCDBonuses}}
+        <div class="roll-dialog-columns">
+            <!-- Left Column: Roll / Accuracy -->
+            <div class="dialog-column roll-column">
+                <div class="dice-preview">
+                    <i class="fas fa-dice-d20"></i>
+                    <div class="formula">
+                        <span class="dice-formula">{{{formatDice dice}}}</span>
+                        <span class="dynamic-bonus">{{initialBonusFormatted}}</span>
+                    </div>
+                </div>
+
+                <div class="bonus-details">
+                    <label>{{localize "TRESPASSER.Dialog.Roll.AccuracyBonuses"}}</label>
+                    {{> bonusList bonuses=bonuses listClass="roll-bonuses-list"}}
+                </div>
+
+                <div class="modifier-row">
+                    <div class="modifier-input">
+                        <label>{{localize "TRESPASSER.Dialog.Roll.AdditionalModifier"}}</label>
+                        <div class="input-wrapper">
+                            <input type="number" name="modifier" value="0" placeholder="0" autofocus onclick="this.select()" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Target CD List with Accordions -->
+            <div class="dialog-column cd-column">
+                <div class="cd-section-header">
+                    <label>{{localize "TRESPASSER.Dialog.Roll.TargetCD"}}</label>
+                </div>
+
+                <div class="target-cd-list scrollable">
+                    {{#each targets as |target targetIndex|}}
+                        <div class="target-accordion-item {{#if target.hasBonuses}}has-bonuses clickable{{else}}no-bonuses{{/if}}" data-target-index="{{targetIndex}}">
+                            <div class="target-accordion-header" {{#if target.hasBonuses}}data-action="toggleTargetAccordion"{{/if}} data-target-index="{{targetIndex}}">
+                                <div class="target-header-left">
+                                    <img class="target-avatar" src="{{target.img}}" alt="{{target.name}}" />
+                                    <span class="target-name" title="{{target.name}}">{{target.name}}</span>
+                                    {{#if target.hasBonuses}}
+                                        <i class="fas fa-chevron-right accordion-chevron"></i>
+                                    {{/if}}
+                                </div>
+                                <div class="target-header-right">
+                                    <span class="target-cd-summary">{{target.headerCDText}}</span>
+                                </div>
+                            </div>
+                            {{#if target.hasBonuses}}
+                                <div class="target-accordion-content collapsed">
+                                    <div class="target-bonuses-list">
+                                        {{#each target.bonuses as |bonus bonusIndex|}}
+                                            <div class="target-bonus-row {{#unless bonus.checked}}is-unchecked{{/unless}}" title="{{bonus.description}}">
+                                                <label class="bonus-checkbox-label">
+                                                    <input type="checkbox" class="target-bonus-checkbox" data-target-index="{{../targetIndex}}" data-bonus-index="{{bonusIndex}}" data-bonus-id="{{bonus.id}}" data-value="{{bonus.value}}" {{#if bonus.checked}}checked{{/if}} />
+                                                    <span class="bonus-name">{{bonus.name}}</span>
+                                                </label>
+                                                <span class="bonus-value">{{#if (gte bonus.value 0)}}+{{/if}}{{bonus.value}}</span>
+                                            </div>
+                                        {{/each}}
+                                    </div>
+                                </div>
+                            {{/if}}
+                        </div>
+                    {{/each}}
+                </div>
+            </div>
+        </div>
+    {{else}}
+        <!-- Standard Single-Column Roll Dialog -->
+        <div class="dice-preview">
+            <i class="fas fa-dice-d20"></i>
+            <div class="formula">
+                <span class="dice-formula">{{{formatDice dice}}}</span>
+                <span class="dynamic-bonus">{{initialBonusFormatted}}</span>
             </div>
         </div>
 
-        {{#if showCD}}
-        <div class="modifier-input cd-input">
-            <label>{{localize "TRESPASSER.Dialog.SkillCheck.Difficulty"}} (CD)</label>
-            <div class="input-wrapper">
-                 <input type="number" name="cd" value="{{cd}}" placeholder="10" onclick="this.select()" />
-            </div>
+        <div class="bonus-details">
+            <label>{{localize "TRESPASSER.Dialog.Roll.Bonuses"}}</label>
+            {{> bonusList bonuses=bonuses listClass="roll-bonuses-list"}}
         </div>
-        {{/if}}
-    </div>
+
+        <div class="modifier-row">
+            <div class="modifier-input">
+                <label>{{localize "TRESPASSER.Dialog.Roll.AdditionalModifier"}}</label>
+                <div class="input-wrapper">
+                     <input type="number" name="modifier" value="0" placeholder="0" autofocus onclick="this.select()" />
+                </div>
+            </div>
+
+            {{#if showCD}}
+            <div class="modifier-input cd-input">
+                <label>{{localize "TRESPASSER.Dialog.SkillCheck.Difficulty"}} (CD)</label>
+                <div class="input-wrapper">
+                     <input type="number" name="cd" value="{{cd}}" placeholder="10" onclick="this.select()" />
+                </div>
+            </div>
+            {{/if}}
+        </div>
+    {{/if}}
 
     <footer class="dialog-footer">
         <button type="button" class="trp-btn roll" data-action="roll">

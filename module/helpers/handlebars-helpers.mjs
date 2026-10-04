@@ -6,6 +6,10 @@ export function registerHandlebarsHelpers() {
   Handlebars.registerHelper("trespasserGt", (a, b) => a > b);
   Handlebars.registerHelper("gt", (a, b) => a > b);
   Handlebars.registerHelper("eq", (a, b) => a === b);
+  Handlebars.registerHelper("not", (val) => !val);
+  Handlebars.registerHelper("gte", (a, b) => a >= b);
+  Handlebars.registerHelper("lte", (a, b) => a <= b);
+  Handlebars.registerHelper("lt", (a, b) => a < b);
   Handlebars.registerHelper("or", (...args) => args.slice(0, -1).some(Boolean));
   Handlebars.registerHelper("and", (...args) => args.slice(0, -1).every(Boolean));
   Handlebars.registerHelper("ne", (a, b) => a !== b);

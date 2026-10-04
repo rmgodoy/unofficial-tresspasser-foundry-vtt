@@ -5,6 +5,7 @@ import { askSparkDialog } from "../../dialogs/spark-dialog.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
 import { EngagementHelper } from "../engagement-helper.mjs";
 import { getMissileElevationModifier, isMissileAttack } from "../elevation-helper.mjs";
+import { prepareTargetDefenseData } from "./roll-accuracy-targets.mjs";
 
 /**
  * Executes accuracy check for Character Attacking (Player Roll vs Target CD/DC).
@@ -55,11 +56,23 @@ export async function executePlayerAccuracyRoll({
   const baseAccuracy = totalAccuracy - (effectBonusEntry.value || 0);
   const diceFormula = isAdv ? "2d20kh" : "1d20";
 
+  const preparedTargets = actualTargets.map(t => prepareTargetDefenseData(t, {
+    actor,
+    sourceToken,
+    item,
+    behavior,
+    isAttack,
+    versus,
+    abilityType
+  }));
+
   const rollDialogData = {
     dice: diceFormula,
     bonuses: [
       { key: "baseAccuracy", label: game.i18n.localize("TRESPASSER.Sheet.Combat.Accuracy") || "Accuracy", value: baseAccuracy, toggleable: false }
-    ]
+    ],
+    targets: preparedTargets,
+    showCD: true
   };
 
   if (hasEngagementPenalty) {
@@ -85,8 +98,7 @@ export async function executePlayerAccuracyRoll({
 
   // Prompt user with Trespasser Roll Dialog
   const dialogResult = await TrespasserRollDialog.wait({
-    ...rollDialogData,
-    showCD: false
+    ...rollDialogData
   }, { title: `${item.name} Roll` });
 
   if (!dialogResult) return false; // User cancelled roll dialog
@@ -111,54 +123,41 @@ export async function executePlayerAccuracyRoll({
     ? (game.i18n.localize(`TRESPASSER.Sheet.Combat.${versus}`) || versus)
     : (game.i18n.localize("TRESPASSER.Terms.DC") || "CD");
 
-  for (const targetToken of actualTargets) {
+  // Align actualTargets order with dialog targets order (higher CD on top)
+  if (Array.isArray(dialogResult.targets) && dialogResult.targets.length > 0) {
+    actualTargets.sort((a, b) => {
+      const aId = a?.id || a?.document?.id || a?.actor?.id;
+      const bId = b?.id || b?.document?.id || b?.actor?.id;
+      const aIdx = dialogResult.targets.findIndex(t => (aId && (t.tokenId === aId || t.id === aId)));
+      const bIdx = dialogResult.targets.findIndex(t => (bId && (t.tokenId === bId || t.id === bId)));
+      return (aIdx !== -1 ? aIdx : 999) - (bIdx !== -1 ? bIdx : 999);
+    });
+  }
+
+  for (let i = 0; i < actualTargets.length; i++) {
+    const targetToken = actualTargets[i];
     const targetActor = targetToken?.actor ?? (targetToken instanceof Actor ? targetToken : null);
     const tokenName = targetToken ? DeedBehaviorUtils.getTokenDisplayName(targetToken) : null;
-    let dc = 10;
-    let targetVersusLabel = baseVersusLabel;
 
-    // Check ally/self override
-    const allyOverride = behavior.params?.allyOverride || {};
-    const isOverrideEnabled = Boolean(allyOverride.enabled);
-    const isSelf = targetToken ? (sourceToken && (targetToken.id === sourceToken.id || targetToken === sourceToken)) : (targetActor && actor && targetActor.id === actor.id);
-    const isAlly = targetToken ? (TargetingHelper.matchesDisposition(targetToken, "ally", sourceToken) || (actor?.type === "character" && targetActor?.type === "character")) : (actor?.type === "character" && targetActor?.type === "character");
-    const isSelfOrAlly = isSelf || isAlly;
-
-    let targetIsAttack = isAttack;
-    let targetVersus = versus;
-
-    if (isOverrideEnabled && isSelfOrAlly) {
-      targetIsAttack = (allyOverride.actionType || "support") !== "support";
-      targetVersus = allyOverride.versus || "10";
-    }
-
-    let targetElevModInfo = null;
-
-    if (!targetIsAttack || targetVersus === "10" || !targetVersus) {
-      dc = 10;
-      targetVersusLabel = (isOverrideEnabled && isSelfOrAlly && isAttack)
-        ? `${game.i18n.localize("TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Support") || "Support"} 10`
-        : (game.i18n.localize("TRESPASSER.Terms.DC") || "CD");
-    } else if (targetActor) {
-      const statKey = targetVersus.toLowerCase(); // "guard" or "resist"
-      const totalDef = targetActor.system?.combat?.[statKey] ?? 10;
-      const effBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");
-      const targetCD = totalDef + effBonus;
-      dc = targetActor.type === "character" ? targetCD + 10 : targetCD;
-      targetVersusLabel = game.i18n.localize(`TRESPASSER.Sheet.Combat.${targetVersus}`) || targetVersus;
-
-      if (statKey === "guard") {
-        const isMissile = abilityType === "missile" || (abilityType === "versatile" && isMissileAttack(item, actor));
-        const elevModInfo = getMissileElevationModifier(sourceToken || actor, targetToken || targetActor, item, {
-          isMissile,
-          versus: targetVersus
-        });
-        if (elevModInfo.applies) {
-          dc += elevModInfo.guardModifier;
-          targetElevModInfo = elevModInfo;
-        }
+    // Resolve target data configured in dialog or fallback to prepared target
+    const targetTokenId = targetToken?.id || targetToken?.document?.id || null;
+    const targetActorId = targetActor?.id || null;
+    const targetDialogData = dialogResult.targets?.find(t => {
+      if (targetTokenId && (t.tokenId || t.id)) {
+        return (t.tokenId === targetTokenId) || (t.id === targetTokenId);
       }
-    }
+      if (targetActorId && t.actorId) {
+        return t.actorId === targetActorId;
+      }
+      return false;
+    })
+      || preparedTargets.find(t => (targetTokenId && (t.tokenId === targetTokenId || t.id === targetTokenId)))
+      || preparedTargets[i];
+
+    const dc = targetDialogData?.totalCD ?? dialogResult.cd ?? 10;
+    const targetVersusLabel = targetDialogData?.versusLabel || baseVersusLabel;
+    const targetElevModInfo = targetDialogData?.elevationModInfo || null;
+    const isAllyOverride = targetDialogData?.isAllyOverride || false;
 
     let isHit = rollTotal >= dc;
     if (diceResult === 20) isHit = true;
@@ -190,7 +189,7 @@ export async function executePlayerAccuracyRoll({
       rollTotal,
       dc,
       targetVersusLabel,
-      isAllyOverride: isOverrideEnabled && isSelfOrAlly,
+      isAllyOverride,
       elevationModInfo: targetElevModInfo
     });
   }
