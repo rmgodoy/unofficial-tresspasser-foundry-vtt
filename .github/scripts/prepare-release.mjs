@@ -55,6 +55,25 @@ if (isBeta) {
     return count;
   }
 
+  // Helper function to recursively rename files starting with a prefix
+  function renameFilesWithPrefix(dirPath, fromPrefix, toPrefix) {
+    if (!fs.existsSync(dirPath)) return 0;
+    let count = 0;
+    const entries = fs.readdirSync(dirPath, { withFileTypes: true });
+    for (const entry of entries) {
+      const fullPath = path.join(dirPath, entry.name);
+      if (entry.isDirectory()) {
+        count += renameFilesWithPrefix(fullPath, fromPrefix, toPrefix);
+      } else if (entry.isFile() && entry.name.startsWith(fromPrefix)) {
+        const newName = `${toPrefix}${entry.name.slice(fromPrefix.length)}`;
+        const newPath = path.join(dirPath, newName);
+        fs.renameSync(fullPath, newPath);
+        count++;
+      }
+    }
+    return count;
+  }
+
   const pathReplacements = [
     [`systems/${baseId}/`, `systems/${betaId}/`],
     [`system/${baseId}/`, `systems/${betaId}/`],
@@ -126,6 +145,13 @@ if (isBeta) {
   totalModified += replaceInDir('module', jsReplacements, ['.js', '.mjs']);
   totalModified += replaceInDir('templates', pathReplacements, ['.hbs', '.html']);
   totalModified += replaceInDir('styles', pathReplacements, ['.css']);
+  if (fs.existsSync('babele')) {
+    totalModified += replaceInDir('babele', packReplacements, ['.json']);
+    const renamed = renameFilesWithPrefix('babele', `${baseId}.`, `${betaId}.`);
+    if (renamed > 0) {
+      console.log(`Renamed ${renamed} Babele translation file(s) for beta release`);
+    }
+  }
   if (fs.existsSync('trespasser.mjs')) {
     if (replaceInFile('trespasser.mjs', jsReplacements)) {
       totalModified++;

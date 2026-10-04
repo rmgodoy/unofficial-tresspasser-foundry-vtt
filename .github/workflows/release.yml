@@ -74,6 +74,7 @@ jobs:
           cp -r lang "staging/${PACKAGE_ID}/"
           cp -r assets "staging/${PACKAGE_ID}/"
           cp -r packs "staging/${PACKAGE_ID}/"
+          cp -r babele "staging/${PACKAGE_ID}/"
 
           # Create zip archive containing the package folder
           cd staging
