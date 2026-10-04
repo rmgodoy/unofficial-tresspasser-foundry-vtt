@@ -1,0 +1,34 @@
+{
+  "folder": "1S5Vcb29Q71RilCn",
+  "name": "Crude Ration",
+  "type": "rations",
+  "_id": "azvUph8GbOGouzRX",
+  "img": "systems/trespasser/assets/icons/food.webp",
+  "system": {
+    "depletionDie": "d4",
+    "description": "",
+    "price": 0,
+    "weight": "L",
+    "broken": false,
+    "effects": []
+  },
+  "effects": [],
+  "sort": 0,
+  "ownership": {
+    "default": 0,
+    "yywZQPY84nrAEthp": 3
+  },
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-19",
+    "createdTime": 1791156842922,
+    "modifiedTime": 1791156842922,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!items!azvUph8GbOGouzRX"
+}

@@ -1347,6 +1347,10 @@
       "id": "l5n8REVs4jYeHS1x",
       "name": "Pé de cabra"
     },
+    "azvUph8GbOGouzRX": {
+      "id": "azvUph8GbOGouzRX",
+      "name": "Ração Bruta"
+    },
     "oETFgmHhqcrjYrJb": {
       "id": "oETFgmHhqcrjYrJb",
       "name": "Capa rudimentar"
@@ -2791,6 +2795,10 @@
       "phases_hit_description": "Cause <wd> de dano. Conceda sangramento 2.",
       "phases_spark_description": "Conceda sangramento 4 em vez disso."
     },
+    "lbjWDWqT6CDJzKXo": {
+      "id": "lbjWDWqT6CDJzKXo",
+      "name": "Ingrediente"
+    },
     "I6ZPbB0eIPpHKFsn": {
       "id": "I6ZPbB0eIPpHKFsn",
       "name": "Tinta"
@@ -3747,6 +3755,10 @@
       "system.graph.nodes[4].params.effects[0].name": "Sangramento",
       "phases_base_description": "Causa 3<sd> de dano.",
       "phases_hit_description": "Concede sangramento 4."
+    },
+    "V6Hu0buHwUOzDhFy": {
+      "id": "V6Hu0buHwUOzDhFy",
+      "name": "Material"
     },
     "iCMRwjEmwxoJvG2T": {
       "id": "iCMRwjEmwxoJvG2T",
@@ -6075,6 +6087,7 @@
     "Possessions": "Posses",
     "Prowess": "Destreza",
     "Radiance": "Radiância",
+    "Resources": "Recursos",
     "Sanguine Veil": "Véu Sanguíneo",
     "Servants": "Servos",
     "Soldiers": "Soldados",

@@ -1,0 +1,23 @@
+{
+  "type": "Item",
+  "folder": "7etBoPRsqIif3S0r",
+  "name": "Resources",
+  "color": null,
+  "sorting": "a",
+  "_id": "1S5Vcb29Q71RilCn",
+  "description": "",
+  "sort": 0,
+  "flags": {},
+  "_stats": {
+    "coreVersion": "14.364",
+    "systemId": "trespasser",
+    "systemVersion": "0.2.0-19",
+    "createdTime": 1791156794157,
+    "modifiedTime": 1791156794157,
+    "lastModifiedBy": "yywZQPY84nrAEthp",
+    "compendiumSource": null,
+    "duplicateSource": null,
+    "exportSource": null
+  },
+  "_key": "!folders!1S5Vcb29Q71RilCn"
+}
