@@ -226,9 +226,14 @@ if (!releaseNotes) {
 
 fs.writeFileSync('release_notes.md', releaseNotes + '\n');
 
-// Update manifest and download URLs in system.json for the release distribution asset
-system.manifest = 'https://github.com/rmgodoy/unofficial-tresspasser-foundry-vtt/releases/latest/download/system.json';
-system.download = `https://github.com/rmgodoy/unofficial-tresspasser-foundry-vtt/releases/download/${tag}/system.zip`;
+// Update manifest and download URLs in system.json for the release distribution asset.
+// For beta releases, manifest must point to the release tag download URL because GitHub's
+// /releases/latest endpoint strictly excludes prereleases and beta releases have a distinct system ID.
+const repo = process.env.GITHUB_REPOSITORY || 'rmgodoy/unofficial-tresspasser-foundry-vtt';
+system.manifest = isBeta
+  ? `https://github.com/${repo}/releases/download/${tag}/system.json`
+  : `https://github.com/${repo}/releases/latest/download/system.json`;
+system.download = `https://github.com/${repo}/releases/download/${tag}/system.zip`;
 fs.writeFileSync('system.json', JSON.stringify(system, null, 2) + '\n');
 
 // Output variables for subsequent GitHub Actions steps
