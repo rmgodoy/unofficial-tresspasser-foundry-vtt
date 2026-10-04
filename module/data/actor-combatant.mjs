@@ -103,6 +103,7 @@ export class TrespasserCombatantData extends foundry.abstract.TypeDataModel {
         endurance: new fields.NumberField({ integer: true, initial: 0 }),
         max_endurance: new fields.NumberField({ integer: true, initial: 0 }),
         damage: new fields.NumberField({ integer: true, initial: 0 }),
+        inventory_max: new fields.NumberField({ integer: true, initial: 0 }),
       }),
     };
   }
@@ -174,6 +175,7 @@ export class TrespasserCombatantData extends foundry.abstract.TypeDataModel {
       "max_endurance": "TRESPASSER.Terms.Combat.MaxEndurance",
       "armor": "TRESPASSER.Terms.Combat.Armor",
       "damage": "TRESPASSER.Terms.Combat.Damage",
+      "inventory_max": "TRESPASSER.Terms.Attribute.SlotCapacity",
     };
   }
 
@@ -187,7 +189,8 @@ export class TrespasserCombatantData extends foundry.abstract.TypeDataModel {
     const allTrackedKeys = [
       "mighty", "agility", "intellect", "spirit",
       "initiative", "accuracy", "guard", "resist", "prevail", "tenacity", "speed",
-      "speed_bonus", "armor", "health", "max_health", "endurance", "max_endurance", "damage", "focus", "elevation"
+      "speed_bonus", "armor", "health", "max_health", "endurance", "max_endurance", "damage", "focus", "elevation",
+      "inventory_max"
     ];
     for (const key of allTrackedKeys) {
       if (this.bonuses && key in this.bonuses) {

@@ -171,6 +171,7 @@ export class TrespasserCharacterData extends TrespasserCombatantData {
     if (this.hasPlight("enfeebled")) {
       this.inventory_max = Math.floor(this.inventory_max / 2);
     }
+    this.inventory_max = Math.max(0, this.inventory_max + (this.bonuses.inventory_max || 0));
 
     // 6. Deed Max and Attribute Points
     this.deed_max.light = currentTableData?.deedsLight ?? 6;

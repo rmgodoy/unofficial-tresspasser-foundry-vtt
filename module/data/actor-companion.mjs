@@ -86,6 +86,7 @@ export class TrespasserCompanionData extends TrespasserCombatantData {
     this.combat.guard = evaluateFormula(f.guard || "<lvl>+<c.agility>", ctx) + (this.bonuses.guard || 0);
     this.combat.resist = evaluateFormula(f.resist || "<lvl>+<c.spirit>", ctx) + (this.bonuses.resist || 0);
     this.combat.prevail = evaluateFormula(f.prevail || "<lvl>+<c.intellect>", ctx) + (this.bonuses.prevail || 0);
+    this.inventory_max = Math.max(0, 3 + (this.bonuses.inventory_max || 0));
 
     // 4. Engagement Range (derived from equipped melee weapons or natural reach 1)
     const eq = this.equipment ?? {};

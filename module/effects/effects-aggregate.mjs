@@ -356,6 +356,7 @@ export function normalizeTargetAttribute(target) {
   if (s === "damage_received" || s === "dmg_received") return "damage_received";
   if (s === "heal_given") return "heal_given";
   if (s === "heal_received") return "heal_received";
+  if (s === "slot_capacity" || s === "slots" || s === "inventory_slots" || s === "inventorymax" || s === "max_slots") return "inventory_max";
   return s;
 }
 

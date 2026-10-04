@@ -105,5 +105,6 @@ export const TARGET_ATTRIBUTES = {
   "heal_received": "TRESPASSER.App.System.Trigger.HealReceived",
   "endurance": "TRESPASSER.Sheet.Header.Endurance",
   "max_endurance": "TRESPASSER.Sheet.Header.Endurance",
-  "elevation": "TRESPASSER.Terms.Attribute.Elevation"
+  "elevation": "TRESPASSER.Terms.Attribute.Elevation",
+  "inventory_max": "TRESPASSER.Terms.Attribute.SlotCapacity"
 };

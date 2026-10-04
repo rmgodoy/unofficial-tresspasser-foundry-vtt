@@ -18,7 +18,8 @@ export const VALID_TARGET_ATTRIBUTES = [
   "speed", "speed_bonus", "accuracy", "initiative",
   "focus", "action_points", "combat_phase", "armor",
   "damage_dealt", "damage_received", "heal_given", "heal_received",
-  "elevation", "mighty", "agility", "intellect", "spirit"
+  "elevation", "mighty", "agility", "intellect", "spirit",
+  "inventory_max", "slot_capacity"
 ];
 
 export const VALID_TRIGGERS = [
