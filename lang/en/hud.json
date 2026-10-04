@@ -34,7 +34,9 @@
         "SelectTargets": "Select Target(s)",
         "SelectTargetsFromArea": "Select Target(s) from Area",
         "Burst": "Burst",
-        "MeleeBurst": "Melee Burst"
+        "MeleeBurst": "Melee Burst",
+        "QuickDeed": "Quick Deed",
+        "QuickDeedTip": "Quick Deed (GM Only)"
       },
       "Movement": {
         "Used": "Movement Used",

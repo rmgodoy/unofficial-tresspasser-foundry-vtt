@@ -1,0 +1,67 @@
+<div class="quick-deed-dialog-content">
+    <!-- TARGET SECTION -->
+    <div class="form-section">
+        <label class="section-title">{{localize "TRESPASSER.Dialog.QuickDeed.TargetLabel"}}</label>
+        <div class="quick-deed-grid-3">
+            {{#each targetChoices}}
+            <button type="button" class="grid-btn {{#if active}}active{{/if}}" data-action="selectTargetType" data-value="{{id}}">
+                {{label}}
+            </button>
+            {{/each}}
+        </div>
+    </div>
+
+    <!-- AREA SIZE SECTION (Hidden when Target is Creature) -->
+    {{#unless isCreature}}
+    <div class="form-section size-section">
+        <label class="section-title">{{localize "TRESPASSER.Dialog.QuickDeed.SizeLabel"}}</label>
+        <div class="quick-deed-grid-3">
+            {{#each sizeChoices}}
+            <button type="button" class="grid-btn {{#if active}}active{{/if}}" data-action="{{#if (eq id 'custom')}}selectCustomSize{{else}}selectSize{{/if}}" data-value="{{id}}">
+                {{label}}
+            </button>
+            {{/each}}
+        </div>
+        {{#if state.isCustomSize}}
+        <div class="custom-size-row">
+            <label for="quick-deed-custom-size">{{localize "TRESPASSER.Dialog.QuickDeed.EnterSize"}}:</label>
+            <input id="quick-deed-custom-size" type="number" name="customSizeInput" value="{{customSizeValue}}" min="1" max="99" step="1" />
+        </div>
+        {{/if}}
+    </div>
+    {{/unless}}
+
+    <!-- DEFENSE (VERSUS) SECTION -->
+    <div class="form-section">
+        <label class="section-title">{{localize "TRESPASSER.Dialog.QuickDeed.VersusLabel"}}</label>
+        <div class="quick-deed-grid-3 versus-grid">
+            {{#each versusChoices}}
+            <button type="button" class="grid-btn {{#if active}}active{{/if}}" data-action="selectVersus" data-value="{{id}}">
+                {{label}}
+            </button>
+            {{/each}}
+        </div>
+    </div>
+
+    <!-- ABILITY TYPE SECTION -->
+    <div class="form-section">
+        <label class="section-title">{{localize "TRESPASSER.Dialog.QuickDeed.AbilityTypeLabel"}}</label>
+        <div class="quick-deed-grid-3">
+            {{#each abilityChoices}}
+            <button type="button" class="grid-btn {{#if active}}active{{/if}}" data-action="selectAbilityType" data-value="{{id}}">
+                {{label}}
+            </button>
+            {{/each}}
+        </div>
+    </div>
+
+    <!-- FOOTER BUTTONS -->
+    <footer class="dialog-buttons">
+        <button type="button" class="dialog-button default" data-action="confirm">
+            <i class="fas fa-bolt"></i> {{localize "TRESPASSER.Dialog.QuickDeed.Execute"}}
+        </button>
+        <button type="button" class="dialog-button" data-action="cancel">
+            <i class="fas fa-times"></i> {{localize "TRESPASSER.Dialog.Common.Cancel"}}
+        </button>
+    </footer>
+</div>

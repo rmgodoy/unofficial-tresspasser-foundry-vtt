@@ -216,6 +216,7 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         case "execute-vault":           executeVault(this); break;
         case "execute-wait":            executeWait(this); break;
         case "execute-force-move":      executeForceMove(this); break;
+        case "open-quick-deed":         this._openQuickDeed(); break;
         case "modify-ap":               modifyAP(this, ev); break;
         case "modify-mp":               modifyMP(this, ev); break;
         case "spend-ap":                onSpendAP(this); break;
@@ -325,4 +326,9 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
   async _modifyAP(ev) { return modifyAP(this, ev); }
   async _onSpendAP() { return onSpendAP(this); }
   async _executeForceMove() { return executeForceMove(this); }
+  async _openQuickDeed() {
+    if (!game.user.isGM) return;
+    const { QuickDeedDialog } = await import("../dialogs/quick-deed-dialog.mjs");
+    return QuickDeedDialog.prompt({ token: this._token, actor: this._token?.actor });
+  }
 }

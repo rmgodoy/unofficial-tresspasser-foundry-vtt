@@ -354,6 +354,34 @@
         "AddHint": "Insira a intensidade para este efeito de estado.",
         "EditHint": "Ajuste a intensidade, ou clique em Remover para excluir este efeito de estado.",
         "CounterWarning": "Contraria {name} (Atual: {intensity}). As intensidades serão subtraídas."
+      },
+      "QuickDeed": {
+        "Title": "Ação Rápida",
+        "TargetLabel": "Alvo",
+        "SizeLabel": "Tamanho da Área",
+        "CustomSize": "Personalizado",
+        "EnterSize": "Tamanho Personalizado",
+        "VersusLabel": "Defesa",
+        "AbilityTypeLabel": "Tipo de Habilidade",
+        "Targets": {
+          "Creature": "Criatura",
+          "Blast": "Explosão",
+          "CloseBlast": "Explosão Próxima",
+          "Burst": "Erupção",
+          "MeleeBurst": "Explosão Corpo a Corpo",
+          "Path": "Caminho",
+          "ClosePath": "Caminho Próximo"
+        },
+        "Abilities": {
+          "Versatile": "Versátil",
+          "Innate": "Inata",
+          "Melee": "Corpo a Corpo",
+          "Missile": "Projétil",
+          "Spell": "Feitiço",
+          "Tool": "Ferramenta",
+          "Unarmed": "Desarmado"
+        },
+        "Execute": "Executar Habilidade"
       }
     }
   }

@@ -1506,3 +1506,121 @@
   color: var(--trp-text-bright) !important;
 }
 
+/* ═══════════════════════════════════════════════════
+   QUICK DEED DIALOG (GM ONLY)
+═══════════════════════════════════════════════════ */
+.quick-deed-dialog .window-content {
+  padding: 10px 14px;
+}
+
+.quick-deed-dialog .quick-deed-dialog-content {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.quick-deed-dialog .form-section {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.quick-deed-dialog .section-title {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  color: var(--trp-gold);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 2px;
+  border-bottom: 1px dashed var(--trp-border);
+  padding-bottom: 2px;
+}
+
+.quick-deed-dialog .quick-deed-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+}
+
+.quick-deed-dialog .grid-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 6px 4px;
+  min-height: 30px;
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-dim);
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-11);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  border-radius: var(--trp-radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  user-select: none;
+  line-height: 1.15;
+}
+
+.quick-deed-dialog .grid-btn:hover {
+  background: var(--trp-bg-select);
+  color: var(--trp-text-bright);
+  border-color: var(--trp-gold-dim);
+}
+
+.quick-deed-dialog .grid-btn.active {
+  background: rgba(201, 168, 76, 0.25);
+  color: var(--trp-gold-bright);
+  border-color: var(--trp-gold);
+  box-shadow: 0 0 6px var(--trp-gold-overlay);
+  font-weight: bold;
+}
+
+.quick-deed-dialog .custom-size-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  padding: 4px 8px;
+}
+
+.quick-deed-dialog .custom-size-row label {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-10);
+  color: var(--trp-text-dim);
+  text-transform: uppercase;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.quick-deed-dialog .custom-size-row input {
+  flex: 1;
+  height: 26px;
+  line-height: 26px;
+  background: var(--trp-bg-dark);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-bright);
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-12);
+  text-align: center;
+  border-radius: var(--trp-radius-sm);
+  padding: 0 4px;
+}
+
+.quick-deed-dialog .dialog-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 8px;
+  border-top: 1px solid var(--trp-border);
+}
+
+.quick-deed-dialog .dialog-buttons button {
+  flex: 1;
+}
+
+

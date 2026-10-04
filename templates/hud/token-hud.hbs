@@ -416,6 +416,17 @@
                 </div>
             </div>
             {{/if}}
+            <!-- QUICK DEED (GM ONLY) -->
+            {{#if canQuickDeed}}
+            <div class="hud-action-group">
+                <button class="hud-action-btn quick-deed" data-action="open-quick-deed" style="border-color: var(--trp-gold); color: var(--trp-gold-bright);" title="{{localize "TRESPASSER.HUD.Action.QuickDeedTip"}}">
+                    <span class="btn-text"><i class="fas fa-bolt"></i> {{localize "TRESPASSER.HUD.Action.QuickDeed"}}</span>
+                    <div class="btn-icons">
+                        <div class="action-icon"></div>
+                    </div>
+                </button>
+            </div>
+            {{/if}}
         </div>
     </div>
     {{/if}}

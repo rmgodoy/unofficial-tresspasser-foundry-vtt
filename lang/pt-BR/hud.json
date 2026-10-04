@@ -34,7 +34,9 @@
         "SelectTargets": "Selecionar Alvo(s)",
         "SelectTargetsFromArea": "Selecionar Alvo(s) da Área",
         "Burst": "Erupção",
-        "MeleeBurst": "Explosão Corpo a Corpo"
+        "MeleeBurst": "Explosão Corpo a Corpo",
+        "QuickDeed": "Ação Rápida",
+        "QuickDeedTip": "Ação Rápida (Apenas Mestre)"
       },
       "Movement": {
         "Used": "Movimento Usado",

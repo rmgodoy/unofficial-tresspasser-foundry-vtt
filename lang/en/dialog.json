@@ -354,6 +354,34 @@
         "AddHint": "Enter the intensity for this status effect.",
         "EditHint": "Adjust intensity, or click Remove to delete this status effect.",
         "CounterWarning": "Counters {name} (Current: {intensity}). Intensities will subtract."
+      },
+      "QuickDeed": {
+        "Title": "Quick Deed",
+        "TargetLabel": "Target",
+        "SizeLabel": "Area Size",
+        "CustomSize": "Custom",
+        "EnterSize": "Custom Size",
+        "VersusLabel": "Defense",
+        "AbilityTypeLabel": "Ability Type",
+        "Targets": {
+          "Creature": "Creature",
+          "Blast": "Blast",
+          "CloseBlast": "Close Blast",
+          "Burst": "Burst",
+          "MeleeBurst": "Melee Burst",
+          "Path": "Path",
+          "ClosePath": "Close Path"
+        },
+        "Abilities": {
+          "Versatile": "Versatile",
+          "Innate": "Innate",
+          "Melee": "Melee",
+          "Missile": "Missile",
+          "Spell": "Spell",
+          "Tool": "Tool",
+          "Unarmed": "Unarmed"
+        },
+        "Execute": "Execute Deed"
       }
     }
   }

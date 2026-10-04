@@ -42,6 +42,7 @@ export async function preloadHandlebarsTemplates() {
     "systems/trespasser/templates/item/deed/behavior-params.hbs",
     "systems/trespasser/templates/chat/treasure-card.hbs",
     "systems/trespasser/templates/dialogs/treasure-dialog.hbs",
-    "systems/trespasser/templates/dialogs/status-intensity-dialog.hbs"
+    "systems/trespasser/templates/dialogs/status-intensity-dialog.hbs",
+    "systems/trespasser/templates/dialogs/quick-deed-dialog.hbs"
   ]);
 }

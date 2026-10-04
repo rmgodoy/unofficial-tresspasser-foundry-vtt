@@ -292,7 +292,8 @@ export function prepareHudContext(hud) {
     vaultRange:      vaultRange,
     canVault:        (ap >= 1 || !restrictAPF) && (!restrictHUD || !usedActions.has("vault")),
     canWait:         (ap >= 1 || !restrictAPF) && (getSystemFlag(game.combat, "activePhase") === TrespasserCombat.PHASES.EARLY) && !hasLateTurn,
-    canForceMove:    game.user.isGM
+    canForceMove:    game.user.isGM,
+    canQuickDeed:    game.user.isGM
   };
 
   // Clear active panel if its action is no longer available
