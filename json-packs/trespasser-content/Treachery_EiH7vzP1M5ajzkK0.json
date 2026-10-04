@@ -7,110 +7,7 @@
   "system": {
     "description": "<p>Honor has no place on the battlefield, and you've found a way to become formidable without it. You are an expert at dirty fighting, using any cruel ploy at your disposal to gain an upper hand, however small- after all, battlefields across the land are littered with the corpses of those who chose to fight honorably. </p><p></p><p>Treachery deeds encompass a variety of tactics- many have the tool type, meaning they require a free hand to deploy some kind of item or instrument. Treacherous fighters excel at misdirecting, disabling and poisoning their enemies.</p>",
     "keyAttribute": "intellect",
-    "deeds": [
-      {
-        "uuid": "Item.nVbSkBaBn9Uqn4EA",
-        "name": "Afflicted Edge",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "light"
-      },
-      {
-        "uuid": "Item.smwyKo7D0EHmaiYe",
-        "name": "Black Powder Bomb",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "mighty"
-      },
-      {
-        "uuid": "Item.u2lUPAQZO7m5Q9vX",
-        "name": "Black Powder Trap",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.lE7EfYYXeOCX9CoI",
-        "name": "Blinding Escape",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.Lk5MJYzWzk4RRArz",
-        "name": "Blinding Powder",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "light"
-      },
-      {
-        "uuid": "Item.DTbklCadAlgRLxbF",
-        "name": "Bottled Smoke",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.sYjiMM7gwBAn6AaL",
-        "name": "Confound",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.AtBBQSRjqQP32vsL",
-        "name": "From Every Shadow",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "mighty"
-      },
-      {
-        "uuid": "Item.Ao2rE7jSVQtK9QMc",
-        "name": "Gang Up",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.tSRRfKobx4BKNYBE",
-        "name": "Grappling Hook",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.Z83fgHn7usQUWDz1",
-        "name": "Misdirect",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "light"
-      },
-      {
-        "uuid": "Item.Ndhu2Jcg3GIEdYqd",
-        "name": "Nightshade Dust",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.KO1ZEDKo8iBhQuSp",
-        "name": "Rat Stance",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.J7o38xtCbp0nKzNG",
-        "name": "Snap Trap",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "light"
-      },
-      {
-        "uuid": "Item.5jgurYxIPVVdic9N",
-        "name": "Swerving Step",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.eVXk26K28LNFC6YL",
-        "name": "Victimize",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "mighty"
-      },
-      {
-        "uuid": "Item.cT5gwiN2t9C2PyiP",
-        "name": "Viper Strike",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      }
-    ],
+    "deeds": [],
     "features": [
       {
         "uuid": "Item.rR9O613LoLd9hVly",
@@ -130,12 +27,12 @@
     "compendiumSource": null,
     "duplicateSource": null,
     "exportSource": null,
-    "coreVersion": "13.351",
+    "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.0.4-3",
+    "systemVersion": "0.2.0-16",
     "createdTime": 1773341957281,
-    "modifiedTime": 1773341957281,
-    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+    "modifiedTime": 1791155561937,
+    "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "ownership": {
     "default": 0,

@@ -1253,14 +1253,14 @@
         "EngagementRange": "Alcance de Engajamento",
         "DamageDie": "Dado Dano Base",
         "Roles": {
-          "Archer": "Arqueiro",
-          "Enchanter": "Encantador",
-          "Enforcer": "Carrasco",
-          "Guardian": "Guardião",
-          "Harrier": "Assediador",
-          "Hellion": "Turbulento",
-          "Stalker": "Espreitador",
-          "Sorcerer": "Feiticeiro"
+          "Archer": "Arqueiro (Archer)",
+          "Enchanter": "Encantador (Enchanter)",
+          "Enforcer": "Carrasco (Enforcer)",
+          "Guardian": "Guardião (Guardian)",
+          "Harrier": "Assediador (Harrier)",
+          "Hellion": "Turbulento (Hellion)",
+          "Stalker": "Espreitador (Stalker)",
+          "Sorcerer": "Feiticeiro (Sorcerer)"
         },
         "Templates": {
           "Underling": "Subalterno",

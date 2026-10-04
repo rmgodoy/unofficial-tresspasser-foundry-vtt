@@ -57,20 +57,131 @@
         "appliedEffects": [],
         "appliesWeaponEffects": false
       }
+    },
+    "graph": {
+      "nodes": [
+        {
+          "id": "6omvwvEgv4cs5fGU",
+          "type": "start",
+          "phase": "start",
+          "params": {},
+          "x": 60,
+          "y": 180
+        },
+        {
+          "id": "84rgDovTL4j4eHqr",
+          "type": "selectTarget",
+          "phase": "inherit",
+          "params": {
+            "targetMode": "creatures",
+            "disposition": "any",
+            "targetCount": 1
+          },
+          "x": 340,
+          "y": 180
+        },
+        {
+          "id": "W9gNkAuzjW5K3Ksm",
+          "type": "rollAccuracy",
+          "phase": "base",
+          "params": {
+            "branchingMode": "hitThenSpark",
+            "actionType": "attack",
+            "abilityType": "versatile",
+            "versus": "Guard"
+          },
+          "x": 620,
+          "y": 180
+        },
+        {
+          "id": "9GUTZESnMmLDUJzn",
+          "type": "applyDamage",
+          "phase": "hit",
+          "params": {
+            "expression": "2<wd>"
+          },
+          "x": 900,
+          "y": 100
+        },
+        {
+          "id": "VmyKSWYzPHDnXVi5",
+          "type": "applyEffects",
+          "phase": "spark",
+          "params": {
+            "effects": [],
+            "appliesWeaponEffects": true
+          },
+          "x": 900,
+          "y": 260
+        }
+      ],
+      "connections": [
+        {
+          "id": "Fmea2TVFArvL5VTm",
+          "sourceId": "6omvwvEgv4cs5fGU",
+          "sourcePort": "out",
+          "targetId": "84rgDovTL4j4eHqr",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "o8Cmt09OJQCfHMZE",
+          "sourceId": "84rgDovTL4j4eHqr",
+          "sourcePort": "out",
+          "targetId": "W9gNkAuzjW5K3Ksm",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "jvN7Y3PRAruybhnY",
+          "sourceId": "W9gNkAuzjW5K3Ksm",
+          "sourcePort": "onHit",
+          "targetId": "9GUTZESnMmLDUJzn",
+          "targetPort": "in",
+          "type": "flow"
+        },
+        {
+          "id": "Q92bbr2lSrVvpCIE",
+          "sourceId": "W9gNkAuzjW5K3Ksm",
+          "sourcePort": "onSpark",
+          "targetId": "VmyKSWYzPHDnXVi5",
+          "targetPort": "in",
+          "type": "flow"
+        }
+      ]
+    },
+    "graphVersion": 1,
+    "abilityType": "versatile",
+    "phases": {
+      "hit": {
+        "description": "Deal 2<wd> damage."
+      },
+      "spark": {
+        "description": "Confer weapon effect."
+      }
     }
   },
   "effects": [],
-  "flags": {},
+  "flags": {
+    "trespasser": {
+      "graphViewport": {
+        "panX": -518,
+        "panY": 24,
+        "zoom": 1,
+        "selectedNodeId": null
+      }
+    }
+  },
   "_stats": {
     "compendiumSource": null,
     "duplicateSource": null,
     "exportSource": null,
-    "coreVersion": "13.351",
+    "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.0.4-3",
+    "systemVersion": "0.2.0-19",
     "createdTime": 1773341957281,
-    "modifiedTime": 1773341957281,
-    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+    "modifiedTime": 1791156074922,
+    "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "ownership": {
     "default": 0,

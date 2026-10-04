@@ -9,106 +9,22 @@
     "keyAttribute": "intellect",
     "deeds": [
       {
-        "uuid": "Item.EQlVlBHOamblqqLJ",
-        "name": "Alter Fate",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "mighty"
-      },
-      {
-        "uuid": "Item.DvDAxLb5O69O1CTN",
-        "name": "Beleaguer",
+        "uuid": "Compendium.trespasser.trespasser-content.Item.LYOOHQABNhzB5CbZ",
+        "name": "Nuvem de Peste",
         "img": "systems/trespasser/assets/icons/deed.webp",
         "tier": "heavy"
       },
       {
-        "uuid": "Item.aL6q9dEuWMFPYgZ3",
-        "name": "Cloud of Pestilence",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.pXl9m1KWsbIUHc0a",
-        "name": "Enervate",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.vwvvmlpEJCA1Dz5Y",
-        "name": "Enfeeble",
+        "uuid": "Compendium.trespasser.trespasser-content.Item.VhT64kFaYIM53Tkn",
+        "name": "Podridão da Carne",
         "img": "systems/trespasser/assets/icons/deed.webp",
         "tier": "light"
       },
       {
-        "uuid": "Item.3NcklurcATdEWZNk",
-        "name": "Flesh Rot",
+        "uuid": "Compendium.trespasser.trespasser-content.Item.T6t0PXz77CmN3E0T",
+        "name": "Tormento",
         "img": "systems/trespasser/assets/icons/deed.webp",
         "tier": "light"
-      },
-      {
-        "uuid": "Item.c2ETdfKErXqHaJck",
-        "name": "Hopelessness",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.ivcTnbDxTQP57ijH",
-        "name": "Malevolence",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.vYD319XnTAeCQ9yj",
-        "name": "Pain Shroud",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "light"
-      },
-      {
-        "uuid": "Item.aUiutFo6rmQzZ9Nx",
-        "name": "Ray of Malady",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.qpTIAHOKzV0v2xhm",
-        "name": "Shiver of Fear",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.7kjOj91tjMBxrBQv",
-        "name": "Spiteful Shroud",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.DRqN9OjhTxq9yQVt",
-        "name": "Spread Affliction",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.vgpzCLk1WSUDiBAr",
-        "name": "Threefold Hex",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "mighty"
-      },
-      {
-        "uuid": "Item.q7W3gQUZfyaZmdgK",
-        "name": "Torment",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "light"
-      },
-      {
-        "uuid": "Item.iE0zTE7S4Q7QsURE",
-        "name": "Torpor",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "mighty"
-      },
-      {
-        "uuid": "Item.tlErk5dbAfltcCTf",
-        "name": "Unravel",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
       }
     ],
     "features": [
@@ -130,12 +46,12 @@
     "compendiumSource": null,
     "duplicateSource": null,
     "exportSource": null,
-    "coreVersion": "13.351",
+    "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.0.4-3",
+    "systemVersion": "0.2.0-16",
     "createdTime": 1773341957281,
-    "modifiedTime": 1773341957281,
-    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+    "modifiedTime": 1791155584103,
+    "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "ownership": {
     "default": 0,

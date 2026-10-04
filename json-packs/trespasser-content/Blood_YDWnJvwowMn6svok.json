@@ -9,92 +9,74 @@
     "keyAttribute": "mighty",
     "deeds": [
       {
-        "uuid": "Item.9GNRgSuqWDijwlPW",
-        "name": "Arterial Font",
+        "uuid": "Compendium.trespasser.trespasser-content.Item.iACq9bOXl7yS56Y8",
+        "name": "Chicote Carmesim",
         "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "mighty"
+        "tier": "heavy"
       },
       {
-        "uuid": "Item.x0cPrlN8LKfonY25",
-        "name": "Blood Gift",
+        "uuid": "Compendium.trespasser.trespasser-content.Item.GinyIAXUyyIXl8Fb",
+        "name": "Correr Frio",
         "img": "systems/trespasser/assets/icons/deed.webp",
         "tier": "light"
       },
       {
-        "uuid": "Item.l8OcTRiKbMOkaFfB",
-        "name": "Blood Mist",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.52AFQeXVpxHQbxmN",
-        "name": "Blood Puppet",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "mighty"
-      },
-      {
-        "uuid": "Item.tfLkodj6AzQcRCRN",
-        "name": "Boiling Blood",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.QXNOGcGEUI9ncKdn",
-        "name": "Crimson Lash",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.J2a89Exa6fwlJRTn",
-        "name": "Exsanguinate",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.4kFKGVJeIlA6Kle0",
-        "name": "Hematic Pulse",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "mighty"
-      },
-      {
-        "uuid": "Item.P36s4yG9Xj6Z5CXd",
-        "name": "Humoral Shift",
-        "img": "systems/trespasser/assets/icons/deed.webp",
-        "tier": "heavy"
-      },
-      {
-        "uuid": "Item.hohkgsEb4Of2kQL0",
-        "name": "Incision",
+        "uuid": "Compendium.trespasser.trespasser-content.Item.mXY519L0WuBYpQjh",
+        "name": "Dádiva de Sangue",
         "img": "systems/trespasser/assets/icons/deed.webp",
         "tier": "light"
       },
       {
-        "uuid": "Item.6cO6KhYVEC70k3lx",
-        "name": "Leech",
+        "uuid": "Compendium.trespasser.trespasser-content.Item.xT2Yoxm9Vx00XniM",
+        "name": "Drenar",
         "img": "systems/trespasser/assets/icons/deed.webp",
         "tier": "light"
       },
       {
-        "uuid": "Item.fgHWOie8Th5y18gY",
-        "name": "Mass Wounds",
+        "uuid": "Compendium.trespasser.trespasser-content.Item.teca6W7zdAxkK3nN",
+        "name": "Exsanguinar",
         "img": "systems/trespasser/assets/icons/deed.webp",
         "tier": "heavy"
       },
       {
-        "uuid": "Item.uHFk2TYUyi0Emoy3",
-        "name": "Run Cold",
+        "uuid": "Compendium.trespasser.trespasser-content.Item.cLmA8VYUYbzPK9SE",
+        "name": "Ferimentos em Massa",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Compendium.trespasser.trespasser-content.Item.YmHtZo571Ts30A7k",
+        "name": "Incisão",
         "img": "systems/trespasser/assets/icons/deed.webp",
         "tier": "light"
       },
       {
-        "uuid": "Item.OQhai3FcvZEIr3gE",
-        "name": "Sanguine Veil",
+        "uuid": "Compendium.trespasser.trespasser-content.Item.OAvfHls5H2p9iQi8",
+        "name": "Mudança Humoral",
         "img": "systems/trespasser/assets/icons/deed.webp",
         "tier": "heavy"
       },
       {
-        "uuid": "Item.9kiwjZpEjmBzLxNo",
-        "name": "Transfusion",
+        "uuid": "Compendium.trespasser.trespasser-content.Item.iyK2JKNVWI0WRBsE",
+        "name": "Névoa de Sangue",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Compendium.trespasser.trespasser-content.Item.Bj5HzselpRNAdRVF",
+        "name": "Sangue Fervente",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Compendium.trespasser.trespasser-content.Item.mEqEDfjWKhem7KZL",
+        "name": "Transfusão",
+        "img": "systems/trespasser/assets/icons/deed.webp",
+        "tier": "heavy"
+      },
+      {
+        "uuid": "Compendium.trespasser.trespasser-content.Item.qk75Jh2hDDXplXVn",
+        "name": "Véu Sanguíneo",
         "img": "systems/trespasser/assets/icons/deed.webp",
         "tier": "heavy"
       }
@@ -118,12 +100,12 @@
     "compendiumSource": null,
     "duplicateSource": null,
     "exportSource": null,
-    "coreVersion": "13.351",
+    "coreVersion": "14.364",
     "systemId": "trespasser",
-    "systemVersion": "0.0.4-3",
+    "systemVersion": "0.2.0-16",
     "createdTime": 1773341957281,
-    "modifiedTime": 1773341957281,
-    "lastModifiedBy": "1IEGHQVcG6gLQyba"
+    "modifiedTime": 1791155616729,
+    "lastModifiedBy": "yywZQPY84nrAEthp"
   },
   "ownership": {
     "default": 0,
