@@ -34,6 +34,10 @@
         "AccuracyRoll": "Rolagem de Acurácia de {name}",
         "Defended": "DEFENDEU!",
         "DefenseFailed": "ATINGIDO!",
+        "ElevationBonusHighGround": "Elevação (Vantagem de Altura)",
+        "ElevationPenaltyAttackerHigher": "Elevação (Atacante Mais Alto)",
+        "ElevationTargetBonus": "Elevação +2",
+        "ElevationTargetPenalty": "Elevação -2",
         "DefenseVsHeader": "Defesa contra {name} (CD: {dc})",
         "NoTargetsSkipped": "Nenhum alvo disponível — verificação de acurácia e fases de acerto/centelha puladas.",
         "PendingDistribution": "Aguardando distribuição do dano...",
@@ -227,7 +231,7 @@
         "ProcessingResults": "Processando resultados..."
       },
       "Common": {
-        "System": "Sistema",
+        "Sistema": "Sistema",
         "DescriptionExpand": "Descrição (Clique para Expandir)",
         "EffectsStates": "Efeitos / Estados:",
         "GrantsDeeds": "Concede Habilidades:",

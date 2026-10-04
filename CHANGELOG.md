@@ -5,6 +5,8 @@ All notable changes to this project will be documented in this file.
 ## [0.2.0] - 2026-08-30 - BETA
 
 - Re-worked deeds from scratch so now it uses a graph nodes approach to have a more generic, expandable and capable model to automate deeds.
+- Re-worked effects with more advanced usage (still a work in progress).
+- Token Action HUD have new Quick Action to help GMs execute a quick deed accuracy check against players.
 - New UI/UX for target selection.
 - Added Movement Points to Move action which is separated from native Foundry movement history.
 - Better UX for restric movement mode.
@@ -22,6 +24,7 @@ All notable changes to this project will be documented in this file.
   - Engaged
 - Added special movement states: Airborne and Sunken.
 - Added automation to engagement rules that automatically applies the panalties.
+- Added automation for missile attacks elevation bonus/penalty (+2 guard bonus when >= 2 squares higher, -2 guard penalty when >= 2 squares lower).
 - Added injuries to Compendium (no effect automation, only description and clock size).
 - Refactor all files to a max of 500 LOC.
 - A lot more fixes and small changes that I don't remember.
@@ -29,7 +32,7 @@ All notable changes to this project will be documented in this file.
 ### What's missing
 
 - Full deed creation in compedium. All old ones are broken and need to be manually curated to their functioning state again.
-- Full review of Compendium content. I found somethings that are not RAW and needs to be reviewed.
+- Full review of Compendium content. There are some things that are not RAW and needs to be reviewed.
 - A simplified configuration for deeds, since the graph node system can be overwellming.
 
 

@@ -10,7 +10,7 @@ import { _rollDefenseLocally, resolveDefenseRoll, _askCounterReactionLocally, re
  * @param {string} senderId - ID of the GM who sent the request
  */
 export async function handleDefenseRequest(data, senderId) {
-  const { targetActorId, targetUserId, statKey, creatureDC, deedName, requestId } = data;
+  const { targetActorId, targetUserId, statKey, creatureDC, deedName, requestId, elevationModifier, elevationModInfo } = data;
 
   // Only the targeted user should process this
   if (targetUserId !== game.user.id) return;
@@ -19,7 +19,7 @@ export async function handleDefenseRequest(data, senderId) {
   if (!actor) return;
 
   // Roll locally
-  const result = await _rollDefenseLocally(actor, statKey, creatureDC, deedName);
+  const result = await _rollDefenseLocally(actor, statKey, creatureDC, deedName, { elevationModifier, elevationModInfo });
 
   // Send response back via socket
   const { TrespasserSocket } = await import("./socket.mjs");

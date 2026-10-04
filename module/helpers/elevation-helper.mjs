@@ -100,6 +100,148 @@ export function isSunken(tokenOrActor) {
 }
 
 /**
+ * Retrieve the current elevation in grid squares for a token or actor.
+ * Resolves from token document elevation, active airborne height, or active sunken depth.
+ * @param {Token|TokenDocument|Actor} tokenOrActor
+ * @returns {number} Elevation in squares (positive for elevated/airborne, negative for sunken)
+ */
+export function getTokenElevation(tokenOrActor) {
+  if (!tokenOrActor) return 0;
+  let tokenDoc = tokenOrActor.document || (tokenOrActor instanceof TokenDocument ? tokenOrActor : (tokenOrActor.x !== undefined && tokenOrActor.elevation !== undefined ? tokenOrActor : null));
+  const actor = tokenOrActor.actor || (tokenOrActor instanceof Actor ? tokenOrActor : null);
+
+  if (!tokenDoc && actor) {
+    const activeToken = actor.getActiveTokens?.(false, false)?.[0] || actor.getActiveTokens?.()[0] || (canvas?.tokens?.placeables?.find(t => t.actor?.id === actor.id));
+    if (activeToken) {
+      tokenDoc = activeToken.document || activeToken;
+    }
+  }
+
+  if (tokenDoc && tokenDoc.elevation !== undefined && tokenDoc.elevation !== null) {
+    const elev = Number(tokenDoc.elevation);
+    if (Number.isFinite(elev) && elev !== 0) return Math.round(elev);
+  }
+
+  // Fallback to airborne / sunken if token elevation is 0 or unplaced
+  if (actor) {
+    const airborne = getAirborneHeight(actor);
+    if (airborne > 0) return airborne;
+    const sunken = getSunkenDepth(actor);
+    if (sunken > 0) return -sunken;
+  }
+
+  if (tokenDoc && tokenDoc.elevation !== undefined && tokenDoc.elevation !== null) {
+    const elev = Number(tokenDoc.elevation);
+    if (Number.isFinite(elev)) return Math.round(elev);
+  }
+
+  return 0;
+}
+
+/**
+ * Check if a deed, item, or attack is considered a missile attack.
+ * @param {Item|object} itemOrDeed
+ * @param {Actor} [actor]
+ * @returns {boolean}
+ */
+export function isMissileAttack(itemOrDeed, actor = null) {
+  if (!itemOrDeed) return false;
+  const actorDoc = actor || itemOrDeed?.actor;
+  const { abilityType } = getEffectiveDeedAttributes(itemOrDeed);
+  const rawType = itemOrDeed.system?.abilityType || itemOrDeed.system?.type || itemOrDeed.type;
+
+  if (abilityType === "missile" || rawType === "missile") return true;
+
+  if (abilityType === "versatile" || rawType === "versatile") {
+    if (!actorDoc) return false;
+    const activeWeapons = getActiveWeapons(actorDoc);
+    return activeWeapons.some(w => !w.system?.isThrown && (w.system?.type === "missile" || w.system?.properties?.thrown));
+  }
+
+  if (itemOrDeed.type === "weapon" && (itemOrDeed.system?.type === "missile" || itemOrDeed.system?.properties?.thrown)) {
+    return true;
+  }
+
+  return false;
+}
+
+/**
+ * Calculate the Guard modifier for a defender against a missile attack based on elevation difference.
+ *
+ * Rules:
+ * "Being higher up than your opponent grants you a bonus on missile attacks. While you are at least two squares
+ * higher than an enemy, they take -2 penalty to guard against your missile attacks, and you gain +2 bonus to
+ * guard against theirs."
+ *
+ * - When attacker is >= 2 squares higher: Defender takes -2 penalty to guard.
+ * - When defender is >= 2 squares higher: Defender gains +2 bonus to guard.
+ * - Otherwise: 0 modifier.
+ *
+ * @param {Token|TokenDocument|Actor} attackerTokenOrActor
+ * @param {Token|TokenDocument|Actor} defenderTokenOrActor
+ * @param {Item|object} [itemOrDeed]
+ * @param {object} [options={}]
+ * @param {boolean} [options.isMissile] - Explicit override if known to be missile
+ * @param {string} [options.versus] - Target defense tested (must be Guard)
+ * @returns {{
+ *   applies: boolean,
+ *   guardModifier: number,
+ *   attackerElevation: number,
+ *   defenderElevation: number,
+ *   elevationDiff: number,
+ *   isAttackerHigher: boolean,
+ *   isDefenderHigher: boolean,
+ *   reason: "attacker_higher"|"defender_higher"|null
+ * }}
+ */
+export function getMissileElevationModifier(attackerTokenOrActor, defenderTokenOrActor, itemOrDeed = null, options = {}) {
+  const result = {
+    applies: false,
+    guardModifier: 0,
+    attackerElevation: 0,
+    defenderElevation: 0,
+    elevationDiff: 0,
+    isAttackerHigher: false,
+    isDefenderHigher: false,
+    reason: null
+  };
+
+  if (!attackerTokenOrActor || !defenderTokenOrActor) return result;
+
+  const attackerElev = getTokenElevation(attackerTokenOrActor);
+  const defenderElev = getTokenElevation(defenderTokenOrActor);
+  const diff = attackerElev - defenderElev;
+
+  result.attackerElevation = attackerElev;
+  result.defenderElevation = defenderElev;
+  result.elevationDiff = diff;
+
+  // Verify versus is Guard (or defaults to Guard)
+  const versus = options.versus || (itemOrDeed ? getEffectiveDeedAttributes(itemOrDeed).versus : "Guard");
+  const isGuard = !versus || versus.toLowerCase() === "guard";
+  if (!isGuard) return result;
+
+  // Verify attack is missile
+  const actorDoc = attackerTokenOrActor.actor || (attackerTokenOrActor instanceof Actor ? attackerTokenOrActor : null);
+  const isMissile = options.isMissile !== undefined ? Boolean(options.isMissile) : isMissileAttack(itemOrDeed, actorDoc);
+  if (!isMissile) return result;
+
+  if (diff >= 2) {
+    result.applies = true;
+    result.guardModifier = -2;
+    result.isAttackerHigher = true;
+    result.reason = "attacker_higher";
+  } else if (diff <= -2) {
+    result.applies = true;
+    result.guardModifier = 2;
+    result.isDefenderHigher = true;
+    result.reason = "defender_higher";
+  }
+
+  return result;
+}
+
+/**
  * Check if a deed or actor action involves a jump.
  * @param {Item|object} itemOrDeed
  * @param {Actor} [actor]

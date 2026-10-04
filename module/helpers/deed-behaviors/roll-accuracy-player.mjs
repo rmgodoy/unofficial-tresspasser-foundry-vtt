@@ -4,6 +4,7 @@ import { TrespasserRollDialog } from "../../dialogs/roll-dialog.mjs";
 import { askSparkDialog } from "../../dialogs/spark-dialog.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
 import { EngagementHelper } from "../engagement-helper.mjs";
+import { getMissileElevationModifier, isMissileAttack } from "../elevation-helper.mjs";
 
 /**
  * Executes accuracy check for Character Attacking (Player Roll vs Target CD/DC).
@@ -131,6 +132,8 @@ export async function executePlayerAccuracyRoll({
       targetVersus = allyOverride.versus || "10";
     }
 
+    let targetElevModInfo = null;
+
     if (!targetIsAttack || targetVersus === "10" || !targetVersus) {
       dc = 10;
       targetVersusLabel = (isOverrideEnabled && isSelfOrAlly && isAttack)
@@ -143,6 +146,18 @@ export async function executePlayerAccuracyRoll({
       const targetCD = totalDef + effBonus;
       dc = targetActor.type === "character" ? targetCD + 10 : targetCD;
       targetVersusLabel = game.i18n.localize(`TRESPASSER.Sheet.Combat.${targetVersus}`) || targetVersus;
+
+      if (statKey === "guard") {
+        const isMissile = abilityType === "missile" || (abilityType === "versatile" && isMissileAttack(item, actor));
+        const elevModInfo = getMissileElevationModifier(sourceToken || actor, targetToken || targetActor, item, {
+          isMissile,
+          versus: targetVersus
+        });
+        if (elevModInfo.applies) {
+          dc += elevModInfo.guardModifier;
+          targetElevModInfo = elevModInfo;
+        }
+      }
     }
 
     let isHit = rollTotal >= dc;
@@ -175,7 +190,8 @@ export async function executePlayerAccuracyRoll({
       rollTotal,
       dc,
       targetVersusLabel,
-      isAllyOverride: isOverrideEnabled && isSelfOrAlly
+      isAllyOverride: isOverrideEnabled && isSelfOrAlly,
+      elevationModInfo: targetElevModInfo
     });
   }
 
@@ -205,9 +221,20 @@ export async function executePlayerAccuracyRoll({
   let resultsHtml = "";
   for (const res of results) {
     const currentVersusLabel = res.targetVersusLabel || baseVersusLabel;
+
+    let elevBadge = "";
+    if (res.elevationModInfo?.applies) {
+      const isPen = res.elevationModInfo.guardModifier < 0;
+      const badgeLabel = isPen
+        ? (game.i18n.localize("TRESPASSER.Chat.Combat.ElevationTargetPenalty") || "Elevation -2")
+        : (game.i18n.localize("TRESPASSER.Chat.Combat.ElevationTargetBonus") || "Elevation +2");
+      const badgeColor = isPen ? "#4fc3f7" : "#e8c96b";
+      elevBadge = ` <span style="font-size: var(--fs-10); color: ${badgeColor}; font-weight: normal;">[${badgeLabel}]</span>`;
+    }
+
     const headerText = res.tokenName
-      ? `<strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs ${currentVersusLabel}: ${res.dc})</span></strong>`
-      : `<span style="font-size: var(--fs-11);color:var(--trp-text-dim, #a09070); font-weight: bold;">(Roll: ${res.rollTotal} vs ${currentVersusLabel}: ${res.dc})</span>`;
+      ? `<strong>${res.tokenName}${elevBadge} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs ${currentVersusLabel}: ${res.dc})</span></strong>`
+      : `<span style="font-size: var(--fs-11);color:var(--trp-text-dim, #a09070); font-weight: bold;">(Roll: ${res.rollTotal} vs ${currentVersusLabel}: ${res.dc})${elevBadge}</span>`;
 
     const hitLabel = res.isHit
       ? (game.i18n.localize("TRESPASSER.Chat.Combat.Hit") || "ACERTO!")

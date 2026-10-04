@@ -4,6 +4,7 @@ import { askSparkDialog } from "../../dialogs/spark-dialog.mjs";
 import { requestPlayerDefenseRoll } from "../defense-roll-helper.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
 import { EngagementHelper } from "../engagement-helper.mjs";
+import { getMissileElevationModifier, isMissileAttack } from "../elevation-helper.mjs";
 
 /**
  * Executes accuracy check for Creature Attacking Characters (Player-Facing Defense Roll via Socket).
@@ -70,6 +71,18 @@ export async function executeCreatureDefenseRoll({
     const tokenName = DeedBehaviorUtils.getTokenDisplayName(targetToken);
     let defTotal = 10;
     let diceResult = 10;
+    let targetElevModInfo = null;
+
+    if (statKey === "guard") {
+      const isMissile = abilityType === "missile" || (abilityType === "versatile" && isMissileAttack(item, actor));
+      const elevModInfo = getMissileElevationModifier(creatureToken || actor, targetToken || targetActor, item, {
+        isMissile,
+        versus: targetVersus
+      });
+      if (elevModInfo.applies) {
+        targetElevModInfo = elevModInfo;
+      }
+    }
 
     if (!targetIsAttack || targetVersus === "10" || !targetVersus) {
       defTotal = 10;
@@ -78,7 +91,7 @@ export async function executeCreatureDefenseRoll({
       // NPC vs NPC: compare creature DC vs target creature stat directly
       const totalDef = targetActor.system?.combat?.[statKey] ?? 10;
       const defEffBonus = TrespasserEffectsHelper.getAttributeBonus(targetActor, statKey, "use");
-      defTotal = totalDef + defEffBonus;
+      defTotal = totalDef + defEffBonus + (targetElevModInfo ? targetElevModInfo.guardModifier : 0);
     } else {
       // Player character target: prompt player via websocket socket to roll defense
       const defResult = await requestPlayerDefenseRoll({
@@ -87,7 +100,9 @@ export async function executeCreatureDefenseRoll({
         statKey,
         creatureDC,
         deedName: item.name,
-        creatureName: actor.name
+        creatureName: actor.name,
+        elevationModifier: targetElevModInfo ? targetElevModInfo.guardModifier : 0,
+        elevationModInfo: targetElevModInfo
       });
 
       if (!defResult) return false; // Player cancelled defense roll
@@ -123,7 +138,8 @@ export async function executeCreatureDefenseRoll({
       sparks,
       shadows,
       rollTotal: defTotal,
-      dc: creatureDC
+      dc: creatureDC,
+      elevationModInfo: targetElevModInfo
     });
   }
 
@@ -169,10 +185,20 @@ export async function executeCreatureDefenseRoll({
     const defenderSparks = res.shadows;
     const defenderShadows = res.sparks;
 
+    let elevBadge = "";
+    if (res.elevationModInfo?.applies) {
+      const isPen = res.elevationModInfo.guardModifier < 0;
+      const badgeLabel = isPen
+        ? (game.i18n.localize("TRESPASSER.Chat.Combat.ElevationTargetPenalty") || "Elevation -2")
+        : (game.i18n.localize("TRESPASSER.Chat.Combat.ElevationTargetBonus") || "Elevation +2");
+      const badgeColor = isPen ? "#ff5252" : "#4fc3f7";
+      elevBadge = ` <span style="font-size: var(--fs-10); color: ${badgeColor}; font-weight: normal;">[${badgeLabel}]</span>`;
+    }
+
     resultsHtml += `
       <div class="target-result" style="border-top:1px solid var(--trp-border-light, #5c4f3a);padding-top:5px;margin-top:5px;">
         <div style="display:flex;justify-content:space-between;align-items:center;">
-          <strong>${res.tokenName} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs DC: ${res.dc})</span></strong>
+          <strong>${res.tokenName}${elevBadge} <span style="font-size: var(--fs-10);color:var(--trp-text-dim, #a09070);">(Roll: ${res.rollTotal} vs DC: ${res.dc})</span></strong>
           <span class="${defended ? "hit-text" : "miss-text"}" style="font-weight:bold; color: ${statusColor};">${statusLabel}</span>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:2px;">

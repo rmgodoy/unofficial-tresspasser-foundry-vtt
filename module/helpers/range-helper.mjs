@@ -7,6 +7,9 @@ import {
   isAirborne,
   getSunkenDepth,
   isSunken,
+  getTokenElevation,
+  isMissileAttack,
+  getMissileElevationModifier,
   deedInvolvesJump,
   canTargetAirborne
 } from "./elevation-helper.mjs";
@@ -16,6 +19,9 @@ export {
   isAirborne,
   getSunkenDepth,
   isSunken,
+  getTokenElevation,
+  isMissileAttack,
+  getMissileElevationModifier,
   deedInvolvesJump,
   canTargetAirborne
 };
