@@ -1,21 +1,5 @@
 import { RangeHelper } from "../helpers/range-helper.mjs";
-
-/**
- * Resolves a canvas token or token document for an actor, including unlinked tokens.
- * @param {Actor} [actor]
- * @param {Token|TokenDocument|null} [preferred=null]
- * @returns {Token|TokenDocument|null}
- */
-export function resolveActorToken(actor, preferred = null) {
-  if (preferred) return preferred;
-  if (!actor) return null;
-  if (actor.isToken) return actor.token?.object || actor.token;
-  return actor.getActiveTokens?.(false, false)?.[0]
-    || actor.getActiveTokens?.()[0]
-    || (canvas?.tokens?.placeables?.find(t => t.actor?.id === actor.id))
-    || actor.token
-    || null;
-}
+import { resolveActorToken, resolveSourceActor } from "../helpers/token-resolver.mjs";
 
 /**
  * Global event bus for Trespasser actor lifecycle, combat actions, and cross-actor reactive effects.
@@ -91,6 +75,8 @@ export class ActorEventBus {
       this._middleware.set(eventName, []);
     }
     const list = this._middleware.get(eventName);
+    const existingIdx = list.findIndex(e => e.id === id);
+    if (existingIdx >= 0) list.splice(existingIdx, 1);
     list.push(entry);
     list.sort((a, b) => (a.options.priority ?? 100) - (b.options.priority ?? 100));
 
@@ -188,14 +174,41 @@ export class ActorEventBus {
   }
 
   /**
-   * Unregister all middleware associated with a source actor or token.
-   * @param {string} actorOrTokenId
+   * Unregister all actor-bound middleware (not token-bound) associated with a world actor.
+   * @param {string} actorId
    * @returns {boolean}
    */
-  removeMiddlewareByActor(actorOrTokenId) {
+  removeMiddlewareByActor(actorId) {
+    return this._removeMiddlewareWhere(e => e.options.sourceActorId === actorId && !e.options.sourceTokenId);
+  }
+
+  /**
+   * Unregister all middleware bound to a specific token.
+   * @param {string} tokenId
+   * @returns {boolean}
+   */
+  removeMiddlewareByToken(tokenId) {
+    return this._removeMiddlewareWhere(e => e.options.sourceTokenId === tokenId);
+  }
+
+  /**
+   * Unregister every token-bound middleware (e.g. when the active scene changes).
+   * @returns {boolean}
+   */
+  removeAllTokenMiddleware() {
+    return this._removeMiddlewareWhere(e => Boolean(e.options.sourceTokenId));
+  }
+
+  /**
+   * Remove every middleware entry matching a predicate.
+   * @param {(entry: object) => boolean} predicate
+   * @returns {boolean}
+   * @private
+   */
+  _removeMiddlewareWhere(predicate) {
     let removed = false;
     for (const [evt, list] of this._middleware.entries()) {
-      const filtered = list.filter(e => e.options.sourceActorId !== actorOrTokenId && e.options.sourceTokenId !== actorOrTokenId);
+      const filtered = list.filter(e => !predicate(e));
       if (filtered.length < list.length) {
         this._middleware.set(evt, filtered);
         removed = true;
@@ -235,12 +248,12 @@ export class ActorEventBus {
 
     for (const entry of middlewareList) {
       const { options } = entry;
-      if (!options.scope || options.scope === "self" || (!options.sourceActorId && !options.sourceActor)) continue;
+      if (!options.scope || options.scope === "self" || !options.sourceActorId) continue;
 
-      const sourceActor = options.sourceActor || (options.sourceTokenId ? canvas?.tokens?.get(options.sourceTokenId)?.actor : null) || game.actors?.get(options.sourceActorId);
+      const sourceActor = resolveSourceActor(options);
       if (!sourceActor) continue;
 
-      const sourceToken = resolveActorToken(sourceActor, options.sourceToken);
+      const sourceToken = resolveActorToken(sourceActor);
 
       // Filter eligible targets in scope and in range
       const eligible = [];
@@ -326,9 +339,10 @@ export class ActorEventBus {
       const { handler, options } = entry;
 
       // Scope validation
-      if (options.scope && (options.sourceActorId || options.sourceActor)) {
-        const sourceActor = options.sourceActor || (options.sourceTokenId ? canvas?.tokens?.get(options.sourceTokenId)?.actor : null) || game.actors?.get(options.sourceActorId);
-        const sourceToken = resolveActorToken(sourceActor, options.sourceToken);
+      if (options.scope && options.sourceActorId) {
+        const sourceActor = resolveSourceActor(options);
+        if (!sourceActor) continue;
+        const sourceToken = resolveActorToken(sourceActor);
         const targetToken = resolveActorToken(event.actor, event.token);
 
         if (!this.isActorInScope(options.scope, sourceActor, event.actor, sourceToken, targetToken)) {
