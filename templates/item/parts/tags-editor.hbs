@@ -1,0 +1,18 @@
+<div class="field-row full-width tags-editor">
+  <label>{{localize "TRESPASSER.Sheet.Common.Tags"}}</label>
+  <div class="tag-chips">
+    {{#each tags as |tag idx|}}
+      <span class="tag-chip">
+        {{tag}}
+        {{#if @root.editable}}
+        <button type="button" class="tag-remove" data-action="removeTag" data-index="{{idx}}" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}">
+          <i class="fas fa-times"></i>
+        </button>
+        {{/if}}
+      </span>
+    {{/each}}
+    {{#if editable}}
+    <input type="text" class="tag-add-input" placeholder="{{localize 'TRESPASSER.Sheet.Item.AddTagPlaceholder'}}" />
+    {{/if}}
+  </div>
+</div>

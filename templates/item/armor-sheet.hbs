@@ -18,6 +18,11 @@
         </div>
 
         <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Common.Slot"}}</label>
+          <input type="number" name="system.slotOccupancy" value="{{system.slotOccupancy}}" data-dtype="Number" min="0" step="any" />
+        </div>
+
+        <div class="field-row">
           <label>{{localize "TRESPASSER.Sheet.Common.Placement"}}</label>
           <select name="system.placement">
             {{#each config.placements as |label key|}}
@@ -68,8 +73,14 @@
         <input type="checkbox" name="system.equipped" {{checked system.equipped}} id="armor-equipped-{{item.id}}"/>
         <label for="armor-equipped-{{item.id}}">{{localize "TRESPASSER.Sheet.Common.Equipped"}}</label>
       </div>
+
+      <div class="field-row checkbox-row">
+        <input type="checkbox" name="system.stackable" {{checked system.stackable}} id="armor-stackable-{{item.id}}"/>
+        <label for="armor-stackable-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.Stackable"}}</label>
+      </div>
     </div>
 
+    {{> "systems/trespasser/templates/item/parts/tags-editor.hbs" tags=tags editable=editable}}
 
     <!-- Effects Sections -->
     <div style="grid-column: span 2; margin-top: 20px; border-top: 1px solid var(--trp-border-light); padding-top: 10px;">

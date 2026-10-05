@@ -31,10 +31,19 @@
         <input type="number" name="system.price" value="{{system.price}}" min="0" />
       </div>
 
-      <div class="attribute-fields flex-row" style="margin-top: 5px;">
+      <div class="attribute-fields">
+        <label>{{localize "TRESPASSER.Sheet.Common.Slot"}}</label>
+        <input type="number" name="system.slotOccupancy" value="{{system.slotOccupancy}}" data-dtype="Number" min="0" step="any" />
+      </div>
+
+      <div class="attribute-fields flex-row" style="margin-top: 5px; gap: 10px; flex-wrap: wrap;">
         <div class="field-item checkbox-item">
           <label for="item-needs-ammo-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.NeedsAmmo"}}</label>
           <input type="checkbox" name="system.needsAmmo" {{checked system.needsAmmo}} id="item-needs-ammo-{{item.id}}"/>
+        </div>
+        <div class="field-item checkbox-item">
+          <label for="item-stackable-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.Stackable"}}</label>
+          <input type="checkbox" name="system.stackable" {{checked system.stackable}} id="item-stackable-{{item.id}}"/>
         </div>
       </div>
 
@@ -138,6 +147,8 @@
       </div>
 
     </div>
+
+    {{> "systems/trespasser/templates/item/parts/tags-editor.hbs" tags=tags editable=editable}}
 
     <div class="attribute-fields description-column">
       <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>

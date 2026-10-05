@@ -1,8 +1,11 @@
-<div class="inventory-card {{#if item.system.broken}}is-broken{{/if}} {{#if item.system.isThrown}}is-thrown{{/if}}" data-item-id="{{item.id}}" draggable="true">
+<div class="inventory-card {{#if item.system.broken}}is-broken{{/if}} {{#if item.system.isThrown}}is-thrown{{/if}} {{#if item.isStacked}}is-stacked{{#if (gte item.stackCount 3)}} stack-many{{/if}}{{/if}}" data-item-id="{{item.id}}" draggable="true">
   {{#if item.system.broken}}<i class="fas fa-bolt broken-icon" title="{{localize 'TRESPASSER.Sheet.Item.States.UsedBroken'}}"></i>{{/if}}
   {{#if item.system.isThrown}}<span class="thrown-tag" title="{{localize 'TRESPASSER.Sheet.Item.States.ThrownTooltip'}}">{{localize 'TRESPASSER.Sheet.Item.States.Thrown'}}</span>{{/if}}
   <img src="{{item.img}}" class="item-icon" title="{{item.name}}" />
   <span class="item-name">{{item.name}}</span>
+  {{#if item.isStacked}}
+    <span class="stack-badge" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.StackedCount' count=item.stackCount}}">x{{item.stackCount}}</span>
+  {{/if}}
   <div class="item-controls">
     {{#if item.system.isThrown}}
       <a class="item-recover-thrown" title="{{localize 'TRESPASSER.Sheet.Item.Actions.RecoverThrown'}}"><i class="fas fa-undo"></i></a>

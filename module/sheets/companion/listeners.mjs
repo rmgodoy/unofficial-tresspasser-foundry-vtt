@@ -158,6 +158,15 @@ export function activateCompanionListeners(html, sheet) {
     });
   });
 
+  // Toggle inventory stacking
+  root.querySelectorAll(".toggle-inventory-stacking").forEach(btn => {
+    btn.addEventListener("click", async (ev) => {
+      ev.preventDefault();
+      const current = sheet.actor.getFlag("trespasser", "stackInventory") ?? true;
+      await sheet.actor.setFlag("trespasser", "stackInventory", !current);
+    });
+  });
+
   // Item Delete
   root.querySelectorAll(".item-delete, [data-action='delete-item']").forEach(btn => {
     btn.addEventListener("click", async (ev) => {
@@ -166,7 +175,21 @@ export function activateCompanionListeners(html, sheet) {
       const itemId = ev.currentTarget.closest("[data-item-id]")?.dataset.itemId;
       if (itemId) {
         const item = sheet.actor.items.get(itemId);
-        if (item) await item.delete();
+        if (!item) return;
+
+        const stackedItems = item.stackedItems;
+        if (stackedItems && stackedItems.length > 1) {
+          if (ev.shiftKey) {
+            // Shift-click: Delete entire stack
+            const ids = stackedItems.map(i => i.id);
+            await sheet.actor.deleteEmbeddedDocuments("Item", ids);
+          } else {
+            // Normal click: Delete 1 item
+            await item.delete();
+          }
+        } else {
+          await item.delete();
+        }
       }
     });
   });

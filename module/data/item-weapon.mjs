@@ -29,6 +29,8 @@ export class TrespasserWeaponData extends foundry.abstract.TypeDataModel {
       price: new fields.NumberField({ initial: 0, min: 0 }),
       equipped: new fields.BooleanField({ initial: false }),
       isThrown: new fields.BooleanField({ initial: false }),
+      tags: new fields.ArrayField(new fields.StringField(), { initial: [] }),
+      stackable: new fields.BooleanField({ initial: false }),
       effects: new fields.ArrayField(new fields.SchemaField({
         uuid: new fields.StringField({ required: true }),
         type: new fields.StringField({ required: true }),

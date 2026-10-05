@@ -83,6 +83,7 @@
           "talisman": "Talisman"
         },
         "AddItem": "Add Item",
+        "Tags": "Tags",
         "Delete": "Delete",
         "Edit": "Edit",
         "Info": "Info",
@@ -162,7 +163,11 @@
           "EmptyInventory": "No unequipped items.",
           "EmptyEquipped": "No items equipped.",
           "EquippedItems": "Equipped Items",
-          "DepletionRoll": "Depletion Roll ({die})"
+          "DepletionRoll": "Depletion Roll ({die})",
+          "StackItems": "Stack Items",
+          "UnstackItems": "Unstack Items",
+          "StackedCount": "{count} items in stack (Shift+Click trash to delete all)",
+          "EmptySlot": "Empty Inventory Slot"
         },
         "Equipments": {
           "MainHand": "Main Hand",
@@ -556,7 +561,9 @@
         }
       },
       "Item": {
+        "AddTagPlaceholder": "Add tag...",
         "Details": {
+          "Stackable": "Stackable",
           "ItemType": "Item Type",
           "ResourceType": "Resource Type",
           "Slot": "Slot",

@@ -19,12 +19,26 @@
       </div>
 
       <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Common.Slot"}}</label>
+        <input type="number" name="system.slotOccupancy" value="{{system.slotOccupancy}}" data-dtype="Number" min="0" step="any" />
+      </div>
+
+      <div class="field-row">
         <label>{{localize "TRESPASSER.Sheet.Item.Details.DepletionDie"}}</label>
         <select name="system.depletionDie">
           {{selectOptions config.depletionDieOptions selected=system.depletionDie localize=true}}
         </select>
       </div>
+
+      <div class="field-row checkbox-row">
+        <label>
+          <input type="checkbox" name="system.stackable" {{checked system.stackable}} />
+          {{localize "TRESPASSER.Sheet.Item.Details.Stackable"}}
+        </label>
+      </div>
     </div>
+
+    {{> "systems/trespasser/templates/item/parts/tags-editor.hbs" tags=tags editable=editable}}
 
     <div class="field-row description-section">
       <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>

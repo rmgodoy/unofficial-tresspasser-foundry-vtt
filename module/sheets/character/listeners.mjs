@@ -92,12 +92,35 @@ export function activateCharacterListeners(html, sheet) {
     item?.sheet.render(true);
   });
 
+  // Toggle inventory stacking
+  html.find(".toggle-inventory-stacking").on("click", async (ev) => {
+    ev.preventDefault();
+    const current = actor?.getFlag("trespasser", "stackInventory") ?? true;
+    await actor?.setFlag("trespasser", "stackInventory", !current);
+  });
+
   // Item CRUD
   if (sheet._onItemCreate) html.find(".item-create").on("click", sheet._onItemCreate.bind(sheet));
-  html.find(".item-delete").on("click", (ev) => {
+  html.find(".item-delete").on("click", async (ev) => {
+    ev.preventDefault();
+    ev.stopPropagation();
     const el   = ev.currentTarget.closest("[data-item-id]");
-    const item = actor?.items.get(el.dataset.itemId);
-    item?.delete();
+    const item = actor?.items.get(el?.dataset?.itemId);
+    if (!item) return;
+
+    const stackedItems = item.stackedItems;
+    if (stackedItems && stackedItems.length > 1) {
+      if (ev.shiftKey) {
+        // Shift-click: Delete entire stack
+        const ids = stackedItems.map(i => i.id);
+        await actor.deleteEmbeddedDocuments("Item", ids);
+      } else {
+        // Normal click: Delete 1 item
+        await item.delete();
+      }
+    } else {
+      await item.delete();
+    }
   });
   html.find(".item-edit").on("click", (ev) => {
     const el   = ev.currentTarget.closest("[data-item-id]");

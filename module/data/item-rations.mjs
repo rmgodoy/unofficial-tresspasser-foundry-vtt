@@ -13,6 +13,9 @@ export class TrespasserRationsData extends foundry.abstract.TypeDataModel {
       price: new fields.NumberField({ initial: 0, min: 0 }),
       weight: new fields.StringField({ initial: "L", choices: ["L", "H"] }),
       broken: new fields.BooleanField({ initial: false }),
+      slotOccupancy: new fields.NumberField({ initial: 1, min: 0 }),
+      tags: new fields.ArrayField(new fields.StringField(), { initial: [] }),
+      stackable: new fields.BooleanField({ initial: false }),
       effects: new fields.ArrayField(new fields.ObjectField(), { initial: [] }),
     };
   }

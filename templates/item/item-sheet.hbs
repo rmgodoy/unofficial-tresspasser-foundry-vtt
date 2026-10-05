@@ -164,6 +164,11 @@
         <label for="item-is-ammo-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.IsAmmo"}}</label>
       </div>
 
+      <div class="field-item checkbox-item">
+        <input type="checkbox" name="system.stackable" {{checked system.stackable}} id="item-stackable-{{item.id}}"/>
+        <label for="item-stackable-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.Stackable"}}</label>
+      </div>
+
       {{#unless isLightSource}}
       <div class="field-item checkbox-item">
         <input type="checkbox" name="system.equippable" {{checked system.equippable}} id="item-equippable-{{item.id}}"/>
@@ -179,6 +184,8 @@
       </div>
       {{/if}}
     </div>
+
+    {{> "systems/trespasser/templates/item/parts/tags-editor.hbs" tags=tags editable=editable}}
 
     <div class="field-item description-column">
       <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>

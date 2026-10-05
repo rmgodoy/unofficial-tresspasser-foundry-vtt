@@ -521,15 +521,27 @@
     <div class="tab tab-body {{#if (eq tabs.primary 'inventory')}}active{{/if}}" data-group="primary" data-tab="inventory">
       <div class="inventory-header">
         <span class="inventory-cap">{{localize "TRESPASSER.Sheet.Character.UnequippedSlots"}}: {{inventorySlotsUsed}} / {{inventoryMax}}</span>
-        <a class="item-create button" data-type="inventory" title="{{localize "TRESPASSER.Sheet.Common.AddItem"}}">+ {{localize "TRESPASSER.Sheet.Common.AddItem"}}</a>
+        <div class="inventory-header-actions">
+          <a class="toggle-inventory-stacking button icon-button {{#if isInventoryStacked}}active{{/if}}" 
+             title="{{#if isInventoryStacked}}{{localize 'TRESPASSER.Sheet.Character.Inventory.UnstackItems'}}{{else}}{{localize 'TRESPASSER.Sheet.Character.Inventory.StackItems'}}{{/if}}">
+            <i class="fas fa-layer-group"></i>
+          </a>
+          <a class="item-create button" data-type="inventory" title="{{localize "TRESPASSER.Sheet.Common.AddItem"}}">+ {{localize "TRESPASSER.Sheet.Common.AddItem"}}</a>
+        </div>
       </div>
       
       <div class="inventory-grid">
         {{#each unequippedItems}}
         {{> "systems/trespasser/templates/actor/parts/inventory-card.hbs" item=this transferTarget=../transferTarget}}
-        {{else}}
-        <div class="empty-list" style="grid-column:1/-1">{{localize "TRESPASSER.Sheet.Character.Inventory.EmptyInventory"}}</div>
         {{/each}}
+        {{#each emptySlots}}
+        <div class="inventory-card empty-slot" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.EmptySlot'}}">
+          <span class="empty-slot-plus">+</span>
+        </div>
+        {{/each}}
+        {{#if (and (eq unequippedItems.length 0) (eq emptySlots.length 0))}}
+        <div class="empty-list" style="grid-column:1/-1">{{localize "TRESPASSER.Sheet.Character.Inventory.EmptyInventory"}}</div>
+        {{/if}}
       </div>
 
       <div class="inventory-separator">

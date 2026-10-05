@@ -24,6 +24,8 @@ export class TrespasserItemData extends foundry.abstract.TypeDataModel {
       isLightFuel: new fields.BooleanField({ initial: false }),
       isAmmo: new fields.BooleanField({ initial: false }),
       usesFuel: new fields.BooleanField({ initial: false }),
+      tags: new fields.ArrayField(new fields.StringField(), { initial: [] }),
+      stackable: new fields.BooleanField({ initial: false }),
 
       // Resource
       resourceType: new fields.StringField({ initial: "ingredients", choices: ["ingredients", "materials"] }),

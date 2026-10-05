@@ -27,7 +27,8 @@
     "deeds": [],
     "incantations": [],
     "talents": [],
-    "features": []
+    "features": [],
+    "stackable": true
   },
   "effects": [],
   "sort": 0,
@@ -41,7 +42,7 @@
     "systemId": "trespasser",
     "systemVersion": "0.2.0-19",
     "createdTime": 1791156873359,
-    "modifiedTime": 1791156883125,
+    "modifiedTime": 1791159482003,
     "lastModifiedBy": "yywZQPY84nrAEthp",
     "compendiumSource": null,
     "duplicateSource": null,

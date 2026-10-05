@@ -24,11 +24,23 @@
         </select>
       </div>
 
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Common.Slot"}}</label>
+        <input type="number" name="system.slotOccupancy" value="{{system.slotOccupancy}}" data-dtype="Number" min="0" step="any" />
+      </div>
+
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.equipped" {{checked system.equipped}} id="accessory-equipped-{{item.id}}"/>
         <label for="accessory-equipped-{{item.id}}">{{localize "TRESPASSER.Sheet.Common.Equipped"}}</label>
       </div>
+
+      <div class="field-row checkbox-row">
+        <input type="checkbox" name="system.stackable" {{checked system.stackable}} id="accessory-stackable-{{item.id}}"/>
+        <label for="accessory-stackable-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.Details.Stackable"}}</label>
+      </div>
     </div>
+
+    {{> "systems/trespasser/templates/item/parts/tags-editor.hbs" tags=tags editable=editable}}
 
     <div class="description-section" style="margin-top: 20px; border-top: 1px solid var(--trp-gold-dim); padding-top: 10px; margin-bottom: 20px;">
         <h3 style="font-family: var(--trp-font-header); color: var(--trp-gold-bright); margin-bottom: 10px;">{{localize "TRESPASSER.Sheet.Common.Description"}}</h3>

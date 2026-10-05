@@ -2,6 +2,7 @@ import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { PASSIVE_STATES } from "../../config/state-config.mjs";
 import { EngagementHelper } from "../../helpers/engagement-helper.mjs";
 import { prepareDeedDisplayData } from "../../helpers/deed-display-helper.mjs";
+import { groupInventoryItems, buildEmptySlots } from "../../helpers/inventory-stacking-helper.mjs";
 
 /**
  * Data preparation for TrespasserCompanionSheet.
@@ -71,16 +72,21 @@ export async function getCompanionData(sheet, options = {}) {
   const specialTypes = ["deed", "feature", "effect", "state"];
   const physicalItems = actor.items.filter(i => !specialTypes.includes(i.type));
 
+  const rawUnequipped = physicalItems.filter(i => !i.system?.equipped);
   context.equippedItems = physicalItems.filter(i => i.system?.equipped);
-  context.inventory = physicalItems.filter(i => !i.system?.equipped);
-  context.unequippedItems = context.inventory;
 
-  const totalOccupancy = context.inventory.reduce((acc, i) => {
+  const totalOccupancy = rawUnequipped.reduce((acc, i) => {
     const val = i.system.slotOccupancy !== undefined ? parseFloat(i.system.slotOccupancy) : 1;
     return acc + (isNaN(val) ? 1 : val);
   }, 0);
   context.inventoryUsed = totalOccupancy % 1 === 0 ? totalOccupancy : totalOccupancy.toFixed(1);
   context.inventoryMax = actor.system.inventory_max ?? 3;
+
+  const isStacked = actor.getFlag("trespasser", "stackInventory") ?? true;
+  context.isInventoryStacked = isStacked;
+  context.unequippedItems = groupInventoryItems(rawUnequipped, isStacked);
+  context.inventory = context.unequippedItems;
+  context.emptySlots = buildEmptySlots(context.inventoryMax, totalOccupancy);
 
   // Specific hand slots & other equipped gear
   const eq = actor.system.equipment ?? {};

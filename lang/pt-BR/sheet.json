@@ -83,6 +83,7 @@
           "talisman": "Talismã"
         },
         "AddItem": "Adicionar Item",
+        "Tags": "Tags",
         "Delete": "Excluir",
         "Edit": "Editar",
         "Info": "Info",
@@ -162,7 +163,11 @@
           "EmptyInventory": "Nenhum item não equipado.",
           "EmptyEquipped": "Nenhum item equipado.",
           "EquippedItems": "Itens Equipados",
-          "DepletionRoll": "Rolagem de Depleção ({die})"
+          "DepletionRoll": "Rolagem de Depleção ({die})",
+          "StackItems": "Empilhar Itens",
+          "UnstackItems": "Desempilhar Itens",
+          "StackedCount": "{count} itens no monte (Shift+Clique na lixeira para excluir todos)",
+          "EmptySlot": "Espaço de Inventário Vazio"
         },
         "Equipments": {
           "MainHand": "Mão Principal",
@@ -556,7 +561,9 @@
         }
       },
       "Item": {
+        "AddTagPlaceholder": "Adicionar tag...",
         "Details": {
+          "Stackable": "Empilhável",
           "ItemType": "Tipo de Item",
           "ResourceType": "Tipo de Recurso",
           "Slot": "Espaço",

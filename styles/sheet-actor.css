@@ -893,6 +893,8 @@
   height: 36px;
   object-fit: cover;
   border-radius: var(--trp-radius-sm);
+  position: relative;
+  z-index: 1;
 }
 
 .inventory-card .item-name {
@@ -900,6 +902,8 @@
   text-align: center;
   color: var(--trp-text);
   word-break: break-word;
+  position: relative;
+  z-index: 1;
 }
 
 .inventory-card .item-controls {
@@ -908,6 +912,7 @@
   right: 4px;
   display: none;
   gap: 4px;
+  z-index: 3;
 }
 
 .inventory-card:hover .item-controls {
@@ -959,6 +964,113 @@
 .inventory-card .item-recover-thrown:hover {
   color: var(--trp-gold);
   transform: scale(1.15);
+}
+
+/* ─── Inventory Header Actions ─── */
+.inventory-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.inventory-header-actions .icon-button {
+  padding: 4px 8px;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--trp-text-dim);
+  border: 1px solid var(--trp-border);
+  background: var(--trp-bg-panel);
+  border-radius: var(--trp-radius);
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+
+.inventory-header-actions .icon-button:hover,
+.inventory-header-actions .icon-button.active {
+  color: var(--trp-gold-bright);
+  border-color: var(--trp-gold);
+}
+
+/* ─── Stacked Inventory Card ─── */
+.inventory-card.is-stacked {
+  position: relative;
+  box-shadow:
+    3px -3px 0 0 var(--trp-bg-panel),
+    3px -3px 0 1px var(--trp-border),
+    4px -4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.inventory-card.is-stacked.stack-many {
+  box-shadow:
+    3px -3px 0 0 var(--trp-bg-panel),
+    3px -3px 0 1px var(--trp-border),
+    6px -6px 0 0 var(--trp-bg-panel),
+    6px -6px 0 1px var(--trp-border),
+    7px -7px 8px rgba(0, 0, 0, 0.5);
+}
+
+.inventory-card.is-stacked:hover {
+  border-color: var(--trp-gold-dim);
+  box-shadow:
+    3px -3px 0 0 var(--trp-bg-panel),
+    3px -3px 0 1px var(--trp-gold-dim),
+    4px -4px 6px rgba(0, 0, 0, 0.4);
+}
+
+.inventory-card.is-stacked.stack-many:hover {
+  border-color: var(--trp-gold-dim);
+  box-shadow:
+    3px -3px 0 0 var(--trp-bg-panel),
+    3px -3px 0 1px var(--trp-gold-dim),
+    6px -6px 0 0 var(--trp-bg-panel),
+    6px -6px 0 1px var(--trp-gold-dim),
+    7px -7px 8px rgba(0, 0, 0, 0.5);
+}
+
+/* Round Badge in Bottom Right Corner */
+.inventory-card .stack-badge {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 1px solid var(--trp-border);
+  background: var(--trp-bg-dark);
+  color: var(--trp-text-dim);
+  font-family: var(--trp-font-body);
+  font-size: var(--fs-11);
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 2;
+  box-shadow: 0 1px 4px var(--trp-shadow-dark);
+  pointer-events: none;
+}
+
+/* ─── Empty Inventory Slot Card ─── */
+.inventory-card.empty-slot {
+  background: transparent;
+  border: 1px dashed var(--trp-border-light);
+  border-radius: var(--trp-radius);
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--trp-border-light);
+  transition: border-color 0.15s, color 0.15s;
+  pointer-events: none;
+}
+
+.inventory-card.empty-slot .empty-slot-plus {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-18);
+  opacity: 0.4;
+  line-height: 1;
 }
 
 .inventory-separator {

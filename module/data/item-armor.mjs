@@ -28,7 +28,9 @@ export class TrespasserArmorData extends foundry.abstract.TypeDataModel {
         intensity: new fields.NumberField({ initial: 1, min: 0 })
       }), { initial: [] }),
       description: new fields.HTMLField({ blank: true }),
-      equipped: new fields.BooleanField({ initial: false })
+      equipped: new fields.BooleanField({ initial: false }),
+      tags: new fields.ArrayField(new fields.StringField(), { initial: [] }),
+      stackable: new fields.BooleanField({ initial: false })
     };
   }
 }

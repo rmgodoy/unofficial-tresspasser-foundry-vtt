@@ -11,6 +11,7 @@ export async function preloadHandlebarsTemplates() {
     "systems/trespasser/templates/item/parts/effect-chip.hbs",
     "systems/trespasser/templates/item/parts/effects-list.hbs",
     "systems/trespasser/templates/item/parts/deeds-list.hbs",
+    "systems/trespasser/templates/item/parts/tags-editor.hbs",
     "systems/trespasser/templates/chat/deed-card.hbs",
     "systems/trespasser/templates/combat/combat-tracker.hbs",
     // Party template

@@ -85,9 +85,58 @@ export class TrespasserBaseItemSheet extends api.HandlebarsApplicationMixin(shee
   }
 
   /** @override */
+  async _prepareContext(options) {
+    const context = await super._prepareContext(options);
+    context.tags = Array.isArray(this.document.system?.tags) ? this.document.system.tags : [];
+    return context;
+  }
+
+  /** @override */
   _onRender(context, options) {
     super._onRender(context, options);
     activateImagePicker(this);
+    this._activateTagsEditor();
+  }
+
+  /**
+   * Activate listeners for the reusable tags editor component.
+   */
+  _activateTagsEditor() {
+    if (!this.isEditable) return;
+    const html = this.element;
+
+    const tagInput = html.querySelector('.tag-add-input');
+    if (tagInput && !tagInput._tagsBound) {
+      tagInput._tagsBound = true;
+      tagInput.addEventListener('keydown', async (event) => {
+        if (event.key === "Enter") {
+          event.preventDefault();
+          const val = tagInput.value.trim().toLowerCase();
+          if (val) {
+            const tags = Array.isArray(this.document.system?.tags) ? [...this.document.system.tags] : [];
+            if (!tags.includes(val)) {
+              tags.push(val);
+              tagInput.value = "";
+              await this.document.update({ "system.tags": tags });
+            }
+          }
+        }
+      });
+    }
+
+    html.querySelectorAll('[data-action="removeTag"]').forEach(btn => {
+      if (btn._tagRemoveBound) return;
+      btn._tagRemoveBound = true;
+      btn.addEventListener('click', async (event) => {
+        event.preventDefault();
+        const idx = Number(event.currentTarget.dataset.index);
+        const tags = Array.isArray(this.document.system?.tags) ? [...this.document.system.tags] : [];
+        if (idx >= 0 && idx < tags.length) {
+          tags.splice(idx, 1);
+          await this.document.update({ "system.tags": tags });
+        }
+      });
+    });
   }
 }
 

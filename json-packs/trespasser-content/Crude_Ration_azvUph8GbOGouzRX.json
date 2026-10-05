@@ -10,7 +10,8 @@
     "price": 0,
     "weight": "L",
     "broken": false,
-    "effects": []
+    "effects": [],
+    "stackable": true
   },
   "effects": [],
   "sort": 0,
@@ -24,7 +25,7 @@
     "systemId": "trespasser",
     "systemVersion": "0.2.0-19",
     "createdTime": 1791156842922,
-    "modifiedTime": 1791156842922,
+    "modifiedTime": 1791159186199,
     "lastModifiedBy": "yywZQPY84nrAEthp",
     "compendiumSource": null,
     "duplicateSource": null,

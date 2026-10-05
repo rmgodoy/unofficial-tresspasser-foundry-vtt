@@ -9,6 +9,7 @@ import { COMMON_PLIGHTS } from "../../config/plight-config.mjs";
 import { prepareDeedDisplayData } from "../../helpers/deed-display-helper.mjs";
 import { EngagementHelper } from "../../helpers/engagement-helper.mjs";
 import { getSystemFlag } from "../../system-id.mjs";
+import { groupInventoryItems, buildEmptySlots } from "../../helpers/inventory-stacking-helper.mjs";
 
 export async function getCharacterData(sheet, options = {}) {
   const actor   = sheet.actor;
@@ -167,14 +168,18 @@ export async function getCharacterData(sheet, options = {}) {
   // Only physical inventory types appear in inventory
   const inventoryTypes = ["weapon", "armor", "accessory", "rations", "item"];
   const allInventoryItems = actor.items.filter(i => inventoryTypes.includes(i.type));
-  context.unequippedItems = allInventoryItems.filter(i => !i.system.equipped);
+  const rawUnequipped     = allInventoryItems.filter(i => !i.system.equipped);
   context.equippedItems   = allInventoryItems.filter(i => i.system.equipped);
 
-  const totalOccupancy = context.unequippedItems.reduce((acc, i) => {
+  const totalOccupancy = rawUnequipped.reduce((acc, i) => {
     const val = i.system.slotOccupancy !== undefined ? parseFloat(i.system.slotOccupancy) : 1;
     return acc + (isNaN(val) ? 1 : val);
   }, 0);
   context.inventorySlotsUsed = totalOccupancy % 1 === 0 ? totalOccupancy : totalOccupancy.toFixed(1);
+
+  const isStacked = actor.getFlag("trespasser", "stackInventory") ?? true;
+  context.isInventoryStacked = isStacked;
+  context.unequippedItems = groupInventoryItems(rawUnequipped, isStacked);
   context.inventory = context.unequippedItems;
 
   // Equipped Armor
@@ -248,6 +253,7 @@ export async function getCharacterData(sheet, options = {}) {
   }
 
   context.inventoryMax = context.system.inventory_max ?? 5;
+  context.emptySlots = buildEmptySlots(context.inventoryMax, totalOccupancy);
 
   // Weapon Modes
   const weaponModes = [];
