@@ -88,7 +88,9 @@ export function summarizeBlock(block, intensity = 0) {
     }
 
     case "confer_state": {
-      const stateName = params.stateName || "State";
+      const stateName = (Array.isArray(params.effects) && params.effects.length > 0)
+        ? params.effects.map(e => e.name).filter(Boolean).join(", ")
+        : (params.stateName || "State");
       actionText = `${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Summary.Apply")} ${stateName}`;
       break;
     }

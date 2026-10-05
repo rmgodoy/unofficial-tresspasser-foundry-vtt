@@ -7,7 +7,7 @@ import { evaluateCondition } from "./expression-evaluator.mjs";
 import { canUseBlock, recordBlockUse, getRemainingUses } from "./cooldown-tracker.mjs";
 import { ACTION_HANDLERS } from "./action-handlers.mjs";
 import { RangeHelper } from "../helpers/range-helper.mjs";
-import { actorEventBus } from "../actor/actor-event-bus.mjs";
+import { actorEventBus, resolveActorToken } from "../actor/actor-event-bus.mjs";
 import { resolveActionTargets } from "./tca-target-resolver.mjs";
 import { promptBlockConfirmation, promptChoiceGroup } from "./tca-dialogs.mjs";
 import { getSystemFlag } from "../system-id.mjs";
@@ -130,8 +130,8 @@ function getEffectPriority(effectItem) {
 function isBlockEligible(block, sourceActor, effectItem, event, targetActor, baseContext) {
   // Scope evaluation
   const blockScope = block.scope || effectItem.system?.scope || "self";
-  const sourceToken = sourceActor?.getActiveTokens?.(true, true)?.[0] || sourceActor?.token;
-  const targetToken = event?.token || targetActor?.getActiveTokens?.(true, true)?.[0] || targetActor?.token;
+  const sourceToken = resolveActorToken(sourceActor);
+  const targetToken = resolveActorToken(event?.actor || targetActor, event?.token);
 
   const eventActor = event?.actor || sourceActor;
   if (!actorEventBus.isActorInScope(blockScope, sourceActor, eventActor, sourceToken, targetToken)) {
@@ -224,7 +224,8 @@ async function executeBlock(block, context) {
 export async function processTCAEvent(eventName, event, actor) {
   if (!eventName || !actor) return;
 
-  const targetActor = (event.actor?.id === actor.id)
+  const isSameActor = (event.actor === actor) || (event.actor?.id === actor.id && event.actor?.token?.id === actor.token?.id);
+  const targetActor = isSameActor
     ? (event.sourceActor || (event.source?.actor ? event.source.actor : (event.source instanceof Actor ? event.source : null)))
     : event.actor;
 

@@ -391,6 +391,13 @@
   align-items: center;
 }
 
+.effect-chips-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
 .effect-chip {
   display: flex;
   align-items: center;

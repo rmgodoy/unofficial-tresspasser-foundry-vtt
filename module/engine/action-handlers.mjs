@@ -9,6 +9,7 @@ import { ForcedMovementHelper } from "../helpers/forced-movement-helper.mjs";
 import { canTakeReaction } from "../reactions/reactions-tracking.mjs";
 import { TARGET_ATTRIBUTES } from "../effects/effects-constants.mjs";
 import { SYSTEM_ID } from "../system-id.mjs";
+import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
  * Resolves the effective target actor for a block execution.
@@ -161,55 +162,106 @@ export async function handleConferState(params = {}, context = {}) {
   const targetActor = resolveActionTarget(context, context.block?.actionTarget);
   if (!targetActor) return { executed: false, result: null, chatContent: "" };
 
-  const { stateId, stateName, intensity = "1", removeTags = [] } = params;
+  const { removeTags } = params;
+  const tagList = Array.isArray(removeTags)
+    ? removeTags
+    : (typeof removeTags === "string" ? removeTags.split(",").map(t => t.trim().toLowerCase()).filter(Boolean) : []);
 
-  // Remove mutually exclusive states by tag if requested
-  if (Array.isArray(removeTags) && removeTags.length > 0) {
+  if (tagList.length > 0) {
     const toRemove = targetActor.items.filter(i =>
-      i.type === "effect" && i.system?.tags?.some(t => removeTags.includes(t))
+      i.type === "effect" && i.system?.tags?.some(t => tagList.includes(String(t).toLowerCase()))
     );
     for (const item of toRemove) {
-      await item.delete();
+      if (targetActor.isOwner) {
+        await item.delete();
+      } else {
+        const { emitDeedActionAndWait } = await import("../helpers/socket/deed-socket-handler.mjs");
+        await emitDeedActionAndWait("modifyEffects", { actorId: targetActor.id, operation: "delete", itemId: item.id });
+      }
     }
   }
 
-  const rawInt = await evaluateModifier(String(intensity), context.intensity ?? 1, { actor: targetActor });
-  const finalIntensity = Math.max(1, Number(rawInt) || 1);
-
-  // Search world, compendiums, or create synthetic
-  let sourceItem = null;
-  if (stateId) {
-    sourceItem = game.items?.get(stateId) || (await fromUuid(stateId).catch(() => null));
+  let rawEffects = [];
+  if (Array.isArray(params.effects) && params.effects.length > 0) {
+    rawEffects = params.effects;
+  } else if (params.stateId || params.stateName) {
+    rawEffects = [{
+      uuid: params.stateId || "",
+      name: params.stateName || "",
+      img: "",
+      intensity: params.intensity ?? "1"
+    }];
   }
-  if (!sourceItem && stateName) {
-    sourceItem = game.items?.find(i => i.name.toLowerCase() === stateName.toLowerCase() && i.type === "effect");
-  }
 
-  let createdItem = null;
-  if (sourceItem) {
-    const itemData = sourceItem.toObject();
-    itemData.system = itemData.system || {};
-    itemData.system.intensity = finalIntensity;
-    createdItem = await Item.create(itemData, { parent: targetActor });
-  } else {
-    // Create new effect item on actor
-    createdItem = await Item.create({
-      name: stateName || "New State",
-      type: "effect",
-      system: {
-        intensity: finalIntensity,
-        isCombat: true
+  if (rawEffects.length === 0) return { executed: false, result: null, chatContent: "" };
+
+  const itemsToApply = [];
+  for (const eff of rawEffects) {
+    let sourceItem = null;
+    if (eff.uuid) {
+      sourceItem = await resolveItem(eff, { type: "effect", notify: false });
+    }
+    if (!sourceItem && eff.name) {
+      sourceItem = game.items?.find(i => i.name.toLowerCase() === eff.name.toLowerCase() && i.type === "effect");
+      if (!sourceItem) {
+        for (const pack of game.packs.filter(p => p.documentName === "Item")) {
+          const entry = pack.index.find(e => e.name.toLowerCase() === eff.name.toLowerCase() && e.type === "effect");
+          if (entry) {
+            try {
+              sourceItem = await pack.getDocument(entry._id);
+              if (sourceItem) break;
+            } catch (_e) {}
+          }
+        }
       }
-    }, { parent: targetActor });
+    }
+
+    const rawInt = await evaluateModifier(String(eff.intensity ?? params.intensity ?? "1"), context.intensity ?? 1, { actor: targetActor });
+    const finalIntensity = Math.max(1, Number(rawInt) || 1);
+
+    let itemData;
+    if (sourceItem) {
+      itemData = sourceItem.toObject();
+      itemData.system = itemData.system || {};
+      itemData.system.intensity = finalIntensity;
+    } else {
+      itemData = {
+        name: eff.name || "New State",
+        type: "effect",
+        img: eff.img || "systems/trespasser/assets/icons/skills/afflicted.webp",
+        system: { intensity: finalIntensity, isCombat: true }
+      };
+    }
+    const { _id, folder, sort, ownership, _key, ...cleanData } = itemData;
+    itemsToApply.push(cleanData);
   }
 
-  const chatContent = `<p class="hit-text">${game.i18n.format("TRESPASSER.Chat.Trigger.StateConferred", {
-    name: createdItem?.name || stateName,
-    target: targetActor.name,
-    intensity: finalIntensity
-  }) || `Applied <strong>${createdItem?.name || stateName} [${finalIntensity}]</strong> to <strong>${targetActor.name}</strong>.`}</p>`;
+  let createdDocs = [];
+  if (targetActor.isOwner) {
+    createdDocs = await targetActor.createEmbeddedDocuments("Item", itemsToApply);
+  } else {
+    const { emitDeedActionAndWait } = await import("../helpers/socket/deed-socket-handler.mjs");
+    const targetToken = targetActor.getActiveTokens?.(false, false)?.[0] || targetActor.getActiveTokens?.()[0] || targetActor.token;
+    const res = await emitDeedActionAndWait("applyEffects", {
+      actorId: targetActor.id,
+      tokenId: targetToken?.id,
+      itemDataArray: itemsToApply
+    });
+    if (Array.isArray(res)) {
+      createdDocs = res.map(id => targetActor.items.get(id)).filter(Boolean);
+    }
+  }
 
-  return { executed: true, result: createdItem, chatContent };
+  const chatLines = itemsToApply.map((d, idx) => {
+    const doc = createdDocs[idx];
+    return game.i18n.format("TRESPASSER.Chat.Trigger.StateConferred", {
+      name: doc?.name || d.name,
+      target: targetActor.name,
+      intensity: d.system?.intensity ?? 1
+    }) || `Applied <strong>${doc?.name || d.name} [${d.system?.intensity ?? 1}]</strong> to <strong>${targetActor.name}</strong>.`;
+  });
+
+  return { executed: true, result: createdDocs, chatContent: `<p class="hit-text">${chatLines.join("<br>")}</p>` };
 }
 
 /**
@@ -309,8 +361,8 @@ export async function handleForceMovement(params = {}, context = {}) {
   if (!targetActor) return { executed: false, result: null, chatContent: "" };
 
   const sourceActor = context.actor;
-  const sourceToken = sourceActor?.getActiveTokens?.(true, true)?.[0] || sourceActor?.token;
-  const targetToken = targetActor?.getActiveTokens?.(true, true)?.[0] || targetActor?.token || sourceToken;
+  const sourceToken = sourceActor?.getActiveTokens?.(false, false)?.[0] || sourceActor?.getActiveTokens?.()[0] || sourceActor?.token;
+  const targetToken = targetActor?.getActiveTokens?.(false, false)?.[0] || targetActor?.getActiveTokens?.()[0] || targetActor?.token || sourceToken;
 
   const movementType = params.type || "push";
   const distRaw = await evaluateModifier(String(params.distance || "1"), context.intensity ?? 0, { actor: sourceActor });

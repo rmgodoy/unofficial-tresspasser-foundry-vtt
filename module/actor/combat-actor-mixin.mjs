@@ -32,7 +32,7 @@ export function CombatActorMixin(BaseClass) {
      * @private
      */
     _buildCombatEvent(type, amount = 0, options = {}) {
-      const token = this.getActiveTokens?.(true, true)?.[0] || this.token;
+      const token = (this.isToken ? (this.token?.object || this.token) : null) || this.getActiveTokens?.(false, false)?.[0] || this.token;
       const sourceActor = options.sourceActor || (options.sourceActorId ? game.actors?.get(options.sourceActorId) : null);
       const sourceItem = options.sourceItem || (options.sourceItemId ? this.items?.get(options.sourceItemId) : null);
 
@@ -390,7 +390,7 @@ export function CombatActorMixin(BaseClass) {
      */
     async _handleDeedOutcome(target, options, outcome) {
       const targetDoc = target?.actor || target;
-      const targetToken = target?.document ? target : (targetDoc?.getActiveTokens?.(true, true)?.[0] || targetDoc?.token);
+      const targetToken = target?.document ? target : (targetDoc?.isToken ? (targetDoc.token?.object || targetDoc.token) : (targetDoc?.getActiveTokens?.(false, false)?.[0] || targetDoc?.token));
 
       const attackerEvt = this._buildCombatEvent(`deed-${outcome}`, 0, { target: targetDoc, ...options });
       attackerEvt.targetActor = targetDoc;
@@ -432,7 +432,7 @@ export function CombatActorMixin(BaseClass) {
      */
     async onTargeted(source, options = {}) {
       const sourceActor = source?.actor || (source instanceof Actor ? source : null);
-      const sourceToken = source?.document ? source : (sourceActor?.getActiveTokens?.(true, true)?.[0] || sourceActor?.token);
+      const sourceToken = source?.document ? source : (sourceActor?.isToken ? (sourceActor.token?.object || sourceActor.token) : (sourceActor?.getActiveTokens?.(false, false)?.[0] || sourceActor?.token));
 
       const event = this._buildCombatEvent("targeted", 0, { source, ...options });
       event.source = sourceActor || source || null;

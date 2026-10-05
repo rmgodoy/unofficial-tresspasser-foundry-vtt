@@ -32,7 +32,10 @@ export function resolveActionTargets(context, actionTarget = "self") {
   }
 
   // 2. Proximity and Range queries on canvas tokens
-  const sourceToken = sourceActor.getActiveTokens?.(true, true)?.[0] || sourceActor.token;
+  const sourceToken = sourceActor.getActiveTokens?.(false, false)?.[0] 
+    || sourceActor.getActiveTokens?.()[0] 
+    || sourceActor.token?.object 
+    || sourceActor.token;
   if (!sourceToken || !canvas?.tokens?.placeables) {
     return context.target ? [context.target] : [sourceActor];
   }
@@ -41,33 +44,34 @@ export function resolveActionTargets(context, actionTarget = "self") {
   const effectItem = context.effectItem || {};
 
   let maxRange = 1;
-  let scopeFilter = "all";
+  let scopeFilter = block.scope || "all";
 
   if (actionTarget === "adjacent") {
     maxRange = 1;
-    scopeFilter = "all";
+    scopeFilter = block.scope || "all";
   } else if (actionTarget === "all_in_range") {
     const rangeType = block.rangeType || effectItem.system?.rangeType || "custom";
     const rangeVal = block.range ?? effectItem.system?.rangeRequirement ?? 1;
     maxRange = RangeHelper.getActorRange(sourceActor, rangeType, rangeVal, sourceToken) ?? rangeVal ?? 1;
-    scopeFilter = "all";
+    scopeFilter = block.scope || "all";
   } else if (actionTarget === "enemies_in_range") {
     const rangeType = block.rangeType || effectItem.system?.rangeType || "custom";
     const rangeVal = block.range ?? effectItem.system?.rangeRequirement ?? 1;
     maxRange = RangeHelper.getActorRange(sourceActor, rangeType, rangeVal, sourceToken) ?? rangeVal ?? 1;
-    scopeFilter = "enemy";
+    scopeFilter = block.scope || "enemy";
   } else if (actionTarget === "allies_in_range") {
     const rangeType = block.rangeType || effectItem.system?.rangeType || "custom";
     const rangeVal = block.range ?? effectItem.system?.rangeRequirement ?? 1;
     maxRange = RangeHelper.getActorRange(sourceActor, rangeType, rangeVal, sourceToken) ?? rangeVal ?? 1;
-    scopeFilter = "ally";
+    scopeFilter = block.scope || "ally";
   }
 
   const matchedActors = [];
   const seenActorIds = new Set();
+  const sourceTokenId = sourceToken.id || sourceToken.document?.id;
 
   for (const token of canvas.tokens.placeables) {
-    if (!token || token.id === sourceToken.id) continue;
+    if (!token || token.id === sourceTokenId || token.document?.id === sourceTokenId) continue;
     const targetActor = token.actor;
     if (!targetActor) continue;
 

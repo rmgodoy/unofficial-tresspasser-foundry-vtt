@@ -72,11 +72,47 @@ export function renderModifyAttributeParams(params = {}, config = {}, index = 0)
  */
 export function renderConferStateParams(params = {}, config = {}, index = 0) {
   const prefix = `system.behaviors.${index}.params`;
+  const effects = Array.isArray(params.effects) ? params.effects : [];
   const stateName = params.stateName || "";
   const intensity = params.intensity ?? "";
-  const removeTags = params.removeTags || "";
+  const removeTags = Array.isArray(params.removeTags) ? params.removeTags.join(", ") : (params.removeTags || "");
+
+  let chipsHtml = "";
+  if (effects.length > 0) {
+    const chips = effects.map((eff, effIdx) => `
+      <div class="effect-chip" data-index="${effIdx}" data-behavior-index="${index}" data-uuid="${escapeAttr(eff.uuid || "")}">
+        <input type="hidden" name="${prefix}.effects.${effIdx}.uuid" value="${escapeAttr(eff.uuid || "")}" />
+        <input type="hidden" name="${prefix}.effects.${effIdx}.name" value="${escapeAttr(eff.name || "")}" />
+        <input type="hidden" name="${prefix}.effects.${effIdx}.img" value="${escapeAttr(eff.img || "")}" />
+        <img src="${eff.img || "systems/trespasser/assets/icons/skills/afflicted.webp"}" title="${escapeAttr(eff.name || "")}" />
+        <span class="name">${escapeAttr(eff.name || "Effect")}</span>
+        <div class="intensity-box">
+          <span class="label">${game.i18n.localize("TRESPASSER.Sheet.Common.IntensityShort")}</span>
+          <input type="text"
+                 name="${prefix}.effects.${effIdx}.intensity"
+                 value="${escapeAttr(eff.intensity ?? "1")}"
+                 placeholder="1 or <Int>"
+                 class="select-on-focus"
+                 style="width: 50px;" />
+        </div>
+        <div class="controls">
+          <a class="effect-edit edit" data-action="openBehaviorEffectDoc" data-uuid="${escapeAttr(eff.uuid || "")}" title="${game.i18n.localize("TRESPASSER.Sheet.Common.Edit")}"><i class="fas fa-edit"></i></a>
+          <a class="remove-effect-btn remove" data-action="removeBehaviorEffect" data-behavior-index="${index}" data-effect-index="${effIdx}" title="${game.i18n.localize("TRESPASSER.Sheet.Common.Delete")}"><i class="fas fa-times"></i></a>
+        </div>
+      </div>
+    `).join("");
+    chipsHtml = `<div class="effect-chips-list" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;">${chips}</div>`;
+  }
 
   return `
+    <div class="field-row full-width" style="flex-direction: column; align-items: stretch; gap: 4px;">
+      <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.ConferEffects")}</label>
+      <div class="behavior-effect-drop drop-zone" data-behavior-index="${index}">
+        <i class="fas fa-file-import"></i> ${game.i18n.localize("TRESPASSER.Sheet.Item.Placeholder.DropEffects")}
+      </div>
+      ${chipsHtml}
+    </div>
+    ${effects.length === 0 ? `
     <div class="field-row">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.StateName")}</label>
       <input type="text" name="${prefix}.stateName" value="${escapeAttr(stateName)}" placeholder="State Name or Item UUID" />
@@ -85,6 +121,11 @@ export function renderConferStateParams(params = {}, config = {}, index = 0) {
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.IntensityValue")}</label>
       <input type="text" name="${prefix}.intensity" value="${escapeAttr(intensity)}" placeholder="e.g. 1, +1, <Int>" />
     </div>
+    ` : `
+    <input type="hidden" name="${prefix}.stateName" value="${escapeAttr(effects[0]?.name || "")}" />
+    <input type="hidden" name="${prefix}.stateId" value="${escapeAttr(effects[0]?.uuid || "")}" />
+    <input type="hidden" name="${prefix}.intensity" value="${escapeAttr(effects[0]?.intensity ?? "1")}" />
+    `}
     <div class="field-row full-width">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.RemoveTags")}</label>
       <input type="text" name="${prefix}.removeTags" value="${escapeAttr(removeTags)}" placeholder="e.g. stance, curse (comma-separated)" />
@@ -330,7 +371,7 @@ export function getDefaultParamsForAction(action) {
     case "modify_attribute":
       return { attribute: "guard", modifier: "+<Int>", applyMode: "delta" };
     case "confer_state":
-      return { stateName: "", intensity: "1", removeTags: "" };
+      return { stateName: "", intensity: "1", removeTags: "", effects: [] };
     case "remove_state":
       return { stateName: "", stateTag: "" };
     case "modify_intensity":

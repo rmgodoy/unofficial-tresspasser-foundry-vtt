@@ -5,6 +5,7 @@
 
 import { renderParamsForAction } from "./tca-param-editors.mjs";
 import { getActionIcon, summarizeBlock } from "./tca-summary.mjs";
+import { resolveItem } from "../../helpers/item-resolver.mjs";
 
 export class TCABlockEditor {
   /**
@@ -98,6 +99,47 @@ export class TCABlockEditor {
       });
     });
 
+    // Behavior Effect Drop Zones (for confer_state, etc.)
+    html.querySelectorAll('.behavior-effect-drop').forEach(zone => {
+      zone.addEventListener("dragover", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        event.dataTransfer.dropEffect = "copy";
+        zone.classList.add("drag-over");
+      });
+      zone.addEventListener("dragleave", (event) => {
+        event.stopPropagation();
+        zone.classList.remove("drag-over");
+      });
+      zone.addEventListener("drop", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        zone.classList.remove("drag-over");
+        await this.onDropBehaviorEffect(sheet, event);
+      });
+    });
+
+    // Remove behavior effect chip
+    html.querySelectorAll('[data-action="removeBehaviorEffect"]').forEach(btn => {
+      btn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const blockIndex = Number(btn.dataset.behaviorIndex);
+        const effectIndex = Number(btn.dataset.effectIndex);
+        await this.onRemoveBehaviorEffect(sheet, blockIndex, effectIndex);
+      });
+    });
+
+    // Open/edit behavior effect document
+    html.querySelectorAll('[data-action="openBehaviorEffectDoc"]').forEach(btn => {
+      btn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        const uuid = btn.dataset.uuid;
+        await this.onOpenBehaviorEffect(uuid);
+      });
+    });
+
     // Drag-and-drop reordering
     this._attachDragAndDrop(html, sheet);
   }
@@ -112,6 +154,10 @@ export class TCABlockEditor {
 
     cards.forEach(card => {
       card.addEventListener("dragstart", (event) => {
+        if (!event.target.closest('.drag-handle') && !event.target.closest('.tca-block-header')) {
+          event.preventDefault();
+          return;
+        }
         draggedIndex = Number(card.dataset.blockIndex);
         card.classList.add("dragging");
         event.dataTransfer.effectAllowed = "move";
@@ -125,6 +171,9 @@ export class TCABlockEditor {
       });
 
       card.addEventListener("dragover", (event) => {
+        if (event.target.closest('.behavior-effect-drop') || event.target.closest('.drop-zone')) {
+          return;
+        }
         event.preventDefault();
         event.dataTransfer.dropEffect = "move";
         card.classList.add("drag-over");
@@ -135,6 +184,9 @@ export class TCABlockEditor {
       });
 
       card.addEventListener("drop", async (event) => {
+        if (event.target.closest('.behavior-effect-drop') || event.target.closest('.drop-zone')) {
+          return;
+        }
         event.preventDefault();
         card.classList.remove("drag-over");
         const targetIndex = Number(card.dataset.blockIndex);
@@ -143,6 +195,115 @@ export class TCABlockEditor {
         }
       });
     });
+  }
+
+  /**
+   * Handle dropping an effect item onto a behavior block's effect drop zone.
+   * @param {TrespasserEffectSheet} sheet
+   * @param {DragEvent} event
+   */
+  static async onDropBehaviorEffect(sheet, event) {
+    const zone = event.currentTarget.closest(".behavior-effect-drop");
+    if (!zone) return;
+    const blockIndex = Number(zone.dataset.behaviorIndex);
+    if (isNaN(blockIndex)) return;
+
+    let data;
+    try {
+      data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
+    } catch {
+      try {
+        data = JSON.parse(event.dataTransfer.getData("text/plain"));
+      } catch {
+        return;
+      }
+    }
+
+    if (!data || data.type !== "Item") return;
+
+    const sourceItem = await resolveItem(data);
+    if (!sourceItem) return;
+
+    if (sourceItem.type !== "effect") {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropEffectsOnly"));
+      return;
+    }
+
+    if (sourceItem.uuid === sheet.document.uuid) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.CannotConferSelf"));
+      return;
+    }
+
+    const behaviors = foundry.utils.deepClone(sheet.document.system.behaviors || []);
+    if (!behaviors[blockIndex]) return;
+
+    const block = behaviors[blockIndex];
+    block.params = block.params || {};
+    let effects = Array.isArray(block.params.effects) ? [...block.params.effects] : [];
+
+    if (effects.some(e => e.uuid === sourceItem.uuid)) {
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name }));
+      return;
+    }
+
+    effects.push({
+      uuid: sourceItem.uuid,
+      name: sourceItem.name,
+      img: sourceItem.img || "systems/trespasser/assets/icons/skills/afflicted.webp",
+      intensity: String(sourceItem.system?.intensity ?? "1")
+    });
+
+    block.params.effects = effects;
+    block.params.stateName = effects[0].name;
+    block.params.stateId = effects[0].uuid;
+    block.params.intensity = effects[0].intensity;
+
+    await sheet.document.update({ "system.behaviors": behaviors });
+  }
+
+  /**
+   * Removes an effect chip from a behavior block.
+   * @param {TrespasserEffectSheet} sheet
+   * @param {number} blockIndex
+   * @param {number} effectIndex
+   */
+  static async onRemoveBehaviorEffect(sheet, blockIndex, effectIndex) {
+    if (isNaN(blockIndex) || isNaN(effectIndex)) return;
+
+    const behaviors = foundry.utils.deepClone(sheet.document.system.behaviors || []);
+    if (!behaviors[blockIndex]) return;
+
+    const block = behaviors[blockIndex];
+    block.params = block.params || {};
+    let effects = Array.isArray(block.params.effects) ? [...block.params.effects] : [];
+    if (effectIndex < 0 || effectIndex >= effects.length) return;
+
+    effects.splice(effectIndex, 1);
+    block.params.effects = effects;
+
+    if (effects.length > 0) {
+      block.params.stateName = effects[0].name;
+      block.params.stateId = effects[0].uuid;
+      block.params.intensity = effects[0].intensity;
+    } else {
+      block.params.stateName = "";
+      block.params.stateId = "";
+      block.params.intensity = "1";
+    }
+
+    await sheet.document.update({ "system.behaviors": behaviors });
+  }
+
+  /**
+   * Opens an effect document sheet by UUID.
+   * @param {string} uuid
+   */
+  static async onOpenBehaviorEffect(uuid) {
+    if (!uuid) return;
+    const item = await resolveItem(uuid, { type: "effect" });
+    if (item?.sheet) {
+      item.sheet.render(true);
+    }
   }
 
   /**

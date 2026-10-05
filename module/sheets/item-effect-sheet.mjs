@@ -265,7 +265,7 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     });
 
     // Drag-and-drop for counter states
-    const dropZones = html.querySelectorAll('.drop-zone');
+    const dropZones = html.querySelectorAll('.drop-zone[data-type="counterStates"]');
     dropZones.forEach(zone => {
       zone.addEventListener("dragover", this._onDragOver.bind(this));
       zone.addEventListener("drop", this._onDropItem.bind(this));
@@ -433,6 +433,15 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
           b.params = getDefaultParamsForAction(b.action);
         } else {
           b.params = foundry.utils.mergeObject(getDefaultParamsForAction(b.action), (b.params && typeof b.params === "object") ? b.params : {});
+        }
+
+        if (b.params?.effects) {
+          b.params.effects = Array.isArray(b.params.effects)
+            ? b.params.effects
+            : Object.keys(b.params.effects)
+                .filter(k => !isNaN(Number(k)))
+                .sort((a, b) => Number(a) - Number(b))
+                .map(k => b.params.effects[k]);
         }
 
         b.requiresConfirmation = Boolean(b.requiresConfirmation);

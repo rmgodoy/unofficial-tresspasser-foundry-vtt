@@ -774,6 +774,7 @@
             "StateName": "State Name",
             "StateTag": "State Tag",
             "IntensityValue": "Value",
+            "ConferEffects": "Confer States / Effects",
             "FlagName": "Flag",
             "FlagValue": "Value",
             "MovementType": "Movement Type",

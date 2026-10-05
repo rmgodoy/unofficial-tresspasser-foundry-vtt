@@ -3,7 +3,7 @@
  * Registers TCA event handlers with ActorEventBus and maintains cross-actor middleware state.
  */
 
-import { actorEventBus } from "../actor/actor-event-bus.mjs";
+import { actorEventBus, resolveActorToken } from "../actor/actor-event-bus.mjs";
 import { tcaEngine } from "./tca-engine.mjs";
 import { resetCooldowns, clearAllCooldowns } from "./cooldown-tracker.mjs";
 
@@ -62,6 +62,9 @@ export function registerActorTCA(actor) {
   const tcaEffects = tcaEngine.getTCAEffects(actor);
   console.log(`%c[TCA Registration]%c Registering TCA for actor "${actor.name}" (${actor.id}) - found ${tcaEffects.length} TCA effects`, "color: #c678dd;", "color: inherit;", tcaEffects.map(e => ({ name: e.name, intensity: e.system?.intensity, behaviors: e.system?.behaviors })));
 
+  const actorKey = actor.isToken ? (actor.token?.id || actor.id) : actor.id;
+  const actorToken = resolveActorToken(actor);
+
   for (const effect of tcaEffects) {
     const behaviors = effect.system?.behaviors || [];
     for (const block of behaviors) {
@@ -71,7 +74,7 @@ export function registerActorTCA(actor) {
       const trigger = block.trigger;
       if (!trigger || trigger === "continuous" || trigger === "immediate") continue;
 
-      const middlewareId = `tca:cross:${actor.id}:${effect.id}:${block.id}`;
+      const middlewareId = `tca:cross:${actorKey}:${effect.id}:${block.id}`;
       const rangeType = block.rangeType || effect.system?.rangeType || "custom";
       const range = block.range ?? effect.system?.rangeRequirement ?? 0;
 
@@ -82,6 +85,9 @@ export function registerActorTCA(actor) {
         id: middlewareId,
         scope,
         sourceActorId: actor.id,
+        sourceTokenId: actor.isToken ? (actor.token?.id || null) : null,
+        sourceActor: actor,
+        sourceToken: actorToken,
         effectItemId: effect.id,
         rangeType,
         range,
@@ -98,7 +104,8 @@ export function registerActorTCA(actor) {
  */
 export function unregisterActorTCA(actor) {
   if (!actor) return;
-  actorEventBus.removeMiddlewareByActor(actor.id);
+  const actorKey = actor.isToken ? (actor.token?.id || actor.id) : actor.id;
+  actorEventBus.removeMiddlewareByActor(actorKey);
 }
 
 /**
@@ -126,6 +133,37 @@ export function initTCARegistration() {
       registerActorTCA(actor);
     }
   }
+
+  // Register unlinked tokens on the active scene
+  if (canvas?.tokens?.placeables) {
+    for (const token of canvas.tokens.placeables) {
+      if (token.actor && !token.document.actorLink) {
+        registerActorTCA(token.actor);
+      }
+    }
+  }
+
+  Hooks.on("canvasReady", () => {
+    if (canvas?.tokens?.placeables) {
+      for (const token of canvas.tokens.placeables) {
+        if (token.actor && !token.document.actorLink) {
+          registerActorTCA(token.actor);
+        }
+      }
+    }
+  });
+
+  Hooks.on("createToken", (tokenDoc) => {
+    if (tokenDoc.actor && !tokenDoc.actorLink) {
+      registerActorTCA(tokenDoc.actor);
+    }
+  });
+
+  Hooks.on("deleteToken", (tokenDoc) => {
+    if (tokenDoc.actor && !tokenDoc.actorLink) {
+      unregisterActorTCA(tokenDoc.actor);
+    }
+  });
 
   // Hook into item creation, updates, and deletions
   Hooks.on("createItem", (item) => {

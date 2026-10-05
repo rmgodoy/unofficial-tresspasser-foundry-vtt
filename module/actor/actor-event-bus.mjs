@@ -1,6 +1,23 @@
 import { RangeHelper } from "../helpers/range-helper.mjs";
 
 /**
+ * Resolves a canvas token or token document for an actor, including unlinked tokens.
+ * @param {Actor} [actor]
+ * @param {Token|TokenDocument|null} [preferred=null]
+ * @returns {Token|TokenDocument|null}
+ */
+export function resolveActorToken(actor, preferred = null) {
+  if (preferred) return preferred;
+  if (!actor) return null;
+  if (actor.isToken) return actor.token?.object || actor.token;
+  return actor.getActiveTokens?.(false, false)?.[0]
+    || actor.getActiveTokens?.()[0]
+    || (canvas?.tokens?.placeables?.find(t => t.actor?.id === actor.id))
+    || actor.token
+    || null;
+}
+
+/**
  * Global event bus for Trespasser actor lifecycle, combat actions, and cross-actor reactive effects.
  * Supports dual-phase dispatch:
  * 1. Middleware phase (sequential, async, can modify payload or set preventDefault)
@@ -171,14 +188,14 @@ export class ActorEventBus {
   }
 
   /**
-   * Unregister all middleware associated with a source actor.
-   * @param {string} actorId
+   * Unregister all middleware associated with a source actor or token.
+   * @param {string} actorOrTokenId
    * @returns {boolean}
    */
-  removeMiddlewareByActor(actorId) {
+  removeMiddlewareByActor(actorOrTokenId) {
     let removed = false;
     for (const [evt, list] of this._middleware.entries()) {
-      const filtered = list.filter(e => e.options.sourceActorId !== actorId);
+      const filtered = list.filter(e => e.options.sourceActorId !== actorOrTokenId && e.options.sourceTokenId !== actorOrTokenId);
       if (filtered.length < list.length) {
         this._middleware.set(evt, filtered);
         removed = true;
@@ -199,8 +216,8 @@ export class ActorEventBus {
 
     const normalizedTargets = targets.map(t => {
       if (t?.actor && t?.document) return { actor: t.actor, token: t, amount: t.amount ?? context.amount ?? 0 };
-      if (t?.actor) return { actor: t.actor, token: t.token || t.actor.getActiveTokens?.(true, true)?.[0] || t.actor.token, amount: t.amount ?? context.amount ?? 0 };
-      if (t?.type) return { actor: t, token: t.getActiveTokens?.(true, true)?.[0] || t.token, amount: context.amount ?? 0 };
+      if (t?.actor) return { actor: t.actor, token: resolveActorToken(t.actor, t.token), amount: t.amount ?? context.amount ?? 0 };
+      if (t?.type) return { actor: t, token: resolveActorToken(t), amount: context.amount ?? 0 };
       return null;
     }).filter(Boolean);
 
@@ -218,12 +235,12 @@ export class ActorEventBus {
 
     for (const entry of middlewareList) {
       const { options } = entry;
-      if (!options.scope || options.scope === "self" || !options.sourceActorId) continue;
+      if (!options.scope || options.scope === "self" || (!options.sourceActorId && !options.sourceActor)) continue;
 
-      const sourceActor = game.actors?.get(options.sourceActorId);
+      const sourceActor = options.sourceActor || (options.sourceTokenId ? canvas?.tokens?.get(options.sourceTokenId)?.actor : null) || game.actors?.get(options.sourceActorId);
       if (!sourceActor) continue;
 
-      const sourceToken = options.sourceToken || sourceActor.getActiveTokens?.(true, true)?.[0] || sourceActor.token;
+      const sourceToken = resolveActorToken(sourceActor, options.sourceToken);
 
       // Filter eligible targets in scope and in range
       const eligible = [];
@@ -309,10 +326,10 @@ export class ActorEventBus {
       const { handler, options } = entry;
 
       // Scope validation
-      if (options.scope && options.sourceActorId) {
-        const sourceActor = game.actors?.get(options.sourceActorId);
-        const sourceToken = options.sourceToken || sourceActor?.getActiveTokens?.(true, true)?.[0] || sourceActor?.token;
-        const targetToken = event.token || event.actor?.getActiveTokens?.(true, true)?.[0] || event.actor?.token;
+      if (options.scope && (options.sourceActorId || options.sourceActor)) {
+        const sourceActor = options.sourceActor || (options.sourceTokenId ? canvas?.tokens?.get(options.sourceTokenId)?.actor : null) || game.actors?.get(options.sourceActorId);
+        const sourceToken = resolveActorToken(sourceActor, options.sourceToken);
+        const targetToken = resolveActorToken(event.actor, event.token);
 
         if (!this.isActorInScope(options.scope, sourceActor, event.actor, sourceToken, targetToken)) {
           continue;
@@ -389,11 +406,12 @@ export class ActorEventBus {
       return sourceActor.id === targetActor.id;
     }
 
-    const isSameActor = sourceActor.id === targetActor.id;
+    const isSameActor = (sourceActor.id === targetActor.id)
+      && (!sourceActor.isToken || !targetActor.isToken || sourceActor.token?.id === targetActor.token?.id);
     if (isSameActor) return false;
 
-    const sTok = sourceToken || sourceActor.getActiveTokens?.(true, true)?.[0] || sourceActor.token;
-    const tTok = targetToken || targetActor.getActiveTokens?.(true, true)?.[0] || targetActor.token;
+    const sTok = resolveActorToken(sourceActor, sourceToken);
+    const tTok = resolveActorToken(targetActor, targetToken);
 
     let isAlly = false;
     if (sTok && tTok) {
