@@ -6,6 +6,7 @@ import { DeedIntentResolver } from "../../targeting/deed-intent-resolver.mjs";
 import { TargetClassifier } from "../../targeting/target-classifier.mjs";
 import { TargetPreviewHUD } from "../../hud/target-preview-hud.mjs";
 import { TargetingPreviewSyncer } from "../../targeting/targeting-preview-syncer.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 /**
  * Interactive token selection session via CanvasInputSession.
@@ -29,10 +30,19 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
   let hoveredSquare = null;
   let isJump = params.isJump ?? RangeHelper.deedInvolvesJump(item, actor);
 
-  // If candidate tokens exist and count <= maxCount, pre-populate selection for convenience
-  const selectedTargets = (candidateTokens && candidateTokens.length <= maxCount)
-    ? [...candidateTokens]
-    : [];
+  // Pre-populate selection from candidate tokens (area sub-selection) or existing user targets (if valid)
+  let initialTargets = [];
+  if (candidateTokens && candidateTokens.length <= maxCount) {
+    initialTargets = [...candidateTokens];
+  } else if (!candidateTokens && game.user?.targets?.size > 0 && game.user.targets.size <= maxCount) {
+    initialTargets = Array.from(game.user.targets).filter(t => {
+      if (params.ignoreSelf && (t.id === sourceToken?.id || t.document?.id === sourceToken?.id)) return false;
+      if (params.disposition && !TargetingHelper.matchesDisposition(t, params.disposition, sourceToken)) return false;
+      if (!isAreaMode && maxRangeSq !== null && maxRangeSq !== undefined && !RangeHelper.isWithinRange(sourceToken, t, maxRangeSq, { originOverride: origin })) return false;
+      return true;
+    });
+  }
+  const selectedTargets = initialTargets;
 
   if (game.user.updateTokenTargets && selectedTargets.length > 0) {
     game.user.updateTokenTargets(selectedTargets.map(t => t.id));
@@ -75,7 +85,7 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     }
 
     // 2. Resolve outcomes for candidates and selected targets
-    const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
+    const showInfo = Boolean(game.settings?.get(SYSTEM_ID, "showTargetPreviewInfo") ?? true);
     const allRelevantTokens = [...selectedTargets, ...(candidateTokens || [])];
     const outcomeMap = (showInfo && item)
       ? DeedIntentResolver.resolveTargetsOutcome(allRelevantTokens, sourceToken, item, {
@@ -154,9 +164,16 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     });
   };
 
+  let isUpdatingUserTargets = false;
+
   const _onTargetsChanged = (currentSession = null) => {
     if (game.user.updateTokenTargets) {
-      game.user.updateTokenTargets(selectedTargets.map(t => t.id));
+      isUpdatingUserTargets = true;
+      try {
+        game.user.updateTokenTargets(selectedTargets.map(t => t.id));
+      } finally {
+        isUpdatingUserTargets = false;
+      }
     }
     const active = currentSession || CanvasInputSession.activeSession;
     if (active) {
@@ -268,6 +285,7 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
 
   hookTargetId = Hooks.on("targetToken", (user, tokenDocOrObj, targeted) => {
     if (user.id !== game.user.id) return;
+    if (isUpdatingUserTargets) return;
     const tokenObj = tokenDocOrObj?.object || (tokenDocOrObj instanceof Token ? tokenDocOrObj : null) || canvas.tokens?.get(tokenDocOrObj?.id);
     if (!tokenObj) return;
     if (targeted) {
@@ -327,11 +345,26 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
 
       const snapped = canvas.grid.getTopLeftPoint(lastCanvasPos);
       hoveredSquare = { x: snapped.x, y: snapped.y };
-      const rawTokens = TargetingHelper.getTokensInSquares([{ x: snapped.x, y: snapped.y }], gridPx);
-      const tokensInSq = TargetingHelper.getTokensInSquares([{ x: snapped.x, y: snapped.y }], gridPx, {
-        disposition: params.disposition,
-        sourceToken,
-        excludeTokenId: params.ignoreSelf ? sourceToken?.id : null
+
+      const tokensAtPoint = (canvas.tokens?.placeables ?? []).filter(t => {
+        const tX = t.document.x;
+        const tY = t.document.y;
+        const tW = (t.document.width ?? 1) * gridPx;
+        const tH = (t.document.height ?? 1) * gridPx;
+        return lastCanvasPos.x >= tX && lastCanvasPos.x <= (tX + tW) &&
+               lastCanvasPos.y >= tY && lastCanvasPos.y <= (tY + tH);
+      });
+
+      const rawTokensMap = new Map();
+      for (const t of [...TargetingHelper.getTokensInSquares([{ x: snapped.x, y: snapped.y }], gridPx), ...tokensAtPoint]) {
+        rawTokensMap.set(t.id, t);
+      }
+      const rawTokens = Array.from(rawTokensMap.values());
+
+      const tokensInSq = rawTokens.filter(t => {
+        if (params.ignoreSelf && (t.id === sourceToken?.id || t.document?.id === sourceToken?.id)) return false;
+        if (params.disposition && !TargetingHelper.matchesDisposition(t, params.disposition, sourceToken)) return false;
+        return true;
       });
 
       if (isAreaMode && candidateTokens) {

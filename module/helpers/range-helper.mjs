@@ -348,9 +348,9 @@ export class RangeHelper {
    */
   static isWithinRange(sourceToken, target, maxRangeSq, options = {}) {
     if (maxRangeSq === null || maxRangeSq === undefined) return true;
-    if (maxRangeSq === 0) return false;
-    const enforce = game.settings.get?.("trespasser", "enforceAttackRange") ?? false;
+    const enforce = game.settings.get?.(SYSTEM_ID, "enforceAttackRange") ?? false;
     if (!enforce) return true;
+    if (maxRangeSq === 0) return false;
 
     const dist = this.measureDistanceSquares(sourceToken, target, options);
     return dist <= maxRangeSq;
