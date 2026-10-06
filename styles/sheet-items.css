@@ -581,16 +581,18 @@
   color: var(--trp-text-bright);
 }
 
-/* ── Deed Sheet (AppV2) ──────────────────────────────── */
+/* ── Deed & Action Sheet (AppV2) ────────────────────────── */
 
-/* Make the deed sheet's window-content and form a flex column */
-.trespasser.sheet.deed .window-content {
+/* Make the deed and action sheet's window-content and form a flex column */
+.trespasser.sheet.deed .window-content,
+.trespasser.sheet.action .window-content {
   display: flex;
   flex-direction: column;
   overflow: hidden !important;
 }
 
-.trespasser.sheet.deed .window-content > form {
+.trespasser.sheet.deed .window-content > form,
+.trespasser.sheet.action .window-content > form {
   display: flex;
   flex-direction: column;
   flex: 1;
@@ -599,7 +601,8 @@
 }
 
 /* Header stays fixed at top */
-.trespasser.sheet.deed .window-content > form > .sheet-header {
+.trespasser.sheet.deed .window-content > form > .sheet-header,
+.trespasser.sheet.action .window-content > form > .sheet-header {
   flex: 0 0 auto;
 }
 
@@ -653,26 +656,38 @@
 }
 
 /* Tab content panels — hidden unless active */
-.trespasser.sheet.deed .tab {
+.trespasser.sheet.deed .tab,
+.trespasser.sheet.action .tab {
   display: none;
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
 }
 
-.trespasser.sheet.deed .tab.active {
+.trespasser.sheet.deed .tab.active,
+.trespasser.sheet.action .tab.active {
   display: flex;
   flex-direction: column;
 }
 
-.trespasser.sheet.deed .tab::-webkit-scrollbar {
+.trespasser.sheet.deed .tab.behaviors,
+.trespasser.sheet.action .tab.behaviors {
+  overflow: hidden !important;
+  flex: 1 1 auto;
+  height: 100%;
+}
+
+.trespasser.sheet.deed .tab::-webkit-scrollbar,
+.trespasser.sheet.action .tab::-webkit-scrollbar {
   width: 6px;
 }
-.trespasser.sheet.deed .tab::-webkit-scrollbar-thumb {
+.trespasser.sheet.deed .tab::-webkit-scrollbar-thumb,
+.trespasser.sheet.action .tab::-webkit-scrollbar-thumb {
   background: var(--color-scrollbar);
   border-radius: 3px;
 }
-.trespasser.sheet.deed .tab::-webkit-scrollbar-track {
+.trespasser.sheet.deed .tab::-webkit-scrollbar-track,
+.trespasser.sheet.action .tab::-webkit-scrollbar-track {
   background: var(--color-scrollbar-track);
 }
 

@@ -39,6 +39,7 @@ import {
   executeManeuver,
   executeSmash,
   executeRummage,
+  executeCustomAction,
   modifyAP,
   onSpendAP
 } from "./hud-actions-deeds-skills.mjs";
@@ -216,6 +217,11 @@ export class TrespasserTokenHUD extends HandlebarsApplicationMixin(ApplicationV2
         case "execute-vault":           executeVault(this); break;
         case "execute-wait":            executeWait(this); break;
         case "execute-force-move":      executeForceMove(this); break;
+        case "execute-custom-action": {
+          const actionId = ev.target.closest("[data-action-id]")?.dataset.actionId;
+          if (actionId) executeCustomAction(this, actionId);
+          break;
+        }
         case "open-quick-deed":         this._openQuickDeed(); break;
         case "modify-ap":               modifyAP(this, ev); break;
         case "modify-mp":               modifyMP(this, ev); break;

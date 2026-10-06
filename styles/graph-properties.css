@@ -279,7 +279,8 @@
 }
 
 .terrain-chip,
-.deed-chip {
+.deed-chip,
+.action-chip {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -290,7 +291,8 @@
 }
 
 .terrain-chip img,
-.deed-chip img {
+.deed-chip img,
+.action-chip img {
   width: 24px;
   height: 24px;
   border: none;
@@ -298,7 +300,8 @@
 }
 
 .terrain-chip span,
-.deed-chip span {
+.deed-chip span,
+.action-chip span {
   font-size: var(--fs-11);
   font-weight: 600;
   color: var(--trp-text-bright, #f5eccc);

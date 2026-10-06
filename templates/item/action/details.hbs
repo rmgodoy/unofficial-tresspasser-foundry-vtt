@@ -1,0 +1,16 @@
+<section class="tab details scrollable {{tab.cssClass}}" data-group="primary" data-tab="details" {{#unless tab.active}}hidden{{/unless}}>
+  <div class="deed-details">
+    <div class="details-grid">
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Item.Details.APCost"}}</label>
+        <input type="number" name="system.apCost" value="{{system.apCost}}" placeholder="1" step="1" min="0" class="select-on-focus"/>
+      </div>
+      <div class="field-row description-column" style="grid-column: 1 / -1;">
+        <label>{{localize "TRESPASSER.Sheet.Common.Description"}}</label>
+        <div class="trp-editor-container">
+          <prose-mirror name="system.description" value="{{system.description}}" toggled="false" compact="false" editable="{{editable}}">{{{descriptionHTML}}}</prose-mirror>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

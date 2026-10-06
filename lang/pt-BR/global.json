@@ -140,7 +140,8 @@
         "build": "Construção",
         "stronghold": "Fortaleza",
         "plight": "Aflição",
-        "terrain": "Terreno"
+        "terrain": "Terreno",
+        "action": "Ação"
       }
     },
     "Terrain": {
@@ -161,6 +162,7 @@
       "rations": "Rações",
       "effect": "Efeito",
       "deed": "Habilidade",
+      "action": "Ação",
       "feature": "Característica",
       "talent": "Talento",
       "weapon": "Arma",
@@ -175,7 +177,8 @@
       "hireling": "Servo",
       "build": "Construção",
       "stronghold": "Fortaleza",
-      "plight": "Aflição"
+      "plight": "Aflição",
+      "terrain": "Terreno"
     },
     "Dice": {
       "SkillDie": "Dado de Perícia",

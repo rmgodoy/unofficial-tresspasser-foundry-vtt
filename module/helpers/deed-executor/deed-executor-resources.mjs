@@ -18,6 +18,28 @@ export async function validateResources(executor) {
   let apSpent = 1;
   let apBonus = 0;
 
+  if (executor.item.type === "action") {
+    apSpent = (executor.options.apSpent !== undefined && executor.options.apSpent !== null)
+      ? Math.max(0, parseInt(executor.options.apSpent) || 0)
+      : Math.max(0, executor.system.apCost ?? 1);
+
+    if (combatant) {
+      const availableAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+      if (restrictAPF && availableAP < apSpent) {
+        ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
+        return false;
+      }
+    }
+
+    executor.context.apSpent = apSpent;
+    executor.context.apBonus = 0;
+    executor.context.totalFocusCost = 0;
+    executor.context.costIncrease = 0;
+    executor.context.currentBonusCost = 0;
+    executor.context.currentUses = 0;
+    return true;
+  }
+
   if (combatant) {
     const availableAP = getSystemFlag(combatant, "actionPoints") ?? 0;
     if (restrictAPF && availableAP < 1) {

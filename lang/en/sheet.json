@@ -585,6 +585,7 @@
           "FocusCost": "Focus Cost",
           "FocusIncrease": "Focus Increase",
           "BonusCost": "Bonus Cost",
+          "APCost": "AP Cost",
           "EnduranceCost": "Endurance Cost",
           "ActionType": "Action Type",
           "DeedType": "Deed Type",
@@ -851,6 +852,7 @@
           "DropActor": "Drop Actor from sidebar or compendium",
           "LinkedEffectUuid": "Linked Effect UUID",
           "DropDeeds": "Drop Deeds here",
+          "DropActions": "Drop Actions here",
           "DropIncantations": "Drop Incantations here",
           "DropTalents": "Drop Talents here",
           "DropFeatures": "Drop Features here",
@@ -897,6 +899,7 @@
           "LinkedEffects": "Linked Effects",
           "CounterEffects": "Counter Effects",
           "LinkedDeeds": "Linked Deeds",
+          "LinkedActions": "Linked Actions",
           "MagicTraits": "Magic Traits",
           "Features": "Features",
           "Talents": "Talents",
@@ -906,6 +909,7 @@
         "Note": {
           "SkillWeaponDie": "Use <sd> for Skill Die, <wd> for Weapon Die.",
           "LinkedDeeds": "These will be automatically added to the actor's deeds.",
+          "LinkedActions": "These will be automatically added to the actor's actions.",
           "LinkedEffects": "These will be automatically applied to the actor when the feature is added.",
           "CounterEffects": "Dragging an effect here will make it a counter to this one, subtracting intensities when applied."
         },

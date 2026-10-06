@@ -8,7 +8,8 @@ export class TrespasserFeatureData extends foundry.abstract.TypeDataModel {
       description: new fields.HTMLField(),
       type: new fields.StringField({ initial: "none", choices: ["none", "action", "reaction"] }),
       effects: new fields.ArrayField(new fields.ObjectField(), { initial: [] }),
-      deeds: new fields.ArrayField(new fields.ObjectField(), { initial: [] })
+      deeds: new fields.ArrayField(new fields.ObjectField(), { initial: [] }),
+      actions: new fields.ArrayField(new fields.ObjectField(), { initial: [] })
     };
   }
 }

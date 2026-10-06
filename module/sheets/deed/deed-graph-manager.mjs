@@ -1,11 +1,12 @@
 import { createDefaultDeedGraph } from "../../data/item-deed.mjs";
+import { createDefaultActionGraph } from "../../data/item-action.mjs";
 import { GraphEditor } from "../../components/graph-editor/graph-editor.mjs";
 import { GraphPropertiesPanel } from "../../components/graph-editor/graph-properties-panel.mjs";
 import { SYSTEM_ID } from "../../system-id.mjs";
 
 /**
- * Mounts or re-mounts the GraphEditor and GraphPropertiesPanel on a deed sheet.
- * @param {object} sheet - TrespasserDeedSheet instance
+ * Mounts or re-mounts the GraphEditor and GraphPropertiesPanel on a deed or action sheet.
+ * @param {object} sheet - TrespasserDeedSheet or TrespasserActionSheet instance
  * @param {HTMLElement} graphContainer
  * @param {HTMLElement} propertiesContainer
  */
@@ -58,9 +59,9 @@ export function mountGraphEditor(sheet, graphContainer, propertiesContainer) {
   let nodes = sheet.document.system.graph?.nodes || [];
   let connections = sheet.document.system.graph?.connections || [];
   if (nodes.length === 0 && sheet.isEditable) {
-    const defaultGraph = createDefaultDeedGraph();
+    const defaultGraph = sheet.document.type === "action" ? createDefaultActionGraph() : createDefaultDeedGraph();
     sheet.document.update({ "system.graph": defaultGraph }).catch(err => {
-      console.error("Trespasser | Failed to initialize default deed graph:", err);
+      console.error("Trespasser | Failed to initialize default graph:", err);
     });
     nodes = defaultGraph.nodes;
     connections = defaultGraph.connections;

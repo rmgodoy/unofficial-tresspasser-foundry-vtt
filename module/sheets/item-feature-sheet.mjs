@@ -45,6 +45,7 @@ export class TrespasserFeatureSheet extends TrespasserItemSheet {
     // Preparation for Handlebars
     context.linkedEffects = system.effects || [];
     context.linkedDeeds = system.deeds || [];
+    context.linkedActions = system.actions || [];
 
     context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
       system.description ?? "",
@@ -103,6 +104,9 @@ export class TrespasserFeatureSheet extends TrespasserItemSheet {
     this.element.querySelectorAll('.deed-remove').forEach(btn => {
       btn.addEventListener('click', ev => this._onRemoveLink('deeds', ev));
     });
+    this.element.querySelectorAll('.action-remove').forEach(btn => {
+      btn.addEventListener('click', ev => this._onRemoveLink('actions', ev));
+    });
 
     // Drag-and-drop
     this.element.querySelectorAll('.drop-zone').forEach(dropZone => {
@@ -127,12 +131,16 @@ export class TrespasserFeatureSheet extends TrespasserItemSheet {
     if (!dropData || dropData.type !== "Item") return;
 
     const targetEl = event.currentTarget;
-    const targetType = targetEl.dataset.type; // "effects" or "deeds"
+    const targetType = targetEl.dataset.type; // "effects", "deeds", or "actions"
 
     const sourceItem = await resolveItem(dropData);
     if (!sourceItem) return;
 
     // Validate types
+    if (targetType === "actions" && sourceItem.type !== "action") {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropActionsOnly"));
+      return;
+    }
     if (targetType === "deeds" && sourceItem.type !== "deed") {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropDeedsOnly"));
       return;

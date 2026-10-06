@@ -220,8 +220,10 @@ export function registerItemHooks() {
     if (item.type === "feature") {
       const effects = item.system.effects || [];
       const deeds = item.system.deeds || [];
+      const actions = item.system.actions || [];
       if (effects.length > 0) await actor._applyLinkedItems(effects);
       if (deeds.length > 0) await actor._applyLinkedItems(deeds);
+      if (actions.length > 0) await actor._applyLinkedItems(actions);
     } else if (item.type === "accessory" && item.system.equipped) {
       const sys = item.system;
       if (sys.talents?.length > 0) await actor._applyLinkedItems(sys.talents);
@@ -264,11 +266,13 @@ export function registerItemHooks() {
     if (!actor || actor.constructor.name !== "TrespasserActor") return;
 
     if (item.type === "feature" && ("system" in delta)) {
-      if ("effects" in delta.system || "deeds" in delta.system) {
+      if ("effects" in delta.system || "deeds" in delta.system || "actions" in delta.system) {
         const effects = item.system.effects || [];
         const deeds = item.system.deeds || [];
+        const actions = item.system.actions || [];
         if (effects.length > 0) await actor._applyLinkedItems(effects);
         if (deeds.length > 0) await actor._applyLinkedItems(deeds);
+        if (actions.length > 0) await actor._applyLinkedItems(actions);
       }
     } else if (item.type === "accessory" && item.system.equipped && ("system" in delta)) {
       const sys = item.system;
@@ -308,8 +312,10 @@ export function registerItemHooks() {
     if (item.type === "feature") {
       const effects = item.system.effects || [];
       const deeds = item.system.deeds || [];
+      const actions = item.system.actions || [];
       if (effects.length > 0) await actor._removeLinkedItems(effects, item.id);
       if (deeds.length > 0) await actor._removeLinkedItems(deeds, item.id);
+      if (actions.length > 0) await actor._removeLinkedItems(actions, item.id);
     } else if (item.type === "accessory") {
       const sys = item.system;
       if (sys.talents?.length > 0) await actor._removeLinkedItems(sys.talents, item.id);

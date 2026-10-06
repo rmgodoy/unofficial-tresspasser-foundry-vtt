@@ -319,3 +319,33 @@ export async function onSpendAP(hud) {
   await setSystemFlag(combatant, "actionPoints", newAP);
   hud.render();
 }
+
+/**
+ * Execute custom Action from Features or Items.
+ * @param {TrespasserTokenHUD} hud
+ * @param {string} actionId
+ */
+export async function executeCustomAction(hud, actionId) {
+  if (TrespasserEffectsHelper.hasActorFlagOrEffect(hud._token?.actor, "cannotAct")) {
+    ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Combat.CannotAct", { name: hud._token?.actor?.name || hud._token?.name }));
+    return;
+  }
+  const item = hud._token?.actor?.items.get(actionId);
+  if (!item || item.type !== "action") return;
+
+  const apCost = item.system.apCost ?? 1;
+  const combatant = getCombatant(hud._token);
+  const restrictAPF = game.settings.get(SYSTEM_ID, "restrictAPFocusUsage");
+  if (combatant && restrictAPF) {
+    const availableAP = getSystemFlag(combatant, "actionPoints") ?? 0;
+    if (availableAP < apCost) {
+      ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Combat.NotEnoughAP"));
+      return;
+    }
+  }
+
+  const { DeedExecutor } = await import("../helpers/deed-executor.mjs");
+  const executor = new DeedExecutor(item, hud._token.actor, { apSpent: apCost, token: hud._token });
+  await executor.execute();
+  hud.render();
+}

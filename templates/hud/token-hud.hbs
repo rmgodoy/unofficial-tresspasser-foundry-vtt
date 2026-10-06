@@ -427,6 +427,20 @@
                 </button>
             </div>
             {{/if}}
+            <!-- CUSTOM ACTIONS (FROM FEATURES / ITEMS) -->
+            {{#each actions}}
+            <div class="hud-action-group">
+                <button class="hud-action-btn custom-action" data-action="execute-custom-action" data-action-id="{{id}}" {{#unless canExecute}}disabled{{/unless}} title="{{name}}">
+                    <span class="btn-text">{{name}}</span>
+                    <div class="btn-icons">
+                        <div class="action-icon"></div>
+                    </div>
+                    {{#if (trespasserGt apCost 0)}}
+                    <span class="focus-cost-chip" style="background: var(--trp-blue, #3498db); border-color: rgba(255, 255, 255, 0.2);">{{apCost}} AP</span>
+                    {{/if}}
+                </button>
+            </div>
+            {{/each}}
         </div>
     </div>
     {{/if}}

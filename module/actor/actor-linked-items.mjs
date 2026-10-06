@@ -67,21 +67,25 @@ export async function applyLinkedItems(actor, itemsArray, { continuousOnly = fal
 export async function removeLinkedItems(actor, itemsArray, sourceItemId) {
   if (!itemsArray || itemsArray.length === 0) return;
   
-  // Collect all other active sources for Deeds
+  // Collect all other active sources for Deeds and Actions
   const otherDeedNames = new Set();
+  const otherActionNames = new Set();
   for (const item of actor.items) {
     if (item.id === sourceItemId) continue;
      
     if (item.type === "feature") {
       (item.system.deeds || []).forEach(d => otherDeedNames.add(d.name));
+      (item.system.actions || []).forEach(a => otherActionNames.add(a.name));
     } else if (item.type === "weapon" && item.system.equipped) {
       (item.system.extraDeeds || []).forEach(d => otherDeedNames.add(d.name));
     } else if (item.type === "armor" && item.system.equipped) {
       (item.system.effects || []).forEach(e => {
         if (e.type === "deed") otherDeedNames.add(e.name);
+        if (e.type === "action") otherActionNames.add(e.name);
       });
     } else if (item.type === "accessory" && item.system.equipped) {
       (item.system.deeds || []).forEach(d => otherDeedNames.add(d.name));
+      (item.system.actions || []).forEach(a => otherActionNames.add(a.name));
       (item.system.talents || []).forEach(t => { if (t.type === "deed") otherDeedNames.add(t.name); });
       (item.system.features || []).forEach(f => { if (f.type === "deed") otherDeedNames.add(f.name); });
       (item.system.effects || []).forEach(e => { if (e.type === "deed") otherDeedNames.add(e.name); });
@@ -92,13 +96,14 @@ export async function removeLinkedItems(actor, itemsArray, sourceItemId) {
     const existingEffect = actor.items.find(i => i.type === eff.type && i.name === eff.name);
     if (!existingEffect) continue;
 
-    // Protection for Deeds
-    if (existingEffect.type === "deed") {
-      // 1. Never delete natural Deeds (no linkedSource flag)
+    // Protection for Deeds and Actions
+    if (existingEffect.type === "deed" || existingEffect.type === "action") {
+      const otherNames = existingEffect.type === "action" ? otherActionNames : otherDeedNames;
+      // 1. Never delete natural Deeds / Actions (no linkedSource flag)
       if (!getSystemFlag(existingEffect, "linkedSource")) continue;
 
       // 2. Never delete if another source still provides it
-      if (otherDeedNames.has(existingEffect.name)) continue;
+      if (otherNames.has(existingEffect.name)) continue;
 
       // 3. Otherwise, delete safely
       if (actor.items.has(existingEffect.id)) {

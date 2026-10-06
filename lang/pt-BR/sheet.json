@@ -585,6 +585,7 @@
           "FocusCost": "Custo de Foco",
           "FocusIncrease": "Aumento de Foco",
           "BonusCost": "Custo de Bônus",
+          "APCost": "Custo de PA",
           "EnduranceCost": "Custo de Vigor",
           "ActionType": "Tipo de Ação",
           "DeedType": "Tipo de Habilidade",
@@ -851,6 +852,7 @@
           "DropActor": "Arraste um Ator da barra lateral ou compêndio",
           "LinkedEffectUuid": "UUID do Efeito Vinculado",
           "DropDeeds": "Solte Habilidades aqui",
+          "DropActions": "Solte Ações aqui",
           "DropIncantations": "Solte Encantamentos aqui",
           "DropTalents": "Solte Talentos aqui",
           "DropFeatures": "Solte Características aqui",
@@ -897,6 +899,7 @@
           "LinkedEffects": "Efeitos Vinculados",
           "CounterEffects": "Efeitos Opostos",
           "LinkedDeeds": "Habilidades Vinculadas",
+          "LinkedActions": "Ações Vinculadas",
           "MagicTraits": "Traços Mágicos",
           "Features": "Características",
           "Talents": "Talentos",
@@ -906,6 +909,7 @@
         "Note": {
           "SkillWeaponDie": "Use <sd> para Dado de Perícia, <wd> para Dado de Arma.",
           "LinkedDeeds": "Estes serão adicionados automaticamente às habilidades do ator.",
+          "LinkedActions": "Estas serão adicionadas automaticamente às ações do ator.",
           "LinkedEffects": "Estes serão aplicados automaticamente ao ator quando a característica for adicionada.",
           "CounterEffects": "Arrastar um efeito para cá o tornará um contra-ataque a este, subtraindo intensidades quando aplicado."
         },

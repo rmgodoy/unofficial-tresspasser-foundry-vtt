@@ -69,6 +69,26 @@
         </div>
       </div>
 
+      <div class="applied-effects-section">
+        <h3 class="section-title">{{localize "TRESPASSER.Sheet.Item.Sections.LinkedActions"}}</h3>
+        <p class="section-note">{{localize "TRESPASSER.Sheet.Item.Note.LinkedActions"}}</p>
+        <div class="applied-effects-list drop-zone" data-type="actions">
+          {{#each linkedActions as |action index|}}
+            <div class="effect-chip action-chip" data-index="{{index}}" style="border-radius: 20px;">
+              <img src="{{action.img}}" style="border-radius: 50%;" />
+              <span class="name">{{action.name}}</span>
+              <div class="controls">
+                {{#if ../editable}}
+                  <a class="action-remove remove" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}"><i class="fas fa-times"></i></a>
+                {{/if}}
+              </div>
+            </div>
+          {{else}}
+            <p class="notes">{{localize "TRESPASSER.Sheet.Item.Placeholder.DropActions"}}</p>
+          {{/each}}
+        </div>
+      </div>
+
     </div>
   </section>
 </section>

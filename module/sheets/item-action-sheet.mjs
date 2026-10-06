@@ -1,13 +1,13 @@
-import { BEHAVIOR_TYPES, createDefaultDeedGraph } from "../data/item-deed.mjs";
 import { TrespasserItemSheet } from "./base-sheet.mjs";
-import { DEFAULT_PARAMS } from "../data/deed-default-params.mjs";
 import { mountGraphEditor, unmountGraphEditor } from "./deed/deed-graph-manager.mjs";
 import { handleDeedSwitchTab } from "./deed/deed-tab-manager.mjs";
 import { SYSTEM_ID } from "../system-id.mjs";
 
-export { DEFAULT_PARAMS };
-
-export class TrespasserDeedSheet extends TrespasserItemSheet {
+/**
+ * Item Sheet for Trespasser Actions.
+ * Implemented using ApplicationV2 (sheets.ItemSheetV2).
+ */
+export class TrespasserActionSheet extends TrespasserItemSheet {
 
   /**
    * Reference to active GraphEditor instance when the Behaviors tab is active.
@@ -50,13 +50,13 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
   _isAutoResizing = false;
 
   static DEFAULT_OPTIONS = {
-    classes: ["trespasser", "sheet", "item", "deed", "item-sheet"],
-    position: { width: 620, height: 720 },
+    classes: ["trespasser", "sheet", "item", "action", "item-sheet"],
+    position: { width: 560, height: 640 },
     actions: {
-      switchTab: TrespasserDeedSheet.#onSwitchTab
+      switchTab: TrespasserActionSheet.#onSwitchTab
     },
     form: {
-      handler: TrespasserDeedSheet.#onSubmit,
+      handler: TrespasserActionSheet.#onSubmit,
       submitOnChange: true,
       closeOnSubmit: false
     },
@@ -68,27 +68,22 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
 
   static PARTS = {
     header: {
-      template: "systems/trespasser/templates/item/deed/header.hbs"
+      template: "systems/trespasser/templates/item/action/header.hbs"
     },
     tabs: {
-      template: "systems/trespasser/templates/item/deed/tabs.hbs"
+      template: "systems/trespasser/templates/item/action/tabs.hbs"
     },
     details: {
-      template: "systems/trespasser/templates/item/deed/details.hbs",
+      template: "systems/trespasser/templates/item/action/details.hbs",
       scrollable: ["", ".deed-details"]
     },
-    phases: {
-      template: "systems/trespasser/templates/item/deed/phases.hbs",
-      scrollable: ["", ".deed-phases-container"]
-    },
     behaviors: {
-      template: "systems/trespasser/templates/item/deed/behaviors.hbs"
+      template: "systems/trespasser/templates/item/action/behaviors.hbs"
     }
   };
 
   static TABS = {
     details:   { id: "details",   group: "primary", label: "TRESPASSER.Sheet.Deed.Tabs.Details",   icon: "list" },
-    phases:    { id: "phases",    group: "primary", label: "TRESPASSER.Sheet.Deed.Tabs.Phases",    icon: "layer-group" },
     behaviors: { id: "behaviors", group: "primary", label: "TRESPASSER.Sheet.Deed.Tabs.Behaviors", icon: "diagram-project" }
   };
 
@@ -96,7 +91,8 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
 
   /** @override */
   get title() {
-    return `${game.i18n.localize("TYPES.Item.deed")}: ${this.document.name}`;
+    const typeLabel = game.i18n.localize(`TRESPASSER.TYPES.Item.${this.document.type}`) || "Action";
+    return `${typeLabel}: ${this.document.name}`;
   }
 
   _prepareTabs(parts) {
@@ -130,43 +126,14 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
     context.editable = this.isEditable;
     context.tabs = this._getTabs();
 
-    context.config = {
-      tiers: {
-        light: game.i18n.localize("TRESPASSER.Sheet.Item.Details.Tiers.Light"),
-        heavy: game.i18n.localize("TRESPASSER.Sheet.Item.Details.Tiers.Heavy"),
-        mighty: game.i18n.localize("TRESPASSER.Sheet.Item.Details.Tiers.Mighty"),
-        special: game.i18n.localize("TRESPASSER.Sheet.Item.Details.Tiers.Special")
-      },
-      actionTypes: {
-        attack: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Attack"),
-        support: game.i18n.localize("TRESPASSER.Sheet.Item.Details.ActionTypeChoices.Support")
-      },
-      abilityTypes: {
-        innate: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Innate"),
-        melee: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Melee"),
-        missile: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Missile"),
-        spell: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Spell"),
-        tool: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Tool"),
-        unarmed: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Unarmed"),
-        versatile: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TypeChoices.Versatile")
-      },
-      versusChoices: {
-        Guard: game.i18n.localize("TRESPASSER.Sheet.Combat.Guard"),
-        Resist: game.i18n.localize("TRESPASSER.Sheet.Combat.Resist"),
-        "10": "10"
+    context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
+      item.system.description ?? "",
+      {
+        async: true,
+        secrets: item.isOwner,
+        relativeTo: item
       }
-    };
-
-    const phaseKeys = ["start", "before", "base", "hit", "spark", "after", "end"];
-    context.phases = phaseKeys.map(key => {
-      const phaseData = item.system.phases?.[key] ?? { description: "", skipPhase: false };
-      return {
-        key,
-        label: game.i18n.localize(`TRESPASSER.Sheet.Deed.Phase.${key.charAt(0).toUpperCase() + key.slice(1)}`),
-        description: phaseData.description ?? "",
-        skipPhase: phaseData.skipPhase ?? false
-      };
-    });
+    );
 
     context.graph = item.system.graph ?? { nodes: [], connections: [] };
 
@@ -181,10 +148,24 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
       input.addEventListener("focus", (ev) => ev.currentTarget.select());
     }
 
-    // Track manual resizing via resize handle
+    // Intercept change events from prose-mirror
+    this.element.addEventListener("change", (ev) => {
+      const pm = ev.target.closest("prose-mirror");
+      if (pm) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        setTimeout(() => {
+          if (this.element && this.document) {
+            this.document.update({ "system.description": pm.value });
+          }
+        }, 0);
+      }
+    }, true);
+
+    // Track manual resizing
     const resizeHandle = this.element.querySelector(".window-resize-handle");
-    if (resizeHandle && !resizeHandle._deedResizeBound) {
-      resizeHandle._deedResizeBound = true;
+    if (resizeHandle && !resizeHandle._actionResizeBound) {
+      resizeHandle._actionResizeBound = true;
       resizeHandle.addEventListener("pointerdown", () => {
         const startW = this.position.width;
         const startH = this.position.height;
@@ -211,28 +192,14 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
     }
   }
 
-  /**
-   * Mounts or re-mounts the GraphEditor and GraphPropertiesPanel.
-   * @param {HTMLElement} graphContainer
-   * @param {HTMLElement} propertiesContainer
-   * @protected
-   */
   _mountGraphEditor(graphContainer, propertiesContainer) {
     mountGraphEditor(this, graphContainer, propertiesContainer);
   }
 
-  /**
-   * Unmounts active graph editor components when inactive.
-   * @protected
-   */
   _unmountGraphEditor() {
     unmountGraphEditor(this);
   }
 
-  /**
-   * Rebinds graph components when window host document changes (detach/attach).
-   * @protected
-   */
   _rebindGraphOnHostChange() {
     if (this.tabGroups.primary !== "behaviors") return;
     const graphContainer = this.element?.querySelector(".deed-graph-container");
@@ -296,7 +263,6 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
       this._graphViewportState = this.graphEditor.getViewportState();
       formData.object[`flags.${SYSTEM_ID}.graphViewport`] = this._graphViewportState;
 
-      // Remove any raw node keys from formData.object so they don't corrupt the graph
       for (const key of Object.keys(formData.object)) {
         if (key.startsWith("system.graph.nodes.")) {
           delete formData.object[key];
@@ -306,7 +272,6 @@ export class TrespasserDeedSheet extends TrespasserItemSheet {
         delete formData.object.system.graph.nodes;
       }
 
-      // Live graph from editor is the single source of truth
       formData.object["system.graph"] = this.graphEditor.getGraph();
       formData.object["system.graphVersion"] = 1;
     }

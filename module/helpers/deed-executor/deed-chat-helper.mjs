@@ -103,13 +103,17 @@ export class DeedChatHelper {
    * @returns {string}
    */
   buildCardContent(phaseKey, phase, outputs) {
-    const phaseLabel = game.i18n.localize(
-      `TRESPASSER.Sheet.Deed.Phase.${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)}`
-    );
+    const isAction = this.executor.item.type === "action";
+    const phaseLabel = isAction
+      ? ""
+      : game.i18n.localize(
+          `TRESPASSER.Sheet.Deed.Phase.${phaseKey.charAt(0).toUpperCase() + phaseKey.slice(1)}`
+        );
+    const headerTitle = isAction ? this.executor.item.name : `${this.executor.item.name} — ${phaseLabel}`;
 
     let content = `<div class="bdeed-phase-card" style="border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px; padding: 10px; background: var(--trp-bg-panel, #23201c); color: var(--trp-text, #ddd0aa);">
       <h3 style="margin: 0 0 6px 0; color: var(--trp-gold-bright, #e8c96b); font-family: var(--trp-font-header, 'Cinzel', serif); font-size: var(--fs-14); border-bottom: 1px solid var(--trp-gold-dim, #a88840); padding-bottom: 4px;">
-        ${this.executor.item.name} — ${phaseLabel}
+        ${headerTitle}
       </h3>`;
 
     if (phase.description && !phase.skipPhase) {

@@ -223,6 +223,16 @@ export function prepareHudContext(hud) {
   const selectedDeed = deeds.find(d => d.id === hud._selectedDeedId) || deeds[0] || null;
   if (selectedDeed) hud._selectedDeedId = selectedDeed.id;
   const concoctions = getAvailableConcoctions(hud._token);
+  const actions = (hud._token.actor?.items.filter(i => i.type === "action") || []).map(act => {
+    const apCost = act.system.apCost ?? 1;
+    return {
+      id: act.id,
+      name: act.name,
+      img: act.img,
+      apCost,
+      canExecute: (ap >= apCost || !restrictAPF)
+    };
+  });
 
   const hasLateTurn = game.combat?.combatants.some(c => 
     c.actorId === hud._token.actor?.id && 
@@ -282,6 +292,7 @@ export function prepareHudContext(hud) {
     selectedDeed,
     deedDropdownOpen: Boolean(hud._deedDropdownOpen),
     concoctions,
+    actions,
     usedActions: [...usedActions],
     throwOptions:    getThrowOptions(hud._token, ap),
     deedOptions:     getDeedOptions(ap),

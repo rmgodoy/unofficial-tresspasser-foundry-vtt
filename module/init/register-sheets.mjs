@@ -13,6 +13,7 @@ import { TrespasserRationsSheet } from "../sheets/item-rations-sheet.mjs";
 import { TrespasserEffectSheet } from "../sheets/item-effect-sheet.mjs";
 import { TrespasserPlightSheet } from "../sheets/item-plight-sheet.mjs";
 import { TrespasserDeedSheet } from "../sheets/item-deed-sheet.mjs";
+import { TrespasserActionSheet } from "../sheets/item-action-sheet.mjs";
 import { TrespasserFeatureSheet } from "../sheets/item-feature-sheet.mjs";
 import { TrespasserTalentSheet } from "../sheets/item-talent-sheet.mjs";
 import { TrespasserIncantationSheet } from "../sheets/item-incantation-sheet.mjs";
@@ -109,6 +110,11 @@ export function registerSystemSheets() {
     types: ["deed"],
     makeDefault: true,
     label: "Trespasser Deed Sheet",
+  });
+  foundry.documents.collections.Items.registerSheet(SYSTEM_ID, TrespasserActionSheet, {
+    types: ["action"],
+    makeDefault: true,
+    label: "Trespasser Action Sheet",
   });
   foundry.documents.collections.Items.registerSheet(SYSTEM_ID, TrespasserFeatureSheet, {
     types: ["feature"],

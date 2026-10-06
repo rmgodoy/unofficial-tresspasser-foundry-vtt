@@ -31,6 +31,7 @@ import { TrespasserBuildData } from "../data/item-build.mjs";
 import { TrespasserStrongholdData } from "../data/item-stronghold.mjs";
 import { TrespasserPlightData } from "../data/item-plight.mjs";
 import { TrespasserTerrainData } from "../data/item-terrain.mjs";
+import { TrespasserActionData } from "../data/item-action.mjs";
 
 /**
  * Register custom Document classes and DataModels in CONFIG.
@@ -57,6 +58,7 @@ export function registerDocumentModels() {
   CONFIG.Item.dataModels.rations = TrespasserRationsData;
   CONFIG.Item.dataModels.effect = TrespasserEffectData;
   CONFIG.Item.dataModels.deed = TrespasserDeedData;
+  CONFIG.Item.dataModels.action = TrespasserActionData;
   CONFIG.Item.dataModels.feature = TrespasserFeatureData;
   CONFIG.Item.dataModels.talent = TrespasserTalentData;
   CONFIG.Item.dataModels.incantation = TrespasserIncantationData;
