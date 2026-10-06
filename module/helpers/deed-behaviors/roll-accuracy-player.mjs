@@ -78,8 +78,9 @@ export async function executePlayerAccuracyRoll({
   if (hasEngagementPenalty) {
     rollDialogData.bonuses.push({
       key: "engagement",
-      label: game.i18n.localize("TRESPASSER.Chat.Combat.EngagementPenalty") || "Engaged",
+      label: game.i18n.localize("TRESPASSER.Chat.Combat.EngagedTag") || "Engaged",
       value: -2,
+      checked: true,
       toggleable: true
     });
   }

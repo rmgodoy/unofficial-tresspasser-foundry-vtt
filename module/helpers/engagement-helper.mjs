@@ -7,7 +7,7 @@ import { RangeHelper } from "./range-helper.mjs";
 import { getEffectiveDeedAttributes } from "./deed-behaviors/roll-accuracy.mjs";
 import { getActiveWeapons } from "../sheets/character/handlers-combat.mjs";
 import { TrespasserEffectsHelper } from "./effects-helper.mjs";
-import { SYSTEM_ID } from "../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 export class EngagementHelper {
   /**
@@ -36,9 +36,11 @@ export class EngagementHelper {
     if (!actor) return false;
     const hasEngagedEffect = actor.items?.some(i =>
       i.type === "effect" && (
-        i.getFlag(SYSTEM_ID, "isEngagedState") === true ||
-        i.getFlag(SYSTEM_ID, "statusEffectId") === "engaged" ||
-        i.name?.toLowerCase() === "engaged"
+        getSystemFlag(i, "isEngagedState") === true ||
+        getSystemFlag(i, "statusEffectId") === "engaged" ||
+        i.name?.toLowerCase() === "engaged" ||
+        i.name?.toLowerCase() === "engajado" ||
+        i.name?.toLowerCase()?.startsWith("engajado")
       )
     );
     if (hasEngagedEffect) return true;
@@ -112,7 +114,7 @@ export class EngagementHelper {
     }
 
     const sourceToken = options.sourceToken || this.getActorToken(actorDoc);
-    const isEngaged = sourceToken ? TargetingHelper.isEngaged(sourceToken) : this.isActorEngaged(actorDoc);
+    const isEngaged = this.isActorEngaged(actorDoc) || (sourceToken ? TargetingHelper.isEngaged(sourceToken) : false);
     if (!isEngaged) {
       return { isEngaged: false, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "none" };
     }
@@ -131,8 +133,8 @@ export class EngagementHelper {
       return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "none" };
     }
 
-    // Check if inherently exempt (e.g. personal, burst, close blast, close path, melee burst, aura)
-    const exemptTypes = ["burst", "close_blast", "close_path", "melee_burst", "aura", "personal"];
+    // Check if inherently exempt (e.g. personal, self, burst, close blast, close path, melee burst, aura)
+    const exemptTypes = ["burst", "close_blast", "close_path", "melee_burst", "aura", "personal", "self"];
     const targetType = deedItem.system?.targetType;
     if (exemptTypes.includes(targetType)) {
       return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "exempt_aoe" };
@@ -141,12 +143,7 @@ export class EngagementHelper {
     // Check BDeed graph nodes for area/target exempt parameters
     const nodes = deedItem.system?.graph?.nodes || [];
     for (const node of nodes) {
-      if (node.type === "selectArea") {
-        const aoeType = node.params?.aoeType;
-        if (exemptTypes.includes(aoeType)) {
-          return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "exempt_aoe" };
-        }
-      } else if (node.type === "selectTarget") {
+      if (node.type === "selectArea" || node.type === "selectTarget") {
         const aoeType = node.params?.aoeType;
         if (exemptTypes.includes(aoeType)) {
           return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "exempt_aoe" };
@@ -159,58 +156,13 @@ export class EngagementHelper {
     for (const pKey of Object.keys(phases)) {
       const behaviors = phases[pKey]?.behaviors || [];
       for (const b of behaviors) {
-        if (b.type === "selectArea" && exemptTypes.includes(b.params?.aoeType)) {
-          return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "exempt_aoe" };
-        }
-        if (b.type === "selectTarget" && exemptTypes.includes(b.params?.aoeType)) {
+        if ((b.type === "selectArea" || b.type === "selectTarget") && exemptTypes.includes(b.params?.aoeType)) {
           return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: false, engagementState: "exempt_aoe" };
         }
       }
     }
 
-    // Target-dependent adjacency check
-    let rawTargets = options.targetTokens || (options.targetToken ? [options.targetToken] : []);
-    if (!Array.isArray(rawTargets)) rawTargets = [rawTargets];
-    const targetList = rawTargets.filter(Boolean);
-
-    if (targetList.length > 0) {
-      const gridPx = canvas?.grid?.size || 100;
-      let allAdjacent = true;
-
-      for (const t of targetList) {
-        const isSelf = (sourceToken && (t.id === sourceToken.id || t.document?.id === sourceToken.id)) ||
-                       (actorDoc && (t.actor?.id === actorDoc.id || t.id === actorDoc.id));
-        if (isSelf) continue;
-
-        const tDoc = t.document ?? t;
-        const sDoc = sourceToken?.document ?? sourceToken;
-
-        const tCenter = t.center || (tDoc ? { x: (tDoc.x ?? 0) + (tDoc.width ?? 1) * gridPx / 2, y: (tDoc.y ?? 0) + (tDoc.height ?? 1) * gridPx / 2 } : null);
-        const sCenter = sourceToken?.center || (sDoc ? { x: (sDoc.x ?? 0) + (sDoc.width ?? 1) * gridPx / 2, y: (sDoc.y ?? 0) + (sDoc.height ?? 1) * gridPx / 2 } : null);
-
-        if (sCenter && tCenter) {
-          const distSquares = Math.max(
-            Math.abs(tCenter.x - sCenter.x),
-            Math.abs(tCenter.y - sCenter.y)
-          ) / gridPx;
-          if (distSquares > 1.1) {
-            allAdjacent = false;
-            break;
-          }
-        } else {
-          allAdjacent = false;
-          break;
-        }
-      }
-
-      if (allAdjacent) {
-        return { isEngaged: true, hasPenalty: false, penaltyValue: 0, isExemptAdjacent: true, engagementState: "exempt_adjacent" };
-      } else {
-        return { isEngaged: true, hasPenalty: true, penaltyValue: -2, isExemptAdjacent: false, engagementState: "penalty" };
-      }
-    }
-
-    // Static view (e.g. Deed Card / Attempt Deed dropdown)
+    // Engaged actor casting a non-exempt spell or missile deed suffers -2 Accuracy penalty
     return { isEngaged: true, hasPenalty: true, penaltyValue: -2, isExemptAdjacent: false, engagementState: "penalty" };
   }
 

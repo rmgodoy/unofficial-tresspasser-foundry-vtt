@@ -84,7 +84,7 @@
         "HealedAmountBonus": "{name} curou {total} PV (+{bonus} de bônus).",
         "EngagementPenalty": "(Engajado: -2 acurácia)",
         "EngagedTag": "Engajado",
-        "EngagementPenaltyDeedTooltip": "Engajado: -2 de Acurácia com ataques de projétil e magia (a menos que mire em inimigos adjacentes).",
+        "EngagementPenaltyDeedTooltip": "Engajado: -2 de Acurácia com ataques de projétil e magia.",
         "EngagementAdjacentExemptTooltip": "Engajado: A penalidade de -2 no acerto foi anulada porque todos os alvos são adjacentes.",
         "Block": "Bloquear",
         "Blocked": "Bloqueado",

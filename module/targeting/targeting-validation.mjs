@@ -154,27 +154,15 @@ export function isEngaged(token) {
 
 /**
  * Check if a deed is exempt from the engagement penalty.
- * Exempt if: targeting adjacent creature, or is burst/close_blast/close_path/melee_burst.
+ * Exempt if inherently a close AOE, personal, or aura deed.
  * @param {object} deed  item.system
- * @param {Token[]} targets
- * @param {Token} sourceToken
+ * @param {Token[]} [targets]
+ * @param {Token} [sourceToken]
  * @returns {boolean}
  */
 export function isExemptFromEngagement(deed, targets, sourceToken) {
-  const exemptTypes = ["burst", "close_blast", "close_path", "melee_burst", "personal"];
+  const exemptTypes = ["burst", "close_blast", "close_path", "melee_burst", "aura", "personal", "self"];
   if (exemptTypes.includes(deed?.targetType)) return true;
-
-  if (sourceToken && targets && targets.length > 0) {
-    const gridPx = canvas.grid.size || 100;
-    for (const t of targets) {
-      if (!t?.center) continue;
-      const distSquares = Math.max(
-        Math.abs(t.center.x - sourceToken.center.x),
-        Math.abs(t.center.y - sourceToken.center.y)
-      ) / gridPx;
-      if (distSquares <= 1.1) return true; // adjacent
-    }
-  }
   return false;
 }
 
