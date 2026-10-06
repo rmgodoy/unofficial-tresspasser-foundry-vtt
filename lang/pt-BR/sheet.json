@@ -883,7 +883,8 @@
           "GMOnly": "Apenas Mestre?",
           "IsReminder": "Apenas Lembrete?",
           "IsPrevailable": "Pode Prevalecer?",
-          "IsLasting": "É Duradouro?"
+          "IsLasting": "É Duradouro?",
+          "ShowTokenIcon": "Exibir Ícone no Token / Rastreador?"
         },
         "Actions": {
           "RecoverThrown": "Recuperar arma jogada"

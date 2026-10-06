@@ -106,6 +106,7 @@ export async function handleCreateEffect(params = {}) {
       counterStates: Array.isArray(params.counterStates) ? params.counterStates : [],
       isPrevailable: params.isPrevailable !== false,
       isLasting: Boolean(params.isLasting),
+      showTokenIcon: params.showTokenIcon !== false,
       statusIcon: params.statusIcon || "",
       syncStatusIcon: params.syncStatusIcon !== false
     },

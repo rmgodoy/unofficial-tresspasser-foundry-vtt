@@ -98,6 +98,7 @@ export const TOOLS_DEFINITIONS = [
         },
         isPrevailable: { type: "boolean", description: "Whether the target can make a Prevail test to clear the effect (default: true)." },
         isLasting: { type: "boolean", description: "Whether the effect persists across scenes/rests (default: false)." },
+        showTokenIcon: { type: "boolean", description: "Whether to display this effect as an icon over tokens and in the combat tracker (default: true)." },
         statusIcon: { type: "string", description: "Icon image path for token HUD status effect." },
         saveToPack: { type: "boolean", description: "If true, saves directly to json-packs/trespasser-content (default: false)." }
       }

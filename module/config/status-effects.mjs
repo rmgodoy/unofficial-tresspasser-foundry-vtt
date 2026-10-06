@@ -106,6 +106,7 @@ function _createSpecialEffectData({ name, img, description, intensity = 0, isOnl
       intensityIncrement: 0,
       counterStates,
       isPrevailable,
+      showTokenIcon: true,
       statusIcon: `systems/trespasser/assets/icons/states/${img}.svg`,
       syncStatusIcon: false
     },

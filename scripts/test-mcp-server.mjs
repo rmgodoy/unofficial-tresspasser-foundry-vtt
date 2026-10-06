@@ -122,6 +122,9 @@ async function runTests() {
     if (parsedEffect.item.system.isCombat !== true) {
       throw new Error("create_effect failed: isCombat should default to true.");
     }
+    if (parsedEffect.item.system.showTokenIcon !== true) {
+      throw new Error("create_effect failed: showTokenIcon should default to true.");
+    }
 
     // 4b. Create Reminder Only Effect (modifier = 0)
     console.log("-> Testing reminder-only auto-detection (modifier: '0')...");

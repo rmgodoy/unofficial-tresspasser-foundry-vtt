@@ -124,9 +124,9 @@ export function getCombatTrackerEffects(actor) {
   if (!actor) return [];
   const effectsList = [];
 
-  // 1. Combat effect items on the actor
+  // 1. Effect items on the actor enabled for token/tracker display
   for (const item of actor.items) {
-    if (item.type !== "effect" || !item.system?.isCombat) continue;
+    if (item.type !== "effect" || item.system?.showTokenIcon === false) continue;
     if (item.system.gmOnly && !game.user.isGM) continue;
     const icon = (item.system.syncStatusIcon !== false)
       ? (item.img || item.system.statusIcon)
@@ -337,8 +337,8 @@ export async function performSyncActorTokenEffects(actor) {
       return img === statusIconPath;
     });
     const statusId = matchingStatus?.id || item.getFlag(SYSTEM_ID, "statusEffectId") || item.id;
-    // Leverage showIcon: 2 for combat effects meant for token display, 0 for hidden/non-combat
-    const shouldShow = Boolean(showEffects && item.system?.isCombat && (!item.system?.gmOnly || game.user.isGM));
+    // Leverage showIcon: 2 for effects meant for token display, 0 for hidden
+    const shouldShow = Boolean(showEffects && (item.system?.showTokenIcon !== false) && (!item.system?.gmOnly || game.user.isGM));
     const showIcon = shouldShow ? 2 : 0;
 
     const effectData = {

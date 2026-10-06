@@ -159,6 +159,7 @@ export async function toggleActorStatusEffect(actor, statusId, { active, overlay
           intensityIncrement: 0,
           counterStates: fallbackCounterStates,
           isPrevailable: isPrev,
+          showTokenIcon: true,
           statusIcon: status.img,
           syncStatusIcon: false
         }

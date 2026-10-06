@@ -883,7 +883,8 @@
           "GMOnly": "GM Only?",
           "IsReminder": "Is Reminder Only?",
           "IsPrevailable": "Is Prevailable?",
-          "IsLasting": "Is Lasting?"
+          "IsLasting": "Is Lasting?",
+          "ShowTokenIcon": "Show Icon on Token / Tracker?"
         },
         "Actions": {
           "RecoverThrown": "Recover thrown weapon"

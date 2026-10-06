@@ -36,6 +36,11 @@
         <label for="effect-lasting-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.IsLasting"}}</label>
       </div>
 
+      <div class="field-row checkbox-row">
+        <input type="checkbox" name="system.showTokenIcon" {{checked system.showTokenIcon}} id="effect-showtokenicon-{{item.id}}"/>
+        <label for="effect-showtokenicon-{{item.id}}">{{localize "TRESPASSER.Sheet.Item.States.ShowTokenIcon"}}</label>
+      </div>
+
       {{#if system.isOnlyReminder}}
       <div class="field-row checkbox-row">
         <input type="checkbox" name="system.gmOnly" {{checked system.gmOnly}} id="effect-gmonly-{{item.id}}"/>

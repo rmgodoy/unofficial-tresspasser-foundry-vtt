@@ -86,6 +86,7 @@ export class TrespasserEffectData extends foundry.abstract.TypeDataModel {
       counterStates: new fields.ArrayField(new fields.ObjectField(), { initial: [] }),
       isPrevailable: new fields.BooleanField({ initial: true }),
       isLasting: new fields.BooleanField({ initial: false }),
+      showTokenIcon: new fields.BooleanField({ initial: true }),
       statusIcon: new fields.StringField({ initial: "", blank: true }),
       syncStatusIcon: new fields.BooleanField({ initial: true }),
       // --- TCA Behavior Blocks (new) ---
