@@ -30,7 +30,9 @@ export function resolveSourceActor(options = {}) {
   if (options.sourceTokenId) {
     return canvas?.scene?.tokens?.get(options.sourceTokenId)?.actor ?? null;
   }
-  return game.actors?.get(options.sourceActorId) ?? null;
+  const actor = game.actors?.get(options.sourceActorId) ?? null;
+  // Sidebar actors without a placed (linked) token on the active scene are not live sources
+  return hasPlacedToken(actor) ? actor : null;
 }
 
 /**
@@ -41,4 +43,29 @@ export function resolveSourceActor(options = {}) {
 export function getUnlinkedSceneTokens(actor) {
   if (!actor || actor.isToken || !canvas?.scene?.tokens) return [];
   return canvas.scene.tokens.filter(t => t.actorId === actor.id && !t.actorLink);
+}
+
+/**
+ * Linked token documents on the active scene that represent the given world actor.
+ * @param {Actor} actor
+ * @returns {TokenDocument[]}
+ */
+export function getLinkedSceneTokens(actor) {
+  if (!actor || actor.isToken || !canvas?.scene?.tokens) return [];
+  return canvas.scene.tokens.filter(t => t.actorId === actor.id && t.actorLink);
+}
+
+/**
+ * Whether the actor is physically present on the active scene.
+ * Synthetic (unlinked) actors must belong to the active scene; world actors need a linked token on it.
+ * @param {Actor} actor
+ * @returns {boolean}
+ */
+export function hasPlacedToken(actor) {
+  if (!actor) return false;
+  if (actor.isToken) {
+    const scene = actor.token?.parent;
+    return Boolean(scene && scene === canvas?.scene && scene.tokens.has(actor.token.id));
+  }
+  return getLinkedSceneTokens(actor).length > 0;
 }

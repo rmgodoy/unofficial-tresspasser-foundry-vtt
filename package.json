@@ -4,7 +4,8 @@
     "unpack": "npx fvtt package unpack --id trespasser-content --type Module --in packs --out json-packs/trespasser-content -n trespasser-content --clean",
     "migrate:deeds": "node scripts/migrate-compendium-deeds.mjs",
     "mcp": "node scripts/mcp/server.mjs",
-    "test:mcp": "node scripts/test-mcp-server.mjs"
+    "test:mcp": "node scripts/test-mcp-server.mjs",
+    "deploy:beta": "node scripts/deploy-beta.mjs"
   },
   "devDependencies": {
     "@foundryvtt/foundryvtt-cli": "^3.0.4"

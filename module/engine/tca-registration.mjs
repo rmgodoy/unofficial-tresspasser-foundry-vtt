@@ -4,7 +4,7 @@
  */
 
 import { actorEventBus } from "../actor/actor-event-bus.mjs";
-import { resolveSourceActor, getUnlinkedSceneTokens } from "../helpers/token-resolver.mjs";
+import { resolveSourceActor, getUnlinkedSceneTokens, hasPlacedToken } from "../helpers/token-resolver.mjs";
 import { tcaEngine } from "./tca-engine.mjs";
 import { resetCooldowns, clearAllCooldowns } from "./cooldown-tracker.mjs";
 
@@ -75,8 +75,9 @@ function markCrossProcessed(event, key) {
 
 /**
  * Register all cross-actor TCA behaviors from an actor's effects as scoped middleware on the event bus.
- * World actors that are represented by unlinked tokens on the active scene are skipped,
- * because each unlinked token's synthetic actor (which inherits the base items) is registered instead.
+ * Only actors with a token placed on the active scene are registered. World actors that are
+ * represented by unlinked tokens are skipped, because each unlinked token's synthetic actor
+ * (which inherits the base items) is registered instead.
  * @param {Actor} actor
  */
 export function registerActorTCA(actor) {
@@ -84,6 +85,10 @@ export function registerActorTCA(actor) {
 
   if (!actor.isToken && getUnlinkedSceneTokens(actor).length > 0) {
     console.log(`%c[TCA Registration]%c Skipping world actor "${actor.name}" (${actor.id}) - represented by unlinked scene token(s)`, "color: #c678dd;", "color: inherit;");
+    return;
+  }
+
+  if (!hasPlacedToken(actor)) {
     return;
   }
 
