@@ -62,7 +62,7 @@ import {
   syncActorTokenElevation
 } from "../effects/effects-token-sync.mjs";
 
-import { isSpecialState } from "../config/status-effects.mjs";
+import { isSpecialState, isStableSourceEffect } from "../config/status-effects.mjs";
 
 export {
   TRIGGER_WHEN,
@@ -106,6 +106,7 @@ export {
   getCombatTrackerEffects,
   syncActorTokenElevation,
   isSpecialState,
+  isStableSourceEffect,
   hasActorFlagOrEffect
 };
 
@@ -252,6 +253,10 @@ export class TrespasserEffectsHelper {
 
   static isSpecialState(item) {
     return isSpecialState(item);
+  }
+
+  static isStableSourceEffect(item, actor = null) {
+    return isStableSourceEffect(item, actor);
   }
 
   static hasActorFlagOrEffect(actor, flagKey) {

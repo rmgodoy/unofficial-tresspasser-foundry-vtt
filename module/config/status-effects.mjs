@@ -283,3 +283,95 @@ export function isSpecialState(item) {
 
   return false;
 }
+
+/**
+ * Check whether an effect/state item originates from a stable/permanent source
+ * (Features, Talents, Callings, Crafts, Injuries, equipped Gear, Strongholds, Haven, Special States, Lasting States).
+ * Such effects must NOT be automatically deleted when combat finishes.
+ *
+ * @param {Item} item - The effect document.
+ * @param {Actor} [actor] - Optional owning actor (falls back to item.parent).
+ * @returns {boolean} True if the effect comes from a stable source.
+ */
+export function isStableSourceEffect(item, actor = null) {
+  if (!item || (item.type !== "effect" && item.type !== "state")) return false;
+
+  // 1. Special states (Bloodied, Tenacious, Engaged, Encumbered, AirBorne, SunKen, etc.)
+  if (isSpecialState(item)) return true;
+
+  // 2. Lasting effects (persist across combats until downtime healing/rest)
+  if (item.system?.isLasting) return true;
+
+  // 3. Flags explicitly marking a stable source or persistent origin
+  const flags = getSystemFlags(item);
+  if (flags.fromInjury || flags.injuryId) return true;
+  if (flags.callingSource || flags.craftSource) return true;
+  if (flags.isStableSource || flags.isPersistent) return true;
+  if (flags.sourceType && [
+    "feature", "talent", "calling", "craft", "injury",
+    "armor", "accessory", "weapon", "item", "stronghold", "haven"
+  ].includes(flags.sourceType)) {
+    return true;
+  }
+
+  // 4. Check owning actor context
+  const parentActor = actor || item.parent;
+  if (!parentActor || !parentActor.items) {
+    if (flags.linkedSource || flags.linkedSourceUuid || flags.linkedSourceId) return true;
+    return false;
+  }
+
+  const linkedSource = flags.linkedSource;
+  const linkedUuid = flags.linkedSourceUuid || flags.sourceEffectUuid;
+  const linkedId = flags.linkedSourceId || flags.sourceEffectId || flags.sourceItemId;
+
+  const stableItemTypes = new Set([
+    "feature", "talent", "calling", "craft", "injury",
+    "armor", "accessory", "weapon", "item", "stronghold", "haven"
+  ]);
+
+  // If linkedSource matches a calling or craft name directly
+  if (typeof linkedSource === "string") {
+    const hasMatchingCallingOrCraft = parentActor.items.some(
+      i => (i.type === "calling" || i.type === "craft") && i.name === linkedSource
+    );
+    if (hasMatchingCallingOrCraft) return true;
+  }
+
+  for (const parentItem of parentActor.items) {
+    if (!stableItemTypes.has(parentItem.type)) continue;
+
+    // For equippable gear, only equipped gear counts as an active stable source
+    if (["armor", "accessory", "weapon", "item"].includes(parentItem.type)) {
+      if (!parentItem.system?.equipped) continue;
+    }
+
+    if (linkedId && (parentItem.id === linkedId || parentItem._id === linkedId)) return true;
+    if (linkedUuid && (parentItem.uuid === linkedUuid || parentItem.flags?.core?.sourceId === linkedUuid)) return true;
+    if (linkedSource && (parentItem.uuid === linkedSource || parentItem.id === linkedSource || parentItem.name === linkedSource)) return true;
+
+    const effectContainers = [
+      parentItem.system?.effects,
+      parentItem.system?.enhancementEffects,
+      parentItem.system?.talents,
+      parentItem.system?.features
+    ];
+
+    for (const container of effectContainers) {
+      if (!Array.isArray(container)) continue;
+      const match = container.some(entry => {
+        if (!entry) return false;
+        if (linkedSource && (entry.uuid === linkedSource || entry.id === linkedSource || entry.name === linkedSource)) return true;
+        if (linkedUuid && (entry.uuid === linkedUuid || entry.id === linkedUuid)) return true;
+        if (entry.uuid && (entry.uuid === item.uuid || entry.uuid === item.flags?.core?.sourceId || entry.uuid === item._stats?.compendiumSource)) return true;
+        if (entry.id && (entry.id === item.id || entry.id === item._id)) return true;
+        if (entry.name && entry.name === item.name) return true;
+        return false;
+      });
+      if (match) return true;
+    }
+  }
+
+  return false;
+}
+

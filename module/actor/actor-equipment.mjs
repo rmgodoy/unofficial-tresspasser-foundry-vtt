@@ -194,15 +194,15 @@ export async function equipItem(actor, itemId) {
   }
 
   if (item.type === "weapon") {
-    if (item.system.enhancementEffects?.length > 0) await applyLinkedItems(actor, item.system.enhancementEffects, { continuousOnly: true });
-    if (item.system.extraDeeds?.length > 0) await applyLinkedItems(actor, item.system.extraDeeds);
+    if (item.system.enhancementEffects?.length > 0) await applyLinkedItems(actor, item.system.enhancementEffects, { continuousOnly: true, sourceType: "weapon" });
+    if (item.system.extraDeeds?.length > 0) await applyLinkedItems(actor, item.system.extraDeeds, { sourceType: "weapon" });
   }
 
   if (item.type === "accessory" || item.type === "item") {
-    if (item.system.talents?.length > 0) await applyLinkedItems(actor, item.system.talents);
-    if (item.system.features?.length > 0) await applyLinkedItems(actor, item.system.features);
-    if (item.system.deeds?.length > 0) await applyLinkedItems(actor, item.system.deeds);
-    if (item.system.incantations?.length > 0) await applyLinkedItems(actor, item.system.incantations);
+    if (item.system.talents?.length > 0) await applyLinkedItems(actor, item.system.talents, { sourceType: item.type });
+    if (item.system.features?.length > 0) await applyLinkedItems(actor, item.system.features, { sourceType: item.type });
+    if (item.system.deeds?.length > 0) await applyLinkedItems(actor, item.system.deeds, { sourceType: item.type });
+    if (item.system.incantations?.length > 0) await applyLinkedItems(actor, item.system.incantations, { sourceType: item.type });
   }
 }
 

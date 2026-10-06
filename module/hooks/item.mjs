@@ -72,7 +72,7 @@ export function registerItemHooks() {
         return false;
       }
 
-      if (game.combat && !TrespasserEffectsHelper.isSpecialState(item)) {
+      if (game.combat && !TrespasserEffectsHelper.isSpecialState(item) && !TrespasserEffectsHelper.isStableSourceEffect(item, actor)) {
         item.updateSource({ [`flags.${SYSTEM_ID}.acquiredDuringCombat`]: true });
       }
 
@@ -221,19 +221,22 @@ export function registerItemHooks() {
       const effects = item.system.effects || [];
       const deeds = item.system.deeds || [];
       const actions = item.system.actions || [];
-      if (effects.length > 0) await actor._applyLinkedItems(effects);
-      if (deeds.length > 0) await actor._applyLinkedItems(deeds);
-      if (actions.length > 0) await actor._applyLinkedItems(actions);
+      if (effects.length > 0) await actor._applyLinkedItems(effects, { sourceType: "feature" });
+      if (deeds.length > 0) await actor._applyLinkedItems(deeds, { sourceType: "feature" });
+      if (actions.length > 0) await actor._applyLinkedItems(actions, { sourceType: "feature" });
+    } else if (item.type === "talent") {
+      const effects = item.system.effects || [];
+      if (effects.length > 0) await actor._applyLinkedItems(effects, { sourceType: "talent" });
     } else if (item.type === "accessory" && item.system.equipped) {
       const sys = item.system;
-      if (sys.talents?.length > 0) await actor._applyLinkedItems(sys.talents);
-      if (sys.features?.length > 0) await actor._applyLinkedItems(sys.features);
-      if (sys.deeds?.length > 0) await actor._applyLinkedItems(sys.deeds);
-      if (sys.effects?.length > 0) await actor._applyLinkedItems(sys.effects, { continuousOnly: true });
+      if (sys.talents?.length > 0) await actor._applyLinkedItems(sys.talents, { sourceType: "accessory" });
+      if (sys.features?.length > 0) await actor._applyLinkedItems(sys.features, { sourceType: "accessory" });
+      if (sys.deeds?.length > 0) await actor._applyLinkedItems(sys.deeds, { sourceType: "accessory" });
+      if (sys.effects?.length > 0) await actor._applyLinkedItems(sys.effects, { continuousOnly: true, sourceType: "accessory" });
     } else if (item.type === "injury") {
       const effects = item.system.effects || [];
       if (effects.length > 0) {
-        await actor._applyLinkedItems(effects, { continuousOnly: false, fromInjury: true, injuryId: item.id });
+        await actor._applyLinkedItems(effects, { continuousOnly: false, fromInjury: true, injuryId: item.id, sourceType: "injury" });
       }
     }
   });
@@ -270,20 +273,25 @@ export function registerItemHooks() {
         const effects = item.system.effects || [];
         const deeds = item.system.deeds || [];
         const actions = item.system.actions || [];
-        if (effects.length > 0) await actor._applyLinkedItems(effects);
-        if (deeds.length > 0) await actor._applyLinkedItems(deeds);
-        if (actions.length > 0) await actor._applyLinkedItems(actions);
+        if (effects.length > 0) await actor._applyLinkedItems(effects, { sourceType: "feature" });
+        if (deeds.length > 0) await actor._applyLinkedItems(deeds, { sourceType: "feature" });
+        if (actions.length > 0) await actor._applyLinkedItems(actions, { sourceType: "feature" });
+      }
+    } else if (item.type === "talent" && ("system" in delta)) {
+      if ("effects" in delta.system) {
+        const effects = item.system.effects || [];
+        if (effects.length > 0) await actor._applyLinkedItems(effects, { sourceType: "talent" });
       }
     } else if (item.type === "accessory" && item.system.equipped && ("system" in delta)) {
       const sys = item.system;
-      if ("talents" in delta.system) await actor._applyLinkedItems(sys.talents || []);
-      if ("features" in delta.system) await actor._applyLinkedItems(sys.features || []);
-      if ("deeds" in delta.system) await actor._applyLinkedItems(sys.deeds || []);
-      if ("effects" in delta.system) await actor._applyLinkedItems(sys.effects || [], { continuousOnly: true });
+      if ("talents" in delta.system) await actor._applyLinkedItems(sys.talents || [], { sourceType: "accessory" });
+      if ("features" in delta.system) await actor._applyLinkedItems(sys.features || [], { sourceType: "accessory" });
+      if ("deeds" in delta.system) await actor._applyLinkedItems(sys.deeds || [], { sourceType: "accessory" });
+      if ("effects" in delta.system) await actor._applyLinkedItems(sys.effects || [], { continuousOnly: true, sourceType: "accessory" });
     } else if (item.type === "injury" && ("system" in delta) && "effects" in delta.system) {
       const effects = item.system.effects || [];
       if (effects.length > 0) {
-        await actor._applyLinkedItems(effects, { continuousOnly: false, fromInjury: true, injuryId: item.id });
+        await actor._applyLinkedItems(effects, { continuousOnly: false, fromInjury: true, injuryId: item.id, sourceType: "injury" });
       }
     }
   });
@@ -316,6 +324,9 @@ export function registerItemHooks() {
       if (effects.length > 0) await actor._removeLinkedItems(effects, item.id);
       if (deeds.length > 0) await actor._removeLinkedItems(deeds, item.id);
       if (actions.length > 0) await actor._removeLinkedItems(actions, item.id);
+    } else if (item.type === "talent") {
+      const effects = item.system.effects || [];
+      if (effects.length > 0) await actor._removeLinkedItems(effects, item.id);
     } else if (item.type === "accessory") {
       const sys = item.system;
       if (sys.talents?.length > 0) await actor._removeLinkedItems(sys.talents, item.id);

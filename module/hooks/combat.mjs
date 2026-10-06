@@ -65,10 +65,11 @@ export function registerCombatHooks() {
           await TrespasserEffectsHelper.triggerEffects(c.actor, "end-of-combat");
         }
 
-        // Remove combat states that were acquired during combat (excluding persistent special states)
+        // Remove combat states that were acquired during combat (excluding stable sources & persistent special states)
         const acquiredInCombat = c.actor.items.filter(i => {
           if (i.type !== "effect") return false;
           if (TrespasserEffectsHelper.isSpecialState(i)) return false;
+          if (TrespasserEffectsHelper.isStableSourceEffect(i, c.actor)) return false;
           const wasAcquired = getSystemFlag(i, "acquiredDuringCombat") === true;
           return wasAcquired && i.system.isCombat && !i.system.isLasting;
         });
@@ -76,10 +77,11 @@ export function registerCombatHooks() {
           await eff.delete();
         }
         
-        // Remove effects where combat-end triggers expiry (excluding persistent special states)
+        // Remove effects where combat-end triggers expiry (excluding stable sources & persistent special states)
         const toRemove = c.actor.items.filter(i => {
           if (i.type !== "effect") return false;
           if (TrespasserEffectsHelper.isSpecialState(i)) return false;
+          if (TrespasserEffectsHelper.isStableSourceEffect(i, c.actor)) return false;
           return DurationHelper.shouldExpire(i) || i.system.duration === "combat";
         });
         for (const eff of toRemove) {

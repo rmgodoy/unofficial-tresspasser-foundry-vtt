@@ -48,6 +48,10 @@ export async function applyLinkedItems(actor, itemsArray, { continuousOnly = fal
     itemData.flags = itemData.flags || {};
     itemData.flags[SYSTEM_ID] = itemData.flags[SYSTEM_ID] || {};
     itemData.flags[SYSTEM_ID].linkedSource = eff.uuid;
+    if (eff.uuid) itemData.flags[SYSTEM_ID].linkedSourceUuid = eff.uuid;
+    if (eff.id || eff._id) itemData.flags[SYSTEM_ID].linkedSourceId = eff.id || eff._id;
+    if (sourceType) itemData.flags[SYSTEM_ID].sourceType = sourceType;
+    itemData.flags[SYSTEM_ID].isStableSource = true;
 
     // Stamp injury metadata if provided
     if (fromInjury) {
@@ -67,7 +71,7 @@ export async function applyLinkedItems(actor, itemsArray, { continuousOnly = fal
 export async function removeLinkedItems(actor, itemsArray, sourceItemId) {
   if (!itemsArray || itemsArray.length === 0) return;
   
-  // Collect all other active sources for Deeds and Actions
+  // Collect all other active sources for Deeds, Actions, and Effects
   const otherDeedNames = new Set();
   const otherActionNames = new Set();
   for (const item of actor.items) {
@@ -76,6 +80,11 @@ export async function removeLinkedItems(actor, itemsArray, sourceItemId) {
     if (item.type === "feature") {
       (item.system.deeds || []).forEach(d => otherDeedNames.add(d.name));
       (item.system.actions || []).forEach(a => otherActionNames.add(a.name));
+    } else if (item.type === "talent") {
+      (item.system.effects || []).forEach(e => {
+        if (e.type === "deed") otherDeedNames.add(e.name);
+        if (e.type === "action") otherActionNames.add(e.name);
+      });
     } else if (item.type === "weapon" && item.system.equipped) {
       (item.system.extraDeeds || []).forEach(d => otherDeedNames.add(d.name));
     } else if (item.type === "armor" && item.system.equipped) {
@@ -86,6 +95,11 @@ export async function removeLinkedItems(actor, itemsArray, sourceItemId) {
     } else if (item.type === "accessory" && item.system.equipped) {
       (item.system.deeds || []).forEach(d => otherDeedNames.add(d.name));
       (item.system.actions || []).forEach(a => otherActionNames.add(a.name));
+      (item.system.talents || []).forEach(t => { if (t.type === "deed") otherDeedNames.add(t.name); });
+      (item.system.features || []).forEach(f => { if (f.type === "deed") otherDeedNames.add(f.name); });
+      (item.system.effects || []).forEach(e => { if (e.type === "deed") otherDeedNames.add(e.name); });
+    } else if (item.type === "calling" || item.type === "craft") {
+      (item.system.deeds || []).forEach(d => otherDeedNames.add(d.name));
       (item.system.talents || []).forEach(t => { if (t.type === "deed") otherDeedNames.add(t.name); });
       (item.system.features || []).forEach(f => { if (f.type === "deed") otherDeedNames.add(f.name); });
       (item.system.effects || []).forEach(e => { if (e.type === "deed") otherDeedNames.add(e.name); });

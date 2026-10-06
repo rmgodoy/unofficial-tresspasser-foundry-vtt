@@ -138,15 +138,23 @@ export async function getCharacterData(sheet, options = {}) {
 
   const sourceMapByUuid = {};
   for (const item of actor.items) {
-    if (item.type === "feature") {
+    if (item.type === "feature" || item.type === "talent" || item.type === "injury") {
       (item.system.deeds || []).forEach(d => { if (d.uuid) sourceMapByUuid[d.uuid] = item.name; });
       (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
     } else if (item.type === "weapon" && item.system.equipped) {
       (item.system.extraDeeds || []).forEach(d => { if (d.uuid) sourceMapByUuid[d.uuid] = item.name; });
       (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
       (item.system.enhancementEffects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
-    } else if (item.type === "armor" && item.system.equipped) {
+    } else if ((item.type === "armor" || item.type === "accessory" || item.type === "item") && item.system.equipped) {
       (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
+      (item.system.deeds || []).forEach(d => { if (d.uuid) sourceMapByUuid[d.uuid] = item.name; });
+      (item.system.features || []).forEach(f => { if (f.uuid) sourceMapByUuid[f.uuid] = item.name; });
+      (item.system.talents || []).forEach(t => { if (t.uuid) sourceMapByUuid[t.uuid] = item.name; });
+    } else if (item.type === "calling" || item.type === "craft") {
+      (item.system.deeds || []).forEach(d => { if (d.uuid) sourceMapByUuid[d.uuid] = item.name; });
+      (item.system.effects || []).forEach(e => { if (e.uuid) sourceMapByUuid[e.uuid] = item.name; });
+      (item.system.features || []).forEach(f => { if (f.uuid) sourceMapByUuid[f.uuid] = item.name; });
+      (item.system.talents || []).forEach(t => { if (t.uuid) sourceMapByUuid[t.uuid] = item.name; });
     }
     const callingSource = getSystemFlag(item, "callingSource");
     if (callingSource) item.callingSource = callingSource;
