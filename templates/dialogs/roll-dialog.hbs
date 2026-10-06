@@ -64,7 +64,7 @@
                 </div>
 
                 <div class="bonus-details">
-                    <label>{{localize "TRESPASSER.Dialog.Roll.AccuracyBonuses"}}</label>
+                    <label>{{#if rollBonusesLabel}}{{rollBonusesLabel}}{{else}}{{localize "TRESPASSER.Dialog.Roll.AccuracyBonuses"}}{{/if}}</label>
                     {{> bonusList bonuses=bonuses listClass="roll-bonuses-list"}}
                 </div>
 
@@ -81,7 +81,7 @@
             <!-- Right Column: Target CD List with Accordions -->
             <div class="dialog-column cd-column">
                 <div class="cd-section-header">
-                    <label>{{localize "TRESPASSER.Dialog.Roll.TargetCD"}}</label>
+                    <label>{{#if cdSectionLabel}}{{cdSectionLabel}}{{else}}{{localize "TRESPASSER.Dialog.Roll.TargetCD"}}{{/if}}</label>
                 </div>
 
                 <div class="target-cd-list scrollable">
@@ -102,6 +102,12 @@
                             {{#if target.hasBonuses}}
                                 <div class="target-accordion-content collapsed">
                                     <div class="target-bonuses-list">
+                                        <div class="target-bonus-row base-row">
+                                            <div class="bonus-static-label">
+                                                <span class="bonus-name">{{#if target.baseLabel}}{{target.baseLabel}}{{else}}{{localize "TRESPASSER.Dialog.Roll.BaseAccuracy"}}{{/if}}</span>
+                                            </div>
+                                            <span class="bonus-value">{{target.baseCD}}</span>
+                                        </div>
                                         {{#each target.bonuses as |bonus bonusIndex|}}
                                             <div class="target-bonus-row {{#unless bonus.checked}}is-unchecked{{/unless}}" title="{{bonus.description}}">
                                                 <label class="bonus-checkbox-label">

@@ -1,5 +1,6 @@
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { TrespasserRollDialog } from "../../dialogs/roll-dialog.mjs";
+import { getAttackerAccuracyDataFromTarget } from "../character/handlers-combat.mjs";
 
 /**
  * Roll a companion combat stat (initiative, accuracy, guard, resist, prevail).
@@ -19,17 +20,28 @@ export async function onCompanionStatRoll(actor, stat, sheet) {
 
   const isAdv = TrespasserEffectsHelper.hasAdvantage(actor, stat);
   const diceFormula = isAdv ? "2d20kh" : "1d20";
-  const targetCD = (stat === "resist" || stat === "guard") ? sheet?._getAccuracyFromTarget?.() : null;
+  const isDefense = (stat === "resist" || stat === "guard");
+  const targetCD = isDefense ? sheet?._getAccuracyFromTarget?.() : null;
+  const attackerData = isDefense ? getAttackerAccuracyDataFromTarget() : null;
 
-  const result = await TrespasserRollDialog.wait({
+  const rollDialogData = {
     dice: diceFormula,
     showCD: true,
     cd: targetCD ?? 10,
+    isDefense,
+    rollBonusesLabel: statLabel + " " + (game.i18n.localize("TRESPASSER.Dialog.Roll.Bonuses") || "Bonuses"),
+    cdSectionLabel: game.i18n.localize("TRESPASSER.Dialog.Roll.AttackerAccuracy") || "Attacker Accuracy (CD)",
     bonuses: [
       { key: "baseStat", label: statLabel, value: baseVal, toggleable: true },
       effectBonusEntry
     ]
-  }, { title: `${statLabel} Check` });
+  };
+
+  if (attackerData) {
+    rollDialogData.targets = [attackerData];
+  }
+
+  const result = await TrespasserRollDialog.wait(rollDialogData, { title: `${statLabel} Check` });
 
   if (!result) return;
 

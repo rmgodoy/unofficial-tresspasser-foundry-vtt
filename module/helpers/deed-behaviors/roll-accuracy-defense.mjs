@@ -5,6 +5,7 @@ import { requestPlayerDefenseRoll } from "../defense-roll-helper.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
 import { EngagementHelper } from "../engagement-helper.mjs";
 import { getMissileElevationModifier, isMissileAttack } from "../elevation-helper.mjs";
+import { prepareCreatureAccuracyData } from "./roll-accuracy-targets.mjs";
 
 /**
  * Executes accuracy check for Creature Attacking Characters (Player-Facing Defense Roll via Socket).
@@ -46,6 +47,14 @@ export async function executeCreatureDefenseRoll({
   const creatureAccuracy = actor?.system?.combat?.accuracy ?? 0;
   const creatureDC = creatureAccuracy + creatureEffBonus + apBonus + engagementMod;
 
+  const attackerData = prepareCreatureAccuracyData({
+    actor,
+    sourceToken: creatureToken,
+    item,
+    apBonus,
+    engagementPenalty: penaltyCheck
+  });
+
   let anyHit = false;
   let maxSparks = 0;
   const results = [];
@@ -84,6 +93,8 @@ export async function executeCreatureDefenseRoll({
       }
     }
 
+    let currentDC = creatureDC;
+
     if (!targetIsAttack || targetVersus === "10" || !targetVersus) {
       defTotal = 10;
       diceResult = 10;
@@ -102,19 +113,21 @@ export async function executeCreatureDefenseRoll({
         deedName: item.name,
         creatureName: actor.name,
         elevationModifier: targetElevModInfo ? targetElevModInfo.guardModifier : 0,
-        elevationModInfo: targetElevModInfo
+        elevationModInfo: targetElevModInfo,
+        attackerData
       });
 
       if (!defResult) return false; // Player cancelled defense roll
 
       defTotal = defResult.total;
       diceResult = defResult.diceResult;
+      if (typeof defResult.cd === "number") currentDC = defResult.cd;
     }
 
-    const isHit = creatureDC >= defTotal;
+    const isHit = currentDC >= defTotal;
     if (isHit) anyHit = true;
 
-    const diff = creatureDC - defTotal;
+    const diff = currentDC - defTotal;
     let sparks = 0;
     let shadows = 0;
     if (diff >= 0) sparks = Math.floor(diff / 5);

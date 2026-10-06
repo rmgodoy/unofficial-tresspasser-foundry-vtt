@@ -53,7 +53,7 @@ export function getDefenseTargetUser(targetActor) {
  * @param {object|null} [params.elevationModInfo=null] - Elevation metadata
  * @returns {Promise<{total: number, diceResult: number, modifier: number, cd: number, formula: string} | null>}
  */
-export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, statKey, creatureDC, deedName, creatureName, elevationModifier = 0, elevationModInfo = null }) {
+export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, statKey, creatureDC, deedName, creatureName, elevationModifier = 0, elevationModInfo = null, attackerData = null }) {
   const targetActor = game.actors.get(targetActorId);
   if (!targetActor) return null;
 
@@ -63,11 +63,11 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
   // Prompt the GM.
   if (!targetUser) {
     if (game.user.isGM) {
-      return _rollDefenseLocally(targetActor, statKey, creatureDC, deedName, { elevationModifier, elevationModInfo });
+      return _rollDefenseLocally(targetActor, statKey, creatureDC, deedName, { elevationModifier, elevationModInfo, attackerData });
     }
     const gmUser = game.users.find(u => u.isGM && u.active);
     if (!gmUser) {
-      return _rollDefenseLocally(targetActor, statKey, creatureDC, deedName, { elevationModifier, elevationModInfo });
+      return _rollDefenseLocally(targetActor, statKey, creatureDC, deedName, { elevationModifier, elevationModInfo, attackerData });
     }
     return _sendDefenseSocketRequest({
       targetActor,
@@ -78,13 +78,14 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
       deedName,
       creatureName,
       elevationModifier,
-      elevationModInfo
+      elevationModInfo,
+      attackerData
     });
   }
 
   // If the target user is the current client user, roll directly locally
   if (targetUser.id === game.user.id) {
-    return _rollDefenseLocally(targetActor, statKey, creatureDC, deedName, { elevationModifier, elevationModInfo });
+    return _rollDefenseLocally(targetActor, statKey, creatureDC, deedName, { elevationModifier, elevationModInfo, attackerData });
   }
 
   return _sendDefenseSocketRequest({
@@ -96,7 +97,8 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
     deedName,
     creatureName,
     elevationModifier,
-    elevationModInfo
+    elevationModInfo,
+    attackerData
   });
 }
 
@@ -104,7 +106,7 @@ export async function requestPlayerDefenseRoll({ targetActorId, targetTokenId, s
  * Emit defense request socket and wait for response.
  * @private
  */
-async function _sendDefenseSocketRequest({ targetActor, targetUserId, targetUserName, statKey, creatureDC, deedName, creatureName, elevationModifier = 0, elevationModInfo = null }) {
+async function _sendDefenseSocketRequest({ targetActor, targetUserId, targetUserName, statKey, creatureDC, deedName, creatureName, elevationModifier = 0, elevationModInfo = null, attackerData = null }) {
   const requestId = foundry.utils.randomID();
 
   // Wait for response with a timeout (15 minutes)
@@ -129,7 +131,8 @@ async function _sendDefenseSocketRequest({ targetActor, targetUserId, targetUser
     deedName,
     creatureName,
     elevationModifier,
-    elevationModInfo
+    elevationModInfo,
+    attackerData
   });
 
   // Display a UI notification for the GM
@@ -152,6 +155,7 @@ async function _sendDefenseSocketRequest({ targetActor, targetUserId, targetUser
  * @param {object} [options={}]
  * @param {number} [options.elevationModifier=0]
  * @param {object|null} [options.elevationModInfo=null]
+ * @param {object|null} [options.attackerData=null]
  */
 export async function _rollDefenseLocally(actor, statKey, creatureDC, deedName, options = {}) {
   const totalDef = actor.system.combat?.[statKey] ?? 10;
@@ -185,12 +189,21 @@ export async function _rollDefenseLocally(actor, statKey, creatureDC, deedName, 
 
   bonuses.push(effectBonusEntry);
 
-  const result = await TrespasserRollDialog.wait({
+  const rollDialogData = {
     dice: diceFormula,
     showCD: true,
     cd: creatureDC,
-    bonuses
-  }, { title: `${deedName} — ${label} Check` });
+    bonuses,
+    isDefense: true,
+    rollBonusesLabel: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`) + " " + (game.i18n.localize("TRESPASSER.Dialog.Roll.Bonuses") || "Bonuses"),
+    cdSectionLabel: game.i18n.localize("TRESPASSER.Dialog.Roll.AttackerAccuracy") || "Attacker Accuracy (CD)"
+  };
+
+  if (options.attackerData) {
+    rollDialogData.targets = [options.attackerData];
+  }
+
+  const result = await TrespasserRollDialog.wait(rollDialogData, { title: `${deedName} — ${label} Check` });
 
   if (!result) return null;
 

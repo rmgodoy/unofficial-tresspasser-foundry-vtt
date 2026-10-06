@@ -5,6 +5,7 @@
 
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { buildTenacityButtonHtml } from "../../helpers/tenacity-helper.mjs";
+import { prepareCreatureAccuracyData } from "../../helpers/deed-behaviors/roll-accuracy-targets.mjs";
 
 export async function onEquipRoll(event, sheet) {
   event.preventDefault();
@@ -113,6 +114,21 @@ export function getAccuracyFromTarget() {
   if (targets.length > 0) {
     const targetActor = targets[0].actor;
     if (targetActor) return targetActor.system.combat?.accuracy ?? targetActor.system.accuracy ?? 10;
+  }
+  return null;
+}
+
+export function getAttackerAccuracyDataFromTarget() {
+  const targets = Array.from(game.user.targets);
+  if (targets.length > 0) {
+    const targetToken = targets[0];
+    const targetActor = targetToken?.actor;
+    if (targetActor) {
+      return prepareCreatureAccuracyData({
+        actor: targetActor,
+        sourceToken: targetToken
+      });
+    }
   }
   return null;
 }

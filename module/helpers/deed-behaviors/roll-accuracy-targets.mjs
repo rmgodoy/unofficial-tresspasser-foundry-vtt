@@ -2,6 +2,7 @@ import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 import { TrespasserEffectsHelper } from "../effects-helper.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
 import { getMissileElevationModifier, isMissileAttack } from "../elevation-helper.mjs";
+import { EngagementHelper } from "../engagement-helper.mjs";
 
 /**
  * Prepares defense data, base CD, and defense bonuses for a targeted token or actor.
@@ -69,6 +70,7 @@ export function prepareTargetDefenseData(targetToken, {
       img: tokenImg,
       versus: targetVersus || "10",
       versusLabel: label,
+      baseLabel: label,
       baseCD: 10,
       sumBonuses: 0,
       totalCD: 10,
@@ -148,11 +150,114 @@ export function prepareTargetDefenseData(targetToken, {
     img: tokenImg,
     versus: targetVersus,
     versusLabel: statLabel,
+    baseLabel: game.i18n.localize("TRESPASSER.Dialog.Roll.BaseDefense") || "Base Defense",
     baseCD,
     sumBonuses,
     totalCD: initialCD,
     bonuses,
     elevationModInfo: elevModInfo?.applies ? elevModInfo : null,
     isAllyOverride: isOverrideEnabled && isSelfOrAlly
+  };
+}
+
+/**
+ * Prepares accuracy CD data and bonuses breakdown for an attacking creature.
+ * Used when a creature attacks a player (resist/guard defense prompt) or when a player rolls defense vs target.
+ *
+ * @param {object} params
+ * @param {Actor} params.actor - Attacking creature actor
+ * @param {Token|null} [params.sourceToken] - Attacking creature token
+ * @param {Item|null} [params.item] - Deed item being used
+ * @param {number} [params.apBonus=0] - Accuracy bonus from Extra Effort AP
+ * @param {object|null} [params.engagementPenalty=null] - Precalculated engagement penalty { hasPenalty, penaltyValue }
+ * @returns {object|null} Attacker accuracy data structure for roll dialog
+ */
+export function prepareCreatureAccuracyData({
+  actor,
+  sourceToken = null,
+  item = null,
+  apBonus = 0,
+  engagementPenalty = null
+} = {}) {
+  if (!actor) return null;
+
+  const creatureToken = sourceToken || actor.getActiveTokens?.()[0] || null;
+  const penaltyCheck = engagementPenalty ?? (item ? EngagementHelper.checkDeedEngagementPenalty(item, {
+    actor,
+    sourceToken: creatureToken,
+    targetTokens: []
+  }) : { hasPenalty: false, penaltyValue: 0 });
+
+  const continuousBonus = TrespasserEffectsHelper.getAttributeBonus(actor, "accuracy");
+  const totalAccuracy = actor.system?.combat?.accuracy ?? (actor.system?.accuracy ?? 10);
+  const rawBase = actor.system?.accuracy ?? (totalAccuracy - continuousBonus);
+
+  const bonuses = [];
+
+  // 1. AP Bonus / Extra Effort
+  if (apBonus > 0) {
+    bonuses.push({
+      id: "apBonus",
+      key: "apBonus",
+      name: game.i18n.localize("TRESPASSER.Chat.Check.AccuracyFromAP") || "Accuracy from Extra Effort",
+      value: apBonus,
+      checked: true,
+      toggleable: true
+    });
+  }
+
+  // 2. Engagement penalty
+  if (penaltyCheck.hasPenalty) {
+    bonuses.push({
+      id: "engagement",
+      key: "engagement",
+      name: game.i18n.localize("TRESPASSER.Chat.Combat.EngagementPenalty") || "Engaged",
+      value: penaltyCheck.penaltyValue,
+      checked: true,
+      toggleable: true
+    });
+  }
+
+  // 3. Effects on accuracy (both continuous and use-timing)
+  const effectModifiers = TrespasserEffectsHelper.getAttributeEffects(actor, "accuracy", "use");
+  for (const eff of effectModifiers) {
+    if (eff.value !== 0) {
+      bonuses.push({
+        id: eff.id,
+        key: eff.id,
+        name: eff.name,
+        value: eff.value,
+        description: eff.description || "",
+        checked: eff.checked ?? true,
+        toggleable: true
+      });
+    }
+  }
+
+  const tokenImg = creatureToken?.document?.texture?.src 
+    || creatureToken?.texture?.src 
+    || actor?.img 
+    || "icons/svg/mystery-man.svg";
+
+  const tokenName = creatureToken 
+    ? DeedBehaviorUtils.getTokenDisplayName(creatureToken) 
+    : (actor.name || game.i18n.localize("TRESPASSER.Terms.Attacker"));
+
+  const sumBonuses = bonuses.reduce((acc, b) => acc + (b.checked ? b.value : 0), 0);
+  const initialCD = rawBase + sumBonuses;
+
+  return {
+    id: creatureToken?.id || actor.id,
+    tokenId: creatureToken?.id || null,
+    actorId: actor.id,
+    name: tokenName,
+    img: tokenImg,
+    versus: "Accuracy",
+    versusLabel: game.i18n.localize("TRESPASSER.Sheet.Combat.Accuracy") || "Accuracy",
+    baseLabel: game.i18n.localize("TRESPASSER.Dialog.Roll.BaseAccuracy") || "Base Accuracy",
+    baseCD: rawBase,
+    sumBonuses,
+    totalCD: initialCD,
+    bonuses
   };
 }

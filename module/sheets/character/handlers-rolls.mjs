@@ -6,6 +6,7 @@
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { TrespasserRollDialog } from "../../dialogs/roll-dialog.mjs";
 import { evaluateAndShowRoll } from "./roll-evaluator.mjs";
+import { getAttackerAccuracyDataFromTarget } from "./handlers-combat.mjs";
 
 export { evaluateAndShowRoll };
 
@@ -76,17 +77,28 @@ export async function onCombatStatRoll(event, sheet) {
   const label       = statKey.charAt(0).toUpperCase() + statKey.slice(1);
   const isAdv       = TrespasserEffectsHelper.hasAdvantage(sheet.actor, statKey);
   const diceFormula = isAdv ? "2d20kh" : "1d20";
-  const targetCD    = (statKey === "resist" || statKey === "guard") ? sheet._getAccuracyFromTarget() : null;
+  const isDefense   = (statKey === "resist" || statKey === "guard");
+  const targetCD    = isDefense ? sheet._getAccuracyFromTarget() : null;
+  const attackerData = isDefense ? getAttackerAccuracyDataFromTarget() : null;
 
-  const result = await TrespasserRollDialog.wait({
+  const rollDialogData = {
     dice: diceFormula,
     showCD: true,
     cd: targetCD ?? 10,
+    isDefense,
+    rollBonusesLabel: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`) + " " + (game.i18n.localize("TRESPASSER.Dialog.Roll.Bonuses") || "Bonuses"),
+    cdSectionLabel: game.i18n.localize("TRESPASSER.Dialog.Roll.AttackerAccuracy") || "Attacker Accuracy (CD)",
     bonuses: [
       { key: "baseStat", label: game.i18n.localize(`TRESPASSER.Sheet.Combat.${label}`), value: baseVal, toggleable: true },
       effectBonusEntry
     ]
-  }, { title: `${label} Check` });
+  };
+
+  if (attackerData) {
+    rollDialogData.targets = [attackerData];
+  }
+
+  const result = await TrespasserRollDialog.wait(rollDialogData, { title: `${label} Check` });
 
   if (!result) return;
 
