@@ -37,7 +37,8 @@ export const DEFAULT_PARAMS = {
   applyDamage: {
     expression: "",
     rollBehaviorId: "",
-    distribute: false
+    distribute: false,
+    disablePowerSparks: false
   },
   healTarget: { expression: "", rollBehaviorId: "", distribute: false },
   grantRecovery: { intensity: 1 },

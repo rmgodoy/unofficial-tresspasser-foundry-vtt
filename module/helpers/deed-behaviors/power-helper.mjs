@@ -27,6 +27,8 @@ export class DeedPowerHelper {
     if (!context.sparkChoices || !context.executedDamageRecords?.length) return;
 
     for (const record of context.executedDamageRecords) {
+      if (record.behavior?.params?.disablePowerSparks) continue;
+
       // 1. Calculate max power dice applicable to this damage record's targets
       let maxPowerDice = 0;
       if (context.sparkChoices.perTarget && context.sparkChoices.perTarget.size > 0) {

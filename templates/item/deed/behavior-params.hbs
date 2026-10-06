@@ -318,6 +318,15 @@
           {{localize "TRESPASSER.Sheet.Deed.Params.DistributeDamage"}}
         </label>
       </div>
+      <div class="field-row checkbox-row">
+        <input type="checkbox"
+               name="system.graph.nodes.{{index}}.params.disablePowerSparks"
+               {{#if params.disablePowerSparks}}checked{{/if}}
+               id="deed-disable-power-damage-{{id}}"/>
+        <label for="deed-disable-power-damage-{{id}}">
+          {{localize "TRESPASSER.Sheet.Deed.Params.DisablePowerSparks"}}
+        </label>
+      </div>
     </div>
   {{/if}}
 

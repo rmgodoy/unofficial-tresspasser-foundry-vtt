@@ -71,7 +71,7 @@ export function getEligibleSparkTypes(item, context = {}, actor = null) {
 
   // 4. Detect Power (Damage)
   const hasPower = nodes.some(n =>
-    n.type === "applyDamage" ||
+    (n.type === "applyDamage" && !n.params?.disablePowerSparks) ||
     (n.type === "roll" && (n.params?.usePowerSparks || (n.params?.expression && !n.params?.expression?.includes?.("d20"))))
   ) || (nodes.length === 0 && Boolean(item.system?.effects?.hit?.damage?.trim() || item.system?.effects?.base?.damage?.trim()));
 

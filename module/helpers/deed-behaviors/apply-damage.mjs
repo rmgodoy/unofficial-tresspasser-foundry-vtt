@@ -21,6 +21,7 @@ export class ApplyDamageBehavior {
     const params = behavior.params || {};
     const rawExpr = params.expression?.trim();
     const distribute = Boolean(params.distribute);
+    const disablePowerSparks = Boolean(params.disablePowerSparks);
 
     const validTargets = DeedBehaviorUtils.getValidTargets(context, phaseKey);
     if (validTargets.length === 0) return true;
@@ -39,11 +40,11 @@ export class ApplyDamageBehavior {
     if (!baseRoll) return true;
 
     // Check if referenced roll already included Power spark bonus dice
-    const refAlreadyHasPower = Boolean(refRoll?.hasPowerSparks || baseRoll?.hasPowerSparks);
+    const refAlreadyHasPower = !disablePowerSparks && Boolean(refRoll?.hasPowerSparks || baseRoll?.hasPowerSparks);
 
     // 2. Max power dice across all target layers (only if not already included in referenced roll)
     let maxPowerDice = 0;
-    if (!refAlreadyHasPower) {
+    if (!disablePowerSparks && !refAlreadyHasPower) {
       if (context.sparkChoices?.perTarget) {
         for (const tChoice of context.sparkChoices.perTarget.values()) {
           if (tChoice.power > maxPowerDice) maxPowerDice = tChoice.power;
@@ -103,7 +104,9 @@ export class ApplyDamageBehavior {
       distributedDamageMap,
       rollLabel
     };
-    DeedPowerHelper.registerExecutedDamage(context, damageRecord);
+    if (!disablePowerSparks) {
+      DeedPowerHelper.registerExecutedDamage(context, damageRecord);
+    }
 
     if (!context.currentPhaseOutputs) {
       context.currentPhaseOutputs = { rolls: [], rollEntries: [], notes: [], accuracyHtml: "" };
@@ -170,7 +173,7 @@ export class ApplyDamageBehavior {
 
       const tokenName = DeedBehaviorUtils.getTokenDisplayName(targetToken);
       const targetChoices = context.sparkChoices?.perTarget?.get(targetToken.id);
-      const targetPowerCount = refAlreadyHasPower ? 0 : Math.min(maxPowerDice, targetChoices?.power || 0);
+      const targetPowerCount = (disablePowerSparks || refAlreadyHasPower) ? 0 : Math.min(maxPowerDice, targetChoices?.power || 0);
       const targetPowerDmg = powerDiceRolls[targetPowerCount] || 0;
 
       const baseTargetDmg = (distributedDamageMap instanceof Map) ? (distributedDamageMap.get(targetToken.id) ?? combinedRoll.total) : baseTotal;

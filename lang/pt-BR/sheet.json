@@ -464,6 +464,7 @@
           "HealingExpression": "Fórmula de Cura",
           "RollExpression": "Fórmula de Rolagem",
           "UsePowerSparks": "Usar Centelhas de Poder",
+          "DisablePowerSparks": "Desativar Centelhas de Poder",
           "RollBehaviorId": "ID da Rolagem Referenciada",
           "ReferencedRoll": "Rolagem Referenciada",
           "TargetPhase": "Fase Alvo",

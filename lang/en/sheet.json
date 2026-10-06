@@ -464,6 +464,7 @@
           "HealingExpression": "Healing Formula",
           "RollExpression": "Roll Formula",
           "UsePowerSparks": "Use Power Sparks",
+          "DisablePowerSparks": "Disable Power Sparks",
           "RollBehaviorId": "Referenced Roll ID",
           "ReferencedRoll": "Referenced Roll",
           "TargetPhase": "Target Phase",
