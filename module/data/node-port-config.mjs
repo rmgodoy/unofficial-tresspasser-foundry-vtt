@@ -160,6 +160,12 @@ export const NODE_PORT_CONFIG = {
     outputs: ["out"],
     refInputs: ["source"],
     refOutputs: []
+  },
+  summonCreature: {
+    inputs: ["in"],
+    outputs: ["out"],
+    refInputs: ["areaRef"],
+    refOutputs: []
   }
 };
 

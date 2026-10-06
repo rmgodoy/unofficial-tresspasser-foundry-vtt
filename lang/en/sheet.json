@@ -345,7 +345,8 @@
             "clearTargets": "Clear Targets",
             "executeDeed": "Execute Auxiliary Deed",
             "condition": "Condition",
-            "switch": "Switch"
+            "switch": "Switch",
+            "summonCreature": "Summon Creature"
           }
         },
         "Tabs": {
@@ -555,6 +556,19 @@
           "ClearEffect": "Remove Effect",
           "ClearTerrain": "Remove Terrain",
           "ClearDeed": "Remove Deed",
+          "ClearCreature": "Remove Creature",
+          "MoveUp": "Move Up",
+          "MoveDown": "Move Down",
+          "DragToReorder": "Drag to reorder",
+          "RangeMode": "Placement Range",
+          "RangeModeChoices": {
+            "spell": "Spell Range",
+            "melee": "Melee Reach",
+            "missile": "Missile Range",
+            "custom": "Custom Range (Squares)",
+            "area": "Connected Area"
+          },
+          "CustomRange": "Custom Range (Squares)",
           "NodePhase": "Phase",
           "NodeType": "Type",
           "NodeId": "Node ID"
@@ -834,6 +848,7 @@
           "DropEffects": "Drop Effects here",
           "DropTerrain": "Drop Terrain here",
           "DropDeed": "Drop Deed here",
+          "DropActor": "Drop Actor from sidebar or compendium",
           "LinkedEffectUuid": "Linked Effect UUID",
           "DropDeeds": "Drop Deeds here",
           "DropIncantations": "Drop Incantations here",

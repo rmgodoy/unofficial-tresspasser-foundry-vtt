@@ -323,3 +323,104 @@
   border-radius: 3px;
 }
 
+/* Summon Creatures Section */
+.behavior-summon-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.summon-creatures-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.summon-creature-card {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(0, 0, 0, 0.25);
+  padding: 4px 8px;
+  border-radius: var(--trp-radius-sm, 2px);
+  border: 1px solid var(--trp-border, #4a3f2f);
+  cursor: grab;
+  transition: all 0.15s ease;
+}
+
+.summon-creature-card:active {
+  cursor: grabbing;
+  opacity: 0.7;
+}
+
+.summon-creature-card .drag-handle {
+  color: var(--trp-text-dim, #a09070);
+  font-size: var(--fs-11);
+  cursor: grab;
+}
+
+.summon-creature-card img {
+  width: 26px;
+  height: 26px;
+  border-radius: 3px;
+  border: 1px solid var(--trp-border-light, #5c4f3a);
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.summon-creature-card .creature-name {
+  font-size: var(--fs-11);
+  font-weight: 600;
+  color: var(--trp-text-bright, #f5eccc);
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.summon-creature-card .creature-size-badge {
+  font-size: var(--fs-9);
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: rgba(201, 168, 76, 0.15);
+  border: 1px solid var(--trp-gold-dim, #a88840);
+  color: var(--trp-gold-bright, #e8c96b);
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.summon-creature-card .card-actions {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.move-summon-btn,
+.remove-summon-btn {
+  background: transparent;
+  border: none;
+  color: var(--trp-text-dim, #a09070);
+  cursor: pointer;
+  padding: 2px 4px;
+  font-size: var(--fs-10);
+  border-radius: 2px;
+  transition: all 0.15s ease;
+  line-height: 1;
+}
+
+.move-summon-btn:hover:not(:disabled) {
+  color: var(--trp-gold-bright, #e8c96b);
+  background: rgba(201, 168, 76, 0.15);
+}
+
+.move-summon-btn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.remove-summon-btn:hover {
+  color: var(--trp-red, #ff5252);
+  background: rgba(255, 82, 82, 0.15);
+}
+

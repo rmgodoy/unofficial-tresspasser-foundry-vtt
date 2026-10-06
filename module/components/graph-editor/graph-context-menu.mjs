@@ -33,7 +33,7 @@ export const BEHAVIOR_CATEGORIES = [
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Terrain",
     icon: "fa-mountain",
-    types: ["spawnTerrain", "moveTerrain"]
+    types: ["spawnTerrain", "moveTerrain", "summonCreature"]
   },
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Flow",

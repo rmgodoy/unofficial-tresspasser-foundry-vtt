@@ -794,4 +794,69 @@
       {{/if}}
     </div>
   {{/if}}
+
+  {{#if (eq type "summonCreature")}}
+    <div class="behavior-summon-section">
+      <div class="behavior-summon-drop drop-zone" data-node-id="{{id}}" data-node-index="{{index}}">
+        <i class="fas fa-file-import"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropActor"}}
+      </div>
+
+      {{#if params.creatures.length}}
+        <div class="summon-creatures-list" data-node-id="{{id}}">
+          {{#each params.creatures as |creature cIdx|}}
+            <div class="summon-creature-card" draggable="true" data-index="{{cIdx}}" data-node-id="{{../id}}">
+              <span class="drag-handle" title="{{localize 'TRESPASSER.Sheet.Deed.Params.DragToReorder'}}"><i class="fas fa-grip-vertical"></i></span>
+              <img src="{{creature.img}}" title="{{creature.name}}"/>
+              <span class="creature-name">{{creature.name}}</span>
+              <span class="creature-size-badge">{{creature.size}}&times;{{creature.size}}</span>
+              <div class="card-actions">
+                <button type="button" class="move-summon-btn" data-action="moveSummon" data-direction="up" data-index="{{cIdx}}" data-node-id="{{../id}}" title="{{localize 'TRESPASSER.Sheet.Deed.Params.MoveUp'}}">
+                  <i class="fas fa-chevron-up"></i>
+                </button>
+                <button type="button" class="move-summon-btn" data-action="moveSummon" data-direction="down" data-index="{{cIdx}}" data-node-id="{{../id}}" title="{{localize 'TRESPASSER.Sheet.Deed.Params.MoveDown'}}">
+                  <i class="fas fa-chevron-down"></i>
+                </button>
+                <button type="button" class="remove-summon-btn" data-action="removeSummon" data-index="{{cIdx}}" data-node-id="{{../id}}" title="{{localize 'TRESPASSER.Sheet.Deed.Params.ClearCreature'}}">
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+              <input type="hidden" name="system.graph.nodes.{{../index}}.params.creatures.{{cIdx}}.id" value="{{creature.id}}"/>
+              <input type="hidden" name="system.graph.nodes.{{../index}}.params.creatures.{{cIdx}}.uuid" value="{{creature.uuid}}"/>
+              <input type="hidden" name="system.graph.nodes.{{../index}}.params.creatures.{{cIdx}}.name" value="{{creature.name}}"/>
+              <input type="hidden" name="system.graph.nodes.{{../index}}.params.creatures.{{cIdx}}.img" value="{{creature.img}}"/>
+              <input type="hidden" name="system.graph.nodes.{{../index}}.params.creatures.{{cIdx}}.size" value="{{creature.size}}"/>
+            </div>
+          {{/each}}
+        </div>
+      {{/if}}
+
+      <div class="param-row-grid" style="margin-top: 6px;">
+        <div class="field-row">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.RangeMode"}}</label>
+          <select name="system.graph.nodes.{{index}}.params.rangeMode" {{#if hasRefArea}}disabled class="is-ref-locked" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ControlledByReference'}}"{{/if}}>
+            {{#if hasRefArea}}
+              <option value="area" selected>{{localize "TRESPASSER.Sheet.Deed.Params.RangeModeChoices.Area"}}</option>
+            {{else}}
+              <option value="spell" {{#if (or (eq params.rangeMode "spell") (not params.rangeMode))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.RangeModeChoices.Spell"}}</option>
+              <option value="melee" {{#if (eq params.rangeMode "melee")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.RangeModeChoices.Melee"}}</option>
+              <option value="missile" {{#if (eq params.rangeMode "missile")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.RangeModeChoices.Missile"}}</option>
+              <option value="custom" {{#if (eq params.rangeMode "custom")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.RangeModeChoices.Custom"}}</option>
+            {{/if}}
+          </select>
+          {{#if hasRefArea}}
+            <input type="hidden" name="system.graph.nodes.{{index}}.params.rangeMode" value="area"/>
+            <input type="hidden" name="system.graph.nodes.{{index}}.params.areaBehaviorId" value="{{params.areaBehaviorId}}"/>
+          {{/if}}
+        </div>
+        {{#if (and (eq params.rangeMode "custom") (not hasRefArea))}}
+          <div class="field-row">
+            <label>{{localize "TRESPASSER.Sheet.Deed.Params.CustomRange"}}</label>
+            <input type="number" name="system.graph.nodes.{{index}}.params.customRange"
+                   value="{{#if params.customRange}}{{params.customRange}}{{else}}1{{/if}}"
+                   min="1" step="1" class="select-on-focus"/>
+          </div>
+        {{/if}}
+      </div>
+    </div>
+  {{/if}}
 </div>

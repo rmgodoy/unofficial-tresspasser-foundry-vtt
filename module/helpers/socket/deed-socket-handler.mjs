@@ -76,6 +76,9 @@ export async function handleDeedActionRequest(payload, senderId) {
       case "setCombatantFlag":
         result = await _handleSetCombatantFlag(data);
         break;
+      case "summonCreature":
+        result = await _handleSummonCreature(data);
+        break;
     }
   } catch (err) {
     console.error(`Trespasser | Deed Action failed for ${action}`, err);
@@ -402,4 +405,9 @@ async function _handleSwapTokens(data) {
   }
 
   return true;
+}
+
+async function _handleSummonCreature(data) {
+  const { handleSummonCreatureTokens } = await import("./deed-socket-summon.mjs");
+  return await handleSummonCreatureTokens(data.placements || []);
 }

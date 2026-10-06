@@ -28,7 +28,8 @@ export const BEHAVIOR_ICONS = {
   clearTargets: "fa-xmark",
   executeDeed: "fa-bolt",
   condition: "fa-code-branch",
-  switch: "fa-shuffle"
+  switch: "fa-shuffle",
+  summonCreature: "fa-paw"
 };
 
 export class GraphNode {

@@ -161,6 +161,16 @@ export function handleValidateDeedGraph(deedOrSystem = {}) {
     }
   }
 
+  // Summon creature text check
+  if (/(?:summon\s+(\d+|a|an)\s+|summons?\s+creatures?)/i.test(cleanText)) {
+    if (!nodeTypes.has("summonCreature")) {
+      warnings.push({
+        code: "MISSING_SUMMON_CREATURE",
+        message: "Deed text mentions summoning creature(s), but no 'summonCreature' node exists in graph."
+      });
+    }
+  }
+
   // Spark text check
   if (/spark[:\s]/i.test(cleanText) || /on a spark/i.test(cleanText)) {
     const hasSparkBranch = connections.some(c => c.sourcePort === "onSpark");

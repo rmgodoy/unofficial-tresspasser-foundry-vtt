@@ -345,7 +345,8 @@
             "clearTargets": "Limpar Alvos",
             "executeDeed": "Executar Habilidade Auxiliar",
             "condition": "Condição",
-            "switch": "Comutador"
+            "switch": "Comutador",
+            "summonCreature": "Invocar Criatura"
           }
         },
         "Tabs": {
@@ -555,6 +556,19 @@
           "ClearEffect": "Remover Efeito",
           "ClearTerrain": "Remover Terreno",
           "ClearDeed": "Remover Habilidade",
+          "ClearCreature": "Remover Criatura",
+          "MoveUp": "Mover para Cima",
+          "MoveDown": "Mover para Baixo",
+          "DragToReorder": "Arraste para reordenar",
+          "RangeMode": "Alcance de Posicionamento",
+          "RangeModeChoices": {
+            "spell": "Alcance Mágico",
+            "melee": "Alcance Corpo a Corpo",
+            "missile": "Alcance de Projétil",
+            "custom": "Alcance Personalizado (Quadrados)",
+            "area": "Área Conectada"
+          },
+          "CustomRange": "Alcance Personalizado (Quadrados)",
           "NodePhase": "Fase",
           "NodeType": "Tipo",
           "NodeId": "ID do Nó"
@@ -834,6 +848,7 @@
           "DropEffects": "Solte Efeitos aqui",
           "DropTerrain": "Solte Terreno aqui",
           "DropDeed": "Solte Habilidade aqui",
+          "DropActor": "Arraste um Ator da barra lateral ou compêndio",
           "LinkedEffectUuid": "UUID do Efeito Vinculado",
           "DropDeeds": "Solte Habilidades aqui",
           "DropIncantations": "Solte Encantamentos aqui",

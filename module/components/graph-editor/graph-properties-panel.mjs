@@ -10,6 +10,10 @@ import {
   clearTerrainFromNode,
   clearDeedFromNode
 } from "./graph-properties-drops.mjs";
+import {
+  removeCreatureFromNode,
+  moveCreatureInNode
+} from "./summon-list-actions.mjs";
 
 export class GraphPropertiesPanel {
   /**
@@ -318,6 +322,74 @@ export class GraphPropertiesPanel {
         onUpdated: () => this.render()
       });
     });
+
+    // Remove summon creature button
+    const removeSummonBtns = panelEl.querySelectorAll(".remove-summon-btn");
+    for (const btn of removeSummonBtns) {
+      btn.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        const index = parseInt(btn.dataset.index);
+        if (!isNaN(index)) {
+          removeCreatureFromNode({
+            currentNodeId: this.currentNodeId,
+            index,
+            editor: this.editor,
+            sheet: this.sheet,
+            onUpdated: () => this.render()
+          });
+        }
+      });
+    }
+
+    // Move summon creature button (up/down)
+    const moveSummonBtns = panelEl.querySelectorAll(".move-summon-btn");
+    for (const btn of moveSummonBtns) {
+      btn.addEventListener("click", (ev) => {
+        ev.preventDefault();
+        const index = parseInt(btn.dataset.index);
+        const direction = btn.dataset.direction;
+        const toIndex = direction === "up" ? index - 1 : index + 1;
+        if (!isNaN(index)) {
+          moveCreatureInNode({
+            currentNodeId: this.currentNodeId,
+            fromIndex: index,
+            toIndex,
+            editor: this.editor,
+            sheet: this.sheet,
+            onUpdated: () => this.render()
+          });
+        }
+      });
+    }
+
+    // Drag and drop reordering on summon creature cards
+    const summonCards = panelEl.querySelectorAll(".summon-creature-card");
+    for (const card of summonCards) {
+      card.addEventListener("dragstart", (ev) => {
+        ev.dataTransfer.setData("application/trespasser-summon-index", card.dataset.index);
+      });
+      card.addEventListener("dragover", (ev) => {
+        ev.preventDefault();
+      });
+      card.addEventListener("drop", (ev) => {
+        const fromIdxStr = ev.dataTransfer.getData("application/trespasser-summon-index");
+        if (!fromIdxStr) return;
+        ev.preventDefault();
+        ev.stopPropagation();
+        const fromIndex = parseInt(fromIdxStr);
+        const toIndex = parseInt(card.dataset.index);
+        if (!isNaN(fromIndex) && !isNaN(toIndex) && fromIndex !== toIndex) {
+          moveCreatureInNode({
+            currentNodeId: this.currentNodeId,
+            fromIndex,
+            toIndex,
+            editor: this.editor,
+            sheet: this.sheet,
+            onUpdated: () => this.render()
+          });
+        }
+      });
+    }
 
     // Auto-select text on focus for number/text inputs
     const selectOnFocus = panelEl.querySelectorAll(".select-on-focus");

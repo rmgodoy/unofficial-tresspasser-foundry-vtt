@@ -148,6 +148,14 @@ async function compileDeclarativeGraph(spec) {
       }
     }
 
+    // Link summon creature to created area if in area range mode
+    if (action.type === "summonCreature") {
+      if (createdAreaId && (nodeParams.rangeMode === "area" || !nodeParams.rangeMode)) {
+        nodeParams.rangeMode = "area";
+        nodeParams.areaBehaviorId = createdAreaId;
+      }
+    }
+
     // Automatically resolve missing or empty effect icons and UUIDs
     if (action.type === "applyEffects" && Array.isArray(nodeParams.effects)) {
       nodeParams.effects = await Promise.all(nodeParams.effects.map(async (eff) => {
@@ -166,8 +174,10 @@ async function compileDeclarativeGraph(spec) {
 
     connections.push(createFlowConnection(incomingId, incomingPort, node.id, "in"));
 
-    // Connect areaRef to spawnTerrain if applicable
+    // Connect areaRef to spawnTerrain or summonCreature if applicable
     if (action.type === "spawnTerrain" && createdAreaId && nodeParams.placement === "selected_area") {
+      connections.push(createRefConnection(createdAreaId, node.id, "areaRef"));
+    } else if (action.type === "summonCreature" && createdAreaId && nodeParams.rangeMode === "area") {
       connections.push(createRefConnection(createdAreaId, node.id, "areaRef"));
     }
 

@@ -166,6 +166,20 @@ export function getNodeSummary(node, getIncomingReference) {
       }
       return `<span class="summary-muted">no source</span>`;
     }
+    case "summonCreature": {
+      const creatures = params.creatures || [];
+      const count = creatures.length;
+      if (count === 0) return `<span class="summary-muted">—</span>`;
+      const names = creatures.map(c => c.name).filter(Boolean);
+      const nameStr = names.length > 0 ? (names.length === 1 ? names[0] : `${count} creatures`) : `${count} creatures`;
+      if (params.rangeMode === "area" || getIncomingReference?.("areaRef")) {
+        const ref = getIncomingReference?.("areaRef");
+        const areaTag = formatAreaSummary(ref?.sourceNode);
+        return `<span class="summary-tag">${nameStr} <span class="summary-ref-val">(${areaTag || "area"})</span></span>`;
+      }
+      const rangeLabel = params.rangeMode === "custom" ? `${params.customRange || 1} sq` : (params.rangeMode || "spell");
+      return `<span class="summary-tag">${nameStr} (${rangeLabel})</span>`;
+    }
     default:
       return "";
   }

@@ -1,5 +1,6 @@
 import { resolveItem } from "../../helpers/item-resolver.mjs";
 import { SYSTEM_ID } from "../../system-id.mjs";
+import { addCreatureToNode } from "./summon-list-actions.mjs";
 
 /**
  * Helper to persist graph state and viewport to the item document.
@@ -17,7 +18,7 @@ export async function persistGraphData({ sheet, editor, graph }) {
 }
 
 /**
- * Handles dropping Items (effects, terrains, deeds) onto drop zones.
+ * Handles dropping Items (effects, terrains, deeds) or Actors onto drop zones.
  * @param {object} options
  * @param {DragEvent} options.event
  * @param {string} options.currentNodeId
@@ -31,7 +32,8 @@ export async function handlePropertiesDrop({ event, currentNodeId, editor, sheet
   const isEffect = zone.classList.contains("behavior-effect-drop");
   const isTerrain = zone.classList.contains("behavior-terrain-drop");
   const isDeed = zone.classList.contains("behavior-deed-drop");
-  if (!isEffect && !isTerrain && !isDeed) return;
+  const isSummon = zone.classList.contains("behavior-summon-drop");
+  if (!isEffect && !isTerrain && !isDeed && !isSummon) return;
 
   let data;
   try {
@@ -39,6 +41,21 @@ export async function handlePropertiesDrop({ event, currentNodeId, editor, sheet
   } catch {
     return;
   }
+
+  if (isSummon) {
+    if (data.type !== "Actor" && !data.uuid?.includes("Actor")) {
+      ui.notifications?.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropActorsOnly") || "Only Actors can be dropped here.");
+      return;
+    }
+    const actor = data.uuid ? await fromUuid(data.uuid) : (data.id ? game.actors?.get(data.id) : null);
+    if (!actor || actor.documentName !== "Actor") {
+      ui.notifications?.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropActorsOnly") || "Only Actors can be dropped here.");
+      return;
+    }
+    await addCreatureToNode({ actor, currentNodeId, editor, sheet, onUpdated });
+    return;
+  }
+
   if (data.type !== "Item") return;
 
   const item = await resolveItem(data);

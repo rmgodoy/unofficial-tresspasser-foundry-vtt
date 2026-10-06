@@ -176,6 +176,9 @@
         "SpawnedWithIntensity": "Spawned terrain \"{terrain}\" on canvas with intensity {intensity}.",
         "IntensityUpdated": "Updated terrain \"{terrain}\" intensity to {intensity} (+{potency} Potency)."
       },
+      "Summon": {
+        "Summoned": "Summoned {names} to the battlefield."
+      },
       "Retreat": {
         "Attempt": "The party attempts to retreat!",
         "Success": "{name} rolled {total} vs {dc} — Success!",

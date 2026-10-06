@@ -176,6 +176,9 @@
         "SpawnedWithIntensity": "Terreno \"{terrain}\" criado no tabuleiro com intensidade {intensity}.",
         "IntensityUpdated": "Atualizou intensidade do terreno \"{terrain}\" para {intensity} (+{potency} Potência)."
       },
+      "Summon": {
+        "Summoned": "Invocou {names} no campo de batalha."
+      },
       "Retreat": {
         "Attempt": "O grupo tenta recuar!",
         "Success": "{name} rolou {total} vs {dc} — Sucesso!",

@@ -96,5 +96,11 @@ export const DEFAULT_PARAMS = {
     deedUuid: "",
     deedName: "",
     deedImg: ""
+  },
+  summonCreature: {
+    creatures: [],
+    rangeMode: "spell",
+    customRange: 1,
+    areaBehaviorId: ""
   }
 };

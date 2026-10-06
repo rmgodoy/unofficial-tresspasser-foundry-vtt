@@ -10,6 +10,7 @@
       "Item": {
         "DropDeedsOnly": "Only Deeds can be dropped here.",
         "DropTerrainsOnly": "Only Terrain items can be dropped here.",
+        "DropActorsOnly": "Only Actors can be dropped here.",
         "Added": "Added {item} to {target}.",
         "EffectMerged": "{effect} merged into the existing effect on {target} (intensity {intensity}).",
         "DropEffectsStatesOnly": "Only Effects or States can be dropped here.",
@@ -100,6 +101,11 @@
         "PlaceTerrain": "Place {name}: click to place.",
         "TerrainPlacementCancelled": "Terrain placement cancelled.",
         "NoAreaSelected": "No selected area found for terrain placement.",
+        "SummonCancelled": "Summon cancelled.",
+        "NoCreaturesConfigured": "No creatures configured for summon.",
+        "SquareBlockedCreature": "Cannot summon on occupied square.",
+        "SquareBlockedObstacle": "Cannot summon on walls or obstacles.",
+        "SquareOutsideArea": "Placement must be inside the designated area.",
         "InvalidJump": "Invalid jump destination.",
         "AirborneRequiresJump": "{name} is airborne ({height} height) and cannot be targeted by melee attacks without a jump.",
         "AirborneTooHigh": "{name} is airborne ({height} height) beyond this area's reach (area {aoeSize})."

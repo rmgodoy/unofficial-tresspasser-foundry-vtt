@@ -36,7 +36,8 @@
         "Burst": "Erupção",
         "MeleeBurst": "Explosão Corpo a Corpo",
         "QuickDeed": "Ação Rápida",
-        "QuickDeedTip": "Ação Rápida (Apenas Mestre)"
+        "QuickDeedTip": "Ação Rápida (Apenas Mestre)",
+        "SummonCreatureStep": "Invocar {name} ({current}/{total})"
       },
       "Movement": {
         "Used": "Movimento Usado",
@@ -59,7 +60,8 @@
         "SelectTargetsFromAreaInstruction": "Selecione o(s) alvo(s) dentro da área ({current} de {max} selecionado(s)).",
         "BurstInstruction": "Erupção {size}: {targets} alvo(s) afetado(s). Verifique a área de efeito e confirme para executar.",
         "MeleeBurstInstruction": "Explosão Corpo a Corpo: {targets} alvo(s) afetado(s). Verifique a área de efeito e confirme para executar.",
-        "AuraInstruction": "Aura {size}: {targets} alvo(s) afetado(s). Verifique a área de efeito e confirme para executar."
+        "AuraInstruction": "Aura {size}: {targets} alvo(s) afetado(s). Verifique a área de efeito e confirme para executar.",
+        "SummonInstruction": "Clique para selecionar o local de posicionamento."
       },
       "Resource": {
         "APCost": "Custo de PA",

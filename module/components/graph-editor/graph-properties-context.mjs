@@ -54,6 +54,7 @@ export async function renderBehaviorParamsHtml({ node, nodeIndex, sheet, editor,
     if (node.type === "moveSource") node.params.destinationMode = "selectedArea";
     else if (node.type === "spawnTerrain") node.params.placement = "selected_area";
     else if (node.type === "selectTarget") node.params.targetMode = "area";
+    else if (node.type === "summonCreature") node.params.rangeMode = "area";
   }
   if (hasRefRoll) node.params.rollBehaviorId = refRollId;
   if (hasRefTerrain) node.params.terrainBehaviorId = refTerrainId;

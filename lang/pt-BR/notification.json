@@ -10,6 +10,7 @@
       "Item": {
         "DropDeedsOnly": "Apenas Habilidades podem ser soltas aqui.",
         "DropTerrainsOnly": "Apenas itens de Terreno podem ser soltos aqui.",
+        "DropActorsOnly": "Apenas Atores podem ser soltos aqui.",
         "Added": "{item} adicionado a {target}.",
         "EffectMerged": "{effect} foi mesclado ao efeito existente em {target} (intensidade {intensity}).",
         "DropEffectsStatesOnly": "Apenas Efeitos ou Estados podem ser soltos aqui.",
@@ -100,6 +101,11 @@
         "PlaceTerrain": "Posicionar {name}: clique para posicionar.",
         "TerrainPlacementCancelled": "Posicionamento do terreno cancelado.",
         "NoAreaSelected": "Nenhuma área selecionada encontrada para posicionar o terreno.",
+        "SummonCancelled": "Invocação cancelada.",
+        "NoCreaturesConfigured": "Nenhuma criatura configurada para invocação.",
+        "SquareBlockedCreature": "Não é possível invocar em quadrado ocupado.",
+        "SquareBlockedObstacle": "Não é possível invocar sobre paredes ou obstáculos.",
+        "SquareOutsideArea": "O posicionamento deve ser dentro da área designada.",
         "InvalidJump": "Destino de salto inválido.",
         "AirborneRequiresJump": "{name} está no ar ({height} de altura) e não pode ser alvo de ataques corpo a corpo sem um salto.",
         "AirborneTooHigh": "{name} está no ar ({height} de altura) além do alcance desta área (área {aoeSize})."
