@@ -2,7 +2,7 @@ import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 import { resolveItem } from "../item-resolver.mjs";
 import { STATUS_EFFECT_COUNTERS, TRESPASSER_STATUS_EFFECTS } from "../../config/status-effects.mjs";
 import { promptModifyEffectChoice } from "../../dialogs/modify-effect-choice-dialog.mjs";
-import { SYSTEM_ID } from "../../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../../system-id.mjs";
 
 /**
  * ModifyEffectsBehavior — Executes modifications to active states/effects on targets
@@ -144,7 +144,7 @@ export class ModifyEffectsBehavior {
   static async findOppositeDef(effectItem) {
     if (!effectItem || effectItem.type !== "effect") return null;
 
-    const statusId = effectItem.flags?.[SYSTEM_ID]?.statusEffectId || effectItem.flags?.trespasser?.statusEffectId || effectItem.name?.toLowerCase()?.trim();
+    const statusId = getSystemFlag(effectItem, "statusEffectId") || effectItem.name?.toLowerCase()?.trim();
     let counterKey = STATUS_EFFECT_COUNTERS[statusId];
 
     if (!counterKey) {
@@ -159,7 +159,7 @@ export class ModifyEffectsBehavior {
           oppositeId: canonical.id,
           name: game.i18n.localize(canonical.name) || canonical.id,
           compendiumId: canonical.compendiumId,
-          uuid: canonical.compendiumId ? `Compendium.trespasser.trespasser-content.Item.${canonical.compendiumId}` : null,
+          uuid: canonical.compendiumId ? `Compendium.${SYSTEM_ID}.trespasser-content.Item.${canonical.compendiumId}` : null,
           img: canonical.img
         };
       }

@@ -283,10 +283,17 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
     }
   };
 
+  const resolveTokenPlaceable = (tokenDocOrObj) => {
+    if (!tokenDocOrObj) return null;
+    const TokenClass = CONFIG.Token?.objectClass || foundry.canvas?.placeables?.Token;
+    if (TokenClass && tokenDocOrObj instanceof TokenClass) return tokenDocOrObj;
+    return tokenDocOrObj.object || canvas.tokens?.get(tokenDocOrObj.id) || null;
+  };
+
   hookTargetId = Hooks.on("targetToken", (user, tokenDocOrObj, targeted) => {
     if (user.id !== game.user.id) return;
     if (isUpdatingUserTargets) return;
-    const tokenObj = tokenDocOrObj?.object || (tokenDocOrObj instanceof Token ? tokenDocOrObj : null) || canvas.tokens?.get(tokenDocOrObj?.id);
+    const tokenObj = resolveTokenPlaceable(tokenDocOrObj);
     if (!tokenObj) return;
     if (targeted) {
       addTarget(tokenObj, CanvasInputSession.activeSession);
@@ -297,7 +304,7 @@ export async function selectTokensInteractive({ candidateTokens = null, maxCount
 
   hookControlId = Hooks.on("controlToken", (tokenObj, controlled) => {
     if (!controlled || !tokenObj) return;
-    const resolvedToken = (tokenObj instanceof Token ? tokenObj : null) || tokenObj.object || canvas.tokens?.get(tokenObj.id);
+    const resolvedToken = resolveTokenPlaceable(tokenObj);
     if (!resolvedToken) return;
     addTarget(resolvedToken, CanvasInputSession.activeSession);
   });

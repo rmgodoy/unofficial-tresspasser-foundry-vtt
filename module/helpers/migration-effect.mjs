@@ -3,19 +3,21 @@
  * Migration helper converting compendium Effect and State items to the TCA behavior format.
  */
 import { TrespasserEffectData } from "../data/item-effect.mjs";
+import { SYSTEM_ID } from "../system-id.mjs";
 
 /**
  * Migrate Effects within a compendium pack to the TCA behavior format.
- * @param {string} [packId="trespasser.trespasser-content"]
+ * @param {string} [packId]
  * @param {object} [options]
  * @param {boolean} [options.force=false]
  * @returns {Promise<number>} Number of migrated effects
  */
-export async function migrateCompendiumEffects(packId = "trespasser.trespasser-content", options = {}) {
+export async function migrateCompendiumEffects(packId = null, options = {}) {
   if (!game.user.isGM) return 0;
-  const pack = game.packs.get(packId);
+  const effectivePackId = packId || `${SYSTEM_ID}.trespasser-content`;
+  const pack = game.packs.get(effectivePackId) || (packId ? null : game.packs.get("trespasser.trespasser-content"));
   if (!pack || pack.documentName !== "Item") {
-    console.warn(`Trespasser | Compendium pack "${packId}" not found or is not an Item pack.`);
+    console.warn(`Trespasser | Compendium pack "${effectivePackId}" not found or is not an Item pack.`);
     return 0;
   }
 

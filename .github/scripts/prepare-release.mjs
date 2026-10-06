@@ -91,53 +91,6 @@ if (isBeta) {
     // SYSTEM_ID constant in system-id.mjs
     [`SYSTEM_ID = "${baseId}"`, `SYSTEM_ID = "${betaId}"`],
     [`SYSTEM_ID = '${baseId}'`, `SYSTEM_ID = '${betaId}'`],
-
-    // Sockets
-    [`"system.${baseId}"`, `"system.${betaId}"`],
-    [`'system.${baseId}'`, `'system.${betaId}'`],
-
-    // Compendiums
-    [`"${baseId}.trespasser-content"`, `"${betaId}.trespasser-content"`],
-    [`'${baseId}.trespasser-content'`, `'${betaId}.trespasser-content'`],
-    [`Compendium.${baseId}.`, `Compendium.${betaId}.`],
-
-    // Flag scopes (get, set, unset)
-    [`getFlag("${baseId}",`, `getFlag("${betaId}",`],
-    [`getFlag('${baseId}',`, `getFlag('${betaId}',`],
-    [`setFlag("${baseId}",`, `setFlag("${betaId}",`],
-    [`setFlag('${baseId}',`, `setFlag('${betaId}',`],
-    [`unsetFlag("${baseId}",`, `unsetFlag("${betaId}",`],
-    [`unsetFlag('${baseId}',`, `unsetFlag('${betaId}',`],
-    [`data.scope || "${baseId}"`, `data.scope || "${betaId}"`],
-    [`data.scope || '${baseId}'`, `data.scope || '${betaId}'`],
-
-    // Settings
-    [`game.settings.register("${baseId}",`, `game.settings.register("${betaId}",`],
-    [`game.settings.register('${baseId}',`, `game.settings.register('${betaId}',`],
-    [`game.settings.registerMenu("${baseId}",`, `game.settings.registerMenu("${betaId}",`],
-    [`game.settings.registerMenu('${baseId}',`, `game.settings.registerMenu('${betaId}',`],
-    [`game.settings.get("${baseId}",`, `game.settings.get("${betaId}",`],
-    [`game.settings.get('${baseId}',`, `game.settings.get('${betaId}',`],
-    [`game.settings.set("${baseId}",`, `game.settings.set("${betaId}",`],
-    [`game.settings.set('${baseId}',`, `game.settings.set('${betaId}',`],
-
-    // Sheet registration
-    [`registerSheet("${baseId}",`, `registerSheet("${betaId}",`],
-    [`registerSheet('${baseId}',`, `registerSheet('${betaId}',`],
-
-    // Flag update paths in update({...}) objects
-    [`"flags.${baseId}.`, `"flags.${betaId}.`],
-    [`'flags.${baseId}.`, `'flags.${betaId}.`],
-    [`"flags.${baseId}"`, `"flags.${betaId}"`],
-    [`'flags.${baseId}'`, `'flags.${betaId}'`],
-
-    // Flag object properties
-    [`.flags?.${baseId}`, `.flags?.["${betaId}"]`],
-    [`.flags.${baseId}`, `.flags?.["${betaId}"]`],
-    [`flags: { ${baseId}:`, `flags: { "${betaId}":`],
-    [`flags: { "${baseId}":`, `flags: { "${betaId}":`],
-    [`effectData.flags.${baseId} =`, `effectData.flags["${betaId}"] =`],
-    [`effectData.flags.${baseId} ||`, `effectData.flags["${betaId}"] ||`],
   ];
 
   let totalModified = 0;

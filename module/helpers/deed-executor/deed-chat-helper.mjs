@@ -1,5 +1,6 @@
 import { formatDiceIcons } from "../dice-icon-helper.mjs";
 import { DeedBehaviorHandler } from "../deed-behavior-handler.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 /**
  * DeedChatHelper — Dedicated single-responsibility chat manager for DeedExecutor.
@@ -193,7 +194,7 @@ export class DeedChatHelper {
       speaker,
       content,
       rolls: rollData,
-      flags: { trespasser: { bdeedId: this.executor.item.id, phase: phaseKey } }
+      flags: { [SYSTEM_ID]: { bdeedId: this.executor.item.id, phase: phaseKey } }
     });
 
     this._phaseMessages.set(phaseKey, msg);

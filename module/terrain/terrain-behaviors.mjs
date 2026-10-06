@@ -50,8 +50,13 @@ export function evaluateIntensityValue(str, defaultValue = 1) {
  * @returns {number}
  */
 export function getLinkedIntensity(terrainRegion) {
-  const flags = terrainRegion.flags?.trespasser;
-  if (!flags) return 0;
+  if (!terrainRegion) return 0;
+  const doc = terrainRegion.document ?? terrainRegion;
+  const flags = doc.flags?.[SYSTEM_ID] || doc.flags?.trespasser || {};
+
+  if (flags.intensity !== undefined && flags.intensity !== null && !isNaN(Number(flags.intensity)) && Number(flags.intensity) > 0) {
+    return Number(flags.intensity);
+  }
 
   const terrainSys = flags.terrain?.system;
   const linkedKey = flags.linkedEffectId || terrainSys?.linkedEffect?.uuid || terrainSys?.linkedEffectKey;
@@ -76,8 +81,11 @@ export function getLinkedIntensity(terrainRegion) {
 
   const isMatchingEffect = (i) => {
     if (i.type !== "effect") return false;
-    if (linkedKey && (i.id === linkedKey || i.uuid === linkedKey || i.flags?.trespasser?.sourceEffectUuid === linkedKey || i.flags?.trespasser?.linkedSource === linkedKey)) return true;
-    if (linkedUuid && (i.id === linkedUuid || i.uuid === linkedUuid || i.flags?.trespasser?.sourceEffectUuid === linkedUuid || i.flags?.trespasser?.linkedSource === linkedUuid)) return true;
+    const effSourceUuid = getSystemFlag(i, "sourceEffectUuid") || i.flags?.[SYSTEM_ID]?.sourceEffectUuid || i.flags?.trespasser?.sourceEffectUuid;
+    const effLinkedSource = getSystemFlag(i, "linkedSource") || i.flags?.[SYSTEM_ID]?.linkedSource || i.flags?.trespasser?.linkedSource;
+
+    if (linkedKey && (i.id === linkedKey || i.uuid === linkedKey || effSourceUuid === linkedKey || effLinkedSource === linkedKey)) return true;
+    if (linkedUuid && (i.id === linkedUuid || i.uuid === linkedUuid || effSourceUuid === linkedUuid || effLinkedSource === linkedUuid)) return true;
 
     const iClean = clean(i.name);
     if (linkedName) {
@@ -87,7 +95,7 @@ export function getLinkedIntensity(terrainRegion) {
 
     if (terrainSys?.linkedEffects?.length > 0) {
       for (const le of terrainSys.linkedEffects) {
-        if (le.uuid && (i.id === le.uuid || i.uuid === le.uuid || i.flags?.trespasser?.sourceEffectUuid === le.uuid || i.flags?.trespasser?.linkedSource === le.uuid)) return true;
+        if (le.uuid && (i.id === le.uuid || i.uuid === le.uuid || effSourceUuid === le.uuid || effLinkedSource === le.uuid)) return true;
         if (le.name) {
           const leClean = clean(le.name);
           if (iClean === leClean || (leClean.length > 3 && (iClean.includes(leClean) || leClean.includes(iClean)))) return true;
@@ -157,7 +165,7 @@ export function resolveIntPlaceholder(str, terrainRegion) {
  * @returns {object}
  */
 export function buildBehaviorContext(region) {
-  const flags = region.flags?.trespasser || {};
+  const flags = region.flags?.[SYSTEM_ID] || region.flags?.trespasser || {};
   const casterActorId = flags.casterActorId;
   return {
     casterActor: casterActorId ? game.actors.get(casterActorId) : null,
@@ -267,7 +275,7 @@ export async function executeBehavior(behavior, actor, terrainRegion, context = 
         {
           direction: behavior.forcedMovementDirection,
           terrainRegion,
-          pathSquares: terrainRegion.flags?.trespasser?.pathSquares
+          pathSquares: terrainRegion.flags?.[SYSTEM_ID]?.pathSquares || terrainRegion.flags?.trespasser?.pathSquares
         }
       );
       break;
@@ -318,7 +326,8 @@ export async function executeBehavior(behavior, actor, terrainRegion, context = 
       if (behavior.script) {
         try {
           const fn = new Function("actor", "terrain", "region", "context", behavior.script);
-          await fn(actor, terrainRegion.flags?.trespasser?.terrain, terrainRegion, context);
+          const terrainObj = getSystemFlag(terrainRegion, "terrain") || terrainRegion.flags?.[SYSTEM_ID]?.terrain || terrainRegion.flags?.trespasser?.terrain;
+          await fn(actor, terrainObj, terrainRegion, context);
         } catch (e) {
           console.error("Trespasser | Terrain script error", e);
         }

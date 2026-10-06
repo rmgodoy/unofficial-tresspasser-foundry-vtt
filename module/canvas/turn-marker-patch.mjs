@@ -10,7 +10,7 @@ export function registerTurnMarkerPatches() {
 
   // Prevent default turn marker from being added to tokens in Foundry V14,
   // since Trespasser implements its own phased turn marker system (see Combat.updateTurnMarkers).
-  const TokenClass = CONFIG.Token?.objectClass || globalThis.Token;
+  const TokenClass = CONFIG.Token?.objectClass || foundry.canvas?.placeables?.Token;
 
   if (TokenClass?.prototype?._refreshTurnMarker) {
     TokenClass.prototype._refreshTurnMarker = function() {

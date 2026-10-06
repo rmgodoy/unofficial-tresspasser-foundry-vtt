@@ -3,7 +3,7 @@ import { ModifyEffectsBehavior } from "./modify-effects.mjs";
 import { resolveItem } from "../item-resolver.mjs";
 import { promptModifyEffectChoice } from "../../dialogs/modify-effect-choice-dialog.mjs";
 import { selectTokensInteractive } from "./select-target-interactive.mjs";
-import { SYSTEM_ID } from "../../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../../system-id.mjs";
 
 /**
  * TransferStateBehavior — Executes transferring or copying active states/effects between
@@ -362,15 +362,14 @@ export class TransferStateBehavior {
     }
 
     // Check if destination already has this effect
-    const statusEffectId = effectItem.getFlag?.(SYSTEM_ID, "statusEffectId")
-      || effectItem.getFlag?.("trespasser", "statusEffectId")
+    const statusEffectId = getSystemFlag(effectItem, "statusEffectId")
       || (invertOnTransfer && candidate.oppositeDef?.oppositeId)
       || null;
 
     const existingOnDest = destActor.items.find(i => {
       if (i.type !== "effect") return false;
       if (statusEffectId) {
-        const destStatusId = i.getFlag?.(SYSTEM_ID, "statusEffectId") || i.getFlag?.("trespasser", "statusEffectId");
+        const destStatusId = getSystemFlag(i, "statusEffectId");
         if (destStatusId === statusEffectId) return true;
       }
       return i.name?.toLowerCase()?.trim() === effectDisplayName?.toLowerCase()?.trim();

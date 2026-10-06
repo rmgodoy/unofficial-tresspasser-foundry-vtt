@@ -177,7 +177,7 @@ export async function getCharacterData(sheet, options = {}) {
   }, 0);
   context.inventorySlotsUsed = totalOccupancy % 1 === 0 ? totalOccupancy : totalOccupancy.toFixed(1);
 
-  const isStacked = actor.getFlag("trespasser", "stackInventory") ?? true;
+  const isStacked = getSystemFlag(actor, "stackInventory") ?? true;
   context.isInventoryStacked = isStacked;
   context.unequippedItems = groupInventoryItems(rawUnequipped, isStacked);
   context.inventory = context.unequippedItems;

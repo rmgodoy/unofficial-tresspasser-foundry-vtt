@@ -1,8 +1,4 @@
-/**
- * Trespasser Injuries Table and Rolling Helper
- * Defines the 32 injuries indexed by d8 (location) and d4 (severity),
- * builds the prompt button, and evaluates injury rolls.
- */
+import { getSystemPack } from "./item-resolver.mjs";
 
 export const INJURIES_TABLE = {
   1: {
@@ -135,7 +131,7 @@ export async function promptInjuryRoll(actorId) {
 
   // Automatically add the injury item to the player character
   let createdItem = null;
-  const pack = game.packs.get("trespasser.trespasser-content");
+  const pack = getSystemPack();
   if (pack) {
     try {
       let compItem = injury.id ? await pack.getDocument(injury.id) : null;

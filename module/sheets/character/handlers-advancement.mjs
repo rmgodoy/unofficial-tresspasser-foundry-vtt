@@ -2,7 +2,7 @@ import { TrespasserCallingDialog } from "../../dialogs/calling-dialog.mjs";
 import { TrespasserCraftDialog } from "../../dialogs/craft-dialog.mjs";
 import { PlightPickerDialog } from "../../dialogs/plight-picker-dialog.mjs";
 import { COMMON_PLIGHTS } from "../../config/plight-config.mjs";
-import { resolveItem } from "../../helpers/item-resolver.mjs";
+import { resolveItem, getSystemPack } from "../../helpers/item-resolver.mjs";
 import { getSystemFlag } from "../../system-id.mjs";
 
 /**
@@ -74,7 +74,7 @@ export async function onCraftEdit(sheet, event) {
     || game.items.find(i => i.type === "craft" && i.name.trim().toLowerCase() === lower);
 
   if (!craftItem) {
-    const pack = game.packs.get("trespasser.trespasser-content");
+    const pack = getSystemPack();
     const entry = pack?.index.find(e => e.type === "craft" && e.name.trim().toLowerCase() === lower);
     if (entry) craftItem = await pack.getDocument(entry._id);
   }

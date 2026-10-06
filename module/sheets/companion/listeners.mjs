@@ -1,3 +1,5 @@
+import { getSystemFlag, setSystemFlag } from "../../system-id.mjs";
+
 /**
  * Activate event listeners for the Companion sheet.
  * @param {HTMLElement|jQuery} html - The rendered sheet HTML element or jQuery wrapper
@@ -162,8 +164,8 @@ export function activateCompanionListeners(html, sheet) {
   root.querySelectorAll(".toggle-inventory-stacking").forEach(btn => {
     btn.addEventListener("click", async (ev) => {
       ev.preventDefault();
-      const current = sheet.actor.getFlag("trespasser", "stackInventory") ?? true;
-      await sheet.actor.setFlag("trespasser", "stackInventory", !current);
+      const current = getSystemFlag(sheet.actor, "stackInventory") ?? true;
+      await setSystemFlag(sheet.actor, "stackInventory", !current);
     });
   });
 

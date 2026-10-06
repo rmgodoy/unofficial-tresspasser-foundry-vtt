@@ -1,3 +1,5 @@
+import { getSystemFlag, setSystemFlag } from "../../system-id.mjs";
+
 /**
  * Character Sheet — activateListeners
  * Exports: activateCharacterListeners(html, sheet)
@@ -95,8 +97,8 @@ export function activateCharacterListeners(html, sheet) {
   // Toggle inventory stacking
   html.find(".toggle-inventory-stacking").on("click", async (ev) => {
     ev.preventDefault();
-    const current = actor?.getFlag("trespasser", "stackInventory") ?? true;
-    await actor?.setFlag("trespasser", "stackInventory", !current);
+    const current = getSystemFlag(actor, "stackInventory") ?? true;
+    await setSystemFlag(actor, "stackInventory", !current);
   });
 
   // Item CRUD

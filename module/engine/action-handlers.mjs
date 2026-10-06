@@ -8,7 +8,7 @@ import { updateFocus, updateActionPoints, updateCombatPhase } from "../effects/e
 import { ForcedMovementHelper } from "../helpers/forced-movement-helper.mjs";
 import { canTakeReaction } from "../reactions/reactions-tracking.mjs";
 import { TARGET_ATTRIBUTES } from "../effects/effects-constants.mjs";
-import { SYSTEM_ID } from "../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 import { resolveItem } from "../helpers/item-resolver.mjs";
 
 /**
@@ -105,12 +105,7 @@ export async function handleModifyAttribute(params = {}, context = {}) {
             chatContent = `<p class="miss-text">${game.i18n.format("TRESPASSER.Chat.Trigger.HealthLost", { value: Math.abs(modValue) })}</p>`;
           }
         } else {
-          const isImmune = Boolean(
-            targetActor.getFlag?.(SYSTEM_ID, "immuneToDamage") ||
-            targetActor.getFlag?.("trespasser", "immuneToDamage") ||
-            targetActor.flags?.[SYSTEM_ID]?.immuneToDamage ||
-            targetActor.flags?.trespasser?.immuneToDamage
-          );
+          const isImmune = Boolean(getSystemFlag(targetActor, "immuneToDamage"));
           if (!isImmune) {
             const currentHp = targetActor.system?.health ?? 0;
             await targetActor.update({ "system.health": Math.max(0, currentHp + modValue) });

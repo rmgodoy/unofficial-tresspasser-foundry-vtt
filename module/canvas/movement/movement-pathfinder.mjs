@@ -1,5 +1,6 @@
 import { isSunken } from "../../helpers/elevation-helper.mjs";
 import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
+import { getSystemFlag } from "../../system-id.mjs";
 
 /**
  * Calculates distances, paths, collision checks, and valid squares for movement.
@@ -62,7 +63,7 @@ export class MovementPathfinder {
                 if (CONFIG.Canvas.polygonBackends?.move?.testCollision) {
                     wallCollision = CONFIG.Canvas.polygonBackends.move.testCollision(p1, p2, { type: "move", mode: "any" });
                 } else if (canvas.walls?.checkCollision) {
-                    const RayClass = foundry.canvas.geometry.Ray || globalThis.Ray;
+                    const RayClass = foundry.canvas?.geometry?.Ray || CONFIG.Canvas?.geometry?.Ray;
                     wallCollision = canvas.walls.checkCollision(new RayClass(p1, p2), { type: "move", mode: "any" });
                 }
                 if (wallCollision) continue;
@@ -71,7 +72,8 @@ export class MovementPathfinder {
                 if (game.trespasser?.TerrainHelper) {
                     const regions = game.trespasser.TerrainHelper.getTerrainAtSquare(nx, ny, sizeX);
                     for (const r of regions) {
-                        const sys = r.flags?.trespasser?.terrain?.system;
+                        const terrain = getSystemFlag(r, "terrain");
+                        const sys = terrain?.system;
                         const cat = sys?.category;
                         if (cat === "wall" || (cat === "obstacle" && !isMovingTokenSunken)) {
                             wallCollision = true;

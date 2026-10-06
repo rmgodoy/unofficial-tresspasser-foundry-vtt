@@ -1,4 +1,5 @@
 import { resolveItem } from "../item-resolver.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../../system-id.mjs";
 
 /**
  * Ensure the caster actor possesses the linked effect(s) configured on the terrain.
@@ -30,7 +31,7 @@ export async function ensureCasterLinkedEffect(terrainItem, actor, options, fina
     effectData.system = effectData.system || {};
     effectData.system.intensity = finalIntensity;
     effectData.flags = foundry.utils.mergeObject(effectData.flags || {}, {
-      trespasser: {
+      [SYSTEM_ID]: {
         sourceEffectUuid: sourceEffect.uuid,
         linkedSource: sourceEffect.uuid
       }
@@ -42,7 +43,7 @@ export async function ensureCasterLinkedEffect(terrainItem, actor, options, fina
       const [created] = await actor.createEmbeddedDocuments("Item", [effectData]);
       const targetDoc = created || actor.items.find(i =>
         i.type === "effect" && (
-          (linkedUuid && (i.flags?.trespasser?.sourceEffectUuid === linkedUuid || i.flags?.trespasser?.linkedSource === linkedUuid || i.uuid === linkedUuid || i.id === linkedUuid)) ||
+          (linkedUuid && (getSystemFlag(i, "sourceEffectUuid") === linkedUuid || getSystemFlag(i, "linkedSource") === linkedUuid || i.uuid === linkedUuid || i.id === linkedUuid)) ||
           (clean(i.name) === clean(sourceEffect.name) || clean(i.name).includes(clean(sourceEffect.name)) || clean(sourceEffect.name).includes(clean(i.name)))
         )
       );
@@ -59,7 +60,7 @@ export async function ensureCasterLinkedEffect(terrainItem, actor, options, fina
       });
       const targetDoc = (Array.isArray(res) && res[0] ? actor.items.get(res[0]) : null) || actor.items.find(i =>
         i.type === "effect" && (
-          (linkedUuid && (i.flags?.trespasser?.sourceEffectUuid === linkedUuid || i.flags?.trespasser?.linkedSource === linkedUuid || i.uuid === linkedUuid || i.id === linkedUuid)) ||
+          (linkedUuid && (getSystemFlag(i, "sourceEffectUuid") === linkedUuid || getSystemFlag(i, "linkedSource") === linkedUuid || i.uuid === linkedUuid || i.id === linkedUuid)) ||
           (clean(i.name) === clean(sourceEffect.name) || clean(i.name).includes(clean(sourceEffect.name)) || clean(sourceEffect.name).includes(clean(i.name)))
         )
       );

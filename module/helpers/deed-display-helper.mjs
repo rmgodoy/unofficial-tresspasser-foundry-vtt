@@ -4,6 +4,7 @@
  */
 import { getEffectiveDeedAttributes } from "./deed-behaviors/roll-accuracy.mjs";
 import { EngagementHelper }          from "./engagement-helper.mjs";
+import { getSystemFlag }             from "../system-id.mjs";
 
 /**
  * Format BDeed target description based on selectTarget behavior count.
@@ -169,7 +170,7 @@ export function prepareDeedDisplayData(d, sourceMapByUuid = {}) {
     deedData.usesCheckboxes = Array.from({ length: 3 }, (_, i) => ({ index: i + 1, checked: i < uses }));
   }
 
-  const linkedSource = d.flags?.trespasser?.linkedSource;
+  const linkedSource = getSystemFlag(d, "linkedSource");
   if (linkedSource && sourceMapByUuid[linkedSource]) {
     deedData.sourceName = sourceMapByUuid[linkedSource];
   }

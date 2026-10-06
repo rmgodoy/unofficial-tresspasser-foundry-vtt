@@ -40,24 +40,23 @@ export async function cleanupCombatTerrains() {
  */
 export function isRegionLinkedToEffect(region, effectItem) {
   if (!region || !effectItem) return false;
-  if (effectItem.flags?.trespasser?.whileInside) return false;
-  const flags = region.flags?.trespasser;
-  if (!flags) return false;
-
-  const linkedId = flags.linkedEffectId;
-  const linkedUuid = flags.linkedEffectUuid;
-  const terrainLinkedEffects = flags.terrain?.system?.linkedEffects || [];
-  const terrainLinkedUuid = flags.terrain?.system?.linkedEffect?.uuid;
-  const terrainLinkedKey = flags.terrain?.system?.linkedEffectKey;
-  const terrainLinkedName = flags.terrain?.system?.linkedEffect?.name;
+  if (getSystemFlag(effectItem, "whileInside")) return false;
+  const terrainData = getSystemFlag(region, "terrain");
+  const linkedId = getSystemFlag(region, "linkedEffectId");
+  const linkedUuid = getSystemFlag(region, "linkedEffectUuid");
+  const terrainLinkedEffects = terrainData?.system?.linkedEffects || [];
+  const terrainLinkedUuid = terrainData?.system?.linkedEffect?.uuid;
+  const terrainLinkedKey = terrainData?.system?.linkedEffectKey;
+  const terrainLinkedName = terrainData?.system?.linkedEffect?.name;
 
   const effectId = effectItem.id;
   const effectUuid = effectItem.uuid;
   const effectName = effectItem.name;
-  const sourceUuid = effectItem.flags?.trespasser?.sourceEffectUuid || effectItem.flags?.trespasser?.linkedSource;
+  const sourceUuid = getSystemFlag(effectItem, "sourceEffectUuid") || getSystemFlag(effectItem, "linkedSource");
 
-  const casterActorId = flags.casterActorId || flags.centerActorId || flags.terrain?.system?.centerActorId;
-  const casterActorUuid = flags.casterActorUuid;
+  const casterActorId = getSystemFlag(region, "casterActorId") || getSystemFlag(region, "centerActorId") || terrainData?.system?.centerActorId;
+  const casterActorUuid = getSystemFlag(region, "casterActorUuid");
+
 
   if (casterActorId && effectItem.parent?.id && effectItem.parent.id !== casterActorId && effectItem.parent?.uuid !== casterActorUuid) {
     return false;
@@ -92,7 +91,7 @@ export function isRegionLinkedToEffect(region, effectItem) {
  * @param {Item} effectItem 
  */
 export async function onEffectDeleted(effectItem) {
-  if (!effectItem || !game.user.isGM || effectItem.flags?.trespasser?.whileInside) return;
+  if (!effectItem || !game.user.isGM || getSystemFlag(effectItem, "whileInside")) return;
   const scenes = game.scenes?.contents || [];
   for (const scene of scenes) {
     const regionsToDelete = scene.regions
@@ -116,7 +115,7 @@ export async function onEffectDeleted(effectItem) {
  * @param {object} [changes] 
  */
 export async function onEffectIntensityUpdated(effectItem, changes = {}) {
-  if (!effectItem || effectItem.type !== "effect" || effectItem.flags?.trespasser?.whileInside) return;
+  if (!effectItem || effectItem.type !== "effect" || getSystemFlag(effectItem, "whileInside")) return;
 
   const scenes = game.scenes?.contents || [];
   for (const scene of scenes) {
@@ -152,10 +151,10 @@ export async function syncWhileInsideEffectsForToken(tokenDoc) {
     const desiredEffects = [];
 
     for (const region of containingRegions) {
-      const terrainData = region.flags?.trespasser?.terrain;
+      const terrainData = getSystemFlag(region, "terrain");
       if (!terrainData) continue;
       const sys = terrainData.system;
-      const centerTokenId = region.flags?.trespasser?.centerTokenId;
+      const centerTokenId = getSystemFlag(region, "centerTokenId");
       if (sys.centerMode === "actor") {
         if (centerTokenId ? centerTokenId === tokenDoc.id : sys.centerActorId === actor.id) continue;
       }
@@ -273,8 +272,8 @@ export async function cleanupWhileInsideEffectsForRegion(regionId) {
 
     const effectsToDelete = actor.items.filter(i =>
       i.type === "effect" &&
-      i.flags?.trespasser?.whileInside === true &&
-      i.flags?.trespasser?.sourceRegionId === regionId
+      getSystemFlag(i, "whileInside") === true &&
+      getSystemFlag(i, "sourceRegionId") === regionId
     ).map(i => i.id);
 
     if (effectsToDelete.length > 0) {

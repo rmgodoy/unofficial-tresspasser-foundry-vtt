@@ -1,4 +1,4 @@
-import { SYSTEM_ID } from "../../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../../system-id.mjs";
 
 /**
  * Register an applied effect or terrain in context so it can be retroactively updated if Potency is chosen later.
@@ -32,7 +32,7 @@ export async function updateAlreadyApplied(context) {
           doc = actor.items?.find(i =>
             i.type === "effect" && (
               (record.itemId && i.id === record.itemId) ||
-              (record.uuid && (i.flags?.trespasser?.sourceEffectUuid === record.uuid || i.flags?.trespasser?.linkedSource === record.uuid)) ||
+              (record.uuid && (getSystemFlag(i, "sourceEffectUuid") === record.uuid || getSystemFlag(i, "linkedSource") === record.uuid)) ||
               (record.terrainName && (i.name === record.terrainName || i.name.toLowerCase().includes(record.terrainName.toLowerCase())))
             )
           );
@@ -91,7 +91,7 @@ export async function updateAlreadyApplied(context) {
           doc = actor.items?.find(i =>
             i.type === "effect" && (
               (record.itemId && i.id === record.itemId) ||
-              (record.uuid && (i.flags?.trespasser?.sourceEffectUuid === record.uuid || i.flags?.trespasser?.linkedSource === record.uuid)) ||
+              (record.uuid && (getSystemFlag(i, "sourceEffectUuid") === record.uuid || getSystemFlag(i, "linkedSource") === record.uuid)) ||
               (record.name && i.name === record.name)
             )
           );

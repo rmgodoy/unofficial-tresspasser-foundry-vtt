@@ -1,5 +1,6 @@
 import { TerrainHelper } from "./terrain-helper.mjs";
 import { TrespasserRegionHUD } from "../hud/region-hud.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 // --- Region HUD Registration ---
 
@@ -114,7 +115,7 @@ Hooks.once("ready", () => {
 
     if (regions.length > 0) {
       // Prioritize terrain region if multiple overlap
-      const targetRegion = regions.find(r => r.flags?.trespasser?.terrain) || regions[0];
+      const targetRegion = regions.find(r => Boolean(getSystemFlag(r, "terrain"))) || regions[0];
       const placeable = targetRegion.object || canvas.regions?.get(targetRegion.id) || targetRegion;
 
       event.preventDefault();
@@ -185,10 +186,11 @@ Hooks.on("updateToken", async (tokenDocument, changes, options, userId) => {
   if (scene) {
     const actorId = tokenDocument.actor?.id;
     const auraRegions = scene.regions.filter(r => {
-      const t = r.flags?.trespasser?.terrain;
+      const t = getSystemFlag(r, "terrain");
       if (t?.system?.centerMode !== "actor") return false;
-      const centerTokenId = r.flags?.trespasser?.centerTokenId;
-      return centerTokenId ? centerTokenId === tokenDocument.id : (t.system.centerActorId === actorId || r.flags?.trespasser?.centerActorId === actorId);
+      const centerTokenId = getSystemFlag(r, "centerTokenId");
+      const centerActorId = getSystemFlag(r, "centerActorId");
+      return centerTokenId ? centerTokenId === tokenDocument.id : (t.system.centerActorId === actorId || centerActorId === actorId);
     });
     for (const auraRegion of auraRegions) {
       await TerrainHelper.syncWhileInsideEffectsForRegion(auraRegion);
@@ -211,7 +213,7 @@ Hooks.on("updateToken", async (tokenDocument, changes, options, userId) => {
 
 Hooks.on("createRegion", async (region, options, userId) => {
   const isResponsibleGM = game.user.isGM && (game.users.activeGM?.id === game.user.id || (!game.users.activeGM && game.user.id === userId));
-  if (isResponsibleGM && region.flags?.trespasser?.terrain) {
+  if (isResponsibleGM && getSystemFlag(region, "terrain")) {
     await TerrainHelper.syncWhileInsideEffectsForRegion(region);
   }
 });
@@ -225,7 +227,7 @@ Hooks.on("deleteRegion", async (region, options, userId) => {
 
 Hooks.on("updateRegion", async (region, changes, options, userId) => {
   const isResponsibleGM = game.user.isGM && (game.users.activeGM?.id === game.user.id || (!game.users.activeGM && game.user.id === userId));
-  if (isResponsibleGM && region.flags?.trespasser?.terrain) {
+  if (isResponsibleGM && getSystemFlag(region, "terrain")) {
     await TerrainHelper.syncWhileInsideEffectsForRegion(region);
   }
 });

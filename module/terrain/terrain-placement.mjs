@@ -5,6 +5,7 @@ import { isPointInRegion } from "./terrain-geometry.mjs";
 import { editTerrainRegion } from "./terrain-editor.mjs";
 import { resolveItem } from "../helpers/item-resolver.mjs";
 import { TargetingPreviewSyncer } from "../targeting/targeting-preview-syncer.mjs";
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 
 export { editTerrainRegion };
 
@@ -99,7 +100,7 @@ export async function placeTerrainOnCanvas(terrainItem, dropPosition, options = 
             effData.system.intensity = evaluateIntensityValue(linkedItem.intensity, 1);
           }
           effData.flags = foundry.utils.mergeObject(effData.flags || {}, {
-            trespasser: {
+            [SYSTEM_ID]: {
               sourceEffectUuid: sourceEff.uuid,
               linkedSource: sourceEff.uuid
             }
@@ -108,6 +109,8 @@ export async function placeTerrainOnCanvas(terrainItem, dropPosition, options = 
             const [created] = await casterActor.createEmbeddedDocuments("Item", [effData]);
             const targetDoc = created || casterActor.items.find(i =>
               i.type === "effect" && (
+                getSystemFlag(i, "sourceEffectUuid") === sourceEff.uuid ||
+                getSystemFlag(i, "linkedSource") === sourceEff.uuid ||
                 i.flags?.trespasser?.sourceEffectUuid === sourceEff.uuid ||
                 i.flags?.trespasser?.linkedSource === sourceEff.uuid ||
                 i.uuid === sourceEff.uuid ||
@@ -143,7 +146,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
       }
     }],
     flags: {
-      trespasser: {
+      [SYSTEM_ID]: {
         terrain: terrainItem.toObject(),
         centerActorId: centerActorId,
         centerTokenId: centerTokenId,
@@ -331,7 +334,7 @@ export async function spawnTerrainFromDeed(terrainItem, spawnConfig, sourceToken
  */
 export async function onTerrainCreated(region, options = {}) {
   if (!region) return;
-  const terrainData = region.flags?.trespasser?.terrain;
+  const terrainData = getSystemFlag(region, "terrain") || region.flags?.trespasser?.terrain;
   if (!terrainData) return;
 
   const sys = terrainData.system;

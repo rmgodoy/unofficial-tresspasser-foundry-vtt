@@ -1,4 +1,5 @@
 import { resolveItem } from "../item-resolver.mjs";
+import { SYSTEM_ID } from "../../system-id.mjs";
 
 const pendingDeedRequests = new Map();
 
@@ -287,7 +288,7 @@ async function _handleSetCombatantFlag(data) {
   const combat = game.combat;
   const combatant = combat?.combatants?.get(data.combatantId);
   if (combatant) {
-    await combatant.setFlag(data.scope || "trespasser", data.key, data.value);
+    await combatant.setFlag(data.scope || SYSTEM_ID, data.key, data.value);
     return true;
   }
   return false;

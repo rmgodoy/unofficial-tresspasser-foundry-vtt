@@ -4,7 +4,7 @@ import { buildTenacityButtonHtml } from "../../helpers/tenacity-helper.mjs";
 import { NonCombatSparkDialog, NonCombatShadowDialog } from "../../dialogs/tempt-fate-dialogs.mjs";
 import { resolveItem } from "../../helpers/item-resolver.mjs";
 import { actorEventBus } from "../../actor/actor-event-bus.mjs";
-import { SYSTEM_ID } from "../../system-id.mjs";
+import { SYSTEM_ID, getSystemFlags } from "../../system-id.mjs";
 
 /**
  * Resolve which tokens a chat-card action button should affect.
@@ -275,7 +275,7 @@ export function bindCardActionListeners(message, html) {
       const chosenSparks = await NonCombatSparkDialog.wait(sparkCount, { actor });
       if (!chosenSparks || chosenSparks.length === 0) return;
 
-      const flags = foundry.utils.deepClone(msg.flags[SYSTEM_ID] || msg.flags.trespasser || {});
+      const flags = foundry.utils.deepClone(getSystemFlags(msg));
       flags.chosenSparks = chosenSparks;
 
       const parser = new DOMParser();
@@ -324,7 +324,7 @@ export function bindCardActionListeners(message, html) {
       const chosenShadows = await NonCombatShadowDialog.wait(shadowCount);
       if (!chosenShadows || chosenShadows.length === 0) return;
 
-      const flags = foundry.utils.deepClone(msg.flags[SYSTEM_ID] || msg.flags.trespasser || {});
+      const flags = foundry.utils.deepClone(getSystemFlags(msg));
       const plightShadows = flags.plightShadows || [];
       const finalShadows = [...chosenShadows, ...plightShadows];
       flags.chosenShadows = finalShadows;

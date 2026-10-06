@@ -1,5 +1,6 @@
 import { TerrainHelper } from "../helpers/terrain-helper.mjs";
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { getSystemFlag } from "../system-id.mjs";
 
 /**
  * Test native wall collision between two grid square points.
@@ -16,7 +17,7 @@ export function testNativeWallCollision(fromPos, toX, toY, gridPx) {
   const p1 = { x: (toX + 0.5) * gridPx, y: (toY + 0.5) * gridPx };
 
   try {
-    const RayClass = foundry.canvas.geometry.Ray || globalThis.Ray;
+    const RayClass = foundry.canvas?.geometry?.Ray || CONFIG.Canvas?.geometry?.Ray;
     const ray = RayClass ? new RayClass(p0, p1) : { A: p0, B: p1 };
     const res = canvas.walls.checkCollision(ray, { type: "move", mode: "any" });
     if (res === true) return true;
@@ -69,13 +70,15 @@ export function checkCollisionAtSquare(x, y, gridPx, movingTokenId, fromPos = nu
   // 3. Custom Terrain Region Wall & Obstacle check
   const regions = TerrainHelper.getTerrainAtSquare(x, y, gridPx);
   for (const r of regions) {
-    const cat = r.flags?.trespasser?.terrain?.system?.category;
+    const terrain = getSystemFlag(r, "terrain");
+    const cat = terrain?.system?.category;
     if (cat === "wall") {
       return { type: "wall", region: r };
     }
   }
   for (const r of regions) {
-    const cat = r.flags?.trespasser?.terrain?.system?.category;
+    const terrain = getSystemFlag(r, "terrain");
+    const cat = terrain?.system?.category;
     if (cat === "obstacle") {
       return { type: "obstacle", region: r };
     }

@@ -1,7 +1,7 @@
 import { DurationHelper } from "../helpers/duration-helper.mjs";
 import { parseModifier, replacePlaceholders } from "./effects-evaluator.mjs";
 import { MOVEMENT_TYPES, MOVEMENT_TYPE_LABELS } from "./effects-constants.mjs";
-import { SYSTEM_ID } from "../system-id.mjs";
+import { SYSTEM_ID, getSystemFlag, getSystemFlags } from "../system-id.mjs";
 
 /**
  * Aggregates all active effects (Combat and Non-Combat) from an actor.
@@ -111,9 +111,9 @@ export function getActorEffects(actor) {
 
     // Standalone Effect items currently on the actor
     if (item.type === "effect") {
-      const linkedUuid  = item.flags?.trespasser?.linkedSource;
-      const fromInjury  = item.flags?.trespasser?.fromInjury === true;
-      const injuryId    = item.flags?.trespasser?.injuryId;
+      const linkedUuid  = getSystemFlag(item, "linkedSource");
+      const fromInjury  = getSystemFlag(item, "fromInjury") === true;
+      const injuryId    = getSystemFlag(item, "injuryId");
 
       let sourceName = null;
       if (fromInjury && injuryId) {
@@ -450,7 +450,7 @@ export function hasActorFlagOrEffect(actor, flagKey) {
   if (!actor || !flagKey) return false;
 
   // 1. Direct document flag on actor
-  if (actor.getFlag?.(SYSTEM_ID, flagKey) || actor.flags?.[SYSTEM_ID]?.[flagKey] || actor.flags?.trespasser?.[flagKey]) {
+  if (getSystemFlag(actor, flagKey)) {
     return true;
   }
 
@@ -465,7 +465,7 @@ export function hasActorFlagOrEffect(actor, flagKey) {
     for (const item of actor.items) {
       if (item.type !== "effect" && item.type !== "state") continue;
 
-      const itemFlags = item.flags?.[SYSTEM_ID] || item.flags?.trespasser || {};
+      const itemFlags = getSystemFlags(item);
       if (itemFlags[flagKey] || itemFlags[lowerKey]) return true;
       if (itemFlags.statusEffectId && itemFlags.statusEffectId.toLowerCase() === lowerKey) return true;
 

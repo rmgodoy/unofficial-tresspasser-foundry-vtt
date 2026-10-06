@@ -76,7 +76,7 @@ export async function createAuraRegion(token, sizeInSquares) {
       name: game.i18n.localize("TRESPASSER.Sheet.Item.Details.TargetTypeChoices.Aura"),
       color: "#5599ff",
       visibility: CONST.REGION_VISIBILITY.ALWAYS,
-      flags: { trespasser: { autoPlaced: true, isAura: true } }
+      flags: { [SYSTEM_ID]: { autoPlaced: true, isAura: true } }
     });
     return region ?? null;
   }
@@ -90,7 +90,7 @@ export async function createAuraRegion(token, sizeInSquares) {
     distance,
     direction: 0,
     fillColor: "#5599ff",
-    flags: { trespasser: { autoPlaced: true, isAura: true } }
+    flags: { [SYSTEM_ID]: { autoPlaced: true, isAura: true } }
   }]);
   return doc;
 }

@@ -3,7 +3,7 @@
  * Defines the custom status effect palette (CONFIG.statusEffects)
  * and the default compendium Bloodied effect data.
  */
-import { SYSTEM_ID } from "../system-id.mjs";
+import { SYSTEM_ID, getSystemFlags } from "../system-id.mjs";
 
 export const TRESPASSER_STATUS_EFFECTS = [
   // Counter states: paired as [good, bad], alphabetical by good effect
@@ -254,7 +254,7 @@ export const SPECIAL_STATES_FOLDER_ID = "EtoWy6iRAXCIBITx";
 export function isSpecialState(item) {
   if (!item || (item.type !== "effect" && item.type !== "state")) return false;
 
-  const flags = item.flags?.[SYSTEM_ID] || item.flags?.trespasser || {};
+  const flags = getSystemFlags(item);
   if (flags.isBloodiedState || flags.isTenaciousState || flags.isEngagedState || flags.isEncumberedState) {
     return true;
   }

@@ -6,6 +6,7 @@ import { bindCardActionListeners } from "./chat/card-actions.mjs";
 import { bindGroupCheckChatListeners, promptGroupCheckRoll } from "./chat/group-check-chat.mjs";
 import { handleDungeonRollButtonClick } from "../exploration/dungeon-actions.mjs";
 import { TreasureGenerator } from "../helpers/treasure-generator.mjs";
+import { getSystemFlag } from "../system-id.mjs";
 
 /**
  * Register chat message creation and HTML rendering hooks.
@@ -13,7 +14,7 @@ import { TreasureGenerator } from "../helpers/treasure-generator.mjs";
 export function registerChatHooks() {
   // Auto-prompt players to roll when a group check message is created
   Hooks.on("createChatMessage", (message) => {
-    const flags = message.flags?.trespasser?.groupCheck;
+    const flags = getSystemFlag(message, "groupCheck");
     if (!flags || flags.status !== "pending") return;
     setTimeout(() => promptGroupCheckRoll(message.id, true), 500);
   });

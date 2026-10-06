@@ -145,8 +145,26 @@ function main() {
 
   console.log(`[deploy-beta] ${system.id} v${system.version} -> ${dest}`);
 
+  function cleanDest(targetDir, skipPacksDir) {
+    if (!fs.existsSync(targetDir)) return;
+    const entries = fs.readdirSync(targetDir);
+    for (const entry of entries) {
+      if (skipPacksDir && entry === "packs") continue;
+      const full = path.join(targetDir, entry);
+      try {
+        fs.rmSync(full, { recursive: true, force: true });
+      } catch (err) {
+        if (entry === "packs") {
+          console.warn("[deploy-beta] Warning: 'packs' folder is locked (Foundry is running). Skipping pack removal.");
+        } else {
+          throw err;
+        }
+      }
+    }
+  }
+
   try {
-    fs.rmSync(dest, { recursive: true, force: true });
+    cleanDest(dest, options.skipPacks);
   } catch (err) {
     fail(`Could not clean ${dest}. Close Foundry (or the world using the beta system) and try again.\n${err.message}`);
   }

@@ -34,7 +34,7 @@ export async function editTerrainRegion(document) {
     const h = (sys.height || 1) * gridSize;
     const color = getRegionColor(tempItem);
 
-    const pathSquares = region.flags?.trespasser?.pathSquares;
+    const pathSquares = getSystemFlag(region, "pathSquares");
     let newShapes;
 
     if (pathSquares && Array.isArray(pathSquares) && pathSquares.length > 0) {

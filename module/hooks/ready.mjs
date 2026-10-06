@@ -168,7 +168,7 @@ export function registerReadyHooks() {
     Hooks.on("canvasReady", syncAllCanvasTokens);
 
     // Apply token status icon scale to active effect status icons on tokens
-    const TokenClass = CONFIG.Token?.objectClass || globalThis.Token;
+    const TokenClass = CONFIG.Token?.objectClass || foundry.canvas?.placeables?.Token;
     if (TokenClass?.prototype?._refreshEffects) {
       const origRefreshEffects = TokenClass.prototype._refreshEffects;
       TokenClass.prototype._refreshEffects = function() {

@@ -87,7 +87,7 @@ export class TargetPreviewHUD extends (HandlebarsApplicationMixin ? HandlebarsAp
    * @param {Array<object>} targetOutcomes
    */
   static async updateSpectator(targetOutcomes = []) {
-    const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
+    const showInfo = Boolean(game.settings?.get(SYSTEM_ID, "showTargetPreviewInfo") ?? true);
     if (!showInfo) {
       if (this.spectatorHUD) {
         this.spectatorHUD.clear();
@@ -125,7 +125,7 @@ export class TargetPreviewHUD extends (HandlebarsApplicationMixin ? HandlebarsAp
   }
 
   setTargets(targets) {
-    const showInfo = Boolean(game.settings?.get("trespasser", "showTargetPreviewInfo") ?? true);
+    const showInfo = Boolean(game.settings?.get(SYSTEM_ID, "showTargetPreviewInfo") ?? true);
     if (!showInfo) {
       this.targets = [];
     } else {

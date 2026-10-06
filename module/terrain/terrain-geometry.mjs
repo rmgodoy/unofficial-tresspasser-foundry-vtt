@@ -1,3 +1,5 @@
+import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
+
 /**
  * Geometry and spatial collision checking for terrain regions.
  */
@@ -20,7 +22,7 @@ export function isPointInRegion(px, py, region, gridSize = 100) {
     } catch {}
   }
 
-  const flags = doc.flags?.trespasser || {};
+  const flags = doc.flags?.[SYSTEM_ID] || doc.flags?.trespasser || {};
   if (flags.pathSquares && Array.isArray(flags.pathSquares) && flags.pathSquares.length > 0) {
     const gX = Math.floor(px / gridSize);
     const gY = Math.floor(py / gridSize);
@@ -116,13 +118,14 @@ export function getTerrainRegionsContainingToken(tokenDoc) {
   const gridSize = scene.grid?.size || 100;
 
   return scene.regions.filter(r => {
-    const terrainData = r.flags?.trespasser?.terrain;
+    const terrainData = getSystemFlag(r, "terrain") || r.flags?.[SYSTEM_ID]?.terrain || r.flags?.trespasser?.terrain;
     if (!terrainData) return false;
     
     const sys = terrainData.system;
     if (sys.centerMode === "actor") {
-      const centerTokenId = r.flags?.trespasser?.centerTokenId;
-      if (centerTokenId ? centerTokenId === tokenDoc.id : sys.centerActorId === tokenDoc.actor?.id) return false;
+      const centerTokenId = getSystemFlag(r, "centerTokenId") || r.flags?.[SYSTEM_ID]?.centerTokenId || r.flags?.trespasser?.centerTokenId;
+      const centerActorId = getSystemFlag(r, "centerActorId") || r.flags?.[SYSTEM_ID]?.centerActorId || r.flags?.trespasser?.centerActorId || sys.centerActorId;
+      if (centerTokenId ? centerTokenId === tokenDoc.id : centerActorId === tokenDoc.actor?.id) return false;
     }
 
     return isTokenInRegion(tokenDoc, r, gridSize);
@@ -142,7 +145,7 @@ export function getTerrainAtSquare(x, y, gridPx) {
   const py = (y + 0.5) * gridPx;
   
   return canvas.scene.regions.filter(r => {
-    const terrainData = r.flags?.trespasser?.terrain;
+    const terrainData = getSystemFlag(r, "terrain") || r.flags?.[SYSTEM_ID]?.terrain || r.flags?.trespasser?.terrain;
     if (!terrainData) return false;
     return isPointInRegion(px, py, r, gridPx);
   });

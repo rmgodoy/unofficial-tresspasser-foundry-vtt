@@ -3,6 +3,7 @@ import { PASSIVE_STATES } from "../../config/state-config.mjs";
 import { EngagementHelper } from "../../helpers/engagement-helper.mjs";
 import { prepareDeedDisplayData } from "../../helpers/deed-display-helper.mjs";
 import { groupInventoryItems, buildEmptySlots } from "../../helpers/inventory-stacking-helper.mjs";
+import { getSystemFlag } from "../../system-id.mjs";
 
 /**
  * Data preparation for TrespasserCompanionSheet.
@@ -82,7 +83,7 @@ export async function getCompanionData(sheet, options = {}) {
   context.inventoryUsed = totalOccupancy % 1 === 0 ? totalOccupancy : totalOccupancy.toFixed(1);
   context.inventoryMax = actor.system.inventory_max ?? 3;
 
-  const isStacked = actor.getFlag("trespasser", "stackInventory") ?? true;
+  const isStacked = getSystemFlag(actor, "stackInventory") ?? true;
   context.isInventoryStacked = isStacked;
   context.unequippedItems = groupInventoryItems(rawUnequipped, isStacked);
   context.inventory = context.unequippedItems;

@@ -1,3 +1,5 @@
+import { getSystemFlag } from "../system-id.mjs";
+
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
 /**
@@ -64,7 +66,7 @@ export class TrespasserRegionHUD extends HandlebarsApplicationMixin(ApplicationV
   async _prepareContext(options) {
     if (!this.object) return {};
     const doc = this.object.document ?? this.object;
-    const isTerrain = Boolean(doc.flags?.trespasser?.terrain);
+    const isTerrain = Boolean(getSystemFlag(doc, "terrain"));
 
     return {
       name: doc.name || game.i18n.localize("TRESPASSER.HUD.Region.DefaultTitle"),
@@ -115,7 +117,7 @@ export class TrespasserRegionHUD extends HandlebarsApplicationMixin(ApplicationV
       let center = { x: 0, y: 0 };
       const gridSize = canvas.grid?.size || 100;
       const doc = this.object.document ?? this.object;
-      const pathSquares = doc.flags?.trespasser?.pathSquares;
+      const pathSquares = getSystemFlag(doc, "pathSquares");
 
       if (pathSquares && Array.isArray(pathSquares) && pathSquares.length > 0) {
         const sq = pathSquares[0];
