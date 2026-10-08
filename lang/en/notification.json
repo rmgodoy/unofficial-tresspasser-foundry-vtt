@@ -2,6 +2,8 @@
   "TRESPASSER": {
     "Notification": {
       "ActorNotFound": "Actor not found.",
+      "AttributeNotFound": "Attribute \"{path}\" not found on target {name}.",
+      "AttributePathEmpty": "Attribute path cannot be empty.",
       "NotOwner": "You do not have permission to control this character.",
       "AttributeSuppressed": "{plight}: No bonus applied to {attr} checks.",
       "DiscouragedTemptFate": "You cannot tempt fate while Discouraged.",

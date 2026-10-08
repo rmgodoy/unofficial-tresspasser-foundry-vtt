@@ -79,6 +79,9 @@ export async function handleDeedActionRequest(payload, senderId) {
       case "summonCreature":
         result = await _handleSummonCreature(data);
         break;
+      case "modifyAttribute":
+        result = await _handleModifyAttribute(data);
+        break;
     }
   } catch (err) {
     console.error(`Trespasser | Deed Action failed for ${action}`, err);
@@ -410,4 +413,12 @@ async function _handleSwapTokens(data) {
 async function _handleSummonCreature(data) {
   const { handleSummonCreatureTokens } = await import("./deed-socket-summon.mjs");
   return await handleSummonCreatureTokens(data.placements || []);
+}
+
+async function _handleModifyAttribute(data) {
+  const token = canvas.tokens?.get(data.tokenId) || game.scenes?.current?.tokens.get(data.tokenId);
+  const actor = token?.actor || game.actors.get(data.actorId);
+  if (!actor || !data.updates || typeof data.updates !== "object") return false;
+  await actor.update(data.updates);
+  return true;
 }

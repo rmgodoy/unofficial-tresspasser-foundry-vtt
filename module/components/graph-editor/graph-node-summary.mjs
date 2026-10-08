@@ -180,6 +180,15 @@ export function getNodeSummary(node, getIncomingReference) {
       const rangeLabel = params.rangeMode === "custom" ? `${params.customRange || 1} sq` : (params.rangeMode || "spell");
       return `<span class="summary-tag">${nameStr} (${rangeLabel})</span>`;
     }
+    case "modifyAttribute": {
+      const path = (params.attributePath === "custom" ? params.customPath : params.attributePath) || "attr";
+      const shortPath = path.replace(/^system\./, "");
+      const op = params.operation === "set" ? "=" : (params.operation === "subtract" ? "-" : "+");
+      const expr = params.expression ? formatDiceIcons(params.expression) : "1";
+      const ref = getIncomingReference?.("rollRef");
+      const displayVal = ref?.sourceId ? `(#${ref.sourceId.slice(0, 6)})` : expr;
+      return `<span class="summary-tag">${shortPath} ${op} ${displayVal}</span>`;
+    }
     default:
       return "";
   }

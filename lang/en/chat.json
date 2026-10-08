@@ -339,6 +339,10 @@
       "GrantRecovery": {
         "NoDiceSpent": "No recovery dice spent for {name}."
       },
+      "ModifyAttribute": {
+        "Title": "Modify Attribute",
+        "NotFound": "Attribute {path} was not found on {target}."
+      },
       "DamageCommand": {
         "Title": "Damage / Healing Roll",
         "InvalidFormula": "Invalid formula. Please provide a valid dice expression or number (e.g. /hp 2d6+3, /dmg 10, /heal 1d8)."

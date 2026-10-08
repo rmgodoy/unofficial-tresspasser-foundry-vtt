@@ -2,6 +2,8 @@
   "TRESPASSER": {
     "Notification": {
       "ActorNotFound": "Ator não encontrado.",
+      "AttributeNotFound": "Atributo \"{path}\" não encontrado no alvo {name}.",
+      "AttributePathEmpty": "O caminho do atributo não pode estar vazio.",
       "NotOwner": "Você não tem permissão para controlar este personagem.",
       "AttributeSuppressed": "{plight}: Nenhum bônus aplicado a testes de {attr}.",
       "DiscouragedTemptFate": "Você não pode desafiar o destino enquanto estiver Desencorajado.",

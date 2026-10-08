@@ -20,6 +20,7 @@ import { ExecuteDeedBehavior } from "./deed-behaviors/execute-deed.mjs";
 import { ConditionBehavior } from "./deed-behaviors/condition.mjs";
 import { SwitchBehavior } from "./deed-behaviors/switch.mjs";
 import { SummonCreatureBehavior } from "./deed-behaviors/summon-creature.mjs";
+import { ModifyAttributeBehavior } from "./deed-behaviors/modify-attribute.mjs";
 
 /**
  * DeedBehaviorHandler — Dispatcher executing actual game logic for all deed behavior types.
@@ -64,6 +65,7 @@ export class DeedBehaviorHandler {
         case "condition":        return ConditionBehavior.execute(behavior, context, actor, item, phaseKey);
         case "switch":           return SwitchBehavior.execute(behavior, context, actor, item, phaseKey);
         case "summonCreature":   return SummonCreatureBehavior.execute(behavior, context, actor, item, phaseKey);
+        case "modifyAttribute":  return ModifyAttributeBehavior.execute(behavior, context, actor, item, phaseKey);
       }
     });
   }

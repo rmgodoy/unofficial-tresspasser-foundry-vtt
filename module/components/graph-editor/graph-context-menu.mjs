@@ -23,7 +23,7 @@ export const BEHAVIOR_CATEGORIES = [
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Effects",
     icon: "fa-wand-magic-sparkles",
-    types: ["applyEffects", "modifyEffects", "transferState"]
+    types: ["applyEffects", "modifyEffects", "transferState", "modifyAttribute"]
   },
   {
     categoryKey: "TRESPASSER.Sheet.Deed.Behavior.Category.Movement",

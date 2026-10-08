@@ -29,7 +29,8 @@ export const BEHAVIOR_ICONS = {
   executeDeed: "fa-bolt",
   condition: "fa-code-branch",
   switch: "fa-shuffle",
-  summonCreature: "fa-paw"
+  summonCreature: "fa-paw",
+  modifyAttribute: "fa-sliders"
 };
 
 export class GraphNode {

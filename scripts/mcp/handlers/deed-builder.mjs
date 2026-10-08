@@ -181,6 +181,10 @@ async function compileDeclarativeGraph(spec) {
       connections.push(createRefConnection(createdAreaId, node.id, "areaRef"));
     }
 
+    if (nodeParams.rollBehaviorId) {
+      connections.push(createRefConnection(nodeParams.rollBehaviorId, node.id, "rollRef"));
+    }
+
     return node;
   };
 

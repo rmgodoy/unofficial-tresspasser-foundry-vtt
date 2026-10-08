@@ -868,4 +868,133 @@
       </div>
     </div>
   {{/if}}
+
+  {{#if (eq type "modifyAttribute")}}
+    <div class="behavior-hint-box">
+      <p class="hint-title"><i class="fas fa-sliders"></i> {{localize "TRESPASSER.Sheet.Deed.Behavior.Type.modifyAttribute"}}</p>
+      <p class="hint-text">{{localize "TRESPASSER.Sheet.Deed.Params.ModifyAttributeHint"}}</p>
+    </div>
+
+    <div class="param-row-grid">
+      <div class="field-row" style="grid-column: 1 / -1;">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.AttributeTarget"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.attributePath">
+          <optgroup label="{{localize 'TRESPASSER.Sheet.Deed.Params.AttrGroup.Core'}}">
+            <option value="system.attributes.mighty" {{#if (or (eq params.attributePath "system.attributes.mighty") (not params.attributePath))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Mighty"}}</option>
+            <option value="system.attributes.agility" {{#if (eq params.attributePath "system.attributes.agility")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Agility"}}</option>
+            <option value="system.attributes.intellect" {{#if (eq params.attributePath "system.attributes.intellect")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Intellect"}}</option>
+            <option value="system.attributes.spirit" {{#if (eq params.attributePath "system.attributes.spirit")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Spirit"}}</option>
+          </optgroup>
+          <optgroup label="{{localize 'TRESPASSER.Sheet.Deed.Params.AttrGroup.Resources'}}">
+            <option value="system.health" {{#if (eq params.attributePath "system.health")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Health"}}</option>
+            <option value="system.max_health" {{#if (eq params.attributePath "system.max_health")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.MaxHealth"}}</option>
+            <option value="system.endurance" {{#if (eq params.attributePath "system.endurance")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Endurance"}}</option>
+            <option value="system.max_endurance" {{#if (eq params.attributePath "system.max_endurance")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.MaxEndurance"}}</option>
+            <option value="system.recovery_dice" {{#if (eq params.attributePath "system.recovery_dice")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.RecoveryDice"}}</option>
+            <option value="system.max_recovery_dice" {{#if (eq params.attributePath "system.max_recovery_dice")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.MaxRecoveryDice"}}</option>
+            <option value="system.armor" {{#if (eq params.attributePath "system.armor")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Armor"}}</option>
+            <option value="system.armorDieAmmount" {{#if (eq params.attributePath "system.armorDieAmmount")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.ArmorDice"}}</option>
+          </optgroup>
+          <optgroup label="{{localize 'TRESPASSER.Sheet.Deed.Params.AttrGroup.Combat'}}">
+            <option value="system.combat.initiative" {{#if (eq params.attributePath "system.combat.initiative")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Initiative"}}</option>
+            <option value="system.combat.accuracy" {{#if (eq params.attributePath "system.combat.accuracy")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Accuracy"}}</option>
+            <option value="system.combat.guard" {{#if (eq params.attributePath "system.combat.guard")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Guard"}}</option>
+            <option value="system.combat.resist" {{#if (eq params.attributePath "system.combat.resist")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Resist"}}</option>
+            <option value="system.combat.prevail" {{#if (eq params.attributePath "system.combat.prevail")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Prevail"}}</option>
+            <option value="system.combat.tenacity" {{#if (eq params.attributePath "system.combat.tenacity")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Tenacity"}}</option>
+            <option value="system.combat.focus" {{#if (eq params.attributePath "system.combat.focus")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Focus"}}</option>
+            <option value="system.combat.speed" {{#if (eq params.attributePath "system.combat.speed")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Speed"}}</option>
+            <option value="system.combat.speed_bonus" {{#if (eq params.attributePath "system.combat.speed_bonus")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.SpeedBonus"}}</option>
+          </optgroup>
+          <optgroup label="{{localize 'TRESPASSER.Sheet.Deed.Params.AttrGroup.Progression'}}">
+            <option value="system.resolve" {{#if (eq params.attributePath "system.resolve")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Resolve"}}</option>
+            <option value="system.xp" {{#if (eq params.attributePath "system.xp")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.XP"}}</option>
+            <option value="system.level" {{#if (eq params.attributePath "system.level")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Level"}}</option>
+            <option value="system.skill" {{#if (eq params.attributePath "system.skill")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Skill"}}</option>
+          </optgroup>
+          <optgroup label="{{localize 'TRESPASSER.Sheet.Deed.Params.AttrGroup.States'}}">
+            <option value="system.states.guarded" {{#if (eq params.attributePath "system.states.guarded")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Guarded"}}</option>
+            <option value="system.states.fortified" {{#if (eq params.attributePath "system.states.fortified")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Fortified"}}</option>
+            <option value="system.states.willfull" {{#if (eq params.attributePath "system.states.willfull")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Willful"}}</option>
+            <option value="system.states.hastened" {{#if (eq params.attributePath "system.states.hastened")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Hastened"}}</option>
+            <option value="system.states.mending" {{#if (eq params.attributePath "system.states.mending")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Mending"}}</option>
+            <option value="system.states.accurate" {{#if (eq params.attributePath "system.states.accurate")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Accurate"}}</option>
+            <option value="system.states.strong" {{#if (eq params.attributePath "system.states.strong")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Strong"}}</option>
+            <option value="system.states.swift" {{#if (eq params.attributePath "system.states.swift")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Swift"}}</option>
+            <option value="system.states.bleeding" {{#if (eq params.attributePath "system.states.bleeding")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Bleeding"}}</option>
+            <option value="system.states.blinded" {{#if (eq params.attributePath "system.states.blinded")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Blinded"}}</option>
+            <option value="system.states.burning" {{#if (eq params.attributePath "system.states.burning")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Burning"}}</option>
+            <option value="system.states.delirious" {{#if (eq params.attributePath "system.states.delirious")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Delirious"}}</option>
+            <option value="system.states.sleeping" {{#if (eq params.attributePath "system.states.sleeping")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Sleeping"}}</option>
+            <option value="system.states.toppled" {{#if (eq params.attributePath "system.states.toppled")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Toppled"}}</option>
+          </optgroup>
+          <optgroup label="{{localize 'TRESPASSER.Sheet.Deed.Params.AttrGroup.Exploration'}}">
+            <option value="system.defense" {{#if (eq params.attributePath "system.defense")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.HavenDefense"}}</option>
+            <option value="system.comfort" {{#if (eq params.attributePath "system.comfort")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.HavenComfort"}}</option>
+            <option value="system.peril" {{#if (eq params.attributePath "system.peril")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Peril"}}</option>
+            <option value="system.supplies" {{#if (eq params.attributePath "system.supplies")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Supplies"}}</option>
+            <option value="system.renown" {{#if (eq params.attributePath "system.renown")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Renown"}}</option>
+            <option value="system.danger" {{#if (eq params.attributePath "system.danger")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.RegionDanger"}}</option>
+            <option value="system.tension" {{#if (eq params.attributePath "system.tension")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.DungeonTension"}}</option>
+          </optgroup>
+          <optgroup label="{{localize 'TRESPASSER.Sheet.Deed.Params.AttrGroup.Custom'}}">
+            <option value="custom" {{#if (eq params.attributePath "custom")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrChoices.Custom"}}</option>
+          </optgroup>
+        </select>
+      </div>
+
+      {{#if (eq params.attributePath "custom")}}
+        <div class="field-row" style="grid-column: 1 / -1;">
+          <label>{{localize "TRESPASSER.Sheet.Deed.Params.CustomAttributePath"}}</label>
+          <input type="text" name="system.graph.nodes.{{index}}.params.customPath"
+                 value="{{params.customPath}}"
+                 placeholder="{{localize 'TRESPASSER.Sheet.Deed.Params.CustomAttributePathPlaceholder'}}"/>
+        </div>
+      {{/if}}
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.Operation"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.operation">
+          <option value="add" {{#if (or (eq params.operation "add") (not params.operation))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrOpAdd"}}</option>
+          <option value="subtract" {{#if (eq params.operation "subtract")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrOpSubtract"}}</option>
+          <option value="set" {{#if (eq params.operation "set")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.AttrOpSet"}}</option>
+        </select>
+      </div>
+
+      <div class="field-row">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.TargetScope"}}</label>
+        <select name="system.graph.nodes.{{index}}.params.targetScope">
+          <option value="targets" {{#if (or (eq params.targetScope "targets") (not params.targetScope))}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetScopeChoices.targets"}}</option>
+          <option value="self" {{#if (eq params.targetScope "self")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Deed.Params.TargetScopeChoices.self"}}</option>
+        </select>
+      </div>
+
+      <div class="field-row" style="grid-column: 1 / -1;">
+        <label>{{localize "TRESPASSER.Sheet.Deed.Params.ValueExpression"}}</label>
+        <div class="formula-input-group {{#if hasRefRoll}}has-reference{{/if}}">
+          {{#if hasRefRoll}}
+            <span class="formula-ref-badge" title="{{localize 'TRESPASSER.Sheet.Deed.Graph.ReferencedRollTooltip' id=refRollIdShort formula=refRollExpr}}">
+              {{#if refRollExpr}}({{{formatDice refRollExpr}}}){{else}}#{{refRollIdShort}}{{/if}}
+            </span>
+          {{/if}}
+          <input type="text" name="system.graph.nodes.{{index}}.params.expression"
+                 value="{{params.expression}}"
+                 placeholder="{{#if hasRefRoll}}/2, +5, -1, *2, +1d6{{else}}e.g. 1, 1d6, @actor.skill, /2{{/if}}"/>
+        </div>
+        <input type="hidden" name="system.graph.nodes.{{index}}.params.rollBehaviorId" value="{{params.rollBehaviorId}}"/>
+      </div>
+    </div>
+
+    <div class="behavior-checkboxes-row">
+      <div class="field-row checkbox-row">
+        <input type="checkbox"
+               name="system.graph.nodes.{{index}}.params.clampMin"
+               {{#if params.clampMin}}checked{{/if}}
+               id="deed-clamp-min-{{id}}"/>
+        <label for="deed-clamp-min-{{id}}">
+          {{localize "TRESPASSER.Sheet.Deed.Params.ClampMin"}}
+        </label>
+      </div>
+    </div>
+  {{/if}}
 </div>

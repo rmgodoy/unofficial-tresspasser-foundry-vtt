@@ -103,5 +103,15 @@ export const DEFAULT_PARAMS = {
     rangeMode: "spell",
     customRange: 1,
     areaBehaviorId: ""
+  },
+  modifyAttribute: {
+    attributePath: "system.attributes.mighty",
+    customPath: "",
+    operation: "add",
+    expression: "1",
+    rollBehaviorId: "",
+    clampMin: true,
+    minValue: 0,
+    targetScope: "targets"
   }
 };

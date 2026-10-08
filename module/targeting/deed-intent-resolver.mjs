@@ -280,7 +280,7 @@ export class DeedIntentResolver {
     }
 
     // Evaluate action nodes
-    if (node.type === "applyDamage" || node.type === "healTarget" || node.type === "applyEffects" || node.type === "grantRecovery") {
+    if (node.type === "applyDamage" || node.type === "healTarget" || node.type === "applyEffects" || node.type === "grantRecovery" || node.type === "modifyAttribute") {
       const appliesToThisToken = DeedIntentFormula.doesNodeApplyToToken(node, isSelf, targetToken, casterToken, currentFilter, isExplicitTarget);
       if (appliesToThisToken) {
         const p = node.params || {};
@@ -298,7 +298,7 @@ export class DeedIntentResolver {
           const sparkExpr = DeedIntentFormula.resolveNodeFormula(node, nodesById, incomingRefs, "onSpark", runtimeContext);
           const missExpr = DeedIntentFormula.resolveNodeFormula(node, nodesById, incomingRefs, "onMiss", runtimeContext);
 
-          const cat = (node.type === "applyDamage") ? "damage" : "healing";
+          const cat = (node.type === "applyDamage") ? "damage" : (node.type === "modifyAttribute" ? "attribute" : "healing");
           if (hitExpr) branchActions.onHit.push({ nodeId: node.id, type: node.type, category: cat, value: hitExpr, node });
           if (sparkExpr && sparkExpr !== hitExpr) branchActions.onSpark.push({ nodeId: node.id, type: node.type, category: cat, value: sparkExpr, node });
           if (missExpr) branchActions.anyway.push({ nodeId: node.id, type: node.type, category: cat, value: missExpr, node });
@@ -318,6 +318,12 @@ export class DeedIntentResolver {
             for (const eff of effList) {
               dest.push({ nodeId: node.id, type: "applyEffects", category: "effects", value: eff, node });
             }
+          } else if (node.type === "modifyAttribute") {
+            const rawPath = (node.params?.attributePath === "custom" ? node.params?.customPath : node.params?.attributePath) || "attribute";
+            const shortPath = rawPath.replace(/^system\./, "");
+            const op = node.params?.operation || "add";
+            const expr = DeedIntentFormula.resolveNodeFormula(node, nodesById, incomingRefs, currentBranch, runtimeContext) || node.params?.expression || "1";
+            dest.push({ nodeId: node.id, type: "modifyAttribute", category: "attribute", value: `${op} ${expr} (${shortPath})`, node });
           }
         }
       }

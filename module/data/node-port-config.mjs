@@ -166,6 +166,12 @@ export const NODE_PORT_CONFIG = {
     outputs: ["out"],
     refInputs: ["areaRef"],
     refOutputs: []
+  },
+  modifyAttribute: {
+    inputs: ["in"],
+    outputs: ["out"],
+    refInputs: ["rollRef"],
+    refOutputs: []
   }
 };
 

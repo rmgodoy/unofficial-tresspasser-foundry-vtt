@@ -26,7 +26,8 @@ export const BEHAVIOR_TYPES = [
   "executeDeed",
   "condition",
   "switch",
-  "summonCreature"
+  "summonCreature",
+  "modifyAttribute"
 ];
 
 export class TrespasserDeedData extends foundry.abstract.TypeDataModel {
