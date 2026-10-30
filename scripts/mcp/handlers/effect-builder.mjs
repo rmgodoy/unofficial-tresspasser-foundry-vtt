@@ -29,7 +29,8 @@ export const VALID_TRIGGERS = [
   "damage-dealt", "damage-received", "heal-given", "heal-received",
   "on-prevail", "on-use-deed", "on-targeted-deed",
   "on-deed-hit-received", "on-deed-miss-received",
-  "on-deed-hit", "on-deed-miss"
+  "on-deed-hit", "on-deed-miss",
+  "on-gain-focus"
 ];
 
 /**

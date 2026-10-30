@@ -139,6 +139,7 @@
           "OnDeedMiss": "On Deed Miss",
           "StartOfCombat": "Start of Combat",
           "EndOfCombat": "End of Combat",
+          "OnGainFocus": "On Gaining Focus",
           "Continuous": "Continuous"
         },
         "Duration": {

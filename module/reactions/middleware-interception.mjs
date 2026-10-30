@@ -28,6 +28,7 @@ export const TRIGGER_INTERCEPTION_MODES = {
   "end-of-turn": ["none", "custom"],
   "end-of-round": ["none", "custom"],
   "end-of-combat": ["none", "custom"],
+  "on-gain-focus": ["none", "modify_amount", "cancel_action", "custom"],
   "immediate": ["none", "custom"],
   "continuous": ["none", "custom"]
 };
@@ -47,6 +48,9 @@ export function getInterceptionModesForTrigger(trigger) {
   }
   if (trigger.includes("heal")) {
     return TRIGGER_INTERCEPTION_MODES["heal-received"];
+  }
+  if (trigger.includes("focus")) {
+    return TRIGGER_INTERCEPTION_MODES["on-gain-focus"];
   }
   if (trigger.includes("move")) {
     return TRIGGER_INTERCEPTION_MODES["on-move"];

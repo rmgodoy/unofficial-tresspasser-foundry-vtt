@@ -33,6 +33,9 @@ export function registerActorHooks() {
     if (foundry.utils.hasProperty(updateData, "system.health")) {
       options._trespasserOldHealth = actor.system?.health ?? 0;
     }
+    if (foundry.utils.hasProperty(updateData, "system.combat.focus")) {
+      options._trespasserOldFocus = actor.system?.combat?.focus ?? 0;
+    }
   });
 
   // Animate damage/healing numbers and trigger companion/token updates
@@ -50,6 +53,24 @@ export function registerActorHooks() {
         TrespasserActor.queueDamageAnimation(token, damage);
       } else if (damage < 0 && token) {
         TrespasserActor.animateHealingText(token, Math.abs(damage));
+      }
+    }
+
+    if (options._trespasserOldFocus !== undefined && foundry.utils.hasProperty(updateData, "system.combat.focus")) {
+      const oldFocus = options._trespasserOldFocus;
+      const newFocus = actor.system?.combat?.focus ?? 0;
+      const gained = newFocus - oldFocus;
+      if (gained > 0 && game.user.id === userId && !options._skipFocusTrigger) {
+        if ((actor._gainFocusDepth || 0) < 3) {
+          actor._gainFocusDepth = (actor._gainFocusDepth || 0) + 1;
+          try {
+            if (typeof actor.onGainFocus === "function") {
+              await actor.onGainFocus(gained, { oldFocus, newFocus });
+            }
+          } finally {
+            actor._gainFocusDepth--;
+          }
+        }
       }
     }
 

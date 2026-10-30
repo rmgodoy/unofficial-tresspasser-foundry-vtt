@@ -269,6 +269,33 @@ export function CombatActorMixin(BaseClass) {
       return this._dispatchCombatEvent("end-of-combat", event);
     }
 
+    /**
+     * Called when this actor gains focus.
+     * Dispatches the 'on-gain-focus' event to the actorEventBus.
+     * @param {number} [amount=0] - Amount of focus gained
+     * @param {object} [options={}]
+     * @returns {Promise<boolean>}
+     */
+    async onGainFocus(amount = 0, options = {}) {
+      const event = this._buildCombatEvent("on-gain-focus", amount, options);
+      return this._dispatchCombatEvent("on-gain-focus", event);
+    }
+
+    /**
+     * Increases the actor's current focus by the given amount.
+     * @param {number} amount
+     * @param {object} [options={}]
+     * @returns {Promise<number>} New focus value
+     */
+    async gainFocus(amount, options = {}) {
+      const gain = Math.max(0, Number(amount) || 0);
+      const current = this.system?.combat?.focus ?? 0;
+      if (gain <= 0) return current;
+      const newFocus = current + gain;
+      await this.update({ "system.combat.focus": newFocus }, options);
+      return this.system?.combat?.focus ?? newFocus;
+    }
+
     /** Called when a combat round begins. */
     async onRoundStart(combat = null, options = {}) {
       const event = this._buildCombatEvent("round-start", 0, { combat, ...options });

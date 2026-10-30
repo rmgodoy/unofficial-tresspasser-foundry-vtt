@@ -139,6 +139,7 @@
           "OnDeedMiss": "Ao Errar Habilidade",
           "StartOfCombat": "Início do Combate",
           "EndOfCombat": "Fim do Combate",
+          "OnGainFocus": "Ao Ganhar Foco",
           "Continuous": "Contínuo"
         },
         "Duration": {

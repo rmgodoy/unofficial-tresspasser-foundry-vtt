@@ -24,6 +24,7 @@ export const TRIGGER_WHEN = {
   ON_DEED_MISS_RECEIVED: "on-deed-miss-received",
   ON_DEED_HIT: "on-deed-hit",
   ON_DEED_MISS: "on-deed-miss",
+  ON_GAIN_FOCUS: "on-gain-focus",
   IMMEDIATE: "immediate",
   CONTINUOUS: "continuous"
 };
@@ -50,6 +51,7 @@ export const TRIGGER_LABELS = {
   "on-deed-miss-received": "TRESPASSER.App.System.Trigger.OnDeedMissReceived",
   "on-deed-hit": "TRESPASSER.App.System.Trigger.OnDeedHit",
   "on-deed-miss": "TRESPASSER.App.System.Trigger.OnDeedMiss",
+  "on-gain-focus": "TRESPASSER.App.System.Trigger.OnGainFocus",
   "immediate": "TRESPASSER.App.System.Trigger.Immediate",
   "continuous": "TRESPASSER.App.System.Trigger.Continuous"
 };
