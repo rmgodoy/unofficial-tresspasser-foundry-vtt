@@ -171,13 +171,18 @@ export function getNodeSummary(node, getIncomingReference) {
       const count = creatures.length;
       if (count === 0) return `<span class="summary-muted">—</span>`;
       const names = creatures.map(c => c.name).filter(Boolean);
-      const nameStr = names.length > 0 ? (names.length === 1 ? names[0] : `${count} creatures`) : `${count} creatures`;
+      const creaturesLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Creatures") || "creatures";
+      const nameStr = names.length > 0 ? (names.length === 1 ? names[0] : `${count} ${creaturesLabel}`) : `${count} ${creaturesLabel}`;
       if (params.rangeMode === "area" || getIncomingReference?.("areaRef")) {
         const ref = getIncomingReference?.("areaRef");
         const areaTag = formatAreaSummary(ref?.sourceNode);
-        return `<span class="summary-tag">${nameStr} <span class="summary-ref-val">(${areaTag || "area"})</span></span>`;
+        const areaLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Port.Area") || "area";
+        return `<span class="summary-tag">${nameStr} <span class="summary-ref-val">(${areaTag || areaLabel})</span></span>`;
       }
-      const rangeLabel = params.rangeMode === "custom" ? `${params.customRange || 1} sq` : (params.rangeMode || "spell");
+      const sqLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Graph.Summary.Squares") || "sq";
+      const modeKey = params.rangeMode || "spell";
+      const modeLabel = game.i18n.localize(`TRESPASSER.Sheet.Deed.Params.RangeModeChoices.${modeKey}`) || modeKey;
+      const rangeLabel = params.rangeMode === "custom" ? `${params.customRange || 1} ${sqLabel}` : modeLabel;
       return `<span class="summary-tag">${nameStr} (${rangeLabel})</span>`;
     }
     case "modifyAttribute": {

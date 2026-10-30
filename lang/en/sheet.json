@@ -386,7 +386,8 @@
             "Branching": "Branching",
             "Effects": "effects",
             "Squares": "sq",
-            "Targets": "targets"
+            "Targets": "targets",
+            "Creatures": "creatures"
           },
           "Port": {
             "In": "In",
@@ -631,11 +632,16 @@
           "DragToReorder": "Drag to reorder",
           "RangeMode": "Placement Range",
           "RangeModeChoices": {
+            "Area": "Connected Area",
+            "Spell": "Spell Range",
+            "Melee": "Melee Reach",
+            "Missile": "Missile Range",
+            "Custom": "Custom Range (Squares)",
+            "area": "Connected Area",
             "spell": "Spell Range",
             "melee": "Melee Reach",
             "missile": "Missile Range",
-            "custom": "Custom Range (Squares)",
-            "area": "Connected Area"
+            "custom": "Custom Range (Squares)"
           },
           "CustomRange": "Custom Range (Squares)",
           "NodePhase": "Phase",

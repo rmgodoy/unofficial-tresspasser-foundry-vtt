@@ -386,7 +386,8 @@
             "Branching": "Ramificação",
             "Effects": "efeitos",
             "Squares": "quadrados",
-            "Targets": "alvos"
+            "Targets": "alvos",
+            "Creatures": "criaturas"
           },
           "Port": {
             "In": "Entrada",
@@ -631,11 +632,16 @@
           "DragToReorder": "Arraste para reordenar",
           "RangeMode": "Alcance de Posicionamento",
           "RangeModeChoices": {
+            "Area": "Área Conectada",
+            "Spell": "Alcance Mágico",
+            "Melee": "Alcance Corpo a Corpo",
+            "Missile": "Alcance de Projétil",
+            "Custom": "Alcance Personalizado (Quadrados)",
+            "area": "Área Conectada",
             "spell": "Alcance Mágico",
             "melee": "Alcance Corpo a Corpo",
             "missile": "Alcance de Projétil",
-            "custom": "Alcance Personalizado (Quadrados)",
-            "area": "Área Conectada"
+            "custom": "Alcance Personalizado (Quadrados)"
           },
           "CustomRange": "Alcance Personalizado (Quadrados)",
           "NodePhase": "Fase",
