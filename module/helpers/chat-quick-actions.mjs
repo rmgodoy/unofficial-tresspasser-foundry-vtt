@@ -1,13 +1,48 @@
 import { getRollMessageMode } from "./compat.mjs";
 
 /**
- * Extract the current string value from the chat input element.
+ * Locate the active chat input element across sidebar, popouts, and floating notifications.
+ * @param {HTMLElement} [container]
+ * @returns {HTMLElement|null}
+ */
+export function findChatInputElement(container) {
+  if (container instanceof HTMLElement) {
+    if (container.id === "chat-message") return container;
+
+    const direct = container.querySelector("#chat-message");
+    if (direct) return direct;
+
+    const notif = container.closest("#chat-notifications");
+    if (notif) {
+      const el = notif.querySelector("#chat-message");
+      if (el) return el;
+    }
+
+    const form = container.closest(".chat-form") || container.closest("#chat-form");
+    if (form) {
+      const el = form.querySelector("#chat-message");
+      if (el) return el;
+    }
+
+    const sibling = container.parentElement?.querySelector("#chat-message");
+    if (sibling) return sibling;
+  }
+
+  // Floating notifications popup (used when viewing other sidebar tabs like Combat)
+  const notifInput = document.querySelector("#chat-notifications #chat-message");
+  if (notifInput) return notifInput;
+
+  // Standard chat sidebar / popout input
+  return document.querySelector("#chat-message");
+}
+
+/**
+ * Extract the current string value from the active chat input element.
  * @param {HTMLElement} [container]
  * @returns {string}
  */
 export function getChatInputValue(container) {
-  const root = container || document;
-  const inputEl = root.querySelector("#chat-message");
+  const inputEl = findChatInputElement(container);
   if (!inputEl) return "";
 
   if (inputEl instanceof HTMLTextAreaElement || inputEl.tagName === "TEXTAREA") {
@@ -31,10 +66,10 @@ export function getChatInputValue(container) {
 
 /**
  * Clear the chat message input box across ProseMirror and textarea formats.
- * @param {HTMLElement} [inputEl]
+ * @param {HTMLElement} [container]
  */
-export function clearChatInput(inputEl) {
-  const el = inputEl || document.querySelector("#chat-message");
+export function clearChatInput(container) {
+  const el = findChatInputElement(container);
   if (!el) return;
 
   // 1. Textarea support (Foundry V13 / fallback)
@@ -206,10 +241,10 @@ export async function executeSimpleRoll(rawExpression, { speaker, messageMode, r
 
 /**
  * Create the DOM element containing the Damage/Heal and Roll buttons.
- * @param {HTMLElement} form
+ * @param {HTMLElement} [parent]
  * @returns {HTMLElement}
  */
-export function createQuickActionsElement(form) {
+export function createQuickActionsElement(parent) {
   const container = document.createElement("div");
   container.className = "trespasser-chat-quick-actions";
 
@@ -218,12 +253,13 @@ export function createQuickActionsElement(form) {
   const rollLabel = game.i18n.localize("TRESPASSER.Chat.QuickActions.Roll");
   const rollTooltip = game.i18n.localize("TRESPASSER.Chat.QuickActions.RollTooltip");
 
+  // Use data-quick-action instead of data-action so Foundry's _onClickNotification does not intercept it
   container.innerHTML = `
-    <button type="button" class="quick-action-btn quick-damage-heal-btn" data-action="damage-heal" data-tooltip="${damageTooltip}">
+    <button type="button" class="quick-action-btn quick-damage-heal-btn" data-quick-action="damage-heal" data-tooltip="${damageTooltip}">
       <i class="fas fa-heart-pulse"></i>
       <span>${damageLabel}</span>
     </button>
-    <button type="button" class="quick-action-btn quick-roll-btn" data-action="roll" data-tooltip="${rollTooltip}">
+    <button type="button" class="quick-action-btn quick-roll-btn" data-quick-action="roll" data-tooltip="${rollTooltip}">
       <i class="fas fa-dice-d20"></i>
       <span>${rollLabel}</span>
     </button>
@@ -233,11 +269,11 @@ export function createQuickActionsElement(form) {
   damageBtn.addEventListener("click", async (ev) => {
     ev.preventDefault();
     ev.stopPropagation();
-    const currentForm = container.closest(".chat-form") || container.closest("#chat-form") || form || document;
-    const text = getChatInputValue(currentForm);
+    ev.stopImmediatePropagation();
+    const text = getChatInputValue(container);
     try {
       await executeDamageRoll(text);
-      clearChatInput(currentForm.querySelector("#chat-message"));
+      clearChatInput(container);
     } catch (err) {
       console.warn("Trespasser | Quick damage/heal roll failed:", err);
       ui.notifications.warn(err.message || game.i18n.localize("TRESPASSER.Chat.DamageCommand.InvalidFormula"));
@@ -248,11 +284,11 @@ export function createQuickActionsElement(form) {
   rollBtn.addEventListener("click", async (ev) => {
     ev.preventDefault();
     ev.stopPropagation();
-    const currentForm = container.closest(".chat-form") || container.closest("#chat-form") || form || document;
-    const text = getChatInputValue(currentForm);
+    ev.stopImmediatePropagation();
+    const text = getChatInputValue(container);
     try {
       await executeSimpleRoll(text);
-      clearChatInput(currentForm.querySelector("#chat-message"));
+      clearChatInput(container);
     } catch (err) {
       console.warn("Trespasser | Quick roll failed:", err);
       ui.notifications.warn(err.message || game.i18n.format("TRESPASSER.Chat.QuickActions.InvalidRoll", { error: text }));
@@ -263,7 +299,7 @@ export function createQuickActionsElement(form) {
 }
 
 /**
- * Attach the quick action buttons directly above the chat controls in the chat form.
+ * Attach the quick action buttons across both the chat tab and floating notifications.
  * @param {HTMLElement|object} [context]
  */
 export function attachChatQuickActions(context) {
@@ -276,26 +312,33 @@ export function attachChatQuickActions(context) {
     root = context.element;
   }
 
-  // Find chatControls (might be passed directly in elements["#chat-controls"] on renderChatInput)
-  const chatControls = (context && context["#chat-controls"] instanceof HTMLElement)
-    ? context["#chat-controls"]
-    : (root.querySelector("#chat-controls") || document.querySelector("#chat-controls"));
+  // 1. Attach in sidebar chat form or popped out chat log
+  const chatForm = root.querySelector(".chat-form") || root.querySelector("#chat-form") || document.querySelector(".chat-form") || document.querySelector("#chat-form");
+  if (chatForm) {
+    const chatControls = chatForm.querySelector("#chat-controls");
+    let quickActions = chatForm.querySelector(":scope > .trespasser-chat-quick-actions");
+    if (!quickActions) {
+      quickActions = createQuickActionsElement(chatForm);
+      if (chatControls) chatControls.insertAdjacentElement("beforebegin", quickActions);
+      else chatForm.prepend(quickActions);
+    } else if (chatControls && chatControls.previousElementSibling !== quickActions) {
+      chatControls.insertAdjacentElement("beforebegin", quickActions);
+    }
+  }
 
-  if (!chatControls || !chatControls.parentElement) return;
-
-  const parent = chatControls.parentElement;
-  let quickActions = parent.querySelector(":scope > .trespasser-chat-quick-actions");
-
-  if (!quickActions) {
-    quickActions = createQuickActionsElement(parent);
-    chatControls.insertAdjacentElement("beforebegin", quickActions);
-  } else if (chatControls.previousElementSibling !== quickActions) {
-    chatControls.insertAdjacentElement("beforebegin", quickActions);
+  // 2. Attach in floating chat notifications overlay (used when on other tabs like Combat)
+  const notifContainer = document.getElementById("chat-notifications");
+  if (notifContainer) {
+    let notifQuickActions = notifContainer.querySelector(":scope > .trespasser-chat-quick-actions");
+    if (!notifQuickActions) {
+      notifQuickActions = createQuickActionsElement(notifContainer);
+      notifContainer.append(notifQuickActions);
+    }
   }
 }
 
 /**
- * Register hooks to render chat quick action buttons in sidebar and popout chat logs.
+ * Register hooks to render chat quick action buttons in sidebar, popouts, and floating notifications.
  */
 export function registerChatQuickActionsHooks() {
   Hooks.on("renderChatLog", (app, html) => {
@@ -309,5 +352,8 @@ export function registerChatQuickActionsHooks() {
   Hooks.on("renderChatInput", (chatLog, elements) => {
     attachChatQuickActions(elements);
   });
-}
 
+  Hooks.on("changeSidebarTab", () => {
+    attachChatQuickActions();
+  });
+}

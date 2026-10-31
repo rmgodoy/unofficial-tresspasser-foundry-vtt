@@ -573,9 +573,6 @@
   box-shadow: none;
 }
 
-
-
-
 /* ═══════════════════════════════════════════════════
    CHAT QUICK ACTIONS (DAMAGE/HEAL & ROLL BUTTONS)
 ═══════════════════════════════════════════════════ */
@@ -585,6 +582,9 @@
   width: 100%;
   margin-bottom: 2px;
   box-sizing: border-box;
+  pointer-events: all !important;
+  position: relative;
+  z-index: 10;
 }
 
 .trespasser-chat-quick-actions .quick-action-btn {
@@ -601,6 +601,7 @@
   padding: 4px 8px;
   border-radius: var(--trp-radius);
   cursor: pointer;
+  pointer-events: all !important;
   transition: all 0.2s ease;
   line-height: normal;
   text-shadow: 1px 1px 2px #000;
@@ -625,4 +626,12 @@
 .trespasser-chat-quick-actions .quick-roll-btn i {
   color: var(--trp-gold);
   font-size: var(--fs-12);
+}
+
+/* Specific styling when displayed inside the floating #chat-notifications popup */
+#chat-notifications .trespasser-chat-quick-actions {
+  pointer-events: all !important;
+  margin-top: 4px;
+  margin-bottom: 0;
+  width: 100%;
 }
