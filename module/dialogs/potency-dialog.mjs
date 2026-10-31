@@ -91,7 +91,7 @@ export async function askPotencyDialog(potencyPoints, effectList, targetName) {
         }
 
         if (confirmBtn) {
-          confirmBtn.disabled = totalAllocated > potencyPoints;
+          confirmBtn.disabled = totalAllocated !== potencyPoints;
         }
       };
 

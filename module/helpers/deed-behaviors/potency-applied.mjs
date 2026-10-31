@@ -24,6 +24,12 @@ export async function updateAlreadyApplied(context) {
         const newIntensity = record.baseIntensity + bonus;
         record.addedPotency = bonus;
         record.finalIntensity = newIntensity;
+        const map = context.potencyAllocations?.effectBonuses;
+        if (map) {
+          const normName = (record.name || "").toLowerCase().trim();
+          if (record.uuid) map.set(`${record.targetId}_${record.uuid}`, 0);
+          if (normName) map.set(`${record.targetId}_name_${normName}`, 0);
+        }
 
         // 1. Locate and update the caster's linked effect document
         const actor = record.actor?.isToken ? record.actor : (game.actors?.get(record.actor?.id) || record.actor);
@@ -85,6 +91,12 @@ export async function updateAlreadyApplied(context) {
         const newIntensity = record.baseIntensity + bonus;
         record.addedPotency = bonus;
         record.finalIntensity = newIntensity;
+        const map = context.potencyAllocations?.effectBonuses;
+        if (map) {
+          const normName = (record.name || "").toLowerCase().trim();
+          if (record.uuid) map.set(`${record.targetId}_${record.uuid}`, 0);
+          if (normName) map.set(`${record.targetId}_name_${normName}`, 0);
+        }
         const actor = record.actor?.isToken ? record.actor : (game.actors?.get(record.actor?.id) || record.actor);
         let doc = record.itemId ? actor?.items?.get(record.itemId) : null;
         if (!doc && actor) {

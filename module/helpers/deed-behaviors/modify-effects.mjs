@@ -39,6 +39,9 @@ export class ModifyEffectsBehavior {
 
     if (!validTargets || validTargets.length === 0) return true;
 
+    const { DeedPotencyHelper } = await import("./potency-helper.mjs");
+    await DeedPotencyHelper.ensurePotencyAllocations(context, actor, item, phaseKey);
+
     if (!context.modifiedEffects) context.modifiedEffects = new Map();
     if (!context.modifiedEffectsByNode) context.modifiedEffectsByNode = new Map();
 
@@ -118,13 +121,14 @@ export class ModifyEffectsBehavior {
         }
       }
 
+      const addedPotency = DeedPotencyHelper.consumeModifyPotency(context, targetToken.id, behavior.id);
       for (const candidate of selectedCandidates) {
         await this._applyModifyEffect({
           targetActor,
           targetToken,
           candidate,
           operation,
-          intensityDelta,
+          intensityDelta: intensityDelta + addedPotency,
           context,
           phaseKey,
           behaviorId: behavior.id,

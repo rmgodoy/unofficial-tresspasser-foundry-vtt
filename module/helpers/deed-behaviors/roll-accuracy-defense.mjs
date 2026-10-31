@@ -1,6 +1,6 @@
 import { DeedBehaviorUtils } from "./deed-behavior-utils.mjs";
 import { TrespasserEffectsHelper } from "../effects-helper.mjs";
-import { askSparkDialog } from "../../dialogs/spark-dialog.mjs";
+import { askSparkDialog, formatSparkChoicesHtml } from "../../dialogs/spark-dialog.mjs";
 import { requestPlayerDefenseRoll } from "../defense-roll-helper.mjs";
 import { TargetingHelper } from "../targeting-helper.mjs";
 import { EngagementHelper } from "../engagement-helper.mjs";
@@ -256,6 +256,22 @@ export async function executeCreatureDefenseRoll({
   context.sparkChoices = sparkChoices;
 
   if (sparkChoices) {
+    const chosenSparksHtml = formatSparkChoicesHtml(sparkChoices, results);
+    if (chosenSparksHtml) {
+      context.currentPhaseOutputs.accuracyHtml = `
+        <div class="accuracy-section" style="margin-top: 8px; padding: 8px; background: rgba(0,0,0,0.35); border: 1px solid var(--trp-border, #4a3f2f); border-radius: 4px;">
+          <h4 style="margin: 0 0 4px 0; color: var(--trp-gold-bright, #e8c96b); font-size: var(--fs-12); font-weight: bold; border-bottom: 1px dashed var(--trp-border, #4a3f2f); padding-bottom: 2px;">
+            ${headerTitle}${engagementNote}
+          </h4>
+          ${resultsHtml}
+          ${chosenSparksHtml}
+        </div>`;
+      if (context.executor?.chat) {
+        await context.executor.chat.postOrUpdatePhaseCard(phaseKey);
+      } else if (context.executor) {
+        await context.executor._postPhaseCard(phaseKey);
+      }
+    }
     const { DeedPotencyHelper } = await import("./potency-helper.mjs");
     await DeedPotencyHelper.onSparksSelected(context, actor, item, phaseKey);
     const { DeedPowerHelper } = await import("./power-helper.mjs");

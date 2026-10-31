@@ -47,6 +47,7 @@
         "Sparks": "Centelhas: {count}",
         "Shadows": "Sombras: {count}",
         "SparksLabel": "Centelhas:",
+        "ChosenSparks": "Centelhas Escolhidas:",
         "ShadowsLabel": "Sombras:",
         "DistributeSparks": "Distribuir Centelhas ({count})",
         "DistributeShadows": "Distribuir Sombras ({count})",

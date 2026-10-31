@@ -3,6 +3,7 @@ import {
   hasLinkedEffect,
   parseIntensity,
   getActorEquippedWeapons,
+  getReachableNodes,
   collectPotencyCandidates
 } from "./potency-candidates.mjs";
 import {
@@ -15,44 +16,95 @@ import {
  */
 export class DeedPotencyHelper {
 
-  /**
-   * Check if a terrain document or UUID defines one or more linked effects.
-   * @param {Item|string} terrainItemOrUuid
-   * @returns {Promise<boolean>|boolean}
-   */
   static async hasLinkedEffect(terrainItemOrUuid) {
     return hasLinkedEffect(terrainItemOrUuid);
   }
 
-  /**
-   * Safely parse an intensity value, supporting 0 as valid.
-   * @param {any} val
-   * @param {number} [fallback=0]
-   * @returns {number}
-   */
   static parseIntensity(val, fallback = 0) {
     return parseIntensity(val, fallback);
   }
 
-  /**
-   * Helper to get equipped weapons from an actor.
-   * @param {Actor} actor
-   * @returns {Item[]}
-   */
   static getActorEquippedWeapons(actor) {
     return getActorEquippedWeapons(actor);
   }
 
+  static async collectPotencyCandidates(context, actor, item, phaseKey = "", options = {}) {
+    return collectPotencyCandidates(context, actor, item, phaseKey, options);
+  }
+
   /**
-   * Collect all eligible effect and terrain candidates for Potency allocation across the deed graph.
+   * Append any already-applied terrain/effect records not yet in candidates list.
+   * @param {Array<object>} candidates
    * @param {object} context
-   * @param {Actor} actor
-   * @param {Item} item
-   * @param {string} [phaseKey=""]
-   * @returns {Promise<Array<object>>}
    */
-  static async collectPotencyCandidates(context, actor, item, phaseKey = "") {
-    return collectPotencyCandidates(context, actor, item, phaseKey);
+  static _mergeAppliedTerrainCandidates(candidates, context) {
+    if (!context.appliedDeedEffects?.length) return;
+    for (const applied of context.appliedDeedEffects) {
+      if (applied.type === "terrain" && !candidates.some(c => c.nodeId === applied.nodeId)) {
+        const terrainLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Behavior.Type.spawnTerrain") || "Terrain";
+        candidates.push({
+          type: "terrain",
+          nodeId: applied.nodeId,
+          nodeIds: [applied.nodeId],
+          uuid: applied.uuid,
+          name: applied.terrainName,
+          displayName: `${applied.terrainName} (${terrainLabel})`,
+          img: applied.img || "icons/svg/mountain.svg",
+          baseIntensity: applied.baseIntensity ?? 1,
+          source: "terrain",
+          isGlobal: true
+        });
+      }
+    }
+  }
+
+  /**
+   * Store allocated bonus for a candidate.
+   * @param {object} context
+   * @param {object} cand
+   * @param {number} bonus
+   * @param {string|null} tokenId - Target token ID, or null for global
+   */
+  static _storeCandidateBonus(context, cand, bonus, tokenId = null) {
+    if (!bonus || bonus <= 0) return;
+    const allocs = context.potencyAllocations;
+
+    if (cand.type === "terrain") {
+      const curr = allocs.terrainBonuses.get(cand.nodeId) || 0;
+      allocs.terrainBonuses.set(cand.nodeId, Math.max(curr, bonus));
+    } else if (cand.type === "recovery") {
+      const curr = allocs.recoveryBonuses.get(cand.nodeId) || 0;
+      allocs.recoveryBonuses.set(cand.nodeId, Math.max(curr, bonus));
+    } else if (cand.type === "modifyEffects") {
+      const key = (tokenId && !cand.isGlobal) ? `${tokenId}_${cand.nodeId}` : `global_${cand.nodeId}`;
+      const curr = allocs.modifyBonuses.get(key) || 0;
+      allocs.modifyBonuses.set(key, cand.isGlobal ? Math.max(curr, bonus) : (curr + bonus));
+      if (cand.isGlobal) {
+        const gKey = `global_${cand.nodeId}`;
+        allocs.modifyBonuses.set(gKey, Math.max(allocs.modifyBonuses.get(gKey) || 0, bonus));
+      }
+    } else {
+      const normName = (cand.name || "").toLowerCase().trim();
+      if (tokenId && !cand.isGlobal) {
+        if (cand.uuid) {
+          const k = `${tokenId}_${cand.uuid}`;
+          allocs.effectBonuses.set(k, (allocs.effectBonuses.get(k) || 0) + bonus);
+        }
+        if (normName) {
+          const nk = `${tokenId}_name_${normName}`;
+          allocs.effectBonuses.set(nk, (allocs.effectBonuses.get(nk) || 0) + bonus);
+        }
+      } else {
+        if (cand.uuid) {
+          const gk = `global_${cand.uuid}`;
+          allocs.effectBonuses.set(gk, Math.max(allocs.effectBonuses.get(gk) || 0, bonus));
+        }
+        if (normName) {
+          const gnk = `global_name_${normName}`;
+          allocs.effectBonuses.set(gnk, Math.max(allocs.effectBonuses.get(gnk) || 0, bonus));
+        }
+      }
+    }
   }
 
   /**
@@ -69,117 +121,87 @@ export class DeedPotencyHelper {
     context.potencyAllocations = context.potencyAllocations || {
       terrainBonuses: new Map(),
       effectBonuses: new Map(),
-      recoveryBonuses: new Map()
+      recoveryBonuses: new Map(),
+      modifyBonuses: new Map()
     };
 
-    // If spark choices have not yet been evaluated (e.g. node runs before rollAccuracy),
-    // do NOT mark resolved so that onSparksSelected will run after the roll.
     if (!context.sparkChoices) return;
 
     const targetChoicesMap = context.sparkChoices?.perTarget;
-    const globalPotency = context.sparkChoices?.potencyBonus || 0;
-    const hasAnyPotency = globalPotency > 0 || (targetChoicesMap && Array.from(targetChoicesMap.values()).some(c => (c?.potency || 0) > 0));
+    const maxTargetPotency = targetChoicesMap && targetChoicesMap.size > 0
+      ? Math.max(0, ...Array.from(targetChoicesMap.values()).map(c => c?.potency || 0))
+      : 0;
+    const globalPotency = Math.max(context.sparkChoices?.potencyBonus || 0, maxTargetPotency);
+    const hasAnyPotency = globalPotency > 0;
 
     if (!hasAnyPotency) {
       context.potencyAllocationsResolved = true;
       return;
     }
 
-    const candidates = await this.collectPotencyCandidates(context, actor, item, phaseKey);
+    const baseCandidates = await this.collectPotencyCandidates(context, actor, item, phaseKey);
+    this._mergeAppliedTerrainCandidates(baseCandidates, context);
 
-    // Ensure any terrain/effect already applied in context is present in candidates
-    if (context.appliedDeedEffects?.length > 0) {
-      for (const applied of context.appliedDeedEffects) {
-        if (applied.type === "terrain" && !candidates.some(c => c.nodeId === applied.nodeId)) {
-          const terrainLabel = game.i18n.localize("TRESPASSER.Sheet.Deed.Behavior.Type.spawnTerrain") || "Terrain";
-          candidates.push({
-            type: "terrain",
-            nodeId: applied.nodeId,
-            uuid: applied.uuid,
-            name: applied.terrainName,
-            displayName: `${applied.terrainName} (${terrainLabel})`,
-            img: applied.img || "icons/svg/mountain.svg",
-            baseIntensity: applied.baseIntensity ?? 1,
-            source: "terrain"
-          });
-        }
-      }
-    }
-
-    if (candidates.length === 0) {
-      context.potencyAllocationsResolved = true;
-      return;
-    }
-
+    const hasPerTargetCandidates = baseCandidates.some(c => !c.isGlobal);
     const { askPotencyDialog } = await import("../../dialogs/potency-dialog.mjs");
     let anyAllocated = false;
 
-    if (targetChoicesMap && targetChoicesMap.size > 0) {
+    // If the deed has per-target candidates (e.g. effects applied to enemy targets), allocate per target
+    if (hasPerTargetCandidates && targetChoicesMap && targetChoicesMap.size > 0) {
       for (const [tokenId, targetChoices] of targetChoicesMap.entries()) {
         const targetPotency = targetChoices?.potency || 0;
         if (targetPotency <= 0) continue;
-        anyAllocated = true;
 
-        const targetToken = canvas.tokens?.get(tokenId) || canvas.scene?.tokens?.get(tokenId);
-        const tokenName = targetToken ? DeedBehaviorUtils.getTokenDisplayName(targetToken) : tokenId;
+        const targetIsSpark = Boolean(targetChoices?.deed ?? context.isSpark);
+        const targetCandidates = await this.collectPotencyCandidates(context, actor, item, phaseKey, {
+          isHit: true,
+          isSpark: targetIsSpark
+        });
+        this._mergeAppliedTerrainCandidates(targetCandidates, context);
+        if (targetCandidates.length === 0) continue;
+
+        anyAllocated = true;
+        const targetToken = tokenId ? (canvas.tokens?.get(tokenId) || canvas.scene?.tokens?.get(tokenId)) : null;
+        const tokenName = targetToken ? DeedBehaviorUtils.getTokenDisplayName(targetToken) : (actor?.name || "Target");
 
         let allocations = [];
-        if (candidates.length > 1) {
+        if (targetCandidates.length > 1) {
           allocations = await askPotencyDialog(
             targetPotency,
-            candidates.map(c => ({ name: c.displayName, intensity: c.baseIntensity, img: c.img })),
+            targetCandidates.map(c => ({ name: c.displayName, intensity: c.baseIntensity, img: c.img })),
             tokenName
           );
           if (!allocations) {
-            allocations = candidates.map((_, i) => (i === 0 ? targetPotency : 0));
+            allocations = targetCandidates.map((_, i) => (i === 0 ? targetPotency : 0));
           }
         } else {
           allocations = [targetPotency];
         }
 
-        candidates.forEach((cand, idx) => {
-          const bonus = allocations[idx] || 0;
-          if (cand.type === "terrain") {
-            const curr = context.potencyAllocations.terrainBonuses.get(cand.nodeId) || 0;
-            context.potencyAllocations.terrainBonuses.set(cand.nodeId, curr + bonus);
-          } else if (cand.type === "recovery") {
-            const curr = context.potencyAllocations.recoveryBonuses.get(cand.nodeId) || 0;
-            context.potencyAllocations.recoveryBonuses.set(cand.nodeId, curr + bonus);
-          } else {
-            const curr = context.potencyAllocations.effectBonuses.get(`${tokenId}_${cand.uuid}`) || 0;
-            context.potencyAllocations.effectBonuses.set(`${tokenId}_${cand.uuid}`, curr + bonus);
-          }
+        targetCandidates.forEach((cand, idx) => {
+          this._storeCandidateBonus(context, cand, allocations[idx] || 0, tokenId);
         });
       }
     }
 
-    if (!anyAllocated && globalPotency > 0) {
+    // If all candidates are global (e.g. Cloud of Pestilence terrain, recovery, or self-buff) or no target entries matched
+    if (!anyAllocated && globalPotency > 0 && baseCandidates.length > 0) {
       let allocations = [];
-      if (candidates.length > 1) {
+      if (baseCandidates.length > 1) {
         allocations = await askPotencyDialog(
           globalPotency,
-          candidates.map(c => ({ name: c.displayName, intensity: c.baseIntensity, img: c.img })),
+          baseCandidates.map(c => ({ name: c.displayName, intensity: c.baseIntensity, img: c.img })),
           actor?.name || "Self"
         );
         if (!allocations) {
-          allocations = candidates.map((_, i) => (i === 0 ? globalPotency : 0));
+          allocations = baseCandidates.map((_, i) => (i === 0 ? globalPotency : 0));
         }
       } else {
         allocations = [globalPotency];
       }
 
-      candidates.forEach((cand, idx) => {
-        const bonus = allocations[idx] || 0;
-        if (cand.type === "terrain") {
-          const curr = context.potencyAllocations.terrainBonuses.get(cand.nodeId) || 0;
-          context.potencyAllocations.terrainBonuses.set(cand.nodeId, curr + bonus);
-        } else if (cand.type === "recovery") {
-          const curr = context.potencyAllocations.recoveryBonuses.get(cand.nodeId) || 0;
-          context.potencyAllocations.recoveryBonuses.set(cand.nodeId, curr + bonus);
-        } else {
-          const curr = context.potencyAllocations.effectBonuses.get(`global_${cand.uuid}`) || 0;
-          context.potencyAllocations.effectBonuses.set(`global_${cand.uuid}`, curr + bonus);
-        }
+      baseCandidates.forEach((cand, idx) => {
+        this._storeCandidateBonus(context, cand, allocations[idx] || 0, null);
       });
     }
 
@@ -187,63 +209,102 @@ export class DeedPotencyHelper {
     await this.updateAlreadyApplied(context);
   }
 
-  /**
-   * Register an applied effect or terrain in context so it can be retroactively updated if Potency is chosen later.
-   * @param {object} context
-   * @param {object} record
-   */
   static registerAppliedEffect(context, record) {
     registerAppliedEffect(context, record);
   }
 
-  /**
-   * Retroactively updates effects and terrains that were created prior to Potency selection.
-   * @param {object} context
-   */
   static async updateAlreadyApplied(context) {
     return updateAlreadyApplied(context);
   }
 
   /**
-   * Retrieve allocated potency bonus for a specific target and effect UUID.
+   * Read allocated potency bonus for a specific target and effect UUID/name without consuming it.
    * @param {object} context
    * @param {string} targetId
    * @param {string} effectUuid
+   * @param {string} [effectName=""]
    * @returns {number}
    */
-  static getEffectPotency(context, targetId, effectUuid) {
-    return context.potencyAllocations?.effectBonuses?.get(`${targetId}_${effectUuid}`) ??
-           context.potencyAllocations?.effectBonuses?.get(`global_${effectUuid}`) ?? 0;
+  static getEffectPotency(context, targetId, effectUuid, effectName = "") {
+    const map = context.potencyAllocations?.effectBonuses;
+    if (!map) return 0;
+    const normName = (effectName || "").toLowerCase().trim();
+    return (effectUuid && map.get(`${targetId}_${effectUuid}`)) ??
+           (normName && map.get(`${targetId}_name_${normName}`)) ??
+           (effectUuid && map.get(`global_${effectUuid}`)) ??
+           (normName && map.get(`global_name_${normName}`)) ?? 0;
   }
 
   /**
-   * Retrieve allocated potency bonus for a terrain node ID.
+   * Retrieve and consume allocated potency bonus for a specific target and effect UUID/name
+   * so that multiple nodes applying the same aggregated effect only add the Potency bonus once.
    * @param {object} context
+   * @param {string} targetId
+   * @param {string} effectUuid
+   * @param {string} [effectName=""]
+   * @returns {number}
+   */
+  static consumeEffectPotency(context, targetId, effectUuid, effectName = "") {
+    const map = context.potencyAllocations?.effectBonuses;
+    if (!map) return 0;
+    const normName = (effectName || "").toLowerCase().trim();
+
+    const targetUuidKey = effectUuid ? `${targetId}_${effectUuid}` : null;
+    const targetNameKey = normName ? `${targetId}_name_${normName}` : null;
+    const globalUuidKey = effectUuid ? `global_${effectUuid}` : null;
+    const globalNameKey = normName ? `global_name_${normName}` : null;
+
+    if ((targetUuidKey && map.has(targetUuidKey)) || (targetNameKey && map.has(targetNameKey))) {
+      const val = (targetUuidKey ? map.get(targetUuidKey) : 0) || (targetNameKey ? map.get(targetNameKey) : 0) || 0;
+      if (targetUuidKey) map.set(targetUuidKey, 0);
+      if (targetNameKey) map.set(targetNameKey, 0);
+      return val;
+    }
+
+    if ((globalUuidKey && map.has(globalUuidKey)) || (globalNameKey && map.has(globalNameKey))) {
+      const val = (globalUuidKey ? map.get(globalUuidKey) : 0) || (globalNameKey ? map.get(globalNameKey) : 0) || 0;
+      if (globalUuidKey) map.set(globalUuidKey, 0);
+      if (globalNameKey) map.set(globalNameKey, 0);
+      return val;
+    }
+
+    return 0;
+  }
+
+  /**
+   * Retrieve and consume allocated potency bonus for a modifyEffects node.
+   * @param {object} context
+   * @param {string} targetId
    * @param {string} nodeId
    * @returns {number}
    */
+  static consumeModifyPotency(context, targetId, nodeId) {
+    const map = context.potencyAllocations?.modifyBonuses;
+    if (!map) return 0;
+    const targetKey = `${targetId}_${nodeId}`;
+    const globalKey = `global_${nodeId}`;
+    if (map.has(targetKey)) {
+      const val = map.get(targetKey) || 0;
+      map.set(targetKey, 0);
+      return val;
+    }
+    if (map.has(globalKey)) {
+      const val = map.get(globalKey) || 0;
+      map.set(globalKey, 0);
+      return val;
+    }
+    return 0;
+  }
+
   static getTerrainPotency(context, nodeId) {
     return context.potencyAllocations?.terrainBonuses?.get(nodeId) ?? 0;
   }
 
-  /**
-   * Retrieve allocated potency bonus for a recovery node ID.
-   * @param {object} context
-   * @param {string} nodeId
-   * @returns {number}
-   */
   static getRecoveryPotency(context, nodeId) {
     return context.potencyAllocations?.recoveryBonuses?.get(nodeId) ??
            (context.sparkChoices?.potencyBonus || 0);
   }
 
-  /**
-   * Triggered immediately after sparks are selected in rollAccuracy.
-   * @param {object} context
-   * @param {Actor} actor
-   * @param {Item} item
-   * @param {string} [phaseKey=""]
-   */
   static async onSparksSelected(context, actor, item, phaseKey = "") {
     await this.ensurePotencyAllocations(context, actor, item, phaseKey);
   }
@@ -253,6 +314,7 @@ export {
   hasLinkedEffect,
   parseIntensity,
   getActorEquippedWeapons,
+  getReachableNodes,
   collectPotencyCandidates,
   registerAppliedEffect,
   updateAlreadyApplied

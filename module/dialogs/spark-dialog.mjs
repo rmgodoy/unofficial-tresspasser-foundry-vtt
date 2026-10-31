@@ -247,6 +247,12 @@ function _parseSparkChoices(element, sparkTargets, maxSparks) {
   let potencyBonus = 0;
   let powerBonusDice = 0;
 
+  for (const choice of layerChoices) {
+    if (choice === "impact") impactBonus += 2;
+    else if (choice === "potency") potencyBonus += 1;
+    else if (choice === "power") powerBonusDice += 1;
+  }
+
   // Build per-target map: each target gets the choices from layers 1..N where N=their sparks
   const perTarget = new Map();
 
@@ -263,15 +269,15 @@ function _parseSparkChoices(element, sparkTargets, maxSparks) {
           break;
         case "impact":
           targetChoices.impact += 1;
-          impactBonus += 2;
+
           break;
         case "potency":
           targetChoices.potency += 1;
-          potencyBonus += 1;
+
           break;
         case "power":
           targetChoices.power += 1;
-          powerBonusDice += 1;
+
           break;
       }
     }
@@ -288,4 +294,59 @@ function _parseSparkChoices(element, sparkTargets, maxSparks) {
     perTarget,
     layerChoices
   };
+}
+
+
+/**
+ * Format chosen sparks into an HTML summary block for the accuracy roll chat message.
+ * @param {object|null} sparkChoices
+ * @param {Array} [results=[]]
+ * @returns {string}
+ */
+export function formatSparkChoicesHtml(sparkChoices, results = []) {
+  if (!sparkChoices?.layerChoices?.length) return "";
+
+  const labelMap = {
+    deed: game.i18n.localize("TRESPASSER.Dialog.Spark.DeedSpark"),
+    impact: game.i18n.localize("TRESPASSER.Dialog.Spark.Impact"),
+    potency: game.i18n.localize("TRESPASSER.Dialog.Spark.Potency"),
+    power: game.i18n.localize("TRESPASSER.Dialog.Spark.Power")
+  };
+
+  const sparkTargets = (results || []).filter(r => r.isHit && r.sparks > 0);
+  const rows = [];
+
+  sparkChoices.layerChoices.forEach((choiceKey, idx) => {
+    if (!choiceKey) return;
+    const layer = idx + 1;
+    const layerLabel = game.i18n.format("TRESPASSER.Dialog.Spark.Layer", { n: layer });
+    const choiceLabel = labelMap[choiceKey] || choiceKey;
+
+    let targetSuffix = "";
+    if (sparkTargets.length > 1) {
+      const eligibleNames = sparkTargets
+        .filter(t => t.sparks >= layer)
+        .map(t => t.tokenName)
+        .filter(Boolean);
+      if (eligibleNames.length > 0 && eligibleNames.length < sparkTargets.length) {
+        targetSuffix = ` <span style="font-size: var(--fs-10); color: var(--trp-text-dim, #a09070);">(${eligibleNames.join(", ")})</span>`;
+      }
+    }
+
+    rows.push(
+      `<div><span style="color: var(--trp-text-dim, #a09070);">${layerLabel}:</span> <strong style="color: var(--trp-gold-bright, #e8c96b);">${choiceLabel}</strong>${targetSuffix}</div>`
+    );
+  });
+
+  if (rows.length === 0) return "";
+
+  return `
+    <div class="chosen-sparks-summary" style="border-top: 1px dashed var(--trp-border, #4a3f2f); margin-top: 6px; padding-top: 5px; font-size: var(--fs-11);">
+      <div style="color: var(--trp-gold-bright, #e8c96b); font-weight: bold; margin-bottom: 2px;">
+        ✨ ${game.i18n.localize("TRESPASSER.Chat.Combat.ChosenSparks")}
+      </div>
+      <div style="display: flex; flex-direction: column; gap: 2px; color: var(--trp-text, #ddd0aa);">
+        ${rows.join("")}
+      </div>
+    </div>`;
 }

@@ -47,6 +47,7 @@
         "Sparks": "Sparks: {count}",
         "Shadows": "Shadows: {count}",
         "SparksLabel": "Sparks:",
+        "ChosenSparks": "Chosen Sparks:",
         "ShadowsLabel": "Shadows:",
         "DistributeSparks": "Distribute Sparks ({count})",
         "DistributeShadows": "Distribute Shadows ({count})",

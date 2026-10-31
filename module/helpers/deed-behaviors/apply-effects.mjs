@@ -176,7 +176,7 @@ export class ApplyEffectsBehavior {
       const itemDataArray = [];
 
       effectList.forEach((effData) => {
-        const addedPotency = DeedPotencyHelper.getEffectPotency(context, targetToken.id, effData.uuid);
+        const addedPotency = DeedPotencyHelper.consumeEffectPotency(context, targetToken.id, effData.uuid, effData.item?.name);
         const itemData = effData.item.toObject();
         itemData.system = itemData.system || {};
         itemData.system.intensity = effData.baseIntensity + addedPotency;
