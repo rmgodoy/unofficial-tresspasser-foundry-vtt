@@ -1392,6 +1392,11 @@
   transition: background 0.15s;
 }
 
+.deed-slot:only-child,
+.deed-slot:last-child:nth-child(odd) {
+  grid-column: 1 / -1;
+}
+
 .deed-slot:hover {
   background: var(--trp-bg-panel);
 }
