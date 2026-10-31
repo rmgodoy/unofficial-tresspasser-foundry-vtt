@@ -1,0 +1,112 @@
+<header class="sheet-header effect-header-layout">
+  {{!-- Artwork + Linked Status Icon Corner Badge --}}
+  <div class="effect-artwork-wrap">
+    <img class="profile-img" src="{{item.img}}" data-edit="img" title="{{item.name}}" />
+    {{#if effectiveStatusIcon}}
+      <img class="effect-status-corner-preview"
+           src="{{effectiveStatusIcon}}"
+           data-edit="system.statusIcon"
+           title="{{localize 'TRESPASSER.Sheet.Item.Details.StatusIcon'}}" />
+    {{/if}}
+    {{#if editable}}
+      <button type="button"
+              class="effect-sync-corner-btn {{#if syncStatusIcon}}active{{/if}}"
+              data-action="toggleSyncStatusIcon"
+              title="{{#if syncStatusIcon}}{{localize 'TRESPASSER.Sheet.Item.Details.SyncedWithArtwork'}}{{else}}{{localize 'TRESPASSER.Sheet.Item.Details.SyncWithArtwork'}}{{/if}}">
+        <i class="fas {{#if syncStatusIcon}}fa-link{{else}}fa-unlink{{/if}}"></i>
+      </button>
+    {{/if}}
+  </div>
+
+  <div class="effect-header-main">
+    {{!-- Top Row: Name + Prominent Intensity Dial --}}
+    <div class="effect-title-row">
+      <h1 class="item-title">
+        <input type="text" name="name" value="{{item.name}}" placeholder="{{localize 'TRESPASSER.Sheet.Header.Name'}}" />
+      </h1>
+
+      <div class="effect-intensity-dial" title="{{localize 'TRESPASSER.Sheet.Common.Intensity'}} (&lt;Int&gt;)">
+        <span class="dial-label">{{localize "TRESPASSER.Sheet.Common.IntensityShort"}}</span>
+        <input type="number" name="system.intensity" value="{{system.intensity}}" class="select-on-focus" />
+      </div>
+    </div>
+
+    {{!-- Middle Row: Interactive State Classification Pill Toggles --}}
+    <div class="effect-state-pills">
+      <button type="button"
+              class="state-pill {{#if system.isCombat}}active combat{{/if}}"
+              data-action="toggleEffectProp"
+              data-prop="system.isCombat"
+              title="{{localize 'TRESPASSER.Sheet.Item.States.IsCombat'}}">
+        <i class="fas fa-swords"></i>
+        <span>{{localize "TRESPASSER.Sheet.Item.Effect.PillCombat"}}</span>
+      </button>
+
+      <button type="button"
+              class="state-pill {{#if system.isPrevailable}}active prevailable{{/if}}"
+              data-action="toggleEffectProp"
+              data-prop="system.isPrevailable"
+              title="{{localize 'TRESPASSER.Sheet.Item.States.IsPrevailable'}}">
+        <i class="fas fa-shield-heart"></i>
+        <span>{{localize "TRESPASSER.Sheet.Item.Effect.PillPrevailable"}}</span>
+      </button>
+
+      <button type="button"
+              class="state-pill {{#if system.isLasting}}active lasting{{/if}}"
+              data-action="toggleEffectProp"
+              data-prop="system.isLasting"
+              title="{{localize 'TRESPASSER.Sheet.Item.States.IsLasting'}}">
+        <i class="fas fa-hourglass-half"></i>
+        <span>{{localize "TRESPASSER.Sheet.Item.Effect.PillLasting"}}</span>
+      </button>
+
+      <button type="button"
+              class="state-pill {{#if system.showTokenIcon}}active token-icon{{/if}}"
+              data-action="toggleEffectProp"
+              data-prop="system.showTokenIcon"
+              title="{{localize 'TRESPASSER.Sheet.Item.States.ShowTokenIcon'}}">
+        <i class="fas fa-eye"></i>
+        <span>{{localize "TRESPASSER.Sheet.Item.Effect.PillTokenIcon"}}</span>
+      </button>
+
+      <button type="button"
+              class="state-pill {{#if system.isOnlyReminder}}active reminder{{/if}}"
+              data-action="toggleEffectProp"
+              data-prop="system.isOnlyReminder"
+              title="{{localize 'TRESPASSER.Sheet.Item.States.IsReminder'}}">
+        <i class="fas fa-comment-dots"></i>
+        <span>{{localize "TRESPASSER.Sheet.Item.Effect.PillReminder"}}</span>
+      </button>
+
+      {{#if system.isOnlyReminder}}
+      <button type="button"
+              class="state-pill {{#if system.gmOnly}}active gm-only{{/if}}"
+              data-action="toggleEffectProp"
+              data-prop="system.gmOnly"
+              title="{{localize 'TRESPASSER.Sheet.Item.States.GMOnly'}}">
+        <i class="fas fa-user-secret"></i>
+        <span>{{localize "TRESPASSER.Sheet.Item.Effect.PillGMOnly"}}</span>
+      </button>
+      {{/if}}
+    </div>
+
+    {{!-- Bottom Row: Inline Tags Strip --}}
+    <div class="effect-header-tags">
+      <i class="fas fa-tags tags-icon" title="{{localize 'TRESPASSER.Sheet.Item.Effect.Tags'}}"></i>
+      {{#each tags as |tag idx|}}
+        <span class="tag-chip">
+          #{{tag}}
+          {{#if @root.editable}}
+          <button type="button" class="tag-remove" data-action="removeTag" data-index="{{idx}}" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}">
+            <i class="fas fa-times"></i>
+          </button>
+          {{/if}}
+        </span>
+      {{/each}}
+      {{#if editable}}
+        <input type="text" class="tag-add-input" placeholder="{{localize 'TRESPASSER.Sheet.Item.Effect.AddTag'}}" />
+      {{/if}}
+    </div>
+  </div>
+</header>
+

@@ -7,33 +7,70 @@ import { summarizeBlock, getActionIcon } from "./effect/tca-summary.mjs";
 import { TCABlockEditor } from "./effect/tca-block-editor.mjs";
 import { getDefaultParamsForAction } from "./effect/tca-param-editors.mjs";
 
-
 /**
- * Item sheet for Trespasser Effect items.
- * Implemented using ApplicationV2 (sheets.ItemSheetV2) with Two-Mode TCA Behavior editing.
+ * Item sheet for Trespasser Effect items (ApplicationV2).
  */
 export class TrespasserEffectSheet extends TrespasserItemSheet {
-
-  /** @type {boolean} Toggle state for Simple vs Advanced TCA editor mode */
   _advancedMode = false;
+  _showPresetsDrawer = false;
+  _expandedConstraints = {};
+  _collapsedBlocks = new Set();
 
   static DEFAULT_OPTIONS = {
-    classes: ["trespasser", "sheet", "item", "effect-sheet"],
-    position: { width: 540, height: 640 },
-    form: { 
+    classes: ["trespasser", "sheet", "item", "effect-sheet", "item-sheet"],
+    position: { width: 580, height: 660 },
+    actions: { switchTab: TrespasserEffectSheet.#onSwitchTab },
+    form: {
       handler: TrespasserEffectSheet.#onSubmit,
       submitOnChange: true,
-      closeOnSubmit: false 
+      closeOnSubmit: false
     },
     window: { resizable: true }
   };
 
   static PARTS = {
-    main: {
-      template: "systems/trespasser/templates/item/effect-sheet.hbs",
-      scrollable: [".scrollable", ".sheet-content", "[data-scrollable='true']"]
+    header: { template: "systems/trespasser/templates/item/effect/header.hbs" },
+    tabs: { template: "systems/trespasser/templates/item/effect/tabs.hbs" },
+    mechanics: {
+      template: "systems/trespasser/templates/item/effect/mechanics.hbs",
+      scrollable: ["", ".effect-mechanics-body"]
+    },
+    details: {
+      template: "systems/trespasser/templates/item/effect/details.hbs",
+      scrollable: ["", ".effect-details-body"]
     }
   };
+
+  static TABS = {
+    mechanics: { id: "mechanics", group: "primary", label: "TRESPASSER.Sheet.Item.Effect.TabMechanics", icon: "bolt" },
+    details:   { id: "details",   group: "primary", label: "TRESPASSER.Sheet.Item.Effect.TabDescription", icon: "scroll" }
+  };
+
+  tabGroups = { primary: "mechanics" };
+
+  _prepareTabs() {
+    return Object.values(this._getTabs());
+  }
+
+  _getTabs() {
+    const tabs = {};
+    for (const [id, config] of Object.entries(this.constructor.TABS)) {
+      tabs[id] = {
+        ...config,
+        active: this.tabGroups[config.group] === id,
+        cssClass: this.tabGroups[config.group] === id ? "active" : "",
+        label: game.i18n.localize(config.label)
+      };
+    }
+    return tabs;
+  }
+
+  /** @override */
+  async _preparePartContext(partId, context) {
+    context.partId = `${this.id}-${partId}`;
+    context.tab = context.tabs?.[partId] ?? { active: partId === this.tabGroups.primary };
+    return context;
+  }
 
   /** @override */
   async _prepareContext(options) {
@@ -45,26 +82,23 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     context.system = system;
     context.editable = this.isEditable;
     context.advancedMode = this._advancedMode;
-    
+    context.showPresetsDrawer = this._showPresetsDrawer;
+    context.tabs = this._getTabs();
+
     if (!system.durationConditions) system.durationConditions = [];
 
-    // Map default status effects
     const statusEffects = Object.values(CONFIG.statusEffects || {})
       .map(effect => {
         const id = effect.id;
         const img = effect.img || effect.icon || effect.src || "";
         const name = effect.name || effect.label || id || "";
-        const localizedName = game.i18n.localize(name);
-        return { id, img, name: localizedName };
+        return { id, img, name: game.i18n.localize(name) };
       })
       .filter(e => e.id && e.img)
       .sort((a, b) => a.name.localeCompare(b.name));
-    
-    // Check sync status and effective status icon
+
     const syncStatusIcon = system.syncStatusIcon !== false;
     const effectiveStatusIcon = syncStatusIcon ? (item.img || "") : (system.statusIcon || "");
-
-    // Check if system.statusIcon is a custom file path
     const isDefaultStatus = statusEffects.some(se => se.img === system.statusIcon);
     const isCustomStatus = Boolean(system.statusIcon && !isDefaultStatus && !syncStatusIcon);
     let customStatusLabel = "";
@@ -78,7 +112,6 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     context.isCustomStatus = isCustomStatus;
     context.customStatusLabel = customStatusLabel;
 
-    // Config dictionary
     context.config = {
       effectTypes: {
         "on-trigger": "TRESPASSER.Sheet.Item.Details.EffectTypeChoices.OnTrigger",
@@ -130,15 +163,10 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
       statusEffects
     };
 
-    // Template picker models
     context.templates = Object.values(EFFECT_TEMPLATES).map(t => ({
-      key: t.key,
-      label: t.label,
-      icon: t.icon,
-      description: t.description
+      key: t.key, label: t.label, icon: t.icon, description: t.description
     }));
 
-    // Simple Mode summaries
     const behaviors = system.behaviors || [];
     context.summaries = behaviors.map((b, idx) => ({
       index: idx,
@@ -146,151 +174,142 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
       text: summarizeBlock(b, system.intensity ?? 0)
     }));
 
-    // Advanced Mode prepared blocks
-    context.preparedBlocks = TCABlockEditor.prepareBlocks(behaviors, context.config, system.intensity ?? 0);
+    context.preparedBlocks = TCABlockEditor.prepareBlocks(
+      behaviors,
+      context.config,
+      system.intensity ?? 0,
+      this._expandedConstraints,
+      this._collapsedBlocks
+    );
 
-    // Tags array
     context.tags = Array.isArray(system.tags) ? system.tags : [];
-
-    // Description HTML
     context.descriptionHTML = await foundry.applications.ux.TextEditor.implementation.enrichHTML(
       system.description ?? "",
-      { 
-        async: true,
-        secrets: item.isOwner,
-        relativeTo: item
-      }
+      { async: true, secrets: item.isOwner, relativeTo: item }
     );
-    
+
     return context;
   }
-  
+
   /** @override */
   _onRender(context, options) {
     super._onRender(context, options);
-    if (!this.isEditable) return;
-
     const html = this.element;
 
-    // Toggle Advanced / Simple Mode
+    html.addEventListener("change", (ev) => {
+      const pm = ev.target.closest("prose-mirror");
+      if (pm) {
+        ev.stopPropagation();
+        ev.preventDefault();
+        setTimeout(() => {
+          if (this.element && this.document) this.document.update({ "system.description": pm.value });
+        }, 0);
+      }
+    }, true);
+
+    if (!this.isEditable) return;
+
+    html.querySelectorAll(".select-on-focus").forEach(input => {
+      input.addEventListener("focus", (ev) => ev.currentTarget.select());
+    });
+
+    html.querySelectorAll('[data-action="toggleEffectProp"]').forEach(btn => {
+      btn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        const prop = btn.dataset.prop;
+        if (!prop) return;
+        const currentVal = Boolean(foundry.utils.getProperty(this.document, prop));
+        await this.document.update({ [prop]: !currentVal });
+      });
+    });
+
+    html.querySelectorAll('[data-action="setScope"]').forEach(btn => {
+      btn.addEventListener("click", async (event) => {
+        event.preventDefault();
+        const scope = btn.dataset.scope;
+        if (scope && scope !== this.document.system.scope) {
+          await this.document.update({ "system.scope": scope });
+        }
+      });
+    });
+
+    html.querySelectorAll('[data-action="togglePresetsDrawer"]').forEach(btn => {
+      btn.addEventListener("click", (event) => {
+        event.preventDefault();
+        this._showPresetsDrawer = !this._showPresetsDrawer;
+        this.render();
+      });
+    });
+
     html.querySelectorAll('[data-action="toggleAdvancedMode"]').forEach(btn => {
-      btn.addEventListener('click', (event) => {
+      btn.addEventListener("click", (event) => {
         event.preventDefault();
         this._advancedMode = !this._advancedMode;
         this.render();
       });
     });
 
-    // Apply Template in Simple Mode
     html.querySelectorAll('[data-action="applyTemplate"]').forEach(btn => {
-      btn.addEventListener('click', async (event) => {
+      btn.addEventListener("click", async (event) => {
         event.preventDefault();
         const templateKey = event.currentTarget.dataset.template;
+        this._showPresetsDrawer = false;
         const updates = applyTemplate(templateKey, this.document.system);
-        if (Object.keys(updates).length > 0) {
-          await this.document.update(updates);
-        }
+        if (Object.keys(updates).length > 0) await this.document.update(updates);
       });
     });
 
-    // Switch to Advanced Mode when clicking summary row in Simple Mode
-    html.querySelectorAll('.tca-summary-row').forEach(row => {
-      row.addEventListener('click', (event) => {
-        event.preventDefault();
-        this._advancedMode = true;
-        this.render();
-      });
-    });
-
-    // Tags Editor: Add Tag
-    const tagInput = html.querySelector('.tag-add-input');
-    if (tagInput) {
-      tagInput.addEventListener('keydown', async (event) => {
-        if (event.key === "Enter") {
-          event.preventDefault();
-          const val = tagInput.value.trim().toLowerCase();
-          if (val) {
-            const tags = Array.isArray(this.document.system.tags) ? [...this.document.system.tags] : [];
-            if (!tags.includes(val)) {
-              tags.push(val);
-              tagInput.value = "";
-              await this.document.update({ "system.tags": tags });
-            }
-          }
-        }
-      });
-    }
-
-    // Tags Editor: Remove Tag
-    html.querySelectorAll('[data-action="removeTag"]').forEach(btn => {
-      btn.addEventListener('click', async (event) => {
-        event.preventDefault();
-        const idx = Number(event.currentTarget.dataset.index);
-        const tags = Array.isArray(this.document.system.tags) ? [...this.document.system.tags] : [];
-        if (idx >= 0 && idx < tags.length) {
-          tags.splice(idx, 1);
-          await this.document.update({ "system.tags": tags });
-        }
-      });
-    });
-
-    // Delegate TCABlockEditor DOM listeners
     TCABlockEditor.activateListeners(html, this);
 
-    // Toggle sync status icon
     html.querySelectorAll('[data-action="toggleSyncStatusIcon"]').forEach(btn => {
-      btn.addEventListener('click', async (event) => {
+      btn.addEventListener("click", async (event) => {
         event.preventDefault();
         event.stopPropagation();
-        const currentlySynced = this.document.system.syncStatusIcon !== false;
-        const newSynced = !currentlySynced;
+        const newSynced = !(this.document.system.syncStatusIcon !== false);
         const updateData = { "system.syncStatusIcon": newSynced };
-        if (newSynced) {
-          updateData["system.statusIcon"] = this.document.img || "";
-        }
+        if (newSynced) updateData["system.statusIcon"] = this.document.img || "";
         await this.document.update(updateData);
       });
     });
 
-    // Clear status icon
     html.querySelectorAll('[data-action="clearStatusIcon"]').forEach(btn => {
-      btn.addEventListener('click', async (event) => {
+      btn.addEventListener("click", async (event) => {
         event.preventDefault();
         event.stopPropagation();
-        await this.document.update({ 
-          "system.statusIcon": "",
-          "system.syncStatusIcon": false 
-        });
+        await this.document.update({ "system.statusIcon": "", "system.syncStatusIcon": false });
       });
     });
 
-    // Drag-and-drop for counter states
-    const dropZones = html.querySelectorAll('.drop-zone[data-type="counterStates"]');
-    dropZones.forEach(zone => {
+    html.querySelectorAll('.drop-zone[data-type="counterStates"]').forEach(zone => {
       zone.addEventListener("dragover", this._onDragOver.bind(this));
       zone.addEventListener("drop", this._onDropItem.bind(this));
     });
 
-    // Remove counter states
-    html.querySelectorAll('.counter-state-remove').forEach(btn => {
-      btn.addEventListener('click', this._onRemoveCounterState.bind(this));
+    html.querySelectorAll(".counter-state-remove").forEach(btn => {
+      btn.addEventListener("click", this._onRemoveCounterState.bind(this));
+    });
+    html.querySelectorAll(".effect-edit").forEach(btn => {
+      btn.addEventListener("click", this._onEditCounterState.bind(this));
     });
 
-    // Edit counter states
-    html.querySelectorAll('.effect-edit').forEach(btn => {
-      btn.addEventListener('click', this._onEditCounterState.bind(this));
+    html.querySelectorAll(".dur-add-condition").forEach(btn => {
+      btn.addEventListener("click", this._onAddDurationCondition.bind(this));
     });
+    html.querySelectorAll(".dur-remove-condition").forEach(btn => {
+      btn.addEventListener("click", this._onRemoveDurationCondition.bind(this));
+    });
+    html.querySelectorAll(".dur-mode").forEach(select => {
+      select.addEventListener("change", this._onDurationModeChange.bind(this));
+    });
+  }
 
-    // Compound Duration conditions
-    html.querySelectorAll('.dur-add-condition').forEach(btn => {
-      btn.addEventListener('click', this._onAddDurationCondition.bind(this));
-    });
-    html.querySelectorAll('.dur-remove-condition').forEach(btn => {
-      btn.addEventListener('click', this._onRemoveDurationCondition.bind(this));
-    });
-    html.querySelectorAll('.dur-mode').forEach(select => {
-      select.addEventListener('change', this._onDurationModeChange.bind(this));
-    });
+  static #onSwitchTab(event, target) {
+    event.preventDefault();
+    const tab = target.dataset.tab;
+    if (tab && this.constructor.TABS[tab]) {
+      this.tabGroups.primary = tab;
+      this.render();
+    }
   }
 
   _onDragOver(event) {
@@ -301,37 +320,29 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
   async _onDropItem(event) {
     event.preventDefault();
     const data = foundry.applications.ux.TextEditor.implementation.getDragEventData(event);
-    if (data.type !== "Item") return;
-    
+    if (data?.type !== "Item") return;
+
     const sourceItem = await resolveItem(data);
     if (!sourceItem) return;
-    
     if (sourceItem.type !== "effect") {
       ui.notifications.warn(game.i18n.localize("TRESPASSER.Notification.Item.DropEffectsOnly"));
       return;
     }
 
     const currentArray = this.document.system.counterStates ? [...this.document.system.counterStates] : [];
-
     if (sourceItem.uuid === this.document.uuid) return;
     if (currentArray.some(e => e.uuid === sourceItem.uuid)) {
-       ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name }));
-       return;
+      ui.notifications.warn(game.i18n.format("TRESPASSER.Notification.Item.AlreadyAdded", { name: sourceItem.name }));
+      return;
     }
 
-    currentArray.push({
-      uuid: sourceItem.uuid,
-      name: sourceItem.name,
-      img: sourceItem.img,
-      type: sourceItem.type
-    });
-
+    currentArray.push({ uuid: sourceItem.uuid, name: sourceItem.name, img: sourceItem.img, type: sourceItem.type });
     await this.document.update({ "system.counterStates": currentArray });
   }
 
   async _onRemoveCounterState(event) {
     event.preventDefault();
-    const el = event.currentTarget.closest('.effect-chip');
+    const el = event.currentTarget.closest(".effect-chip");
     const index = Number(el.dataset.index);
     const currentArray = [...(this.document.system.counterStates || [])];
     currentArray.splice(index, 1);
@@ -340,8 +351,9 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
 
   async _onEditCounterState(event) {
     event.preventDefault();
-    const el = event.currentTarget.closest('.effect-chip');
-    const uuid = el.dataset.uuid;
+    const el = event.currentTarget.closest(".effect-chip");
+    const uuid = el?.dataset?.uuid;
+    if (!uuid) return;
     const item = await resolveItem(uuid);
     if (item) item.sheet.render(true);
   }
@@ -349,7 +361,8 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
   async _onAddDurationCondition(event) {
     event.preventDefault();
     const conditions = foundry.utils.deepClone(this.document.system.durationConditions ?? []);
-    conditions.push({ mode: "indefinite", value: 0 });
+    if (conditions.length === 0) conditions.push({ mode: "indefinite", value: 0 });
+    conditions.push({ mode: "round", value: 1 });
     await this.document.update({ "system.durationConditions": conditions });
   }
 
@@ -362,20 +375,12 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
   }
 
   _onDurationModeChange(event) {
-    const row = event.currentTarget.closest('.duration-condition-row');
+    const row = event.currentTarget.closest(".duration-condition-row");
     const mode = event.currentTarget.value;
-    const valInput = row.querySelector('.dur-value');
-    if (valInput) {
-      const needsVal = mode === "round" || mode === "trigger";
-      valInput.style.display = needsVal ? "" : "none";
-    }
+    const valInput = row?.querySelector(".dur-value");
+    if (valInput) valInput.classList.toggle("hidden", !(mode === "round" || mode === "trigger"));
   }
 
-  /**
-   * Return contextual interception mode labels for a trigger.
-   * @param {string} when
-   * @returns {Record<string, string>}
-   */
   _getContextualInterceptionModes(when) {
     const allLabels = {
       "none": "TRESPASSER.Sheet.Item.Effect.InterceptionChoices.None",
@@ -387,7 +392,6 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
       "grant_disadvantage": "TRESPASSER.Sheet.Item.Effect.InterceptionChoices.GrantDisadvantage",
       "custom": "TRESPASSER.Sheet.Item.Effect.InterceptionChoices.Custom"
     };
-
     const allowedKeys = getInterceptionModesForTrigger(when);
     const result = {};
     for (const key of allowedKeys) {
@@ -396,9 +400,6 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
     return result;
   }
 
-  /**
-   * Form submission handler for AppV2.
-   */
   static async #onSubmit(event, form, formData) {
     const statusIconVal = formData.object["system.statusIcon"];
     if (statusIconVal === "__sync__") {
@@ -409,39 +410,37 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
       formData.object["system.statusIcon"] = statusIconVal;
     }
 
-    // Reconstruct system.behaviors array cleanly from formData.object if present
     const expanded = foundry.utils.expandObject(formData.object);
     if (expanded.system?.behaviors !== undefined) {
       const rawBehaviors = expanded.system.behaviors;
-      const behaviorsArray = Array.isArray(rawBehaviors)
+      const submittedArray = Array.isArray(rawBehaviors)
         ? rawBehaviors
         : (typeof rawBehaviors === "object" && rawBehaviors !== null)
-        ? Object.keys(rawBehaviors)
-            .filter(k => !isNaN(Number(k)))
-            .sort((a, b) => Number(a) - Number(b))
-            .map(k => rawBehaviors[k])
+        ? Object.keys(rawBehaviors).filter(k => !isNaN(Number(k))).sort((a, b) => Number(a) - Number(b)).map(k => rawBehaviors[k])
         : [];
 
-      for (let i = 0; i < behaviorsArray.length; i++) {
-        const b = behaviorsArray[i];
-        if (!b.id) {
-          b.id = this.document.system.behaviors?.[i]?.id || foundry.utils.randomID(8);
-        }
-        const prevBlock = this.document.system.behaviors?.[i];
-        // If action changed on this block, reset its params to defaults; otherwise ensure defaults are merged
-        if (prevBlock && prevBlock.action && b.action && prevBlock.action !== b.action) {
+      const behaviorsArray = [];
+      for (let i = 0; i < submittedArray.length; i++) {
+        const prevBlock = foundry.utils.deepClone(this.document.system.behaviors?.[i] || {});
+        const submitted = submittedArray[i] || {};
+        const b = foundry.utils.mergeObject(prevBlock, submitted, { inplace: false });
+        if (!b.id) b.id = prevBlock.id || foundry.utils.randomID(8);
+
+        if (prevBlock.action && b.action && prevBlock.action !== b.action) {
           b.params = getDefaultParamsForAction(b.action);
         } else {
-          b.params = foundry.utils.mergeObject(getDefaultParamsForAction(b.action), (b.params && typeof b.params === "object") ? b.params : {});
+          const mergedParams = foundry.utils.mergeObject(
+            foundry.utils.deepClone(prevBlock.params || {}),
+            (submitted.params && typeof submitted.params === "object") ? submitted.params : {},
+            { inplace: false }
+          );
+          b.params = foundry.utils.mergeObject(getDefaultParamsForAction(b.action), mergedParams, { inplace: false });
         }
 
         if (b.params?.effects) {
           b.params.effects = Array.isArray(b.params.effects)
             ? b.params.effects
-            : Object.keys(b.params.effects)
-                .filter(k => !isNaN(Number(k)))
-                .sort((a, b) => Number(a) - Number(b))
-                .map(k => b.params.effects[k]);
+            : Object.keys(b.params.effects).filter(k => !isNaN(Number(k))).sort((a, b) => Number(a) - Number(b)).map(k => b.params.effects[k]);
         }
 
         b.requiresConfirmation = Boolean(b.requiresConfirmation);
@@ -455,14 +454,13 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
           const uses = Number(b.cooldown.uses) || 0;
           b.cooldown = uses > 0 ? { uses, per: b.cooldown.per || "round" } : null;
         }
-        if (b.priority !== null && b.priority !== undefined && b.priority !== "") {
-          b.priority = isNaN(Number(b.priority)) ? null : Number(b.priority);
-        } else {
-          b.priority = null;
-        }
+        b.priority = (b.priority !== null && b.priority !== undefined && b.priority !== "" && !isNaN(Number(b.priority)))
+          ? Number(b.priority)
+          : null;
+
+        behaviorsArray.push(b);
       }
 
-      // Remove raw dotted behavior keys from formData.object so they don't corrupt the array
       for (const key of Object.keys(formData.object)) {
         if (key.startsWith("system.behaviors.") || key.startsWith("system.behaviors[")) {
           delete formData.object[key];
@@ -471,7 +469,6 @@ export class TrespasserEffectSheet extends TrespasserItemSheet {
       formData.object["system.behaviors"] = behaviorsArray;
     }
 
-    // Sanitize interceptionMode if trigger changed
     const newWhen = formData.object["system.when"] ?? this.document.system.when;
     const allowed = getInterceptionModesForTrigger(newWhen);
     const submittedMode = formData.object["system.interceptionMode"] ?? this.document.system.interceptionMode;

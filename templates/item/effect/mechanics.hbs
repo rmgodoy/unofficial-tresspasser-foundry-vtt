@@ -1,0 +1,464 @@
+<section class="tab mechanics scrollable {{tab.cssClass}}" data-group="primary" data-tab="mechanics">
+  <div class="effect-mechanics-body">
+
+    {{!-- 1. LIFECYCLE & AURA 2-COLUMN STRIP --}}
+    <div class="effect-lifecycle-strip">
+      {{!-- Card A: Duration Chain --}}
+      <div class="lifecycle-card duration-card">
+        <div class="lifecycle-card-header">
+          <span class="card-title"><i class="fas fa-hourglass-start"></i> {{localize "TRESPASSER.Sheet.Common.Duration"}}</span>
+          <div class="card-header-actions">
+            {{#if (gt system.durationConditions.length 1)}}
+              <select name="system.durationOperator" class="dur-operator-pill" title="{{localize 'TRESPASSER.Sheet.Common.Operator'}}">
+                <option value="OR" {{#if (eq system.durationOperator "OR")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Common.OR"}}</option>
+                <option value="AND" {{#if (eq system.durationOperator "AND")}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Common.AND"}}</option>
+              </select>
+            {{/if}}
+            {{#if editable}}
+              <button type="button" class="lifecycle-mini-btn dur-add-condition" title="{{localize 'TRESPASSER.Sheet.Common.Add'}}">
+                <i class="fas fa-plus"></i>
+              </button>
+            {{/if}}
+          </div>
+        </div>
+
+        <div id="dur-conditions-list" class="dur-conditions-chain">
+          {{#each system.durationConditions as |cond idx|}}
+            {{#if idx}}
+              <div class="dur-connector-divider">
+                <span>{{#if (eq @root.system.durationOperator "AND")}}{{localize "TRESPASSER.Sheet.Common.AND"}}{{else}}{{localize "TRESPASSER.Sheet.Common.OR"}}{{/if}}</span>
+              </div>
+            {{/if}}
+            <div class="duration-condition-row" data-index="{{idx}}">
+              <select class="dur-mode" name="system.durationConditions.{{idx}}.mode">
+                {{{selectOptions @root.config.durationModes selected=cond.mode localize=true}}}
+              </select>
+              <input type="number"
+                     class="dur-value {{#unless (or (eq cond.mode 'round') (eq cond.mode 'trigger'))}}hidden{{/unless}}"
+                     name="system.durationConditions.{{idx}}.value"
+                     value="{{cond.value}}" />
+              {{#if @root.editable}}
+                <button type="button" class="dur-remove-condition" data-index="{{idx}}" title="{{localize 'TRESPASSER.Sheet.Common.Delete'}}">
+                  <i class="fas fa-times"></i>
+                </button>
+              {{/if}}
+            </div>
+          {{else}}
+            <div class="duration-condition-row" data-index="0">
+              <select class="dur-mode" name="system.durationConditions.0.mode">
+                {{{selectOptions @root.config.durationModes selected="indefinite" localize=true}}}
+              </select>
+            </div>
+          {{/each}}
+        </div>
+      </div>
+
+      {{!-- Card B: Scope & Aura --}}
+      <div class="lifecycle-card scope-card">
+        <div class="lifecycle-card-header">
+          <span class="card-title"><i class="fas fa-bullseye"></i> {{localize "TRESPASSER.Sheet.Item.Effect.Scope"}}</span>
+        </div>
+
+        <div class="scope-segmented-bar">
+          <input type="hidden" name="system.scope" value="{{system.scope}}" />
+          <button type="button" class="scope-seg-btn {{#if (eq system.scope 'self')}}active{{/if}}" data-action="setScope" data-scope="self" title="{{localize 'TRESPASSER.Sheet.Item.Effect.ScopeChoices.Self'}}">
+            <i class="fas fa-user"></i>
+            <span>{{localize "TRESPASSER.Sheet.Item.Effect.ScopeChoices.Self"}}</span>
+          </button>
+          <button type="button" class="scope-seg-btn {{#if (eq system.scope 'ally')}}active{{/if}}" data-action="setScope" data-scope="ally" title="{{localize 'TRESPASSER.Sheet.Item.Effect.ScopeChoices.Ally'}}">
+            <i class="fas fa-handshake-angle"></i>
+            <span>{{localize "TRESPASSER.Sheet.Item.Effect.ScopeChoices.Ally"}}</span>
+          </button>
+          <button type="button" class="scope-seg-btn {{#if (eq system.scope 'enemy')}}active{{/if}}" data-action="setScope" data-scope="enemy" title="{{localize 'TRESPASSER.Sheet.Item.Effect.ScopeChoices.Enemy'}}">
+            <i class="fas fa-crosshairs"></i>
+            <span>{{localize "TRESPASSER.Sheet.Item.Effect.ScopeChoices.Enemy"}}</span>
+          </button>
+          <button type="button" class="scope-seg-btn {{#if (eq system.scope 'all')}}active{{/if}}" data-action="setScope" data-scope="all" title="{{localize 'TRESPASSER.Sheet.Item.Effect.ScopeChoices.All'}}">
+            <i class="fas fa-globe"></i>
+            <span>{{localize "TRESPASSER.Sheet.Item.Effect.ScopeChoices.All"}}</span>
+          </button>
+        </div>
+
+        {{#if (ne system.scope 'self')}}
+        <div class="scope-aura-branch">
+          <div class="aura-branch-row">
+            <i class="fas fa-ruler-horizontal branch-icon" title="{{localize 'TRESPASSER.Sheet.Item.Effect.RangeType'}}"></i>
+            <select name="system.rangeType" class="aura-range-select">
+              {{{selectOptions config.rangeTypes selected=system.rangeType localize=true}}}
+            </select>
+            {{#if (or (eq system.rangeType 'custom') (not system.rangeType))}}
+              <input type="number" name="system.rangeRequirement" value="{{system.rangeRequirement}}" min="0" placeholder="0" class="aura-num-input" title="{{localize 'TRESPASSER.Sheet.Item.Effect.RangeRequirement'}}" />
+              <span class="unit-label">sq</span>
+            {{/if}}
+          </div>
+          <div class="aura-branch-row">
+            <i class="fas fa-users branch-icon" title="{{localize 'TRESPASSER.Sheet.Item.Effect.TargetLimit'}}"></i>
+            <select name="system.targetLimit" class="aura-limit-select">
+              {{{selectOptions config.targetLimitChoices selected=system.targetLimit localize=true}}}
+            </select>
+            {{#if (eq system.targetLimit 'number')}}
+              <input type="number" name="system.targetLimitCount" value="{{system.targetLimitCount}}" min="1" placeholder="1" class="aura-num-input" />
+            {{/if}}
+          </div>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+
+    {{!-- 2. BEHAVIORS PIPELINE SECTION --}}
+    <div class="tca-behaviors-section">
+      <div class="tca-behaviors-header">
+        <h3><i class="fas fa-bolt"></i> {{localize "TRESPASSER.Sheet.Item.Effect.Behaviors"}}</h3>
+        <div class="tca-header-controls">
+          {{#if editable}}
+            <button type="button" data-action="togglePresetsDrawer" class="tca-mode-toggle {{#if showPresetsDrawer}}active{{/if}}" title="{{localize 'TRESPASSER.Sheet.Item.Effect.Presets'}}">
+              <i class="fas fa-wand-magic-sparkles"></i>
+              <span>{{localize "TRESPASSER.Sheet.Item.Effect.Presets"}}</span>
+            </button>
+            <button type="button" data-action="addBehaviorBlock" class="tca-mode-toggle add-btn" title="{{localize 'TRESPASSER.Sheet.Item.Effect.AddBehavior'}}">
+              <i class="fas fa-plus"></i>
+              <span>{{localize "TRESPASSER.Sheet.Common.Add"}}</span>
+            </button>
+          {{/if}}
+          <button type="button" data-action="toggleAdvancedMode" class="tca-mode-toggle mode-switch {{#if advancedMode}}active{{/if}}">
+            <i class="fas {{#if advancedMode}}fa-sliders{{else}}fa-bolt{{/if}}"></i>
+            <span>
+              {{#if advancedMode}}
+                {{localize "TRESPASSER.Sheet.Item.Effect.AdvancedMode"}}
+              {{else}}
+                {{localize "TRESPASSER.Sheet.Item.Effect.SimpleMode"}}
+              {{/if}}
+            </span>
+          </button>
+        </div>
+      </div>
+
+      {{!-- Quick Preset Picker (Always visible when empty, or toggled via Presets button) --}}
+      {{#if (and editable (or showPresetsDrawer (not preparedBlocks.length)))}}
+      <div class="tca-template-picker">
+        {{#each templates as |tmpl|}}
+        <button type="button" class="tca-template-btn" data-action="applyTemplate" data-template="{{tmpl.key}}" title="{{localize tmpl.description}}">
+          <i class="{{tmpl.icon}}"></i>
+          <span>{{localize tmpl.label}}</span>
+        </button>
+        {{/each}}
+      </div>
+      {{/if}}
+
+      {{!-- A. SIMPLIFIED VIEW (Horizontal Cause ➔ Effect Pipeline) --}}
+      {{#unless advancedMode}}
+        <div class="tca-simple-pipeline-list">
+          {{#if preparedBlocks.length}}
+            {{#each preparedBlocks as |block|}}
+            <div class="tca-simple-pipeline-card {{#if block.isChained}}is-chained{{/if}}" data-index="{{block.index}}">
+              <input type="hidden" name="system.behaviors.{{block.index}}.id" value="{{block.id}}" />
+              <input type="hidden" name="system.behaviors.{{block.index}}.action" value="{{block.action}}" />
+
+              <div class="tca-simple-pipeline-main">
+                {{#if block.isChained}}
+                  <span class="chain-prefix-badge" title="{{localize 'TRESPASSER.Sheet.Item.Effect.GatedBy'}}: {{block.gatedByParentLabel}}">
+                    <i class="fas fa-turn-up fa-rotate-90"></i> {{localize "TRESPASSER.Sheet.Item.Effect.Then"}}
+                  </span>
+                {{/if}}
+
+                {{!-- WHEN Pill --}}
+                <div class="pipeline-pill when-pill" title="{{localize 'TRESPASSER.Sheet.Item.Effect.BlockTrigger'}}">
+                  <span class="step-tag">{{localize "TRESPASSER.Sheet.Item.Effect.When"}}</span>
+                  <select name="system.behaviors.{{block.index}}.trigger" class="tca-simple-select">
+                    {{{selectOptions @root.config.triggerWhen selected=block.trigger localize=true}}}
+                  </select>
+                </div>
+
+                <span class="pipeline-arrow"><i class="fas fa-arrow-right-long"></i></span>
+
+                {{!-- DO Pill (Inline Editable Primary Params) --}}
+                <div class="pipeline-pill do-pill" title="{{block.actionLabel}}">
+                  <i class="do-icon {{block.icon}}"></i>
+                  <div class="do-inline-controls">
+                    {{{block.simpleParamsHtml}}}
+                  </div>
+                </div>
+
+                <span class="pipeline-arrow"><i class="fas fa-arrow-right-long"></i></span>
+
+                {{!-- ON Pill --}}
+                <div class="pipeline-pill on-pill" title="{{localize 'TRESPASSER.Sheet.Item.Effect.ActionTarget'}}">
+                  <span class="step-tag">{{localize "TRESPASSER.Sheet.Item.Effect.On"}}</span>
+                  <select name="system.behaviors.{{block.index}}.actionTarget" class="tca-simple-select">
+                    {{{selectOptions @root.config.actionTargetChoices selected=block.actionTarget localize=true}}}
+                  </select>
+                </div>
+
+                {{#if @root.editable}}
+                <div class="simple-row-actions">
+                  <button type="button" class="simple-icon-btn" data-action="toggleAdvancedMode" title="{{localize 'TRESPASSER.Sheet.Item.Effect.AdvancedMode'}}">
+                    <i class="fas fa-sliders"></i>
+                  </button>
+                  <button type="button" class="simple-icon-btn delete" data-action="deleteBehaviorBlock" data-index="{{block.index}}" title="{{localize 'TRESPASSER.Sheet.Item.Effect.DeleteBlock'}}">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </div>
+                {{/if}}
+              </div>
+
+              {{!-- Active Constraint Badges (if any exist on this block) --}}
+              {{#if block.constraintBadges.length}}
+              <div class="tca-simple-badges-row">
+                {{#each block.constraintBadges as |badge|}}
+                  <span class="tca-active-constraint-badge"
+                        data-action="openConstraintInAdvanced"
+                        data-block-id="{{block.id}}"
+                        data-constraint="{{badge.type}}"
+                        title="{{localize 'TRESPASSER.Sheet.Item.Effect.AdvancedMode'}}">
+                    <i class="{{badge.icon}}"></i> {{badge.text}}
+                  </span>
+                {{/each}}
+              </div>
+              {{/if}}
+            </div>
+            {{/each}}
+          {{else}}
+            <div class="tca-empty-state">
+              <p>{{localize "TRESPASSER.Sheet.Item.Effect.Template.CustomDesc"}}</p>
+            </div>
+          {{/if}}
+        </div>
+      {{/unless}}
+
+      {{!-- B. ADVANCED VIEW (Full Inspector & Constraint Builder) --}}
+      {{#if advancedMode}}
+        <div class="tca-blocks-container">
+          {{#each preparedBlocks as |block|}}
+          <div class="tca-block-wrapper {{#if block.isChained}}is-chained{{/if}}">
+            {{#if block.isChained}}
+              <div class="tca-chain-connector">
+                <i class="fas fa-turn-up fa-rotate-90"></i>
+                <span>{{localize "TRESPASSER.Sheet.Item.Effect.Then"}} ({{block.gatedByParentLabel}})</span>
+              </div>
+            {{/if}}
+
+            <div class="tca-block-card {{#if block.isCollapsed}}collapsed{{/if}}" draggable="true" data-block-index="{{block.index}}" data-block-id="{{block.id}}">
+              <div class="tca-block-header">
+                <span class="drag-handle" title="Drag to reorder"><i class="fas fa-grip-vertical"></i></span>
+                <button type="button" class="block-collapse-btn" data-action="toggleCollapseBlock" data-block-id="{{block.id}}" data-index="{{block.index}}">
+                  <i class="fas {{#if block.isCollapsed}}fa-chevron-right{{else}}fa-chevron-down{{/if}}"></i>
+                </button>
+                <span class="block-index-badge">#{{block.displayIndex}}</span>
+                <input type="text"
+                       class="block-label-input"
+                       name="system.behaviors.{{block.index}}.label"
+                       value="{{block.label}}"
+                       placeholder="{{block.summaryText}}" />
+                {{#if @root.editable}}
+                <div class="block-actions">
+                  <button type="button" data-action="duplicateBehaviorBlock" data-index="{{block.index}}" title="{{localize 'TRESPASSER.Sheet.Item.Effect.DuplicateBlock'}}">
+                    <i class="fas fa-copy"></i>
+                  </button>
+                  <button type="button" class="delete" data-action="deleteBehaviorBlock" data-index="{{block.index}}" title="{{localize 'TRESPASSER.Sheet.Item.Effect.DeleteBlock'}}">
+                    <i class="fas fa-trash"></i>
+                  </button>
+                </div>
+                {{/if}}
+              </div>
+
+              <div class="tca-block-body">
+                <input type="hidden" name="system.behaviors.{{block.index}}.id" value="{{block.id}}" />
+
+                {{!-- Primary Pipeline Bar: WHEN ➔ DO ➔ ON --}}
+                <div class="tca-pipeline-bar">
+                  <div class="pipeline-stage when-stage">
+                    <span class="stage-badge">{{localize "TRESPASSER.Sheet.Item.Effect.When"}}</span>
+                    <select name="system.behaviors.{{block.index}}.trigger">
+                      {{{selectOptions @root.config.triggerWhen selected=block.trigger localize=true}}}
+                    </select>
+                  </div>
+
+                  <span class="stage-arrow"><i class="fas fa-arrow-right"></i></span>
+
+                  <div class="pipeline-stage do-stage">
+                    <span class="stage-badge"><i class="{{block.icon}}"></i> {{localize "TRESPASSER.Sheet.Item.Effect.Do"}}</span>
+                    <select class="tca-action-select" data-index="{{block.index}}" name="system.behaviors.{{block.index}}.action">
+                      {{{selectOptions @root.config.actions selected=block.action localize=true}}}
+                    </select>
+                  </div>
+
+                  <span class="stage-arrow"><i class="fas fa-arrow-right"></i></span>
+
+                  <div class="pipeline-stage on-stage">
+                    <span class="stage-badge">{{localize "TRESPASSER.Sheet.Item.Effect.On"}}</span>
+                    <select name="system.behaviors.{{block.index}}.actionTarget">
+                      {{{selectOptions @root.config.actionTargetChoices selected=block.actionTarget localize=true}}}
+                    </select>
+                  </div>
+                </div>
+
+                {{!-- Dynamic Action Params Bar --}}
+                <div class="tca-params-section">
+                  {{{block.paramsHtml}}}
+                </div>
+
+                {{!-- Progressive Disclosure Constraint Drawers --}}
+                {{#if block.showCondition}}
+                <div class="tca-constraint-drawer">
+                  <span class="drawer-tag"><i class="fas fa-filter"></i> {{localize "TRESPASSER.Sheet.Item.Effect.BlockCondition"}}</span>
+                  <input type="text" name="system.behaviors.{{block.index}}.condition" value="{{block.condition}}" placeholder="e.g. intensity &gt;= 5" />
+                </div>
+                {{/if}}
+
+                {{#if block.showChain}}
+                <div class="tca-constraint-drawer">
+                  <span class="drawer-tag"><i class="fas fa-link"></i> {{localize "TRESPASSER.Sheet.Item.Effect.GatedBy"}}</span>
+                  <select name="system.behaviors.{{block.index}}.gatedBy">
+                    {{{selectOptions block.gatedByOptions selected=block.gatedBy localize=true}}}
+                  </select>
+                </div>
+                {{/if}}
+
+                {{#if block.showCost}}
+                <div class="tca-constraint-drawer cost-drawer">
+                  <span class="drawer-tag"><i class="fas fa-coins"></i> {{localize "TRESPASSER.Sheet.Item.Effect.Cost"}}</span>
+                  <div class="drawer-inline-fields">
+                    <label>{{localize "TRESPASSER.Sheet.Item.Effect.CostAP"}}</label>
+                    <input type="number" name="system.behaviors.{{block.index}}.cost.actionPoints" value="{{block.cost.actionPoints}}" placeholder="0" />
+                    <label>{{localize "TRESPASSER.Sheet.Item.Effect.CostFocus"}}</label>
+                    <input type="number" name="system.behaviors.{{block.index}}.cost.focus" value="{{block.cost.focus}}" placeholder="0" />
+                    <label class="tca-checkbox-row">
+                      <input type="checkbox" name="system.behaviors.{{block.index}}.cost.reaction" {{checked block.cost.reaction}} />
+                      <span>{{localize "TRESPASSER.Sheet.Item.Effect.CostReaction"}}</span>
+                    </label>
+                  </div>
+                </div>
+                {{/if}}
+
+                {{#if block.showCooldown}}
+                <div class="tca-constraint-drawer cooldown-drawer">
+                  <span class="drawer-tag"><i class="fas fa-clock"></i> {{localize "TRESPASSER.Sheet.Item.Effect.Cooldown"}}</span>
+                  <div class="drawer-inline-fields">
+                    <label>{{localize "TRESPASSER.Sheet.Item.Effect.CooldownUses"}}</label>
+                    <input type="number" name="system.behaviors.{{block.index}}.cooldown.uses" value="{{block.cooldown.uses}}" placeholder="1" />
+                    <label>{{localize "TRESPASSER.Sheet.Item.Effect.CooldownPer"}}</label>
+                    <select name="system.behaviors.{{block.index}}.cooldown.per">
+                      <option value="round" {{#if (eq block.cooldown.per 'round')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Effect.PerRound"}}</option>
+                      <option value="turn" {{#if (eq block.cooldown.per 'turn')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Effect.PerTurn"}}</option>
+                      <option value="combat" {{#if (eq block.cooldown.per 'combat')}}selected{{/if}}>{{localize "TRESPASSER.Sheet.Item.Effect.PerCombat"}}</option>
+                    </select>
+                  </div>
+                </div>
+                {{/if}}
+
+                {{#if block.showPrompt}}
+                <div class="tca-constraint-drawer prompt-drawer">
+                  <span class="drawer-tag"><i class="fas fa-circle-question"></i> {{localize "TRESPASSER.Sheet.Item.Effect.ConstraintPrompt"}}</span>
+                  <div class="prompt-drawer-grid">
+                    <label class="tca-checkbox-row">
+                      <input type="checkbox" name="system.behaviors.{{block.index}}.requiresConfirmation" {{checked block.requiresConfirmation}} />
+                      <span>{{localize "TRESPASSER.Sheet.Item.Effect.RequiresConfirmation"}}</span>
+                    </label>
+                    <input type="text" name="system.behaviors.{{block.index}}.promptText" value="{{block.promptText}}" placeholder="{{localize 'TRESPASSER.Sheet.Item.Effect.PromptText'}}" />
+                    <input type="text" name="system.behaviors.{{block.index}}.choiceGroup" value="{{block.choiceGroup}}" placeholder="{{localize 'TRESPASSER.Sheet.Item.Effect.ChoiceGroup'}}" />
+                    <input type="text" name="system.behaviors.{{block.index}}.choiceLabel" value="{{block.choiceLabel}}" placeholder="{{localize 'TRESPASSER.Sheet.Item.Effect.ChoiceLabel'}}" />
+                  </div>
+                </div>
+                {{/if}}
+
+                {{!-- Constraint Toggle Chip Bar --}}
+                {{#if @root.editable}}
+                <div class="tca-constraint-chips-bar">
+                  <button type="button"
+                          class="constraint-chip {{#if block.showCondition}}active{{/if}}"
+                          data-action="toggleConstraint"
+                          data-block-id="{{block.id}}"
+                          data-index="{{block.index}}"
+                          data-constraint="condition">
+                    <i class="fas {{#if block.hasCondition}}fa-check{{else}}fa-filter{{/if}}"></i>
+                    <span>{{localize "TRESPASSER.Sheet.Item.Effect.ConstraintCondition"}}</span>
+                  </button>
+
+                  <button type="button"
+                          class="constraint-chip {{#if block.showChain}}active{{/if}}"
+                          data-action="toggleConstraint"
+                          data-block-id="{{block.id}}"
+                          data-index="{{block.index}}"
+                          data-constraint="chain">
+                    <i class="fas {{#if block.hasChain}}fa-check{{else}}fa-link{{/if}}"></i>
+                    <span>{{localize "TRESPASSER.Sheet.Item.Effect.ConstraintChain"}}</span>
+                  </button>
+
+                  <button type="button"
+                          class="constraint-chip {{#if block.showCost}}active{{/if}}"
+                          data-action="toggleConstraint"
+                          data-block-id="{{block.id}}"
+                          data-index="{{block.index}}"
+                          data-constraint="cost">
+                    <i class="fas {{#if block.hasCost}}fa-check{{else}}fa-coins{{/if}}"></i>
+                    <span>{{localize "TRESPASSER.Sheet.Item.Effect.ConstraintCost"}}</span>
+                  </button>
+
+                  <button type="button"
+                          class="constraint-chip {{#if block.showCooldown}}active{{/if}}"
+                          data-action="toggleConstraint"
+                          data-block-id="{{block.id}}"
+                          data-index="{{block.index}}"
+                          data-constraint="cooldown">
+                    <i class="fas {{#if block.hasCooldown}}fa-check{{else}}fa-clock{{/if}}"></i>
+                    <span>{{localize "TRESPASSER.Sheet.Item.Effect.ConstraintCooldown"}}</span>
+                  </button>
+
+                  <button type="button"
+                          class="constraint-chip {{#if block.showPrompt}}active{{/if}}"
+                          data-action="toggleConstraint"
+                          data-block-id="{{block.id}}"
+                          data-index="{{block.index}}"
+                          data-constraint="prompt">
+                    <i class="fas {{#if block.hasPrompt}}fa-check{{else}}fa-circle-question{{/if}}"></i>
+                    <span>{{localize "TRESPASSER.Sheet.Item.Effect.ConstraintPrompt"}}</span>
+                  </button>
+                </div>
+                {{/if}}
+              </div>
+            </div>
+          </div>
+          {{/each}}
+        </div>
+      {{/if}}
+    </div>
+
+    {{!-- 3. VISUAL OPPOSING / COUNTER STATES DIAGRAM --}}
+    <div class="effect-counter-section">
+      <div class="counter-section-header">
+        <span><i class="fas fa-right-left"></i> {{localize "TRESPASSER.Sheet.Item.Sections.CounterEffects"}}</span>
+      </div>
+      <div class="effect-counter-diagram">
+        <div class="counter-self-badge">
+          <img src="{{item.img}}" alt="{{item.name}}" />
+          <span>{{item.name}}</span>
+        </div>
+
+        <div class="counter-opposition-indicator" title="{{localize 'TRESPASSER.Sheet.Item.Note.CounterEffects'}}">
+          <i class="fas fa-arrows-left-right"></i>
+          <span>&minus; {{localize "TRESPASSER.Sheet.Common.IntensityShort"}}</span>
+        </div>
+
+        <div class="drop-zone counter-drop-zone" data-type="counterStates">
+          {{#if system.counterStates.length}}
+            {{#each system.counterStates as |cs index|}}
+              {{> "systems/trespasser/templates/item/parts/effect-chip.hbs"
+                  effect=cs
+                  index=index
+                  editable=@root.editable
+                  deleteClass="counter-state-remove"
+                  editableIntensity=false
+              }}
+            {{/each}}
+          {{else}}
+            <span class="drop-placeholder">
+              <i class="fas fa-plus-circle"></i> {{localize "TRESPASSER.Sheet.Item.Placeholder.DropEffects"}}
+            </span>
+          {{/if}}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+

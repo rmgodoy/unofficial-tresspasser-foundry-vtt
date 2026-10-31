@@ -1,6 +1,7 @@
 /**
  * TCA Action Parameter Editors
- * Generates parameter form field HTML snippets for each action type.
+ * Generates parameter form field HTML snippets for each action type
+ * in both Advanced Mode (full parameter bar) and Simple Mode (inline pill controls).
  */
 
 /**
@@ -24,10 +25,12 @@ function escapeAttr(str) {
  * @param {Record<string, string>} options
  * @param {string} selectedVal
  * @param {boolean} [localize=true]
+ * @param {string} [cls=""]
  * @returns {string}
  */
-function renderSelect(name, options, selectedVal, localize = true) {
-  let html = `<select name="${escapeAttr(name)}">`;
+function renderSelect(name, options, selectedVal, localize = true, cls = "") {
+  const classAttr = cls ? ` class="${escapeAttr(cls)}"` : "";
+  let html = `<select name="${escapeAttr(name)}"${classAttr}>`;
   for (const [val, labelKey] of Object.entries(options)) {
     const label = localize && game.i18n ? game.i18n.localize(labelKey) : labelKey;
     const isSelected = String(val) === String(selectedVal) ? "selected" : "";
@@ -38,9 +41,24 @@ function renderSelect(name, options, selectedVal, localize = true) {
 }
 
 /**
+ * Computes a live preview badge when a formula contains <Int> or <intensity>.
+ * @param {string|number} rawFormula
+ * @param {number} intensity
+ * @returns {string} HTML badge or empty string
+ */
+export function renderIntensityPreviewBadge(rawFormula, intensity = 0) {
+  const str = String(rawFormula ?? "").trim();
+  if (!str || (!str.toLowerCase().includes("<int>") && !str.toLowerCase().includes("<intensity>"))) {
+    return "";
+  }
+  const resolved = str.replace(/<Int>|<intensity>/gi, String(intensity ?? 0));
+  return `<span class="tca-int-preview" title="Intensity = ${escapeAttr(intensity)}">= ${escapeAttr(resolved)}</span>`;
+}
+
+/**
  * 1. Modify Attribute Params
  */
-export function renderModifyAttributeParams(params = {}, config = {}, index = 0) {
+export function renderModifyAttributeParams(params = {}, config = {}, index = 0, intensity = 0) {
   const prefix = `system.behaviors.${index}.params`;
   const attribute = params.attribute || "health";
   const modifier = params.modifier ?? "0";
@@ -52,17 +70,20 @@ export function renderModifyAttributeParams(params = {}, config = {}, index = 0)
   };
 
   return `
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.Attribute")}</label>
       ${renderSelect(`${prefix}.attribute`, config.targetAttributes || {}, attribute)}
     </div>
-    <div class="field-row">
-      <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.Modifier")}</label>
-      <input type="text" name="${prefix}.modifier" value="${escapeAttr(modifier)}" placeholder="e.g. +1, -1d6, <Int>" />
-    </div>
-    <div class="field-row full-width">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.ApplyMode")}</label>
       ${renderSelect(`${prefix}.applyMode`, applyModeOptions, applyMode)}
+    </div>
+    <div class="tca-param-item">
+      <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.Modifier")}</label>
+      <div class="tca-input-with-preview">
+        <input type="text" name="${prefix}.modifier" value="${escapeAttr(modifier)}" placeholder="+1, -1d6, <Int>" />
+        ${renderIntensityPreviewBadge(modifier, intensity)}
+      </div>
     </div>
   `;
 }
@@ -70,11 +91,11 @@ export function renderModifyAttributeParams(params = {}, config = {}, index = 0)
 /**
  * 2. Confer State Params
  */
-export function renderConferStateParams(params = {}, config = {}, index = 0) {
+export function renderConferStateParams(params = {}, config = {}, index = 0, intensity = 0) {
   const prefix = `system.behaviors.${index}.params`;
   const effects = Array.isArray(params.effects) ? params.effects : [];
   const stateName = params.stateName || "";
-  const intensity = params.intensity ?? "";
+  const stateIntensity = params.intensity ?? "";
   const removeTags = Array.isArray(params.removeTags) ? params.removeTags.join(", ") : (params.removeTags || "");
 
   let chipsHtml = "";
@@ -101,11 +122,11 @@ export function renderConferStateParams(params = {}, config = {}, index = 0) {
         </div>
       </div>
     `).join("");
-    chipsHtml = `<div class="effect-chips-list" style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;">${chips}</div>`;
+    chipsHtml = `<div class="effect-chips-list">${chips}</div>`;
   }
 
   return `
-    <div class="field-row full-width" style="flex-direction: column; align-items: stretch; gap: 4px;">
+    <div class="tca-param-item full-width">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.ConferEffects")}</label>
       <div class="behavior-effect-drop drop-zone" data-behavior-index="${index}">
         <i class="fas fa-file-import"></i> ${game.i18n.localize("TRESPASSER.Sheet.Item.Placeholder.DropEffects")}
@@ -113,22 +134,25 @@ export function renderConferStateParams(params = {}, config = {}, index = 0) {
       ${chipsHtml}
     </div>
     ${effects.length === 0 ? `
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.StateName")}</label>
-      <input type="text" name="${prefix}.stateName" value="${escapeAttr(stateName)}" placeholder="State Name or Item UUID" />
+      <input type="text" name="${prefix}.stateName" value="${escapeAttr(stateName)}" placeholder="State Name or UUID" />
     </div>
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.IntensityValue")}</label>
-      <input type="text" name="${prefix}.intensity" value="${escapeAttr(intensity)}" placeholder="e.g. 1, +1, <Int>" />
+      <div class="tca-input-with-preview">
+        <input type="text" name="${prefix}.intensity" value="${escapeAttr(stateIntensity)}" placeholder="1, +1, <Int>" />
+        ${renderIntensityPreviewBadge(stateIntensity, intensity)}
+      </div>
     </div>
     ` : `
     <input type="hidden" name="${prefix}.stateName" value="${escapeAttr(effects[0]?.name || "")}" />
     <input type="hidden" name="${prefix}.stateId" value="${escapeAttr(effects[0]?.uuid || "")}" />
     <input type="hidden" name="${prefix}.intensity" value="${escapeAttr(effects[0]?.intensity ?? "1")}" />
     `}
-    <div class="field-row full-width">
+    <div class="tca-param-item full-width">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.RemoveTags")}</label>
-      <input type="text" name="${prefix}.removeTags" value="${escapeAttr(removeTags)}" placeholder="e.g. stance, curse (comma-separated)" />
+      <input type="text" name="${prefix}.removeTags" value="${escapeAttr(removeTags)}" placeholder="e.g. stance, curse" />
     </div>
   `;
 }
@@ -148,15 +172,15 @@ export function renderRemoveStateParams(params = {}, config = {}, index = 0) {
   };
 
   return `
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.StateName")}</label>
-      <input type="text" name="${prefix}.stateName" value="${escapeAttr(stateName)}" placeholder="Name of State to remove" />
+      <input type="text" name="${prefix}.stateName" value="${escapeAttr(stateName)}" placeholder="State name" />
     </div>
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.StateTag")}</label>
-      <input type="text" name="${prefix}.stateTag" value="${escapeAttr(stateTag)}" placeholder="or Tag (e.g. stance)" />
+      <input type="text" name="${prefix}.stateTag" value="${escapeAttr(stateTag)}" placeholder="#tag (e.g. stance)" />
     </div>
-    <div class="field-row full-width">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.ActionTarget")}</label>
       ${renderSelect(`${prefix}.target`, targetOptions, target)}
     </div>
@@ -166,14 +190,17 @@ export function renderRemoveStateParams(params = {}, config = {}, index = 0) {
 /**
  * 4. Modify Intensity Params
  */
-export function renderModifyIntensityParams(params = {}, config = {}, index = 0) {
+export function renderModifyIntensityParams(params = {}, config = {}, index = 0, intensity = 0) {
   const prefix = `system.behaviors.${index}.params`;
   const value = params.value ?? "+1";
 
   return `
-    <div class="field-row full-width">
+    <div class="tca-param-item full-width">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.IntensityValue")}</label>
-      <input type="text" name="${prefix}.value" value="${escapeAttr(value)}" placeholder="e.g. +1, -1, =0, +<Int>" />
+      <div class="tca-input-with-preview">
+        <input type="text" name="${prefix}.value" value="${escapeAttr(value)}" placeholder="+1, -1, =0, +<Int>" />
+        ${renderIntensityPreviewBadge(value, intensity)}
+      </div>
     </div>
   `;
 }
@@ -194,13 +221,13 @@ export function renderSetFlagParams(params = {}, config = {}, index = 0) {
   };
 
   return `
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.FlagName")}</label>
       ${renderSelect(`${prefix}.flag`, flagOptions, flag)}
     </div>
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.FlagValue")}</label>
-      <input type="text" name="${prefix}.value" value="${escapeAttr(value)}" placeholder="true, false, or custom string" />
+      <input type="text" name="${prefix}.value" value="${escapeAttr(value)}" placeholder="true / false" />
     </div>
   `;
 }
@@ -208,7 +235,7 @@ export function renderSetFlagParams(params = {}, config = {}, index = 0) {
 /**
  * 6. Force Movement Params
  */
-export function renderForceMovementParams(params = {}, config = {}, index = 0) {
+export function renderForceMovementParams(params = {}, config = {}, index = 0, intensity = 0) {
   const prefix = `system.behaviors.${index}.params`;
   const type = params.type || "push";
   const distance = params.distance ?? "1";
@@ -222,13 +249,16 @@ export function renderForceMovementParams(params = {}, config = {}, index = 0) {
   };
 
   return `
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.MovementType")}</label>
       ${renderSelect(`${prefix}.type`, moveOptions, type)}
     </div>
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.Distance")}</label>
-      <input type="text" name="${prefix}.distance" value="${escapeAttr(distance)}" placeholder="Squares (e.g. 1, 1d6, <Int>)" />
+      <div class="tca-input-with-preview">
+        <input type="text" name="${prefix}.distance" value="${escapeAttr(distance)}" placeholder="1, 1d6, <Int>" />
+        ${renderIntensityPreviewBadge(distance, intensity)}
+      </div>
     </div>
   `;
 }
@@ -248,17 +278,17 @@ export function renderRollCheckParams(params = {}, config = {}, index = 0) {
   };
 
   return `
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.CheckType")}</label>
       ${renderSelect(`${prefix}.checkType`, checkOptions, checkType)}
     </div>
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.Attribute")}</label>
       ${renderSelect(`${prefix}.attribute`, config.targetAttributes || {}, attribute)}
     </div>
-    <div class="field-row full-width">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.DC")}</label>
-      <input type="text" name="${prefix}.dc" value="${escapeAttr(dc)}" placeholder="10 or formula" />
+      <input type="text" name="${prefix}.dc" value="${escapeAttr(dc)}" placeholder="10" />
     </div>
   `;
 }
@@ -271,7 +301,7 @@ export function renderGrantReactionParams(params = {}, config = {}, index = 0) {
   const reactionLabel = params.reactionLabel || "";
 
   return `
-    <div class="field-row full-width">
+    <div class="tca-param-item full-width">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.ReactionLabel")}</label>
       <input type="text" name="${prefix}.reactionLabel" value="${escapeAttr(reactionLabel)}" placeholder="e.g. Intercept, Riposte" />
     </div>
@@ -281,7 +311,7 @@ export function renderGrantReactionParams(params = {}, config = {}, index = 0) {
 /**
  * 9. Redirect Damage Params
  */
-export function renderRedirectDamageParams(params = {}, config = {}, index = 0) {
+export function renderRedirectDamageParams(params = {}, config = {}, index = 0, intensity = 0) {
   const prefix = `system.behaviors.${index}.params`;
   const capacity = params.capacity ?? "0";
   const mode = params.mode || "redirect";
@@ -293,13 +323,16 @@ export function renderRedirectDamageParams(params = {}, config = {}, index = 0) 
   };
 
   return `
-    <div class="field-row">
-      <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.Capacity")}</label>
-      <input type="text" name="${prefix}.capacity" value="${escapeAttr(capacity)}" placeholder="e.g. 5, 1d6, <Int>" />
-    </div>
-    <div class="field-row">
+    <div class="tca-param-item">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.RedirectMode")}</label>
       ${renderSelect(`${prefix}.mode`, modeOptions, mode)}
+    </div>
+    <div class="tca-param-item">
+      <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.Capacity")}</label>
+      <div class="tca-input-with-preview">
+        <input type="text" name="${prefix}.capacity" value="${escapeAttr(capacity)}" placeholder="5, 1d6, <Int>" />
+        ${renderIntensityPreviewBadge(capacity, intensity)}
+      </div>
     </div>
   `;
 }
@@ -313,11 +346,11 @@ export function renderChatMessageParams(params = {}, config = {}, index = 0) {
   const gmOnly = Boolean(params.gmOnly);
 
   return `
-    <div class="field-row full-width">
+    <div class="tca-param-item full-width">
       <label>${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.Message")}</label>
       <textarea name="${prefix}.message" rows="2" placeholder="Reminder message with {actorName}, {intensity}...">${escapeAttr(message)}</textarea>
     </div>
-    <div class="field-row checkbox-row full-width">
+    <div class="tca-param-item full-width tca-checkbox-row">
       <input type="checkbox" name="${prefix}.gmOnly" ${gmOnly ? "checked" : ""} id="block-gmonly-${index}" />
       <label for="block-gmonly-${index}">${game.i18n.localize("TRESPASSER.Sheet.Item.Effect.Param.GMOnly")}</label>
     </div>
@@ -325,37 +358,129 @@ export function renderChatMessageParams(params = {}, config = {}, index = 0) {
 }
 
 /**
- * Dispatches to the appropriate action renderer.
- * @param {string} action
- * @param {object} params
- * @param {object} config
- * @param {number} index
- * @returns {string} HTML snippet
+ * Dispatches to the appropriate action renderer for Advanced Mode.
  */
-export function renderParamsForAction(action, params = {}, config = {}, index = 0) {
+export function renderParamsForAction(action, params = {}, config = {}, index = 0, intensity = 0) {
   switch (action) {
     case "modify_attribute":
-      return renderModifyAttributeParams(params, config, index);
+      return renderModifyAttributeParams(params, config, index, intensity);
     case "confer_state":
-      return renderConferStateParams(params, config, index);
+      return renderConferStateParams(params, config, index, intensity);
     case "remove_state":
       return renderRemoveStateParams(params, config, index);
     case "modify_intensity":
-      return renderModifyIntensityParams(params, config, index);
+      return renderModifyIntensityParams(params, config, index, intensity);
     case "set_flag":
       return renderSetFlagParams(params, config, index);
     case "force_movement":
-      return renderForceMovementParams(params, config, index);
+      return renderForceMovementParams(params, config, index, intensity);
     case "roll_check":
       return renderRollCheckParams(params, config, index);
     case "grant_reaction":
       return renderGrantReactionParams(params, config, index);
     case "redirect_damage":
-      return renderRedirectDamageParams(params, config, index);
+      return renderRedirectDamageParams(params, config, index, intensity);
     case "chat_message":
       return renderChatMessageParams(params, config, index);
     default:
-      return `<p class="notes" style="font-size: var(--fs-11); color: var(--trp-text-dim);">${escapeAttr(action)}</p>`;
+      return `<p class="notes">${escapeAttr(action)}</p>`;
+  }
+}
+
+/**
+ * Renders ultra-compact inline controls for Simple Mode's horizontal pipeline pill.
+ */
+export function renderSimpleInlineParams(action, params = {}, config = {}, index = 0, intensity = 0) {
+  const prefix = `system.behaviors.${index}.params`;
+  switch (action) {
+    case "modify_attribute": {
+      const attribute = params.attribute || "health";
+      const modifier = params.modifier ?? "0";
+      return `
+        ${renderSelect(`${prefix}.attribute`, config.targetAttributes || {}, attribute, true, "tca-simple-select")}
+        <input type="text" class="tca-simple-val" name="${prefix}.modifier" value="${escapeAttr(modifier)}" placeholder="+1" />
+        ${renderIntensityPreviewBadge(modifier, intensity)}
+      `;
+    }
+    case "modify_intensity": {
+      const val = params.value ?? "+1";
+      return `
+        <span class="tca-simple-action-name">${game.i18n.localize("TRESPASSER.Sheet.Common.Intensity")}</span>
+        <input type="text" class="tca-simple-val" name="${prefix}.value" value="${escapeAttr(val)}" placeholder="+1" />
+        ${renderIntensityPreviewBadge(val, intensity)}
+      `;
+    }
+    case "confer_state": {
+      const effects = Array.isArray(params.effects) ? params.effects : [];
+      if (effects.length > 0) {
+        const names = effects.map(e => escapeAttr(e.name)).join(", ");
+        return `<span class="tca-simple-action-name">+ ${names}</span>`;
+      }
+      return `
+        <span class="tca-simple-action-name">+</span>
+        <input type="text" class="tca-simple-text" name="${prefix}.stateName" value="${escapeAttr(params.stateName || "")}" placeholder="State" />
+      `;
+    }
+    case "remove_state": {
+      const val = params.stateName || params.stateTag || "";
+      const field = params.stateTag && !params.stateName ? "stateTag" : "stateName";
+      return `
+        <span class="tca-simple-action-name">&minus;</span>
+        <input type="text" class="tca-simple-text" name="${prefix}.${field}" value="${escapeAttr(val)}" placeholder="State / Tag" />
+      `;
+    }
+    case "redirect_damage": {
+      const cap = params.capacity ?? "0";
+      const modeOptions = {
+        "redirect": "TRESPASSER.Sheet.Item.Effect.Param.RedirectModeRedirect",
+        "reduce": "TRESPASSER.Sheet.Item.Effect.Param.RedirectModeReduce",
+        "absorb": "TRESPASSER.Sheet.Item.Effect.Param.RedirectModeAbsorb"
+      };
+      return `
+        ${renderSelect(`${prefix}.mode`, modeOptions, params.mode || "redirect", true, "tca-simple-select")}
+        <input type="text" class="tca-simple-val" name="${prefix}.capacity" value="${escapeAttr(cap)}" placeholder="<Int>" />
+        ${renderIntensityPreviewBadge(cap, intensity)}
+      `;
+    }
+    case "force_movement": {
+      const moveOptions = {
+        "push": "TRESPASSER.Sheet.Item.Effect.Param.MovePush",
+        "pull": "TRESPASSER.Sheet.Item.Effect.Param.MovePull",
+        "sweep": "TRESPASSER.Sheet.Item.Effect.Param.MoveSweep",
+        "teleport": "TRESPASSER.Sheet.Item.Effect.Param.MoveTeleport",
+        "jump": "TRESPASSER.Sheet.Item.Effect.Param.MoveJump"
+      };
+      const dist = params.distance ?? "1";
+      return `
+        ${renderSelect(`${prefix}.type`, moveOptions, params.type || "push", true, "tca-simple-select")}
+        <input type="text" class="tca-simple-val" name="${prefix}.distance" value="${escapeAttr(dist)}" placeholder="1" />
+        ${renderIntensityPreviewBadge(dist, intensity)}
+      `;
+    }
+    case "set_flag": {
+      const flagOptions = {
+        "immuneToDamage": "TRESPASSER.Sheet.Item.Effect.Flag.ImmuneToDamage",
+        "cannotAct": "TRESPASSER.Sheet.Item.Effect.Flag.CannotAct",
+        "cannotMove": "TRESPASSER.Sheet.Item.Effect.Flag.CannotMove",
+        "countsAsObstacle": "TRESPASSER.Sheet.Item.Effect.Flag.CountsAsObstacle"
+      };
+      return `${renderSelect(`${prefix}.flag`, flagOptions, params.flag || "immuneToDamage", true, "tca-simple-select")}`;
+    }
+    case "roll_check": {
+      const dc = params.dc ?? "10";
+      return `
+        <span class="tca-simple-action-name">DC</span>
+        <input type="text" class="tca-simple-val" name="${prefix}.dc" value="${escapeAttr(dc)}" placeholder="10" />
+      `;
+    }
+    case "grant_reaction": {
+      return `<input type="text" class="tca-simple-text" name="${prefix}.reactionLabel" value="${escapeAttr(params.reactionLabel || "")}" placeholder="Reaction" />`;
+    }
+    case "chat_message": {
+      return `<input type="text" class="tca-simple-text" name="${prefix}.message" value="${escapeAttr(params.message || "")}" placeholder="Message..." />`;
+    }
+    default:
+      return `<span class="tca-simple-action-name">${escapeAttr(action)}</span>`;
   }
 }
 
@@ -383,11 +508,10 @@ export function getDefaultParamsForAction(action) {
     case "grant_reaction":
       return { reactionLabel: "" };
     case "redirect_damage":
-      return { target: "" };
+      return { capacity: "<Int>", mode: "redirect" };
     case "chat_message":
       return { message: "" };
     default:
       return {};
   }
 }
-
