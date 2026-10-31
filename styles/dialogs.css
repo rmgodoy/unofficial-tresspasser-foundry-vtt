@@ -446,6 +446,77 @@
 }
 
 /* Rest Dialog */
+.rest-dialog .rest-sections {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  align-items: stretch;
+}
+
+.rest-dialog .rest-card-section {
+  display: flex;
+  flex-direction: column;
+  background: var(--trp-bg-panel);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius);
+  overflow: hidden;
+}
+
+.rest-dialog .rest-card-title {
+  margin: 0;
+  padding: 8px 10px;
+  background: var(--trp-bg-header);
+  border-bottom: 1px solid var(--trp-border);
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-13);
+  color: var(--trp-gold-bright);
+  text-transform: uppercase;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+.rest-dialog .rest-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  flex: 1;
+}
+
+.rest-dialog .form-group {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin-bottom: 8px;
+}
+
+.rest-dialog .rest-effects-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: auto;
+}
+
+.rest-dialog .rest-effect-tag {
+  background: var(--trp-bg-dark);
+  border: 1px solid var(--trp-border);
+  border-left: 2px solid var(--trp-gold);
+  border-radius: var(--trp-radius-sm);
+  padding: 6px 8px;
+  font-size: var(--fs-12);
+  color: var(--trp-text);
+}
+
+.rest-dialog .dialog-buttons,
+.rest-dialog footer.form-footer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.rest-dialog .rest-card-body .form-group {
+  margin-bottom: 0;
+}
 .rest-dialog .rest-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -870,7 +941,7 @@
   text-transform: uppercase;
   letter-spacing: 0.05em;
   font-size: var(--fs-10);
-  margin-bottom: 0;
+  margin-bottom: 8px;
 }
 .calling-dialog-v2 .prog-field span {
   font-weight: bold;

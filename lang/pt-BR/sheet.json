@@ -265,7 +265,16 @@
         "NightRestHP": "Descanso de uma Noite: PV totalmente recuperados. DR definido para o Vigor atual ({endurance}).",
         "ResetCosts": "Redefiniu todos os custos de bônus e usos de Habilidades e Talentos.",
         "WeekRestAll": "Descanso de uma Semana: Todos os recursos totalmente recuperados.",
-        "RestingTitle": "Descansando ({type})"
+        "RestingTitle": "Descansando ({type})",
+        "NoFoodPenalty": "Sem comida (-1 Vigor)",
+        "RDSpend": "Dados de Recuperação para gastar",
+        "RecoverItem1": "Recuperar Habilidade / Talento (1)",
+        "RecoverItem2": "Recuperar Habilidade / Talento (2)",
+        "EffectHPFull": "PV: Máx",
+        "EffectRDEndurance": "DR: Vigor Atual",
+        "EffectRDFull": "DR: Máx",
+        "EffectEnduranceFull": "Vigor: Máx",
+        "EffectResetDeeds": "Habilidades e Talentos: Redefinir todos"
       },
       "Deed": {
         "Tier": "Grau",

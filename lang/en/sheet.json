@@ -265,7 +265,16 @@
         "NightRestHP": "Night's Rest: HP fully recovered. RD set to current Endurance ({endurance}).",
         "ResetCosts": "Reset all Deed and Talent bonus costs and uses.",
         "WeekRestAll": "Week's Rest: All resources fully recovered.",
-        "RestingTitle": "Resting ({type})"
+        "RestingTitle": "Resting ({type})",
+        "NoFoodPenalty": "No food (-1 Endurance)",
+        "RDSpend": "Recovery Dice to spend",
+        "RecoverItem1": "Recover Deed / Talent (1)",
+        "RecoverItem2": "Recover Deed / Talent (2)",
+        "EffectHPFull": "HP: Max",
+        "EffectRDEndurance": "RD: Current Endurance",
+        "EffectRDFull": "RD: Max",
+        "EffectEnduranceFull": "Endurance: Max",
+        "EffectResetDeeds": "Deeds & Talents: Reset all"
       },
       "Deed": {
         "Tier": "Tier",
