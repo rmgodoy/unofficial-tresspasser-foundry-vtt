@@ -55,6 +55,15 @@
         </div>
     </div>
 
+    <!-- RANGE SECTION -->
+    <div class="form-section range-section">
+        <label class="section-title">{{localize "TRESPASSER.Dialog.QuickDeed.RangeLabel"}}</label>
+        <div class="range-input-row">
+            <input id="quick-deed-range" type="number" name="rangeInput" value="{{rangeValue}}" min="1" max="99" step="1" placeholder="{{#if defaultRange}}{{localize 'TRESPASSER.Dialog.QuickDeed.RangePlaceholder'}} ({{defaultRange}}){{else}}{{localize 'TRESPASSER.Dialog.QuickDeed.RangePlaceholder'}}{{/if}}" />
+            <span class="range-unit">{{localize "TRESPASSER.Dialog.QuickDeed.SquaresUnit"}}</span>
+        </div>
+    </div>
+
     <!-- FOOTER BUTTONS -->
     <footer class="dialog-buttons">
         <button type="button" class="dialog-button default" data-action="confirm">

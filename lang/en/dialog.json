@@ -391,7 +391,10 @@
           "Tool": "Tool",
           "Unarmed": "Unarmed"
         },
-        "Execute": "Execute Deed"
+        "Execute": "Execute Deed",
+        "RangeLabel": "Range (Squares)",
+        "RangePlaceholder": "Default",
+        "SquaresUnit": "Squares"
       }
     }
   }

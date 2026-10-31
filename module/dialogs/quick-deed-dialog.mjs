@@ -1,4 +1,5 @@
 import { TrespasserEffectsHelper } from "../helpers/effects-helper.mjs";
+import { RangeHelper } from "../helpers/range-helper.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 
@@ -18,7 +19,8 @@ export class QuickDeedDialog extends HandlebarsApplicationMixin(ApplicationV2) {
       customSize: 3,
       isCustomSize: false,
       versus: "guard",
-      abilityType: "versatile"
+      abilityType: "versatile",
+      range: null
     };
   }
 
@@ -64,11 +66,21 @@ export class QuickDeedDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   /** @override */
   async _prepareContext(options) {
     const isCreature = this._config.targetType === "creature";
+    const defaultRange = RangeHelper.getDeedRange(this.token, {
+      system: {
+        abilityType: this._config.abilityType,
+        actionType: "attack",
+        targetType: this._config.targetType,
+        range: null
+      }
+    }, this.actor);
 
     return {
       state: this._config,
       config: this._config,
       isCreature,
+      rangeValue: this._config.range ?? "",
+      defaultRange: defaultRange && defaultRange > 0 ? defaultRange : null,
       targetChoices: [
         { id: "creature", label: game.i18n.localize("TRESPASSER.Dialog.QuickDeed.Targets.Creature"), active: this._config.targetType === "creature" },
         { id: "blast", label: game.i18n.localize("TRESPASSER.Dialog.QuickDeed.Targets.Blast"), active: this._config.targetType === "blast" },
@@ -104,6 +116,27 @@ export class QuickDeedDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   /** @override */
+  _syncInputs() {
+    const customSizeInput = this.element?.querySelector('[name="customSizeInput"]');
+    if (customSizeInput) {
+      const val = parseInt(customSizeInput.value, 10);
+      if (!isNaN(val) && val > 0) {
+        this._config.customSize = val;
+      }
+    }
+    const rangeInput = this.element?.querySelector('[name="rangeInput"]');
+    if (rangeInput) {
+      const raw = rangeInput.value.trim();
+      if (raw === "") {
+        this._config.range = null;
+      } else {
+        const val = parseInt(raw, 10);
+        this._config.range = !isNaN(val) && val > 0 ? val : null;
+      }
+    }
+  }
+
+  /** @override */
   _onRender(context, options) {
     super._onRender(context, options);
     if (this._config.isCustomSize) {
@@ -119,15 +152,30 @@ export class QuickDeedDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         });
       }
     }
+
+    const rangeInput = this.element.querySelector('[name="rangeInput"]');
+    if (rangeInput) {
+      rangeInput.addEventListener("input", () => {
+        const raw = rangeInput.value.trim();
+        if (raw === "") {
+          this._config.range = null;
+        } else {
+          const val = parseInt(raw, 10);
+          this._config.range = !isNaN(val) && val > 0 ? val : null;
+        }
+      });
+    }
   }
 
   static #onSelectTargetType(event, target) {
+    this._syncInputs();
     const value = target.dataset.value;
     this._config.targetType = value;
     this.render();
   }
 
   static #onSelectSize(event, target) {
+    this._syncInputs();
     const value = parseInt(target.dataset.value) || 3;
     this._config.size = value;
     this._config.isCustomSize = false;
@@ -135,17 +183,20 @@ export class QuickDeedDialog extends HandlebarsApplicationMixin(ApplicationV2) {
   }
 
   static #onSelectCustomSize(event, target) {
+    this._syncInputs();
     this._config.isCustomSize = true;
     this.render();
   }
 
   static #onSelectVersus(event, target) {
+    this._syncInputs();
     const value = target.dataset.value;
     this._config.versus = value;
     this.render();
   }
 
   static #onSelectAbilityType(event, target) {
+    this._syncInputs();
     const value = target.dataset.value;
     this._config.abilityType = value;
     this.render();
@@ -153,21 +204,14 @@ export class QuickDeedDialog extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static async #onConfirm(event, target) {
     event.preventDefault();
-    if (this._config.isCustomSize) {
-      const input = this.element.querySelector('[name="customSizeInput"]');
-      if (input) {
-        const val = parseInt(input.value);
-        if (!isNaN(val) && val > 0) {
-          this._config.customSize = val;
-        }
-      }
-    }
+    this._syncInputs();
 
     const config = {
       targetType: this._config.targetType,
       size: this._config.isCustomSize ? this._config.customSize : this._config.size,
       versus: this._config.versus,
-      abilityType: this._config.abilityType
+      abilityType: this._config.abilityType,
+      range: this._config.range
     };
 
     await this.close();
@@ -227,7 +271,8 @@ export class QuickDeedDialog extends HandlebarsApplicationMixin(ApplicationV2) {
           targetMode: "creatures",
           targetCount: 99,
           disposition: "any",
-          ignoreSelf: false
+          ignoreSelf: false,
+          range: config.range ?? null
         },
         x: currentX,
         y: 180
@@ -253,7 +298,8 @@ export class QuickDeedDialog extends HandlebarsApplicationMixin(ApplicationV2) {
           aoeType: config.targetType,
           aoeSize: aoeSize,
           disposition: "any",
-          ignoreSelf: false
+          ignoreSelf: false,
+          range: config.range ?? null
         },
         x: currentX,
         y: 180
@@ -307,6 +353,8 @@ export class QuickDeedDialog extends HandlebarsApplicationMixin(ApplicationV2) {
         abilityType: config.abilityType || "versatile",
         versus: versusCap,
         focusCost: 0,
+        range: config.range ?? null,
+        isQuickDeed: true,
         phases: {
           base: { description: "", skipPhase: false },
           hit: { description: "", skipPhase: false },

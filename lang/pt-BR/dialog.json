@@ -391,7 +391,10 @@
           "Tool": "Ferramenta",
           "Unarmed": "Desarmado"
         },
-        "Execute": "Executar Habilidade"
+        "Execute": "Executar Habilidade",
+        "RangeLabel": "Alcance (Quadrados)",
+        "RangePlaceholder": "Padrão",
+        "SquaresUnit": "Quadrados"
       }
     }
   }

@@ -60,7 +60,7 @@ export class RangeHelper {
 
     // 2. Explicit numerical range defined on deed system (except missile deeds which strictly use weapon range)
     const deedRange = deedSys.range;
-    if (deedRange !== null && deedRange !== undefined && Number.isFinite(Number(deedRange)) && Number(deedRange) > 0 && abilityType !== "missile") {
+    if (deedRange !== null && deedRange !== undefined && Number.isFinite(Number(deedRange)) && Number(deedRange) > 0 && (abilityType !== "missile" || deedSys.isQuickDeed)) {
       baseRange = Number(deedRange);
     } else if (actorDoc?.type === "creature") {
       // 3. Creature actor handling

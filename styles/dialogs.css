@@ -1687,6 +1687,37 @@
   border-radius: var(--trp-radius-sm);
   padding: 0 4px;
 }
+.quick-deed-dialog .range-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--trp-bg-input);
+  border: 1px solid var(--trp-border);
+  border-radius: var(--trp-radius-sm);
+  padding: 4px 8px;
+}
+
+.quick-deed-dialog .range-input-row input {
+  flex: 1;
+  height: 26px;
+  line-height: 26px;
+  background: var(--trp-bg-dark);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text-bright);
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-12);
+  text-align: center;
+  border-radius: var(--trp-radius-sm);
+  padding: 0 4px;
+}
+
+.quick-deed-dialog .range-input-row .range-unit {
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-10);
+  color: var(--trp-text-dim);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
 
 .quick-deed-dialog .dialog-buttons {
   display: flex;
