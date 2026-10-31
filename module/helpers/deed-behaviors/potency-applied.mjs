@@ -26,7 +26,7 @@ export async function updateAlreadyApplied(context) {
         record.finalIntensity = newIntensity;
 
         // 1. Locate and update the caster's linked effect document
-        const actor = game.actors?.get(record.actor?.id) || record.actor;
+        const actor = record.actor?.isToken ? record.actor : (game.actors?.get(record.actor?.id) || record.actor);
         let doc = record.itemId ? actor?.items?.get(record.itemId) : null;
         if (!doc && actor) {
           doc = actor.items?.find(i =>
@@ -85,7 +85,7 @@ export async function updateAlreadyApplied(context) {
         const newIntensity = record.baseIntensity + bonus;
         record.addedPotency = bonus;
         record.finalIntensity = newIntensity;
-        const actor = game.actors?.get(record.actor?.id) || record.actor;
+        const actor = record.actor?.isToken ? record.actor : (game.actors?.get(record.actor?.id) || record.actor);
         let doc = record.itemId ? actor?.items?.get(record.itemId) : null;
         if (!doc && actor) {
           doc = actor.items?.find(i =>

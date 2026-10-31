@@ -236,8 +236,10 @@ export async function toggleTerrainBehaviorEffectSync(item, behaviorIndex, effec
   const current = String(eff.intensity || "").trim();
   if (current.toLowerCase().includes("<int>")) {
     eff.intensity = "1";
+    if (effectIndex === 0) behaviors[behaviorIndex].effectIntensity = "1";
   } else {
     eff.intensity = "<Int>";
+  if (effectIndex === 0) behaviors[behaviorIndex].effectIntensity = "<Int>";
   }
 
   await item.update({ "system.behaviors": behaviors });

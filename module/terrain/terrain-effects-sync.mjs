@@ -121,6 +121,16 @@ export async function onEffectIntensityUpdated(effectItem, changes = {}) {
   for (const scene of scenes) {
     const linkedRegions = scene.regions.filter(r => isRegionLinkedToEffect(r, effectItem));
     for (const region of linkedRegions) {
+      if (game.user.isGM) {
+        const newInt = Number(effectItem.system?.intensity);
+        if (!isNaN(newInt) && getSystemFlag(region, "intensity") !== newInt) {
+          try {
+            await region.update({ [`flags.${SYSTEM_ID}.intensity`]: newInt });
+          } catch (err) {
+            console.warn("Trespasser | Region intensity flag sync skipped:", err);
+          }
+        }
+      }
       await syncWhileInsideEffectsForRegion(region);
     }
   }

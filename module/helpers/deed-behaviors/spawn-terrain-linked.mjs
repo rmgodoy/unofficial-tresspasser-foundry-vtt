@@ -51,6 +51,8 @@ export async function ensureCasterLinkedEffect(terrainItem, actor, options, fina
         linkedDocId = targetDoc.id;
         if (!options.linkedEffectId) options.linkedEffectId = targetDoc.id;
         if (!options.linkedEffectUuid) options.linkedEffectUuid = targetDoc.uuid;
+        const actualInt = Number(targetDoc.system?.intensity);
+        if (!isNaN(actualInt)) options.intensity = actualInt;
       }
     } else {
       const { emitDeedActionAndWait } = await import("../socket/deed-socket-handler.mjs");
@@ -68,6 +70,8 @@ export async function ensureCasterLinkedEffect(terrainItem, actor, options, fina
         linkedDocId = targetDoc.id;
         if (!options.linkedEffectId) options.linkedEffectId = targetDoc.id;
         if (!options.linkedEffectUuid) options.linkedEffectUuid = targetDoc.uuid;
+        const actualInt = Number(targetDoc.system?.intensity);
+        if (!isNaN(actualInt)) options.intensity = actualInt;
       }
     }
 

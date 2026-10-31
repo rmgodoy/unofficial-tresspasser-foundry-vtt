@@ -151,7 +151,7 @@ if (event.name === "tokenExit") Hooks.callAll("regionBehaviorTokenExit", behavio
         centerActorId: centerActorId,
         centerTokenId: centerTokenId,
         spawnedInCombat: options.spawnedInCombat,
-        linkedEffectId: options.linkedEffectId || terrainItem.system.linkedEffect?.uuid || terrainItem.system.linkedEffectKey || null,
+        linkedEffectId: options.linkedEffectId || terrainItem.system.linkedEffects?.[0]?.uuid || terrainItem.system.linkedEffect?.uuid || terrainItem.system.linkedEffectKey || null,
         linkedEffectUuid: options.linkedEffectUuid || null,
         casterActorId: options.casterActorId || null,
         casterActorUuid: options.casterActorUuid || null,

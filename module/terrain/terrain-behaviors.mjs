@@ -46,6 +46,7 @@ export function evaluateIntensityValue(str, defaultValue = 1) {
 
 /**
  * Get the dynamic intensity from the terrain's linked effect on the caster.
+ * Prioritizes the live linked effect on the caster actor, falling back to static flags.intensity.
  * @param {RegionDocument} terrainRegion
  * @returns {number}
  */
@@ -54,14 +55,10 @@ export function getLinkedIntensity(terrainRegion) {
   const doc = terrainRegion.document ?? terrainRegion;
   const flags = doc.flags?.[SYSTEM_ID] || doc.flags?.trespasser || {};
 
-  if (flags.intensity !== undefined && flags.intensity !== null && !isNaN(Number(flags.intensity)) && Number(flags.intensity) > 0) {
-    return Number(flags.intensity);
-  }
-
   const terrainSys = flags.terrain?.system;
-  const linkedKey = flags.linkedEffectId || terrainSys?.linkedEffect?.uuid || terrainSys?.linkedEffectKey;
+  const linkedKey = flags.linkedEffectId || terrainSys?.linkedEffects?.[0]?.uuid || terrainSys?.linkedEffect?.uuid || terrainSys?.linkedEffectKey;
   const linkedUuid = flags.linkedEffectUuid;
-  const linkedName = terrainSys?.linkedEffect?.name;
+  const linkedName = terrainSys?.linkedEffects?.[0]?.name || terrainSys?.linkedEffect?.name;
   const casterActorId = flags.casterActorId || flags.centerActorId || terrainSys?.centerActorId;
   const casterActorUuid = flags.casterActorUuid;
 
@@ -71,9 +68,9 @@ export function getLinkedIntensity(terrainRegion) {
     if (key) {
       try {
         const directDoc = fromUuidSync(key);
-        if (directDoc && directDoc.type === "effect") {
+        if (directDoc && directDoc.type === "effect" && directDoc.parent?.documentName === "Actor") {
           const intVal = Number(directDoc.system?.intensity);
-          return isNaN(intVal) ? 0 : intVal;
+          if (!isNaN(intVal)) return intVal;
         }
       } catch {}
     }
@@ -81,6 +78,7 @@ export function getLinkedIntensity(terrainRegion) {
 
   const isMatchingEffect = (i) => {
     if (i.type !== "effect") return false;
+    if (getSystemFlag(i, "whileInside")) return false;
     const effSourceUuid = getSystemFlag(i, "sourceEffectUuid") || i.flags?.[SYSTEM_ID]?.sourceEffectUuid || i.flags?.trespasser?.sourceEffectUuid;
     const effLinkedSource = getSystemFlag(i, "linkedSource") || i.flags?.[SYSTEM_ID]?.linkedSource || i.flags?.trespasser?.linkedSource;
 
@@ -108,12 +106,13 @@ export function getLinkedIntensity(terrainRegion) {
   let casterActor = null;
   if (casterActorUuid) {
     try {
-      const doc = fromUuidSync(casterActorUuid);
-      casterActor = doc?.actor || (doc?.documentName === "Actor" ? doc : null);
+      const resolved = fromUuidSync(casterActorUuid);
+      casterActor = resolved?.actor || (resolved?.documentName === "Actor" ? resolved : null);
     } catch {}
   }
   if (!casterActor && casterActorId) {
-    casterActor = game.actors?.get(casterActorId) || canvas.tokens?.get(casterActorId)?.actor || canvas.scene?.tokens?.get(casterActorId)?.actor;
+    const sceneToken = canvas.scene?.tokens?.find(t => t.id === casterActorId || t.actor?.id === casterActorId);
+    casterActor = sceneToken?.actor || canvas.tokens?.get(casterActorId)?.actor || game.actors?.get(casterActorId);
   }
 
   if (casterActor) {
@@ -124,22 +123,29 @@ export function getLinkedIntensity(terrainRegion) {
     }
   }
 
-  const candidates = [];
-  if (canvas.scene?.tokens) {
-    for (const t of canvas.scene.tokens) {
-      if (t.actor && !candidates.includes(t.actor)) candidates.push(t.actor);
+  const hasAnyLinkedConfig = Boolean(linkedKey || linkedUuid || linkedName || terrainSys?.linkedEffects?.length);
+  if (hasAnyLinkedConfig) {
+    const candidates = [];
+    if (canvas.scene?.tokens) {
+      for (const t of canvas.scene.tokens) {
+        if (t.actor && !candidates.includes(t.actor)) candidates.push(t.actor);
+      }
     }
-  }
-  for (const a of (game.actors || [])) {
-    if (!candidates.includes(a)) candidates.push(a);
+    for (const a of (game.actors || [])) {
+      if (!candidates.includes(a)) candidates.push(a);
+    }
+
+    for (const actor of candidates) {
+      const effect = actor.items.find(isMatchingEffect);
+      if (effect) {
+        const intVal = Number(effect.system?.intensity);
+        return isNaN(intVal) ? 0 : intVal;
+      }
+    }
   }
 
-  for (const actor of candidates) {
-    const effect = actor.items.find(isMatchingEffect);
-    if (effect) {
-      const intVal = Number(effect.system?.intensity);
-      return isNaN(intVal) ? 0 : intVal;
-    }
+  if (flags.intensity !== undefined && flags.intensity !== null && !isNaN(Number(flags.intensity)) && Number(flags.intensity) > 0) {
+    return Number(flags.intensity);
   }
 
   return 0;
@@ -238,7 +244,7 @@ export async function executeBehavior(behavior, actor, terrainRegion, context = 
           sourceRegionId: terrainRegion.id,
           sourceEffectUuid: eff.uuid,
           sourceIntensityFormula: eff.intensity || "1",
-          sourceLinkedEffectUuid: getSystemFlag(terrainRegion, "linkedEffectId") || getSystemFlag(terrainRegion, "terrain")?.system?.linkedEffect?.uuid || null
+          sourceLinkedEffectUuid: getSystemFlag(terrainRegion, "linkedEffectId") || getSystemFlag(terrainRegion, "terrain")?.system?.linkedEffects?.[0]?.uuid || getSystemFlag(terrainRegion, "terrain")?.system?.linkedEffect?.uuid || null
         });
         delete effectData._id;
         toCreate.push(effectData);
