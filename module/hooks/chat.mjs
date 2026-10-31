@@ -6,12 +6,16 @@ import { bindCardActionListeners } from "./chat/card-actions.mjs";
 import { bindGroupCheckChatListeners, promptGroupCheckRoll } from "./chat/group-check-chat.mjs";
 import { handleDungeonRollButtonClick } from "../exploration/dungeon-actions.mjs";
 import { TreasureGenerator } from "../helpers/treasure-generator.mjs";
+import { registerChatQuickActionsHooks } from "../helpers/chat-quick-actions.mjs";
 import { getSystemFlag } from "../system-id.mjs";
 
 /**
  * Register chat message creation and HTML rendering hooks.
  */
 export function registerChatHooks() {
+  // Register quick action buttons in chat controls
+  registerChatQuickActionsHooks();
+
   // Auto-prompt players to roll when a group check message is created
   Hooks.on("createChatMessage", (message) => {
     const flags = getSystemFlag(message, "groupCheck");

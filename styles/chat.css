@@ -574,3 +574,55 @@
 }
 
 
+
+
+/* ═══════════════════════════════════════════════════
+   CHAT QUICK ACTIONS (DAMAGE/HEAL & ROLL BUTTONS)
+═══════════════════════════════════════════════════ */
+.trespasser-chat-quick-actions {
+  display: flex;
+  gap: 6px;
+  width: 100%;
+  margin-bottom: 2px;
+  box-sizing: border-box;
+}
+
+.trespasser-chat-quick-actions .quick-action-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  background: var(--trp-bg-dark);
+  border: 1px solid var(--trp-border);
+  color: var(--trp-text);
+  font-family: var(--trp-font-header);
+  font-size: var(--fs-12);
+  padding: 4px 8px;
+  border-radius: var(--trp-radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  line-height: normal;
+  text-shadow: 1px 1px 2px #000;
+}
+
+.trespasser-chat-quick-actions .quick-action-btn:hover {
+  background: var(--trp-bg-input);
+  border-color: var(--trp-gold);
+  color: var(--trp-gold-bright);
+  box-shadow: 0 0 4px var(--trp-gold-overlay);
+}
+
+.trespasser-chat-quick-actions .quick-action-btn:active {
+  background: var(--trp-bg-select);
+}
+
+.trespasser-chat-quick-actions .quick-damage-heal-btn i {
+  color: #e74c3c;
+  font-size: var(--fs-12);
+}
+
+.trespasser-chat-quick-actions .quick-roll-btn i {
+  color: var(--trp-gold);
+  font-size: var(--fs-12);
+}

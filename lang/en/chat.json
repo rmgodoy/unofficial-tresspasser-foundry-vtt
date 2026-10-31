@@ -348,6 +348,14 @@
         "Title": "Damage / Healing Roll",
         "InvalidFormula": "Invalid formula. Please provide a valid dice expression or number (e.g. /hp 2d6+3, /dmg 10, /heal 1d8)."
       },
+      "QuickActions": {
+        "DamageHeal": "Damage / Heal",
+        "DamageHealTooltip": "Roll damage or healing from the expression in the chat box",
+        "Roll": "Roll",
+        "RollTooltip": "Roll the expression in the chat box",
+        "EmptyExpression": "Please enter a dice expression in the chat box.",
+        "InvalidRoll": "Invalid roll expression: {error}"
+      },
       "Treasure": {
         "Title": "Random Treasure",
         "Generated": "A piece of treasure was discovered!",

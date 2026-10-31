@@ -6,6 +6,7 @@ import { registerStatusHudInterceptor } from "../hud/status-hud-interceptor.mjs"
 import { TargetingPreviewSyncer } from "../targeting/targeting-preview-syncer.mjs";
 import { initTCARegistration } from "../engine/tca-registration.mjs";
 import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
+import { attachChatQuickActions } from "../helpers/chat-quick-actions.mjs";
 
 /**
  * Register the primary ready hook and post-load initializations.
@@ -13,6 +14,7 @@ import { SYSTEM_ID, getSystemFlag } from "../system-id.mjs";
 export function registerReadyHooks() {
   Hooks.once("ready", async () => {
     registerChatCommands();
+    attachChatQuickActions();
 
     // Intercept Token HUD status effect clicks for intensity dialog and counter states
     registerStatusHudInterceptor();

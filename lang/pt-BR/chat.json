@@ -348,6 +348,14 @@
         "Title": "Rolagem de Dano / Cura",
         "InvalidFormula": "Fórmula inválida. Por favor forneça uma expressão de dados ou número válido (ex: /hp 2d6+3, /dmg 10, /heal 1d8)."
       },
+      "QuickActions": {
+        "DamageHeal": "Dano / Cura",
+        "DamageHealTooltip": "Rola dano ou cura a partir da expressão na caixa do chat",
+        "Roll": "Rolar",
+        "RollTooltip": "Rola a expressão na caixa do chat",
+        "EmptyExpression": "Por favor, insira uma expressão de dados na caixa do chat.",
+        "InvalidRoll": "Expressão de rolagem inválida: {error}"
+      },
       "Treasure": {
         "Title": "Tesouro Aleatório",
         "Generated": "Um tesouro foi descoberto!",

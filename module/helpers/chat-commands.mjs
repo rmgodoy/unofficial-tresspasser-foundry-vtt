@@ -1,5 +1,6 @@
-import { isAtLeastV14, getRollMessageMode } from "./compat.mjs";
+import { isAtLeastV14 } from "./compat.mjs";
 import { TreasureGenerator } from "./treasure-generator.mjs";
+import { executeDamageRoll } from "./chat-quick-actions.mjs";
 
 /**
  * Register chat commands for the Trespasser system.
@@ -16,40 +17,13 @@ export function registerChatCommands() {
     }
 
     try {
-      const roll = new foundry.dice.Roll(rawExpression);
-      await roll.evaluate();
-
-      if (typeof roll.total !== "number" || isNaN(roll.total)) {
-        throw new Error(`Invalid roll total for formula: ${rawExpression}`);
-      }
-
-      const applyDamageLabel = game.i18n.localize("TRESPASSER.Chat.Common.ApplyDamage");
-      const healLabel = game.i18n.localize("TRESPASSER.Chat.Common.Heal");
-      const title = game.i18n.localize("TRESPASSER.Chat.DamageCommand.Title");
-
-      const flavor = `<div class="trespasser-chat-card damage-roll-card">
-        <h3><i class="fas fa-heart-pulse"></i> ${title}</h3>
-        <div class="trp-damage-actions" data-damage="${roll.total}" style="display:flex;gap:6px;margin-top:8px;">
-          <button class="apply-damage-btn" data-damage="${roll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #c0392b;color:#e74c3c;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
-            <i class="fas fa-heart-broken"></i> ${applyDamageLabel}
-          </button>
-          <button class="heal-damage-btn" data-damage="${roll.total}" style="flex:1;background:var(--trp-bg-dark);border:1px solid #27ae60;color:#2ecc71;border-radius:4px;padding:3px 6px;cursor:pointer;font-size:var(--fs-11);">
-            <i class="fas fa-heart"></i> ${healLabel}
-          </button>
-        </div>
-      </div>`;
-
-      const messageOptions = createOptions?.messageMode
-        ? { messageMode: createOptions.messageMode }
-        : getRollMessageMode(createOptions?.rollMode);
-
-      await roll.toMessage({
-        speaker: chatData?.speaker || ChatMessage.getSpeaker(),
-        flavor
-      }, messageOptions);
+      await executeDamageRoll(rawExpression, {
+        speaker: chatData?.speaker,
+        ...createOptions
+      });
     } catch (err) {
       console.error("Trespasser | /hp command error:", err);
-      ui.notifications.warn(game.i18n.localize("TRESPASSER.Chat.DamageCommand.InvalidFormula"));
+      ui.notifications.warn(err.message || game.i18n.localize("TRESPASSER.Chat.DamageCommand.InvalidFormula"));
     }
 
     return false;
@@ -112,4 +86,3 @@ export function registerChatCommands() {
     });
   }
 }
-
