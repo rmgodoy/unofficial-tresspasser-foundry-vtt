@@ -217,6 +217,10 @@ export function registerItemHooks() {
     const actor = item.parent;
     if (!actor || actor.constructor.name !== "TrespasserActor") return;
 
+    if ((item.type === "item" && item.system?.subType === "light_source") || (item.type === "weapon" && item.system?.isLightSource)) {
+      if (actor._syncTokenLight) await actor._syncTokenLight();
+    }
+
     if (item.type === "feature") {
       const effects = item.system.effects || [];
       const deeds = item.system.deeds || [];
@@ -268,6 +272,10 @@ export function registerItemHooks() {
     const actor = item.parent;
     if (!actor || actor.constructor.name !== "TrespasserActor") return;
 
+    if ((item.type === "item" && item.system?.subType === "light_source") || (item.type === "weapon" && item.system?.isLightSource)) {
+      if (actor._syncTokenLight) await actor._syncTokenLight();
+    }
+
     if (item.type === "feature" && ("system" in delta)) {
       if ("effects" in delta.system || "deeds" in delta.system || "actions" in delta.system) {
         const effects = item.system.effects || [];
@@ -316,6 +324,10 @@ export function registerItemHooks() {
 
     const actor = item.parent;
     if (!actor || actor.constructor.name !== "TrespasserActor") return;
+
+    if ((item.type === "item" && item.system?.subType === "light_source") || (item.type === "weapon" && item.system?.isLightSource)) {
+      if (actor._syncTokenLight) await actor._syncTokenLight();
+    }
 
     if (item.type === "feature") {
       const effects = item.system.effects || [];

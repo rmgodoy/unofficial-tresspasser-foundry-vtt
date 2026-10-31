@@ -194,7 +194,7 @@ export async function askSparkDialog(results, options = {}) {
         icon: "fas fa-sun",
         default: true,
         callback: (event, button, dialog) => {
-          const root = dialog?.element || button?.form || button?.closest(".application") || button?.closest(".window-app") || document;
+          const root = dialog?.element || (dialog instanceof HTMLElement ? dialog : null) || button?.form || button?.closest(".application") || button?.closest(".window-app") || document;
           return _parseSparkChoices(root, sparkTargets, maxSparks);
         }
       },
@@ -206,7 +206,7 @@ export async function askSparkDialog(results, options = {}) {
       }
     ],
     render: (event, dialog) => {
-      const el = dialog.element;
+      const el = dialog?.element ?? dialog;
       // Enforce deed spark uniqueness: only allow one across all layers
       el.querySelectorAll('input[type="radio"]').forEach(radio => {
         radio.addEventListener("change", () => {

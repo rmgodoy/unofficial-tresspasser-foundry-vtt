@@ -7,6 +7,7 @@ import { TrespasserEffectsHelper } from "../../helpers/effects-helper.mjs";
 import { TransferDialog } from "../../dialogs/transfer-dialog.mjs";
 import { TrespasserSocket } from "../../helpers/socket/socket.mjs";
 import { ItemTypeDialog } from "../../dialogs/item-type-dialog.mjs";
+import { addItemToActor } from "../../helpers/item-transfer-helper.mjs";
 
 
 export async function onItemCreate(event, sheet) {
@@ -84,11 +85,26 @@ export async function runDepletionCheck(item, sheet) {
   await roll.toMessage({ speaker: ChatMessage.getSpeaker({ actor: sheet.actor }), flavor });
 
   if (isDepleted) {
-    if (item.type === "rations" || (item.type === "weapon" && item.system.properties?.fragile)) {
-      await item.delete();
+    const isLightSource = (item.type === "item" && item.system.subType === "light_source") || (item.type === "weapon" && item.system.isLightSource);
+    if (item.type === "rations" || (item.type === "weapon" && item.system.properties?.fragile) || (item.type === "item" && item.system.subType === "light_source" && !item.system.usesFuel)) {
+      const currentQty = item.system.quantity ?? 1;
+      if (currentQty > 1) {
+        const updates = { "system.quantity": currentQty - 1 };
+        if (isLightSource) updates["system.active"] = false;
+        await item.update(updates);
+      } else {
+        await item.delete();
+      }
       ui.notifications.warn(game.i18n.format("TRESPASSER.Chat.Action.DestroyedConsumed", { name: item.name }));
+    } else if (isLightSource && item.system.usesFuel) {
+      await item.update({ "system.active": false });
     } else {
-      await item.update({ "system.broken": true });
+      const updates = { "system.broken": true };
+      if (isLightSource) updates["system.active"] = false;
+      await item.update(updates);
+    }
+    if (isLightSource && sheet.actor?._syncTokenLight) {
+      await sheet.actor._syncTokenLight();
     }
   }
 
@@ -152,8 +168,6 @@ export async function onItemTransfer(event, sheet, options = {}) {
     await transferItem(item, targetActor);
   }
 }
-
-import { addItemToActor } from "../../helpers/item-transfer-helper.mjs";
 
 /**
  * Perform an item transfer between actors, using sockets if the current user doesn't own the target.

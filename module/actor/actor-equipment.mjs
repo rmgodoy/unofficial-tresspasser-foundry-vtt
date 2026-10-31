@@ -37,7 +37,7 @@ export async function equipItem(actor, itemId) {
   // Determine target slots
   let placement = item.system.placement;
   if (!placement && item.type === "weapon") placement = "hand";
-  if (!placement && item.type === "item" && item.system.equippable) placement = "hand";
+  if (!placement && item.type === "item" && (item.system.equippable || item.system.subType === "light_source")) placement = "hand";
 
   const equipment = actor.system.equipment || {};
   let handKeys = [];
@@ -240,7 +240,13 @@ export async function unequipItem(actor, itemId) {
   const placement = item.system.placement;
 
   // 1. Update Item
-  await item.update({ "system.equipped": false });
+  const isLightSource = (item.type === "item" && item.system.subType === "light_source") || (item.type === "weapon" && item.system.isLightSource);
+  const itemUpdates = { "system.equipped": false };
+  if (isLightSource && item.system.active) {
+    itemUpdates["system.active"] = false;
+  }
+  await item.update(itemUpdates);
+
 
   // Remove or reduce linked effects for non-weapon items
   if (item.type !== "weapon" && item.system.effects?.length > 0) {
@@ -309,7 +315,7 @@ export async function unequipItem(actor, itemId) {
     }
 
     await actor.update(updates);
-  } else if (item.type === "item" && item.system.equippable) {
+  } else if (item.type === "item" && (item.system.equippable || item.system.subType === "light_source")) {
     const updates = {};
     const equipment = actor.system.equipment || {};
     for (const [slot, id] of Object.entries(equipment)) {
@@ -318,7 +324,7 @@ export async function unequipItem(actor, itemId) {
       }
     }
 
-    await item.update({ "system.equipped": false });
+  
     if (Object.keys(updates).length > 0) await actor.update(updates);
 
     if (item.system.talents?.length > 0) await removeLinkedItems(actor, item.system.talents, item.id);
@@ -327,11 +333,11 @@ export async function unequipItem(actor, itemId) {
     if (item.system.incantations?.length > 0) await removeLinkedItems(actor, item.system.incantations, item.id);
     if (item.system.effects?.length > 0) await removeLinkedItems(actor, item.system.effects, item.id);
 
-    if (item.system.subType === "light_source") await syncTokenLight(actor);
+
   } else if (item.type === "accessory") {
     const placementAcc = item.system.placement;
 
-    await item.update({ "system.equipped": false });
+  
 
     if (item.system.talents?.length > 0) await removeLinkedItems(actor, item.system.talents, item.id);
     if (item.system.features?.length > 0) await removeLinkedItems(actor, item.system.features, item.id);
@@ -339,6 +345,9 @@ export async function unequipItem(actor, itemId) {
     if (item.system.effects?.length > 0) await removeLinkedItems(actor, item.system.effects, item.id);
 
     await actor.update({ [`system.equipment.${placementAcc}`]: "" });
+  }
+  if (isLightSource) {
+    await syncTokenLight(actor);
   }
 }
 
@@ -350,6 +359,7 @@ export async function syncTokenLight(actor) {
   const lightSource = actor.items.find(i => {
     const isEquipped = i.system.equipped;
     const isActive = i.system.active;
+    if (i.system.broken) return false;
     
     if (i.type === "item" && i.system.subType === "light_source") {
       return isEquipped && isActive;
@@ -362,7 +372,13 @@ export async function syncTokenLight(actor) {
     return false;
   });
 
-  const tokens = actor.getActiveTokens();
+  const tokenDocs = new Set();
+  if (actor.isToken && actor.token) tokenDocs.add(actor.token);
+  for (const t of actor.getActiveTokens()) {
+    const doc = t?.document || t;
+    if (doc?.update) tokenDocs.add(doc);
+  }
+  const tokens = Array.from(tokenDocs).map(doc => ({ document: doc }));
   
   let dimVal = 0;
   let brightVal = 0;
@@ -382,7 +398,7 @@ export async function syncTokenLight(actor) {
         bright: brightVal,
         alpha: 0.5,
         color: lightSource ? "#ff8c00" : null,
-        animation: hasAnimation ? { type: "torch", speed: 2, intensity: 2 } : { type: "none" }
+        animation: hasAnimation ? { type: "torch", speed: 2, intensity: 2 } : { type: null }
       }
     });
   }

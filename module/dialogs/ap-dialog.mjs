@@ -29,7 +29,7 @@ export async function askAPDialog(availableAP) {
     classes: ["trespasser", "dialog"],
     content,
     render: (event, dialog) => {
-      const el = dialog.element;
+      const el = dialog?.element ?? dialog;
       const select = el.querySelector('[name="ap-spent"]');
       const preview = el.querySelector(".ap-bonus-preview");
       if (select && preview) {

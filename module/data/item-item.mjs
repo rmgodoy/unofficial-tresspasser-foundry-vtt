@@ -16,6 +16,7 @@ export class TrespasserItemData extends foundry.abstract.TypeDataModel {
       slotOccupancy: new fields.NumberField({ initial: 1, min: 0 }),
       equipped: new fields.BooleanField({ initial: false }),
       equippable: new fields.BooleanField({ initial: false }),
+      broken: new fields.BooleanField({ initial: false }),
       placement: new fields.StringField({ 
         initial: "hand", 
         choices: ["hand", "head", "body", "arms", "legs", "outer", "shield"]
@@ -79,5 +80,13 @@ export class TrespasserItemData extends foundry.abstract.TypeDataModel {
         img: new fields.StringField({ required: true })
       }), { initial: [] })
     };
+  }
+
+  /** @override */
+  prepareDerivedData() {
+    super.prepareDerivedData?.();
+    if (this.subType === "light_source") {
+      this.equippable = true;
+    }
   }
 }

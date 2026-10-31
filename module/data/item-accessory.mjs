@@ -12,6 +12,8 @@ export class TrespasserAccessoryData extends foundry.abstract.TypeDataModel {
       }),
       slotOccupancy: new fields.NumberField({ initial: 1, min: 0 }),
       equipped: new fields.BooleanField({ initial: false }),
+      broken: new fields.BooleanField({ initial: false }),
+      depletionDie: new fields.StringField({ initial: "d4" }),
       tags: new fields.ArrayField(new fields.StringField(), { initial: [] }),
       stackable: new fields.BooleanField({ initial: false }),
       talents: new fields.ArrayField(new fields.SchemaField({

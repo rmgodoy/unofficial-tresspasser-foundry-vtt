@@ -9,7 +9,7 @@
   <div class="item-controls">
     {{#if item.system.isThrown}}
       <a class="item-recover-thrown" title="{{localize 'TRESPASSER.Sheet.Item.Actions.RecoverThrown'}}"><i class="fas fa-undo"></i></a>
-    {{else if (or (eq item.type "armor") (eq item.type "weapon") (eq item.type "accessory") item.system.equippable)}}
+    {{else if (or (eq item.type "armor") (eq item.type "weapon") (eq item.type "accessory") item.system.equippable (eq item.system.subType "light_source"))}}
       <a class="item-deplete" title="{{localize 'TRESPASSER.Sheet.Character.Inventory.DepletionRoll' die=item.system.depletionDie}}"><i class="fas fa-dice-d6"></i></a>
       {{#if isEquipped}}
         <a class="item-unequip" title="{{localize 'TRESPASSER.Sheet.Common.Unequip'}}"><i class="fas fa-hand-paper" style="color: var(--trp-gold-bright);"></i></a>

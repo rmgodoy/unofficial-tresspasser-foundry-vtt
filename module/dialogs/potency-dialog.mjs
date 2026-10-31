@@ -61,7 +61,7 @@ export async function askPotencyDialog(potencyPoints, effectList, targetName) {
     classes: ["trespasser", "dialog"],
     content: html,
     render: (event, dialog) => {
-      const el = dialog.element;
+      const el = dialog?.element ?? dialog;
       const inputs = Array.from(el.querySelectorAll(".potency-input"));
       const counterEl = el.querySelector(".potency-remaining-counter");
       const confirmBtn = el.querySelector('button[data-action="confirm"]');
@@ -146,9 +146,11 @@ export async function askPotencyDialog(potencyPoints, effectList, targetName) {
         input.addEventListener("blur", () => handleInputChange(true));
       });
 
-      if (dialog.element) {
-        dialog.element._potencyCurrentValues = currentValues;
-        dialog.element._potencyBaseInts = baseInts;
+      if (el) {
+        el._potencyCurrentValues = currentValues;
+        el._potencyBaseInts = baseInts;
+
+
       }
 
       updateUI(true);
