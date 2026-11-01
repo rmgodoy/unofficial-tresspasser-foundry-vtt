@@ -1399,7 +1399,9 @@
           "Normal": "Normal",
           "Paragon": "Paragon",
           "Tyrant": "Tyrant"
-        }
+        },
+        "ConvertToCompanion": "Convert to Companion",
+        "ConvertToCompanionTooltip": "Convert this creature into a companion (GM only)"
       },
       "HUD": {
         "Title": "Battle HUD",

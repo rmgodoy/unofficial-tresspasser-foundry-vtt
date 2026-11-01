@@ -1399,7 +1399,9 @@
           "Normal": "Normal",
           "Paragon": "Paragão",
           "Tyrant": "Tirano"
-        }
+        },
+        "ConvertToCompanion": "Converter em Companheiro",
+        "ConvertToCompanionTooltip": "Converter esta criatura em um companheiro (Apenas GM)"
       },
       "HUD": {
         "Title": "HUD de Batalha",
@@ -1466,9 +1468,9 @@
         "Speed": "Velocidade",
         "SpeedBonus": "Bônus de Velocidade",
         "Initiative": "Iniciativa",
-        "Accuracy": "Precisão",
+        "Accuracy": "Acurácia",
         "Guard": "Guarda",
-        "Resist": "Resistência",
+        "Resist": "Resistir",
         "Prevail": "Prevalecer",
         "FormulaSection": "Fórmulas de Atributos (Apenas GM)",
         "FormulaLevel": "Fórmula de Nível",
@@ -1478,9 +1480,9 @@
         "FormulaSpeed": "Fórmula de Velocidade",
         "FormulaSpeedBonus": "Fórmula do Bônus de Velocidade",
         "FormulaInitiative": "Fórmula de Iniciativa",
-        "FormulaAccuracy": "Fórmula de Precisão",
+        "FormulaAccuracy": "Fórmula de Acurácia",
         "FormulaGuard": "Fórmula de Guarda",
-        "FormulaResist": "Fórmula de Resistência",
+        "FormulaResist": "Fórmula de Resistir",
         "FormulaPrevail": "Fórmula de Prevalecer",
         "FormulaHelp": "Variáveis: <lvl>, <c.lvl>, <c.skill>, <c.skill_die>, <c.mighty>, <c.agility>, <c.intellect>, <c.spirit>",
         "Features": "Características",

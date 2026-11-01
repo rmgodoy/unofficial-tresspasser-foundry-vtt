@@ -192,7 +192,9 @@
         "BoundCharacterNotFound": "O personagem vinculado não pôde ser encontrado.",
         "InventoryFull": "O inventário do companheiro está cheio ({max} espaços).",
         "FormulasSaved": "Fórmulas do companheiro salvas para {name}.",
-        "FormulasReset": "Fórmulas do companheiro restauradas para os padrões para {name}."
+        "FormulasReset": "Fórmulas do companheiro restauradas para os padrões para {name}.",
+        "Converted": "{name} foi convertido em Companheiro.",
+        "GMOnly": "Apenas o Mestre pode converter uma criatura em companheiro."
       }
     }
   }

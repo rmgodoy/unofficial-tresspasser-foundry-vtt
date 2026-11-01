@@ -7,6 +7,7 @@ import { getAccuracyFromTarget } from "./character/handlers-combat.mjs";
 import { TrespasserCombat } from "../documents/combat.mjs";
 import { TrespasserCreatureConfigDialog } from "../dialogs/creature-config-dialog.mjs";
 import { PASSIVE_STATES } from "../config/state-config.mjs";
+import { convertCreatureToCompanion } from "../helpers/creature-to-companion-helper.mjs";
 
 import { prepareDeedDisplayData } from "../helpers/deed-display-helper.mjs";
 import { EngagementHelper } from "../helpers/engagement-helper.mjs";
@@ -29,7 +30,8 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
     },
     window: { resizable: true },
     actions: {
-      configureCreature: TrespasserCreatureSheet._onConfigureCreature
+      configureCreature: TrespasserCreatureSheet._onConfigureCreature,
+      convertToCompanion: TrespasserCreatureSheet._onConvertToCompanion
     }
   };
 
@@ -55,14 +57,30 @@ export class TrespasserCreatureSheet extends TrespasserActorSheet {
         label: "TRESPASSER.Dialog.CreatureConfig.HeaderButton",
         action: "configureCreature"
       });
+      if (game.user.isGM) {
+        controls.unshift({
+          icon: "fa-solid fa-paw",
+          label: "TRESPASSER.Sheet.Creatures.ConvertToCompanionTooltip",
+          action: "convertToCompanion"
+        });
+      }
     }
     return controls;
+  }
+
+  /**
+   * Convert this Creature to a Companion (GM only).
+   */
+  static async _onConvertToCompanion(event, button) {
+    const sheet = this;
+    await convertCreatureToCompanion(sheet.actor);
   }
 
   /** @override */
   async _prepareContext(options) {
     const context = await super._prepareContext(options);
     const actor = this.document;
+    context.isGM = game.user.isGM;
     context.actor = actor;
     context.system = actor.system;
     context.flags = actor.flags;
